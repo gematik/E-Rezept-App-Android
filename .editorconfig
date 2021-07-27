@@ -1,0 +1,2 @@
+[*.{kt, kts, java, xml, gradle, md}]
+disabled_rules = import-ordering,filename

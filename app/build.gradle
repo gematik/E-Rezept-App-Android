@@ -1,0 +1,442 @@
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
+    id 'org.owasp.dependencycheck'
+    id 'kotlin-parcelize'
+    id 'androidx.navigation.safeargs.kotlin'
+    id 'com.jaredsburrows.license'
+}
+
+def getGitHash = { ->
+    if (new File('.git').exists()) {
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'git', 'rev-parse', '--short', 'HEAD'
+            standardOutput = stdout
+        }
+        return stdout.toString().trim()
+    } else {
+        return "n/a"
+    }
+}
+
+afterEvaluate {
+    assembleGooglePuDebug.dependsOn licenseGooglePuDebugReport
+    assembleGooglePuRelease.dependsOn licenseGooglePuReleaseReport
+    assembleHuaweiPuDebug.dependsOn licenseHuaweiPuDebugReport
+    assembleHuaweiPuRelease.dependsOn licenseHuaweiPuReleaseReport
+}
+
+licenseReport {
+    generateCsvReport = false
+    generateHtmlReport = true
+    generateJsonReport = false
+    copyHtmlReportToAssets = true
+}
+
+android {
+    compileSdkVersion 30
+    buildToolsVersion "30.0.3"
+
+    aaptOptions {
+        noCompress "srt"
+    }
+
+    defaultConfig {
+        applicationId "de.gematik.ti.erp.app"
+        minSdkVersion 24
+        targetSdkVersion 30
+        versionCode VERSION_CODE.toInteger()
+        versionName VERSION_NAME
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "GIT_HASH", "\"${getGitHash()}\""
+        buildConfigField "boolean", "DEBUG_TEST_IDS_ENABLED", "$DEBUG_TEST_IDS_ENABLED"
+        buildConfigField "long", "VAU_OCSP_RESPONSE_MAX_AGE", "$VAU_OCSP_RESPONSE_MAX_AGE"
+        buildConfigField "String", "PIWIK_TRACKER_URI", "\"$PIWIK_TRACKER_URI\""
+
+        // VAU feature toggles for development
+        buildConfigField "boolean", "VAU_ENABLE_INTERCEPTOR", "true"
+        buildConfigField "long", "VAU_OCSP_RESPONSE_MAX_AGE", "$VAU_OCSP_RESPONSE_MAX_AGE"
+
+        // test configs
+        buildConfigField "boolean", "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false"
+
+        // Values in local.properties will override values with same names
+        def propertiesFile = project.rootProject.file('local.properties')
+        if (propertiesFile.exists()) {
+            Properties overrideProperties = new Properties()
+            overrideProperties.load(propertiesFile.newDataInputStream())
+
+            def BASE_SERVICE_URI_PU_OVERRIDE = overrideProperties.getProperty('BASE_SERVICE_URI_PU')
+            if (BASE_SERVICE_URI_PU_OVERRIDE) BASE_SERVICE_URI_PU = BASE_SERVICE_URI_PU_OVERRIDE
+            def BASE_SERVICE_URI_TU_OVERRIDE = overrideProperties.getProperty('BASE_SERVICE_URI_TU')
+            if (BASE_SERVICE_URI_TU_OVERRIDE) BASE_SERVICE_URI_TU = BASE_SERVICE_URI_TU_OVERRIDE
+            def BASE_SERVICE_URI_RU_OVERRIDE = overrideProperties.getProperty('BASE_SERVICE_URI_RU')
+            if (BASE_SERVICE_URI_RU_OVERRIDE) BASE_SERVICE_URI_RU = BASE_SERVICE_URI_RU_OVERRIDE
+
+            def IDP_SERVICE_URI_PU_OVERRIDE = overrideProperties.getProperty('IDP_SERVICE_URI_PU')
+            if (IDP_SERVICE_URI_PU_OVERRIDE) IDP_SERVICE_URI_PU = IDP_SERVICE_URI_PU_OVERRIDE
+            def IDP_SERVICE_URI_TU_OVERRIDE = overrideProperties.getProperty('IDP_SERVICE_URI_TU')
+            if (IDP_SERVICE_URI_TU_OVERRIDE) IDP_SERVICE_URI_TU = IDP_SERVICE_URI_TU_OVERRIDE
+            def IDP_SERVICE_URI_RU_OVERRIDE = overrideProperties.getProperty('IDP_SERVICE_URI_RU')
+            if (IDP_SERVICE_URI_RU_OVERRIDE) IDP_SERVICE_URI_RU = IDP_SERVICE_URI_RU_OVERRIDE
+
+            def ERP_API_KEY_GOOGLE_PU_OVERRIDE = overrideProperties.getProperty('ERP_API_KEY_GOOGLE_PU')
+            if (ERP_API_KEY_GOOGLE_PU_OVERRIDE) ERP_API_KEY_GOOGLE_PU = ERP_API_KEY_GOOGLE_PU_OVERRIDE
+            def ERP_API_KEY_GOOGLE_TU_OVERRIDE = overrideProperties.getProperty('ERP_API_KEY_GOOGLE_TU')
+            if (ERP_API_KEY_GOOGLE_TU_OVERRIDE) ERP_API_KEY_GOOGLE_TU = ERP_API_KEY_GOOGLE_TU_OVERRIDE
+            def ERP_API_KEY_GOOGLE_RU_OVERRIDE = overrideProperties.getProperty('ERP_API_KEY_GOOGLE_RU')
+            if (ERP_API_KEY_GOOGLE_RU_OVERRIDE) ERP_API_KEY_GOOGLE_RU = ERP_API_KEY_GOOGLE_RU_OVERRIDE
+
+            def PHARMACY_SERVICE_URI_OVERRIDE = overrideProperties.getProperty('PHARMACY_SERVICE_URI')
+            if (PHARMACY_SERVICE_URI_OVERRIDE) PHARMACY_SERVICE_URI = PHARMACY_SERVICE_URI_OVERRIDE
+            def PHARMACY_SERVICE_URI_TEST_OVERRIDE = overrideProperties.getProperty('PHARMACY_SERVICE_URI_TEST')
+            if (PHARMACY_SERVICE_URI_TEST_OVERRIDE) PHARMACY_SERVICE_URI_TEST = PHARMACY_SERVICE_URI_TEST_OVERRIDE
+
+            def PHARMACY_API_KEY_OVERRIDE = overrideProperties.getProperty('PHARMACY_API_KEY')
+            if (PHARMACY_API_KEY_OVERRIDE) PHARMACY_API_KEY = PHARMACY_API_KEY_OVERRIDE
+            def PHARMACY_API_KEY_TEST_OVERRIDE = overrideProperties.getProperty('PHARMACY_API_KEY_TEST')
+            if (PHARMACY_API_KEY_TEST_OVERRIDE) PHARMACY_API_KEY_TEST = PHARMACY_API_KEY_TEST_OVERRIDE
+
+            def PIWIK_TRACKER_ID_GOOGLE_OVERRIDE = overrideProperties.getProperty('PIWIK_TRACKER_ID_GOOGLE')
+            if (PIWIK_TRACKER_ID_GOOGLE_OVERRIDE) PIWIK_TRACKER_ID_GOOGLE = PIWIK_TRACKER_ID_GOOGLE_OVERRIDE
+            def PIWIK_TRACKER_ID_HUAWEI_OVERRIDE = overrideProperties.getProperty('PIWIK_TRACKER_ID_HUAWEI')
+            if (PIWIK_TRACKER_ID_HUAWEI_OVERRIDE) PIWIK_TRACKER_ID_HUAWEI = PIWIK_TRACKER_ID_HUAWEI_OVERRIDE
+            def PIWIK_TRACKER_URI_OVERRIDE = overrideProperties.getProperty('PIWIK_TRACKER_URI')
+            if (PIWIK_TRACKER_URI_OVERRIDE)
+                buildConfigField "String", "PIWIK_TRACKER_URI", "\"$PIWIK_TRACKER_URI_OVERRIDE\""
+
+            def APP_TRUST_ANCHOR_BASE64_OVERRIDE = overrideProperties.getProperty('APP_TRUST_ANCHOR_BASE64')
+            if (APP_TRUST_ANCHOR_BASE64_OVERRIDE) APP_TRUST_ANCHOR_BASE64 = APP_TRUST_ANCHOR_BASE64_OVERRIDE
+            def APP_TRUST_ANCHOR_BASE64_TEST_OVERRIDE = overrideProperties.getProperty('APP_TRUST_ANCHOR_BASE64_TEST')
+            if (APP_TRUST_ANCHOR_BASE64_TEST_OVERRIDE) APP_TRUST_ANCHOR_BASE64_TEST = APP_TRUST_ANCHOR_BASE64_TEST_OVERRIDE
+
+            def TEST_RUN_WITH_TRUSTSTORE_INTEGRATION = overrideProperties.getProperty('TEST_RUN_WITH_TRUSTSTORE_INTEGRATION')
+            if (TEST_RUN_WITH_TRUSTSTORE_INTEGRATION)
+                buildConfigField "boolean", "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "$TEST_RUN_WITH_TRUSTSTORE_INTEGRATION"
+        }
+
+        kapt {
+            arguments {
+                arg("room.schemaLocation", "$projectDir/schemas")
+            }
+        }
+    }
+
+    sourceSets {
+        test {
+            java.srcDirs += "src/sharedTest/java"
+            resources.srcDirs += ["src/test/res"]
+        }
+        androidTest {
+            java.srcDirs += "src/sharedTest/java"
+            resources.srcDirs += ["src/sharedTest/res"]
+            assets.srcDirs += files("$projectDir/schemas".toString())
+        }
+    }
+
+    dependencyCheck {
+        analyzers {
+            assemblyEnabled = false
+        }
+        scanConfigurations += 'releaseCompileClasspath'
+    }
+
+    def signingPropsFile = file("../signing.properties")
+    if (signingPropsFile.canRead()) {
+        println("Signing properties found: ${signingPropsFile}")
+        Properties signingProps = new Properties()
+        signingProps.load(new FileInputStream(signingPropsFile))
+        signingConfigs {
+            googleRelease {
+                if (signingProps['googleRelease.storePath'] != null) {
+                    storeFile file(signingProps['googleRelease.storePath'])
+                    println("store: ${signingProps['googleRelease.storePath']}")
+                    keyAlias signingProps['googleRelease.keyAlias']
+                    println("keyAlias: ${signingProps['googleRelease.keyAlias']}")
+                    storePassword signingProps['googleRelease.storePassword']
+                    keyPassword signingProps['googleRelease.keyPassword']
+                }
+            }
+            huaweiRelease {
+                if (signingProps['huaweiRelease.storePath'] != null) {
+                    storeFile file(signingProps['huaweiRelease.storePath'])
+                    println("store: ${signingProps['huaweiRelease.storePath']}")
+                    keyAlias signingProps['huaweiRelease.keyAlias']
+                    println("keyAlias: ${signingProps['huaweiRelease.keyAlias']}")
+                    storePassword signingProps['huaweiRelease.storePassword']
+                    keyPassword signingProps['huaweiRelease.keyPassword']
+                }
+            }
+        }
+    } else {
+        println("No signing properties found!")
+    }
+
+    buildTypes {
+        getByName("release") {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            if (signingPropsFile.canRead()) {
+                signingConfig = signingConfigs.getByName("googleRelease")
+            }
+            resValue "string", "app_label", "E-Rezept"
+        }
+        getByName("debug") {
+            applicationIdSuffix ".test"
+            resValue "string", "app_label", "eRp-Test"
+            versionNameSuffix "-debug"
+        }
+    }
+
+    flavorDimensions("version", "environment")
+    productFlavors {
+        create("google") {
+            dimension = "version"
+            if (signingPropsFile.canRead()) {
+                signingConfig signingConfigs.googleRelease
+            }
+        }
+        create("huawei") {
+            dimension = "version"
+            applicationIdSuffix ".huawei"
+            versionNameSuffix "-huawei"
+            if (signingPropsFile.canRead()) {
+                signingConfig signingConfigs.huaweiRelease
+            }
+        }
+        create("pu") {
+            dimension = "environment"
+            buildConfigField "String", "BASE_SERVICE_URI", "\"$BASE_SERVICE_URI_PU\""
+            buildConfigField "String", "IDP_SERVICE_URI", "\"$IDP_SERVICE_URI_PU\""
+            buildConfigField "String", "APP_TRUST_ANCHOR_BASE64", "\"$APP_TRUST_ANCHOR_BASE64>\""
+            buildConfigField "String", "PHARMACY_SERVICE_URI", "\"$PHARMACY_SERVICE_URI\""
+            buildConfigField "String", "PHARMACY_API_KEY", "\"$PHARMACY_API_KEY\""
+        }
+        create("tu") {
+            dimension = "environment"
+            buildConfigField "String", "BASE_SERVICE_URI", "\"$BASE_SERVICE_URI_TU\""
+            buildConfigField "String", "IDP_SERVICE_URI", "\"$IDP_SERVICE_URI_TU\""
+            buildConfigField "String", "APP_TRUST_ANCHOR_BASE64", "\"$APP_TRUST_ANCHOR_BASE64_TEST\""
+            buildConfigField "String", "PHARMACY_SERVICE_URI", "\"$PHARMACY_SERVICE_URI_TEST\""
+            buildConfigField "String", "PHARMACY_API_KEY", "\"$PHARMACY_API_KEY_TEST\""
+        }
+        create("ru") {
+            dimension = "environment"
+            buildConfigField "String", "BASE_SERVICE_URI", "\"$BASE_SERVICE_URI_RU\""
+            buildConfigField "String", "IDP_SERVICE_URI", "\"$IDP_SERVICE_URI_RU\""
+            buildConfigField "String", "APP_TRUST_ANCHOR_BASE64", "\"$APP_TRUST_ANCHOR_BASE64_TEST\""
+            buildConfigField "String", "PHARMACY_SERVICE_URI", "\"$PHARMACY_SERVICE_URI_TEST\""
+            buildConfigField "String", "PHARMACY_API_KEY", "\"$PHARMACY_API_KEY_TEST\""
+        }
+    }
+
+    android.applicationVariants.all { variant ->
+        if (variant.flavorName.startsWith("googlePu")) {
+            buildConfigField "String", "ERP_API_KEY", "\"$ERP_API_KEY_GOOGLE_PU\""
+            buildConfigField "String", "PIWIK_TRACKER_ID", "\"$PIWIK_TRACKER_ID_GOOGLE\""
+        } else if (variant.flavorName.startsWith("googleTu")) {
+            buildConfigField "String", "ERP_API_KEY", "\"$ERP_API_KEY_GOOGLE_TU\""
+            buildConfigField "String", "PIWIK_TRACKER_ID", "\"$PIWIK_TRACKER_ID_GOOGLE\""
+        } else if (variant.flavorName.startsWith("googleRu")) {
+            buildConfigField "String", "ERP_API_KEY", "\"$ERP_API_KEY_GOOGLE_RU\""
+            buildConfigField "String", "PIWIK_TRACKER_ID", "\"$PIWIK_TRACKER_ID_GOOGLE\""
+        } else if (variant.flavorName.startsWith("huaweiPu")) {
+            buildConfigField "String", "ERP_API_KEY", "\"$ERP_API_KEY_HUAWEI_PU\""
+            buildConfigField "String", "PIWIK_TRACKER_ID", "\"$PIWIK_TRACKER_ID_HUAWEI\""
+        } else if (variant.flavorName.startsWith("huaweiTu")) {
+            buildConfigField "String", "ERP_API_KEY", "\"$ERP_API_KEY_HUAWEI_TU\""
+            buildConfigField "String", "PIWIK_TRACKER_ID", "\"$PIWIK_TRACKER_ID_HUAWEI\""
+        } else if (variant.flavorName.startsWith("huaweiRu")) {
+            buildConfigField "String", "ERP_API_KEY", "\"$ERP_API_KEY_HUAWEI_RU\""
+            buildConfigField "String", "PIWIK_TRACKER_ID", "\"$PIWIK_TRACKER_ID_HUAWEI\""
+        }
+    }
+
+    compileOptions {
+        coreLibraryDesugaringEnabled true
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    // For Kotlin projects
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
+
+    buildFeatures {
+        compose true
+    }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion "$composeVersion"
+    }
+
+    lintOptions {
+        checkReleaseBuilds false
+        abortOnError false
+    }
+
+    packagingOptions {
+        exclude "META-INF/**"
+        // for JNA and JNA-platform
+        exclude "META-INF/AL2.0"
+        exclude "META-INF/LGPL2.1"
+        // for byte-buddy
+        exclude "META-INF/licenses/ASM"
+        pickFirst "win32-x86-64/attach_hotspot_windows.dll"
+        pickFirst "win32-x86/attach_hotspot_windows.dll"
+    }
+}
+
+configurations.all {
+    exclude group: 'org.codehaus.woodstox'
+    exclude group: 'org.apache.httpcomponents'
+}
+
+dependencies {
+    //
+    // Tracker
+    //
+
+    implementation "pro.piwik.sdk:piwik-sdk:$piwikVersion"
+
+    //
+    // Kotlin
+    //
+
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
+
+    //
+    // Base
+    //
+
+    // Desugaring
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:1.1.5"
+
+    implementation "androidx.legacy:legacy-support-v4:1.0.0"
+    implementation "androidx.core:core-ktx:1.6.0"
+
+    // Logging
+    implementation "com.jakewharton.timber:timber:4.7.1"
+
+    // Room
+    implementation "androidx.room:room-runtime:$roomVersion"
+    kapt "androidx.room:room-compiler:$roomVersion"
+    // optional - Kotlin Extensions and Coroutines support for Room
+    implementation "androidx.room:room-ktx:$roomVersion"
+
+    // Moshi
+    implementation "com.squareup.moshi:moshi:$moshiVersion"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
+
+    implementation 'org.bitbucket.b_c:jose4j:0.7.6'
+
+    // FHIR parsing and models
+    implementation "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$fhirVersion"
+
+    // Retrofit / OkHttp / Moshi
+    implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
+    implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
+
+    //
+    // Security
+    //
+
+    // SQLCipher
+    implementation "net.zetetic:android-database-sqlcipher:$sqlCipherVersion"
+
+    // JetSec
+    implementation "androidx.security:security-crypto:$jetSecVersion"
+
+    //
+    // UI
+    //
+    implementation "androidx.appcompat:appcompat:1.3.0"
+
+    // Navigation
+    implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
+    implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
+
+    // Lifecycle
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-process:$lifecycleVersion"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-compose:1.0.0-alpha07"
+
+    // Hilt
+    implementation "com.google.dagger:hilt-android:$hiltVersion"
+    kapt "com.google.dagger:hilt-compiler:$hiltVersion"
+
+    // ML Kit
+    implementation "com.google.mlkit:barcode-scanning:$mlkitVersion"
+
+    // CameraX core library using Camera2 implementation
+    implementation "androidx.camera:camera-camera2:$cameraXVersion"
+    // CameraX Lifecycle Library
+    implementation "androidx.camera:camera-lifecycle:$cameraXVersion"
+    // CameraX View class
+    implementation "androidx.camera:camera-view:$cameraXViewVersion"
+
+    // Zxing - used for generating 2d data matrix codes
+    implementation "com.google.zxing:core:3.4.1"
+
+    // Location
+    implementation "com.google.android.gms:play-services-location:$locationVersion"
+
+    // Process Phoenix
+    debugImplementation 'com.jakewharton:process-phoenix:2.0.0'
+
+    // Bouncy Castle
+    implementation "org.bouncycastle:bcprov-jdk15to18:$bouncycastleVersion"
+    implementation "org.bouncycastle:bcpkix-jdk15to18:$bouncycastleVersion"
+
+    // Biometric
+    implementation 'androidx.biometric:biometric:1.1.0'
+
+    // Compose
+    implementation "androidx.compose.ui:ui:$composeVersion"
+    implementation "androidx.compose.foundation:foundation:$composeVersion"
+    implementation "androidx.compose.material:material:$composeVersion"
+    implementation "androidx.compose.material:material-icons-extended:$composeVersion"
+    implementation "androidx.compose.material:material-icons-core:$composeVersion"
+    // FIXME version downgrade due to AS
+    implementation "androidx.compose.ui:ui-tooling:1.0.0-beta09"
+    implementation "androidx.compose.runtime:runtime-livedata:$composeVersion"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha08"
+    implementation "androidx.activity:activity-compose:$composeVersion"
+    implementation "androidx.paging:paging-compose:1.0.0-alpha11"
+    implementation "androidx.navigation:navigation-compose:2.4.0-alpha04"
+
+    //
+    // Test
+    //
+
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "io.mockk:mockk:1.11.0"
+    testImplementation "junit:junit:4.13.1"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0"
+    testImplementation "org.yaml:snakeyaml:1.27"
+    testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
+    testImplementation "org.json:json:20190722"
+
+    androidTestImplementation "androidx.room:room-testing:$roomVersion"
+    androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0"
+    androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
+    androidTestImplementation "androidx.test.ext:junit:1.1.3"
+    androidTestImplementation "androidx.compose.ui:ui-test:$composeVersion@aar"
+
+    // Test rules and transitive dependencies:
+    androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")
+    androidTestImplementation "androidx.navigation:navigation-testing:$navVersion"
+    androidTestImplementation "io.mockk:mockk-android:1.11.0"
+}

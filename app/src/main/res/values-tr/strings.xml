@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="app_name">E-Rezept</string>
+    <string name="ok">Tamam</string>
+    <string name="cancel">İptal et</string>
+    <string name="back">Geri</string>
+    <string name="at">Saat:</string>
+    <string name="descriptive_date_appendix">Saat %1$s</string>
+    <!-- Audit Protocol -->
+    <string name="audit_protocol_last_update_info">Son güncelleme: %1$s</string>
+    <string name="audit_protocol_sync_failed">Güncelleme başarısız. Lütfen reçetelerinizi tekrar güncelleyin.</string>
+    <!-- Onboarding -->
+    <string name="on_boarding_page_1_header">Dijital. Hızlı. Güvenli.</string>
+    <string name="on_boarding_page_2_header">E-Rezept uygulamasına hoş geldiniz</string>
+    <string name="on_boarding_page_2_info">Burada elektronik reçeteleri seçtiğiniz bir eczanede, doğrudan sitede veya çevrim içi olarak kullanabilirsiniz.</string>
+    <string name="on_boarding_page_3_header">Sağlık kartınızla daha fazla fonksiyon</string>
+    <string name="on_boarding_page_3_info_check_1">Yeni reçetelerinizi otomatik olarak güncelleyin</string>
+    <string name="on_boarding_page_3_info_check_2">İlaçlarınızın alınması ve dozajları hakkında bilgi</string>
+    <string name="on_boarding_page_3_info_check_3">Eczanenizden siparişinizle ilgili bildirimler alın</string>
+    <string name="on_boarding_page_4_header">Kullanım koşulları ve veri koruma politikası</string>
+    <string name="on_boarding_page_4_info">Uygulamayı kullanmak için lütfen kullanım koşullarını kabul edin ve veri koruma politikasından haberdar olduğunuzu onaylayın. Yalnızca hizmetlerin çalışması için gerekli olan veriler toplanır.</string>
+    <string name="on_boarding_page_4_info_accept_info">%s\'nı okudum ve kabul ediyorum.</string>
+    <string name="on_boarding_page_4_info_tos">Kullanım koşulları</string>
+    <string name="on_boarding_page_4_info_dataprotection">Veri koruması politikası</string>
+    <string name="on_boarding_page_4_next">Onayla</string>
+    <string name="on_boarding_cdn_btn_next">İleri</string>
+    <string name="on_boarding_cdn_btn_accept">Onayla</string>
+    <string name="cam_edu_headline">Reçete ekle</string>
+    <string name="cam_edu_description">Bir reçete çıktısı aldınız mı? İlgili reçete kodunu tarayarak reçetleri uygulamaya ekleyebilirsiniz.</string>
+    <string name="cam_edu_accept">Anlaşıldı</string>
+    <string name="task_id">Task-ID</string>
+    <string name="access_code">Erişim kodu</string>
+    <string name="copied_clipboard">Kopyalandı</string>
+    <!-- On-Boarding -->
+    <string name="onb_terms_of_use">Kullanım şartları</string>
+    <string name="onb_data_consent">Veri koruma politikası</string>
+    <string name="onb_accept_tos">Kullanım koşullarını kabul et</string>
+    <string name="onb_accept_data">Veri koruma politikasını kabul et</string>
+    <!-- Prescriptions -->
+    <string name="main_nav_title_prescriptions">Reçeteler</string>
+    <string name="pres_bottombar_prescriptions">Reçeteler</string>
+    <string name="pres_bottombar_messages">Bildirimler</string>
+    <string name="prescription_group_submit_ready">Kullan</string>
+    <plurals name="prescription_item_expiration_days">
+        <item quantity="one">Daha %s gün geçerli</item>
+        <item quantity="other">Daha %s gün geçerli</item>
+    </plurals>
+    <string name="pres_edit_txt_place_holder">Örneğin dermatolog</string>
+    <!-- Camera Workflow -->
+    <string name="txt_number_of_prescriptions_available" formatted="false">%s %s / %s %s algılandı. Daha fazla kod taransın mı?</string>
+    <plurals name="txt_recipe">
+        <item quantity="one">Reçete</item>
+        <item quantity="other">Reçeteler</item>
+    </plurals>
+    <plurals name="txt_prescription">
+        <item quantity="one">Reçete</item>
+        <item quantity="other">Reçeteler</item>
+    </plurals>
+    <plurals name="txt_btn_add_prescriptions">
+        <item quantity="one">%s reçete ekle</item>
+        <item quantity="other">%s reçete ekle</item>
+    </plurals>
+    <!-- Camera Access Denied -->
+    <string name="cam_access_denied_headline">Kameraya erişim reddedildi</string>
+    <string name="cam_access_denied_description">Tarayıcıyı kullanabilmek için sistem ayarlarında uygulamanın kameranıza erişmesine izin vermelisiniz.</string>
+    <!-- Camera Info -->
+    <string name="cam_info_scanning">Kamerayı bir reçete koduna odaklayın</string>
+    <string name="cam_info_invalid">Bu geçerli bir reçete kodu değil</string>
+    <string name="cam_info_duplicated">Bu reçete kodu zaten taranmış</string>
+    <plurals name="cam_info_detected">
+        <item quantity="one">%s reçete algılandı</item>
+        <item quantity="other">%s reçete algılandı</item>
+    </plurals>
+    <!-- Camera Accessibility -->
+    <string name="cam_acc_cancel">İptal et</string>
+    <string name="cam_acc_torch">Kamera ışığı</string>
+    <!-- Camera Cancel -->
+    <string name="cam_cancel_msg">Reçete kodlarının taranması iptal edilsin mi?</string>
+    <string name="cam_cancel_ok">Taramayı iptal et</string>
+    <string name="cam_cancel_resume">Devam et</string>
+    <!-- Cardwall -->
+    <string name="cdw_add_card">Kart ekle</string>
+    <string name="cdw_next">İşte başlıyoruz</string>
+    <!-- Cardwall: Self Intro -->
+    <string name="cdw_intro_title">Şimdi tüm fonksiyonları kullanın</string>
+    <string name="cdw_intro_body">Uygulamanın tüm fonksiyonlarını kullanabilmek için sağlık kartınız ile giriş yapın. Bu kartı ve gerekli erişim verilerini sağlık sigortanızdan alacaksınız.</string>
+    <string name="cdw_intro_what_you_need">İhtiyacınız olan şey:</string>
+    <string name="cdw_intro_what_you_need_egk">Erişim numarası (CAN) olan bir sağlık kartı</string>
+    <string name="cdw_intro_what_you_need_pin">Sağlık kartının PIN\'i</string>
+    <!-- Cardwall: Capability -->
+    <string name="cdw_capability_title">Kart ekle</string>
+    <string name="cdw_capability_headline">Ne yazık …</string>
+    <string name="cdw_capability_body">Maalesef cihazınız E-Rezept uygulamasına giriş yapmak için gereken minimum gereksinimleri karşılamıyor.</string>
+    <string name="cdw_capability_more">Sağlık kartına kaydolmak için neden minimum gereksinimler var?</string>
+    <!-- Cardwall: CAN Intro -->
+    <string name="cdw_can_caption">Kart erişim numaranız (Card Access Number, kısaca: CAN) 6 hanelidir. CAN\'ı sağlık sigortası kartınızın ön yüzünün sağ üst köşesinde bulacaksınız. Burada altı haneli bir erişim numarası yoksa sağlık sigortanızdan yeni bir sağlık kartına ihtiyacınız olacaktır.</string>
+    <string name="cdw_can_headline">Erişim numarasını girin</string>
+    <string name="cdw_can_demo_info">İstediğiniz rakamı girebilirsiniz.</string>
+    <!-- Cardwall: PIN Intro -->
+    <string name="cdw_pin_caption">PIN\'iniz 6 ila 8 basamaklı olabilir.</string>
+    <string name="cdw_pin_title">PIN girin</string>
+    <string name="cdw_pin_demo_info">Demo modunda herhangi bir PIN girebilirsiniz.</string>
+    <string name="cdw_auth_retry">Tekrar dene</string>
+    <string name="cdw_nfc_intro_headline">Şimdi elektronik sağlık kartınızı hazırlayın.</string>
+    <string name="cdw_nfc_intro_body">Cihazınızın sunucuya bağlanması için geçen süre, donanım ve internet hızına bağlı olarak değişebilir.</string>
+    <string name="cdw_nfc_intro_step1_header_on_error">Sunucu bağlantısı başarısız oldu.</string>
+    <string name="cdw_nfc_intro_step1_info_on_error">İnternet bağlantınızı kontrol edin ve işlemi yeniden başlatın.</string>
+    <string name="cdw_nfc_intro_step2_header_on_pin_error">Yanlış PIN girildi.</string>
+    <plurals name="cdw_nfc_intro_step2_info_on_pin_error">
+        <item quantity="one">Kartınız bloke olmadan %s denemeniz kaldı.</item>
+        <item quantity="other">Kartınız bloke olmadan %s denemeniz kaldı.</item>
+    </plurals>
+    <string name="cdw_nfc_intro_step2_header_on_can_error">Yanlış CAN girildi</string>
+    <string name="cdw_nfc_intro_step2_info_on_can_error">Erişim numarasını sağlık kartınızın sağ üst köşesinde bulacaksınız.</string>
+    <string name="cdw_nfc_intro_step2_header_on_card_blocked">PIN birkaç kez yanlış girildi.</string>
+    <string name="cdw_nfc_intro_step2_info_on_card_blocked">Sağlık kartınızın blokesi PUK ile açılmalıdır.</string>
+    <string name="cdw_nfc_dlg_cancel">İptal et</string>
+    <string name="cdw_nfc_search1_headline">Kartı ara...</string>
+    <string name="cdw_nfc_search1_info">Sağlık kartını cihazınızın arkasına doğru tutun.</string>
+    <string name="cdw_nfc_search2_headline">Hala aranıyor …</string>
+    <string name="cdw_nfc_search2_info">Kartı cihazın arkasında yavaşça hareket ettirin.</string>
+    <string name="cdw_nfc_search3_headline">İpucu</string>
+    <string name="cdw_nfc_search3_info">Cihaz kılıfları, NFC üzerinden bağlantıyı zorlaştırabilir.</string>
+    <string name="cdw_nfc_found_headline">Kart algılandı</string>
+    <string name="cdw_nfc_found_info">Sağlık kartını hareket ettirmemeye çalışın.</string>
+    <string name="cdw_nfc_communication_info">Sağlık kartı bulundu. Lütfen hareket etmeyin.</string>
+    <string name="cdw_nfc_tag_lost_headline">Bağlantı koptu</string>
+    <string name="cdw_nfc_tag_lost_info">Sağlık kartınızı tekrar cihazınızın arkasına doğru tutun.</string>
+    <string name="cdw_happy_headline">Başarıyla oturum açtınız</string>
+    <string name="cdw_happy_body">Not: Yalnızca son 100 güne ait reçeteler indirilir.</string>
+    <!-- CardWall Demo Mode -->
+    <string name="cdw_demo_use_real_healthcard_title">Demo modu etkinleştirildi</string>
+    <string name="cdw_demo_use_real_healthcard">NFC özellikli bir sağlık kartınız var ve bunu demo modunda denemek ister misiniz?</string>
+    <string name="cdw_demo_with_healthcard">Kart ile devam et</string>
+    <string name="cdw_demo_without_healthcard">Kartsız devam et</string>
+    <!-- Demo Mode -->
+    <string name="demo_mode_active">Demo modu etkinleştirildi</string>
+    <!-- Settings (Main Screen) -->
+    <string name="about_version">Sürüm: %s</string>
+    <string name="about_buildhash">Build-Hash: %s</string>
+    <string name="debug_menu">Hata ayıklama menüsü</string>
+    <!--Redeem Prescriptions-->
+    <string name="redeem_title">Reçete kodu</string>
+    <string name="redeem_subtitle">Bu reçete kodunu eczanenizde tarattırın.</string>
+    <string name="redeem_txt_code_description">Bu toplu kod %s reçete birleştirir</string>
+    <!-- Redeem Prescriptions Dialog -->
+    <string name="dialog_redeem_headline">Eczanede kullan</string>
+    <string name="dialog_redeem_info">Bir eczanedesiniz ve reçetenizi kullanmak istiyorsunuz.</string>
+    <string name="dialog_order_headline">Sipariş ver veya rezerve et</string>
+    <string name="dialog_order_info">Reçetenizi bir eczaneye gönderin ve ilacınızı nasıl almak istediğinize karar verin.</string>
+    <string name="dialog_order_not_possible">Bunun için geçerli bir sağlık kartına ihtiyacınız var.</string>
+    <!-- Search Pharmacy Screen -->
+    <string name="search_pharmacy_title">Eczaneyi seç</string>
+    <string name="search_example_input">Örneğin Penguen eczanesi veya adresi</string>
+    <string name="search_enable_location_hint_header">Eczaneleri kolayca bulun</string>
+    <string name="search_enable_location_hint_info">Konumunuzu paylaşın ve bölgenizdeki eczaneleri bulun</string>
+    <string name="search_enable_location_hint_enable">Konumu paylaş</string>
+    <string name="search_pharmacy_open_until">Şu saate kadar açık: %s</string>
+    <string name="search_pharmacy_continuous_open">Tüm gün açık</string>
+    <!-- Legal Notice -->
+    <string name="legal_notice_menu">Künye</string>
+    <string name="legal_notice_issuer">Editör</string>
+    <string name="legal_notice_address">gematik GmbH\nFriedrichstraße 136\n10117 Berlin</string>
+    <string name="legal_notice_info">Genel Müdür: Dr. med. Markus Leyck Dieken\n Kayıt mahkemesi: Amtsgericht Berlin-Charlottenburg\n Ticaret sicil no.: HRB 96351\n Satış vergisi kimlik numarası: DE241843684</string>
+    <string name="legal_notice_responsible_header">İçerikten sorumlu</string>
+    <string name="legal_notice_responsible_name">Dr. med. Markus Leyck Dieken</string>
+    <string name="legal_notice_contact_header">İletişim</string>
+    <string name="legal_notice_hint_header">Not</string>
+    <string name="legal_notice_hint">Cinsiyet eşitliğine uygun bir dil kullanmaya çalışıyoruz. Herhangi bir hata fark ederseniz, sizden e-posta ile haber almaktan memnuniyet duyarız.</string>
+    <!-- Prescriptions -->
+    <string name="prs_low_detail_default_name">Taranmış reçete</string>
+    <string name="prs_low_detail_medication_name">İlaç %s</string>
+    <string name="prs_divider_refresh_info">Güncel</string>
+    <string name="prs_divider_refresh_action">Güncelle</string>
+    <string name="prs_divider_redeemed_info">Arşiv</string>
+    <string name="prs_not_redeemed_note">Henüz herhangi bir reçete kullanmadınız</string>
+    <plurals name="prs_nr_redeemed">
+        <item quantity="one">%s ilaç</item>
+        <item quantity="other">%s ilaç</item>
+    </plurals>
+    <string name="prs_redeemed_on">%s tarihinde kullanıldı</string>
+    <string name="prs_acc_expand_redeemed">Henüz herhangi bir reçete kullanmadınız</string>
+    <string name="legal_notice_logo_text">Almanya\'nın modern dijital tıp platformu</string>
+    <string name="legal_notice_email_text">E-posta yaz</string>
+    <string name="menu_legal_notice_url_info">Web sitesini aç</string>
+    <!-- User Authentication -->
+    <string name="auth_headline">Hoş geldiniz</string>
+    <string name="auth_subtitle">Oturum açmayı başlat</string>
+    <string name="auth_info">Kilidi Aç\'a basın</string>
+    <string name="auth_button">Kilidini aç</string>
+    <string name="auth_more" formatted="false">Uygulamayı kullanırken herhangi bir sorunuz veya sorununuz mu var? Teknik destek hattımıza %s numarasından ulaşılabilirsiniz.\n%s sayfamızda sizin için birçok soruyu halihazırda yanıtladık.</string>
+    <!-- User Authentication - Prompt -->
+    <string name="auth_prompt_headline">Oturum aç</string>
+    <string name="auth_prompt_cancel">İptal et</string>
+    <string name="auth_link_to_gematik">https://www.das-e-rezept-fuer-deutschland.de/</string>
+    <string name="auth_link_to_gematik_text">das-e-rezept-fuer-deutschland.de</string>
+    <!-- Settings Menu -->
+    <string name="settings_headline">Ayarlar</string>
+    <string name="settings_user_unknown">Adı bilinmiyor</string>
+    <string name="settings_ehealthcard_headline">Sağlık kartları</string>
+    <string name="settings_ehealthcard_add_ehealthcard">Kart ekle</string>
+    <string name="settings_demo_headline">Denemek için</string>
+    <string name="settings_demo_info">Demo modu, elektronik sağlık kartı olmadan bile uygulamanın tüm alanlarını keşfetmenize olanak tanır.</string>
+    <string name="settings_demo_toggle">Demo modu</string>
+    <string name="settings_appprotection_headline">Güvenlik</string>
+    <string name="settings_appprotection_info">Sağlık bilgilerinizi yetkisiz erişime karşı koruyun.</string>
+    <string name="settings_appprotection_mode_none_headline">Güvenli değil</string>
+    <string name="settings_appprotection_mode_none_info">Önerilmez</string>
+    <string name="settings_appprotection_mode_biometric_strong_headline">Biyometri</string>
+    <string name="settings_appprotection_mode_biometric_strong_info">Bu uygulama, cihazınız tarafından sağlanan en güvenli biyometrik sensörü kullanır.</string>
+    <string name="settings_appprotection_mode_biometric_credentials_headline">Cihaz yedekleme</string>
+    <string name="settings_appprotection_mode_biometric_credentials_info">Önerilmez</string>
+    <string name="settings_legal_headline">Yasal</string>
+    <string name="settings_legal_imprint">Künye</string>
+    <string name="settings_legal_dataprotection">Veri koruma</string>
+    <string name="settings_legal_tos">Kullanım koşulları</string>
+    <!-- Hints -->
+    <string name="prescription_overview_hint_welcome_to_demo_headline">Demo modu etkinleştirildi</string>
+    <string name="prescription_overview_hint_welcome_to_demo_text">Demo modumuz size uygulamanın tüm fonksiyonlarını gösterir - hem de sağlık kartı olmadan.</string>
+    <string name="prescription_overview_hint_link_to_demo_mode_headline">Bir keşif turuna ne dersiniz?</string>
+    <string name="prescription_overview_hint_link_to_demo_mode_text">Demo modumuz size uygulamanın tüm fonksiyonlarını gösterir - hem de sağlık kartı olmadan.</string>
+    <string name="prescription_overview_hint_link_to_demo_mode_call_to_action_text">Demo modunu başlat</string>
+    <string name="prescription_overview_info_no_recipes">Güncel reçeteniz yok</string>
+    <string name="prescription_overview_hint_define_security_headline">Reçete verilerini yedekle</string>
+    <string name="prescription_overview_hint_define_security_text">Verilerinizin parmak izi veya yüz taramasıyla daha iyi korunması.</string>
+    <string name="prescription_overview_hint_define_security_call_to_action_text">Şimdi aktifleştir</string>
+    <!-- Scanned prescriptions details -->
+    <string name="prescription_details">Ayrıntılar</string>
+    <string name="scanned_prescription_detail_hint_header">Genel bakış elde edin</string>
+    <string name="scanned_prescription_detail_hint_info">İlacınızı alır almaz bu reçeteyi kullanılmış olarak işaretleyin.</string>
+    <string name="scanned_prescription_detail_redeemed_hint_header">Reçeteleri otomatik olarak güncelle</string>
+    <string name="scanned_prescription_detail_redeemed_hint_info">Reçetelerinizin otomatik olarak kullanılmış olarak işaretlenebilmesi için oturum açın.</string>
+    <string name="scanned_prescription_detail_redeemed_hint_connect">Şimdi oturum aç</string>
+    <string name="scanned_prescription_detail_info_hint_header">Neden sadece bu bilgileri görüyorum?</string>
+    <string name="scanned_prescription_detail_info_hint_info">Sağlık bilgileriniz özel korumaya sahiptir</string>
+    <string name="scanned_prescription_placeholder_name">İlaç %1$d</string>
+    <string name="scanned_prescription_details_mark_as_redeemed">Kullanıldı olarak işaretle</string>
+    <string name="scanned_prescription_details_mark_as_unredeemed">Kullanılmadı olarak işaretle</string>
+    <string name="scanned_prescription_delete">Bu cihazdan sil</string>
+    <string name="scanned_prescription_detail_protocol_header">Protokol</string>
+    <string name="scanned_prescription_detail_protocol_scanned_label">Şu tarihte tarandı:</string>
+    <string name="scanned_prescription_detail_protocol_scanned_at">Saat %1$s</string>
+    <string name="pres_detail_medication_valid_until">%s tarihine kadar kullanılabilir</string>
+    <string name="pres_detail_medication_header">Bu ilaçla ilgili ayrıntılar</string>
+    <string name="pres_detail_medication_label_dosage_form">İlaç türü</string>
+    <string name="pres_detail_medication_label_normsize">Paket boyutu</string>
+    <!-- PZN steht f&uuml;r Pharmazentralnummer&nbsp;https://de.wikipedia.org/wiki/Pharmazentralnummer -->
+    <string name="pres_detail_medication_label_id">İlaç merkezi numarası (PZN)</string>
+    <string name="pres_detail_dosage_header">Kullanım talimatları</string>
+    <string name="pres_detail_dosage_default_info">Lütfen ilaç planınızdaki alım talimatlarına veya doktorunuzun yazılı dozaj talimatlarına uyun.</string>
+    <string name="pres_detail_patient_header">Sigortalı kişi</string>
+    <string name="pres_detail_patient_label_name">Ad</string>
+    <string name="pres_detail_patient_label_address">Adres</string>
+    <string name="pres_detail_patient_label_birthdate">Doğum tarihi</string>
+    <string name="pres_detail_patient_label_insurance">Sağlık sigortası / ödeyenler</string>
+    <string name="pres_detail_patient_label_member_status">Durum</string>
+    <string name="pres_detail_patient_label_insurance_id">Sigorta numarası</string>
+    <string name="pres_detail_practitioner_header">Reçete yazan kişi</string>
+    <string name="pres_detail_practitioner_label_name">Ad</string>
+    <string name="pres_detail_practitioner_label_qualification">Uzman doktor</string>
+    <!-- LANR steht f&uuml;r lebenslange Arztnummer&nbsp;https://de.wikipedia.org/wiki/Lebenslange_Arztnummer -->
+    <string name="pres_detail_practitioner_label_id">Doktor numarası (LANR)</string>
+    <string name="pres_detail_organization_header">Kurum</string>
+    <string name="pres_detail_organization_label_name">Ad</string>
+    <string name="pres_detail_organization_label_address">Adres</string>
+    <string name="pres_detail_organization_label_id">Kuruluş numarası</string>
+    <string name="pres_detail_organization_label_telephone">Telefon numarası</string>
+    <string name="pres_detail_organization_label_email">E-posta</string>
+    <string name="pres_detail_accident_header">İş kazası</string>
+    <string name="pres_detail_accident_label_date">Kaza günü</string>
+    <string name="pres_detail_accident_label_location">Kaza şirketi veya işveren numarası</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2377%3A5009 -->
+    <string name="pres_detail_delete_msg">Bu reçeteyi kalıcı olarak silmek ister misiniz?</string>
+    <string name="pres_detail_delete_yes">Sil</string>
+    <string name="pres_detail_delete_no">İptal et</string>
+    <string name="pres_detail_noctu_header">Bu acil bir durum</string>
+    <string name="pres_detail_noctu_info">Bu ilaç, acil servis ücreti olmadan geceleri eczanede de kullanılabilir.</string>
+    <string name="pres_detail_aut_idem_header">Muadil mümkün</string>
+    <string name="pres_detail_aut_idem_info">Muadillere izin verilir. Sağlık sigortanızın yasal gereklilikleri nedeniyle size bir alternatif verilebilir.</string>
+    <!-- pharmacy details -->
+    <string name="pharm_detail_preorder_prescription">Bağlayıcı bir rezerve et</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2770%3A5976 -->
+    <string name="pharm_detail_messanger_delivered">Kurye hizmeti talep edin</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2770%3A5976 -->
+    <string name="pharm_detail_mail_delivered">Kargo ile teslim ettir</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2770%3A5976 -->
+    <string name="pharm_detail_hint">Reçeteli ilaçlar için ek ödemelerin de geçerli olabileceğini lütfen unutmayın.</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2770%3A5976 -->
+    <string name="pharm_detail_opening_hours">Açılış saatleri</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2770%3A5976 -->
+    <string name="pharm_detail_website">Web sitesi</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2793%3A5809 -->
+    <string name="reserve_header">Rezervasyon</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A642 -->
+    <string name="pharm_reserve_subheader">Bu reçeteleri %s eczanesinde bağlayıcı olarak kullanmak istiyor musunuz?</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A642 -->
+    <string name="pharm_reserve_prescriptions">Reçeteler</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A642 -->
+    <string name="pharm_redeem">Kullan</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A810 -->
+    <string name="pharm_courier_header">Kurye hizmeti</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A642 -->
+    <string name="pharm_reserve_delivery_address">Teslimat adresi</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A642 -->
+    <string name="pharm_delivery_card_help">Nasıl yardımcı olabiliriz?</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A810 -->
+    <string name="pharm_delivery_card_message">Teslimat adresi mi değişti? Eczaneye başka bir mesajınız var mı?</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A810 -->
+    <string name="pharm_delivery_card_call">Şimdi ara</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A642 -->
+    <string name="pharm_delivery_mail_change">Teslimat adresinizi çevrim içi eczanenin web sitesinde değiştirebilirsiniz.</string>
+    <!-- https://www.figma.com/file/Xg4X8ULc7fwxzkxaCnxW0I/eRezept-Android?node-id=2781%3A642 -->
+    <string name="pharm_mail_header">Kargo</string>
+    <string name="pres_detail_protocol_header">Protokol</string>
+    <string name="pres_detail_protocol_empty_text">Ayarlanmış eylem olmadan</string>
+    <string name="prescription_item_expiration_expired">Süresi dolmuş</string>
+    <string name="prescription_item_expiration_only_today">Sadece bugün geçerli</string>
+    <string name="pres_edit_txt_title">Reçete bloğunu yeniden adlandır</string>
+    <string name="pres_edit_txt_info">Bu reçete bloğu için bir ad atayabilirsiniz.</string>
+    <string name="cdw_top_bar_title">Oturum aç</string>
+    <string name="cdw_auth_btn_txt">Oturum aç</string>
+    <string name="cdw_intro_what_you_need_nfc">En az Android 7\'ye sahip NFC özellikli bir akıllı telefon</string>
+    <string name="cdw_enable_nfc_header">NFC\'yi etkinleştir</string>
+    <string name="cdw_enable_nfc_info">Sağlık kartınız ile oturum açmak için lütfen cihazınızın NFC fonksiyonunu etkinleştirin.</string>
+    <string name="cdw_enable_nfc_btn_text">Etkinleştir</string>
+    <string name="cdw_can_info_hint_header">Yeni bir sağlık kartını nasıl alabilirim?</string>
+    <string name="cdw_can_info_hint_info">Sağlık sigortanız bu konuda size yardımcı olur.</string>
+    <string name="cdw_pin_info_hint_header">Nasıl PIN alabilirim?</string>
+    <string name="cdw_pin_info_hint_info">Sağlık sigorta şirketinizden sağlık kartınızın PIN\'i için ayrı bir mektup alacaksınız.</string>
+    <!-- Cardwall: SaveAccessData -->
+    <string name="cdw_save_access_title">Erişim verilerinizi gelecekteki oturum açmalar için kaydetmek ister misiniz?</string>
+    <string name="cdw_save_with_biometry_title">Erişim verilerini kaydet</string>
+    <string name="cdw_save_with_biometry_info">Kullanışlı ve yakında sizin için kullanılabilir: Bu amaçla verileriniz cihazda biyometrik olarak korunacaktır</string>
+    <string name="cdw_biometric_not_possible_title">Yedekleme mümkün değil</string>
+    <string name="cdw_biometric_not_possible_info">Güvenli sensör yok veya biyometrik yedekleme kurulmadı.</string>
+    <string name="cdw_not_save_with_biometry_title">Erişim verilerini kaydetme</string>
+    <string name="cdw_not_save_with_biometry_info">Veri tasarrufu: Uygulamayı her başlattığınızda erişim verilerinizi girmenizi gerektirir</string>
+    <string name="cdw_auth_retry_pin_can">Tekrarla</string>
+    <string name="cdw_happy_back_to_mainscreen">Ana sayfaya git</string>
+    <string name="redeem_protocol_text">Şu tarihte kullanıldı olarak işaretlendi:</string>
+    <string name="un_redeem_protocol_text">Şu tarihte kullanılmadı olarak işaretlendi:</string>
+    <string name="redeem_show_single_codes">Tekli kodlar olarak göster</string>
+    <string name="redeem_show_collective_codes">Toplu kod olarak göster</string>
+    <string name="redeem_counter_text" formatted="false">%s / %s</string>
+    <string name="redeem_prescriptions_dialog_header">Reçete kullanıldı mı?</string>
+    <string name="redeem_prescriptions_dialog_info">Bu reçeteyi kullanılmış olarak işaretlemek ister misiniz?</string>
+    <string name="redeem_prescriptions_dialog_cancel">Kullanılmadı</string>
+    <string name="redeem_prescriptions_dialog_redeem">Kullanıldı</string>
+    <string name="search_pharmacy_opens_at">Şu saatte açılıyor: %s</string>
+    <string name="technical_hotline_contact">+49 800 277 377 7</string>
+    <string name="technical_hotline_info">Teknik destek hattı</string>
+    <!-- Main Screen Top Bar -->
+    <string name="main_scan_acc">Reçeteler için tarayıcıyı açın</string>
+    <string name="main_settings_acc">Ayarlar</string>
+    <string name="auth_hotlinephone_contact">+49 800 277 377 7</string>
+    <string name="auth_prompt_info_biometrics">Lütfen parmak izi veya yüz tanıma yoluyla kendinizi tanıtın.</string>
+    <string name="settings_screenshots_alert_headline">Not</string>
+    <string name="settings_screenshots_alert_info">Bu değişiklik, yalnızca uygulamayı yeniden başlattıktan sonra geçerli olacaktır.</string>
+    <string name="settings_screenshots_button_text">Tamam</string>
+    <string name="settings_tracking_headline">İzleme</string>
+    <string name="settings_tracking_info">Bu uygulamayı daha iyi hale getirmemize yardımcı olun. Tüm kullanım verileri anonim olarak toplanır ve yalnızca kullanıcı deneyimini iyileştirmek için hizmet verir.</string>
+    <string name="settings_tracking_toggle_text">İzlemeye izin ver</string>
+    <string name="settings_tracking_description">Uygulamada bir çökme veya hata olması durumunda uygulama bize nedenleri hakkında bilgi gönderir. Ayrıca işletim sistemi sürümü ve kullanılan donanımlar ile ilgili bilgiler de gönderilir.</string>
+    <string name="settings_screenshots_toggle_text">Ekran görüntülerini gizle</string>
+    <string name="settings_screenshots_description">Uygulamaları değiştirdiğinizde önizleme görüntüsünün görüntülenmesini engeller</string>
+    <string name="settings_tracking_dialog_title">E-Rezept\'in kullanıcı davranışınızı anonim olarak analiz etmesine izin veriyor musunuz?</string>
+    <string name="settings_tracking_dialog_text">Bu, telefonunuzun donanım ve yazılım bilgilerini, E-Rezept uygulamasının ayarlarını ve kullanım kapsamını içerir, ancak asla kişiliğiniz veya sağlığınızla ilgili verileri içermez.\nVeriler, veri işleyenler tarafından sadece gematik GmbH\'ye sunulur ve en geç 180 gün sonra silinir. Analizi istediğiniz zaman uygulama menüsünden devre dışı bırakabilirsiniz.\nBu veriler, hangi fonksiyonların sıklıkla kullanıldığını anlamamızı ve bunları geliştirmemizi sağlar. Ayrıca, daha eski teknolojinin ne kadar süreyle desteklenmesi gerektiğini ve örneğin ne zaman (çok fazla) kullanıcıyı etkilemeden daha yeni bir işletim sistemi sürümünü zorunlu hale getirmemiz gerektiğini tahmin edebiliriz.</string>
+    <string name="settings_tracking_allow">İzin ver</string>
+    <plurals name="prescription_overview_hint_new_prescriptions_headline">
+        <item quantity="one">Sizin için %s ilaç reçetelendirildi</item>
+        <item quantity="other">Sizin için %s ilaç reçetelendirildi</item>
+    </plurals>
+    <string name="prescription_overview_hint_new_prescriptions_text">Eczanede kullanmak için buraya dokunun</string>
+    <string name="prescription_overview_hint_new_prescriptions_call_to_action_text">Şimdi kullan</string>
+    <string name="pres_detail_protocol_show_all">Tümünü göster</string>
+    <string name="pres_detail_delete">Düzenlemeyi sil</string>
+    <string name="pres_detail_redeem_info">Kullanıldı olarak işaretlendi</string>
+    <string name="pres_detail_un_redeem">Geri al</string>
+    <string name="pres_detail_show_more">Daha fazla göster</string>
+    <string name="pres_detail_show_less">Daha az göster</string>
+    <string name="pres_detail_technical_information">Teknik bilgiler</string>
+    <string name="logout">Oturumu kapat</string>
+    <string name="logout_description">Sağlık ağına tüm erişim verileri silinecektir. Reçete verileriniz korunur.</string>
+    <string name="logout_detail_message">Bu, erişim verilerinizi siler.</string>
+    <string name="logout_delete_yes">Oturumu kapat</string>
+    <string name="logout_delete_no">İptal et</string>
+    <string name="logout_detail_header">Uygulamadan çıkmak ister misiniz?</string>
+    <string name="settings_biometric_dialog_title">Reçete verilerinizin güvenliği</string>
+    <string name="settings_biometric_dialog_text">Lütfen bu cihazı paylaşabileceğiniz ve biyometrik özellikleri bu cihazda saklanabilecek veya cihaz PIN\'ini, kaydırma hareketini veya şifreyi bilen kişilerin de reçetelerinize erişebileceğini unutmayın.</string>
+    <string name="redeem_online_detail_header">Bağlayıcı olarak kullan?</string>
+    <string name="redeem_online_detail_message">Bu vesileyle reçeteleriniz bu eczaneye gönderilecektir. Daha sonra bunları artık başka bir eczanede kullanamazsınız.</string>
+    <string name="redeem_online_no">İptal et</string>
+    <string name="redeem_online_yes">Şimdi kullan</string>
+    <string name="redeem_online_success_header">Başarıyla kullanıldı</string>
+    <string name="redeem_online_courier_success_message">Eczane teslimat ayrıntılarını netleştirmek için en kısa sürede sizinle iletişime geçecektir.</string>
+    <string name="redeem_online_mail_success_header">Siparişinizi tarayıcıda tamamlayın</string>
+    <string name="redeem_online_mail_success_step1">Ana sayfaya geç</string>
+    <string name="redeem_online_mail_success_step2">Çevrim içi eczanesi ilaçlarınızla birlikte bir alışveriş sepeti oluşturacaktır. Bu işlem birkaç dakika sürebilir.</string>
+    <string name="redeem_online_mail_success_step3">\"Alışveriş sepetini aç\"a dokunun ve eczanenin web sitesinde siparişinizi tamamlayın.</string>
+    <string name="redeem_online_back_home">Ana sayfaya git</string>
+    <string name="redeem_online_error_uploading">Gönderim başarısız oldu</string>
+    <string name="redeem_online_error_retry_label">Tekrarla</string>
+    <string name="redeem_online_local_success_message">Siparişiniz genellikle kısa sürede teslim almanız için hazırdır. Kesin randevu için lütfen eczane ile irtibata geçin.</string>
+    <string name="communication_shipment_inbox_header">Alışveriş sepetiniz hazır</string>
+    <string name="communication_local_inbox_header">Teslim alma kodu al</string>
+    <string name="communication_delivery_inbox_header">Bildirim alındı</string>
+    <string name="communication_local_action_text">Teslim alma kodunu göster</string>
+    <string name="communication_shipment_action_text">Alışveriş sepetini aç</string>
+    <string name="pickup_screen_info">Bu kodu eczanenizde gösterin.</string>
+    <string name="pickup_screen_title">Teslim alma kodu</string>
+    <string name="messages_empty_screen">Bildirim yok</string>
+    <string name="messages_empty_screen_info">Henüz herhangi bir bildirim almadınız</string>
+    <string name="communication_info_text_not_available">Maalesef eczanenizden gelen mesaj boştu. Lütfen eczanenizle iletişime geçin.</string>
+    <string name="contact_email_no_client">E-posta programı kurulmamış</string>
+    <string name="search_pharmacy_nothing_found_header">Sonuç yok</string>
+    <string name="search_pharmacy_nothing_found_info">Bu arama terimi ile herhangi bir sonuç bulamadık.</string>
+    <string name="settings_legal_licences">Open Source Lisansları</string>
+    <string name="settings_contact_headline">İletişim</string>
+    <string name="settings_contact_hotline">Teknik destek hattını ara</string>
+    <string name="settings_contact_mail">E-posta yaz</string>
+    <string name="settings_contact_feedback">Ankete katıl</string>
+    <string name="settings_contact_hotline_number">+49 800 277 377 7</string>
+</resources>

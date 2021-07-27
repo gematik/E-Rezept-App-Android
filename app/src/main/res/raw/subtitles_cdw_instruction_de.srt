@@ -1,0 +1,11 @@
+﻿1
+00:00:00,990 --> 00:00:04,000
+Halten Sie Ihre Gesundheitskarte an die Rückseite Ihres Smartphones.
+
+2
+00:00:06,100 --> 00:00:11,950
+Karte langsam hin- und herbewegen, bis eine Verbindung hergestellt wurde.
+
+3
+00:00:15,100 --> 00:00:19,030
+Karte ruhig halten und Anweisungen auf dem Display folgen

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="neutral">#FF000000</color>
+    <color name="background_color">#FF212121</color>
+    <color name="on_secondary">#000000</color>
+    <color name="toolbar_color_primary">#FF353535</color>
+    <color name="toolbar_color_on_primary">#FFFFFF</color>
+    <color name="text_body1">#FFFFFF</color>
+    <color name="text_body2">#FFBDBDBD</color>
+    <color name="neutral_000">#FFFFFF</color>
+    <color name="neutral_100">#FF424242</color>
+    <color name="neutral_700">#FFEEEEEE</color>
+    <color name="neutral_900">#FFFAFAFA</color>
+    <color name="primary_600">#FF4299E1</color>
+    <color name="primary_700">#FF63B3ED</color>
+    <color name="red_100">#7F742A2A</color>
+    <color name="red_500">#FFE53E3E</color>
+    <color name="red_900">#FFFED7D7</color>
+
+</resources>

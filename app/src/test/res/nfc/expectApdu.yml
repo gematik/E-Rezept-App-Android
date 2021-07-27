@@ -1,0 +1,491 @@
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+# ActivateCommand()
+ACTIVATECOMMAND_APDU-1:
+  apdu: "00440000"
+
+# ActivateCommand(byte[] reference) throws IOException
+ACTIVATECOMMAND_APDU-2:
+  apdu: "0044210003830100"
+
+# ActivateCommand(Key key, boolean dfSpecific)
+ACTIVATECOMMAND_APDU-3:
+  apdu-true: "00442089"
+  apdu-false: "00442009"
+
+# ActivateCommand(Password password, boolean dfSpecific)
+ACTIVATECOMMAND_APDU-4:
+  apdu-true: "00441081"
+  apdu-false: "00441001"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+#  ActivateRecordCommand(int recordNumber, boolean activateAllRecordsStartingFromRecordNumber)
+ACTIVATERECORDCOMMAND_APDU-1:
+  apdu-true: "00080105"
+  apdu-false: "00080104"
+
+#ActivateRecordCommand(ShortFileIdentifier sfi, int recordNumber, boolean activateAllRecordsStartingFromRecordNumber)
+ACTIVATERECORDCOMMAND_APDU-2:
+  apdu-true: "000801ED"
+  apdu-false: "000801EC"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+# AppendRecordCommand(byte[] data)
+APPENDRECORDCOMMAND_APDU-1:
+  apdu: "00E200000100"
+
+# AppendRecordCommand(ShortFileIdentifier sfi, byte[] data)
+APPENDRECORDCOMMAND_APDU-2:
+  apdu: "00E200E80100"
+
+
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+# ChangeReferenceDataCommand(Password password, boolean dfSpecific, Format2Pin newSecret)
+CHANGEREFERENCEDATACOMMAND_APDU-1:
+  apdu-true: "002401810826123456FFFFFFFF"
+  apdu-false: "002401010826123456FFFFFFFF"
+
+# ChangeReferenceDataCommand(Password password, boolean dfSpecific, Format2Pin oldSecret, Format2Pin newSecret)
+CHANGEREFERENCEDATACOMMAND_APDU-2:
+  apdu-true: "002400811026123456FFFFFFFF26123456FFFFFFFF"
+  apdu-false: "002400011026123456FFFFFFFF26123456FFFFFFFF"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+#DeactivateCommand() 
+DEACTIVATECOMMAND_APDU-1:
+  apdu: "00040000"
+
+# DeactivateCommand(Key key, boolean dfSpecific)  
+DEACTIVATECOMMAND_APDU-2:
+  apdu-true: "00042089"
+  apdu-false: "00042009"
+
+#DeactivateCommand(byte[] reference) throws IOException
+DEACTIVATECOMMAND_APDU-3:
+  apdu: "0004210003830100"
+
+# DeactivateCommand(Password password, boolean dfSpecific)
+DEACTIVATECOMMAND_APDU-4:
+  apdu-true: "00041081"
+  apdu-false: "00041001"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# DeactivateRecordCommand(int recordNumber, boolean deactivateAllRecordsStartingFromRecordNumber)
+DEACTIVATERECORDCOMMAND_APDU-1:
+  apdu-true: "00060105"
+  apdu-false: "00060104"
+
+#DeactivateRecordCommand(ShortFileIdentifier sfi, int recordNumber, boolean deactivateAllRecordsStartingFromRecordNumber)
+DEACTIVATERECORDCOMMAND_APDU-2:
+  apdu-true: 000601ED
+  apdu-false: 000601EC
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# DeleteCommand
+DELETECOMMAND_APDU-1:
+  apdu: "00E40000"
+
+# DeleteCommand(Password password, boolean dfSpecific)
+DELETECOMMAND_APDU-2:
+  apdu-true: "00E42089"
+  apdu-false: "00E42009"
+
+# DeleteCommand(byte[] reference) throws IOException
+DELETECOMMAND_APDU-3:
+  apdu: "00E4210003830100"
+
+# DeleteCommand(Key key, boolean dfSpecific)
+DELETECOMMAND_APDU-4:
+  apdu-true: "00E41081"
+  apdu-false: "00E41001"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# DeleteRecordCommand(ShortFileIdentifier sfi, int recordNumber)
+DELETERECORDCOMMAND_APDU-1:
+  apdu: 800C0104
+
+# DeleteRecordCommand(int recordNumber)
+DELETERECORDCOMMAND_APDU-2:
+  apdu: 800C01EC
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# DisableVerificationRequirementCommand(Password password, boolean dfSpecific)
+DISABLEVERIFICATIONREQUIREMENTCOMMAND_APDU-1:
+  apdu-true: 002600810826123456FFFFFFFF
+  apdu-false: 002600010826123456FFFFFFFF
+
+# DisableVerificationRequirementCommand(Password password, boolean dfSpecific, Format2Pin verificationData)
+DISABLEVERIFICATIONREQUIREMENTCOMMAND_APDU-2:
+  apdu-true: "00260181"
+  apdu-false: "00260101"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# EnableVerificationRequirementCommand(Password password, boolean dfSpecifica)
+ENABLEVERIFICATIONREQUIREMENTCOMMAND_APDU-1:
+  apdu-true: 002800810826123456FFFFFFFF
+  apdu-false: 002800010826123456FFFFFFFF
+# EnableVerificationRequirementCommand(Password password, boolean dfSpecific, Format2Pin verificationData)
+ENABLEVERIFICATIONREQUIREMENTCOMMAND_APDU-2:
+  apdu-true: "00280181"
+  apdu-false: "00280101"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# EraseCommand
+ERASECOMMAND_APDU-1:
+  apdu: "000E0000"
+
+# EraseCommand(int offset)
+ERASECOMMAND_APDU-2:
+  apdu: "000E0000"
+
+  # EraseCommand.EraseCommand(ShortFileIdentifier sfi)
+ERASECOMMAND_APDU-3:
+  apdu: 000E9D00
+
+  # EraseCommand.EraseCommand(ShortFileIdentifier sfi, int offset)
+ERASECOMMAND_APDU-4:
+  apdu: 000E9D00
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# EraseRecordCommand(int recordNumber)
+ERASERECORDCOMMAND_APDU-1:
+  apdu: 000C0104
+
+# EraseRecordCommand(ShortFileIdentifier sfi, int recordNumber)
+ERASERECORDCOMMAND_APDU-2:
+  apdu: 000C01EC
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+#  ExternalMutualAuthenticateCommand(PsoAlgorithm psoAlgorithm, byte[] cmdData, boolean expectResponseData)
+EXTERNALMUTUALAUTHENTICATECOMMAND_APDU:
+  apdu-true: "00820000000001000000"
+  apdu-false: "008200000100"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# FingerprintCommand(@NotNull byte[] prefix)
+FINGERPRINTCOMMAND_APDU:
+  apdu: 80FA0000000080000102030405060708090A0B0C0D0E0F101112131415161718191A1B1C1D1E1F202122232425262728292A2B2C2D2E2F303132333435363738393A3B3C3D3E3F404142434445464748494A4B4C4D4E4F505152535455565758595A5B5C5D5E5F606162636465666768696A6B6C6D6E6F707172737475767778797A7B7C7D7E7F0000
+# ------------------------------------------------------------------------------------------------------------------------------------------
+#GenerateAsymmetricKeyPairCommand$GakpUseCase,Key,boolean:
+GENERATEASYMMETRICKEYPAIRCOMMAND_APDU:
+  apdu-true: 0046C089000000
+  apdu-false: 0046C009000000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+#GeneralAuthenticateCommand(boolean):
+GENERALAUTHENTICATECOMMAND_APDU-1:
+  apdu-true: 10860000027C0000
+  apdu-false: 00860000027C0000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+#GeneralAuthenticateCommand(boolean, Pk1Pcd, 1)
+GENERALAUTHENTICATECOMMAND_APDU-2:
+  apdu-true: 10860000047C02810000
+  apdu-false: 00860000047C02810000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+#GeneralAuthenticateCommand(boolean, Pk1Pcd, 3)
+GENERALAUTHENTICATECOMMAND_APDU-3:
+  apdu-true: 10860000047C02830000
+  apdu-false: 00860000047C02830000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+#GeneralAuthenticateCommand(boolean, Pk1Pcd, 5)
+GENERALAUTHENTICATECOMMAND_APDU-4:
+  apdu-true: 10860000877C81848181
+  apdu-false: 00860000877C81848181
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+
+# GetChallengeCommand(int numberOfExpectedOctets)
+GETCHALLENGECOMMAND_APDU:
+  apdu: "0084000008"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# GetPinStatusCommand(Password password, boolean dfSpecific)
+GETPINSTATUSCOMMAND_APDU:
+  apdu-true: "80200081"
+  apdu-false: "80200001"
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# GetRandomCommand(int numberOfExpectedOctetsInResponse)
+GETRANDOMCOMMAND_APDU:
+  apdu: "8084000000"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# InternalAuthenticateCommand(PsoAlgorithm psoAlgorithm, byte[] token)
+INTERNALAUTHENTICATECOMMAND_APDU:
+  apdu: "00880000000001000000"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# ListPublicKeyCommand
+LISTPUBLICKEYCOMMAND_APDU:
+  apdu: 80CA0100000000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# LoadApplicationCommand(byte[] data, boolean commandChaining)
+LOADAPPLICATIONCOMMAND_APDU:
+  apdu-true: 10EA00000100
+  apdu-false: 00EA00000100
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# ManageChannelCommand(boolean ifTrueOpenNewChannelElseResetOnApplicationLevel)
+MANAGECHANNELCOMMAND_APDU-1:
+  apdu-true: "0070000001"
+  apdu-false: "00704001"
+
+# ManageChannelCommand(int logicalChannelNumber, boolean ifTrueCloseChannelElseResetChannel)
+MANAGECHANNELCOMMAND_APDU-2:
+  apdu-true: "01708000"
+  apdu-false: "01704000"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# ManageSecurityEnvironmentCommand(int)
+MANAGESECURITYENVIRONMENTCOMMAND_APDU-1:
+  apdu: 0022F301
+
+
+# ManageSecurityEnvironmentCommand(de.gematik.ti.healthcardaccess.commands.ManageSecurityEnvironmentCommand$MseUseCase,de.gematik.ti.healthcardaccess.cardobjects.Key,boolean,byte[])
+MANAGESECURITYENVIRONMENTCOMMAND_APDU-3:
+  apdu-true: 0022C1A406800100830189
+  apdu-false: 0022C1A406800100830109
+
+# ManageSecurityEnvironmentCommand$MseUseCase,de.gematik.ti.healthcardaccess.cardobjects.Key,boolean,byte[],int)
+MANAGESECURITYENVIRONMENTCOMMAND_APDU-4:
+  apdu-true: 0022C1A409800100830189840110
+  apdu-false: 0022C1A409800100830109840110
+
+# ManageSecurityEnvironmentCommand(de.gematik.ti.healthcardaccess.commands.ManageSecurityEnvironmentCommand$MseUseCase,de.gematik.ti.healthcardaccess.cardobjects.GemCvCertificate)
+MANAGESECURITYENVIRONMENTCOMMAND_APDU-5:
+  apdu: 002281B60A83084445475858830214
+
+# ManageSecurityEnvironmentCommand(de.gematik.ti.healthcardaccess.commands.ManageSecurityEnvironmentCommand$MseUseCase,de.gematik.ti.healthcardaccess.cardobjects.PsoAlgorithm,byte[])
+MANAGESECURITYENVIRONMENTCOMMAND_APDU-6:
+  apdu: 002281A406830100800105
+
+MANAGESECURITYENVIRONMENTCOMMAND_APDU-7:
+  apdu: 002241A406830118800105
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# PsoComputeCryptographicChecksum(de.gematik.ti.healthcardaccess.cardobjects.PsoAlgorithm,byte[])
+PSOCOMPUTECRYPTOGRAPHICCHECKSUM_APDU:
+  apdu: 002A8E8000000501090203040000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# PsoComputeCryptographicChecksum(de.gematik.ti.healthcardaccess.cardobjects.PsoAlgorithm,byte[])
+PSOVERIFYCRYPTPGRAPHICCHECKSUMCOMMAND_APDU:
+  apdu: 002A00A2108004090203048E083AE43D7CC33DD192
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# PsoComputeDigitalSignatureCommand(de.gematik.ti.healthcardaccess.cardobjects.PsoAlgorithm,byte[])
+PSOCOMPUTEDIGITALSIGNATURECOMMAND_APDU-1:
+  apdu: 002A9E9A0000206691A8D098B317D8AAE2256632F294A190F8C775334FC2B5001DE79856A11EF80000
+
+PSOCOMPUTEDIGITALSIGNATURECOMMAND_APDU-2:
+  apdu: 002A9E9A0000206691A8D098B317D8AAE2256632F294A190F8C775334FC2B5001DE79856A11EF80000
+
+PSOCOMPUTEDIGITALSIGNATURECOMMAND_APDU-3:
+  apdu: 002A9E9A0000333031300D0609608648016503040201050004206691A8D098B317D8AAE2256632F294A190F8C775334FC2B5001DE79856A11EF80000
+
+PSOCOMPUTEDIGITALSIGNATURECOMMAND_APDU-4:
+  apdu: 002A9E9A0000333031300D0609608648016503040201050004206691A8D098B317D8AAE2256632F294A190F8C775334FC2B5001DE79856A11EF80000
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# PsoDecipher(de.gematik.ti.healthcardaccess.cardobjects.PsoAlgorithm,byte[])
+PSODECIPHER_APDU:
+  apdu: 002A808600000200000000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+PSOENCIPHER_APDU-1:
+  apdu: 002A868000011DA08201198001017F4982010A818201010094BEEBAA816749F9F304AC9EE7C70A13DCF6D2C9E511CEA7C07822CBAA21B713BB90DBDA98D9E12AA48076DC40B632EC9DFC9A8C5A7A51B92601D7A17D1FF1C8E164747CB1A95ABF14D8EA515B920167DFE2623580F43740A8109966A7CBFB663189F67EF3FDAA83075A67875C4D2715F38E0DE1270B05BD1F7BC192E9ABEF8938053481D9CA2612051822AB0AD1E61FF8E5423F4A8221BF0765C6658EC00B6A7F4E5A1FBC4F997E6FF35FD85BC2FBB5C797B63AF48194D31E4959F7651E8F5E1F1AF8819948DE2EA1123C5D9AD892B89E78BE63D582290BB548C4918E7B69F0784EAA4AE8706FFF643696E9F1FF9C01951E3BF318991611C77928066174E38182030100018005ABCE4412340000
+
+
+PSOENCIPHER_APDU-2:
+  apdu: 002A868000005DA05B80010B06092B24030302080101077F49438641047768387A5191CDF07F9BCCB0A627A889BB712CF5711A5932613AE693F52BB831368B1B6AD0EB5671FE1AF0BE188C2A05F7B09173791BC99F3A495933FFE08A348005ABCE4412340000
+
+PSOENCIPHER_APDU-3:
+  apdu: 002A8680000005ABCE4412340000
+
+PSOENCIPHER_APDU-4:
+  apdu: 002A868000011DA08201198001057F4982010A818201010094BEEBAA816749F9F304AC9EE7C70A13DCF6D2C9E511CEA7C07822CBAA21B713BB90DBDA98D9E12AA48076DC40B632EC9DFC9A8C5A7A51B92601D7A17D1FF1C8E164747CB1A95ABF14D8EA515B920167DFE2623580F43740A8109966A7CBFB663189F67EF3FDAA83075A67875C4D2715F38E0DE1270B05BD1F7BC192E9ABEF8938053481D9CA2612051822AB0AD1E61FF8E5423F4A8221BF0765C6658EC00B6A7F4E5A1FBC4F997E6FF35FD85BC2FBB5C797B63AF48194D31E4959F7651E8F5E1F1AF8819948DE2EA1123C5D9AD892B89E78BE63D582290BB548C4918E7B69F0784EAA4AE8706FFF643696E9F1FF9C01951E3BF318991611C77928066174E38182030100018005ABCE4412340000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# PsoVerifyDigitalSignatureCommand(java.security.interfaces.ECPublicKey,byte[],byte[])
+PSOVERIFYCERTIFICATECOMMAND_APDU:
+  apdu: 002A00BEDC7F2181D87F4E81915F290170420844454758588302147F494D06082A8648CE3D04030286410472357CC3A35AB5CC4B17525D2A8270ED318E2697EAE30652D11DBAE26713F6B45ACF36A0D20A0EAEB569F09A5122C97080E78452FA82F8642CC7C6FDA97E545B5F200844454745581502147F4C1306082A8214004C048118530780FF7BDFF9FF0C5F25060104010102055F24060202010102045F37400FC9838053EA11D98AB2E4A7CA7D6D3641F5277C04BCF855AE04F56190F60B3E0F34DFF07B5AE1B985FEEAC082D5F483C54E43F768BDCA3EBEE0D59B6805829C
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# ECPublicKey,byte[],byte[]
+# hash:6691A8D098B317D8AAE2256632F294A190F8C775334FC2B5001DE79856A11EF8
+# signature:20B7D1F2D57E8A8DE38B50D651D3C9B60613831A622DBC4F171461014B60CEB42A317697EA02AFA66EBD61F4DB0BEF22ADC84A1302C49D683064995612328309
+PSOVERIFYDIGITALSIGNATURECOMMAND_APDU:
+  apdu: 002A00A8B706092B240303020801010790206691A8D098B317D8AAE2256632F294A190F8C775334FC2B5001DE79856A11EF89C467F49438641047768387A5191CDF07F9BCCB0A627A889BB712CF5711A5932613AE693F52BB831368B1B6AD0EB5671FE1AF0BE188C2A05F7B09173791BC99F3A495933FFE08A349E4020B7D1F2D57E8A8DE38B50D651D3C9B60613831A622DBC4F171461014B60CEB42A317697EA02AFA66EBD61F4DB0BEF22ADC84A1302C49D683064995612328309
+#
+# ------------------------------------------------------------------------------------------------------------------------------------------
+READCOMMAND_APDU-1:
+  apdu: 00B00000000000
+
+# ReadCommand(int,int)
+READCOMMAND_APDU-2:
+  apdu: 00B0000000
+
+# ReadCommand(int)
+READCOMMAND_APDU-3:
+  apdu: 00B00000000000
+
+# ReadCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier)
+READCOMMAND_APDU-4:
+  apdu: 00B09D00000000
+
+# ReadCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,int)
+READCOMMAND_APDU-5:
+  apdu: 00B09D00000000
+
+# ReadCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,int,int)
+READCOMMAND_APDU-6:
+  apdu: 00B09D0000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# ReadRecordCommand(int)
+READRECORDCOMMAND_APDU-1:
+  apdu: 00B20104000000
+
+# ReadRecordCommand(int,int)
+READRECORDCOMMAND_APDU-2:
+  apdu: 00B2010400
+
+# ReadRecordCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,int)
+READRECORDCOMMAND_APDU-3:
+  apdu: 00B201EC000000
+
+# ReadRecordCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,int,int)
+READRECORDCOMMAND_APDU-4:
+  apdu: 00B201EC00
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# SearchRecordCommand(int,byte[])
+SEARCHRECORDCOMMAND_APDU-1:
+  apdu: 00A20104010000
+
+# SearchRecordCommand(int,byte[],int)
+SEARCHRECORDCOMMAND_APDU-2:
+  apdu: 00A20104010000
+
+# SearchRecordCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,int,byte[])
+SEARCHRECORDCOMMAND_APDU-3:
+  apdu: 00A201EC010000
+
+# SearchRecordCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,int,byte[],int)
+SEARCHRECORDCOMMAND_APDU-4:
+  apdu: 00A201EC010000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# SelectCommand(boolean selectParentElseRoot, boolean readFirst)
+SELECTCOMMAND_APDU-1:
+  apdu-false-false: 00A4040C
+  apdu-true-false: 00A4030C
+  apdu-false-true: 00A40404000000
+  apdu-true-true: 00A40304000000
+
+# SelectCommand(ApplicationIdentifier aid) 
+SELECTCOMMAND_APDU-2:
+  apdu: 00A4040C06D27600000102
+
+# SelectCommand(FileIdentifier fid, boolean selectDfElseEf)
+SELECTCOMMAND_APDU-4:
+  apdu-true: 00A4010C022F01
+  apdu-false: 00A4020C022F01
+
+# SelectCommand(ApplicationIdentifier aid, boolean selectNextElseFirstOccurrence, boolean requestFcp, int fcpLength)
+SELECTCOMMAND_APDU-3:
+  apdu-true-true: 00A4040606D2760000010264
+  apdu-true-false: 00A4040E06D27600000102
+  apdu-false-true: 00A4040406D2760000010264
+  apdu-false-false: 00A4040C06D27600000102
+
+# SelectCommand(FileIdentifier fid, boolean selectNextElseFirstOccurrence, boolean requestFcp, int fcpLength)
+SELECTCOMMAND_APDU-5:
+  apdu-true-true: 00A40104022F0164
+  apdu-true-false: 00A4010C022F01
+  apdu-false-true: 00A40204022F0164
+  apdu-false-false: 00A4020C022F01
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+SETLOGICALEOFCOMMAND_APDU-1:
+  apdu: "80E00000"
+
+#(int)
+SETLOGICALEOFCOMMAND_APDU-2:
+  apdu: "80E00000"
+
+# ShortFileIdentifier
+SETLOGICALEOFCOMMAND_APDU-3:
+  apdu: "80E09D00"
+
+# ShortFileIdentifier,int
+SETLOGICALEOFCOMMAND_APDU-4:
+  apdu: "80E09D00"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+# TerminateCardUsageCommand
+TERMINATECARDUSAGECOMMAND_APDU:
+  apdu: 00FE0000
+
+# ------------------------------------------------------------------------------------------------------------------------------------------
+TERMINATECOMMAND_APDU-1:
+  apdu: "00E80000"
+
+  #.Key,boolean)
+TERMINATECOMMAND_APDU-2:
+  apdu-true: "00E82089"
+  apdu-false: "00E82009"
+
+#byte[]
+TERMINATECOMMAND_APDU-3:
+  apdu: "00E8210003830100"
+
+# Password,boolean
+TERMINATECOMMAND_APDU-4:
+  apdu-true: "00E81081"
+  apdu-false: "00E81001"
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+#TerminateDfCommand
+TERMINATEDFCOMMAND_APDU:
+  apdu: "00E60000"
+
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+# UpdateCommand(byte[])
+UPDATECOMMAND_APDU-1:
+  apdu: "00D600000100"
+
+# UpdateCommand(int,byte[])
+UPDATECOMMAND_APDU-2:
+  apdu: "00D600000100"
+
+# UpdateCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,byte[])
+UPDATECOMMAND_APDU-3:
+  apdu: 00D69D000100
+
+# UpdateCommand(de.gematik.ti.healthcardaccess.cardobjects.ShortFileIdentifier,int,byte[])
+UPDATECOMMAND_APDU-4:
+  apdu: 00D69D000100
+
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+# int,byte[]
+UPDATERECORDCOMMAND_APDU-1:
+  apdu: 00DC01040100
+
+# ShortFileIdentifier,int,byte[]
+UPDATERECORDCOMMAND_APDU-2:
+  apdu: 00DC01EC0100
+
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+# Password,boolean,Format2Pin
+VERITYCOMMAND_APDU:
+  apdu-true: 002000810826123456FFFFFFFF
+  apdu-false: 002000010826123456FFFFFFFF
+
+# ------------------------------------------------------------------------------------------------------------------------------------------  
+# byte[]
+WRITECOMMAND_APDU-1:
+  apdu: 00D000000100
+#( ShortFileIdentifier,byte[]
+WRITECOMMAND_APDU-2:
+  apdu: 00D09D000100
