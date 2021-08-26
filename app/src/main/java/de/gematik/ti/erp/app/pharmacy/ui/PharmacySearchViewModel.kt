@@ -126,13 +126,7 @@ class PharmacySearchViewModel @Inject constructor(
                             }
                         }.map<PharmacyUseCaseData.Pharmacy, PharmacySearchUi> {
                             PharmacySearchUi.Pharmacy(it)
-                        }.let {
-                            if (defaultState.showLocationHint) {
-                                it.insertHeaderItem(item = PharmacySearchUi.LocationHint)
-                            } else {
-                                it
-                            }
-                        }
+                        }.insertHeaderItem(item = PharmacySearchUi.LocationHint)
                     }
                     .cachedIn(viewModelScope)
             }.shareIn(

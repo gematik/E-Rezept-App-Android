@@ -40,8 +40,8 @@ import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.onboarding.ui.NEW_USER
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
+import de.gematik.ti.erp.app.settings.ui.NEW_USER
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking

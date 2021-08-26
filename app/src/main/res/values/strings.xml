@@ -2,6 +2,7 @@
 <resources>
     <string name="app_name">E-Rezept</string>
     <string name="ok">Okay</string>
+    <string name="understand">Verstanden</string>
     <string name="cancel">Abbrechen</string>
     <string name="back">Zurück</string>
     <string name="at">um</string>
@@ -11,6 +12,7 @@
     <string name="audit_protocol_sync_failed">Aktualisierung fehlgeschlagen. Bitte aktualisieren Sie Ihre Rezepte erneut.</string>
     <!-- Onboarding -->
     <string name="on_boarding_page_1_header">Digital. Schnell. Sicher.</string>
+    <string name="on_boarding_page_1_headline">erhalten. einlösen. verwalten.</string>
     <string name="on_boarding_page_2_header">Willkommen in der E-Rezept-App</string>
     <string name="on_boarding_page_2_info">Hier können Sie elektronische Rezepte in einer Apotheke Ihrer Wahl einlösen, direkt vor Ort oder online.</string>
     <string name="on_boarding_page_3_header">Mehr Funktionen mit Ihrer Gesundheitskarte</string>
@@ -31,6 +33,8 @@
     <string name="task_id">Task-ID</string>
     <string name="access_code">Access-Code</string>
     <string name="copied_clipboard">Kopiert</string>
+    <string name="consistent_password">Wiederholtes Passwort stimmt überein</string>
+
     <!-- On-Boarding -->
     <string name="onb_terms_of_use">Nutzungsbedingungen</string>
     <string name="onb_data_consent">Datenschutzerklärung</string>
@@ -204,6 +208,13 @@
     <string name="auth_prompt_cancel">Abbrechen</string>
     <string name="auth_link_to_gematik">https://www.das-e-rezept-fuer-deutschland.de/</string>
     <string name="auth_link_to_gematik_text">das-e-rezept-fuer-deutschland.de</string>
+    <string name="auth_prompt_enter_password">Kennwort eingeben</string>
+    <string name="auth_prompt_check_password">Weiter</string>
+    <string name="auth_error_failed_auths_headline">Erfolglose Anmeldeversuche</string>
+    <plurals name="auth_error_failed_auths_info">
+        <item quantity="one">Es wurde %s erfolgloser Anmeldeversuche festgestellt.</item>
+        <item quantity="other">Es wurden %s erfolglose Anmeldeversuche festgestellt.</item>
+    </plurals>
     <!-- Settings Menu -->
     <string name="settings_headline">Einstellungen</string>
     <string name="settings_user_unknown">Name unbekannt</string>
@@ -212,18 +223,33 @@
     <string name="settings_demo_headline">Zum Ausprobieren</string>
     <string name="settings_demo_info">Der Demo-Modus erlaubt es Ihnen, alle Bereiche der App auch ohne elektronische Gesundheitskarte zu erkunden.</string>
     <string name="settings_demo_toggle">Demo-Modus</string>
+    <string name="settings_accessibility_headline">Bedienungshilfen</string>
+    <string name="settings_accessibility_zoom_toggle">Zoomen</string>
+    <string name="settings_accessibility_zoom_info">Ermöglicht das Vergrößern der App über das Zusammen- oder Auseinanderziehen der Finger (Pinch-to-Zoom).</string>
     <string name="settings_appprotection_headline">Sicherheit</string>
     <string name="settings_appprotection_info">Schützen Sie Ihre Gesundheitsinformationen vor dem Zugriff Unbefugter.</string>
-    <string name="settings_appprotection_mode_none_headline">Nicht sichern</string>
-    <string name="settings_appprotection_mode_none_info">Nicht empfohlen</string>
-    <string name="settings_appprotection_mode_biometric_strong_headline">Biometrie</string>
-    <string name="settings_appprotection_mode_biometric_strong_info">Diese App verwendet den sichersten biometrischen Sensor, der von Ihrem Gerät zur Verfügung gestellt wird.</string>
-    <string name="settings_appprotection_mode_biometric_credentials_headline">Gerätesicherung</string>
-    <string name="settings_appprotection_mode_biometric_credentials_info">Nicht empfohlen</string>
+
+
+    <string name="settings_appprotection_device_security_header">Beste Gerätesicherung wählen</string>
+    <string name="settings_appprotection_device_security_info">Hierbei kann es sich um Fingerabdruck, Wischmuster oder ähnliches handeln</string>
+    <string name="settings_appprotection_device_security_disabled_info">Die beste verfügbare Geräteabsicherung wurde nicht eingerichtet. Hierbei kann es sich um Fingerabdruck, Wischmuster oder ähnliches handeln</string>
+
+
     <string name="settings_legal_headline">Rechtliches</string>
     <string name="settings_legal_imprint">Impressum</string>
     <string name="settings_legal_dataprotection">Datenschutz</string>
     <string name="settings_legal_tos">Nutzungsbedingungen</string>
+    <string name="token_headline">Tokens</string>
+    <string name="access_token_title">Access Token</string>
+    <string name="single_sign_on_token_title">SSO Token</string>
+
+    <string name="no_access_token">Kein Access Token verfügbar</string>
+    <string name="no_single_sign_on_token">kein SSO Token verfügbar</string>
+    <string name="copied">in die Zwischenablage kopiert</string>
+    <string name="copy_content_description">Klicken, um den Token in die Zwischenablage zu koperen</string>
+
+
+
     <!-- Hints -->
     <string name="prescription_overview_hint_welcome_to_demo_headline">Demo-Modus aktiviert</string>
     <string name="prescription_overview_hint_welcome_to_demo_text">Unser Demo-Modus zeigt Ihnen alle Funktionen der App – ganz ohne Gesundheitskarte.</string>
@@ -380,6 +406,18 @@
     <string name="settings_tracking_dialog_title">Erlauben Sie E-Rezept Ihr Nutzerverhalten anonym zu analysieren?</string>
     <string name="settings_tracking_dialog_text">Das umfasst Hard- und Softwareinformationen Ihres Telefons, Einstellungen der E-Rezept App sowie Umfang der Nutzung, jedoch niemals Daten über Ihre Person oder Ihre Gesundheit.\nDie Daten werden durch Datenverarbeitungsnehmer nur der gematik GmbH zur Verfügung gestellt und nach 180 Tagen spätestens gelöscht. Sie können die Analyse jederzeit wieder im Menü der App deaktivieren.\nWir können durch diese Daten nachvollziehen, welche Funktionen häufig genutzt werden, und diese verbessern. Ferner können wir einschätzen, wie lange ältere Technik unterstützt werden muss, und wann wir z. B. eine neuere Betriebssystemversion verpflichtend machen können, ohne (zu viele) Nutzer zu betreffen.</string>
     <string name="settings_tracking_allow">Erlauben</string>
+    <string name="settings_device_security_allow">Erlauben</string>
+
+    <string name="settings_appprotection_mode_password_headline">Kennwort</string>
+    <string name="settings_appprotection_mode_password_info">Sichern Sie Ihre Daten mit einem selbstgewählten Passwort.</string>
+    <string name="settings_password_headline">Kennwort</string>
+    <string name="settings_password_save">Speichern</string>
+    <string name="settings_password_acc_show_password_toggle">Kennwort anzeigen lassen</string>
+    <string name="settings_password_enter_password">Kennwort eingeben</string>
+    <string name="settings_password_hint">Sie können beliebige Zahlen, Buchstaben oder Sonderzeichen verwenden.</string>
+    <string name="settings_password_repeat_password">Kennwort wiederholen</string>
+    <string name="settings_password_strength">Kennwortstärke</string>
+    <string name="settings_password_suggestions">Empfehlungen: %s</string>
     <plurals name="prescription_overview_hint_new_prescriptions_headline">
         <item quantity="one">Ihnen wurde %s Medikament verschrieben</item>
         <item quantity="other">Ihnen wurden %s Medikamente verschrieben</item>
@@ -433,10 +471,12 @@
     <string name="settings_contact_hotline">Technische Hotline anrufen</string>
     <string name="settings_contact_mail">Mail schreiben</string>
     <string name="settings_contact_feedback">An Umfrage teilnehmen</string>
-    <string name="settings_contact_feedback_form">Feedback geben</string>
+    <string name="settings_contact_feedback_form">Mail schreiben</string>
     <string name="settings_contact_hotline_number">+49 800 277 377 7</string>
     <string name="settings_contact_mail_address" translatable="false">app-feedback@gematik.de</string>
     <string name="settings_contact_feedback_adress" translatable="false">https://gematik.shortcm.li/app_feedback</string>
+    <string name="settings_show_token">Tokens anzeigen</string>
+
     <string name="learn_more_btn">Mehr erfahren</string>
     <string name="on_boarding_page_1_acc_image">Lächelnde Familie</string>
     <string name="on_boarding_page_2_acc_image">Apotheker hält ein Smartphone in der Hand und freut sich auf Sie.</string>
@@ -450,6 +490,18 @@
     <string name="on_boarding_page_5_label_info">Sie können diese Entscheidung in den Systemeinstellungen jederzeit ändern.</string>
     <string name="on_boarding_page_5_anonym">anonym</string>
     <string name="on_boarding_page_5_next">Weiter</string>
+
+
+    <string name="on_boarding_secure_app_page_header">Wie möchten Sie diese App absichern?</string>
+    <string name="on_boarding_secure_app_page_info">Machen Sie es Unbefugten schwerer, an Ihre Daten zu gelangen und sichern Sie den Start der App.</string>
+
+    <string name="onboarding_secure_app_or">Oder</string>
+    <string name="onboarding_secure_app_button_best">Beste Gerätesicherung wählen</string>
+    <string name="onboarding_secure_app_button_best_chosen">Beste Gerätesicherung gewählt</string>
+    <string name="onboarding_secure_app_button_best_info">Diese App verwendet die sicherste Methode, die von Ihrem Gerät zur Verfügung gestellt wird. Hierbei kann es sich um Fingerabdruck, Wischmuster oder ähnliches handeln.</string>
+
+
+
     <string name="settings_tracking_dialog_text_1">Das umfasst Hard- und Softwareinformationen Ihres Telefons, Einstellungen der E-Rezept App sowie Umfang der Nutzung, jedoch niemals Daten über Ihre Person oder Ihre Gesundheit.</string>
     <string name="settings_tracking_dialog_text_2">Die Daten werden durch Datenverarbeitungsnehmer nur der gematik GmbH zur Verfügung gestellt und nach 180 Tagen spätestens gelöscht. Sie können die Analyse jederzeit wieder im Menü der App deaktivieren.</string>
     <string name="settings_tracking_dialog_text_3">Wir können durch diese Daten nachvollziehen, welche Funktionen häufig genutzt werden, und diese verbessern. Ferner können wir einschätzen, wie lange ältere Technik unterstützt werden muss, und wann wir z.B. eine neuere Betriebssystemversion verpflichtend machen können, ohne (zu viele) Nutzer zu betreffen.</string>
@@ -461,12 +513,15 @@
     <string name="settings_feedback_form_header">Wir freuen uns auf Ihr Feedback</string>
     <string name="settings_feedback_form_placeholder">Je konkreter, desto besser</string>
     <string name="seetings_feedback_form_additional_data_info">Beim Senden Ihrer Nachricht werden folgende Informationen über genutzte Hardware und Betriebssystem übertragen:</string>
-    <string name="seetings_feedback_form_additional_data_os">Betriebssystem: Android %s (Entwicklerversion %s) (letztes Sicherheitsupdate %s)</string>
-    <string name="seetings_feedback_form_additional_data_device">Modell: %s %s (Codename %s)</string>
-    <string name="seetings_feedback_form_additional_data_darkmode_on">Dunkles Design: an</string>
-    <string name="seetings_feedback_form_additional_data_darkmode_off">Dunkles Design: aus</string>
-    <string name="seetings_feedback_form_additional_data_language">Sprache der App: %s</string>
-    <string name="settings_feedback_form_send">Mail senden</string>
+    <string name="seetings_feedback_form_additional_data_os">Betriebssystem</string>
+    <string name="seetings_feedback_form_additional_data_os_detail">Android %s (Entwicklerversion %s) (letztes Sicherheitsupdate %s)</string>
+    <string name="seetings_feedback_form_additional_data_device">Modell</string>
+    <string name="seetings_feedback_form_additional_data_device_detail">%s %s (Codename %s)</string>
+    <string name="seetings_feedback_form_additional_data_darkmode">Modus</string>
+    <string name="seetings_feedback_form_additional_data_darkmode_on">Dunkles Design</string>
+    <string name="seetings_feedback_form_additional_data_darkmode_off">Helles Design</string>
+    <string name="seetings_feedback_form_additional_data_language">Sprache</string>
+    <string name="settings_feedback_form_send">Senden</string>
     <string name="settings_feedback_form_headline">Feedback</string>
     <string name="pres_detail_medication_redeem_button_text">Bestellen oder reservieren</string>
     <string name="redeem_synced_prescriptions_dialog_header">Rezepte werden automatisch als eingelöst markiert</string>
@@ -486,6 +541,12 @@
     <string name="cdw_helper_acknowledged">Verstanden</string>
     <string name="cdw_helper_title">Neue Gesundheitskarte beantragen</string>
     <string name="cdw_helper_text">Diese App hilft Ihnen dabei, eine neue elektronische Gesundheitskarte zu beantragen. Es entstehen Ihnen hierbei keine Kosten.</string>
+
+    <string name="insecure_device_title">Hinweis</string>
+    <string name="insecure_device_header">Für dieses Gerät wurde keine Gerätesicherung eingerichtet</string>
+    <string name="insecure_device_info">Wir empfehlen Ihnen, Ihre medizinischen Daten zusätzlich durch eine Gerätesicherung wie beispielsweise einen Code oder Biometrie zu schützen.</string>
+    <string name="insecure_device_accept">Diesen Hinweis in Zukunft nicht mehr anzeigen.</string>
+
 
     <!-- Alternate Authentication Popup -->
     <string name="alternate_auth_header">Anmelden</string>
@@ -523,4 +584,8 @@
     <string name="cdw_helper_label_input_security_number">Versichertennummer</string>
 
 
+    <string name="error_message_network_not_available">Verbindung fehlgeschlagen. Eine Netzwerkverbindung konnte nicht aufgebaut werden.</string>
+    <string name="error_message_server_communication_failed">Kommunikation mit dem Server fehlgeschlagen: Statuscode %s.</string>
+    <string name="error_message_vau_error">Kommunikation mit dem Server fehlgeschlagen: VAU Fehler</string>
+    <string name="settings_no_active_token">Keine aktiven Tokens</string>
 </resources>

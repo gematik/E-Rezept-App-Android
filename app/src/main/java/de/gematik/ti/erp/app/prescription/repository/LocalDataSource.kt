@@ -83,7 +83,7 @@ class LocalDataSource @Inject constructor(
 
     fun getAuditSyncDate(): LocalDateTime? {
         val storedDate = securePrefs.getLong(AUDIT_SYNC_DATE_KEY, -1)
-        if (storedDate.equals(-1)) return null
+        if (storedDate == -1L) return null
         return LocalDateTime.ofEpochSecond(storedDate, 0, ZoneOffset.UTC)
     }
 
@@ -99,8 +99,11 @@ class LocalDataSource @Inject constructor(
         return db.taskDao().getAllTasks()
     }
 
-    fun loadTasksWithoutBundle(): Flow<List<Task>> =
-        db.taskDao().getAllTasksWithoutBundle()
+    fun loadScannedTasksWithoutBundle(): Flow<List<Task>> =
+        db.taskDao().getScannedTasksWithoutBundle()
+
+    fun loadSyncedTasksWithoutBundle(): Flow<List<Task>> =
+        db.taskDao().getSyncedTasksWithoutBundle()
 
     fun loadTaskWithMedicationDispenseForTaskId(taskId: String): Flow<TaskWithMedicationDispense> {
         return db.taskDao().getTaskWithMedicationDispenseForTaskId(taskId)

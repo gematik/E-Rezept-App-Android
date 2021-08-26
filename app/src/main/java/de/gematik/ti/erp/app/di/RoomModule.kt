@@ -33,6 +33,9 @@ import de.gematik.ti.erp.app.db.MIGRATION_1_2
 import de.gematik.ti.erp.app.db.MIGRATION_2_3
 import de.gematik.ti.erp.app.db.MIGRATION_3_4
 import de.gematik.ti.erp.app.db.MIGRATION_4_5
+import de.gematik.ti.erp.app.db.MIGRATION_5_6
+import de.gematik.ti.erp.app.db.MIGRATION_6_7
+import de.gematik.ti.erp.app.db.MIGRATION_7_8
 import de.gematik.ti.erp.app.db.converter.TruststoreConverter
 import java.util.UUID
 import javax.inject.Qualifier
@@ -67,7 +70,7 @@ object RoomModule {
             AppDatabase::class.java,
             "db"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
             .addTypeConverter(truststoreConverter)
             .openHelperFactory(factory)
             .build()

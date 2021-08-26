@@ -64,7 +64,7 @@ private const val NETWORK_SECURE_PREFS_FILE_NAME = "networkingSecurePrefs"
 private const val NETWORK_PREFS_FILE_NAME = "networkingPrefs"
 private const val MASTER_KEY_ALIAS = "netWorkMasterKey"
 
-private const val USER_AGENT = "eRp-App-Android/1.0.7 GMTIK/eRezeptApp"
+private const val USER_AGENT = "eRp-App-Android/1.0.9 GMTIK/eRezeptApp"
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -95,11 +95,13 @@ class NetworkingModule {
     fun idpService(
         baseClient: OkHttpClient,
         moshi: Moshi,
+        @UserAgentInterceptor userAgentInterceptor: Interceptor,
         @DevelopReleaseHeaderInterceptor headersInterceptor: Interceptor,
         endpointHelper: EndpointHelper
     ): IdpService {
         val client = baseClient.newBuilder()
             .addInterceptor(headersInterceptor)
+            .addInterceptor(userAgentInterceptor)
             .addInterceptor(
                 HttpLoggingInterceptor().also {
                     if (BuildConfig.DEBUG) it.setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -124,7 +126,6 @@ class NetworkingModule {
     @Named("userAgent")
     @Provides
     fun providesUserAgent(): String {
-        val versionName = BuildConfig.VERSION_NAME
         return USER_AGENT
     }
 

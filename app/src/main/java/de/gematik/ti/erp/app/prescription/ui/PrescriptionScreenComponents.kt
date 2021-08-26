@@ -94,6 +94,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -110,20 +111,21 @@ import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.min
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDefineSecurity
 import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDemoModeActivated
 import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintNewPrescriptions
 import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintTryDemoMode
-import de.gematik.ti.erp.app.core.AppModel
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.component1
-import de.gematik.ti.erp.app.core.component2
 import de.gematik.ti.erp.app.demo.ui.DemoBanner
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenFragmentDirections
+import de.gematik.ti.erp.app.mainscreen.ui.ErrorEvent
+import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
@@ -135,11 +137,15 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.testId
+import de.gematik.ti.erp.app.vau.interceptor.VauException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -208,11 +214,11 @@ fun SecureHardwarePrompt(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-fun PrescriptionScreen() {
-    val (mainVM: MainScreenViewModel, prescriptionVM: PrescriptionViewModel) = AppModel.viewModels
-
-    val frNavCtr = AppModel.frNavController
-
+fun PrescriptionScreen(
+    navController: NavController,
+    mainViewModel: MainScreenViewModel = hiltViewModel(LocalActivity.current),
+    prescriptionViewModel: PrescriptionViewModel = hiltViewModel()
+) {
     val refreshState = rememberSwipeableState(false)
 
     var showSecureHardwarePrompt by remember { mutableStateOf(false) }
@@ -223,7 +229,7 @@ fun PrescriptionScreen() {
             stringResource(R.string.alternate_auth_info),
             stringResource(R.string.cancel),
             onAuthenticate = {
-                prescriptionVM.onAlternateAuthentication()
+                prescriptionViewModel.onAlternateAuthentication()
                 showSecureHardwarePrompt = false
             },
             onCancel = { showSecureHardwarePrompt = false }
@@ -234,17 +240,38 @@ fun PrescriptionScreen() {
         try {
             if (refreshState.currentValue) {
                 Timber.d("Pull2Fresh: refresh prescriptions")
-                when (val r = prescriptionVM.refreshPrescriptions()) {
+                when (val r = prescriptionViewModel.refreshPrescriptions()) {
                     is Result.Error -> {
-                        refreshState.snapTo(false)
                         (r.exception.cause as? RefreshFlowException)?.let {
                             if (it.userActionRequired) {
                                 if (it.tokenScope == SingleSignOnToken.Scope.AlternateAuthentication) {
                                     showSecureHardwarePrompt = true
                                 } else {
-                                    frNavCtr.navigate(MainScreenFragmentDirections.actionMainScreenFragmentToCardWallFragment())
+                                    refreshState.snapTo(false)
+                                    withContext(Dispatchers.Main) {
+                                        navController.navigate(MainNavigationScreens.CardWall.path())
+                                    }
                                 }
                             }
+                            return@LaunchedEffect
+                        }
+
+                        when (r.exception.cause?.cause) {
+                            is SocketTimeoutException,
+                            is UnknownHostException -> {
+                                mainViewModel.onError(ErrorEvent.NetworkNotAvailable)
+                                return@LaunchedEffect
+                            }
+                        }
+
+                        (r.exception.cause as? ApiCallException)?.let {
+                            mainViewModel.onError(ErrorEvent.ServerCommunicationFailedWhileRefreshing(it.response.code()))
+                            return@LaunchedEffect
+                        }
+
+                        (r.exception.cause as? VauException)?.let {
+                            mainViewModel.onError(ErrorEvent.FatalTruststoreState)
+                            return@LaunchedEffect
                         }
                     }
                 }
@@ -256,8 +283,8 @@ fun PrescriptionScreen() {
         }
     }
 
-    val state by produceState(prescriptionVM.defaultState) {
-        prescriptionVM.screenState().collect {
+    val state by produceState(prescriptionViewModel.defaultState) {
+        prescriptionViewModel.screenState().collect {
             value = it
         }
     }
@@ -266,7 +293,7 @@ fun PrescriptionScreen() {
         Column(modifier = Modifier.fillMaxSize()) {
             if (state.showDemoBanner) {
                 DemoBanner {
-                    mainVM.onDeactivateDemoMode()
+                    mainViewModel.onDeactivateDemoMode()
                 }
             }
 
@@ -302,7 +329,7 @@ fun PrescriptionScreen() {
                         onDismissRequest = { prescriptionToEditName = null }
                     ) {
                         coroutineScope.launch {
-                            prescriptionVM.editScannedPrescriptionsName(
+                            prescriptionViewModel.editScannedPrescriptionsName(
                                 it,
                                 prescription
                             )
@@ -324,29 +351,21 @@ fun PrescriptionScreen() {
                         when (it) {
                             is PrescriptionScreenHintDemoModeActivated ->
                                 PrescriptionScreenDemoModeActivatedCard(cardPaddingModifier) {
-                                    prescriptionVM.onCloseHintCard(it)
+                                    prescriptionViewModel.onCloseHintCard(it)
                                 }
                             is PrescriptionScreenHintTryDemoMode ->
                                 PrescriptionScreenTryDemoModeCard(
                                     cardPaddingModifier,
                                     onClickAction = {
-                                        frNavCtr.navigate(
-                                            MainScreenFragmentDirections.actionMainScreenFragmentToSettingsFragment(
-                                                SettingsScrollTo.DemoMode
-                                            )
-                                        )
+                                        navController.navigate(MainNavigationScreens.Settings.path(SettingsScrollTo.DemoMode))
                                     },
-                                    onClose = { prescriptionVM.onCloseHintCard(it) }
+                                    onClose = { prescriptionViewModel.onCloseHintCard(it) }
                                 )
                             is PrescriptionScreenHintDefineSecurity ->
                                 PrescriptionScreenDefineSecurityCard(
                                     cardPaddingModifier,
                                     onClickAction = {
-                                        frNavCtr.navigate(
-                                            MainScreenFragmentDirections.actionMainScreenFragmentToSettingsFragment(
-                                                SettingsScrollTo.Authentication
-                                            )
-                                        )
+                                        navController.navigate(MainNavigationScreens.Settings.path(SettingsScrollTo.Authentication))
                                     }
                                 )
                             is PrescriptionScreenHintNewPrescriptions ->
@@ -354,7 +373,7 @@ fun PrescriptionScreen() {
                                     cardPaddingModifier,
                                     it.count,
                                     onClickAction = {
-                                        mainVM.onClickRecipeScannedCard(
+                                        mainViewModel.onClickRecipeScannedCard(
                                             state.prescriptions.mapNotNull {
                                                 it as? PrescriptionUseCaseData.Recipe.Scanned
                                             }
@@ -411,13 +430,9 @@ fun PrescriptionScreen() {
                                         recipe = recipe,
                                         nowInEpochDays = state.nowInEpochDays,
                                         onClickPrescription = {
-                                            frNavCtr.navigate(
-                                                MainScreenFragmentDirections.actionMainScreenFragmentToPrescriptionDetailFragment(
-                                                    it.taskId
-                                                )
-                                            )
+                                            navController.navigate(MainNavigationScreens.PrescriptionDetail.path(it.taskId))
                                         },
-                                        onClickRedeem = { mainVM.onClickRecipeCard(recipe) }
+                                        onClickRedeem = { mainViewModel.onClickRecipeCard(recipe) }
                                     )
                                     is PrescriptionUseCaseData.Recipe.Scanned -> {
                                         LowDetailRecipeCard(
@@ -427,13 +442,9 @@ fun PrescriptionScreen() {
                                                 prescriptionToEditName = it
                                             },
                                             onClickPrescription = {
-                                                frNavCtr.navigate(
-                                                    MainScreenFragmentDirections.actionMainScreenFragmentToPrescriptionDetailFragment(
-                                                        it.taskId
-                                                    )
-                                                )
+                                                navController.navigate(MainNavigationScreens.PrescriptionDetail.path(it.taskId))
                                             },
-                                            onClickRedeem = { mainVM.onClickRecipeCard(recipe) }
+                                            onClickRedeem = { mainViewModel.onClickRecipeCard(recipe) }
                                         )
                                     }
                                 }
@@ -458,6 +469,7 @@ fun PrescriptionScreen() {
                         items(state.redeemedPrescriptions) { recipe ->
                             RecipeRedeemedCard(
                                 modifier = cardPaddingModifier,
+                                navController = navController,
                                 recipe = recipe,
                                 nowInEpochDays = state.nowInEpochDays
                             )
@@ -551,6 +563,7 @@ private fun PullRefresh(
 
     Box(
         modifier = modifier
+            .testTag("pull2refresh")
             .nestedScroll(state.preUpPostDownNestedScrollConnection(-refreshDistance))
             .swipeable(
                 state = state,
@@ -955,10 +968,10 @@ private fun LowDetailRecipeCardPreviewWithoutName() {
 @Composable
 private fun RecipeRedeemedCard(
     modifier: Modifier = Modifier,
+    navController: NavController,
     recipe: PrescriptionUseCaseData.Recipe,
     nowInEpochDays: Long
 ) {
-    val frNavCtr = AppModel.frNavController
     var expanded by remember { mutableStateOf(false) }
 
     PrescriptionScreenCard(modifier) {
@@ -1021,11 +1034,7 @@ private fun RecipeRedeemedCard(
                         is PrescriptionUseCaseData.Recipe.Scanned -> {
                             recipe.prescriptions.forEachIndexed { index, med ->
                                 LowDetailMedication(med) {
-                                    frNavCtr.navigate(
-                                        MainScreenFragmentDirections.actionMainScreenFragmentToPrescriptionDetailFragment(
-                                            med.taskId
-                                        )
-                                    )
+                                    navController.navigate(MainNavigationScreens.PrescriptionDetail.path(med.taskId))
                                 }
                                 if (index < recipe.prescriptions.size - 1) {
                                     Divider(startIndent = 56.dp)
@@ -1040,11 +1049,7 @@ private fun RecipeRedeemedCard(
                                     nowInEpochDays,
                                     modifier = Modifier.padding(PaddingDefaults.Medium)
                                 ) {
-                                    val action =
-                                        MainScreenFragmentDirections.actionMainScreenFragmentToPrescriptionDetailFragment(
-                                            med.taskId
-                                        )
-                                    frNavCtr.navigate(action)
+                                    navController.navigate(MainNavigationScreens.PrescriptionDetail.path(med.taskId))
                                 }
                                 if (index < recipe.prescriptions.size - 1) {
                                     Divider(startIndent = 16.dp)

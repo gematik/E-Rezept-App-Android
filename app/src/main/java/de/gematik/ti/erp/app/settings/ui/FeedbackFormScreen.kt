@@ -47,6 +47,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.BuildConfig
@@ -66,7 +69,7 @@ import java.util.Locale
 fun FeedbackForm(navController: NavController) {
     var sendEnabled by remember { mutableStateOf(false) }
     var body by rememberSaveable { mutableStateOf("") }
-    var subject = "Feedback aus der E-Rezept App"
+    val subject = "Feedback aus der E-Rezept App"
     val mailAddress = stringResource(R.string.settings_contact_mail_address)
 
     val context = LocalContext.current
@@ -125,7 +128,7 @@ fun FeedbackForm(navController: NavController) {
                         style = MaterialTheme.typography.body2
                     )
                 },
-                shape = RoundedCornerShape(PaddingDefaults.Medium),
+                shape = RoundedCornerShape(8.dp),
                 modifier = Modifier
                     .fillMaxWidth()
                     .heightIn(min = 200.dp, max = 400.dp)
@@ -137,32 +140,44 @@ fun FeedbackForm(navController: NavController) {
                 SpacerSmall()
                 Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)) {
                     Text(stringResource(R.string.seetings_feedback_form_additional_data_info))
-                    val os = annotatedStringResource(
-                        R.string.seetings_feedback_form_additional_data_os,
-                        Build.VERSION.RELEASE,
-                        Build.VERSION.SDK_INT,
-                        Build.VERSION.SECURITY_PATCH
+                    val os = Detail(
+                        stringResource(R.string.seetings_feedback_form_additional_data_os),
+                        annotatedStringResource(
+                            R.string.seetings_feedback_form_additional_data_os_detail,
+                            Build.VERSION.RELEASE,
+                            Build.VERSION.SDK_INT,
+                            Build.VERSION.SECURITY_PATCH
+                        )
                     )
-                    val device = annotatedStringResource(
-                        R.string.seetings_feedback_form_additional_data_device,
-                        Build.MANUFACTURER,
-                        Build.MODEL,
-                        Build.PRODUCT
+
+                    val device = Detail(
+                        stringResource(R.string.seetings_feedback_form_additional_data_device),
+                        annotatedStringResource(
+                            R.string.seetings_feedback_form_additional_data_device_detail,
+                            Build.MANUFACTURER,
+                            Build.MODEL,
+                            Build.PRODUCT
+                        )
                     )
                     Text(os)
                     Text(device)
-                    val darkModeText = stringResource(
-                        if (darkMode) {
-                            R.string.seetings_feedback_form_additional_data_darkmode_on
-                        } else {
-                            R.string.seetings_feedback_form_additional_data_darkmode_off
-                        }
+                    val darkModeText = Detail(
+                        stringResource(R.string.seetings_feedback_form_additional_data_darkmode),
+                        AnnotatedString(
+                            stringResource(
+                                if (darkMode) {
+                                    R.string.seetings_feedback_form_additional_data_darkmode_on
+                                } else {
+                                    R.string.seetings_feedback_form_additional_data_darkmode_off
+                                }
+                            )
+                        )
                     )
                     Text(darkModeText)
                     Text(
-                        annotatedStringResource(
-                            R.string.seetings_feedback_form_additional_data_language,
-                            Locale.getDefault().displayName
+                        Detail(
+                            stringResource(R.string.seetings_feedback_form_additional_data_language),
+                            AnnotatedString(Locale.getDefault().displayName)
                         )
                     )
                 }
@@ -170,6 +185,21 @@ fun FeedbackForm(navController: NavController) {
         }
     }
 }
+
+@Composable
+private fun Detail(
+    header: String,
+    detail: AnnotatedString
+): AnnotatedString =
+    buildAnnotatedString {
+        withStyle(AppTheme.typography.subtitle2l.toSpanStyle()) {
+            append(header)
+            append(": ")
+        }
+        withStyle(AppTheme.typography.body2l.toSpanStyle()) {
+            append(detail)
+        }
+    }
 
 private fun buildBodyWithDeviceInfo(userBody: String, darkMode: Boolean): String =
     """$userBody

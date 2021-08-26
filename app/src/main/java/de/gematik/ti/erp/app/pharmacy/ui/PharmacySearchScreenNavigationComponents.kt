@@ -21,14 +21,13 @@ package de.gematik.ti.erp.app.pharmacy.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavType
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.core.LocalFragmentNavController
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
@@ -36,10 +35,10 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 
 @Composable
 fun PharmacySearchScreenWithNavigation(
-    viewModel: PharmacySearchViewModel = viewModel(),
-    taskIds: String?
+    taskIds: String?,
+    mainNavController: NavController,
+    viewModel: PharmacySearchViewModel = hiltViewModel()
 ) {
-    val fragmentNavController = LocalFragmentNavController.current
     val navController = rememberNavController()
     val selectedPharmacy = rememberSaveable {
         mutableStateOf<PharmacyUseCaseData.Pharmacy?>(null)
@@ -54,9 +53,10 @@ fun PharmacySearchScreenWithNavigation(
         composable(PharmacyNavigationScreens.SearchResults.route) {
             NavigationAnimation(navigationMode) {
                 PharmacySearchScreen(
-                    viewModel = viewModel,
-                    navController,
-                    selectedPharmacy
+                    mainNavController = mainNavController,
+                    navController = navController,
+                    selectedPharmacy,
+                    viewModel,
                 )
             }
         }
@@ -112,13 +112,14 @@ fun PharmacySearchScreenWithNavigation(
             }
         }
         composable(
-            "uploadStatus/{redeemOption}",
-            arguments = listOf(navArgument("redeemOption") { type = NavType.IntType })
-        ) { navBackStackEntry ->
+            PharmacyNavigationScreens.UploadStatus.route,
+            PharmacyNavigationScreens.UploadStatus.arguments
+        ) {
+            val redeemOption = remember { requireNotNull(it.arguments?.getInt("redeemOption")) }
             NavigationAnimation(navigationMode) {
                 RedeemOnlineSuccess(
-                    navBackStackEntry.arguments?.getInt("redeemOption"),
-                    fragmentNavController
+                    redeemOption,
+                    mainNavController
                 )
             }
         }

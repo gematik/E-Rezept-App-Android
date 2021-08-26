@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.messages.ui
 
 import androidx.lifecycle.viewModelScope
 import com.google.zxing.BarcodeFormat
-import com.google.zxing.common.BitMatrix
 import com.google.zxing.datamatrix.DataMatrixWriter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
@@ -36,15 +35,11 @@ class MessageViewModel @Inject constructor(
     private val useCase: MessageUseCase,
     private val dispatchProvider: DispatchProvider
 ) : BaseViewModel() {
-
-    lateinit var bitMatrix: BitMatrix
-
     fun fetchCommunications() =
         useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
 
-    fun createBitmapMatrix(payload: String) {
-        bitMatrix = DataMatrixWriter().encode(payload, BarcodeFormat.DATA_MATRIX, 1, 1)
-    }
+    fun createBitmapMatrix(payload: String) =
+        DataMatrixWriter().encode(payload, BarcodeFormat.DATA_MATRIX, 1, 1)
 
     fun messageAcknowledged(message: CommunicationReply) {
         viewModelScope.launch(dispatchProvider.main()) {

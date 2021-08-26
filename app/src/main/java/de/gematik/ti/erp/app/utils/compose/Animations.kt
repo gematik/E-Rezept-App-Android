@@ -20,10 +20,9 @@ package de.gematik.ti.erp.app.utils.compose
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.Composable
@@ -33,6 +32,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.flow.collect
@@ -58,8 +58,8 @@ fun NavigationAnimation(
     AnimatedVisibility(
         visibleState = remember { MutableTransitionState(false) }.apply { targetState = true },
         modifier = modifier,
-        enter = fadeIn() + transition,
-        exit = fadeOut(),
+        enter = transition,
+        exit = ExitTransition.None,
         content = content
     )
 }
@@ -69,7 +69,7 @@ fun NavigationAnimation(
 fun NavHostController.navigationModeState(
     startDestination: String
 ): State<NavigationMode> {
-    var prevNumOfEntries by remember { mutableStateOf(-1) }
+    var prevNumOfEntries by rememberSaveable(this, startDestination) { mutableStateOf(-1) }
 
     return produceState(NavigationMode.Open) {
         this@navigationModeState.currentBackStackEntryFlow.collect {

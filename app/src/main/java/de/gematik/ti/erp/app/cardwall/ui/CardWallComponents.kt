@@ -30,8 +30,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -83,20 +81,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.onFocusEvent
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -111,7 +110,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -121,7 +122,6 @@ import de.gematik.ti.erp.app.cardwall.ui.model.CardWall
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallNavigation
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.LocalFragmentNavController
 import de.gematik.ti.erp.app.demo.ui.DemoBanner
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -152,28 +152,32 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
 
 private val framePadding = PaddingValues(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 24.dp)
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun CardWallScreen(viewModel: CardWallViewModel = viewModel()) {
+fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewModel = hiltViewModel()) {
     val navController = rememberNavController()
-    val frNavController = LocalFragmentNavController.current
 
     val state by viewModel.state().collectAsState(viewModel.defaultState)
 
-    val startDestination = when {
-        !state.hardwareRequirementsFulfilled -> CardWallNavigation.IntroMissingCapabilities.route
-        state.isIntroSeenByUser && state.isCardAccessNumberValid -> CardWallNavigation.PersonalIdentificationNumber.route
-        state.isIntroSeenByUser -> CardWallNavigation.CardAccessNumber.route
-        else -> CardWallNavigation.Intro.route
+    val startDestination = rememberSaveable {
+        when {
+            !state.hardwareRequirementsFulfilled -> CardWallNavigation.IntroMissingCapabilities.route
+            state.isIntroSeenByUser && state.isCardAccessNumberValid -> CardWallNavigation.PersonalIdentificationNumber.route
+            state.isIntroSeenByUser -> CardWallNavigation.CardAccessNumber.route
+            else -> CardWallNavigation.Intro.route
+        }
     }
 
     val context = LocalContext.current
@@ -300,7 +304,7 @@ fun CardWallScreen(viewModel: CardWallViewModel = viewModel()) {
         composable(CardWallNavigation.Happy.route) {
             NavigationAnimation(navigationMode) {
                 Outro(demoMode = state.demoMode) {
-                    frNavController.popBackStack()
+                    mainNavController.popBackStack()
                 }
             }
         }
@@ -323,6 +327,7 @@ private fun CardAccessNumber(
 ) {
 
     CardWallScaffold(
+        modifier = Modifier.testTag("cardWall/cardAccessNumber"),
         backMode = when (navMode) {
             NavigationMode.Forward,
             NavigationMode.Back -> NavigationBarMode.Back
@@ -355,7 +360,6 @@ private fun CardAccessNumber(
                 selection = TextRange(can.length)
             )
 
-            val interactionSource = MutableInteractionSource()
             var isFocussed by remember { mutableStateOf(false) }
             val canRegex = """^\d{0,6}$""".toRegex()
 
@@ -379,10 +383,10 @@ private fun CardAccessNumber(
                 ),
                 singleLine = true,
                 modifier = Modifier
+                    .testTag("cardWall/cardAccessNumberInputField")
                     .fillMaxWidth()
                     .padding(start = 24.dp, bottom = 8.dp, end = 24.dp)
-                    .focusable(true, interactionSource)
-                    .onFocusEvent {
+                    .onFocusChanged {
                         isFocussed = it.isFocused
                     }
                     .testId("cdw_edt_can_input")
@@ -470,6 +474,7 @@ private fun PersonalIdentificationNumber(
 ) {
 
     CardWallScaffold(
+        modifier = Modifier.testTag("cardWall/personalIdentificationNumber"),
         backMode = when (navMode) {
             NavigationMode.Forward,
             NavigationMode.Back -> NavigationBarMode.Back
@@ -497,7 +502,6 @@ private fun PersonalIdentificationNumber(
                 selection = TextRange(pin.length)
             )
 
-            val interactionSource = MutableInteractionSource()
             var isFocussed by remember { mutableStateOf(false) }
             val pinRegex = """^\d{0,8}$""".toRegex()
 
@@ -522,13 +526,13 @@ private fun PersonalIdentificationNumber(
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
+                    .testTag("cardWall/personalIdentificationNumberInputField")
                     .padding(
                         start = PaddingDefaults.Medium,
                         bottom = PaddingDefaults.Small,
                         end = PaddingDefaults.Medium
                     )
-                    .focusable(true, interactionSource)
-                    .onFocusEvent {
+                    .onFocusChanged {
                         isFocussed = it.isFocused
                     }
                     .testId("cdw_edt_pin_input")
@@ -635,6 +639,7 @@ private fun AuthenticationSelection(
     next: () -> Unit
 ) {
     CardWallScaffold(
+        modifier = Modifier.testTag("cardWall/authenticationSelection"),
         title = stringResource(R.string.cdw_top_bar_title),
         nextEnabled = selectedAuthMode != CardWall.AuthenticationMethod.None,
         onNext = {
@@ -675,7 +680,9 @@ private fun AuthenticationSelection(
         }
 
         SelectableCard(
-            modifier = Modifier.testId("cdw_btn_option_healthcard"),
+            modifier = Modifier
+                .testId("cdw_btn_option_healthcard")
+                .testTag("cardWall/authenticationSelection/healthCard"),
             enabled = true,
             selected = selectedAuthMode == CardWall.AuthenticationMethod.HealthCard,
             Icons.Rounded.Lock,
@@ -893,6 +900,11 @@ private fun DemoInputHint(text: String, modifier: Modifier) {
     )
 }
 
+sealed class ToggleAuth {
+    data class ToggleByUser(val value: Boolean) : ToggleAuth()
+    data class ToggleByHealthCard(val tag: Tag) : ToggleAuth()
+}
+
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class, ExperimentalCoroutinesApi::class)
 @Composable
 private fun Authentication(
@@ -911,33 +923,52 @@ private fun Authentication(
 
     val coroutineScope = rememberCoroutineScope()
 
-    val toggleAuth = remember { MutableSharedFlow<Boolean>() }
-    val nfcTagFlow = remember { MutableSharedFlow<Tag>(replay = 1) }
+    val toggleAuth = remember { MutableSharedFlow<ToggleAuth>() }
     val state by produceState(initialValue = AuthenticationState.None) {
         toggleAuth.transformLatest {
-            if (it) {
-                emitAll(
-                    viewModel.doAuthentication(
-                        can = cardAccessNumber,
-                        pin = personalIdentificationNumber,
-                        method = authenticationMethod,
-                        nfcTagFlow.onCompletion { cause ->
-                            if (cause !is CancellationException) {
-                                nfcTagFlow.resetReplayCache()
+            emit(AuthenticationState.None)
+            when (it) {
+                is ToggleAuth.ToggleByUser -> {
+                    if (it.value) {
+                        emitAll(
+                            viewModel.doAuthentication(
+                                can = cardAccessNumber,
+                                pin = personalIdentificationNumber,
+                                method = authenticationMethod,
+                                activity.nfcTagFlow
+                            )
+                        )
+                    } else {
+                        value = AuthenticationState.None
+                    }
+                }
+                is ToggleAuth.ToggleByHealthCard -> {
+                    val collectedOnce = AtomicBoolean(false)
+                    val f = flow {
+                        if (collectedOnce.get()) {
+                            activity.nfcTagFlow.collect {
+                                emit(it)
                             }
+                        } else {
+                            collectedOnce.set(true)
+                            emit(it.tag)
                         }
+                    }
+                    emitAll(
+                        viewModel.doAuthentication(
+                            can = cardAccessNumber,
+                            pin = personalIdentificationNumber,
+                            method = authenticationMethod,
+                            f
+                        )
                     )
-                )
-            } else {
-                nfcTagFlow.resetReplayCache()
-                value = AuthenticationState.None
+                }
             }
         }.catch {
             Timber.e(it)
             // if this happens we can't recover from here
             emit(AuthenticationState.HealthCardCommunicationInterrupted)
             delay(1000)
-            cancel()
         }.onCompletion { cause ->
             if (cause is CancellationException) {
                 value = AuthenticationState.None
@@ -949,8 +980,7 @@ private fun Authentication(
 
     LaunchedEffect(Unit) {
         activity.nfcTagFlow.retry().collect {
-            toggleAuth.emit(true)
-            nfcTagFlow.emit(it)
+            toggleAuth.emit(ToggleAuth.ToggleByHealthCard(it))
         }
     }
 
@@ -1017,17 +1047,18 @@ private fun Authentication(
     ModalBottomSheetLayout(
         sheetContent = {
             CardWallAuthenticationBottomSheet(state) {
-                coroutineScope.launch { toggleAuth.emit(false) }
+                coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(false)) }
             }
         },
         sheetState = cardCommunicationBottomSheetState,
     ) {
         CardWallScaffold(
+            modifier = Modifier.testTag("cardWall/authentication"),
             title = stringResource(R.string.cdw_top_bar_title),
             nextEnabled = true,
             onNext = {
                 if (viewModel.isNFCEnabled()) {
-                    coroutineScope.launch { toggleAuth.emit(true) }
+                    coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(true)) }
                 } else {
                     showEnableNfcDialog = true
                 }
@@ -1115,7 +1146,7 @@ private fun Authentication(
             info = it.second,
             retryButtonText = nextText,
             onCancel = {
-                coroutineScope.launch { toggleAuth.emit(false) }
+                coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(false)) }
             },
             onRetry = {
                 when (state) {
@@ -1123,7 +1154,9 @@ private fun Authentication(
                     AuthenticationState.HealthCardPin2RetriesLeft,
                     AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
                     else -> if (viewModel.isNFCEnabled()) {
-                        coroutineScope.launch { toggleAuth.emit(true) }
+                        coroutineScope.launch {
+                            toggleAuth.emit(ToggleAuth.ToggleByUser(true))
+                        }
                     }
                 }
             }
@@ -1178,6 +1211,7 @@ private fun Outro(demoMode: Boolean, onNext: () -> Unit) {
     BackHandler(enabled = true) { onNext() }
 
     Scaffold(
+        modifier = Modifier.testTag("cardWall/outro"),
         bottomBar = {
             CardWallBottomBar(onNext, true, stringResource(R.string.cdw_happy_back_to_mainscreen))
         }
@@ -1192,9 +1226,7 @@ private fun Outro(demoMode: Boolean, onNext: () -> Unit) {
                     modifier = Modifier
                         .padding(it)
                         .padding(framePadding)
-                        .semantics(true) {
-                            focused = true
-                        }
+                        .semantics(true) {}
                 ) {
 
                     Image(
@@ -1222,6 +1254,7 @@ private fun Outro(demoMode: Boolean, onNext: () -> Unit) {
 
 @Composable
 fun CardWallScaffold(
+    modifier: Modifier = Modifier,
     title: String,
     onBack: (() -> Unit)? = null,
     onNext: () -> Unit,
@@ -1234,6 +1267,7 @@ fun CardWallScaffold(
     val activity = LocalActivity.current
 
     Scaffold(
+        modifier = modifier,
         topBar = {
             NavigationTopAppBar(
                 mode = backMode,
@@ -1253,16 +1287,12 @@ fun CardWallScaffold(
             if (demoMode) {
                 DemoBanner {}
             }
-            Box(modifier = Modifier.verticalScroll(rememberScrollState())) {
-                Column(
-                    modifier = Modifier
-                        .padding(it)
-                        .semantics(true) {
-                            focused = true
-                        }
-                ) {
-                    content()
-                }
+            Column(
+                modifier = Modifier
+                    .padding(it)
+                    .verticalScroll(rememberScrollState())
+            ) {
+                content()
             }
         }
     }
@@ -1276,7 +1306,7 @@ fun CardWallBottomBar(
 ) {
     BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
         Spacer(modifier = Modifier.weight(1f))
-        Button(onClick = onNext, enabled = nextEnabled) {
+        Button(onClick = onNext, enabled = nextEnabled, modifier = Modifier.testTag("cardWall/next")) {
             Text(nextText.uppercase(Locale.getDefault()), modifier = Modifier.testId("cdw_btn_next"))
         }
         Spacer8()

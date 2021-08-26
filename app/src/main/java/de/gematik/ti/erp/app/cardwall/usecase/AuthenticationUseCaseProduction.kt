@@ -36,8 +36,6 @@ import de.gematik.ti.erp.app.idp.usecase.AltAuthenticationCryptoException
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -48,6 +46,9 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.retry
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.io.IOException
 import java.security.KeyPairGenerator
@@ -148,47 +149,55 @@ class AuthenticationUseCaseProduction @Inject constructor(
     ) = channelFlow {
         send(AuthenticationState.AuthenticationFlowInitialized)
 
-        val nfcChannel = cardChannel.first()
-        send(AuthenticationState.HealthCardCommunicationChannelReady)
+        cardChannel.first().use { nfcChannel ->
+            send(AuthenticationState.HealthCardCommunicationChannelReady)
 
-        val healthCardCertificate = MutableSharedFlow<ByteArray>()
-        val secureChannel = MutableSharedFlow<NfcCardSecureChannel>()
+            val healthCardCertificate = MutableSharedFlow<ByteArray>()
+            val secureChannel = MutableSharedFlow<NfcCardSecureChannel>()
 
-        //
-        //                  + - IDP communication --------- + ------------- + -- + -------- +
-        //                 /                                ^               |    ^           \
-        // - start flow - +                          Health card cert   Sign challenge        + - end flow -
-        //                 \                                |               v    |           /
-        //                  + - Health card communication - + ------------- + -- + -------- +
-        //
-        awaitAll(
-            async {
-                try {
-                    idpUseCase.authenticationFlowWithHealthCard(
-                        {
-                            healthCardCertificate.first().also {
-                                send(AuthenticationState.HealthCardCommunicationCertificateLoaded)
+            //
+            //                  + - IDP communication --------- + ------------- + -- + -------- +
+            //                 /                                ^               |    ^           \
+            // - start flow - +                          Health card cert   Sign challenge        + - end flow -
+            //                 \                                |               v    |           /
+            //                  + - Health card communication - + ------------- + -- + -------- +
+            //
+
+            joinAll(
+                launch {
+                    try {
+                        idpUseCase.authenticationFlowWithHealthCard(
+                            {
+                                healthCardCertificate.first().also {
+                                    send(AuthenticationState.HealthCardCommunicationCertificateLoaded)
+                                }
+                            },
+                            {
+                                secureChannel.first().signChallenge(it).also {
+                                    send(AuthenticationState.HealthCardCommunicationFinished)
+                                }
                             }
-                        },
-                        {
-                            secureChannel.first().signChallenge(it).also {
-                                send(AuthenticationState.HealthCardCommunicationFinished)
-                            }
-                        }
-                    )
-                    send(AuthenticationState.IDPCommunicationFinished)
-                } catch (e: Exception) {
-                    handleAsyncExceptions(e, AuthenticationExceptionKind.IDPCommunicationFailed)
+                        )
+                        send(AuthenticationState.IDPCommunicationFinished)
+                    } catch (e: Exception) {
+                        handleAsyncExceptions(e, AuthenticationExceptionKind.IDPCommunicationFailed)
+                    }
+                },
+                launch {
+                    try {
+                        healthCardCommunication(
+                            nfcChannel,
+                            healthCardCertificate,
+                            secureChannel,
+                            can = can,
+                            pin = pin
+                        )
+                    } catch (e: Exception) {
+                        handleAsyncExceptions(e, AuthenticationExceptionKind.HealthCardCommunicationFailed)
+                    }
                 }
-            },
-            async {
-                try {
-                    healthCardCommunication(nfcChannel, healthCardCertificate, secureChannel, can = can, pin = pin)
-                } catch (e: Exception) {
-                    handleAsyncExceptions(e, AuthenticationExceptionKind.HealthCardCommunicationFailed)
-                }
-            }
-        )
+            )
+        }
 
         send(AuthenticationState.AuthenticationFlowFinished)
     }
@@ -203,73 +212,80 @@ class AuthenticationUseCaseProduction @Inject constructor(
     ) = channelFlow {
         send(AuthenticationState.AuthenticationFlowInitialized)
 
-        val nfcChannel = cardChannel.first()
-        send(AuthenticationState.HealthCardCommunicationChannelReady)
+        cardChannel.first().use { nfcChannel ->
+            send(AuthenticationState.HealthCardCommunicationChannelReady)
 
-        val sePublicKey = try {
-            val keyPairGenerator = KeyPairGenerator.getInstance(
-                KeyProperties.KEY_ALGORITHM_EC,
-                "AndroidKeyStore"
-            )
+            val sePublicKey = try {
+                val keyPairGenerator = KeyPairGenerator.getInstance(
+                    KeyProperties.KEY_ALGORITHM_EC,
+                    "AndroidKeyStore"
+                )
 
-            val parameterSpec = KeyGenParameterSpec.Builder(
-                aliasOfSecureElementEntry.decodeToString(),
-                KeyProperties.PURPOSE_SIGN
-            ).apply {
-                setInvalidatedByBiometricEnrollment(true)
-                setUserAuthenticationRequired(true)
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                    setUserAuthenticationParameters(60, KeyProperties.AUTH_BIOMETRIC_STRONG)
-                } else {
-                    setUserAuthenticationValidityDurationSeconds(60)
-                }
-                setIsStrongBoxBacked(true)
-                setDigests(KeyProperties.DIGEST_SHA256)
+                val parameterSpec = KeyGenParameterSpec.Builder(
+                    aliasOfSecureElementEntry.decodeToString(),
+                    KeyProperties.PURPOSE_SIGN
+                ).apply {
+                    setInvalidatedByBiometricEnrollment(true)
+                    setUserAuthenticationRequired(true)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                        setUserAuthenticationParameters(60, KeyProperties.AUTH_BIOMETRIC_STRONG)
+                    } else {
+                        setUserAuthenticationValidityDurationSeconds(60)
+                    }
+                    setIsStrongBoxBacked(true)
+                    setDigests(KeyProperties.DIGEST_SHA256)
 
-                setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
-            }.build()
+                    setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
+                }.build()
 
-            keyPairGenerator.initialize(parameterSpec)
-            val keyPair = keyPairGenerator.generateKeyPair()
+                keyPairGenerator.initialize(parameterSpec)
+                val keyPair = keyPairGenerator.generateKeyPair()
 
-            keyPair.public
-        } catch (e: Exception) {
-            throw AuthenticationException(AuthenticationExceptionKind.SecureElementFailure)
-        }
-
-        val healthCardCertificate = MutableSharedFlow<ByteArray>()
-        val secureChannel = MutableSharedFlow<NfcCardSecureChannel>(2)
-
-        awaitAll(
-            async {
-                try {
-                    idpUseCase.alternatePairingFlowWithSecureElement(
-                        publicKeyOfSecureElementEntry = sePublicKey,
-                        aliasOfSecureElementEntry = aliasOfSecureElementEntry,
-                        {
-                            healthCardCertificate.first().also {
-                                send(AuthenticationState.HealthCardCommunicationCertificateLoaded)
-                            }
-                        },
-                        {
-                            secureChannel.first().signChallenge(it).also {
-                                send(AuthenticationState.HealthCardCommunicationFinished)
-                            }
-                        }
-                    )
-                    send(AuthenticationState.IDPCommunicationFinished)
-                } catch (e: Exception) {
-                    handleAsyncExceptions(e, AuthenticationExceptionKind.IDPCommunicationFailed)
-                }
-            },
-            async {
-                try {
-                    healthCardCommunication(nfcChannel, healthCardCertificate, secureChannel, can = can, pin = pin)
-                } catch (e: Exception) {
-                    handleAsyncExceptions(e, AuthenticationExceptionKind.HealthCardCommunicationFailed)
-                }
+                keyPair.public
+            } catch (e: Exception) {
+                throw AuthenticationException(AuthenticationExceptionKind.SecureElementFailure)
             }
-        )
+
+            val healthCardCertificate = MutableSharedFlow<ByteArray>()
+            val secureChannel = MutableSharedFlow<NfcCardSecureChannel>(2)
+
+            joinAll(
+                launch {
+                    try {
+                        idpUseCase.alternatePairingFlowWithSecureElement(
+                            publicKeyOfSecureElementEntry = sePublicKey,
+                            aliasOfSecureElementEntry = aliasOfSecureElementEntry,
+                            {
+                                healthCardCertificate.first().also {
+                                    send(AuthenticationState.HealthCardCommunicationCertificateLoaded)
+                                }
+                            },
+                            {
+                                secureChannel.first().signChallenge(it).also {
+                                    send(AuthenticationState.HealthCardCommunicationFinished)
+                                }
+                            }
+                        )
+                        send(AuthenticationState.IDPCommunicationFinished)
+                    } catch (e: Exception) {
+                        handleAsyncExceptions(e, AuthenticationExceptionKind.IDPCommunicationFailed)
+                    }
+                },
+                launch {
+                    try {
+                        healthCardCommunication(
+                            nfcChannel,
+                            healthCardCertificate,
+                            secureChannel,
+                            can = can,
+                            pin = pin
+                        )
+                    } catch (e: Exception) {
+                        handleAsyncExceptions(e, AuthenticationExceptionKind.HealthCardCommunicationFailed)
+                    }
+                }
+            )
+        }
 
         send(AuthenticationState.AuthenticationFlowFinished)
     }
@@ -323,6 +339,8 @@ class AuthenticationUseCaseProduction @Inject constructor(
         send(AuthenticationState.HealthCardCommunicationTrustedChannelEstablished)
 
         certificate.emit(secChannel.retrieveCertificate())
+        // TODO: find a better way
+        delay(1000)
 
         when (secChannel.verifyPin(pin)) {
             ResponseStatus.SUCCESS -> secureChannel.emit(secChannel)

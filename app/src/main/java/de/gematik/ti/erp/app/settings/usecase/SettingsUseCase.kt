@@ -18,40 +18,84 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
+import android.content.SharedPreferences
+import android.content.Context
+import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.db.entities.HealthCardUser
-import de.gematik.ti.erp.app.db.entities.Settings
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
+import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.settings.repository.HealthCardUserRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
+import de.gematik.ti.erp.app.settings.ui.NEW_USER
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapConcat
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
+import android.app.KeyguardManager
+import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 
 class SettingsUseCase @Inject constructor(
+    @ApplicationContext
+    private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val idpRepository: IdpRepository,
     private val userRepository: HealthCardUserRepository,
+    @ApplicationPreferences
+    private val appPrefs: SharedPreferences,
     private val demoUseCase: DemoUseCase
 ) {
     val settings =
-        settingsRepository.settings().map {
-            if (it.isEmpty()) {
-                Settings(
-                    authenticationMethod = SettingsAuthenticationMethod.Unspecified
-                )
+        settingsRepository.settings()
+
+    val zoomEnabled =
+        settings.map { it.zoomEnabled }
+
+    val showInsecureDevicePrompt =
+        settings.map {
+            val deviceSecured =
+                (context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
+
+            if (!deviceSecured) {
+                !it.userHasAcceptedInsecureDevice
             } else {
-                it.first()
+                false
             }
         }
 
-    suspend fun saveSettings(settings: Settings) {
-        settingsRepository.saveSettings(settings)
+    val authenticationMethod =
+        settings.map { it.authenticationMethod }
+
+    // TODO move to database
+    var isNewUser: Boolean
+        get() = appPrefs.getBoolean(NEW_USER, true)
+        set(v) {
+            appPrefs.edit().putBoolean(NEW_USER, v).apply()
+        }
+
+    suspend fun saveAuthenticationMethod(authenticationMethod: SettingsAuthenticationMethod) {
+        settingsRepository.saveAuthenticationMethod(authenticationMethod)
     }
+
+    suspend fun savePasswordAsAuthenticationMethod(password: String) {
+        settingsRepository.savePasswordAsAuthenticationMethod(password)
+    }
+
+    suspend fun saveZoomPreference(enabled: Boolean) {
+        settingsRepository.saveZoomPreference(enabled)
+    }
+
+    suspend fun incrementNumberOfAuthenticationFailures() =
+        settingsRepository.incrementNumberOfAuthenticationFailures()
+
+    suspend fun resetNumberOfAuthenticationFailures() =
+        settingsRepository.resetNumberOfAuthenticationFailures()
+
+    suspend fun acceptInsecureDevice() =
+        settingsRepository.acceptInsecureDevice()
 
     @OptIn(FlowPreview::class)
     fun healthCardUser(): Flow<List<HealthCardUser>> =
@@ -70,6 +114,12 @@ class SettingsUseCase @Inject constructor(
             }
         }
 
+    suspend fun isPasswordValid(password: String): Boolean {
+        return settingsRepository.loadPassword()?.let {
+            settingsRepository.hashPasswordWithSalt(password, it.salt).contentEquals(it.hash)
+        } ?: false
+    }
+
     suspend fun saveHealthCardUser(user: HealthCardUser) {
         // TODO handle demo mode
         userRepository.saveHealthCardUser(user)
@@ -77,6 +127,15 @@ class SettingsUseCase @Inject constructor(
 
     suspend fun clearIDPDataAndCAN() {
         idpRepository.invalidateWithUserCredentials()
+    }
+
+    data class Token(
+        val accessToken: String? = null,
+        val singleSignOnToken: SingleSignOnToken? = null
+    )
+
+    suspend fun getToken(): Token {
+        return Token(idpRepository.decryptedAccessToken, idpRepository.getSingleSignOnToken())
     }
 
     suspend fun logout() {

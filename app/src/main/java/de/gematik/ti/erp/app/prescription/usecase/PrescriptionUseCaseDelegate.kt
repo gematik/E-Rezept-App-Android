@@ -24,9 +24,10 @@ import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import org.hl7.fhir.r4.model.CapabilityStatement
 import java.time.OffsetDateTime
 import javax.inject.Inject
@@ -36,7 +37,7 @@ import javax.inject.Inject
  * If you would return a flow it is necessary to combine the demo and the production flow with the
  * demoMode.demoModeActive flow to auto update
  */
-@OptIn(FlowPreview::class)
+@OptIn(FlowPreview::class, ExperimentalCoroutinesApi::class)
 class PrescriptionUseCaseDelegate @Inject constructor(
     private val demoDelegate: PrescriptionUseCaseDemo,
     private val productionDelegate: PrescriptionUseCaseProduction,
@@ -47,16 +48,16 @@ class PrescriptionUseCaseDelegate @Inject constructor(
         get() = if (demoUseCase.isDemoModeActive) demoDelegate else productionDelegate
 
     override fun tasks(): Flow<List<Task>> =
-        demoUseCase.demoModeActive.flatMapConcat { delegate.tasks() }
+        demoUseCase.demoModeActive.flatMapLatest { delegate.tasks() }
 
     override fun syncedTasks(): Flow<List<Task>> =
-        demoUseCase.demoModeActive.flatMapConcat { delegate.syncedTasks() }
+        demoUseCase.demoModeActive.flatMapLatest { delegate.syncedTasks() }
 
     override fun scannedTasks(): Flow<List<Task>> =
-        demoUseCase.demoModeActive.flatMapConcat { delegate.scannedTasks() }
+        demoUseCase.demoModeActive.flatMapLatest { delegate.scannedTasks() }
 
     override fun loadAuditEvents(taskId: String): Flow<List<AuditEventSimple>> {
-        return demoUseCase.demoModeActive.flatMapConcat { delegate.loadAuditEvents(taskId) }
+        return demoUseCase.demoModeActive.flatMapLatest { delegate.loadAuditEvents(taskId) }
     }
 
     override suspend fun saveLowDetailEvent(lowDetailEvent: LowDetailEventSimple) {

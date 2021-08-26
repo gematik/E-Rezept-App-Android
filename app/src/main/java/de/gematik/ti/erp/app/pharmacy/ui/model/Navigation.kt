@@ -18,12 +18,17 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.model
 
-sealed class PharmacyNavigationScreens(
-    val route: String
-) {
-    object SearchResults : PharmacyNavigationScreens("SearchResults")
-    object PharmacyDetails : PharmacyNavigationScreens("PharmacyDetails")
-    object ReserveInPharmacy : PharmacyNavigationScreens("ReserveInPharmacy")
-    object CourierDelivery : PharmacyNavigationScreens("CourierDelivery")
-    object MailDelivery : PharmacyNavigationScreens("MailDelivery")
+import androidx.navigation.NavType
+import androidx.navigation.compose.navArgument
+import de.gematik.ti.erp.app.Route
+
+object PharmacyNavigationScreens {
+    object SearchResults : Route("SearchResults")
+    object PharmacyDetails : Route("PharmacyDetails")
+    object ReserveInPharmacy : Route("ReserveInPharmacy")
+    object CourierDelivery : Route("CourierDelivery")
+    object MailDelivery : Route("MailDelivery")
+    object UploadStatus : Route("UploadStatus", navArgument("redeemOption") { type = NavType.IntType }) {
+        fun path(redeemOption: Int) = path("redeemOption" to redeemOption)
+    }
 }

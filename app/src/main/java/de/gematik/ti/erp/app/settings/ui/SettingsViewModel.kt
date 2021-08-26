@@ -26,6 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.SCREENSHOTS_ALLOWED
 import de.gematik.ti.erp.app.core.BaseViewModel
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
@@ -34,31 +35,38 @@ import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.tracking.Tracker
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-sealed class SettingsNavigationScreens(
-    val route: String
-) {
-    object Settings : SettingsNavigationScreens("Settings")
-    object Terms : SettingsNavigationScreens("Terms")
-    object Imprint : SettingsNavigationScreens("Imprint")
-    object DataProtection : SettingsNavigationScreens("DataProtection")
-    object OpenSourceLicences : SettingsNavigationScreens("OpenSourceLicences")
-    object AllowAnalytics : SettingsNavigationScreens("AcceptAnalytics")
-    object FeedbackForm : SettingsNavigationScreens("FeedbackForm")
+sealed class SettingsNavigationScreens {
+    object Settings : Route("Settings")
+    object Terms : Route("Terms")
+    object Imprint : Route("Imprint")
+    object DataProtection : Route("DataProtection")
+    object OpenSourceLicences : Route("OpenSourceLicences")
+    object AllowAnalytics : Route("AcceptAnalytics")
+    object FeedbackForm : Route("FeedbackForm")
+    object Password : Route("Password")
+    object Debug : Route("Debug")
+    object Token : Route("Token")
 }
 
 object SettingsScreen {
     enum class AuthenticationMode {
         EHealthCard,
+        DeviceSecurity,
+
+        @Deprecated("replaced by deviceSecurity")
         Biometrics,
+
+        @Deprecated("replaced by deviceSecurity")
         DeviceCredentials,
         Password,
+
+        @Deprecated("not available anymore")
         None,
         Unspecified
     }
@@ -71,6 +79,7 @@ object SettingsScreen {
         val demoModeActive: Boolean,
         val analyticsAllowed: Boolean,
         val authenticationMode: AuthenticationMode,
+        val zoomEnabled: Boolean,
         val screenShotsAllowed: Boolean,
         val healthCardUsers: List<HealthCardUser>
     )
@@ -80,10 +89,13 @@ private val defaultState = SettingsScreen.State(
     demoModeActive = false,
     analyticsAllowed = false,
     authenticationMode = SettingsScreen.AuthenticationMode.Unspecified,
+    zoomEnabled = false,
     // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
     screenShotsAllowed = false,
     healthCardUsers = listOf()
 )
+
+const val NEW_USER = "newUser"
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -96,7 +108,10 @@ class SettingsViewModel @Inject constructor(
     var screenState by mutableStateOf(defaultState)
         private set
 
-    private var screenshotsAllowed = MutableStateFlow(appPrefs.getBoolean(SCREENSHOTS_ALLOWED, false))
+    var isNewUser by settingsUseCase::isNewUser
+
+    private var screenshotsAllowed =
+        MutableStateFlow(appPrefs.getBoolean(SCREENSHOTS_ALLOWED, false))
 
     init {
         viewModelScope.launch {
@@ -111,11 +126,11 @@ class SettingsViewModel @Inject constructor(
                     demoModeActive = demoActive,
                     analyticsAllowed = analyticsAllowed,
                     authenticationMode = when (settings.authenticationMethod) {
-                        SettingsAuthenticationMethod.Biometrics -> SettingsScreen.AuthenticationMode.Biometrics
-                        SettingsAuthenticationMethod.DeviceCredentials -> SettingsScreen.AuthenticationMode.DeviceCredentials
-                        SettingsAuthenticationMethod.None -> SettingsScreen.AuthenticationMode.None
+                        SettingsAuthenticationMethod.DeviceSecurity -> SettingsScreen.AuthenticationMode.DeviceSecurity
+                        SettingsAuthenticationMethod.Password -> SettingsScreen.AuthenticationMode.Password
                         else -> SettingsScreen.AuthenticationMode.Unspecified
                     },
+                    zoomEnabled = settings.zoomEnabled,
                     screenShotsAllowed = screenshotsAllowed,
                     healthCardUsers = healthCardUser.map {
                         SettingsScreen.HealthCardUser(it.name)
@@ -127,22 +142,16 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun onSelectAuthenticationMode(which: SettingsScreen.AuthenticationMode) =
+    fun onSelectDeviceSecurityAuthenticationMode() =
         viewModelScope.launch(Dispatchers.IO) {
-            settingsUseCase.settings.collect { settings ->
-                if (which != SettingsScreen.AuthenticationMode.Unspecified) {
-                    settingsUseCase.saveSettings(
-                        settings.copy(
-                            authenticationMethod = when (which) {
-                                SettingsScreen.AuthenticationMode.Biometrics -> SettingsAuthenticationMethod.Biometrics
-                                SettingsScreen.AuthenticationMode.DeviceCredentials -> SettingsAuthenticationMethod.DeviceCredentials
-                                else -> SettingsAuthenticationMethod.None
-                            }
-                        )
-                    )
-                }
-                cancel()
-            }
+            settingsUseCase.saveAuthenticationMethod(
+                SettingsAuthenticationMethod.DeviceSecurity
+            )
+        }
+
+    fun onSelectPasswordAsAuthenticationMode(password: String) =
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsUseCase.savePasswordAsAuthenticationMethod(password)
         }
 
     fun onSwitchAllowScreenshots(allowScreenshots: Boolean) {
@@ -150,6 +159,18 @@ class SettingsViewModel @Inject constructor(
             putBoolean(SCREENSHOTS_ALLOWED, allowScreenshots)
         }
         screenshotsAllowed.value = allowScreenshots
+    }
+
+    fun onEnableZoom() {
+        viewModelScope.launch {
+            settingsUseCase.saveZoomPreference(true)
+        }
+    }
+
+    fun onDisableZoom() {
+        viewModelScope.launch {
+            settingsUseCase.saveZoomPreference(false)
+        }
     }
 
     fun onActivateDemoMode() {
@@ -173,4 +194,6 @@ class SettingsViewModel @Inject constructor(
             settingsUseCase.logout()
         }
     }
+
+    suspend fun getToken() = settingsUseCase.getToken()
 }

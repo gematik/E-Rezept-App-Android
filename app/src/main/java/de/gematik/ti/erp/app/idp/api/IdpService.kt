@@ -69,7 +69,6 @@ interface IdpService {
     @FormUrlEncoded
     @POST
     @Headers(
-        "User-Agent: Android",
         "Accept: application/json",
     )
     suspend fun authorization(
@@ -80,7 +79,6 @@ interface IdpService {
     @FormUrlEncoded
     @POST
     @Headers(
-        "User-Agent: Android",
         "Accept: application/json",
     )
     suspend fun token(
@@ -95,7 +93,6 @@ interface IdpService {
     @FormUrlEncoded
     @POST
     @Headers(
-        "User-Agent: Android",
         "Accept: application/json",
     )
     suspend fun ssoToken(
@@ -114,7 +111,6 @@ interface IdpService {
     @FormUrlEncoded
     @POST
     @Headers(
-        "User-Agent: Android",
         "Accept: application/json",
     )
     suspend fun pairing(
@@ -129,7 +125,6 @@ interface IdpService {
     @FormUrlEncoded
     @POST
     @Headers(
-        "User-Agent: Android",
         "Accept: application/json",
     )
     suspend fun authenticate(

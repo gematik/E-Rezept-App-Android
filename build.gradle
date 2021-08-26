@@ -1,8 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     // keep kotlin version sync with compose version
-    ext.kotlinVersion = '1.5.10'
-    ext.composeVersion = '1.0.0-rc02'
+    ext.kotlinVersion = '1.5.21'
+    ext.composeVersion = '1.0.1'
     ext.hiltVersion = '2.37'
     ext.navVersion = "2.4.0-alpha04"
     repositories {
@@ -11,7 +11,8 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.0-alpha03'
+        // do not use 7.1.0-alpha03! r8 is way too aggressive on the release build in this version
+        classpath 'com.android.tools.build:gradle:7.0.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
         classpath "com.google.dagger:hilt-android-gradle-plugin:$hiltVersion"
         classpath "org.owasp:dependency-check-gradle:6.1.5"
@@ -26,7 +27,7 @@ subprojects {
     }
 
     dependencies {
-        ktlint "com.pinterest:ktlint:0.41.0"
+        ktlint "com.pinterest:ktlint:0.42.1"
     }
 
     task ktlint(type: JavaExec, group: "verification") {
@@ -52,7 +53,7 @@ ext {
     piwikVersion = "1.0.1"
 
     // kotlin
-    coroutinesVersion = "1.4.0"
+    coroutinesVersion = "1.5.1"
 
     // base
     fhirVersion = "5.1.0"

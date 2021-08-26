@@ -56,7 +56,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenFragmentDirections
+import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.messages.ui.models.CommunicationReply
 import de.gematik.ti.erp.app.messages.ui.models.ErrorUIMessage
 import de.gematik.ti.erp.app.messages.ui.models.UIMessage
@@ -74,7 +74,7 @@ import kotlinx.coroutines.flow.collect
 
 @ExperimentalMaterialApi
 @Composable
-fun MessageScreen(frNavController: NavController, viewModel: MessageViewModel) {
+fun MessageScreen(mainNavController: NavController, viewModel: MessageViewModel) {
     val result by produceState(initialValue = listOf<CommunicationReply>()) {
         viewModel.fetchCommunications().collect { value = it }
     }
@@ -82,13 +82,14 @@ fun MessageScreen(frNavController: NavController, viewModel: MessageViewModel) {
     val context = LocalContext.current
     if (result.isEmpty()) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag("message_screen"),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 stringResource(id = R.string.messages_empty_screen),
-                style = MaterialTheme.typography.subtitle1
+                style = MaterialTheme.typography.subtitle1,
+                modifier = Modifier.testTag("emptyMessagesHeader")
             )
             Spacer16()
             Text(
@@ -115,11 +116,12 @@ fun MessageScreen(frNavController: NavController, viewModel: MessageViewModel) {
                         ) {
                             when (message.supplyOptionsType) {
                                 LOCAL -> {
-                                    val action =
-                                        MainScreenFragmentDirections.actionMainScreenFragmentToPickupCodeFragment(
-                                            message.pickUpCodeHR, message.pickUpCodeDMC
+                                    mainNavController.navigate(
+                                        MainNavigationScreens.PickUpCode.path(
+                                            pickUpCodeHR = message.pickUpCodeHR,
+                                            pickUpCodeDMC = message.pickUpCodeDMC
                                         )
-                                    frNavController.navigate(action)
+                                    )
                                 }
                                 SHIPMENT -> {
                                     message.url?.let { url ->

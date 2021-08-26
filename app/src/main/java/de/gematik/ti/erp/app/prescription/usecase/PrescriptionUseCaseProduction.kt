@@ -36,7 +36,6 @@ import de.gematik.ti.erp.app.prescription.repository.extractPractitioner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import java.time.OffsetDateTime
 import javax.inject.Inject
@@ -53,17 +52,9 @@ class PrescriptionUseCaseProduction @Inject constructor(
 
     override fun tasks() = repository.tasks()
 
-    override fun scannedTasks(): Flow<List<Task>> = repository.tasksWithoutBundle().map { tasks ->
-        tasks.filter {
-            it.scannedOn != null
-        }
-    }
+    override fun scannedTasks(): Flow<List<Task>> = repository.scannedTasksWithoutBundle()
 
-    override fun syncedTasks(): Flow<List<Task>> = repository.tasksWithoutBundle().map { tasks ->
-        tasks.filter {
-            it.scannedOn == null
-        }
-    }
+    override fun syncedTasks(): Flow<List<Task>> = repository.syncedTasksWithoutBundle()
 
     override suspend fun downloadCommunications(): Result<Unit> =
         when (val r = repository.downloadCommunications()) {
@@ -88,7 +79,7 @@ class PrescriptionUseCaseProduction @Inject constructor(
         taskId: String,
     ): UIPrescriptionDetail {
 
-        val (task, medicationDispense) = repository.loadTaskWithMedicationDispenseForTaskId(taskId).take(1).first()
+        val (task, medicationDispense) = repository.loadTaskWithMedicationDispenseForTaskId(taskId).first()
         val payload = createDataMatrixPayload(task.taskId, task.accessCode)
         val matrix = createMatrixCode(payload)
         val unRedeemMorePossible = unRedeemMorePossible(task.taskId)

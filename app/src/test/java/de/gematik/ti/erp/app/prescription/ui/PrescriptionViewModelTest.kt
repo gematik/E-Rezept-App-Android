@@ -116,7 +116,9 @@ class PrescriptionViewModelTest {
             every { settingsUseCase.settings } answers {
                 flowOf(
                     Settings(
-                        authenticationMethod = SettingsAuthenticationMethod.Unspecified
+                        authenticationMethod = SettingsAuthenticationMethod.Unspecified,
+                        authenticationFails = 0,
+                        zoomEnabled = false
                     )
                 )
             }
@@ -137,7 +139,9 @@ class PrescriptionViewModelTest {
             every { settingsUseCase.settings } answers {
                 flowOf(
                     Settings(
-                        authenticationMethod = SettingsAuthenticationMethod.Unspecified
+                        authenticationMethod = SettingsAuthenticationMethod.Unspecified,
+                        authenticationFails = 0,
+                        zoomEnabled = false
                     )
                 )
             }
@@ -161,7 +165,9 @@ class PrescriptionViewModelTest {
             every { settingsUseCase.settings } answers {
                 flowOf(
                     Settings(
-                        authenticationMethod = SettingsAuthenticationMethod.None
+                        authenticationMethod = SettingsAuthenticationMethod.None,
+                        authenticationFails = 0,
+                        zoomEnabled = false
                     )
                 )
             }
@@ -185,7 +191,9 @@ class PrescriptionViewModelTest {
             every { settingsUseCase.settings } answers {
                 flowOf(
                     Settings(
-                        authenticationMethod = SettingsAuthenticationMethod.None
+                        authenticationMethod = SettingsAuthenticationMethod.None,
+                        authenticationFails = 0,
+                        zoomEnabled = false
                     )
                 )
             }
@@ -204,7 +212,9 @@ class PrescriptionViewModelTest {
             every { settingsUseCase.settings } answers {
                 flowOf(
                     Settings(
-                        authenticationMethod = SettingsAuthenticationMethod.None
+                        authenticationMethod = SettingsAuthenticationMethod.None,
+                        authenticationFails = 0,
+                        zoomEnabled = false
                     )
                 )
             }
@@ -225,7 +235,9 @@ class PrescriptionViewModelTest {
             every { settingsUseCase.settings } answers {
                 flowOf(
                     Settings(
-                        authenticationMethod = SettingsAuthenticationMethod.None
+                        authenticationMethod = SettingsAuthenticationMethod.None,
+                        authenticationFails = 0,
+                        zoomEnabled = false
                     )
                 )
             }

@@ -11,3 +11,4 @@
 Jenkinsfile
 Jenkinsfile_Archive
 Jenkinsfile_GitHubPublish
+ci-overrides.properties

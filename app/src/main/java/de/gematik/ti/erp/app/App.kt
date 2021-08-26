@@ -24,7 +24,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PollingUseCaseProduction
-import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationMode
+import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import timber.log.Timber
 import javax.inject.Inject
@@ -38,7 +38,7 @@ class App : Application() {
     lateinit var demoUseCase: DemoUseCase
 
     @Inject
-    lateinit var authMode: AuthenticationMode
+    lateinit var authUseCase: AuthenticationUseCase
 
     @Inject
     lateinit var pollingUseCase: PollingUseCaseProduction
@@ -52,7 +52,7 @@ class App : Application() {
 
         ProcessLifecycleOwner.get().lifecycle.apply {
             addObserver(demoUseCase)
-            addObserver(authMode)
+            addObserver(authUseCase)
             addObserver(pollingUseCase)
         }
     }

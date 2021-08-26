@@ -45,6 +45,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.focused
@@ -89,6 +90,7 @@ fun CardWallIntro(
     WindowDecorationColors(topColor, resetColorsOnDispose = true)
 
     Scaffold(
+        modifier = Modifier.testTag("cardWall/intro"),
         topBar = {
             TopAppBar(
                 title = {

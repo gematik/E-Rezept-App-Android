@@ -28,13 +28,15 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.LocalFragmentNavController
 import de.gematik.ti.erp.app.redeem.ui.DataMatrixCode
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.NavigationClose
@@ -44,16 +46,11 @@ import de.gematik.ti.erp.app.utils.compose.Spacer8
 
 @Composable
 fun DisplayPickupScreen(
-    viewModel: MessageViewModel,
+    mainNavController: NavController,
     pickupCodeHR: String?,
-    pickupCodeDMC: String?
+    pickupCodeDMC: String?,
+    viewModel: MessageViewModel = hiltViewModel()
 ) {
-
-    val frNavController = LocalFragmentNavController.current
-    pickupCodeDMC?.let {
-        viewModel.createBitmapMatrix(it)
-    }
-
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,12 +59,12 @@ fun DisplayPickupScreen(
                     Text(stringResource(R.string.pickup_screen_title))
                 },
                 navigationIcon = {
-                    NavigationClose(onClick = { frNavController.popBackStack() })
+                    NavigationClose(onClick = { mainNavController.popBackStack() })
                 },
                 elevation = 0.dp
             )
         }
-    ) { _ ->
+    ) {
         Column(
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -100,9 +97,11 @@ fun DisplayPickupScreen(
                 Spacer8()
             }
             pickupCodeDMC?.let {
+                val bitMatrix = remember { viewModel.createBitmapMatrix(it) }
+
                 Spacer8()
                 DataMatrixCode(
-                    viewModel.bitMatrix,
+                    bitMatrix,
                     modifier = Modifier
                         .aspectRatio(1.0f)
                 )

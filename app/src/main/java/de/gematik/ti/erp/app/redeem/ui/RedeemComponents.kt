@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.redeem.ui
 
 import android.graphics.Bitmap
+import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.Arrangement
@@ -51,6 +52,7 @@ import androidx.compose.material.icons.rounded.ViewCarousel
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
@@ -71,10 +73,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import com.google.zxing.common.BitMatrix
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.AppModel
-import de.gematik.ti.erp.app.core.component1
+import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.BackInterceptor
@@ -88,17 +91,26 @@ import kotlin.math.roundToInt
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
-const val NavArgTaskIds = "taskIds"
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RedeemScreen(taskIds: List<String>, onCancel: () -> Unit) {
-    val (redeemVM: RedeemViewModel) = AppModel.viewModels
+fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: RedeemViewModel = hiltViewModel()) {
     val protocolText = stringResource(R.string.redeem_protocol_text)
 
     val state by produceState(redeemVM.defaultState) {
         redeemVM.screenState(taskIds).collect {
             value = it
+        }
+    }
+
+    val activity = LocalActivity.current
+    DisposableEffect(Unit) {
+        activity.window?.attributes = activity.window?.attributes?.apply {
+            screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_FULL
+        }
+        onDispose {
+            activity.window?.attributes = activity.window?.attributes?.apply {
+                screenBrightness = WindowManager.LayoutParams.BRIGHTNESS_OVERRIDE_NONE
+            }
         }
     }
 
@@ -163,16 +175,16 @@ fun RedeemScreen(taskIds: List<String>, onCancel: () -> Unit) {
             RedeemScannedPrescriptionsDialog(
                 onClickRedeem = {
                     redeemVM.redeemPrescriptions(taskIds, protocolText)
-                    onCancel()
+                    navController.popBackStack()
                 }
             ) {
-                onCancel()
+                navController.popBackStack()
             }
         }
 
         if (showRedeemSyncedDialog) {
             RedeemSyncedPrescriptionsDialog {
-                onCancel()
+                navController.popBackStack()
             }
         }
 

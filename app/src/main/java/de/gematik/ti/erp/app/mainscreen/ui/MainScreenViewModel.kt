@@ -31,36 +31,16 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
-sealed class MainNavigationScreens(
-    val route: String
-) {
-    object Main : MainNavigationScreens(
-        "Prescriptions"
-    )
-
-    object Redeem : MainNavigationScreens(
-        "Redeem"
-    )
-
-    object LegalNotice : MainNavigationScreens("LegalNotice")
-}
-
-sealed class MainBottomNavigationScreens(val route: String) {
-    object Prescriptions : MainBottomNavigationScreens("Prescriptions")
-    object Messages : MainBottomNavigationScreens("Messages")
-    object PharmacySearch : MainBottomNavigationScreens("PharmacySearch")
-}
-
 data class RedeemEvent(
     val taskIds: String,
     val isFullDetail: Boolean
 )
 
-val MainScreenBottomNavigationItems = listOf(
-    MainBottomNavigationScreens.Prescriptions,
-    MainBottomNavigationScreens.Messages,
-    MainBottomNavigationScreens.PharmacySearch
-)
+sealed class ErrorEvent {
+    object NetworkNotAvailable : ErrorEvent()
+    data class ServerCommunicationFailedWhileRefreshing(val code: Int) : ErrorEvent()
+    object FatalTruststoreState : ErrorEvent()
+}
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -72,6 +52,10 @@ class MainScreenViewModel @Inject constructor(
     private val _onRedeemEvent = MutableSharedFlow<RedeemEvent>()
     val onRedeemEvent: Flow<RedeemEvent>
         get() = _onRedeemEvent
+
+    private val _onErrorEvent = MutableSharedFlow<ErrorEvent>()
+    val onErrorEvent: Flow<ErrorEvent>
+        get() = _onErrorEvent
 
     fun unreadMessagesAvailable() =
         messageUseCase.unreadCommunicationsAvailable(CommunicationProfile.ErxCommunicationReply)
@@ -116,6 +100,10 @@ class MainScreenViewModel @Inject constructor(
                 )
             )
         }
+    }
+
+    suspend fun onError(error: ErrorEvent) {
+        _onErrorEvent.emit(error)
     }
 
     fun onDeactivateDemoMode() {

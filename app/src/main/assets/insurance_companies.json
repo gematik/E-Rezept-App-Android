@@ -23,11 +23,7 @@
         {
             "name": "AOK Nordost",
             "email": "service@nordost.aok.de"
-        },
-        {
-            "name": "AOK Nordwest",
-            "email": "impressum@nw.aok.de"
-        },
+       },
         {
             "name": "AOK Plus",
             "email": "service@plus.aok.de"
@@ -165,10 +161,6 @@
             "email": "info@bkk-miele.de"
         },
         {
-            "name": "BKK Mobil",
-            "email": "info@service.mobil-krankenkasse.de"
-        },
-        {
             "name": "BKK MTU Friedrichshafen",
             "email": "info@bkk-mtu.de"
         },
@@ -270,7 +262,7 @@
         },
         {
             "name": "Daimler BKK",
-            "email": "info@daimler-bkk.de-mail.de"
+            "email": " erezept@daimler-bkk.com"
         },
         {
             "name": "DAK-Gesundheit",
@@ -365,6 +357,10 @@
             "email": "info@mhplus.de"
         },
         {
+            "name": "Mobil Krankenkasse",
+            "email": "info@service.mobil-krankenkasse.de"
+        },
+        {
             "name": "Novitas BKK",
             "email": "info@novitas-bkk.de"
         },
@@ -386,7 +382,7 @@
         },
         {
             "name": "Siemens-Betriebskrankenkasse",
-            "email": "info@sbk.org"
+            "email": "gesundheitskarte@sbk.org"
         },
         {
             "name": "SKD BKK",

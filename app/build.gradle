@@ -5,7 +5,6 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id 'org.owasp.dependencycheck'
     id 'kotlin-parcelize'
-    id 'androidx.navigation.safeargs.kotlin'
     id 'com.jaredsburrows.license'
 }
 
@@ -20,6 +19,12 @@ def getGitHash = { ->
     } else {
         return "n/a"
     }
+}
+
+static def override(overrideProperties, prop, overrideClosure) {
+    def ov = overrideProperties.getProperty(prop)
+    println "Overwrite $prop with $ov"
+    if (ov) overrideClosure(ov)
 }
 
 afterEvaluate {
@@ -37,7 +42,7 @@ licenseReport {
 }
 
 android {
-    compileSdkVersion 30
+    compileSdkVersion 31
     buildToolsVersion "30.0.3"
 
     aaptOptions {
@@ -47,7 +52,7 @@ android {
     defaultConfig {
         applicationId "de.gematik.ti.erp.app"
         minSdkVersion 24
-        targetSdkVersion 30
+        targetSdkVersion 31
         versionCode VERSION_CODE.toInteger()
         versionName VERSION_NAME
 
@@ -66,54 +71,36 @@ android {
         buildConfigField "boolean", "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false"
 
         // Values in local.properties will override values with same names
-        def propertiesFile = project.rootProject.file('local.properties')
+        def propertiesFile = project.rootProject.file('ci-overrides.properties')
         if (propertiesFile.exists()) {
             Properties overrideProperties = new Properties()
             overrideProperties.load(propertiesFile.newDataInputStream())
 
-            def BASE_SERVICE_URI_PU_OVERRIDE = overrideProperties.getProperty('BASE_SERVICE_URI_PU')
-            if (BASE_SERVICE_URI_PU_OVERRIDE) BASE_SERVICE_URI_PU = BASE_SERVICE_URI_PU_OVERRIDE
-            def BASE_SERVICE_URI_TU_OVERRIDE = overrideProperties.getProperty('BASE_SERVICE_URI_TU')
-            if (BASE_SERVICE_URI_TU_OVERRIDE) BASE_SERVICE_URI_TU = BASE_SERVICE_URI_TU_OVERRIDE
-            def BASE_SERVICE_URI_RU_OVERRIDE = overrideProperties.getProperty('BASE_SERVICE_URI_RU')
-            if (BASE_SERVICE_URI_RU_OVERRIDE) BASE_SERVICE_URI_RU = BASE_SERVICE_URI_RU_OVERRIDE
+            override(overrideProperties, 'BASE_SERVICE_URI_PU') { BASE_SERVICE_URI_PU = it }
+            override(overrideProperties, 'BASE_SERVICE_URI_TU') { BASE_SERVICE_URI_TU = it }
+            override(overrideProperties, 'BASE_SERVICE_URI_RU') { BASE_SERVICE_URI_RU = it }
 
-            def IDP_SERVICE_URI_PU_OVERRIDE = overrideProperties.getProperty('IDP_SERVICE_URI_PU')
-            if (IDP_SERVICE_URI_PU_OVERRIDE) IDP_SERVICE_URI_PU = IDP_SERVICE_URI_PU_OVERRIDE
-            def IDP_SERVICE_URI_TU_OVERRIDE = overrideProperties.getProperty('IDP_SERVICE_URI_TU')
-            if (IDP_SERVICE_URI_TU_OVERRIDE) IDP_SERVICE_URI_TU = IDP_SERVICE_URI_TU_OVERRIDE
-            def IDP_SERVICE_URI_RU_OVERRIDE = overrideProperties.getProperty('IDP_SERVICE_URI_RU')
-            if (IDP_SERVICE_URI_RU_OVERRIDE) IDP_SERVICE_URI_RU = IDP_SERVICE_URI_RU_OVERRIDE
+            override(overrideProperties, 'IDP_SERVICE_URI_PU') { IDP_SERVICE_URI_PU = it }
+            override(overrideProperties, 'IDP_SERVICE_URI_TU') { IDP_SERVICE_URI_TU = it }
+            override(overrideProperties, 'IDP_SERVICE_URI_RU') { IDP_SERVICE_URI_RU = it }
 
-            def ERP_API_KEY_GOOGLE_PU_OVERRIDE = overrideProperties.getProperty('ERP_API_KEY_GOOGLE_PU')
-            if (ERP_API_KEY_GOOGLE_PU_OVERRIDE) ERP_API_KEY_GOOGLE_PU = ERP_API_KEY_GOOGLE_PU_OVERRIDE
-            def ERP_API_KEY_GOOGLE_TU_OVERRIDE = overrideProperties.getProperty('ERP_API_KEY_GOOGLE_TU')
-            if (ERP_API_KEY_GOOGLE_TU_OVERRIDE) ERP_API_KEY_GOOGLE_TU = ERP_API_KEY_GOOGLE_TU_OVERRIDE
-            def ERP_API_KEY_GOOGLE_RU_OVERRIDE = overrideProperties.getProperty('ERP_API_KEY_GOOGLE_RU')
-            if (ERP_API_KEY_GOOGLE_RU_OVERRIDE) ERP_API_KEY_GOOGLE_RU = ERP_API_KEY_GOOGLE_RU_OVERRIDE
+            override(overrideProperties, 'ERP_API_KEY_GOOGLE_PU') { ERP_API_KEY_GOOGLE_PU = it }
+            override(overrideProperties, 'ERP_API_KEY_GOOGLE_TU') { ERP_API_KEY_GOOGLE_TU = it }
+            override(overrideProperties, 'ERP_API_KEY_GOOGLE_RU') { ERP_API_KEY_GOOGLE_RU = it }
 
-            def PHARMACY_SERVICE_URI_OVERRIDE = overrideProperties.getProperty('PHARMACY_SERVICE_URI')
-            if (PHARMACY_SERVICE_URI_OVERRIDE) PHARMACY_SERVICE_URI = PHARMACY_SERVICE_URI_OVERRIDE
-            def PHARMACY_SERVICE_URI_TEST_OVERRIDE = overrideProperties.getProperty('PHARMACY_SERVICE_URI_TEST')
-            if (PHARMACY_SERVICE_URI_TEST_OVERRIDE) PHARMACY_SERVICE_URI_TEST = PHARMACY_SERVICE_URI_TEST_OVERRIDE
+            override(overrideProperties, 'PHARMACY_SERVICE_URI') { PHARMACY_SERVICE_URI = it }
+            override(overrideProperties, 'PHARMACY_SERVICE_URI_TEST') { PHARMACY_SERVICE_URI_TEST = it }
+            override(overrideProperties, 'PHARMACY_API_KEY') { PHARMACY_API_KEY = it }
+            override(overrideProperties, 'PHARMACY_API_KEY_TEST') { PHARMACY_API_KEY_TEST = it }
 
-            def PHARMACY_API_KEY_OVERRIDE = overrideProperties.getProperty('PHARMACY_API_KEY')
-            if (PHARMACY_API_KEY_OVERRIDE) PHARMACY_API_KEY = PHARMACY_API_KEY_OVERRIDE
-            def PHARMACY_API_KEY_TEST_OVERRIDE = overrideProperties.getProperty('PHARMACY_API_KEY_TEST')
-            if (PHARMACY_API_KEY_TEST_OVERRIDE) PHARMACY_API_KEY_TEST = PHARMACY_API_KEY_TEST_OVERRIDE
-
-            def PIWIK_TRACKER_ID_GOOGLE_OVERRIDE = overrideProperties.getProperty('PIWIK_TRACKER_ID_GOOGLE')
-            if (PIWIK_TRACKER_ID_GOOGLE_OVERRIDE) PIWIK_TRACKER_ID_GOOGLE = PIWIK_TRACKER_ID_GOOGLE_OVERRIDE
-            def PIWIK_TRACKER_ID_HUAWEI_OVERRIDE = overrideProperties.getProperty('PIWIK_TRACKER_ID_HUAWEI')
-            if (PIWIK_TRACKER_ID_HUAWEI_OVERRIDE) PIWIK_TRACKER_ID_HUAWEI = PIWIK_TRACKER_ID_HUAWEI_OVERRIDE
             def PIWIK_TRACKER_URI_OVERRIDE = overrideProperties.getProperty('PIWIK_TRACKER_URI')
             if (PIWIK_TRACKER_URI_OVERRIDE)
                 buildConfigField "String", "PIWIK_TRACKER_URI", "\"$PIWIK_TRACKER_URI_OVERRIDE\""
+            override(overrideProperties, 'PIWIK_TRACKER_ID_GOOGLE') { PIWIK_TRACKER_ID_GOOGLE = it }
+            override(overrideProperties, 'PIWIK_TRACKER_ID_HUAWEI') { PIWIK_TRACKER_ID_HUAWEI = it }
 
-            def APP_TRUST_ANCHOR_BASE64_OVERRIDE = overrideProperties.getProperty('APP_TRUST_ANCHOR_BASE64')
-            if (APP_TRUST_ANCHOR_BASE64_OVERRIDE) APP_TRUST_ANCHOR_BASE64 = APP_TRUST_ANCHOR_BASE64_OVERRIDE
-            def APP_TRUST_ANCHOR_BASE64_TEST_OVERRIDE = overrideProperties.getProperty('APP_TRUST_ANCHOR_BASE64_TEST')
-            if (APP_TRUST_ANCHOR_BASE64_TEST_OVERRIDE) APP_TRUST_ANCHOR_BASE64_TEST = APP_TRUST_ANCHOR_BASE64_TEST_OVERRIDE
+            override(overrideProperties, 'APP_TRUST_ANCHOR_BASE64') { APP_TRUST_ANCHOR_BASE64 = it }
+            override(overrideProperties, 'APP_TRUST_ANCHOR_BASE64_TEST') { APP_TRUST_ANCHOR_BASE64_TEST = it }
 
             def TEST_RUN_WITH_TRUSTSTORE_INTEGRATION = overrideProperties.getProperty('TEST_RUN_WITH_TRUSTSTORE_INTEGRATION')
             if (TEST_RUN_WITH_TRUSTSTORE_INTEGRATION)
@@ -362,11 +349,7 @@ dependencies {
     //
     // UI
     //
-    implementation "androidx.appcompat:appcompat:1.3.0"
-
-    // Navigation
-    implementation "androidx.navigation:navigation-fragment-ktx:$navVersion"
-    implementation "androidx.navigation:navigation-ui-ktx:$navVersion"
+    implementation "androidx.appcompat:appcompat:1.3.1"
 
     // Lifecycle
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
@@ -409,13 +392,18 @@ dependencies {
     implementation "androidx.compose.material:material:$composeVersion"
     implementation "androidx.compose.material:material-icons-extended:$composeVersion"
     implementation "androidx.compose.material:material-icons-core:$composeVersion"
-    // FIXME version downgrade due to AS
-    implementation "androidx.compose.ui:ui-tooling:1.0.0-beta09"
+    implementation "androidx.compose.ui:ui-tooling:$composeVersion"
     implementation "androidx.compose.runtime:runtime-livedata:$composeVersion"
-    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-alpha08"
-    implementation "androidx.activity:activity-compose:$composeVersion"
-    implementation "androidx.paging:paging-compose:1.0.0-alpha11"
-    implementation "androidx.navigation:navigation-compose:2.4.0-alpha04"
+    implementation "androidx.constraintlayout:constraintlayout-compose:1.0.0-beta01"
+    implementation "androidx.activity:activity-compose:1.3.1"
+    implementation "androidx.paging:paging-compose:1.0.0-alpha12"
+
+    implementation "androidx.navigation:navigation-compose:2.4.0-alpha07"
+
+    implementation 'androidx.hilt:hilt-navigation-compose:1.0.0-alpha03'
+
+    // password strength check
+    implementation "com.nulab-inc:zxcvbn:1.5.2"
 
     //
     // Test
@@ -423,17 +411,19 @@ dependencies {
 
     testImplementation "androidx.arch.core:core-testing:2.1.0"
     testImplementation "io.mockk:mockk:1.11.0"
-    testImplementation "junit:junit:4.13.1"
+    testImplementation "junit:junit:4.13.2"
     testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0"
     testImplementation "org.yaml:snakeyaml:1.27"
     testImplementation "com.squareup.okhttp3:mockwebserver:$okHttpVersion"
     testImplementation "org.json:json:20190722"
+    testImplementation "com.squareup.okhttp3:mockwebserver:4.9.1"
 
     androidTestImplementation "androidx.room:room-testing:$roomVersion"
     androidTestImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:1.5.0"
     androidTestImplementation "androidx.test.espresso:espresso-core:3.4.0"
     androidTestImplementation "androidx.test.ext:junit:1.1.3"
-    androidTestImplementation "androidx.compose.ui:ui-test:$composeVersion@aar"
+    androidTestImplementation "androidx.compose.ui:ui-test:$composeVersion"
+    androidTestImplementation "androidx.navigation:navigation-testing:2.3.5"
 
     // Test rules and transitive dependencies:
     androidTestImplementation("androidx.compose.ui:ui-test-junit4:$composeVersion")

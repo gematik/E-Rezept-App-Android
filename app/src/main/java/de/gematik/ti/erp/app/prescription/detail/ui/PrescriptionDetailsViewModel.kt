@@ -35,6 +35,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class PrescriptionDetailsViewModel @Inject constructor(
@@ -43,7 +44,7 @@ class PrescriptionDetailsViewModel @Inject constructor(
     private val dispatchProvider: DispatchProvider
 ) : ViewModel() {
     suspend fun detailedPrescription(taskId: String): UIPrescriptionDetail =
-        prescriptionUseCase.generatePrescriptionDetails(taskId)
+        withContext(dispatchProvider.unconfined()) { prescriptionUseCase.generatePrescriptionDetails(taskId) }
 
     fun auditEvents(taskId: String): Flow<List<AuditEventSimple>> =
         prescriptionUseCase.loadAuditEvents(taskId).flowOn(dispatchProvider.unconfined())

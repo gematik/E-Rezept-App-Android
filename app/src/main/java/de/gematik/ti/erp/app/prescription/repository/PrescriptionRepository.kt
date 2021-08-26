@@ -25,9 +25,8 @@ import de.gematik.ti.erp.app.db.entities.AuditEventSimple
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskWithMedicationDispense
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
@@ -81,7 +80,8 @@ class PrescriptionRepository @Inject constructor(
     }
 
     fun tasks() = localDataSource.loadTasks()
-    fun tasksWithoutBundle() = localDataSource.loadTasksWithoutBundle()
+    fun scannedTasksWithoutBundle() = localDataSource.loadScannedTasksWithoutBundle()
+    fun syncedTasksWithoutBundle() = localDataSource.loadSyncedTasksWithoutBundle()
 
     suspend fun redeemPrescription(
         communication: Communication
@@ -118,15 +118,16 @@ class PrescriptionRepository @Inject constructor(
             localDataSource.lastModifyTaskDate, 0,
             ZoneOffset.UTC
         ).atOffset(ZoneOffset.UTC)
+
         return when (val result = remoteDataSource.fetchTasks(lastKnownModifierDate)) {
             is Success -> {
                 try {
                     val taskIds = mapper.parseTaskIds(result.data)
                     supervisorScope {
-                        async(dispatchProvider.io()) {
+                        launch(dispatchProvider.io()) {
                             downloadAuditEvents(lastKnownModifierDate)
                         }
-                        async {
+                        launch(dispatchProvider.io()) {
                             downloadCommunications()
                         }
                     }
@@ -136,7 +137,7 @@ class PrescriptionRepository @Inject constructor(
 
                     for (taskId in taskIds) {
                         supervisorScope {
-                            async { deleteLowDetailEvents(taskId) }
+                            launch(dispatchProvider.io()) { deleteLowDetailEvents(taskId) }
                         }
 
                         when (val kbvResult = downloadTaskWithKBVBundle(taskId)) {
@@ -149,7 +150,7 @@ class PrescriptionRepository @Inject constructor(
                                 }
                                 if (kbvResult.data.status == TaskStatus.COMPLETED.definition) {
                                     supervisorScope {
-                                        async { downloadMedicationDispense(taskId) }
+                                        launch(dispatchProvider.io()) { downloadMedicationDispense(taskId) }
                                     }
                                 }
                             }

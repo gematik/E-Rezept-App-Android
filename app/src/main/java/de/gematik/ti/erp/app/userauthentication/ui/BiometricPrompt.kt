@@ -22,100 +22,127 @@ import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.findFragment
+import androidx.fragment.app.FragmentActivity
+import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 
 @Composable
 fun BiometricPrompt(
-    authenticationMode: SettingsAuthenticationMethod,
+    authenticationMethod: SettingsAuthenticationMethod,
     title: String,
     description: String,
     negativeButton: String,
     onAuthenticated: () -> Unit,
     onCancel: () -> Unit,
-    onAuthenticationError: () -> Unit
+    onAuthenticationError: () -> Unit,
+    onAuthenticationSoftError: () -> Unit
 ) {
-    val view = LocalView.current
-    val fr = remember { view.findFragment<Fragment>() }
+    val activity = LocalActivity.current as FragmentActivity
+    val context = LocalContext.current
 
-    LaunchedEffect(fr) {
-        nativeBiometricPrompt(
-            authenticationMode,
-            fr, title, description, negativeButton,
-            object : BiometricPrompt.AuthenticationCallback() {
+    val executor = remember { ContextCompat.getMainExecutor(activity) }
+    val biometricManager = remember { BiometricManager.from(context) }
 
-                override fun onAuthenticationSucceeded(
-                    result: BiometricPrompt.AuthenticationResult
+    val callback = remember {
+        object : BiometricPrompt.AuthenticationCallback() {
+
+            override fun onAuthenticationSucceeded(
+                result: BiometricPrompt.AuthenticationResult
+            ) {
+                super.onAuthenticationSucceeded(result)
+
+                onAuthenticated()
+            }
+
+            override fun onAuthenticationError(
+                errCode: Int,
+                errString: CharSequence
+            ) {
+                super.onAuthenticationError(errCode, errString)
+
+                if (errCode == BiometricPrompt.ERROR_USER_CANCELED ||
+                    errCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
+                    errCode == BiometricPrompt.ERROR_CANCELED
                 ) {
-                    super.onAuthenticationSucceeded(result)
-
-                    onAuthenticated()
-                }
-
-                override fun onAuthenticationError(
-                    errCode: Int,
-                    errString: CharSequence
-                ) {
-                    super.onAuthenticationError(errCode, errString)
-
-                    if (errCode == BiometricPrompt.ERROR_USER_CANCELED ||
-                        errCode == BiometricPrompt.ERROR_NEGATIVE_BUTTON ||
-                        errCode == BiometricPrompt.ERROR_CANCELED
-                    ) {
-                        onCancel()
-                    } else {
-                        Toast.makeText(fr.requireContext(), errString, Toast.LENGTH_LONG).show()
-                        onAuthenticationError()
-                    }
-                }
-
-                override fun onAuthenticationFailed() {
-                    super.onAuthenticationFailed()
                     onCancel()
+                } else {
+                    Toast.makeText(activity, errString, Toast.LENGTH_LONG).show()
+                    onAuthenticationError()
                 }
             }
-        )
+
+            override fun onAuthenticationFailed() {
+                super.onAuthenticationFailed()
+                onAuthenticationSoftError()
+            }
+        }
+    }
+
+    val promptInfo = remember {
+        val secureOption = bestSecureOption(biometricManager)
+
+        if (authenticationMethod == SettingsAuthenticationMethod.DeviceCredentials) {
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setDescription(description)
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
+                )
+                .build()
+        } else if (authenticationMethod == SettingsAuthenticationMethod.Biometrics) {
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setDescription(description)
+                .setNegativeButtonText(negativeButton)
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_STRONG
+                )
+                .setAllowedAuthenticators(
+                    BiometricManager.Authenticators.BIOMETRIC_WEAK
+                )
+                .build()
+        } else {
+            BiometricPrompt.PromptInfo.Builder()
+                .setTitle(title)
+                .setDescription(description)
+                .apply {
+                    if (secureOption != BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                        setNegativeButtonText(negativeButton)
+                }.setAllowedAuthenticators(
+                    secureOption
+                )
+                .build()
+        }
+    }
+
+    val biometricPrompt = remember { BiometricPrompt(activity, executor, callback) }
+
+    DisposableEffect(biometricPrompt) {
+        biometricPrompt.authenticate(promptInfo)
+
+        onDispose {
+            biometricPrompt.cancelAuthentication()
+        }
     }
 }
 
-private fun nativeBiometricPrompt(
-    authenticationMode: SettingsAuthenticationMethod,
-    fr: Fragment,
-    title: String,
-    description: String,
-    negativeButton: String,
-    callback: BiometricPrompt.AuthenticationCallback
-) {
-    val executor = ContextCompat.getMainExecutor(fr.requireContext())
+private fun bestSecureOption(biometricManager: BiometricManager): Int {
 
-    val promptInfo = if (authenticationMode == SettingsAuthenticationMethod.DeviceCredentials) {
-        BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setDescription(description)
-            .setAllowedAuthenticators(
-                BiometricManager.Authenticators.DEVICE_CREDENTIAL
-            )
-            .build()
-    } else {
-        BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setDescription(description)
-            .setNegativeButtonText(negativeButton)
-            .setAllowedAuthenticators(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG
-            )
-            .setAllowedAuthenticators(
-                BiometricManager.Authenticators.BIOMETRIC_WEAK
-            )
-            .build()
+    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
+        BiometricManager.BIOMETRIC_SUCCESS,
+        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return BiometricManager.Authenticators.BIOMETRIC_STRONG
     }
-
-    val biometricPrompt = BiometricPrompt(fr, executor, callback)
-
-    biometricPrompt.authenticate(promptInfo)
+    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
+        BiometricManager.BIOMETRIC_SUCCESS,
+        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return BiometricManager.Authenticators.BIOMETRIC_WEAK
+    }
+    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
+        BiometricManager.BIOMETRIC_SUCCESS,
+        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    }
+    return BiometricManager.Authenticators.DEVICE_CREDENTIAL
 }

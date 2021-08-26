@@ -36,6 +36,7 @@ import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.io.IOException
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
@@ -91,6 +92,7 @@ class PrescriptionRepositoryTest {
                 taskWithBundle()
             )
         }
+        coEvery { remoteDataSource.fetchCommunications() } coAnswers { Result.Error(IOException()) }
 
         coEvery { localDataSource.saveAuditEvents(any()) } answers { nothing }
         coEvery { localDataSource.saveTask(any()) } answers { nothing }
@@ -100,12 +102,12 @@ class PrescriptionRepositoryTest {
     }
 
     @Test
-    fun `if download tasks gets called - ensure that complete tasks are saved together with fresh audit events`() {
+    fun `if download tasks gets called - ensure that complete tasks are saved together with fresh audit events`() =
         coroutineRule.testDispatcher.runBlockingTest {
             prescriptionRepository.downloadTasks()
+
+            coVerify(exactly = taskWithoutKBVBundle.entry.size) { localDataSource.saveTask(any()) }
+            coVerify(exactly = 1) { localDataSource.saveAuditEvents(any()) }
+            verify { localDataSource.lastModifyTaskDate = 1618826574 }
         }
-        coVerify(exactly = taskWithoutKBVBundle.entry.size) { localDataSource.saveTask(any()) }
-        coVerify(exactly = 1) { localDataSource.saveAuditEvents(any()) }
-        verify { localDataSource.lastModifyTaskDate = 1618826574 }
-    }
 }

@@ -46,7 +46,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
@@ -87,8 +86,7 @@ class PrescriptionViewModel @Inject constructor(
     @OptIn(FlowPreview::class)
     fun screenState(): Flow<PrescriptionScreen.State> {
         val prescriptionFlow = combine(
-            prescriptionUseCase.syncedRecipes()
-                .debounce(500L), // avoid triggering the animation of one prescription block for each task flying in
+            prescriptionUseCase.syncedRecipes(),
             prescriptionUseCase.scannedRecipes(),
         ) { fullDetail, lowDetail ->
 

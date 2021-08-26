@@ -33,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -48,7 +47,7 @@ import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import java.util.Locale
 
 @Composable
-fun AllowAnalyticsScreen(settingsViewModel: SettingsViewModel, navController: NavController) {
+fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit) {
     val context = LocalContext.current
     val allowStars = stringResource(R.string.settings_tracking_allow_emoji)
     val allowText = annotatedStringResource(
@@ -62,15 +61,14 @@ fun AllowAnalyticsScreen(settingsViewModel: SettingsViewModel, navController: Na
             NavigationTopAppBar(
                 NavigationBarMode.Close,
                 headline = stringResource(R.string.settings_tracking_allow_title),
-            ) { navController.popBackStack() }
+            ) { onAllowAnalytics(false) }
         },
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
                 Spacer24()
                 TextButton(
                     onClick = {
-                        settingsViewModel.onTrackingDisallowed()
-                        navController.popBackStack()
+                        onAllowAnalytics(false)
                         Toast.makeText(context, disAllowToast, Toast.LENGTH_SHORT).show()
                     }
                 ) {
@@ -79,8 +77,7 @@ fun AllowAnalyticsScreen(settingsViewModel: SettingsViewModel, navController: Na
                 Spacer(modifier = Modifier.weight(1f))
                 TextButton(
                     onClick = {
-                        settingsViewModel.onTrackingAllowed()
-                        navController.popBackStack()
+                        onAllowAnalytics(true)
                         Toast.makeText(context, allowText, Toast.LENGTH_SHORT).show()
                     }
                 ) {

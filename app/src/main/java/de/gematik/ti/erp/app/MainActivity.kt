@@ -23,20 +23,35 @@ import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.view.WindowManager
+import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.findNavController
+import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
+import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.MainContent
 import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.di.NavigationObservable
-import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationMode
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
+import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 const val SCREENSHOTS_ALLOWED = "SCREENSHOTS_ALLOWED"
@@ -44,7 +59,7 @@ const val SCREENSHOTS_ALLOWED = "SCREENSHOTS_ALLOWED"
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     @Inject
-    lateinit var auth: AuthenticationMode
+    lateinit var auth: AuthenticationUseCase
 
     @Inject
     lateinit var navigationObservable: NavigationObservable
@@ -53,13 +68,15 @@ class MainActivity : AppCompatActivity() {
     @ApplicationPreferences
     lateinit var appPrefs: SharedPreferences
 
-    private val _nfcTag = MutableSharedFlow<Tag>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+    private val _nfcTag = MutableSharedFlow<Tag>()
     val nfcTagFlow: Flow<Tag>
         get() = _nfcTag
 
+    private val authenticationModeAndMethod = MutableSharedFlow<AuthenticationModeAndMethod>()
+
+    @OptIn(ExperimentalAnimationApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.ac_main)
 
         if (BuildConfig.DEBUG) {
             appPrefs.edit {
@@ -73,9 +90,27 @@ class MainActivity : AppCompatActivity() {
                 switchScreenshotMode()
             }
         }
-        lifecycleScope.launchWhenStarted {
-            navigationObservable.navigationEventLane.collect {
-                it.invoke(findNavController(R.id.nav_host_fragment))
+
+        setContent {
+            CompositionLocalProvider(LocalActivity provides this) {
+                MainContent { mainViewModel ->
+                    val auth by authenticationModeAndMethod.collectAsState(null)
+
+                    val navController = rememberNavController()
+
+                    Box(modifier = Modifier.fillMaxSize()) {
+                        if (auth == AuthenticationModeAndMethod.Authenticated) {
+                            MainScreen(navController, mainViewModel)
+                        }
+                        AnimatedVisibility(
+                            visible = auth is AuthenticationModeAndMethod.AuthenticationRequired,
+                            enter = fadeIn(),
+                            exit = fadeOut()
+                        ) {
+                            UserAuthenticationScreen()
+                        }
+                    }
+                }
             }
         }
     }
@@ -96,25 +131,15 @@ class MainActivity : AppCompatActivity() {
 
         lifecycleScope.launchWhenStarted {
             auth.authenticationModeAndMethod.collect {
-                val navCtr = findNavController(R.id.nav_host_fragment)
-
-                if (it is AuthenticationModeAndMethod.AuthenticationRequired) {
-                    if (navCtr.currentDestination?.id != R.id.userAuthenticationFragment) {
-                        navCtr.navigate(
-                            NavGraphDirections.actionGlobalUserAuthenticationFragment()
-                        )
-                    }
-                } else {
-                    if (navCtr.currentDestination?.id == R.id.userAuthenticationFragment) {
-                        navCtr.popBackStack()
-                    }
-                }
+                authenticationModeAndMethod.emit(it)
             }
         }
     }
 
     private fun onTagDiscovered(tag: Tag) {
-        _nfcTag.tryEmit(tag)
+        lifecycleScope.launch {
+            _nfcTag.emit(tag)
+        }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

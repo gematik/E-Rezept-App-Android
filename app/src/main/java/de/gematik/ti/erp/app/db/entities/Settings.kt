@@ -18,21 +18,59 @@
 
 package de.gematik.ti.erp.app.db.entities
 
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 enum class SettingsAuthenticationMethod {
     HealthCard,
+    DeviceSecurity,
+    @Deprecated("replaced by deviceSecurity")
     Biometrics,
+    @Deprecated("replaced by deviceSecurity")
     DeviceCredentials,
     Password,
+    @Deprecated("not available anymore")
     None,
     Unspecified
 }
 
+data class PasswordEntity(
+    val salt: ByteArray,
+    val hash: ByteArray
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as PasswordEntity
+
+        if (!salt.contentEquals(other.salt)) return false
+        if (!hash.contentEquals(other.hash)) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = salt.contentHashCode()
+        result = 31 * result + hash.contentHashCode()
+        return result
+    }
+}
+
+data class DeviceSecuredEntity(
+    val deviceWasSecured: Boolean,
+    val userHasAcceptedInsecureDevice: Boolean
+)
+
 @Entity(tableName = "settings")
 data class Settings(
     val authenticationMethod: SettingsAuthenticationMethod,
+    val authenticationFails: Int,
+    val zoomEnabled: Boolean,
+    @Embedded(prefix = "password_")
+    val password: PasswordEntity? = null,
+    val userHasAcceptedInsecureDevice: Boolean = false
 ) {
     @PrimaryKey
     var id: Long = 0

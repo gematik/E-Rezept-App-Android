@@ -23,14 +23,37 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import de.gematik.ti.erp.app.db.entities.Settings
+import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface SettingsDao {
 
     @Query("SELECT * FROM settings LIMIT 1")
-    fun getSettings(): Flow<List<Settings>>
+    fun getSettings(): Flow<Settings>
+
+    @Query("SELECT COUNT(*) FROM settings LIMIT 1")
+    fun isNotEmpty(): Boolean
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertSettings(settings: Settings)
+    fun insertSettings(settings: Settings)
+
+    @Query("UPDATE settings SET authenticationMethod = :authenticationMethod, password_salt = :salt, password_hash = :hash")
+    suspend fun updateAuthenticationMethod(
+        authenticationMethod: SettingsAuthenticationMethod,
+        salt: ByteArray? = null,
+        hash: ByteArray? = null
+    )
+
+    @Query("UPDATE settings SET zoomEnabled = :enabled")
+    suspend fun updateZoom(enabled: Boolean)
+
+    @Query("UPDATE settings SET authenticationFails = authenticationFails + 1")
+    suspend fun incrementNumberOfAuthenticationFailures()
+
+    @Query("UPDATE settings SET authenticationFails = 0")
+    suspend fun resetNumberOfAuthenticationFailures()
+
+    @Query("UPDATE settings SET userHasAcceptedInsecureDevice = 1")
+    suspend fun acceptInsecureDevice()
 }

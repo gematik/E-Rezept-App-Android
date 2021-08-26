@@ -45,85 +45,172 @@ import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.QrCode
 import androidx.compose.material.icons.rounded.ShoppingBag
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavType
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.navArgument
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.AppModel
-import de.gematik.ti.erp.app.core.component1
-import de.gematik.ti.erp.app.core.component2
+import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
+import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.MainViewModel
+import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
+import de.gematik.ti.erp.app.messages.ui.DisplayPickupScreen
 import de.gematik.ti.erp.app.messages.ui.MessageScreen
 import de.gematik.ti.erp.app.messages.ui.MessageViewModel
+import de.gematik.ti.erp.app.onboarding.ui.OnboardingScreen
+import de.gematik.ti.erp.app.onboarding.ui.ReturningUserSecureAppOnboardingScreen
+import de.gematik.ti.erp.app.pharmacy.ui.PharmacySearchScreenWithNavigation
+import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
-import de.gematik.ti.erp.app.redeem.ui.NavArgTaskIds
+import de.gematik.ti.erp.app.prescription.ui.ScanScreen
 import de.gematik.ti.erp.app.redeem.ui.RedeemScreen
+import de.gematik.ti.erp.app.settings.ui.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainScreen() {
+fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
 
-    val navController = rememberNavController()
-    val frNavController = AppModel.frNavController
+    LaunchedEffect(Unit) {
+        mainViewModel.authenticationMethod.collect {
+            if (!mainViewModel.isNewUser && !(it == SettingsAuthenticationMethod.Password || it == SettingsAuthenticationMethod.DeviceSecurity)) {
+                navController.navigate(MainNavigationScreens.ReturningUserSecureAppOnboardingScreen.path()) {
+                    launchSingleTop = true
+                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+    }
+
+    val startDestination =
+        when {
+            mainViewModel.isNewUser -> {
+                MainNavigationScreens.Onboarding.route
+            }
+            else -> {
+                MainNavigationScreens.Prescriptions.route
+            }
+        }
 
     NavHost(
         navController,
-        startDestination = MainNavigationScreens.Main.route
+        startDestination = startDestination
     ) {
-        composable(MainNavigationScreens.Main.route) {
-            MainScreenWithScaffold(navController, frNavController)
+        composable(MainNavigationScreens.Onboarding.route) {
+            OnboardingScreen(navController)
+        }
+        composable(MainNavigationScreens.ReturningUserSecureAppOnboardingScreen.route) {
+            ReturningUserSecureAppOnboardingScreen(navController)
         }
         composable(
-            MainNavigationScreens.Redeem.route + "/{$NavArgTaskIds}",
-            arguments = listOf(navArgument(NavArgTaskIds) { type = NavType.StringType })
+            MainNavigationScreens.Settings.route,
+            MainNavigationScreens.Settings.arguments
+        ) {
+            val scrollTo = remember { it.arguments?.get("scrollToSection") as SettingsScrollTo }
+            SettingsScreen(scrollTo = scrollTo, navController)
+        }
+        composable(MainNavigationScreens.Camera.route) {
+            ScanScreen(navController)
+        }
+        composable(MainNavigationScreens.Prescriptions.route) {
+            MainScreenWithScaffold(navController)
+        }
+        composable(
+            MainNavigationScreens.PrescriptionDetail.route,
+            MainNavigationScreens.PrescriptionDetail.arguments,
+        ) {
+            val taskId = remember { requireNotNull(it.arguments?.getString("taskId")) }
+            PrescriptionDetailsScreen(taskId, navController)
+        }
+        composable(
+            MainNavigationScreens.PharmacySearch.route,
+            MainNavigationScreens.PharmacySearch.arguments,
+        ) {
+            val taskIds = remember { it.arguments?.getString("taskIds") }
+            PharmacySearchScreenWithNavigation(taskIds, navController)
+        }
+        composable(MainNavigationScreens.InsecureDeviceScreen.route) {
+            InsecureDeviceScreen(navController, mainViewModel)
+        }
+        composable(
+            MainNavigationScreens.RedeemLocally.route,
+            MainNavigationScreens.RedeemLocally.arguments
         ) {
             val taskIds =
-                requireNotNull(
-                    navController.currentBackStackEntry?.arguments?.getString(
-                        NavArgTaskIds
+                remember {
+                    requireNotNull(
+                        navController.currentBackStackEntry?.arguments?.getString(
+                            "taskIds"
+                        )
                     )
-                )
+                }
             RedeemScreen(
                 taskIds.split(","),
-                onCancel = {
-                    navController.popBackStack()
-                }
+                navController
             )
         }
-        composable(MainNavigationScreens.LegalNotice.route) { LegalNoticeWithScaffold(navigation = navController) }
+        composable(
+            MainNavigationScreens.PickUpCode.route,
+            MainNavigationScreens.PickUpCode.arguments
+        ) {
+            val pickUpCodeHR =
+                remember { navController.currentBackStackEntry?.arguments?.getString("pickUpCodeHR") }
+            val pickUpCodeDMC =
+                remember { navController.currentBackStackEntry?.arguments?.getString("pickUpCodeDMC") }
+            DisplayPickupScreen(
+                navController,
+                pickupCodeHR = pickUpCodeHR,
+                pickupCodeDMC = pickUpCodeDMC
+            )
+        }
+        composable(MainNavigationScreens.CardWall.route) {
+            CardWallScreen(navController)
+        }
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
-private fun MainScreenWithScaffold(mainNavCtr: NavController, frNavController: NavController) {
-    val (mainVM: MainScreenViewModel, messageVM: MessageViewModel) = AppModel.viewModels
-
-    val navController = rememberNavController()
+private fun MainScreenWithScaffold(
+    mainNavController: NavController,
+    mainViewModel: MainViewModel = hiltViewModel(),
+    mainScreenVM: MainScreenViewModel = hiltViewModel(LocalActivity.current),
+    messageVM: MessageViewModel = hiltViewModel()
+) {
+    LaunchedEffect(Unit) {
+        if (mainViewModel.showInsecureDevicePrompt.first()) {
+            mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.route)
+        }
+    }
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
@@ -133,7 +220,7 @@ private fun MainScreenWithScaffold(mainNavCtr: NavController, frNavController: N
             false
         )
     ) {
-        mainVM.onRedeemEvent.collect {
+        mainScreenVM.onRedeemEvent.collect {
             value = it
             sheetState.show()
         }
@@ -141,6 +228,25 @@ private fun MainScreenWithScaffold(mainNavCtr: NavController, frNavController: N
 
     LaunchedEffect(Unit) {
         sheetState.snapTo(ModalBottomSheetValue.Hidden)
+    }
+
+    val scaffoldState = rememberScaffoldState()
+
+    val errNetworkNotAvailable = stringResource(R.string.error_message_network_not_available)
+    val errServerComFailed = stringResource(R.string.error_message_server_communication_failed)
+    val errVau = stringResource(R.string.error_message_vau_error)
+    LaunchedEffect(Unit) {
+        mainScreenVM.onErrorEvent.collect {
+            scaffoldState.snackbarHostState.showSnackbar(
+                when (it) {
+                    ErrorEvent.NetworkNotAvailable -> errNetworkNotAvailable
+                    is ErrorEvent.ServerCommunicationFailedWhileRefreshing -> errServerComFailed.format(
+                        it.code
+                    )
+                    ErrorEvent.FatalTruststoreState -> errVau
+                }
+            )
+        }
     }
 
     ModalBottomSheetLayout(
@@ -153,7 +259,11 @@ private fun MainScreenWithScaffold(mainNavCtr: NavController, frNavController: N
                 info = stringResource(R.string.dialog_redeem_info),
                 modifier = Modifier.testId("main/redeemInLocalPharmacyButton")
             ) {
-                mainNavCtr.navigate(MainNavigationScreens.Redeem.route + "/${currentRedeemEvent.taskIds}")
+                mainNavController.navigate(
+                    MainNavigationScreens.RedeemLocally.path(
+                        currentRedeemEvent.taskIds
+                    )
+                )
             }
 
             val orderNotPossibleTxt = stringResource(R.string.dialog_order_not_possible)
@@ -166,34 +276,40 @@ private fun MainScreenWithScaffold(mainNavCtr: NavController, frNavController: N
                 modifier = Modifier.testId("main/redeemRemoteButton")
             ) {
                 if (currentRedeemEvent.isFullDetail) {
-                    val taskIds = currentRedeemEvent.taskIds
-                    val action =
-                        MainScreenFragmentDirections.actionMainScreenFragmentToPharmacySearchFragment(
-                            taskIds
+                    mainNavController.navigate(
+                        MainNavigationScreens.PharmacySearch.path(
+                            currentRedeemEvent.taskIds
                         )
-                    frNavController.navigate(action)
+                    )
                 } else {
                     Toast.makeText(context, orderNotPossibleTxt, Toast.LENGTH_SHORT).show()
                 }
             }
         }
     ) {
+        val bottomNavController = rememberNavController()
+
         Scaffold(
-            topBar = { MainScreenTopAppBar() },
+            topBar = { MainScreenTopAppBar(mainNavController) },
             bottomBar = {
-                MainScreenBottomNavigation(navController, mainVM)
-            }
+                MainScreenBottomNavigation(mainNavController, bottomNavController)
+            },
+            scaffoldState = scaffoldState
         ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
+            Box(
+                modifier = Modifier
+                    .padding(innerPadding)
+                    .testTag("main_screen")
+            ) {
                 NavHost(
-                    navController,
-                    startDestination = MainBottomNavigationScreens.Prescriptions.route
+                    bottomNavController,
+                    startDestination = MainNavigationScreens.Prescriptions.path()
                 ) {
-                    composable(MainBottomNavigationScreens.Prescriptions.route) {
-                        PrescriptionScreen()
+                    composable(MainNavigationScreens.Prescriptions.route) {
+                        PrescriptionScreen(mainNavController)
                     }
-                    composable(MainBottomNavigationScreens.Messages.route) {
-                        MessageScreen(frNavController, messageVM)
+                    composable(MainNavigationScreens.Messages.route) {
+                        MessageScreen(mainNavController, messageVM)
                     }
                 }
             }
@@ -204,10 +320,10 @@ private fun MainScreenWithScaffold(mainNavCtr: NavController, frNavController: N
 @Composable
 private fun MainScreenBottomNavigation(
     navController: NavController,
-    viewModel: MainScreenViewModel
+    bottomNavController: NavController,
+    viewModel: MainScreenViewModel = hiltViewModel(LocalActivity.current)
 ) {
-    val frNavController = AppModel.frNavController
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
     val unreadMessagesAvailable by viewModel.unreadMessagesAvailable()
@@ -216,20 +332,28 @@ private fun MainScreenBottomNavigation(
     BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
         MainScreenBottomNavigationItems.forEach { screen ->
             BottomNavigationItem(
+                modifier = Modifier.testTag(
+                    when (screen) {
+                        MainNavigationScreens.Prescriptions -> "erx_btn_prescriptions"
+                        MainNavigationScreens.Messages -> "erx_btn_messages"
+                        MainNavigationScreens.PharmacySearch -> "erx_btn_search_pharmacies"
+                        else -> ""
+                    }
+                ),
                 selectedContentColor = AppTheme.colors.primary700,
                 unselectedContentColor = AppTheme.colors.neutral600,
                 icon = {
                     when (screen) {
-                        MainBottomNavigationScreens.Prescriptions -> Icon(
+                        MainNavigationScreens.Prescriptions -> Icon(
                             painterResource(R.drawable.ic_logo_outlined),
                             null,
                             modifier = Modifier.size(24.dp)
                         )
-                        MainBottomNavigationScreens.Messages -> Icon(
+                        MainNavigationScreens.Messages -> Icon(
                             if (unreadMessagesAvailable) Icons.Outlined.MarkChatUnread else Icons.Outlined.MarkChatRead,
                             null
                         )
-                        MainBottomNavigationScreens.PharmacySearch -> Icon(
+                        MainNavigationScreens.PharmacySearch -> Icon(
                             Icons.Outlined.Search, contentDescription = null
                         )
                     }
@@ -238,16 +362,18 @@ private fun MainScreenBottomNavigation(
                     Text(
                         stringResource(
                             when (screen) {
-                                MainBottomNavigationScreens.Prescriptions -> R.string.pres_bottombar_prescriptions
-                                MainBottomNavigationScreens.Messages -> R.string.pres_bottombar_messages
-                                MainBottomNavigationScreens.PharmacySearch -> R.string.pres_bottombar_pharmacies
+                                MainNavigationScreens.Prescriptions -> R.string.pres_bottombar_prescriptions
+                                MainNavigationScreens.Messages -> R.string.pres_bottombar_messages
+                                MainNavigationScreens.PharmacySearch -> R.string.pres_bottombar_pharmacies
+                                else -> R.string.pres_bottombar_prescriptions
                             }
                         ),
                         modifier = Modifier.testId(
                             when (screen) {
-                                MainBottomNavigationScreens.Prescriptions -> "erx_btn_prescriptions"
-                                MainBottomNavigationScreens.Messages -> "erx_btn_messages"
-                                MainBottomNavigationScreens.PharmacySearch -> "erx_btn_search_pharmacies"
+                                MainNavigationScreens.Prescriptions -> "erx_btn_prescriptions"
+                                MainNavigationScreens.Messages -> "erx_btn_messages"
+                                MainNavigationScreens.PharmacySearch -> "erx_btn_search_pharmacies"
+                                else -> ""
                             }
                         )
                     )
@@ -256,14 +382,10 @@ private fun MainScreenBottomNavigation(
                 alwaysShowLabel = true,
                 onClick = {
                     if (currentRoute != screen.route) {
-                        if (screen.route == MainBottomNavigationScreens.PharmacySearch.route) {
-                            val action =
-                                MainScreenFragmentDirections.actionMainScreenFragmentToPharmacySearchFragment(
-                                    null
-                                )
-                            frNavController.navigate(action)
+                        if (screen.route == MainNavigationScreens.PharmacySearch.route) {
+                            navController.navigate(screen.path())
                         } else {
-                            navController.navigate(screen.route)
+                            bottomNavController.navigate(screen.path())
                         }
                     }
                 }
@@ -327,8 +449,9 @@ fun MainScreenBottomSheetAction(
  * The top appbar of the actual main screen.
  */
 @Composable
-fun MainScreenTopAppBar() {
-    val frNavCtr = AppModel.frNavController
+fun MainScreenTopAppBar(
+    navController: NavController
+) {
     val accSettings = stringResource(R.string.main_settings_acc)
     val accScan = stringResource(R.string.main_scan_acc)
 
@@ -341,14 +464,11 @@ fun MainScreenTopAppBar() {
         navigationIcon = @Composable {
             IconButton(
                 onClick = {
-                    frNavCtr.navigate(
-                        MainScreenFragmentDirections.actionMainScreenFragmentToSettingsFragment(
-                            SettingsScrollTo.None
-                        )
-                    )
+                    navController.navigate(MainNavigationScreens.Settings.path())
                 },
                 modifier = Modifier
                     .testId("erx_btn_show_settings")
+                    .testTag("erx_btn_show_settings")
                     .semantics {
                         contentDescription = accSettings
                     }
@@ -364,7 +484,7 @@ fun MainScreenTopAppBar() {
             // data matrix code scanner
             IconButton(
                 onClick = {
-                    frNavCtr.navigate(MainScreenFragmentDirections.actionMainScreenFragmentToScanPrescriptionFragment())
+                    navController.navigate(MainNavigationScreens.Camera.path())
                 },
                 modifier = Modifier
                     .testId("erx_btn_scn_prescription")

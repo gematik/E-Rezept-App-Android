@@ -35,7 +35,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -99,11 +98,11 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -118,6 +117,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.paging.LoadState
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -127,8 +127,8 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.AppModel
 import de.gematik.ti.erp.app.pharmacy.repository.model.Location
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -209,16 +209,19 @@ private fun rememberLocationService(): Flow<Location> {
 )
 @Composable
 fun PharmacySearchScreen(
-    viewModel: PharmacySearchViewModel,
+    mainNavController: NavController,
     navController: NavController,
-    selectedPharmacy: MutableState<PharmacyUseCaseData.Pharmacy?>
+    selectedPharmacy: MutableState<PharmacyUseCaseData.Pharmacy?>,
+    viewModel: PharmacySearchViewModel = hiltViewModel()
 ) {
-    val frNavCtr = AppModel.frNavController
     val context = LocalContext.current
 
+    var showLocationHint by remember { mutableStateOf(false) }
     val state by produceState(viewModel.defaultState) {
         viewModel.screenState().collect {
             value = it
+
+            showLocationHint = it.showLocationHint
         }
     }
 
@@ -260,13 +263,14 @@ fun PharmacySearchScreen(
 //        }
 //    }
 
-    lateinit var _search: (searchTxt: String, locEnabled: Boolean, filter: PharmacyUseCaseData.Filter) -> Unit
+    lateinit var _search: (searchTxt: String, locEnabled: Boolean, filter: PharmacyUseCaseData.Filter, triggeredByUser: Boolean) -> Unit
 
     fun search(
         searchTxt: String = searchText,
         locEnabled: Boolean = locationEnabled,
-        filter: PharmacyUseCaseData.Filter = searchFilter
-    ) = _search(searchTxt, locEnabled, filter)
+        filter: PharmacyUseCaseData.Filter = searchFilter,
+        triggeredByUser: Boolean = true
+    ) = _search(searchTxt, locEnabled, filter, triggeredByUser)
 
     val keyboardController = LocalSoftwareKeyboardController.current
     var keyboardHideToggle by remember { mutableStateOf(false) }
@@ -290,39 +294,46 @@ fun PharmacySearchScreen(
             search(locEnabled = it)
         }
 
+    var isPreLoading by remember { mutableStateOf(false) }
     _search = { searchTxt: String,
         locEnabled: Boolean,
-        filter: PharmacyUseCaseData.Filter ->
-
+        filter: PharmacyUseCaseData.Filter,
+        triggeredByUser: Boolean ->
         if (locEnabled && !locationPermissionGranted(context)) {
             locationPermissionLauncher.launch(locationPermission)
         } else {
             scope.launch {
-                // workaround for certain huawei devices
-                keyboardHideToggle = !keyboardHideToggle
+                try {
+                    isPreLoading = true
 
-                searchListState.scrollToItem(0)
-                viewModel.searchPharmacies(
-                    searchTxt, filter,
-                    if (locEnabled) {
-                        withTimeoutOrNull(2000) {
-                            locationFlow.firstOrNull()
-                        }.also {
-                            if (it == null) {
-                                showEnableLocationDialog = true
+                    // workaround for certain huawei devices
+                    keyboardHideToggle = !keyboardHideToggle
+
+                    searchListState.scrollToItem(0)
+                    viewModel.searchPharmacies(
+                        searchTxt, filter,
+                        if (locEnabled) {
+                            withTimeoutOrNull(2000) {
+                                locationFlow.firstOrNull()
+                            }.also {
+                                if (it == null && triggeredByUser) {
+                                    showEnableLocationDialog = true
+                                }
                             }
+                        } else {
+                            null
                         }
-                    } else {
-                        null
-                    }
-                )
+                    )
+                } finally {
+                    isPreLoading = false
+                }
             }
         }
     }
 
     LaunchedEffect(Unit) {
         if (state.search == null) {
-            search(searchText, locationEnabled, PharmacyUseCaseData.Filter())
+            search(searchText, locationEnabled, PharmacyUseCaseData.Filter(), false)
         }
     }
 
@@ -345,7 +356,7 @@ fun PharmacySearchScreen(
                 NavigationTopAppBar(
                     NavigationBarMode.Close,
                     headline = stringResource(R.string.search_pharmacy_title),
-                    onClick = { frNavCtr.popBackStack() }
+                    onClick = { mainNavController.popBackStack() }
                 )
             }
         ) {
@@ -383,12 +394,13 @@ fun PharmacySearchScreen(
                                 when (item) {
                                     PharmacySearchUi.LocationHint -> {
                                         // enable location information
-                                        if (state.showLocationHint) {
+                                        if (showLocationHint) {
                                             AnimatedHintCard(
-                                                modifier = Modifier.padding(
-                                                    start = PaddingDefaults.Medium,
-                                                    end = PaddingDefaults.Medium
-                                                ),
+                                                modifier = Modifier
+                                                    .padding(
+                                                        start = PaddingDefaults.Medium,
+                                                        end = PaddingDefaults.Medium
+                                                    ),
                                                 image = {
                                                     HintSmallImage(
                                                         painterResource(R.drawable.pharmacist_hint),
@@ -417,7 +429,7 @@ fun PharmacySearchScreen(
                                                 pharmacy = item.pharmacy
                                             ) {
                                                 selectedPharmacy.value = item.pharmacy
-                                                navController.navigate("pharmacyDetails")
+                                                navController.navigate(PharmacyNavigationScreens.PharmacyDetails.path())
                                             }
                                             if (index < searchPagingItems.itemCount - 1) {
                                                 Divider(startIndent = PaddingDefaults.Medium)
@@ -461,30 +473,11 @@ fun PharmacySearchScreen(
                             }
                         )
 
-                        val offset = if (state.showLocationHint) {
-                            searchListState.layoutInfo.visibleItemsInfo.firstOrNull()?.let {
-                                it.offset + it.size
-                            } ?: 0
-                        } else {
-                            0
-                        }
-
-                        val behindLayColumnModifier = Modifier
-                            .fillMaxSize()
-                            .layout { measurable, constraints ->
-                                val placeable = measurable.measure(constraints)
-
-                                layout(constraints.maxWidth, constraints.maxHeight) {
-                                    placeable.placeRelative(0, offset)
-                                }
-                            }
-
                         // initial loading animation
                         if (alpha > 0f) {
                             RepeatingColumn(
                                 modifier = Modifier
-                                    .alpha(alpha)
-                                    .then(behindLayColumnModifier),
+                                    .alpha(alpha),
                                 stepSize = 5
                             ) {
                                 PharmacyResultPlaceholder(itemPaddingModifier)
@@ -492,17 +485,33 @@ fun PharmacySearchScreen(
                             }
                         }
 
-                        val showNothingFound = listOf(loadState.prepend, loadState.append)
-                            .all {
-                                when (it) {
-                                    is LoadState.NotLoading -> it.endOfPaginationReached && searchPagingItems.itemCount == 0
-                                    else -> false
+                        val showNothingFound =
+                            listOf(loadState.prepend, loadState.append)
+                                .all {
+                                    when (it) {
+                                        is LoadState.NotLoading ->
+                                            it.endOfPaginationReached && searchPagingItems.itemCount == 1
+                                        else -> false
+                                    }
                                 }
-                            }
 
                         // nothing found
                         if (showNothingFound) {
-                            Box(modifier = behindLayColumnModifier) {
+                            val offsetTop = with(LocalDensity.current) {
+                                if (state.showLocationHint) {
+                                    searchListState.layoutInfo.visibleItemsInfo.firstOrNull()?.let {
+                                        it.offset + it.size
+                                    } ?: 0
+                                } else {
+                                    0
+                                }.toDp()
+                            }
+
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(top = offsetTop)
+                            ) {
                                 Column(
                                     modifier = Modifier
                                         .align(Alignment.Center)
@@ -527,7 +536,7 @@ fun PharmacySearchScreen(
                     }
                 }
 
-                val isLoading = listOf(loadState.prepend, loadState.append, loadState.refresh)
+                val isLoading = isPreLoading || listOf(loadState.prepend, loadState.append, loadState.refresh)
                     .any {
                         when (it) {
                             is LoadState.NotLoading -> state.search == null // initial ui only loading indicator
@@ -591,7 +600,7 @@ fun RepeatingColumn(
 private fun PharmacyResultPlaceholder(
     modifier: Modifier = Modifier
 ) {
-    val bgModifier = Modifier.background(AppTheme.colors.neutral200)
+    val bgModifier = Modifier.background(AppTheme.colors.neutral200).testTag("pharmacy_search_screen")
 
     val alphaTransition = rememberInfiniteTransition()
     val alpha by alphaTransition.animateFloat(
@@ -688,12 +697,11 @@ private fun SearchField(
             singleLine = true,
             modifier = Modifier
                 .fillMaxWidth()
-                .focusable()
-                .semantics(true) {
-                }
+                .semantics(true) {}
         ) { textField ->
             Row(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier
+                    .fillMaxSize()
             ) {
 
                 Icon(
@@ -866,21 +874,38 @@ private fun FilterBottomSheet(
                         closable = false,
                         checked = filter.openNow
                     ) {
-                        onClickChip(filter.copy(openNow = it))
+                        onClickChip(
+                            filter.copy(
+                                openNow = it,
+                                onlineService = false
+                            )
+                        )
                     }
                     Chip(
                         stringResource(R.string.search_pharmacies_filter_ready),
                         closable = false,
                         checked = filter.ready
                     ) {
-                        onClickChip(filter.copy(ready = it))
+                        onClickChip(
+                            filter.copy(
+                                ready = it,
+                                deliveryService = if (!it) false else filter.deliveryService,
+                                onlineService = if (!it) false else filter.onlineService
+                            )
+                        )
                     }
                     Chip(
                         stringResource(R.string.search_pharmacies_filter_delivery_service),
                         closable = false,
                         checked = filter.deliveryService
                     ) {
-                        onClickChip(filter.copy(deliveryService = it, onlineService = false))
+                        onClickChip(
+                            filter.copy(
+                                deliveryService = it,
+                                ready = true,
+                                onlineService = false
+                            )
+                        )
                     }
                     Chip(
                         stringResource(R.string.search_pharmacies_filter_online_service),
@@ -890,6 +915,7 @@ private fun FilterBottomSheet(
                         onClickChip(
                             filter.copy(
                                 onlineService = it,
+                                ready = true,
                                 deliveryService = false,
                                 openNow = false
                             )

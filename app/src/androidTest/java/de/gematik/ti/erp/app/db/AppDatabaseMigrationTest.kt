@@ -35,7 +35,7 @@ class AppDatabaseMigrationTest {
 
     private val TEST_DB = "migration-test"
 
-    private val migration = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+    private val migration = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
 
     private val truststoreConverter = TruststoreConverter(TruststoreModule.provideTruststoreMoshi())
 
@@ -69,7 +69,7 @@ class AppDatabaseMigrationTest {
         helper.createDatabase(TEST_DB, 4).apply {
             execSQL(
                 "INSERT INTO `medicationDispense` (`taskId`, `patientIdentifier`, `uniqueIdentifier`, `wasSubstituted`, `dosageInstruction`, `performer`, `whenHandedOver`, `text`, `type`)" +
-                    "VALUES ('test1', 'test2', 'test3', true, 'test4', 'test5', 'test6', 'test7', 123)"
+                    "VALUES ('test1', 'test2', 'test3', 1, 'test4', 'test5', 'test6', 'test7', 123)"
             )
             close()
         }

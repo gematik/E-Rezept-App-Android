@@ -75,6 +75,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption.Local
@@ -143,8 +144,10 @@ fun HeaderWithScaffold(
     uiState: PharmacySearchViewModel.RedeemUIState,
     items: LazyListScope.() -> Unit
 ) {
-    if (uiState.success) {
-        navController.navigate("uploadStatus/" + redeemOption.ordinal)
+    LaunchedEffect(uiState.success) {
+        if (uiState.success) {
+            navController.navigate(PharmacyNavigationScreens.UploadStatus.path(redeemOption.ordinal))
+        }
     }
     val message = stringResource(id = R.string.redeem_online_error_uploading)
     val actionLabel = stringResource(id = R.string.redeem_online_error_retry_label)

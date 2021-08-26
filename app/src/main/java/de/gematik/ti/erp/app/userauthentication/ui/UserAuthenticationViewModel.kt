@@ -19,45 +19,56 @@
 package de.gematik.ti.erp.app.userauthentication.ui
 
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.core.BaseViewModel
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class UserAuthenticationScreenState(
-    val authenticationMethod: SettingsAuthenticationMethod
-)
-
-private val defaultState = UserAuthenticationScreenState(
-    authenticationMethod = SettingsAuthenticationMethod.Unspecified
+    val authenticationMethod: SettingsAuthenticationMethod,
+    val nrOfAuthFailures: Int
 )
 
 @HiltViewModel
 class UserAuthenticationViewModel @Inject constructor(
-    private val authMode: AuthenticationMode
+    private val authUseCase: AuthenticationUseCase
 ) : BaseViewModel() {
-    var screenState by mutableStateOf(defaultState)
-        private set
+    var defaultState = UserAuthenticationScreenState(
+        authenticationMethod = SettingsAuthenticationMethod.Unspecified,
+        nrOfAuthFailures = 0
+    )
 
-    init {
-        viewModelScope.launch {
-            authMode.authenticationModeAndMethod.collect {
-                screenState = UserAuthenticationScreenState(
-                    when (it) {
-                        AuthenticationModeAndMethod.Authenticated -> SettingsAuthenticationMethod.Unspecified
-                        is AuthenticationModeAndMethod.AuthenticationRequired -> it.method
-                    }
+    fun screenState() =
+        authUseCase.authenticationModeAndMethod.map {
+            when (it) {
+                AuthenticationModeAndMethod.None,
+                AuthenticationModeAndMethod.Authenticated -> UserAuthenticationScreenState(
+                    SettingsAuthenticationMethod.Unspecified,
+                    0
+                )
+                is AuthenticationModeAndMethod.AuthenticationRequired -> UserAuthenticationScreenState(
+                    it.method,
+                    it.nrOfFailedAuthentications
                 )
             }
         }
-    }
+
+    suspend fun isPasswordValid(password: String): Boolean =
+        authUseCase.isPasswordValid(password)
 
     fun onAuthenticated() {
-        authMode.authenticated()
+        viewModelScope.launch {
+            authUseCase.resetNumberOfAuthenticationFailures()
+        }
+        authUseCase.authenticated()
     }
+
+    fun onFailedAuthentication() =
+        viewModelScope.launch {
+            authUseCase.incrementNumberOfAuthenticationFailures()
+        }
 }

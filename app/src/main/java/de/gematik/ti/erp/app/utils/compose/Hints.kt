@@ -90,7 +90,7 @@ data class HintCardProperties(
     val shape: Shape,
     val backgroundColor: Color,
     val contentColor: Color?,
-    val border: BorderStroke,
+    val border: BorderStroke?,
     val elevation: Dp,
 )
 
@@ -101,13 +101,26 @@ object HintCardDefaults {
         backgroundColor: Color = MaterialTheme.colors.surface,
         contentColor: Color? = null,
         border: BorderStroke = BorderStroke(0.5.dp, AppTheme.colors.neutral300),
-        elevation: Dp = 2.dp,
+        elevation: Dp = 2.dp
     ) = HintCardProperties(
         shape = shape,
         backgroundColor = backgroundColor,
         contentColor = contentColor,
         border = border,
         elevation = elevation
+    )
+
+    @Composable
+    fun flatProperties(
+        shape: Shape = RoundedCornerShape(8.dp),
+        backgroundColor: Color = MaterialTheme.colors.surface,
+        contentColor: Color? = null
+    ) = HintCardProperties(
+        shape = shape,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        border = null,
+        elevation = 0.dp
     )
 }
 

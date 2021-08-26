@@ -63,7 +63,8 @@ class PrescriptionUseCaseProductionTest {
         useCase = PrescriptionUseCaseProduction(repo, mapper)
 
         every { repo.tasks() } answers { flowOf(testTasks()) }
-        every { repo.tasksWithoutBundle() } answers { flowOf(testTasks()) }
+        every { repo.syncedTasksWithoutBundle() } answers { flowOf(testTasks().filter { it.scannedOn == null }) }
+        every { repo.scannedTasksWithoutBundle() } answers { flowOf(testTasks().filter { it.scannedOn != null }) }
     }
 
     @Test

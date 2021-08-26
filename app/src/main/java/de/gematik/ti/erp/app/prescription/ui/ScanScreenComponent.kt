@@ -113,12 +113,10 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ChainStyle
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.ComposeBaseFragment
-import de.gematik.ti.erp.app.core.LocalFragmentNavController
 import de.gematik.ti.erp.app.prescription.ui.model.ScanScreen
 import de.gematik.ti.erp.app.theme.AppColorsThemeLight
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -135,25 +133,18 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.concurrent.Executors
 
-@AndroidEntryPoint
-class ScanPrescriptionFragment : ComposeBaseFragment() {
-    private val scanVM by viewModels<ScanPrescriptionViewModel>()
-    override val content
-        get() = @Composable {
-            ScanScreen(scanVM)
-        }
-}
-
 @Composable
-fun ScanScreen(scanVM: ScanPrescriptionViewModel = viewModel()) {
+fun ScanScreen(
+    mainNavController: NavController,
+    scanViewModel: ScanPrescriptionViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
-    val frNavController = LocalFragmentNavController.current
 
     var shouldShowEduDialog by rememberSaveable { mutableStateOf(false) }
     var eduDialogAccepted by rememberSaveable { mutableStateOf(false) }
     var camPermissionGranted by rememberSaveable { mutableStateOf(false) }
 
-    SideEffect {
+    LaunchedEffect(Unit) {
         shouldShowEduDialog =
             context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
         if (!shouldShowEduDialog) {
@@ -180,7 +171,7 @@ fun ScanScreen(scanVM: ScanPrescriptionViewModel = viewModel()) {
 
     var flashEnabled by remember { mutableStateOf(false) }
 
-    val state by scanVM.screenState().collectAsState(ScanScreen.defaultScreenState)
+    val state by scanViewModel.screenState().collectAsState(ScanScreen.defaultScreenState)
 
     var cancelRequested by remember { mutableStateOf(false) }
     BackHandler(!cancelRequested && state.hasCodesToSave()) {
@@ -190,14 +181,14 @@ fun ScanScreen(scanVM: ScanPrescriptionViewModel = viewModel()) {
     if (cancelRequested && state.hasCodesToSave()) {
         SaveDialog(
             onDismissRequest = { cancelRequested = false },
-            onCancel = { frNavController.popBackStack() }
+            onCancel = { mainNavController.popBackStack() }
         )
     }
 
     Box {
         if (camPermissionGranted) {
             CameraView(
-                scanVM,
+                scanViewModel,
                 Modifier.fillMaxSize(),
                 flashEnabled = flashEnabled,
                 onFlashToggled = {
@@ -260,8 +251,8 @@ fun ScanScreen(scanVM: ScanPrescriptionViewModel = viewModel()) {
                 SnackBar(
                     state.snackBar,
                     onSaveClick = {
-                        scanVM.saveToDatabase()
-                        frNavController.popBackStack()
+                        scanViewModel.saveToDatabase()
+                        mainNavController.popBackStack()
                     },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -337,8 +328,8 @@ private fun SaveDialog(
                     Text(stringResource(R.string.cam_cancel_resume).uppercase(Locale.getDefault()))
                 }
                 TextButton(onClick = { onCancel() }, modifier = Modifier.testId("camera/saveDialog/saveButton")) {
-                    Text(stringResource(R.string.cam_cancel_ok).uppercase(Locale.getDefault()))
-                }
+                Text(stringResource(R.string.cam_cancel_ok).uppercase(Locale.getDefault()))
+            }
             }
         }
     )
@@ -760,7 +751,14 @@ private fun ScanOverlay(
                         modifier = Modifier
                             .size(48.dp)
                             .scale(scale)
-                            .align(Alignment { size, space, _ -> IntOffset(space.width / 2 - size.width / 2, space.height / 3 - size.height / 2) })
+                            .align(
+                                Alignment { size, space, _ ->
+                                    IntOffset(
+                                        space.width / 2 - size.width / 2,
+                                        space.height / 3 - size.height / 2
+                                    )
+                                }
+                            )
                     )
                 }
             }

@@ -56,6 +56,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.Spacer16
@@ -64,16 +65,16 @@ import java.util.Locale
 
 @Composable
 fun RedeemOnlineSuccess(
-    redeemOption: Int?,
-    fragmentNavController: NavController
+    redeemOption: Int,
+    mainNavController: NavController
 ) {
     BackHandler {
-        fragmentNavController.popBackStack()
+        mainNavController.popBackStack(MainNavigationScreens.Prescriptions.path(), false)
     }
     Scaffold(
         bottomBar = {
             BottomButton(
-                fragmentNavController = fragmentNavController
+                navController = mainNavController
             )
         }
     ) {
@@ -182,11 +183,11 @@ fun MailDelivery(source: Int) {
 
 @OptIn(ExperimentalStdlibApi::class)
 @Composable
-fun BottomButton(modifier: Modifier = Modifier, fragmentNavController: NavController) {
+fun BottomButton(modifier: Modifier = Modifier, navController: NavController) {
     BottomAppBar(modifier = modifier, backgroundColor = MaterialTheme.colors.surface) {
         Spacer(modifier = Modifier.weight(1f))
         Button(
-            onClick = { fragmentNavController.popBackStack() }
+            onClick = { navController.popBackStack(MainNavigationScreens.Prescriptions.path(), false) }
         ) {
             Text(text = stringResource(id = R.string.redeem_online_back_home).uppercase(Locale.getDefault()))
         }

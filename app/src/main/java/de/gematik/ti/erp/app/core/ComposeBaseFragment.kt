@@ -18,109 +18,183 @@
 
 package de.gematik.ti.erp.app.core
 
-import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.VectorConverter
+import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroidSize
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
+import androidx.compose.foundation.gestures.forEachGesture
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.compose.ui.platform.ComposeView
-import androidx.fragment.app.Fragment
-import androidx.navigation.NavController
-import androidx.navigation.fragment.findNavController
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.consumePositionChange
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.util.VelocityTracker
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.debugInspectorInfo
+import androidx.compose.ui.unit.toSize
+import androidx.hilt.navigation.compose.hiltViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.WindowDecorationColors
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.math.max
+import kotlin.math.min
 
 typealias ViewModelSet = Set<BaseViewModel>
-
-/**
- * Return a single view model matching the type [T].
- */
-inline fun <reified T : BaseViewModel> ViewModelSet.get(): T =
-    this.find { it is T } as? T ?: error("No view model with type ${T::class} found!")
-
-/**
- * Convenience functions to return view models matching the type [T].
- * E.g. `val (vm1: VM1, vm2: VM2) = viewModelSet`
- */
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component1(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component2(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component3(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component4(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component5(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component6(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component7(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component8(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component9(): T =
-    this.get()
-
-inline operator fun <reified T : BaseViewModel> ViewModelSet.component10(): T =
-    this.get()
-
-/**
- * Ambient of ViewModels of the containing fragment.
- */
-val LocalViewModels =
-    staticCompositionLocalOf<ViewModelSet> { error("No view models provided!") }
 
 val LocalActivity =
     staticCompositionLocalOf<ComponentActivity> { error("No activity provided!") }
 
-/**
- * Ambient [NavController] of the underlying fragment.
- */
-val LocalFragmentNavController =
-    staticCompositionLocalOf<NavController> { error("No navigation controller provided!") }
+@Composable
+fun MainContent(
+    mainViewModel: MainViewModel = hiltViewModel(),
+    content: @Composable (mainViewModel: MainViewModel) -> Unit
+) {
+    val zoomEnabled by mainViewModel.zoomEnabled.collectAsState(false)
 
-/**
- * Clipboard manager.
- */
-val LocalClipBoardManager =
-    staticCompositionLocalOf<(label: String, text: String) -> Unit> { error("No clipboard handler provided!") }
+    AppTheme {
+        WindowDecorationColors(MaterialTheme.colors.surface, MaterialTheme.colors.surface)
 
-abstract class ComposeBaseFragment : Fragment() {
-    abstract val content: @Composable () -> Unit
+        Box(
+            modifier = Modifier.zoomable(enabled = zoomEnabled)
+        ) {
+            content(mainViewModel)
+        }
+    }
+}
 
-    final override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        return ComposeView(requireContext()).apply {
-            setContent {
-                CompositionLocalProvider(
-                    LocalActivity provides requireActivity(),
-                    LocalViewModels provides viewModels(),
-                    LocalFragmentNavController provides findNavController()
-                ) {
-                    AppTheme {
-                        WindowDecorationColors(MaterialTheme.colors.surface, MaterialTheme.colors.surface)
+fun Modifier.zoomable(
+    minZoom: Float = 1f,
+    maxZoom: Float = 3.5f,
+    delayInMillis: Long = 1500,
+    enabled: Boolean = true
+) = composed(
+    inspectorInfo = debugInspectorInfo {
+        name = "zoomable"
+        value = enabled
+        properties["minZoom"] = minZoom
+        properties["maxZoom"] = maxZoom
+    }
+) {
+    require(minZoom >= 1f) { "Minimal zoom can't be smaller than 1" }
 
-                        content()
+    val scale = remember { Animatable(minZoom) }
+    val offset = remember { Animatable(Offset.Zero, Offset.VectorConverter) }
+    var size by remember { mutableStateOf(Size.Zero) }
+
+    LaunchedEffect(enabled) {
+        if (!enabled) {
+            launch { scale.animateTo(minZoom) }
+            launch { offset.animateTo(Offset.Zero) }
+        }
+    }
+
+    this
+        .graphicsLayer(
+            scaleX = scale.value,
+            scaleY = scale.value,
+            translationX = offset.value.x,
+            translationY = offset.value.y,
+        )
+        .pointerInput(enabled) {
+            if (!enabled) {
+                return@pointerInput
+            }
+
+            val decay = splineBasedDecay<Offset>(this)
+            var job: Job? = null
+
+            coroutineScope {
+                forEachGesture {
+                    val velocityTracker = VelocityTracker()
+
+                    awaitPointerEventScope {
+                        awaitFirstDown(requireUnconsumed = false)
+
+                        do {
+                            val event =
+                                awaitPointerEvent(PointerEventPass.Initial)
+                            val zoomChange = event.calculateZoom()
+                            val offsetChange = event.calculatePan()
+
+                            val newScale =
+                                min(
+                                    maxZoom,
+                                    max(minZoom, scale.value * zoomChange)
+                                )
+                            val newOffset = Offset(
+                                x = offset.value.x + offsetChange.x * scale.value,
+                                y = offset.value.y + offsetChange.y * scale.value
+                            )
+
+                            val bound = Offset(
+                                (size.width - size.width * scale.value) / 2,
+                                (size.height - size.height * scale.value) / 2
+                            )
+                            offset.updateBounds(
+                                lowerBound = bound,
+                                upperBound = bound * -1f
+                            )
+
+                            velocityTracker.addPosition(
+                                event.changes.first().uptimeMillis,
+                                newOffset
+                            )
+
+                            launch {
+                                scale.snapTo(newScale)
+                                offset.snapTo(newOffset)
+                            }
+
+                            event.calculateCentroidSize()
+
+                            if (scale.value > 1f) {
+                                event.changes.forEach { it.consumePositionChange() }
+                            }
+                        } while (event.changes.any { it.pressed })
+                    }
+
+                    val velocity = velocityTracker.calculateVelocity()
+                    launch {
+                        offset.animateDecay(
+                            Offset(
+                                velocity.x,
+                                velocity.y
+                            ),
+                            decay
+                        )
+                    }
+
+                    job?.cancelAndJoin()
+                    job = launch {
+                        delay(delayInMillis)
+                        launch { scale.animateTo(minZoom) }
+                        launch { offset.animateTo(Offset.Zero) }
                     }
                 }
             }
         }
-    }
-
-    open fun viewModels(): ViewModelSet = setOf()
+        .onSizeChanged {
+            size = it.toSize()
+        }
 }
