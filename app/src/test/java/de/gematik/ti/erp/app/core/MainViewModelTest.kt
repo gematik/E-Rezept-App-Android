@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.core
 
+import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import io.mockk.MockKAnnotations
@@ -25,6 +26,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -42,16 +44,20 @@ class MainViewModelTest {
     @MockK
     private lateinit var useCase: SettingsUseCase
 
+    @MockK
+    private lateinit var safetynetUseCase: SafetynetUseCase
+
     @Before
     fun setup() {
         MockKAnnotations.init(this)
+        every { safetynetUseCase.runSafetynetAttestation() } returns flow { emit(true) }
     }
 
     @Test
     fun `test showInsecureDevicePrompt - only show once`() = coroutineRule.testDispatcher.runBlockingTest {
         every { useCase.showInsecureDevicePrompt } returns flowOf(true)
         every { useCase.isNewUser } returns false
-        viewModel = MainViewModel(useCase)
+        viewModel = MainViewModel(useCase, safetynetUseCase)
 
         assertEquals(true, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -62,7 +68,7 @@ class MainViewModelTest {
         every { useCase.showInsecureDevicePrompt } returns flowOf(false)
         every { useCase.isNewUser } returns false
 
-        viewModel = MainViewModel(useCase)
+        viewModel = MainViewModel(useCase, safetynetUseCase)
 
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())

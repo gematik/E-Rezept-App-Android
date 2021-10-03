@@ -19,10 +19,10 @@
 package de.gematik.ti.erp.app.cardwall.model.nfc.card
 
 import org.bouncycastle.asn1.ASN1InputStream
-import org.bouncycastle.asn1.ASN1Primitive
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.BERTags
-import org.bouncycastle.asn1.DLApplicationSpecific
+import org.bouncycastle.asn1.DLPrivate
+import org.bouncycastle.asn1.DLSequence
 import java.io.IOException
 
 /**
@@ -67,17 +67,16 @@ class HealthCardVersion2(
     companion object {
         private fun processData(data: ByteArray): Map<Int, ByteArray> =
             ASN1InputStream(data).use { decoder ->
-                mutableMapOf<Int, ByteArray>().apply {
-                    val app = decoder.readObject() as DLApplicationSpecific
-                    if (app.isConstructed) {
-                        val seq: ASN1Sequence = app.getObject(BERTags.SEQUENCE) as ASN1Sequence
+                val tagMap = mutableMapOf<Int, ByteArray>()
+                (decoder.readObject() as DLPrivate)
+                    .takeIf { it.isConstructed }
+                    ?.let {
+                        val seq = ASN1Sequence.getInstance(it.getObject(BERTags.SEQUENCE)) as DLSequence
                         seq.objects.iterator().forEach { obj ->
-                            DLApplicationSpecific.getInstance(obj as ASN1Primitive).let {
-                                this[it.applicationTag] = it.contents
-                            }
+                            tagMap[(obj as DLPrivate).privateTag] = obj.contents
                         }
                     }
-                }
+                tagMap
             }
 
         /**

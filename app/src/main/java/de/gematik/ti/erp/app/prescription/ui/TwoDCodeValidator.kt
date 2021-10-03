@@ -39,8 +39,6 @@ data class Tasks(
     val urls: MutableList<String>
 )
 
-const val FNC_INT = 29
-
 /**
  * The [TwoDCodeValidator] validates a [ScannedCode] and returns, if the containing json is valid,
  * a [ValidScannedCode] or otherwise null.
@@ -49,17 +47,9 @@ class TwoDCodeValidator @Inject constructor(
     moshi: Moshi
 ) {
     private val adapter = moshi.adapter(Tasks::class.java)
-    private val fncChar = FNC_INT.toChar()
     fun validate(code: ScannedCode): ValidScannedCode? {
         try {
-            val codeToValidate = if (code.json.startsWith(fncChar)) {
-                val newJson = code.json.removePrefix(fncChar.toString())
-                code.copy(json = newJson)
-            } else {
-                code
-            }
-
-            adapter.fromJson(codeToValidate.json)?.let { bundle ->
+            adapter.fromJson(code.json)?.let { bundle ->
                 val urls = bundle.urls
                     .takeIf { it.size in MIN_PRESCRIPTIONS..MAX_PRESCRIPTIONS }
                     ?.takeIf {

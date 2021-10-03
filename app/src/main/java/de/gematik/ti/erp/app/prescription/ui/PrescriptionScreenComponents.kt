@@ -265,7 +265,11 @@ fun PrescriptionScreen(
                         }
 
                         (r.exception.cause as? ApiCallException)?.let {
-                            mainViewModel.onError(ErrorEvent.ServerCommunicationFailedWhileRefreshing(it.response.code()))
+                            mainViewModel.onError(
+                                ErrorEvent.ServerCommunicationFailedWhileRefreshing(
+                                    it.response.code()
+                                )
+                            )
                             return@LaunchedEffect
                         }
 
@@ -357,7 +361,11 @@ fun PrescriptionScreen(
                                 PrescriptionScreenTryDemoModeCard(
                                     cardPaddingModifier,
                                     onClickAction = {
-                                        navController.navigate(MainNavigationScreens.Settings.path(SettingsScrollTo.DemoMode))
+                                        navController.navigate(
+                                            MainNavigationScreens.Settings.path(
+                                                SettingsScrollTo.DemoMode
+                                            )
+                                        )
                                     },
                                     onClose = { prescriptionViewModel.onCloseHintCard(it) }
                                 )
@@ -365,7 +373,11 @@ fun PrescriptionScreen(
                                 PrescriptionScreenDefineSecurityCard(
                                     cardPaddingModifier,
                                     onClickAction = {
-                                        navController.navigate(MainNavigationScreens.Settings.path(SettingsScrollTo.Authentication))
+                                        navController.navigate(
+                                            MainNavigationScreens.Settings.path(
+                                                SettingsScrollTo.Authentication
+                                            )
+                                        )
                                     }
                                 )
                             is PrescriptionScreenHintNewPrescriptions ->
@@ -430,7 +442,11 @@ fun PrescriptionScreen(
                                         recipe = recipe,
                                         nowInEpochDays = state.nowInEpochDays,
                                         onClickPrescription = {
-                                            navController.navigate(MainNavigationScreens.PrescriptionDetail.path(it.taskId))
+                                            navController.navigate(
+                                                MainNavigationScreens.PrescriptionDetail.path(
+                                                    it.taskId
+                                                )
+                                            )
                                         },
                                         onClickRedeem = { mainViewModel.onClickRecipeCard(recipe) }
                                     )
@@ -442,7 +458,11 @@ fun PrescriptionScreen(
                                                 prescriptionToEditName = it
                                             },
                                             onClickPrescription = {
-                                                navController.navigate(MainNavigationScreens.PrescriptionDetail.path(it.taskId))
+                                                navController.navigate(
+                                                    MainNavigationScreens.PrescriptionDetail.path(
+                                                        it.taskId
+                                                    )
+                                                )
                                             },
                                             onClickRedeem = { mainViewModel.onClickRecipeCard(recipe) }
                                         )
@@ -707,17 +727,20 @@ private fun FullDetailRecipeCardPreview() {
                     PrescriptionUseCaseData.Prescription.Synced(
                         "",
                         "Pantoprazol 40 mg - Medikament mit sehr vielen Namensbestandteilen",
-                        expiresOn = LocalDate.now()
+                        expiresOn = LocalDate.now().plusDays(1),
+                        acceptUntil = LocalDate.now().plusDays(20)
                     ),
                     PrescriptionUseCaseData.Prescription.Synced(
                         "",
                         "Pantoprazol 40 mg",
-                        expiresOn = LocalDate.now()
+                        expiresOn = LocalDate.now().plusDays(20),
+                        acceptUntil = LocalDate.now().plusDays(97)
                     ),
                     PrescriptionUseCaseData.Prescription.Synced(
                         "",
                         "Pantoprazol 40 mg",
-                        expiresOn = LocalDate.now()
+                        expiresOn = LocalDate.now(),
+                        acceptUntil = LocalDate.now().plusDays(1)
                     ),
                 ),
                 redeemedOn = null
@@ -730,24 +753,40 @@ private fun FullDetailRecipeCardPreview() {
 }
 
 @Composable
-private fun expiryString(date: LocalDate, nowInEpochDays: Long): String {
+fun expiryOrAcceptString(
+    expiryDate: LocalDate,
+    acceptDate: LocalDate,
+    nowInEpochDays: Long
+): String {
 
-    val daysLeft = date.toEpochDay() - nowInEpochDays
+    val expiryDaysLeft = expiryDate.toEpochDay() - nowInEpochDays
+    val acceptDaysLeft = acceptDate.toEpochDay() - nowInEpochDays
 
     return when {
-        daysLeft == 1L -> {
+        acceptDaysLeft == 0L -> {
+            stringResource(id = R.string.prescription_item_accept_only_today)
+        }
+        expiryDaysLeft == 1L -> {
             stringResource(id = R.string.prescription_item_expiration_only_today)
         }
-        daysLeft <= 0L -> {
-            stringResource(id = R.string.prescription_item_expiration_expired)
+        expiryDaysLeft <= 0L -> {
+            stringResource(id = R.string.prescription_item_expired)
         }
-        else -> {
-            annotatedPluralsResource(
-                R.plurals.prescription_item_expiration_days,
-                daysLeft.toInt(),
-                AnnotatedString(daysLeft.toString())
-            ).toString()
-        }
+
+        else ->
+            if (acceptDaysLeft > 1L) {
+                annotatedPluralsResource(
+                    R.plurals.prescription_item_accept_days,
+                    acceptDaysLeft.toInt(),
+                    AnnotatedString(acceptDaysLeft.toString())
+                ).toString()
+            } else {
+                annotatedPluralsResource(
+                    R.plurals.prescription_item_expiration_days_new,
+                    expiryDaysLeft.toInt(),
+                    AnnotatedString(expiryDaysLeft.toString())
+                ).toString()
+            }
     }
 }
 
@@ -776,10 +815,17 @@ private fun FullDetailMedication(
                 redeemedOn.toInstant().atZone(ZoneId.systemDefault())
                     .toLocalDate().format(dateFormatter)
             } else {
-                prescription.expiresOn?.let {
-                    expiryString(it, nowInEpochDays)
-                } ?: ""
-            }
+
+                prescription.expiresOn?.let { expiryDate ->
+                    prescription.acceptUntil?.let { acceptDate ->
+                        expiryOrAcceptString(
+                            expiryDate = expiryDate,
+                            acceptDate = acceptDate,
+                            nowInEpochDays = nowInEpochDays
+                        )
+                    }
+                }
+            } ?: ""
 
             Text(
                 text,
@@ -1034,7 +1080,11 @@ private fun RecipeRedeemedCard(
                         is PrescriptionUseCaseData.Recipe.Scanned -> {
                             recipe.prescriptions.forEachIndexed { index, med ->
                                 LowDetailMedication(med) {
-                                    navController.navigate(MainNavigationScreens.PrescriptionDetail.path(med.taskId))
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            med.taskId
+                                        )
+                                    )
                                 }
                                 if (index < recipe.prescriptions.size - 1) {
                                     Divider(startIndent = 56.dp)
@@ -1049,7 +1099,11 @@ private fun RecipeRedeemedCard(
                                     nowInEpochDays,
                                     modifier = Modifier.padding(PaddingDefaults.Medium)
                                 ) {
-                                    navController.navigate(MainNavigationScreens.PrescriptionDetail.path(med.taskId))
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            med.taskId
+                                        )
+                                    )
                                 }
                                 if (index < recipe.prescriptions.size - 1) {
                                     Divider(startIndent = 16.dp)

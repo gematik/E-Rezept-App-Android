@@ -75,6 +75,18 @@ data class Metrics(
     }
 }
 
+private class FilteredDMCode(
+    var cornerPoints: Array<Point>,
+    var boundingBox: Rect,
+    var value: String,
+)
+
+private fun Barcode.decodeValueToString(): String? =
+    this.rawBytes?.decodeToString()
+        ?.filter {
+            it.code in (32..126)
+        }
+
 class TwoDCodeProcessor @Inject constructor() {
     private fun Rect.center() = Point(this.centerX(), this.centerY())
     private fun Size.center() = Point(this.width / 2, this.height / 2)
@@ -92,7 +104,7 @@ class TwoDCodeProcessor @Inject constructor() {
     // after a movement over a certain threshold, this code is no more glued.
     private var gluedCode = GluedCode(Point(), 0)
 
-    private var codeHist = listOf<Pair<Barcode, Long>>()
+    private var codeHist = listOf<Pair<FilteredDMCode, Long>>()
 
     fun process(batch: TwoDCodeScanner.Batch): Pair<String, FloatArray>? {
         if (batch.cameraRotation != metrics.camRotation || batch.cameraSize != metrics.camImageSize) {
@@ -109,11 +121,17 @@ class TwoDCodeProcessor @Inject constructor() {
         val currTime = System.currentTimeMillis()
         val allMatrixCodes = codeHist.filterNot { h ->
             batch.matrixCodes.any {
-                h.first.rawValue == it.rawValue
+                h.first.value == it.decodeValueToString()
             }
         }.filter {
             currTime - it.second < batch.averageScanTime * AVG_TIME_FACTOR
-        } + batch.matrixCodes.map { Pair(it, currTime) }
+        } + batch
+            .matrixCodes
+            .mapNotNull { code ->
+                code.decodeValueToString()?.let {
+                    Pair(FilteredDMCode(value = it, boundingBox = code.boundingBox!!, cornerPoints = code.cornerPoints!!), currTime)
+                }
+            }
 
         codeHist = allMatrixCodes
 
@@ -124,8 +142,7 @@ class TwoDCodeProcessor @Inject constructor() {
 //                metrics.aidRect.contains(it.boundingBox!!)
 //            }
             .filter {
-                it.boundingBox!!.width()
-                    .toFloat() > metrics.camImageSize.width * MIN_DETECTION_FACTOR
+                it.boundingBox.width().toFloat() > metrics.camImageSize.width * MIN_DETECTION_FACTOR
             }
 
         if (matrixCodes.isEmpty()) {
@@ -133,9 +150,10 @@ class TwoDCodeProcessor @Inject constructor() {
         }
 
         // check if clued code exists
-        val gluedCodeMatch = matrixCodes.find {
-            it.rawValue.hashCode() == gluedCode.id
-        }
+        val gluedCodeMatch = matrixCodes
+            .find {
+                it.value.hashCode() == gluedCode.id
+            }
 
         // moved over threshold?
         val minDistCode = when {
@@ -154,7 +172,7 @@ class TwoDCodeProcessor @Inject constructor() {
                     .map { code ->
                         Pair(
                             code,
-                            code.boundingBox!!.let {
+                            code.boundingBox.let {
                                 squaredDistance(
                                     it.center(),
                                     // metrics.aidRect.center(),
@@ -167,12 +185,12 @@ class TwoDCodeProcessor @Inject constructor() {
                     .minByOrNull { it.second }!!
                     .first
                     .also {
-                        gluedCode = GluedCode(it.boundingBox!!.center(), it.rawValue.hashCode())
+                        gluedCode = GluedCode(it.boundingBox.center(), it.value.hashCode())
                     }
             }
         }
 
-        minDistCode.cornerPoints?.forEachIndexed { index, point ->
+        minDistCode.cornerPoints.forEachIndexed { index, point ->
             pointArray[index * 2] = point.x.toFloat()
             pointArray[index * 2 + 1] = point.y.toFloat()
         }
@@ -180,7 +198,7 @@ class TwoDCodeProcessor @Inject constructor() {
         metrics.transformationMatrix.mapPoints(pointArray)
 
         return Pair(
-            minDistCode.rawValue!!,
+            minDistCode.value,
             pointArray
         )
     }
@@ -198,11 +216,11 @@ class TwoDCodeProcessor @Inject constructor() {
     }
 
     private fun movedNotOverThreshold(
-        currentCode: Barcode,
+        currentCode: FilteredDMCode,
         otherBarcode: GluedCode,
         threshold: Int
     ): Boolean =
-        (currentCode.boundingBox!!.center() - otherBarcode.center).let {
+        (currentCode.boundingBox.center() - otherBarcode.center).let {
             max(it.x.absoluteValue, it.y.absoluteValue) < threshold
         }
 

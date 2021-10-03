@@ -114,7 +114,7 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
         }
     }
 
-    val swipableState = rememberSwipeableState(initialValue = 0)
+    val swipeableState = rememberSwipeableState(initialValue = 0)
 
     var pageSize by remember { mutableStateOf(IntSize(1, 1)) }
     val pageWidth = pageSize.width.toFloat()
@@ -128,15 +128,6 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
     var showRedeemSyncedDialog by remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
-    var actualFocussedCode by remember {
-        mutableStateOf(
-            RedeemScreen.SingleCode(
-                BitMatrix(1, 1),
-                0,
-                false
-            )
-        )
-    }
 
     if (state.codes.firstOrNull()?.isScanned == true) {
         BackInterceptor {
@@ -200,7 +191,7 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
                 Box(
                     modifier = Modifier
                         .swipeable(
-                            state = swipableState,
+                            state = swipeableState,
                             anchors = anchors,
                             orientation = Orientation.Horizontal,
                             reverseDirection = true
@@ -213,18 +204,17 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
                     Row(
                         modifier = Modifier
                             .offset {
-                                IntOffset(-(swipableState.offset.value).roundToInt(), 0)
+                                IntOffset(-(swipeableState.offset.value).roundToInt(), 0)
                             }
                             .wrapContentWidth(align = Alignment.Start, unbounded = true)
                     ) {
                         with(LocalDensity.current) {
                             val mod = Modifier.width(pageSize.width.toDp())
                             state.codes.forEach { code ->
-                                actualFocussedCode = code
                                 Column {
                                     Box {
                                         DataMatrixCode(
-                                            matrix = code.matrix,
+                                            matrixCode = code.matrixCode,
                                             modifier = mod.aspectRatio(1f)
                                         )
                                     }
@@ -272,27 +262,24 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
                         }
                     }
                 }
-                if (actualFocussedCode.nrOfCodes < taskIds.size && actualFocussedCode.nrOfCodes > 0) {
-                    Box(
+                if (state.codes.size > 1) {
+                    Counter(
+                        page = swipeableState.currentValue,
+                        maxPages = state.codes.size,
                         modifier = Modifier
                             .padding(top = 40.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Counter(
-                            swipableState.currentValue + 1,
-                            state.codes.size,
-                            {
-                                coroutineScope.launch {
-                                    swipableState.animateTo(swipableState.currentValue - 1)
-                                }
-                            },
-                            {
-                                coroutineScope.launch {
-                                    swipableState.animateTo(swipableState.currentValue + 1)
-                                }
+                            .fillMaxWidth(),
+                        {
+                            coroutineScope.launch {
+                                swipeableState.animateTo(swipeableState.currentValue - 1)
                             }
-                        )
-                    }
+                        },
+                        {
+                            coroutineScope.launch {
+                                swipeableState.animateTo(swipeableState.currentValue + 1)
+                            }
+                        }
+                    )
                 }
             }
         }
@@ -339,13 +326,14 @@ private fun SwitchScreenMode(
 
 @Composable
 private fun Counter(
-    swipableState: Int,
-    codesSize: Int,
+    page: Int,
+    maxPages: Int,
+    modifier: Modifier,
     onClickPrevious: () -> Unit,
     onClickNext: () -> Unit
 ) {
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -355,7 +343,7 @@ private fun Counter(
         Box(
             modifier = Modifier.size(48.dp)
         ) {
-            if (swipableState > 1) {
+            if (page > 0) {
                 IconButton(
                     onClick = onClickPrevious,
                     modifier = Modifier.background(
@@ -379,8 +367,8 @@ private fun Counter(
             Text(
                 annotatedStringResource(
                     R.string.redeem_counter_text,
-                    annotatedStringBold(swipableState.toString()),
-                    annotatedStringBold(codesSize.toString()),
+                    annotatedStringBold((page + 1).toString()),
+                    annotatedStringBold(maxPages.toString()),
                 ),
                 style = MaterialTheme.typography.subtitle1,
                 modifier = Modifier
@@ -393,7 +381,7 @@ private fun Counter(
                 .align(Alignment.CenterVertically)
                 .size(48.dp)
         ) {
-            if (swipableState < codesSize) {
+            if (page + 1 < maxPages) {
                 IconButton(
                     onClick = onClickNext,
                     modifier = Modifier.background(
@@ -409,7 +397,7 @@ private fun Counter(
 }
 
 @Composable
-fun DataMatrixCode(matrix: BitMatrix, modifier: Modifier) {
+fun DataMatrixCode(matrixCode: BitMatrixCode, modifier: Modifier) {
     Box(
         modifier = Modifier
             .then(modifier)
@@ -421,7 +409,7 @@ fun DataMatrixCode(matrix: BitMatrix, modifier: Modifier) {
                 .fillMaxSize()
                 .drawWithCache {
                     val bmp = Bitmap.createScaledBitmap(
-                        matrix.toBitmap(),
+                        matrixCode.matrix.toBitmap(),
                         max(size.width.roundToInt(), 10),
                         max(size.height.roundToInt(), 10),
                         false

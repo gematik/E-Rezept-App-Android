@@ -19,14 +19,23 @@
 package de.gematik.ti.erp.app.tracking
 
 import android.content.Context
+import android.net.Uri
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.core.content.edit
+import androidx.navigation.NavHostController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.BuildConfig
+import de.gematik.ti.erp.app.core.LocalTracker
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import pro.piwik.sdk.Piwik
 import pro.piwik.sdk.Tracker
 import pro.piwik.sdk.TrackerConfig
+import pro.piwik.sdk.extra.TrackHelper
 import pro.piwik.sdk.tools.Checksum
 import timber.log.Timber
 import javax.inject.Inject
@@ -71,7 +80,7 @@ class Tracker @Inject constructor(
         ).apply {
             // prevents piwik from creating cache files
             offlineCacheAge = -1
-            setSessionTimeout(1000)
+            setDispatchInterval(0)
 
             _trackingAllowed.value = !isOptOut
         }
@@ -89,5 +98,24 @@ class Tracker @Inject constructor(
             clear()
         }
         tracker = initTracker()
+    }
+
+    fun trackScreen(path: String) {
+        TrackHelper.track().screen(path).with(tracker)
+    }
+}
+
+@Composable
+fun TrackNavigationChanges(navController: NavHostController) {
+    val tracker = LocalTracker.current
+
+    LaunchedEffect(Unit) {
+        navController.currentBackStackEntryFlow.collect {
+            try {
+                tracker.trackScreen(Uri.parse(it.destination.route).buildUpon().clearQuery().build().toString())
+            } catch (e: Exception) {
+                Timber.e(e)
+            }
+        }
     }
 }

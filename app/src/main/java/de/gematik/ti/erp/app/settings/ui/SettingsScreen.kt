@@ -555,6 +555,7 @@ private fun AuthenticationSection(
             negativeButton = stringResource(R.string.auth_prompt_cancel),
             onAuthenticated = {
                 onClickProtectionMode(SettingsScreen.AuthenticationMode.DeviceSecurity)
+                showBiometricPrompt = false
             },
             onCancel = {
                 showBiometricPrompt = false

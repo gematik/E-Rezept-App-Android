@@ -34,6 +34,7 @@ import de.gematik.ti.erp.app.prescription.repository.OrganizationDetail
 import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionDemoDataSource
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -97,7 +98,7 @@ class PrescriptionUseCaseDemo @Inject constructor(
         return loadTaskByTaskId(taskId)
             ?.let { task ->
                 val payload = createDataMatrixPayload("Task/${task.taskId}", task.accessCode)
-                val matrix = createMatrixCode(payload)
+                val matrix = BitMatrixCode(createMatrixCode(payload))
 
                 if (task.rawKBVBundle != null) {
                     mapToUIPrescriptionDetailSynced(

@@ -33,6 +33,7 @@ import de.gematik.ti.erp.app.prescription.repository.extractMedicationRequest
 import de.gematik.ti.erp.app.prescription.repository.extractOrganization
 import de.gematik.ti.erp.app.prescription.repository.extractPatient
 import de.gematik.ti.erp.app.prescription.repository.extractPractitioner
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
@@ -81,7 +82,7 @@ class PrescriptionUseCaseProduction @Inject constructor(
 
         val (task, medicationDispense) = repository.loadTaskWithMedicationDispenseForTaskId(taskId).first()
         val payload = createDataMatrixPayload(task.taskId, task.accessCode)
-        val matrix = createMatrixCode(payload)
+        val matrix = BitMatrixCode(createMatrixCode(payload))
         val unRedeemMorePossible = unRedeemMorePossible(task.taskId)
 
         return if (task.rawKBVBundle == null) {

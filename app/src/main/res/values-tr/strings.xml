@@ -41,10 +41,7 @@
     <string name="pres_bottombar_prescriptions">Reçeteler</string>
     <string name="pres_bottombar_messages">Bildirimler</string>
     <string name="prescription_group_submit_ready">Kullan</string>
-    <plurals name="prescription_item_expiration_days">
-        <item quantity="one">Daha %s gün geçerli</item>
-        <item quantity="other">Daha %s gün geçerli</item>
-    </plurals>
+
     <string name="pres_edit_txt_place_holder">Örneğin dermatolog</string>
     <!-- Camera Workflow -->
     <string name="txt_number_of_prescriptions_available" formatted="false">%s %s / %s %s algılandı. Daha fazla kod taransın mı?</string>
@@ -313,7 +310,6 @@
     <string name="pharm_mail_header">Kargo</string>
     <string name="pres_detail_protocol_header">Protokol</string>
     <string name="pres_detail_protocol_empty_text">Ayarlanmış eylem olmadan</string>
-    <string name="prescription_item_expiration_expired">Süresi dolmuş</string>
     <string name="prescription_item_expiration_only_today">Sadece bugün geçerli</string>
     <string name="pres_edit_txt_title">Reçete bloğunu yeniden adlandır</string>
     <string name="pres_edit_txt_info">Bu reçete bloğu için bir ad atayabilirsiniz.</string>

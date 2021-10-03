@@ -33,6 +33,7 @@ object PrescriptionUseCaseData {
             val taskId: String,
             val name: String,
             val expiresOn: LocalDate?,
+            val acceptUntil: LocalDate?,
         ) : Prescription()
 
         /**

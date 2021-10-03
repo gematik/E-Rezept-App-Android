@@ -27,12 +27,15 @@ import de.gematik.ti.erp.app.cardwall.model.nfc.command.ResponseStatus
 import de.gematik.ti.erp.app.cardwall.model.nfc.command.executeSuccessfulOn
 import de.gematik.ti.erp.app.cardwall.model.nfc.command.select
 import de.gematik.ti.erp.app.cardwall.model.nfc.command.verifyPin
+import timber.log.Timber
 
 fun NfcCardSecureChannel.verifyPin(pin: String): ResponseStatus {
     HealthCardCommand.select(selectParentElseRoot = false, readFirst = false)
         .executeSuccessfulOn(this)
 
     val password = Password(Mf.MrPinHome.PWID)
+
+    Timber.d("Verify pin")
 
     val response =
         HealthCardCommand.verifyPin(password, false, EncryptedPinFormat2(pin))
@@ -49,6 +52,8 @@ fun NfcCardSecureChannel.verifyPin(pin: String): ResponseStatus {
                 false
         }
     ) { "Verify pin command failed with status: ${response.status}" }
+
+    Timber.d("Pin verified with status %s", response.status)
 
     return response.status
 }

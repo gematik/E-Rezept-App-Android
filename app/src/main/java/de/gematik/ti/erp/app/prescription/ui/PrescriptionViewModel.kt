@@ -38,7 +38,6 @@ import de.gematik.ti.erp.app.prescription.usecase.PollingUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
-import java.time.LocalDate
 import javax.inject.Inject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.cancel
@@ -52,6 +51,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.time.LocalDate
 
 @HiltViewModel
 class PrescriptionViewModel @Inject constructor(
@@ -62,7 +62,7 @@ class PrescriptionViewModel @Inject constructor(
     private val pollingUseCase: PollingUseCase,
     private val dispatchProvider: DispatchProvider,
     private val hintUseCase: HintUseCase,
-    private val authenticationUseCase: AuthenticationUseCase,
+    private val authenticationUseCase: AuthenticationUseCase
 ) : BaseViewModel() {
 
     val defaultState = PrescriptionScreen.State(

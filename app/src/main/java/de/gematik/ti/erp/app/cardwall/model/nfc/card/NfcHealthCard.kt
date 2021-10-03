@@ -24,16 +24,11 @@ import de.gematik.ti.erp.app.cardwall.model.nfc.command.CommandApdu
 import de.gematik.ti.erp.app.cardwall.model.nfc.command.ResponseApdu
 import timber.log.Timber
 
-private const val ISO_DEP_TIMEOUT = 2000
-private const val RETRY_TIMEOUT = 1000
+private const val ISO_DEP_TIMEOUT = 2500
 
 class NfcHealthCard private constructor(val isoDep: IsoDep) {
 
     fun transceive(apduCommand: CommandApdu): ResponseApdu {
-        val tm = System.currentTimeMillis()
-        while (!isCardPresent && tm - System.currentTimeMillis() < RETRY_TIMEOUT) {
-            // nop
-        }
         Timber.d("transceive ----")
         val resp = ResponseApdu(isoDep.transceive(apduCommand.bytes))
         Timber.d("transceived ----")

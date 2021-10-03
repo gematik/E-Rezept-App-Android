@@ -18,14 +18,22 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
+import android.os.Parcelable
 import androidx.navigation.NavType
-import androidx.navigation.compose.navArgument
+import androidx.navigation.navArgument
+import com.squareup.moshi.JsonClass
+import de.gematik.ti.erp.app.AppNavTypes
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
+import kotlinx.parcelize.Parcelize
+
+@Parcelize
+@JsonClass(generateAdapter = true)
+data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 
 object MainNavigationScreens {
     object Onboarding : Route("Onboarding")
-    object ReturningUserSecureAppOnboardingScreen : Route("ReturningUserSecureAppOnboardingScreen")
+    object ReturningUserSecureAppOnboarding : Route("ReturningUserSecureAppOnboarding")
     object Settings : Route(
         "Settings",
         navArgument("scrollToSection") {
@@ -35,11 +43,13 @@ object MainNavigationScreens {
     ) {
         fun path(scrollToSection: SettingsScrollTo = SettingsScrollTo.None) = path("scrollToSection" to scrollToSection)
     }
+
     object Camera : Route("Camera")
     object Prescriptions : Route("Prescriptions")
     object PrescriptionDetail : Route("PrescriptionDetail", navArgument("taskId") { type = NavType.StringType }) {
         fun path(taskId: String) = path("taskId" to taskId)
     }
+
     object Messages : Route("Messages")
     object PickUpCode : Route(
         "PickUpCode",
@@ -52,20 +62,31 @@ object MainNavigationScreens {
             nullable = true
         }
     ) {
-        fun path(pickUpCodeHR: String?, pickUpCodeDMC: String?) = path("pickUpCodeHR" to pickUpCodeHR, "pickUpCodeDMC" to pickUpCodeDMC)
+        fun path(pickUpCodeHR: String?, pickUpCodeDMC: String?) =
+            path("pickUpCodeHR" to pickUpCodeHR, "pickUpCodeDMC" to pickUpCodeDMC)
     }
-    object PharmacySearch : Route("PharmacySearch", navArgument("taskIds") { type = NavType.StringType }) {
-        fun path(taskIds: String) = path("taskIds" to taskIds)
+
+    object Pharmacies : Route(
+        "Pharmacies",
+        navArgument("taskIds") {
+            type = AppNavTypes.TaskIdsType
+            defaultValue = TaskIds(emptyList())
+        }
+    ) {
+        fun path(taskIds: TaskIds) = path("taskIds" to taskIds)
     }
-    object RedeemLocally : Route("RedeemLocally", navArgument("taskIds") { type = NavType.StringType }) {
-        fun path(taskIds: String) = path("taskIds" to taskIds)
+
+    object RedeemLocally : Route("RedeemLocally", navArgument("taskIds") { type = AppNavTypes.TaskIdsType }) {
+        fun path(taskIds: TaskIds) = path("taskIds" to taskIds)
     }
+
     object CardWall : Route("CardWall")
     object InsecureDeviceScreen : Route("InsecureDeviceScreen")
+    object SafetynetNotOkScreen : Route("SafetynetInfoScreen")
 }
 
 val MainScreenBottomNavigationItems = listOf(
     MainNavigationScreens.Prescriptions,
     MainNavigationScreens.Messages,
-    MainNavigationScreens.PharmacySearch
+    MainNavigationScreens.Pharmacies
 )

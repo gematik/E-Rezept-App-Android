@@ -18,9 +18,10 @@
 
 package de.gematik.ti.erp.app.messages.usecase
 
+import com.squareup.moshi.Moshi
+import de.gematik.ti.erp.app.db.entities.Communication
 import de.gematik.ti.erp.app.db.entities.CommunicationProfile
 import de.gematik.ti.erp.app.messages.communicationOnPremise
-import de.gematik.ti.erp.app.messages.listOfCommunicationsRead
 import de.gematik.ti.erp.app.messages.listOfCommunicationsUnread
 import de.gematik.ti.erp.app.messages.repository.MessageRepository
 import de.gematik.ti.erp.app.messages.ui.models.ErrorUIMessage
@@ -32,8 +33,9 @@ import de.gematik.ti.erp.app.utils.errorCommunicationDelivery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -56,143 +58,147 @@ class MessageUseCaseTest {
 
     private lateinit var useCase: MessageUseCase
     private lateinit var repository: MessageRepository
+    private lateinit var moshi: Moshi
 
     @Before
     fun setUp() {
         repository = mockk()
-        useCase = MessageUseCase(repository, mockk())
+        moshi = Moshi.Builder().build()
+        useCase = MessageUseCase(repository, moshi)
     }
 
     @Test
     fun `test loading communications - should return non empty list`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow { listOfCommunicationsUnread() }
-            useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply).collect {
-                assertTrue(it.isNotEmpty())
+            every { repository.loadCommunications(any()) } returns flow {
+                emit(listOfCommunicationsUnread())
             }
+            val result =
+                useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
+                    .toList()
+            assertTrue(result.isNotEmpty())
         }
 
     @Test
     fun `test unread communications available - should return true`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadUnreadCommunications(any()) } returns flow { listOfCommunicationsUnread() }
-            useCase.unreadCommunicationsAvailable(CommunicationProfile.ErxCommunicationReply)
-                .collect {
-                    assertTrue(it)
-                }
+            every { repository.loadUnreadCommunications(any()) } returns flow {
+                emit(listOfCommunicationsUnread())
+            }
+            val result =
+                useCase.unreadCommunicationsAvailable(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            assertTrue(result)
         }
 
     @Test
     fun `test unread communications available - should return false`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadUnreadCommunications(any()) } returns flow { listOfCommunicationsRead() }
-            useCase.unreadCommunicationsAvailable(CommunicationProfile.ErxCommunicationReply)
-                .collect {
-                    assertFalse(it)
-                }
+            every { repository.loadUnreadCommunications(any()) } returns flow {
+                emit(listOf<Communication>())
+            }
+            val result =
+                useCase.unreadCommunicationsAvailable(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            assertFalse(result)
         }
 
     @Test
     fun `test loading communications - should map to Shipment`() =
         coroutineRule.testDispatcher.runBlockingTest {
             every { repository.loadCommunications(any()) } returns flow {
-                listOf(
-                    communicationShipment()
+                emit(
+                    listOf(communicationShipment())
                 )
             }
-            useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply).collect {
-                val uiMessage = it.first()
-                assertTrue(uiMessage is UIMessage)
-                assertNotNull(uiMessage)
-                assertTrue(uiMessage.supplyOptionsType == SHIPMENT)
-            }
+            val result =
+                useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            val uiMessage = result.first()
+            assertNotNull(uiMessage)
+            assertTrue(uiMessage is UIMessage)
+            assertTrue(uiMessage.supplyOptionsType == SHIPMENT)
         }
 
     @Test
     fun `test loading communications - should map to Delivery`() =
         coroutineRule.testDispatcher.runBlockingTest {
             every { repository.loadCommunications(any()) } returns flow {
-                listOf(
-                    communicationDelivery()
-                )
+                emit(listOf(communicationDelivery()))
             }
-            useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply).collect {
-                val uiMessage = it.first()
-                assertTrue(uiMessage is UIMessage)
-                assertNotNull(uiMessage)
-                assertTrue(uiMessage.supplyOptionsType == DELIVERY)
-            }
+            val result =
+                useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            val uiMessage = result.first()
+            assertNotNull(uiMessage)
+            assertTrue(uiMessage is UIMessage)
+            assertTrue(uiMessage.supplyOptionsType == DELIVERY)
         }
 
     @Test
     fun `test loading communications - should map to OnPremise`() =
         coroutineRule.testDispatcher.runBlockingTest {
             every { repository.loadCommunications(any()) } returns flow {
-                listOf(
-                    communicationOnPremise()
-                )
+                emit(listOf(communicationOnPremise()))
             }
-            useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply).collect {
-                val uiMessage = it.first()
-                assertTrue(uiMessage is UIMessage)
-                assertNotNull(uiMessage)
-                assertTrue(uiMessage.supplyOptionsType == ON_PREMISE)
-            }
+            val result =
+                useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            val uiMessage = result.first()
+            assertNotNull(uiMessage)
+            assertTrue(uiMessage is UIMessage)
+            assertTrue(uiMessage.supplyOptionsType == ON_PREMISE)
         }
 
     @Test
     fun `test mapping communications - should map to OnPremise`() =
         coroutineRule.testDispatcher.runBlockingTest {
             every { repository.loadCommunications(any()) } returns flow {
-                listOf(
-                    communicationOnPremise()
-                )
+                emit(listOf(communicationOnPremise()))
             }
-            useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply).collect {
-                val uiMessage = it.first() as UIMessage
-                assertNotNull(uiMessage)
-                assertTrue(uiMessage.supplyOptionsType == ON_PREMISE)
-                assertFalse(uiMessage.consumed)
-                assertEquals(uiMessage.communicationId, "id")
-                assertEquals(uiMessage.pickUpCodeDMC, "465465465f6s4g6df54gs65dfg")
-                assertEquals(uiMessage.pickUpCodeHR, "12341234")
-                assertFalse(uiMessage.message.isNullOrEmpty())
-            }
+            val result =
+                useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            val uiMessage = result.first() as UIMessage
+            assertNotNull(uiMessage)
+            assertTrue(uiMessage.supplyOptionsType == ON_PREMISE)
+            assertFalse(uiMessage.consumed)
+            assertEquals(uiMessage.communicationId, "id")
+            assertEquals(uiMessage.pickUpCodeDMC, "465465465f6s4g6df54gs65dfg")
+            assertEquals(uiMessage.pickUpCodeHR, "12341234")
+            assertFalse(uiMessage.message.isNullOrEmpty())
         }
 
     @Test
     fun `test mapping communications - null message`() =
         coroutineRule.testDispatcher.runBlockingTest {
             every { repository.loadCommunications(any()) } returns flow {
-                listOf(
-                    communicationDelivery()
-                )
+                emit(listOf(communicationDelivery()))
             }
-            useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply).collect {
-                val uiMessage = it.first()
-                assertTrue(uiMessage is UIMessage)
-                assertNotNull(uiMessage)
-                assertTrue(uiMessage.supplyOptionsType == DELIVERY)
-                assertFalse(uiMessage.consumed)
-                assertTrue(uiMessage.message.isNullOrEmpty())
-            }
+            val result =
+                useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            val uiMessage = result.first()
+            assertNotNull(uiMessage)
+            assertTrue(uiMessage is UIMessage)
+            assertTrue(uiMessage.supplyOptionsType == DELIVERY)
+            assertFalse(uiMessage.consumed)
+            assertTrue(uiMessage.message.isNullOrEmpty())
         }
 
     @Test
     fun `test mapping communications - should map to Error`() =
         coroutineRule.testDispatcher.runBlockingTest {
             every { repository.loadCommunications(any()) } returns flow {
-                listOf(
-                    errorCommunicationDelivery()
-                )
+                emit(listOf(errorCommunicationDelivery()))
             }
-            useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply).collect {
-                val message = it.first()
-                assertTrue(message is ErrorUIMessage)
-                assertNotNull(message)
-                assertTrue(message.supplyOptionsType == ERROR)
-                assertFalse(message.consumed)
-                assertTrue(message.message.isNullOrEmpty())
-            }
+            val result =
+                useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
+                    .first()
+            val message = result.first()
+            assertNotNull(message)
+            assertTrue(message is ErrorUIMessage)
+            assertTrue(message.supplyOptionsType == ERROR)
+            assertFalse(message.consumed)
         }
 }

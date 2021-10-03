@@ -31,22 +31,23 @@ import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.establishTrustedChannel
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.retrieveCertificate
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.signChallenge
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.verifyPin
-import de.gematik.ti.erp.app.idp.secureRandomInstance
+import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.idp.usecase.AltAuthenticationCryptoException
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.channels.consume
+import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import timber.log.Timber
@@ -152,8 +153,9 @@ class AuthenticationUseCaseProduction @Inject constructor(
         cardChannel.first().use { nfcChannel ->
             send(AuthenticationState.HealthCardCommunicationChannelReady)
 
-            val healthCardCertificate = MutableSharedFlow<ByteArray>()
-            val secureChannel = MutableSharedFlow<NfcCardSecureChannel>()
+            val healthCardCertificateChannel = Channel<ByteArray>()
+            val signChannel = Channel<ByteArray>()
+            val responseChannel = Channel<ByteArray>()
 
             //
             //                  + - IDP communication --------- + ------------- + -- + -------- +
@@ -168,14 +170,12 @@ class AuthenticationUseCaseProduction @Inject constructor(
                     try {
                         idpUseCase.authenticationFlowWithHealthCard(
                             {
-                                healthCardCertificate.first().also {
-                                    send(AuthenticationState.HealthCardCommunicationCertificateLoaded)
-                                }
+                                healthCardCertificateChannel.consume { receive() }
                             },
                             {
-                                secureChannel.first().signChallenge(it).also {
-                                    send(AuthenticationState.HealthCardCommunicationFinished)
-                                }
+                                signChannel.send(it)
+                                signChannel.close()
+                                responseChannel.consume { receive() }
                             }
                         )
                         send(AuthenticationState.IDPCommunicationFinished)
@@ -187,8 +187,9 @@ class AuthenticationUseCaseProduction @Inject constructor(
                     try {
                         healthCardCommunication(
                             nfcChannel,
-                            healthCardCertificate,
-                            secureChannel,
+                            healthCardCertificateChannel,
+                            signChannel,
+                            responseChannel,
                             can = can,
                             pin = pin
                         )
@@ -246,9 +247,19 @@ class AuthenticationUseCaseProduction @Inject constructor(
                 throw AuthenticationException(AuthenticationExceptionKind.SecureElementFailure)
             }
 
-            val healthCardCertificate = MutableSharedFlow<ByteArray>()
-            val secureChannel = MutableSharedFlow<NfcCardSecureChannel>(2)
+            val healthCardCertificateChannel = Channel<ByteArray>()
+            val signChannel = Channel<ByteArray>()
+            val responseChannel = Channel<ByteArray>()
 
+            //
+            //                  + - IDP communication --------- + ------------- + -- + --------- + -- + ------- +
+            //                 /                                ^               |    ^           |    ^          \
+            // - start flow - +                          Health card cert   Sign challenge   Sign challenge       + - end flow -
+            //                 \                                |               v    |           v    |          /
+            //                  + - Health card communication - + ------------- + -- + --------- + -- + ------- +
+            //
+
+            var signingsLeft = 2
             joinAll(
                 launch {
                     try {
@@ -256,13 +267,15 @@ class AuthenticationUseCaseProduction @Inject constructor(
                             publicKeyOfSecureElementEntry = sePublicKey,
                             aliasOfSecureElementEntry = aliasOfSecureElementEntry,
                             {
-                                healthCardCertificate.first().also {
-                                    send(AuthenticationState.HealthCardCommunicationCertificateLoaded)
-                                }
+                                healthCardCertificateChannel.consume { receive() }
                             },
                             {
-                                secureChannel.first().signChallenge(it).also {
-                                    send(AuthenticationState.HealthCardCommunicationFinished)
+                                signChannel.send(it)
+                                responseChannel.receive().also {
+                                    signingsLeft--
+                                    if (signingsLeft == 0) {
+                                        signChannel.close()
+                                    }
                                 }
                             }
                         )
@@ -275,8 +288,9 @@ class AuthenticationUseCaseProduction @Inject constructor(
                     try {
                         healthCardCommunication(
                             nfcChannel,
-                            healthCardCertificate,
-                            secureChannel,
+                            healthCardCertificateChannel,
+                            signChannel,
+                            responseChannel,
                             can = can,
                             pin = pin
                         )
@@ -324,8 +338,9 @@ class AuthenticationUseCaseProduction @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun ProducerScope<AuthenticationState>.healthCardCommunication(
         channel: NfcCardChannel,
-        certificate: MutableSharedFlow<ByteArray>,
-        secureChannel: MutableSharedFlow<NfcCardSecureChannel>,
+        healthCardCertificateChannel: Channel<ByteArray>,
+        signChannel: Channel<ByteArray>, // `signChannel` is required to be closed by its caller
+        responseChannel: Channel<ByteArray>,
         can: String,
         pin: String
     ) {
@@ -338,12 +353,17 @@ class AuthenticationUseCaseProduction @Inject constructor(
         )
         send(AuthenticationState.HealthCardCommunicationTrustedChannelEstablished)
 
-        certificate.emit(secChannel.retrieveCertificate())
-        // TODO: find a better way
-        delay(1000)
+        healthCardCertificateChannel.send(secChannel.retrieveCertificate())
+        send(AuthenticationState.HealthCardCommunicationCertificateLoaded)
 
         when (secChannel.verifyPin(pin)) {
-            ResponseStatus.SUCCESS -> secureChannel.emit(secChannel)
+            ResponseStatus.SUCCESS -> {
+                signChannel.consumeEach {
+                    responseChannel.send(
+                        secChannel.signChallenge(it)
+                    )
+                }
+            }
             ResponseStatus.WRONG_SECRET_WARNING_COUNT_02 ->
                 throw AuthenticationException(AuthenticationExceptionKind.HealthCardPin2RetriesLeft)
             ResponseStatus.WRONG_SECRET_WARNING_COUNT_01 ->
@@ -352,6 +372,8 @@ class AuthenticationUseCaseProduction @Inject constructor(
                 throw AuthenticationException(AuthenticationExceptionKind.HealthCardBlocked)
             }
         }
+
+        send(AuthenticationState.HealthCardCommunicationFinished)
     }
 
     private fun handleException(e: Throwable): AuthenticationState =

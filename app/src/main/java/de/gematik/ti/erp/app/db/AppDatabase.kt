@@ -26,6 +26,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import de.gematik.ti.erp.app.db.converter.CertificateConverter
 import de.gematik.ti.erp.app.db.converter.DateConverter
 import de.gematik.ti.erp.app.db.converter.TruststoreConverter
+import de.gematik.ti.erp.app.db.daos.AttestationDao
 import de.gematik.ti.erp.app.db.daos.CommunicationDao
 import de.gematik.ti.erp.app.db.daos.HealthCardUserDao
 import de.gematik.ti.erp.app.db.daos.IdpAuthenticationDataDao
@@ -40,12 +41,13 @@ import de.gematik.ti.erp.app.db.entities.IdpAuthenticationDataEntity
 import de.gematik.ti.erp.app.db.entities.IdpConfiguration
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
+import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
 import de.gematik.ti.erp.app.db.entities.Settings
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TruststoreEntity
 import javax.inject.Singleton
 
-const val DB_VERSION = 8
+const val DB_VERSION = 10
 
 @Singleton
 @Database(
@@ -59,7 +61,8 @@ const val DB_VERSION = 8
         TruststoreEntity::class,
         Communication::class,
         LowDetailEventSimple::class,
-        MedicationDispenseSimple::class
+        MedicationDispenseSimple::class,
+        SafetynetAttestationEntity::class
     ],
     version = DB_VERSION,
     exportSchema = true
@@ -77,6 +80,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun healthCardUserDao(): HealthCardUserDao
     abstract fun truststoreDao(): TruststoreDao
     abstract fun communicationsDao(): CommunicationDao
+    abstract fun attestationDao(): AttestationDao
 }
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -131,5 +135,22 @@ val MIGRATION_7_8 = object : Migration(7, 8) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL("ALTER TABLE settings ADD COLUMN authenticationFails INTEGER NOT NULL DEFAULT 0")
         database.execSQL("ALTER TABLE settings ADD COLUMN userHasAcceptedInsecureDevice INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+val MIGRATION_8_9 = object : Migration(8, 9) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE settings ADD COLUMN `pharmacySearch_name` TEXT NOT NULL DEFAULT ''")
+        database.execSQL("ALTER TABLE settings ADD COLUMN `pharmacySearch_locationEnabled` INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE settings ADD COLUMN `pharmacySearch_filterReady` INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE settings ADD COLUMN `pharmacySearch_filterDeliveryService` INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE settings ADD COLUMN `pharmacySearch_filterOnlineService` INTEGER NOT NULL DEFAULT 0")
+        database.execSQL("ALTER TABLE settings ADD COLUMN `pharmacySearch_filterOpenNow` INTEGER NOT NULL DEFAULT 0")
+    }
+}
+
+val MIGRATION_9_10 = object : Migration(9, 10) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("CREATE TABLE IF NOT EXISTS `safetynetattestations` (`id` INTEGER NOT NULL, `jws` TEXT NOT NULL, ourNonce BLOB NOT NULL, PRIMARY KEY(`id`))")
     }
 }

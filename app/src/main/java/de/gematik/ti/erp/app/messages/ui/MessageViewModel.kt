@@ -27,6 +27,7 @@ import de.gematik.ti.erp.app.core.BaseViewModel
 import de.gematik.ti.erp.app.db.entities.CommunicationProfile
 import de.gematik.ti.erp.app.messages.ui.models.CommunicationReply
 import de.gematik.ti.erp.app.messages.usecase.MessageUseCase
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import javax.inject.Inject
 import kotlinx.coroutines.launch
 
@@ -39,7 +40,7 @@ class MessageViewModel @Inject constructor(
         useCase.loadCommunicationsLocally(CommunicationProfile.ErxCommunicationReply)
 
     fun createBitmapMatrix(payload: String) =
-        DataMatrixWriter().encode(payload, BarcodeFormat.DATA_MATRIX, 1, 1)
+        BitMatrixCode(DataMatrixWriter().encode(payload, BarcodeFormat.DATA_MATRIX, 1, 1))
 
     fun messageAcknowledged(message: CommunicationReply) {
         viewModelScope.launch(dispatchProvider.main()) {

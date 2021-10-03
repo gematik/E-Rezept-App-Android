@@ -111,7 +111,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -125,11 +124,13 @@ import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.demo.ui.DemoBanner
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.HintCard
 import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
 import de.gematik.ti.erp.app.utils.compose.HintLargeImage
 import de.gematik.ti.erp.app.utils.compose.HintSmallImage
+import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.HintTextLearnMoreButton
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -146,13 +147,11 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.retry
@@ -188,6 +187,8 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
 
     val navigationMode by navController.navigationModeState(startDestination = startDestination)
 
+    TrackNavigationChanges(navController)
+
     NavHost(
         navController,
         startDestination = startDestination
@@ -200,8 +201,7 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
             ) {
                 NavigationAnimation(navigationMode) {
                     CardWallIntro(
-                        cardHelper = { navController.navigate(CardWallNavigation.HealthCardHelper.route) },
-                        state.demoMode
+                        cardHelper = { navController.navigate(CardWallNavigation.HealthCardHelper.route) }
                     ) {
                         navController.navigate(CardWallNavigation.CardAccessNumber.route)
                     }
@@ -310,7 +310,7 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
         }
         composable(CardWallNavigation.HealthCardHelper.route) {
             NavigationAnimation(NavigationMode.Open) {
-                HealthCardHelperScreen(viewModel, state.demoMode)
+                HealthCardInfoScreen()
             }
         }
     }
@@ -453,7 +453,9 @@ private fun CardAccessNumber(
                     title = { Text(stringResource(R.string.cdw_can_info_hint_header)) },
                     body = { Text(stringResource(R.string.cdw_can_info_hint_info)) },
                     action = {
-                        HealthCardHelperButton(cardHelper)
+                        HintTextActionButton(text = stringResource(R.string.learn_more_btn)) {
+                            cardHelper()
+                        }
                     },
                     modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
                 )

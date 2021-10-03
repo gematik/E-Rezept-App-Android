@@ -5,16 +5,10 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import de.gematik.ti.erp.app.common.OnboardingHandler
-import org.junit.Before
 import org.junit.Test
 
 @ExperimentalTestApi
 class MainScreenIntegrationTest : OnboardingHandler() {
-
-    @Before
-    fun runOnBoarding() {
-        handleOnBoarding()
-    }
 
     @Test
     fun testBottomBar_navigationOptions() {
@@ -25,6 +19,7 @@ class MainScreenIntegrationTest : OnboardingHandler() {
 
     @Test
     fun testClickBottomBar_clicksMessages() {
+
         composeTestRule.onNodeWithTag("erx_btn_messages")
             .assertIsDisplayed()
             .performClick()
@@ -33,6 +28,7 @@ class MainScreenIntegrationTest : OnboardingHandler() {
 
     @Test
     fun testClickBottomBar_clicksPrescriptions() {
+
         composeTestRule.onNodeWithTag("erx_btn_prescriptions")
             .assertIsDisplayed()
             .performClick()
@@ -41,6 +37,7 @@ class MainScreenIntegrationTest : OnboardingHandler() {
 
     @Test
     fun testClickBottomBar_clicksPharmacy() {
+
         composeTestRule.onNodeWithTag("erx_btn_search_pharmacies")
             .assertIsDisplayed()
             .performClick()
@@ -50,6 +47,7 @@ class MainScreenIntegrationTest : OnboardingHandler() {
 
     @Test
     fun testClickSettings() {
+
         composeTestRule.onNodeWithTag("erx_btn_show_settings")
             .assertIsDisplayed()
             .performClick()

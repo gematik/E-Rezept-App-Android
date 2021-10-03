@@ -47,14 +47,18 @@ fun NfcCardSecureChannel.retrieveCertificate(): ByteArray {
         val response = HealthCardCommand.read(offset)
             .executeOn(this)
 
-        response.apdu.data.let {
-            buffer.write(it)
-            offset += it.size
-            Timber.d("Read %d bytes. Offset %d", it.size, offset)
+        Timber.d("Response was %s", response.status)
+
+        val data = response.apdu.data
+        Timber.d("Read %d bytes. Offset %d", data.size, offset)
+
+        if (data.isNotEmpty()) {
+            buffer.write(data)
+            offset += data.size
         }
 
         when (response.status) {
-            ResponseStatus.SUCCESS -> {}
+            ResponseStatus.SUCCESS -> { }
             ResponseStatus.END_OF_FILE_WARNING,
             ResponseStatus.OFFSET_TOO_BIG -> break
             else -> error("Couldn't read certificate: ${response.status}")

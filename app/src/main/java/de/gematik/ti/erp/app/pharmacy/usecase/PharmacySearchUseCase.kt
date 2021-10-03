@@ -20,12 +20,12 @@ package de.gematik.ti.erp.app.pharmacy.usecase
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
+import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.api.map
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayload
 import de.gematik.ti.erp.app.pharmacy.repository.model.Pharmacy
@@ -39,6 +39,7 @@ import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.prescription.repository.extractMedication
 import de.gematik.ti.erp.app.prescription.repository.extractMedicationRequest
 import de.gematik.ti.erp.app.prescription.repository.extractPatient
+import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -59,6 +60,7 @@ private const val initialResultsPerPage = 80
 class PharmacySearchUseCase @Inject constructor(
     private val repository: PharmacyRepository,
     private val prescriptionRepository: PrescriptionRepository,
+    private val settingsUseCase: SettingsUseCase,
     private val mapper: Mapper,
     private val moshi: Moshi,
     private val dispatchProvider: DispatchProvider
@@ -69,11 +71,11 @@ class PharmacySearchUseCase @Inject constructor(
         PagingSource<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy>() {
 
         private val name = searchData.name.split(" ").filter { it.isNotEmpty() }
-        private val location = searchData.location
+        private val locationMode = searchData.locationMode
         private val filter = run {
             val filterMap = mutableMapOf<String, String>()
-            if (location != null) {
-                filterMap += "near" to "${location.latitude}|${location.longitude}|999|km"
+            if (locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
+                filterMap += "near" to "${locationMode.location.latitude}|${locationMode.location.longitude}|999|km"
             }
             if (searchData.filter.ready) {
                 filterMap += "status" to "active"
@@ -151,10 +153,35 @@ class PharmacySearchUseCase @Inject constructor(
         moshi.adapter(CommunicationPayload::class.java)
     }
 
-    fun searchPharmacies(
+    val previousSearch: Flow<PharmacyUseCaseData.SearchData> =
+        settingsUseCase.pharmacySearch.map { pharmacySearchModel ->
+            pharmacySearchModel.let {
+                PharmacyUseCaseData.SearchData(
+                    name = it.name,
+                    filter = PharmacyUseCaseData.Filter(
+                        ready = it.filterReady,
+                        openNow = it.filterOpenNow,
+                        deliveryService = it.filterDeliveryService,
+                        onlineService = it.filterOnlineService,
+                    ),
+                    locationMode = if (it.locationEnabled) PharmacyUseCaseData.LocationMode.EnabledWithoutPosition else PharmacyUseCaseData.LocationMode.Disabled
+                )
+            }
+        }.flowOn(dispatchProvider.io())
+
+    suspend fun searchPharmacies(
         searchData: PharmacyUseCaseData.SearchData
-    ) =
-        Pager(
+    ): Flow<PagingData<PharmacyUseCaseData.Pharmacy>> {
+        settingsUseCase.savePharmacySearch(
+            name = searchData.name,
+            locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,
+            filterReady = searchData.filter.ready,
+            filterDeliveryService = searchData.filter.deliveryService,
+            filterOnlineService = searchData.filter.onlineService,
+            filterOpenNow = searchData.filter.openNow
+        )
+
+        return Pager(
             PagingConfig(
                 pageSize = 10,
                 initialLoadSize = initialResultsPerPage,
@@ -162,6 +189,7 @@ class PharmacySearchUseCase @Inject constructor(
             ),
             pagingSourceFactory = { PharmacyPagingSource(searchData) }
         ).flow
+    }
 
     private suspend fun mapPharmacies(pharmacies: List<Pharmacy>): List<PharmacyUseCaseData.Pharmacy> =
         withContext(dispatchProvider.unconfined()) {

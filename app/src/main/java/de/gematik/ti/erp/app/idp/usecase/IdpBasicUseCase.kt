@@ -29,9 +29,9 @@ import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithHealthCard
 import de.gematik.ti.erp.app.idp.buildKeyVerifier
-import de.gematik.ti.erp.app.idp.generateRandomAES256Key
+import de.gematik.ti.erp.app.generateRandomAES256Key
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.idp.secureRandomInstance
+import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import de.gematik.ti.erp.app.vau.usecase.checkIdpCertificate
 import kotlinx.coroutines.sync.Mutex

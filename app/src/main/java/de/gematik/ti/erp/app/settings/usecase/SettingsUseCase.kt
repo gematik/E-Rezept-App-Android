@@ -76,6 +76,27 @@ class SettingsUseCase @Inject constructor(
             appPrefs.edit().putBoolean(NEW_USER, v).apply()
         }
 
+    val pharmacySearch =
+        settings.map { it.pharmacySearch }
+
+    suspend fun savePharmacySearch(
+        name: String,
+        locationEnabled: Boolean,
+        filterReady: Boolean,
+        filterDeliveryService: Boolean,
+        filterOnlineService: Boolean,
+        filterOpenNow: Boolean
+    ) {
+        settingsRepository.savePharmacySearch(
+            name = name,
+            locationEnabled = locationEnabled,
+            filterReady = filterReady,
+            filterDeliveryService = filterDeliveryService,
+            filterOnlineService = filterOnlineService,
+            filterOpenNow = filterOpenNow
+        )
+    }
+
     suspend fun saveAuthenticationMethod(authenticationMethod: SettingsAuthenticationMethod) {
         settingsRepository.saveAuthenticationMethod(authenticationMethod)
     }

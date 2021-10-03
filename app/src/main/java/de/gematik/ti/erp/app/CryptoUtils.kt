@@ -16,7 +16,7 @@
  * 
  */
 
-package de.gematik.ti.erp.app.idp
+package de.gematik.ti.erp.app
 
 import android.os.Build
 import java.security.SecureRandom

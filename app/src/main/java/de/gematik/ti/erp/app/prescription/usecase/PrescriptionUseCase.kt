@@ -65,6 +65,7 @@ interface PrescriptionUseCase {
                                     taskId = it.taskId,
                                     name = it.medicationText ?: "",
                                     expiresOn = it.expiresOn,
+                                    acceptUntil = it.acceptUntil
                                 )
                             }
 
@@ -121,6 +122,7 @@ interface PrescriptionUseCase {
                                     taskId = it.taskId,
                                     name = it.medicationText ?: "",
                                     expiresOn = it.expiresOn,
+                                    acceptUntil = it.acceptUntil
                                 )
                             }
 

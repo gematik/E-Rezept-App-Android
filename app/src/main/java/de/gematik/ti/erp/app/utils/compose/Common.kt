@@ -71,6 +71,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -156,6 +157,10 @@ fun SpacerLarge() =
 @Composable
 fun SpacerXLarge() =
     Spacer(modifier = Modifier.size(PaddingDefaults.XLarge))
+
+@Composable
+fun SpacerXXLarge() =
+    Spacer(modifier = Modifier.size(PaddingDefaults.XXLarge))
 
 @Composable
 fun SpacerMedium() =
@@ -704,5 +709,14 @@ fun DynamicText(
                 main.placeRelative(0, 0)
             }
         }
+    }
+}
+
+@Composable
+fun SimpleCheck(text: String) {
+    Row {
+        Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green600)
+        Spacer16()
+        Text(text, style = MaterialTheme.typography.body1)
     }
 }

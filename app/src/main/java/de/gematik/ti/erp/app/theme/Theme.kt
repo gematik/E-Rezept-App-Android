@@ -25,6 +25,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -111,19 +112,18 @@ object AppTheme {
         get() = LocalAppTypography.current
 
     val framePadding = PaddingValues(16.dp)
+
+    val DebugColor = Color(0xFFD71F5F)
 }
 
-private
-val LocalAppColors = staticCompositionLocalOf<AppColors> {
+private val LocalAppColors = staticCompositionLocalOf<AppColors> {
     error("No AppColors provided")
 }
 
-private
-val LocalAppTypographyColors = staticCompositionLocalOf<AppTypographyColors> {
+private val LocalAppTypographyColors = staticCompositionLocalOf<AppTypographyColors> {
     error("No AppTypographyColors provided")
 }
 
-private
-val LocalAppTypography = staticCompositionLocalOf<AppTypography> {
+private val LocalAppTypography = staticCompositionLocalOf<AppTypography> {
     error("No AppTypography provided")
 }

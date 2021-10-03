@@ -23,7 +23,7 @@ import de.gematik.ti.erp.app.db.AppDatabase
 import de.gematik.ti.erp.app.db.entities.PasswordEntity
 import de.gematik.ti.erp.app.db.entities.Settings
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
-import de.gematik.ti.erp.app.idp.secureRandomInstance
+import de.gematik.ti.erp.app.secureRandomInstance
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onStart
@@ -47,6 +47,24 @@ class SettingsRepository @Inject constructor(
                 }
             }
         }
+    }
+
+    suspend fun savePharmacySearch(
+        name: String,
+        locationEnabled: Boolean,
+        filterReady: Boolean,
+        filterDeliveryService: Boolean,
+        filterOnlineService: Boolean,
+        filterOpenNow: Boolean
+    ) {
+        db.settingsDao().updatePharmacySearch(
+            name = name,
+            locationEnabled = locationEnabled,
+            filterReady = filterReady,
+            filterDeliveryService = filterDeliveryService,
+            filterOnlineService = filterOnlineService,
+            filterOpenNow = filterOpenNow
+        )
     }
 
     suspend fun saveZoomPreference(enabled: Boolean) {

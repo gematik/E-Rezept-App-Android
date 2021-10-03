@@ -27,20 +27,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.AlertDialog
 import androidx.compose.material.AppBarDefaults
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.TopAppBar
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -54,19 +47,20 @@ import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
+import de.gematik.ti.erp.app.utils.compose.HintTextLearnMoreButton
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationClose
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
-import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.Spacer4
-import de.gematik.ti.erp.app.utils.compose.Spacer8
+import de.gematik.ti.erp.app.utils.compose.SimpleCheck
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.WindowDecorationColors
 import de.gematik.ti.erp.app.utils.compose.testId
 
 @Composable
 fun CardWallIntro(
     cardHelper: () -> Unit,
-    demoMode: Boolean,
     onNext: () -> Unit
 ) {
     val activity = LocalActivity.current
@@ -127,75 +121,46 @@ fun CardWallIntro(
                         alignment = Alignment.BottomStart
                     )
                 }
-                Spacer8()
+                SpacerSmall()
                 Column(modifier = Modifier.padding(AppTheme.framePadding)) {
                     Text(
                         stringResource(R.string.cdw_intro_title),
                         style = MaterialTheme.typography.h6,
                         modifier = Modifier.testId("cdw_txt_intro_header_bottom")
                     )
-                    Spacer8()
+                    SpacerSmall()
                     Text(
                         stringResource(R.string.cdw_intro_body),
                         style = MaterialTheme.typography.body1
                     )
-                    Spacer8()
-                    HealthCardHelperButton(cardHelper)
-                    Spacer16()
+                    SpacerSmall()
+                    HintTextLearnMoreButton()
+                    SpacerMedium()
                     Text(
                         stringResource(R.string.cdw_intro_what_you_need),
                         style = MaterialTheme.typography.subtitle1
                     )
-                    Spacer16()
+                    SpacerMedium()
                     SimpleCheck(stringResource(R.string.cdw_intro_what_you_need_egk))
-                    Spacer16()
+                    SpacerMedium()
                     SimpleCheck(stringResource(R.string.cdw_intro_what_you_need_pin))
-                    Spacer16()
+                    SpacerMedium()
                     SimpleCheck(stringResource(R.string.cdw_intro_what_you_need_nfc))
+                    SpacerMedium()
+                    Text(
+                        stringResource(R.string.cdw_intro_what_you_need_no_egk),
+                        style = MaterialTheme.typography.caption
+                    )
+                    SpacerSmall()
+                    Row(modifier = Modifier.align(Alignment.End)) {
+                        HintTextActionButton(text = stringResource(R.string.learn_more_btn)) {
+                            cardHelper()
+                        }
+                    }
                 }
             }
         }
     }
-}
-
-@Composable
-private fun SimpleCheck(text: String) {
-    Row {
-        Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green600)
-        Spacer16()
-        Text(text, style = MaterialTheme.typography.body1)
-    }
-}
-
-@Composable
-fun CardWallUseRealHealthCard(
-    onDismissRequest: () -> Unit,
-    onClick: (realHealthCard: Boolean) -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismissRequest,
-        buttons = {
-            Row {
-                TextButton(onClick = { onClick(true) }) {
-                    Text(stringResource(R.string.cdw_demo_with_healthcard))
-                }
-                Spacer4()
-                TextButton(onClick = { onClick(false) }) {
-                    Text(stringResource(R.string.cdw_demo_without_healthcard))
-                }
-            }
-        },
-        title = {
-            Text(
-                stringResource(R.string.cdw_demo_use_real_healthcard_title)
-            )
-        },
-        text = {
-            Text(
-                stringResource(R.string.cdw_demo_use_real_healthcard)
-            )
-        }
-    )
 }
 
 @Composable
@@ -221,20 +186,22 @@ fun CardWallMissingCapabilities() {
                         }
                 ) {
                     Image(
-                        painterResource(id = R.drawable.oh_no), null, contentScale = ContentScale.FillWidth,
+                        painterResource(id = R.drawable.oh_no),
+                        null,
+                        contentScale = ContentScale.FillWidth,
                         modifier = Modifier.fillMaxWidth()
                     )
-                    Spacer8()
+                    SpacerSmall()
                     Text(
                         stringResource(R.string.cdw_capability_headline),
                         style = MaterialTheme.typography.h6
                     )
-                    Spacer8()
+                    SpacerSmall()
                     Text(
                         stringResource(R.string.cdw_capability_body),
                         style = MaterialTheme.typography.body1
                     )
-                    Spacer8()
+                    SpacerSmall()
                     Text(
                         stringResource(R.string.cdw_capability_more),
                         style = AppTheme.typography.body2l

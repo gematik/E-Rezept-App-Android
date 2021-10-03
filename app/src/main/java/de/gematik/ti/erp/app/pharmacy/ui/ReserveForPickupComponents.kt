@@ -93,12 +93,12 @@ import java.util.Locale
 fun ReserveForPickupInPharmacy(
     navController: NavController,
     viewModel: PharmacySearchViewModel,
-    taskIds: String?,
+    taskIds: List<String>,
     pharmacyName: String,
     telematikId: String
 ) {
     val prescriptions by produceState(initialValue = listOf<UIPrescriptionOrder>()) {
-        taskIds?.let { ids ->
+        taskIds.takeIf { it.isNotEmpty() }?.let { ids ->
             viewModel.fetchSelectedOrders(ids).collect { value = it }
         }
     }

@@ -41,10 +41,7 @@
     <string name="pres_bottombar_prescriptions">Prescriptions</string>
     <string name="pres_bottombar_messages">Messages</string>
     <string name="prescription_group_submit_ready">Redeem</string>
-    <plurals name="prescription_item_expiration_days">
-        <item quantity="one">Still valid for %s day</item>
-        <item quantity="other">Still valid for %s days</item>
-    </plurals>
+
     <string name="pres_edit_txt_place_holder">e.g. dermatologist</string>
     <!-- Camera Workflow -->
     <string name="txt_number_of_prescriptions_available" formatted="false">%s %s detected from %s %s. Scan more codes?</string>
@@ -313,7 +310,6 @@
     <string name="pharm_mail_header">Mail order</string>
     <string name="pres_detail_protocol_header">Log</string>
     <string name="pres_detail_protocol_empty_text">without stored action</string>
-    <string name="prescription_item_expiration_expired">expired</string>
     <string name="prescription_item_expiration_only_today">only valid today</string>
     <string name="pres_edit_txt_title">Rename prescription block</string>
     <string name="pres_edit_txt_info">You can assign a name for this prescription block.</string>

@@ -39,6 +39,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,8 +49,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
@@ -66,14 +68,23 @@ import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import java.util.Locale
 
 @Composable
-fun InsecureDeviceScreen(navController: NavController, mainViewModel: MainViewModel) {
+fun InsecureDeviceScreen(
+    navController: NavController,
+    mainViewModel: MainViewModel,
+    headline: String,
+    icon: Painter,
+    headlineBody: String,
+    infoText: String,
+    toggleDescription: String,
+    pinUseCase: Boolean = true
+) {
     var checked by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             NavigationTopAppBar(
                 NavigationBarMode.Close,
-                headline = stringResource(R.string.insecure_device_title),
+                headline = headline,
             ) { navController.popBackStack() }
         },
         bottomBar = {
@@ -81,14 +92,15 @@ fun InsecureDeviceScreen(navController: NavController, mainViewModel: MainViewMo
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        if (checked) {
+                        if (checked && pinUseCase) {
                             mainViewModel.onAcceptInsecureDevice()
                         }
                         navController.popBackStack()
                     },
-                    shape = RoundedCornerShape(PaddingDefaults.Small)
+                    shape = RoundedCornerShape(PaddingDefaults.Small),
+                    enabled = if (pinUseCase) true else checked
                 ) {
-                    if (checked) {
+                    if (checked && pinUseCase) {
                         Text(stringResource(R.string.understand).uppercase(Locale.getDefault()))
                     } else {
                         Text(stringResource(R.string.ok).uppercase(Locale.getDefault()))
@@ -106,25 +118,47 @@ fun InsecureDeviceScreen(navController: NavController, mainViewModel: MainViewMo
                 .padding(PaddingDefaults.Medium)
         ) {
             Image(
-                painterResource(R.drawable.laptop_woman_yellow),
+                icon,
                 null,
                 contentScale = ContentScale.FillWidth,
                 modifier = Modifier.fillMaxSize()
             )
             SpacerSmall()
             Text(
-                stringResource(R.string.insecure_device_header),
+                headlineBody,
                 style = MaterialTheme.typography.h6
             )
             SpacerSmall()
             Text(
-                stringResource(R.string.insecure_device_info),
+                infoText,
                 style = MaterialTheme.typography.body1
             )
+            if (!pinUseCase) {
+                val uriHandler = LocalUriHandler.current
+                SpacerMedium()
+                Text(
+                    stringResource(R.string.insecure_device_safetynet_more_info),
+                    style = MaterialTheme.typography.body2,
+                    color = AppTheme.colors.neutral600
+                )
+                SpacerSmall()
+                val link = stringResource(R.string.insecure_device_safetynet_link)
+                TextButton(
+                    modifier = Modifier.align(Alignment.End),
+                    onClick = { uriHandler.openUri(link) }
+                ) {
+                    Text(
+                        stringResource(id = R.string.insecure_device_safetynet_link_text),
+                        style = MaterialTheme.typography.body2,
+                        color = AppTheme.colors.primary600,
+                    )
+                }
+            }
             Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
             Toggle(
                 checked = checked,
-                onCheckedChange = { checked = it }
+                onCheckedChange = { checked = it },
+                description = toggleDescription
             )
         }
     }
@@ -135,6 +169,7 @@ private fun Toggle(
     modifier: Modifier = Modifier,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
+    description: String
 ) {
     Row(
         modifier = modifier
@@ -153,7 +188,7 @@ private fun Toggle(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Text(
-            stringResource(R.string.insecure_device_accept),
+            description,
             style = MaterialTheme.typography.subtitle1,
             modifier = Modifier.weight(1f)
         )

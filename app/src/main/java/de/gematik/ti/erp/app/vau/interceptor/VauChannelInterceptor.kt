@@ -25,7 +25,7 @@ import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
-import de.gematik.ti.erp.app.idp.secureRandomInstance
+import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.VauChannelSpec
 import de.gematik.ti.erp.app.vau.VauCryptoConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase

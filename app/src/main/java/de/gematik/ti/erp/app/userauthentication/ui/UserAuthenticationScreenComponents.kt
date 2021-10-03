@@ -67,6 +67,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
+import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.settings.ui.PasswordTextField
@@ -76,6 +77,7 @@ import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
 import de.gematik.ti.erp.app.utils.compose.HintCard
 import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
 import de.gematik.ti.erp.app.utils.compose.HintSmallImage
+import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -85,6 +87,7 @@ import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
+import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -113,6 +116,7 @@ fun UserAuthenticationScreen(userAuthViewModel: UserAuthenticationViewModel = hi
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .testId("auth_screen")
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
         ) {
@@ -300,16 +304,18 @@ private fun PasswordPrompt(
     val coroutineScope = rememberCoroutineScope()
 
     Dialog(
-        onDismissRequest = onCancel
+        onDismissRequest = onCancel,
     ) {
         Surface(
             modifier = Modifier
-                .fillMaxWidth(),
+                .fillMaxWidth()
+                .testId("userAuth"),
             shape = RoundedCornerShape(PaddingDefaults.Small)
         ) {
             Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
                 PasswordTextField(
                     modifier = Modifier
+                        .testId("auth/passwordInput")
                         .fillMaxWidth()
                         .heightIn(min = 56.dp),
                     value = password,
@@ -325,6 +331,9 @@ private fun PasswordPrompt(
                 )
                 SpacerLarge()
                 Row(horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()) {
+                    if (BuildConfig.DEBUG) {
+                        OutlinedDebugButton("SKIP", onClick = onAuthenticated)
+                    }
                     TextButton(
                         onClick = onCancel
                     ) {
@@ -340,7 +349,8 @@ private fun PasswordPrompt(
                                     onAuthenticationError()
                                 }
                             }
-                        }
+                        },
+                        modifier = Modifier.testId("auth/forward")
                     ) {
                         Text(stringResource(R.string.auth_prompt_check_password).uppercase(Locale.getDefault()))
                     }

@@ -20,12 +20,18 @@ package de.gematik.ti.erp.app.di
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.google.android.gms.safetynet.SafetyNet
+import com.google.android.gms.safetynet.SafetyNetClient
 import com.squareup.moshi.Moshi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import de.gematik.ti.erp.app.attestation.Attestation
+import de.gematik.ti.erp.app.attestation.AttestationReportGenerator
+import de.gematik.ti.erp.app.attestation.SafetyNetAttestationReportGenerator
+import de.gematik.ti.erp.app.attestation.SafetynetAttestation
 import javax.inject.Qualifier
 
 const val PREFERENCES_FILE_NAME = "appPrefs"
@@ -61,4 +67,18 @@ object ApplicationModule {
     fun providesDemoPrefs(@ApplicationContext context: Context): SharedPreferences {
         return context.getSharedPreferences(DEMO_PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
     }
+
+    @Provides
+    fun providesSafetyNetClient(@ApplicationContext context: Context): SafetyNetClient {
+        return SafetyNet.getClient(context)
+    }
+
+    @Provides
+    fun providesAttestationValidator(): AttestationReportGenerator = SafetyNetAttestationReportGenerator()
+
+    @Provides
+    fun providesAttestation(
+        @ApplicationContext context: Context,
+        client: SafetyNetClient,
+    ): Attestation = SafetynetAttestation(context, client)
 }

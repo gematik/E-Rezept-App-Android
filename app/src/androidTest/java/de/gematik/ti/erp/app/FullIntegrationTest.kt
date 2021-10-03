@@ -22,7 +22,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.centerY
@@ -110,13 +109,13 @@ class FullIntegrationTest {
 
         val foundStartupTag = awaitDisplay(
             5000L,
-            "onboarding/page1",
+            "onboarding/welcome",
             "pull2refresh",
         )
 
         when (foundStartupTag) {
-            "onboarding/page1" -> {
-                onboarding()
+            "onboarding/welcome" -> {
+                onBoarding()
                 prescriptionsRefresh()
                 cardWall()
             }
@@ -127,36 +126,41 @@ class FullIntegrationTest {
         }
     }
 
-    fun onboarding() {
-        composeTestRule.onNodeWithTag("onboarding/page1")
+    private fun onBoarding() {
+        composeTestRule.onNodeWithTag("onboarding/welcome")
             .assertIsDisplayed()
 
         performClickOnOnboardingNextButton()
 
-        composeTestRule.onNodeWithTag("onboarding/page2").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/features").assertIsDisplayed()
 
         performClickOnOnboardingNextButton()
 
-        composeTestRule.onNodeWithTag("onboarding/page3").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secureAppPage").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_1").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_1").performTextInput("a")
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_2").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_2").performTextInput("a")
 
         performClickOnOnboardingNextButton()
 
-        composeTestRule.onNodeWithTag("onboarding/page4").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/analytics").assertIsDisplayed()
+
+        performClickOnOnboardingNextButton()
+
+        composeTestRule.onNodeWithTag("onboarding/terms").assertIsDisplayed()
         composeTestRule.onNodeWithTag("onboarding/next")
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsNotEnabled()
-        composeTestRule.onNodeWithTag("onb_btn_accept_privacy").assertIsDisplayed().assertHasClickAction()
-            .assertIsToggleable().performClick()
-        composeTestRule.onNodeWithTag("onb_btn_accept_terms_of_use").assertIsDisplayed().assertHasClickAction()
-            .assertIsToggleable().performClick()
-        composeTestRule.onNodeWithTag("onboarding/next")
-            .assertIsDisplayed()
-            .assertHasClickAction()
-            .assertIsEnabled()
-            .performClick()
 
-        composeTestRule.onNodeWithTag("onboarding/page5").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onb_btn_accept_privacy").assertIsDisplayed()
+            .assertHasClickAction()
+            .assertIsToggleable().performClick()
+
+        composeTestRule.onNodeWithTag("onb_btn_accept_terms_of_use").assertIsDisplayed()
+            .assertHasClickAction()
+            .assertIsToggleable().performClick()
 
         performClickOnOnboardingNextButton()
     }
@@ -224,16 +228,25 @@ class FullIntegrationTest {
     }
 
     fun authenticationSelection() {
-        composeTestRule.onNodeWithTag("cardWall/authenticationSelection").assertIsDisplayed()
 
-        composeTestRule.onNodeWithTag("cardWall/next")
-            .assertIsNotEnabled()
+        val tag = awaitDisplay(
+            5000L,
+            "cardWall/authenticationSelection",
+            "cardWall/authentication",
+        )
 
-        composeTestRule.onNodeWithTag("cardWall/authenticationSelection/healthCard")
-            .assertIsDisplayed()
-            .performClick()
+        if (tag == "cardWall/authenticationSelection") {
+            composeTestRule.onNodeWithTag("cardWall/authenticationSelection").assertIsDisplayed()
 
-        performClickOnCardWallNextButton()
+            composeTestRule.onNodeWithTag("cardWall/next")
+                .assertIsNotEnabled()
+
+            composeTestRule.onNodeWithTag("cardWall/authenticationSelection/healthCard")
+                .assertIsDisplayed()
+                .performClick()
+
+            performClickOnCardWallNextButton()
+        }
     }
 
     fun authentication() {

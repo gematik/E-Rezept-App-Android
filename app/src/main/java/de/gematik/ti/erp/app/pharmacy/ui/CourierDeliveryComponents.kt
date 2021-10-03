@@ -61,13 +61,13 @@ import kotlinx.coroutines.flow.collect
 fun CourierDelivery(
     navigation: NavController,
     viewModel: PharmacySearchViewModel,
-    taskIds: String?,
+    taskIds: List<String>,
     pharmacyName: String,
     telematikId: String,
     pharmacyPhone: String
 ) {
     val prescriptions by produceState(initialValue = listOf<UIPrescriptionOrder>()) {
-        taskIds?.let { ids ->
+        taskIds.takeIf { it.isNotEmpty() }?.let { ids ->
             viewModel.fetchSelectedOrders(ids).collect { value = it }
         }
     }

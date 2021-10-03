@@ -50,7 +50,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -89,6 +88,7 @@ import de.gematik.ti.erp.app.redeem.ui.RedeemScreen
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.flow.collect
@@ -101,7 +101,7 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
     LaunchedEffect(Unit) {
         mainViewModel.authenticationMethod.collect {
             if (!mainViewModel.isNewUser && !(it == SettingsAuthenticationMethod.Password || it == SettingsAuthenticationMethod.DeviceSecurity)) {
-                navController.navigate(MainNavigationScreens.ReturningUserSecureAppOnboardingScreen.path()) {
+                navController.navigate(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
                     launchSingleTop = true
                     popUpTo(MainNavigationScreens.Prescriptions.path()) {
                         inclusive = true
@@ -121,6 +121,8 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
             }
         }
 
+    TrackNavigationChanges(navController)
+
     NavHost(
         navController,
         startDestination = startDestination
@@ -128,7 +130,7 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
         composable(MainNavigationScreens.Onboarding.route) {
             OnboardingScreen(navController)
         }
-        composable(MainNavigationScreens.ReturningUserSecureAppOnboardingScreen.route) {
+        composable(MainNavigationScreens.ReturningUserSecureAppOnboarding.route) {
             ReturningUserSecureAppOnboardingScreen(navController)
         }
         composable(
@@ -152,29 +154,42 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
             PrescriptionDetailsScreen(taskId, navController)
         }
         composable(
-            MainNavigationScreens.PharmacySearch.route,
-            MainNavigationScreens.PharmacySearch.arguments,
+            MainNavigationScreens.Pharmacies.route,
+            MainNavigationScreens.Pharmacies.arguments,
         ) {
-            val taskIds = remember { it.arguments?.getString("taskIds") }
+            val taskIds = remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
             PharmacySearchScreenWithNavigation(taskIds, navController)
         }
         composable(MainNavigationScreens.InsecureDeviceScreen.route) {
-            InsecureDeviceScreen(navController, mainViewModel)
+            InsecureDeviceScreen(
+                navController,
+                mainViewModel,
+                stringResource(id = R.string.insecure_device_title),
+                painterResource(id = R.drawable.laptop_woman_yellow),
+                stringResource(id = R.string.insecure_device_header),
+                stringResource(id = R.string.insecure_device_info),
+                stringResource(id = R.string.insecure_device_accept)
+            )
+        }
+        composable(MainNavigationScreens.SafetynetNotOkScreen.route) {
+            InsecureDeviceScreen(
+                navController,
+                mainViewModel,
+                stringResource(id = R.string.insecure_device_title_safetynet),
+                painterResource(id = R.drawable.laptop_woman_pink),
+                stringResource(id = R.string.insecure_device_header_safetynet),
+                stringResource(id = R.string.insecure_device_info_safetynet),
+                stringResource(id = R.string.insecure_device_accept_safetynet),
+                pinUseCase = false
+            )
         }
         composable(
             MainNavigationScreens.RedeemLocally.route,
             MainNavigationScreens.RedeemLocally.arguments
         ) {
-            val taskIds =
-                remember {
-                    requireNotNull(
-                        navController.currentBackStackEntry?.arguments?.getString(
-                            "taskIds"
-                        )
-                    )
-                }
+            val taskIds = remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
             RedeemScreen(
-                taskIds.split(","),
+                taskIds,
                 navController
             )
         }
@@ -212,11 +227,19 @@ private fun MainScreenWithScaffold(
         }
     }
 
+    LaunchedEffect(Unit) {
+        mainViewModel.showSafetynetPrompt.collect {
+            if (!it) {
+                mainNavController.navigate(MainNavigationScreens.SafetynetNotOkScreen.route)
+            }
+        }
+    }
+
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
     val currentRedeemEvent by produceState(
         RedeemEvent(
-            "",
+            emptyList(),
             false
         )
     ) {
@@ -261,7 +284,7 @@ private fun MainScreenWithScaffold(
             ) {
                 mainNavController.navigate(
                     MainNavigationScreens.RedeemLocally.path(
-                        currentRedeemEvent.taskIds
+                        TaskIds(currentRedeemEvent.taskIds)
                     )
                 )
             }
@@ -277,8 +300,8 @@ private fun MainScreenWithScaffold(
             ) {
                 if (currentRedeemEvent.isFullDetail) {
                     mainNavController.navigate(
-                        MainNavigationScreens.PharmacySearch.path(
-                            currentRedeemEvent.taskIds
+                        MainNavigationScreens.Pharmacies.path(
+                            TaskIds(currentRedeemEvent.taskIds)
                         )
                     )
                 } else {
@@ -336,7 +359,7 @@ private fun MainScreenBottomNavigation(
                     when (screen) {
                         MainNavigationScreens.Prescriptions -> "erx_btn_prescriptions"
                         MainNavigationScreens.Messages -> "erx_btn_messages"
-                        MainNavigationScreens.PharmacySearch -> "erx_btn_search_pharmacies"
+                        MainNavigationScreens.Pharmacies -> "erx_btn_search_pharmacies"
                         else -> ""
                     }
                 ),
@@ -353,7 +376,7 @@ private fun MainScreenBottomNavigation(
                             if (unreadMessagesAvailable) Icons.Outlined.MarkChatUnread else Icons.Outlined.MarkChatRead,
                             null
                         )
-                        MainNavigationScreens.PharmacySearch -> Icon(
+                        MainNavigationScreens.Pharmacies -> Icon(
                             Icons.Outlined.Search, contentDescription = null
                         )
                     }
@@ -364,7 +387,7 @@ private fun MainScreenBottomNavigation(
                             when (screen) {
                                 MainNavigationScreens.Prescriptions -> R.string.pres_bottombar_prescriptions
                                 MainNavigationScreens.Messages -> R.string.pres_bottombar_messages
-                                MainNavigationScreens.PharmacySearch -> R.string.pres_bottombar_pharmacies
+                                MainNavigationScreens.Pharmacies -> R.string.pres_bottombar_pharmacies
                                 else -> R.string.pres_bottombar_prescriptions
                             }
                         ),
@@ -372,7 +395,7 @@ private fun MainScreenBottomNavigation(
                             when (screen) {
                                 MainNavigationScreens.Prescriptions -> "erx_btn_prescriptions"
                                 MainNavigationScreens.Messages -> "erx_btn_messages"
-                                MainNavigationScreens.PharmacySearch -> "erx_btn_search_pharmacies"
+                                MainNavigationScreens.Pharmacies -> "erx_btn_search_pharmacies"
                                 else -> ""
                             }
                         )
@@ -382,7 +405,7 @@ private fun MainScreenBottomNavigation(
                 alwaysShowLabel = true,
                 onClick = {
                     if (currentRoute != screen.route) {
-                        if (screen.route == MainNavigationScreens.PharmacySearch.route) {
+                        if (screen.route == MainNavigationScreens.Pharmacies.route) {
                             navController.navigate(screen.path())
                         } else {
                             bottomNavController.navigate(screen.path())

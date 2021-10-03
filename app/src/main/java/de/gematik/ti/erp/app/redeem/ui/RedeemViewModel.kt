@@ -41,10 +41,13 @@ import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
 
+@Stable
+data class BitMatrixCode(val matrix: BitMatrix)
+
 object RedeemScreen {
     @Stable
     data class SingleCode(
-        val matrix: BitMatrix,
+        val matrixCode: BitMatrixCode,
         val nrOfCodes: Int,
         val isScanned: Boolean
     )
@@ -127,7 +130,7 @@ class RedeemViewModel @Inject constructor(
                     }
                     val json = createPayload(urls).toString().replace("\\", "")
                     RedeemScreen.SingleCode(
-                        createBitMatrix(json),
+                        BitMatrixCode(createBitMatrix(json)),
                         urls.size,
                         tasksList.first().first
                     )

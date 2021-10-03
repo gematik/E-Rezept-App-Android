@@ -21,12 +21,12 @@ package de.gematik.ti.erp.app.cardwall.ui.model
 sealed class CardWallNavigation(
     val route: String
 ) {
-    object Intro : CardWallNavigation("Intro")
-    object IntroMissingCapabilities : CardWallNavigation("IntroMissingCapabilities")
-    object CardAccessNumber : CardWallNavigation("CardAccessNumber")
-    object PersonalIdentificationNumber : CardWallNavigation("PersonalIdentificationNumber")
-    object AuthenticationSelection : CardWallNavigation("AuthenticationSelection")
-    object Authentication : CardWallNavigation("Authentication")
-    object Happy : CardWallNavigation("Happy")
-    object HealthCardHelper : CardWallNavigation("Helper")
+    object Intro : CardWallNavigation("CardWallIntro")
+    object IntroMissingCapabilities : CardWallNavigation("CardWallIntroMissingCapabilities")
+    object CardAccessNumber : CardWallNavigation("CardWallCardAccessNumber")
+    object PersonalIdentificationNumber : CardWallNavigation("CardWallPersonalIdentificationNumber")
+    object AuthenticationSelection : CardWallNavigation("CardWallAuthenticationSelection")
+    object Authentication : CardWallNavigation("CardWallAuthentication")
+    object Happy : CardWallNavigation("CardWallHappy")
+    object HealthCardHelper : CardWallNavigation("CardWallHealthCardHelper")
 }

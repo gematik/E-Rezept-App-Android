@@ -110,8 +110,9 @@ fun BiometricPrompt(
                 .setTitle(title)
                 .setDescription(description)
                 .apply {
-                    if (secureOption != BiometricManager.Authenticators.DEVICE_CREDENTIAL)
+                    if ((secureOption and BiometricManager.Authenticators.DEVICE_CREDENTIAL) == 0) {
                         setNegativeButtonText(negativeButton)
+                    }
                 }.setAllowedAuthenticators(
                     secureOption
                 )
@@ -131,7 +132,6 @@ fun BiometricPrompt(
 }
 
 private fun bestSecureOption(biometricManager: BiometricManager): Int {
-
     when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
         BiometricManager.BIOMETRIC_SUCCESS,
         BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return BiometricManager.Authenticators.BIOMETRIC_STRONG
@@ -144,5 +144,9 @@ private fun bestSecureOption(biometricManager: BiometricManager): Int {
         BiometricManager.BIOMETRIC_SUCCESS,
         BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return BiometricManager.Authenticators.DEVICE_CREDENTIAL
     }
-    return BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    return if (android.os.Build.VERSION.SDK_INT < 30) {
+        BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_WEAK
+    } else {
+        BiometricManager.Authenticators.DEVICE_CREDENTIAL
+    }
 }

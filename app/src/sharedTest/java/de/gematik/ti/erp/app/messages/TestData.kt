@@ -19,8 +19,10 @@
 package de.gematik.ti.erp.app.messages
 
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.attestation.SafetynetResult
 import de.gematik.ti.erp.app.db.entities.Communication
 import de.gematik.ti.erp.app.db.entities.CommunicationProfile
+import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
 import de.gematik.ti.erp.app.messages.ui.models.ErrorUIMessage
 import de.gematik.ti.erp.app.messages.ui.models.UIMessage
 
@@ -64,3 +66,11 @@ fun listOfCommunicationsRead() =
 
 fun listOfCommunicationsUnread() =
     listOf(communicationOnPremise())
+
+fun safetynetAttestationEntity() =
+    SafetynetAttestationEntity(id = 0, jws = "", ourNonce = "".toByteArray())
+
+fun listOfAttestationEntities() =
+    listOf(safetynetAttestationEntity())
+
+fun safetynetResult() = SafetynetResult("")

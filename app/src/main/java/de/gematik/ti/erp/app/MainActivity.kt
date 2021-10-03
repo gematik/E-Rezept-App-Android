@@ -40,10 +40,12 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import dagger.hilt.android.AndroidEntryPoint
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.LocalTracker
 import de.gematik.ti.erp.app.core.MainContent
 import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.di.NavigationObservable
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
+import de.gematik.ti.erp.app.tracking.Tracker
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
@@ -63,6 +65,9 @@ class MainActivity : AppCompatActivity() {
 
     @Inject
     lateinit var navigationObservable: NavigationObservable
+
+    @Inject
+    lateinit var tracker: Tracker
 
     @Inject
     @ApplicationPreferences
@@ -92,16 +97,19 @@ class MainActivity : AppCompatActivity() {
         }
 
         setContent {
-            CompositionLocalProvider(LocalActivity provides this) {
+            CompositionLocalProvider(
+                LocalActivity provides this,
+                LocalTracker provides tracker
+            ) {
                 MainContent { mainViewModel ->
                     val auth by authenticationModeAndMethod.collectAsState(null)
 
                     val navController = rememberNavController()
 
                     Box(modifier = Modifier.fillMaxSize()) {
-                        if (auth == AuthenticationModeAndMethod.Authenticated) {
-                            MainScreen(navController, mainViewModel)
-                        }
+                        // required to stay; otherwise the state of the sub nav-controllers won't be loaded
+                        MainScreen(navController, mainViewModel)
+
                         AnimatedVisibility(
                             visible = auth is AuthenticationModeAndMethod.AuthenticationRequired,
                             enter = fadeIn(),

@@ -21,45 +21,45 @@ package de.gematik.ti.erp.app.vau.api.model
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonWriter
 import com.squareup.moshi.ToJson
-import org.apache.commons.codec.binary.Base64
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.ocsp.OCSPResp
+import org.bouncycastle.util.encoders.Base64
 
 class OCSPAdapter {
     @FromJson
     fun fromJson(ocspRespAsBase64: String): OCSPResp {
-        val bytes = Base64.decodeBase64(ocspRespAsBase64)
+        val bytes = Base64.decode(ocspRespAsBase64)
         return OCSPResp(bytes)
     }
 
     @ToJson
     fun toJson(writer: JsonWriter, ocspResp: OCSPResp) {
-        writer.jsonValue(Base64.encodeBase64String(ocspResp.encoded!!))
+        writer.jsonValue(Base64.toBase64String(ocspResp.encoded!!))
     }
 }
 
 class X509Adapter {
     @FromJson
     fun fromJson(x509AsBase64: String): X509CertificateHolder {
-        val x509Bytes = Base64.decodeBase64(x509AsBase64)
+        val x509Bytes = Base64.decode(x509AsBase64)
         return X509CertificateHolder(x509Bytes)
     }
 
     @ToJson
     fun toJson(writer: JsonWriter, cert: X509CertificateHolder) {
-        writer.jsonValue(Base64.encodeBase64String(cert.encoded!!))
+        writer.jsonValue(Base64.toBase64String(cert.encoded!!))
     }
 }
 
 class X509ArrayAdapter {
     @FromJson
     fun fromJson(x509AsBase64: Array<String>): X509CertificateHolder {
-        val x509Bytes = Base64.decodeBase64(x509AsBase64[0])
+        val x509Bytes = Base64.decode(x509AsBase64[0])
         return X509CertificateHolder(x509Bytes)
     }
 
     @ToJson
     fun toJson(writer: JsonWriter, cert: X509CertificateHolder) {
-        writer.jsonValue(Base64.encodeBase64String(cert.encoded!!))
+        writer.jsonValue(Base64.toBase64String(cert.encoded!!))
     }
 }

@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.toSize
 import androidx.hilt.navigation.compose.hiltViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.tracking.Tracker
 import de.gematik.ti.erp.app.utils.compose.WindowDecorationColors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
@@ -60,10 +61,11 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
-typealias ViewModelSet = Set<BaseViewModel>
-
 val LocalActivity =
     staticCompositionLocalOf<ComponentActivity> { error("No activity provided!") }
+
+val LocalTracker =
+    staticCompositionLocalOf<Tracker> { error("No tracker provided!") }
 
 @Composable
 fun MainContent(

@@ -45,15 +45,6 @@ class TwoDCodeValidatorTest {
         OffsetDateTime.now()
     )
 
-    private val scannedTask1WithGs1Prefix = ScannedCode(
-        29.toChar() + "{\n" +
-            "  \"urls\": [\n" +
-            "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\"\n" +
-            "  ]\n" +
-            "}",
-        OffsetDateTime.now()
-    )
-
     private val scannedTask3 = ScannedCode(
         "{\n" +
             "  \"urls\": [\n" +
@@ -135,12 +126,6 @@ class TwoDCodeValidatorTest {
     @Test
     fun `validate 1 task json - returns checked bundle with 1 task`() {
         val checkedBundle = validator.validate(scannedTask1)
-        assertEquals(checkedTask1.urls, checkedBundle!!.urls)
-    }
-
-    @Test
-    fun `validate 1 task with gs1 prefix json - returns checked bundle with 1 task`() {
-        val checkedBundle = validator.validate(scannedTask1WithGs1Prefix)
         assertEquals(checkedTask1.urls, checkedBundle!!.urls)
     }
 

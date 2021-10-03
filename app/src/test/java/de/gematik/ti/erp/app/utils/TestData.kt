@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailScanned
 import de.gematik.ti.erp.app.prescription.usecase.createMatrixCode
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
@@ -189,7 +190,7 @@ fun detailPrescriptionScanned(scannedOn: OffsetDateTime = OffsetDateTime.now()) 
         unRedeemMorePossible = true
     )
 
-fun testMatrix() = createMatrixCode("Task/$4711/\$accept?ac=accessCode")
+fun testMatrix() = BitMatrixCode(createMatrixCode("Task/$4711/\$accept?ac=accessCode"))
 
 fun challenge(challenge: String): Challenge? {
     val moshi = Moshi.Builder().build()

@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp
 
+import de.gematik.ti.erp.app.generateRandomAES256Key
 import kotlinx.coroutines.runBlocking
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.jose4j.jwe.JsonWebEncryption

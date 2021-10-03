@@ -30,12 +30,13 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 
 @Composable
 fun PharmacySearchScreenWithNavigation(
-    taskIds: String?,
+    taskIds: List<String>,
     mainNavController: NavController,
     viewModel: PharmacySearchViewModel = hiltViewModel()
 ) {
@@ -45,6 +46,8 @@ fun PharmacySearchScreenWithNavigation(
     }
 
     val navigationMode by navController.navigationModeState(PharmacyNavigationScreens.SearchResults.route)
+
+    TrackNavigationChanges(navController)
 
     NavHost(
         navController,
@@ -66,7 +69,7 @@ fun PharmacySearchScreenWithNavigation(
                     PharmacyDetailsScreen(
                         navController,
                         pharmacy,
-                        showRedeemOptions = !taskIds.isNullOrEmpty()
+                        showRedeemOptions = !taskIds.isEmpty()
                     )
                 }
             }

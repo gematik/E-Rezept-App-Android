@@ -19,13 +19,13 @@
 package de.gematik.ti.erp.app.pharmacy.usecase.model
 
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import de.gematik.ti.erp.app.pharmacy.repository.model.Location
 import de.gematik.ti.erp.app.pharmacy.repository.model.OpeningHours
 import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyContacts
 import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyService
 import de.gematik.ti.erp.app.pharmacy.repository.model.RoleCode
 import kotlinx.parcelize.Parcelize
-import javax.annotation.concurrent.Immutable
 
 object PharmacyUseCaseData {
     @Parcelize
@@ -41,7 +41,7 @@ object PharmacyUseCaseData {
     }
 
     /**
-     *  Represents a pharmacy.
+     * Represents a pharmacy.
      */
     @Parcelize
     @Immutable
@@ -63,13 +63,29 @@ object PharmacyUseCaseData {
         }
     }
 
-    data class SearchData(val name: String, val filter: Filter, val location: Location?)
+    sealed class LocationMode {
+        /**
+         * We only store the information if gps was enabled and not the actual position.
+         */
+        @Parcelize
+        @Immutable
+        object EnabledWithoutPosition : LocationMode(), Parcelable
+        @Parcelize
+        @Immutable
+        object Disabled : LocationMode(), Parcelable
+        @Parcelize
+        @Immutable
+        class Enabled(val location: Location) : LocationMode(), Parcelable
+    }
+
+    @Immutable
+    data class SearchData(val name: String, val filter: Filter, val locationMode: LocationMode)
 
     /**
-     *  State with list of pharmacies
+     * State with list of pharmacies
      */
     data class State(
-        val search: SearchData?,
+        val search: SearchData,
         val showLocationHint: Boolean
     )
 }

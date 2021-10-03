@@ -97,11 +97,11 @@ fun DisplayPickupScreen(
                 Spacer8()
             }
             pickupCodeDMC?.let {
-                val bitMatrix = remember { viewModel.createBitmapMatrix(it) }
+                val code = remember { viewModel.createBitmapMatrix(it) }
 
                 Spacer8()
                 DataMatrixCode(
-                    bitMatrix,
+                    code,
                     modifier = Modifier
                         .aspectRatio(1.0f)
                 )

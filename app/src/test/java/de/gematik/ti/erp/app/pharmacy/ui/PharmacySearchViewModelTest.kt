@@ -53,7 +53,7 @@ class PharmacySearchViewModelTest {
     fun setUp() {
         useCase = mockk()
         hintUseCase = mockk()
-        viewModel = PharmacySearchViewModel(useCase, hintUseCase, coroutineRule.testDispatchProvider)
+        viewModel = PharmacySearchViewModel(mockk(), useCase, hintUseCase, coroutineRule.testDispatchProvider)
     }
 
     @Test
@@ -64,7 +64,7 @@ class PharmacySearchViewModelTest {
                     listOfUIPrescriptions()
                 )
             }
-            viewModel.fetchSelectedOrders("").collect {
+            viewModel.fetchSelectedOrders(listOf("")).collect {
                 assertTrue(it.isNotEmpty())
             }
         }
@@ -80,7 +80,7 @@ class PharmacySearchViewModelTest {
                     )
                 )
             }
-            viewModel.fetchSelectedOrders("").collect {
+            viewModel.fetchSelectedOrders(listOf("")).collect {
                 assertFalse(it.first().selected)
             }
         }
@@ -98,7 +98,7 @@ class PharmacySearchViewModelTest {
                     )
                 )
             }
-            viewModel.fetchSelectedOrders("").collect {
+            viewModel.fetchSelectedOrders(listOf("")).collect {
                 assertTrue(it.first().selected)
             }
         }

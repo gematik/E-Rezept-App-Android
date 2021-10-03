@@ -36,12 +36,14 @@ import de.gematik.ti.erp.app.db.MIGRATION_4_5
 import de.gematik.ti.erp.app.db.MIGRATION_5_6
 import de.gematik.ti.erp.app.db.MIGRATION_6_7
 import de.gematik.ti.erp.app.db.MIGRATION_7_8
+import de.gematik.ti.erp.app.db.MIGRATION_8_9
+import de.gematik.ti.erp.app.db.MIGRATION_9_10
 import de.gematik.ti.erp.app.db.converter.TruststoreConverter
-import java.util.UUID
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
+import java.util.UUID
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -70,7 +72,17 @@ object RoomModule {
             AppDatabase::class.java,
             "db"
         )
-            .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+            .addMigrations(
+                MIGRATION_1_2,
+                MIGRATION_2_3,
+                MIGRATION_3_4,
+                MIGRATION_4_5,
+                MIGRATION_5_6,
+                MIGRATION_6_7,
+                MIGRATION_7_8,
+                MIGRATION_8_9,
+                MIGRATION_9_10
+            )
             .addTypeConverter(truststoreConverter)
             .openHelperFactory(factory)
             .build()

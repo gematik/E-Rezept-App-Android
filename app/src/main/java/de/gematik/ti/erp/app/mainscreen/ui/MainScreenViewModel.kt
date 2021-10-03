@@ -32,7 +32,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 
 data class RedeemEvent(
-    val taskIds: String,
+    val taskIds: List<String>,
     val isFullDetail: Boolean
 )
 
@@ -65,10 +65,10 @@ class MainScreenViewModel @Inject constructor(
             _onRedeemEvent.emit(
                 when (recipe) {
                     is PrescriptionUseCaseData.Recipe.Synced -> {
-                        RedeemEvent(recipe.prescriptions.joinToString(",") { it.taskId }, true)
+                        RedeemEvent(recipe.prescriptions.map { it.taskId }, true)
                     }
                     is PrescriptionUseCaseData.Recipe.Scanned -> {
-                        RedeemEvent(recipe.prescriptions.joinToString(",") { it.taskId }, false)
+                        RedeemEvent(recipe.prescriptions.map { it.taskId }, false)
                     }
                 }
             )
@@ -80,8 +80,8 @@ class MainScreenViewModel @Inject constructor(
 
             _onRedeemEvent.emit(
                 RedeemEvent(
-                    recipes.joinToString(",") { recipe ->
-                        recipe.prescriptions.joinToString(",") { it.taskId }
+                    recipes.flatMap { prescription ->
+                        prescription.prescriptions.map { it.taskId }
                     },
                     false
                 )
@@ -93,8 +93,8 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch {
             _onRedeemEvent.emit(
                 RedeemEvent(
-                    recipes.joinToString(",") { recipe ->
-                        recipe.prescriptions.joinToString(",") { it.taskId }
+                    recipes.flatMap { prescription ->
+                        prescription.prescriptions.map { it.taskId }
                     },
                     true
                 )

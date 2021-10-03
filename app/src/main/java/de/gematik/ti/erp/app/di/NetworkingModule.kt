@@ -64,7 +64,7 @@ private const val NETWORK_SECURE_PREFS_FILE_NAME = "networkingSecurePrefs"
 private const val NETWORK_PREFS_FILE_NAME = "networkingPrefs"
 private const val MASTER_KEY_ALIAS = "netWorkMasterKey"
 
-private const val USER_AGENT = "eRp-App-Android/1.0.9 GMTIK/eRezeptApp"
+private const val USER_AGENT = "eRp-App-Android/1.0.12 GMTIK/eRezeptApp"
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

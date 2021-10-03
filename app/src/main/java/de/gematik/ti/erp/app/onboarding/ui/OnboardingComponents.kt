@@ -119,6 +119,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.core.LocalActivity
@@ -137,6 +138,7 @@ import de.gematik.ti.erp.app.userauthentication.ui.BiometricPrompt
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.LargeButton
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
+import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer4
@@ -198,7 +200,7 @@ fun ReturningUserSecureAppOnboardingScreen(
                         }
                         mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
                             launchSingleTop = true
-                            popUpTo(MainNavigationScreens.ReturningUserSecureAppOnboardingScreen.path()) {
+                            popUpTo(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
                                 inclusive = true
                             }
                         }
@@ -402,6 +404,16 @@ private fun OnboardingScreenWithScaffold(
                     onSaveNewUser(allowTracking, secureMethod)
                 }
             )
+
+            if (BuildConfig.DEBUG) {
+                OutlinedDebugButton(
+                    "SKIP",
+                    onClick = {
+                        onSaveNewUser(false, SecureAppMethod.Password("a", "a"))
+                    },
+                    modifier = Modifier.align(Alignment.BottomStart).padding(PaddingDefaults.Medium)
+                )
+            }
         }
     }
 }
@@ -569,7 +581,7 @@ private fun OnboardingWelcome(modifier: Modifier, swipeableState: SwipeableState
     val body = stringResource(R.string.on_boarding_page_1_headline)
 
     Column(
-        modifier = modifier.testTag("onboarding/page1")
+        modifier = modifier.testTag("onboarding/welcome")
     ) {
         Row(
             modifier = Modifier
@@ -583,7 +595,8 @@ private fun OnboardingWelcome(modifier: Modifier, swipeableState: SwipeableState
 
         Image(
             eRpLogo, null,
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
                 .padding(top = PaddingDefaults.XLarge)
                 .testId("onb_img_erp_logo")
         )
@@ -633,7 +646,7 @@ private fun OnboardingAppFeatures(modifier: Modifier) {
     val imageAcc = stringResource(R.string.on_boarding_page_3_acc_image)
     Column(
         modifier = modifier
-            .testTag("onboarding/page3")
+            .testTag("onboarding/features")
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
@@ -688,7 +701,7 @@ private fun OnboardingPageAnalytics(
 
     Column(
         modifier = modifier
-            .testTag("onboarding/page5")
+            .testTag("onboarding/analytics")
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
@@ -755,7 +768,7 @@ private fun OnboardingPageTerms(
 
     Column(
         modifier = modifier
-            .testTag("onboarding/page4")
+            .testTag("onboarding/terms")
             .fillMaxSize()
             .verticalScroll(rememberScrollState())
     ) {
@@ -960,6 +973,7 @@ private fun OnboardingSecureApp(
 
         PasswordTextField(
             modifier = Modifier
+                .testTag("onboarding/secure_text_input_1")
                 .fillMaxWidth()
                 .onFocusChanged {
                     passwordFieldIsFocused = it.isFocused
@@ -987,7 +1001,10 @@ private fun OnboardingSecureApp(
                 SpacerMedium()
 
                 ConfirmationPasswordTextField(
-                    modifier = Modifier.fillMaxWidth().focusRequester(focusRequester),
+                    modifier = Modifier
+                        .testTag("onboarding/secure_text_input_2")
+                        .fillMaxWidth()
+                        .focusRequester(focusRequester),
                     password = password,
                     value = repeatedPassword,
                     onValueChange = {

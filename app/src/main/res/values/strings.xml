@@ -46,7 +46,13 @@
     <string name="pres_bottombar_messages">Mitteilungen</string>
     <string name="pres_bottombar_pharmacies">Apotheken</string>
     <string name="prescription_group_submit_ready">Einlösen</string>
-    <plurals name="prescription_item_expiration_days">
+
+    <plurals name="prescription_item_expiration_days_new">
+        <item quantity="one">Noch %s Tag als Selbstzahlender einlösbar</item>
+        <item quantity="other">Noch %s Tage als Selbstzahlender einlösbar</item>
+    </plurals>
+
+    <plurals name="prescription_item_accept_days">
         <item quantity="one">Noch %s Tag gültig</item>
         <item quantity="other">Noch %s Tage gültig</item>
     </plurals>
@@ -90,6 +96,8 @@
     <string name="cdw_intro_title">Jetzt alle Funktionen nutzen</string>
     <string name="cdw_intro_body">Um alle Funktionen der App nutzen zu können, melden Sie sich mit Ihrer Gesundheitskarte an. Diese Karte sowie die benötigen Zugangsdaten erhalten Sie von Ihrer Krankenversicherung.</string>
     <string name="cdw_intro_what_you_need">Was Sie benötigen:</string>
+    <string name="cdw_intro_what_you_need_no_egk">Wie erhalte ich eine neue Gesundheitskarte? Hier hilft Ihnen Ihre Krankenversicherung.</string>
+
     <string name="cdw_intro_what_you_need_egk">Eine Gesundheitskarte mit Zugangsnummer (CAN)</string>
     <string name="cdw_intro_what_you_need_pin">Die PIN zur Gesundheitskarte</string>
     <!-- Cardwall: Capability -->
@@ -277,6 +285,8 @@
     <string name="scanned_prescription_detail_protocol_scanned_label">Gescannt am</string>
     <string name="scanned_prescription_detail_protocol_scanned_at">%1$s Uhr</string>
     <string name="pres_detail_medication_valid_until">Noch einlösbar bis %s</string>
+    <string name="pres_detail_medication_expiry_until">Als Selbstzahler noch einlösbar bis %s</string>
+
     <string name="pres_detail_medication_header">Details zu diesem Medikament</string>
     <string name="pres_detail_medication_label_dosage_form">Darreichungsform</string>
     <string name="pres_detail_medication_label_normsize">Packungsgröße</string>
@@ -353,8 +363,12 @@
     <string name="pharm_mail_header">Versand</string>
     <string name="pres_detail_protocol_header">Protokoll</string>
     <string name="pres_detail_protocol_empty_text">ohne hinterlegte Aktion</string>
-    <string name="prescription_item_expiration_expired">abgelaufen</string>
-    <string name="prescription_item_expiration_only_today">nur noch heute gültig</string>
+
+    <string name="prescription_item_accept_only_today">nur noch heute gültig</string>
+
+    <string name="prescription_item_expiration_only_today">Nur noch heute als Selbstzahlender einlösbar</string>
+    <string name="prescription_item_expired">Nicht mehr gültig</string>
+
     <string name="pres_edit_txt_title">Rezeptblock umbenennen</string>
     <string name="pres_edit_txt_info">Sie können einen Namen für diesen Rezeptblock vergeben.</string>
     <string name="cdw_top_bar_title">Anmelden</string>
@@ -466,6 +480,9 @@
     <string name="contact_email_no_client">Kein E-Mail-Programm eingerichtet</string>
     <string name="search_pharmacy_nothing_found_header">Keine Ergebnisse</string>
     <string name="search_pharmacy_nothing_found_info">Unter diesem Suchbegriff konnten wir keine Ergebnisse finden.</string>
+    <string name="search_pharmacy_error_title">Keine Verbindung zum Server</string>
+    <string name="search_pharmacy_error_subtitle">Bitte probieren Sie es in einigen Minuten erneut</string>
+    <string name="search_pharmacy_error_action">Erneut laden</string>
     <string name="settings_legal_licences">Open Source Lizenzen</string>
     <string name="settings_contact_headline">Kontakt</string>
     <string name="settings_contact_hotline">Technische Hotline anrufen</string>
@@ -537,11 +554,6 @@
     <string name="messages_contact_email_data_transparency">Die folgenden Informationen würde ich gerne dem Service-Team mitteilen, damit die Fehlersuche durchgeführt werden kann. Bitte beachten Sie, dass wir auch Ihre eMail-Adresse sowie ggf. Ihren Namen erfahren, wenn Sie ihn als Absender der eMail konfiguriert haben. Wenn Sie diese Informationen ganz oder teilweise nicht übermitteln möchten, löschen Sie diese bitte aus der Mail. Alle Daten werden von der gematik GmbH oder deren beauftragten Unternehmen nur zur Bearbeitung dieser Fehlermeldung gespeichert und verarbeitet. Die Löschung erfolgt automatisiert, spätestens 180 Tage nach Erledigung des Tickets. Ihre eMail-Adresse nutzen wir ausschließlich, um mit Ihnen Kontakt in Bezug auf diese Fehlermeldung aufzunehmen. Für Fragen oder eine vorzeitige Löschung können Sie sich jederzeit an den Datenschutzverantwortlichen des E-Rezept Systems wenden. Sie finden weitere Informationen in der E-Rezept App im Menü unter dem Datenschutz-Eintrag.</string>
     <string name="messages_contact_email_error_code">Fehler 40 42 67336</string>
 
-    <string name="cdw_helper_top_title">Gesundheitskarte</string>
-    <string name="cdw_helper_acknowledged">Verstanden</string>
-    <string name="cdw_helper_title">Neue Gesundheitskarte beantragen</string>
-    <string name="cdw_helper_text">Diese App hilft Ihnen dabei, eine neue elektronische Gesundheitskarte zu beantragen. Es entstehen Ihnen hierbei keine Kosten.</string>
-
     <string name="insecure_device_title">Hinweis</string>
     <string name="insecure_device_header">Für dieses Gerät wurde keine Gerätesicherung eingerichtet</string>
     <string name="insecure_device_info">Wir empfehlen Ihnen, Ihre medizinischen Daten zusätzlich durch eine Gerätesicherung wie beispielsweise einen Code oder Biometrie zu schützen.</string>
@@ -573,19 +585,30 @@
     <string name="search_pharmacies_location_na_info">Möglicherweise ist die Standortfreigabe in den Einstellungen deaktiviert.</string>
     <string name="search_pharmacies_location_na_header">Kein Standort verfügbar</string>
 
-    <!--    eGK Helper-->
-    <string name="cdw_helper_health_insurance_header">Krankenkasse</string>
-    <string name="cdw_helper_kvnr">Versichertennummer</string>
-    <string name="cdw_helper_send">Mail senden</string>
-    <string name="cdw_helper_mail_subject" translatable="false">#eGKPIN# Bestellung einer NFC-fähigen Gesundheitskarte inklusive PIN</string>
-    <string name="cdw_helper_mail_body" translatable="false">Sehr geehrte Damen und Herren,\n\nich möchte das E-Rezept der gematik nutzen.\n\nBitte senden Sie mir hierfür eine NFC-fähige Gesundheitskarte zu.\n\nIch benötige zu der Gesundheitskarte auch die PIN.\n\nBitte leiten Sie gleich das Identifikationsverfahren ein. Sollte das bei der %1$s nicht direkt möglich sein, senden Sie mir bitte detaillierte Informationen zu, wie ich die PIN erhalten kann.\n\nMeine KVNR ist: %2$s\n\nBeste Grüße,\n\nIhre Versicherte / Ihr Versicherter</string>
-    <string name="cdw_helper_dropdown_default">Krankenversicherung wählen</string>
-    <string name="cdw_helper_error_input_security_number">Bitte überprüfen Sie ihre Eingabe</string>
-    <string name="cdw_helper_label_input_security_number">Versichertennummer</string>
-
-
     <string name="error_message_network_not_available">Verbindung fehlgeschlagen. Eine Netzwerkverbindung konnte nicht aufgebaut werden.</string>
     <string name="error_message_server_communication_failed">Kommunikation mit dem Server fehlgeschlagen: Statuscode %s.</string>
     <string name="error_message_vau_error">Kommunikation mit dem Server fehlgeschlagen: VAU Fehler</string>
     <string name="settings_no_active_token">Keine aktiven Tokens</string>
+    <string name="prescription_detail_redeemed">Als eingelöst markiert</string>
+    <string name="prescription_detail_un_redeemed">Als nicht eingelöst markiert</string>
+    <string name="insecure_device_title_safetynet">Warnung</string>
+    <string name="insecure_device_header_safetynet">Diesem Gerät darf eventuell nicht voll vertraut werden</string>
+    <string name="insecure_device_info_safetynet">Diese App sollte aus Sicherheitsgründen nicht auf gerooteten Geräten genutzt werden.</string>
+    <string name="insecure_device_accept_safetynet">Ich nehme das erhöhte Risiko zur Kenntnis und möchte dennoch fortfahren.</string>
+    <string name="insecure_device_safetynet_more_info">Weshalb sind Geräte mit Root-Zugriff ein potentielles Sicherheitsrisiko?</string>
+    <string name="insecure_device_safetynet_link_text">Mehr erfahren</string>
+    <string name="insecure_device_safetynet_link">https://www.bsi.bund.de/SharedDocs/Glossareintraege/DE/R/Rooten.html</string>
+
+    <string name="cdw_health_card_info_title">Hinweis</string>
+    <string name="cdw_healthcard_info_headline">Neue Gesundheitskarte beantragen</string>
+    <string name="cdw_healthcard_info">Um sich erfolgreich in dieser App anmelden zu können, benötigen Sie</string>
+    <string name="cdw_healthcard_info_bullet" translatable="false">·</string>
+    <string name="cdw_healthcard_info_can">Eine %s mit Zugangsnummer (CAN)</string>
+    <string name="cdw_healthcard_info_card">Gesundheitskarte</string>
+    <string name="cdw_healthcard_info_pin">die zugehörige %s.</string>
+    <string name="cdw_healthcard_info_pin_pin">Pin</string>
+    <string name="cdw_health_card_info_hint_description"><![CDATA[Bitten Sie ausdrücklich um die Zusendung von Karte & PIN zum Zwecke der Nutzung der E-Rezept-App.]]></string>
+    <string name="cdw_healthcard_info_mail_description">Die Gesundheitskarte und die zugehörige PIN erhalten Sie kostenfrei von Ihrer Krankenversicherung. Der Antrag kann formlos und per %s gestellt werden.</string>
+    <string name="cdw_healthcard_info_mail">Mail</string>
+
 </resources>

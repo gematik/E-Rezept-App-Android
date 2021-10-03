@@ -38,6 +38,25 @@ interface SettingsDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertSettings(settings: Settings)
 
+    @Query(
+        """UPDATE settings SET
+        pharmacySearch_name = :name,
+        pharmacySearch_locationEnabled = :locationEnabled,
+        pharmacySearch_filterReady = :filterReady,
+        pharmacySearch_filterDeliveryService = :filterDeliveryService,
+        pharmacySearch_filterOnlineService = :filterOnlineService,
+        pharmacySearch_filterOpenNow = :filterOpenNow
+    """
+    )
+    suspend fun updatePharmacySearch(
+        name: String,
+        locationEnabled: Boolean,
+        filterReady: Boolean,
+        filterDeliveryService: Boolean,
+        filterOnlineService: Boolean,
+        filterOpenNow: Boolean
+    )
+
     @Query("UPDATE settings SET authenticationMethod = :authenticationMethod, password_salt = :salt, password_hash = :hash")
     suspend fun updateAuthenticationMethod(
         authenticationMethod: SettingsAuthenticationMethod,

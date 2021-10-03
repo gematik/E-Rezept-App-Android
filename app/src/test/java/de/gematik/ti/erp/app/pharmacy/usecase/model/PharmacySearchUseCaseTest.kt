@@ -52,7 +52,7 @@ class PharmacySearchUseCaseTest {
         repository =
             PrescriptionRepository(coroutineRule.testDispatchProvider, mockk(), mockk(), mockk())
         moshi = Moshi.Builder().build()
-        useCase = PharmacySearchUseCase(mockk(), repository, mockk(), moshi, coroutineRule.testDispatchProvider)
+        useCase = PharmacySearchUseCase(mockk(), repository, mockk(relaxed = true), mockk(), moshi, coroutineRule.testDispatchProvider)
         coEvery { repository.redeemPrescription(any()) } answers { Result.Success("".toResponseBody()) }
         coEvery { repository.loadTasksForTaskId(any()) } answers { flow { testTasks() } }
     }

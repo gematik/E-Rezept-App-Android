@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
-import com.google.zxing.common.BitMatrix
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.prescription.repository.InsuranceCompanyDetail
 import de.gematik.ti.erp.app.prescription.repository.MedicationDetail
@@ -26,23 +25,26 @@ import de.gematik.ti.erp.app.prescription.repository.MedicationRequestDetail
 import de.gematik.ti.erp.app.prescription.repository.OrganizationDetail
 import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
+import javax.annotation.concurrent.Immutable
 
 interface UIPrescriptionDetail {
     val taskId: String
     val redeemedOn: OffsetDateTime?
     val accessCode: String
-    val bitmapMatrix: BitMatrix
+    val bitmapMatrix: BitMatrixCode
 }
 
+@Immutable
 data class UIPrescriptionDetailScanned(
     override val taskId: String,
     override val redeemedOn: OffsetDateTime?,
     override val accessCode: String,
-    override val bitmapMatrix: BitMatrix,
+    override val bitmapMatrix: BitMatrixCode,
     val number: Int,
     val scannedOn: OffsetDateTime,
     val unRedeemMorePossible: Boolean
@@ -54,12 +56,14 @@ data class UIPrescriptionDetailScanned(
     }
 }
 
+@Immutable
 data class UIPrescriptionDetailSynced(
     override val taskId: String,
     override val redeemedOn: OffsetDateTime?,
     override val accessCode: String,
-    override val bitmapMatrix: BitMatrix,
+    override val bitmapMatrix: BitMatrixCode,
     val redeemUntil: LocalDate?,
+    val acceptUntil: LocalDate?,
     val patient: PatientDetail,
     val practitioner: PractitionerDetail,
     val medication: MedicationDetail,

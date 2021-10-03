@@ -25,11 +25,14 @@ import androidx.room.PrimaryKey
 enum class SettingsAuthenticationMethod {
     HealthCard,
     DeviceSecurity,
+
     @Deprecated("replaced by deviceSecurity")
     Biometrics,
+
     @Deprecated("replaced by deviceSecurity")
     DeviceCredentials,
     Password,
+
     @Deprecated("not available anymore")
     None,
     Unspecified
@@ -58,9 +61,13 @@ data class PasswordEntity(
     }
 }
 
-data class DeviceSecuredEntity(
-    val deviceWasSecured: Boolean,
-    val userHasAcceptedInsecureDevice: Boolean
+data class PharmacySearch(
+    val name: String,
+    val locationEnabled: Boolean,
+    val filterReady: Boolean,
+    val filterDeliveryService: Boolean,
+    val filterOnlineService: Boolean,
+    val filterOpenNow: Boolean
 )
 
 @Entity(tableName = "settings")
@@ -70,6 +77,15 @@ data class Settings(
     val zoomEnabled: Boolean,
     @Embedded(prefix = "password_")
     val password: PasswordEntity? = null,
+    @Embedded(prefix = "pharmacySearch_")
+    val pharmacySearch: PharmacySearch = PharmacySearch(
+        name = "",
+        locationEnabled = false,
+        filterReady = false,
+        filterDeliveryService = false,
+        filterOnlineService = false,
+        filterOpenNow = false
+    ),
     val userHasAcceptedInsecureDevice: Boolean = false
 ) {
     @PrimaryKey

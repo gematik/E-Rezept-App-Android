@@ -40,10 +40,10 @@ interface TaskDao {
     @Query("SELECT taskId FROM tasks")
     suspend fun getAllTasksWithTaskIdOnly(): List<String>
 
-    @Query("SELECT taskId, accessCode, lastModified, organization, medicationText, expiresOn, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE scannedOn IS NULL")
+    @Query("SELECT taskId, accessCode, lastModified, organization, medicationText, expiresOn, acceptUntil, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE scannedOn IS NULL")
     fun getSyncedTasksWithoutBundle(): Flow<List<Task>>
 
-    @Query("SELECT taskId, accessCode, lastModified, organization, medicationText, expiresOn, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE scannedOn IS NOT NULL")
+    @Query("SELECT taskId, accessCode, lastModified, organization, medicationText, expiresOn, acceptUntil, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE scannedOn IS NOT NULL")
     fun getScannedTasksWithoutBundle(): Flow<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

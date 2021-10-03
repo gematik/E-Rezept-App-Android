@@ -2,13 +2,13 @@ package de.gematik.ti.erp.app.common
 
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertIsToggleable
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onRoot
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.printToString
 import de.gematik.ti.erp.app.MainActivity
 import org.junit.Before
@@ -24,43 +24,52 @@ open class OnboardingHandler {
 
     @Before
     fun handleOnBoarding() {
-        if (awaitDisplay(5000L, "onboarding/page1", "erx_btn_messages") == "onboarding/page1") {
+
+        if (awaitDisplay(
+                5000L,
+                "onboarding/welcome",
+                "erx_btn_messages"
+            ) == "onboarding/welcome"
+        ) {
             onBoarding()
         }
     }
 
     private fun onBoarding() {
-        composeTestRule.onNodeWithTag("onboarding/page1")
+        composeTestRule.onNodeWithTag("onboarding/welcome")
             .assertIsDisplayed()
 
         performClickOnOnboardingNextButton()
 
-        composeTestRule.onNodeWithTag("onboarding/page2").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/features").assertIsDisplayed()
 
         performClickOnOnboardingNextButton()
 
-        composeTestRule.onNodeWithTag("onboarding/page3").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secureAppPage").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_1").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_1").performTextInput("a")
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_2").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/secure_text_input_2").performTextInput("a")
 
         performClickOnOnboardingNextButton()
-        composeTestRule.onNodeWithTag("onboarding/page5").assertIsDisplayed()
+
+        composeTestRule.onNodeWithTag("onboarding/analytics").assertIsDisplayed()
+
         performClickOnOnboardingNextButton()
 
-        composeTestRule.onNodeWithTag("onboarding/page4").assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onboarding/terms").assertIsDisplayed()
         composeTestRule.onNodeWithTag("onboarding/next")
             .assertIsDisplayed()
             .assertHasClickAction()
             .assertIsNotEnabled()
 
-        composeTestRule.onNodeWithTag("onb_btn_accept_privacy").assertIsDisplayed().assertHasClickAction()
+        composeTestRule.onNodeWithTag("onb_btn_accept_privacy").assertIsDisplayed()
+            .assertHasClickAction()
             .assertIsToggleable().performClick()
 
-        composeTestRule.onNodeWithTag("onb_btn_accept_terms_of_use").assertIsDisplayed().assertHasClickAction()
-            .assertIsToggleable().performClick()
-        composeTestRule.onNodeWithTag("onboarding/next")
-            .assertIsDisplayed()
+        composeTestRule.onNodeWithTag("onb_btn_accept_terms_of_use").assertIsDisplayed()
             .assertHasClickAction()
-            .assertIsEnabled()
-            .performClick()
+            .assertIsToggleable().performClick()
 
         performClickOnOnboardingNextButton()
     }

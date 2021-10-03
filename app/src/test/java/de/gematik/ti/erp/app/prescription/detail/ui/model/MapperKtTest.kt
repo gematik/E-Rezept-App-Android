@@ -18,12 +18,12 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
-import com.google.zxing.common.BitMatrix
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.prescription.repository.extractMedication
 import de.gematik.ti.erp.app.prescription.repository.extractMedicationRequest
 import de.gematik.ti.erp.app.prescription.repository.extractPatient
 import de.gematik.ti.erp.app.prescription.usecase.createMatrixCode
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import de.gematik.ti.erp.app.utils.testScannedTasks
 import de.gematik.ti.erp.app.utils.testSingleKBVBundle
 import org.junit.Assert.assertEquals
@@ -33,12 +33,12 @@ import org.junit.Test
 class MapperKtTest {
 
     private lateinit var task: Task
-    private lateinit var matrix: BitMatrix
+    private lateinit var matrix: BitMatrixCode
 
     @Before
     fun setup() {
         task = testScannedTasks()[0]
-        matrix = createMatrixCode("somePayload")
+        matrix = BitMatrixCode(createMatrixCode("somePayload"))
     }
 
     @Test

@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
-import com.google.zxing.common.BitMatrix
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
@@ -28,11 +27,12 @@ import de.gematik.ti.erp.app.prescription.repository.MedicationRequestDetail
 import de.gematik.ti.erp.app.prescription.repository.OrganizationDetail
 import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.time.LocalDateTime
 
 fun mapToUIPrescriptionDetailScanned(
     task: Task,
-    matrix: BitMatrix,
+    matrix: BitMatrixCode,
     unRedeemMorePossible: Boolean
 ): UIPrescriptionDetailScanned {
     return UIPrescriptionDetailScanned(
@@ -55,7 +55,7 @@ fun mapToUIPrescriptionDetailSynced(
     organization: OrganizationDetail,
     patient: PatientDetail,
     practitioner: PractitionerDetail,
-    matrix: BitMatrix,
+    matrix: BitMatrixCode,
     hasSyncError: Boolean,
     lastSyncDate: LocalDateTime?
 ): UIPrescriptionDetailSynced {
@@ -64,6 +64,7 @@ fun mapToUIPrescriptionDetailSynced(
         redeemedOn = task.redeemedOn,
         accessCode = task.accessCode,
         redeemUntil = task.expiresOn,
+        acceptUntil = task.acceptUntil,
         bitmapMatrix = matrix,
         practitioner = practitioner,
         organization = organization,

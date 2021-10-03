@@ -35,7 +35,7 @@ import de.gematik.ti.erp.app.cardwall.model.nfc.command.select
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.KeyDerivationFunction.getAES128Key
 import de.gematik.ti.erp.app.cardwall.model.nfc.identifier.FileIdentifier
 import de.gematik.ti.erp.app.cardwall.model.nfc.identifier.ShortFileIdentifier
-import de.gematik.ti.erp.app.idp.secureRandomInstance
+import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.utils.Bytes
 import org.bouncycastle.asn1.ASN1EncodableVector
 import org.bouncycastle.asn1.ASN1ObjectIdentifier

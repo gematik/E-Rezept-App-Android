@@ -19,11 +19,11 @@
 package de.gematik.ti.erp.app.pharmacy.ui.model
 
 import androidx.navigation.NavType
-import androidx.navigation.compose.navArgument
+import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.Route
 
 object PharmacyNavigationScreens {
-    object SearchResults : Route("SearchResults")
+    object SearchResults : Route("PharmacySearchResults")
     object PharmacyDetails : Route("PharmacyDetails")
     object ReserveInPharmacy : Route("ReserveInPharmacy")
     object CourierDelivery : Route("CourierDelivery")

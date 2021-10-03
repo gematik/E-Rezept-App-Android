@@ -56,11 +56,6 @@ import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.material.Snackbar
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarHost
-import androidx.compose.material.SnackbarHostState
-import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -70,6 +65,7 @@ import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -101,6 +97,7 @@ import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.AuditEventSimple
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
+import de.gematik.ti.erp.app.mainscreen.ui.TaskIds
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsNavigationScreens
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailScanned
@@ -111,27 +108,28 @@ import de.gematik.ti.erp.app.prescription.repository.OrganizationDetail
 import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
 import de.gematik.ti.erp.app.prescription.repository.codeToDosageFormMapping
+import de.gematik.ti.erp.app.prescription.ui.expiryOrAcceptString
 import de.gematik.ti.erp.app.redeem.ui.DataMatrixCode
 import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
-import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.Spacer4
-import de.gematik.ti.erp.app.utils.compose.Spacer8
+import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.HintCard
 import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
 import de.gematik.ti.erp.app.utils.compose.HintSmallImage
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.HintTextLearnMoreButton
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
+import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
+import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
+import de.gematik.ti.erp.app.utils.compose.Spacer16
+import de.gematik.ti.erp.app.utils.compose.Spacer4
+import de.gematik.ti.erp.app.utils.compose.Spacer8
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.launch
 import okhttp3.internal.immutableListOf
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -241,6 +239,7 @@ private fun PrescriptionDetailsWithScaffold(
     onShowAllAuditEvents: () -> Unit,
     onCancel: () -> Unit
 ) {
+    val context = LocalContext.current
     val state by produceState<UIPrescriptionDetail?>(null) {
         value = viewModel.detailedPrescription(taskId)
     }
@@ -257,11 +256,7 @@ private fun PrescriptionDetailsWithScaffold(
         }
     }
 
-    val info = stringResource(R.string.pres_detail_redeem_info)
-    val unRedeem = stringResource(R.string.pres_detail_un_redeem)
-
     val coroutineScope = rememberCoroutineScope()
-    val snackBarHostState = remember { SnackbarHostState() }
 
     val header = stringResource(id = R.string.prescription_details)
     Scaffold(
@@ -272,11 +267,6 @@ private fun PrescriptionDetailsWithScaffold(
                 onClick = onCancel
             )
         },
-        snackbarHost = {
-            RedeemSnackBarHost(
-                hostState = snackBarHostState
-            )
-        }
     ) { innerPadding ->
         Box(
             Modifier
@@ -294,23 +284,6 @@ private fun PrescriptionDetailsWithScaffold(
                         auditEvents = auditEvents,
                         lowDetailRedeemEvents = lowDetailRedeemEvents,
                         onShowAllAuditEvents = onShowAllAuditEvents,
-                        onClickRedeem = {
-                            coroutineScope.launch {
-                                val result = snackBarHostState.showSnackbar(
-                                    info,
-                                    unRedeem,
-                                    SnackbarDuration.Short
-                                )
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    viewModel.onSwitchRedeemed(
-                                        taskId,
-                                        false,
-                                        all = false,
-                                        protocolText = unRedeemProtocolText
-                                    )
-                                }
-                            }
-                        },
                         onCancel = onCancel
                     )
                 }
@@ -329,7 +302,6 @@ private fun PrescriptionDetails(
     auditEvents: List<AuditEventSimple>,
     lowDetailRedeemEvents: List<LowDetailEventSimple>,
     onShowAllAuditEvents: () -> Unit,
-    onClickRedeem: () -> Unit,
     onCancel: () -> Unit
 ) {
     var showMore by remember { mutableStateOf(false) }
@@ -425,15 +397,12 @@ private fun PrescriptionDetails(
         when (state) {
             is UIPrescriptionDetailSynced -> item {
                 FullDetailSecondHeader(state) {
-                    mainNavController.navigate(MainNavigationScreens.PharmacySearch.path(taskIds = taskId))
+                    mainNavController.navigate(MainNavigationScreens.Pharmacies.path(taskIds = TaskIds(listOf(taskId))))
                 }
             }
             is UIPrescriptionDetailScanned -> item {
                 LowDetailRedeemHeader(state) { redeem, all, protocolText ->
                     viewModel.onSwitchRedeemed(state.taskId, redeem, all, protocolText)
-                    if (redeem) {
-                        onClickRedeem()
-                    }
                 }
             }
         }
@@ -522,9 +491,13 @@ private fun PrescriptionDetails(
                         val accessInfoText = stringResource(R.string.logout_delete_no_access)
 
                         DeleteButton(state is UIPrescriptionDetailSynced) {
-                            viewModel.deletePrescription(state.taskId, state is UIPrescriptionDetailSynced).apply {
+                            viewModel.deletePrescription(
+                                state.taskId,
+                                state is UIPrescriptionDetailSynced
+                            ).apply {
                                 if (this is Result.Error) {
-                                    Toast.makeText(context, accessInfoText, Toast.LENGTH_SHORT).show()
+                                    Toast.makeText(context, accessInfoText, Toast.LENGTH_SHORT)
+                                        .show()
                                 } else {
                                     onCancel()
                                 }
@@ -624,27 +597,44 @@ private fun FullDetailSecondHeader(
     prescriptionDetail: UIPrescriptionDetailSynced,
     onClickRedeem: () -> Unit
 ) {
-    val dtFormatter = remember(LocalConfiguration.current) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
+    val dtFormatter =
+        remember(LocalConfiguration.current) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
 
-    val text = if (prescriptionDetail.medicationDispense != null) {
-        stringResource(
-            id = R.string.pres_detail_medication_redeemed_on,
-            prescriptionDetail.medicationDispense.whenHandedOver.format(dtFormatter)
-        )
-    } else {
-        stringResource(
-            id = R.string.pres_detail_medication_valid_until,
-            prescriptionDetail.redeemUntil?.format(dtFormatter) ?: MISSING_VALUE
-        )
-    }
-
-    Spacer4()
+    val text =
+        if (prescriptionDetail.medicationDispense != null) {
+            stringResource(
+                id = R.string.pres_detail_medication_redeemed_on,
+                prescriptionDetail.medicationDispense.whenHandedOver.format(dtFormatter)
+            )
+        } else {
+            prescriptionDetail.redeemUntil?.let { expiryDate ->
+                prescriptionDetail.acceptUntil?.let { acceptDate ->
+                    expiryOrAcceptString(
+                        expiryDate = expiryDate,
+                        acceptDate = acceptDate,
+                        nowInEpochDays = LocalDate.now().toEpochDay()
+                    )
+                }
+            }
+        } ?: ""
     Text(
         text = text,
         style = AppTheme.typography.body2l,
-        modifier = Modifier.padding(start = PaddingDefaults.Medium, end = PaddingDefaults.Medium)
+        modifier = Modifier.padding(
+            start = PaddingDefaults.Medium,
+            end = PaddingDefaults.Medium
+        )
     )
-    if (prescriptionDetail.redeemedOn == null) {
+    Spacer4()
+
+    var redeemable by remember { mutableStateOf(false) }
+    prescriptionDetail.redeemUntil.let {
+        if (it != null && it.toEpochDay() >= LocalDate.now().toEpochDay()) {
+            redeemable = true
+        }
+    }
+
+    if (prescriptionDetail.redeemedOn == null && redeemable) {
         Button(
             onClick = { onClickRedeem() },
             shape = RoundedCornerShape(8.dp),
@@ -711,6 +701,23 @@ private fun RedeemedButton(
     unRedeemMorePossible: Boolean,
     onSwitchRedeemed: (redeem: Boolean, all: Boolean, protocolText: String) -> Unit
 ) {
+
+    val context = LocalContext.current
+    var currentRedeemed by remember { mutableStateOf(redeemed) }
+    var infoText by remember { mutableStateOf("") }
+
+    val redeemedInfo = stringResource(R.string.prescription_detail_redeemed)
+    val unRedeemedInfo = stringResource(R.string.prescription_detail_un_redeemed)
+
+    DisposableEffect(currentRedeemed) {
+        infoText = if (currentRedeemed) {
+            unRedeemedInfo
+        } else {
+            redeemedInfo
+        }
+        onDispose { }
+    }
+
     var showUnRedeemDialog by remember { mutableStateOf(false) }
     val redeemProtocolText = stringResource(R.string.redeem_protocol_text)
     val unRedeemProtocolText = stringResource(R.string.un_redeem_protocol_text)
@@ -720,11 +727,13 @@ private fun RedeemedButton(
             onSwitchRedeemed = { redeem, all, protocolText ->
                 onSwitchRedeemed(redeem, all, protocolText)
                 showUnRedeemDialog = false
+                currentRedeemed = !currentRedeemed
+                Toast.makeText(context, infoText, Toast.LENGTH_SHORT).show()
             },
         )
     }
 
-    val buttonColors = if (redeemed) {
+    val buttonColors = if (currentRedeemed) {
         ButtonDefaults.buttonColors(
             backgroundColor = AppTheme.colors.neutral050,
             contentColor = AppTheme.colors.primary700
@@ -736,13 +745,13 @@ private fun RedeemedButton(
         )
     }
 
-    val buttonText = if (redeemed) {
+    val buttonText = if (currentRedeemed) {
         stringResource(R.string.scanned_prescription_details_mark_as_unredeemed)
     } else {
         stringResource(R.string.scanned_prescription_details_mark_as_redeemed)
     }
 
-    val protocolText = if (redeemed) {
+    val protocolText = if (currentRedeemed) {
         unRedeemProtocolText
     } else {
         redeemProtocolText
@@ -750,10 +759,12 @@ private fun RedeemedButton(
 
     Button(
         onClick = {
-            if (redeemed && unRedeemMorePossible) {
+            if (currentRedeemed && unRedeemMorePossible) {
                 showUnRedeemDialog = true
             } else {
-                onSwitchRedeemed(!redeemed, false, protocolText)
+                onSwitchRedeemed(!currentRedeemed, false, protocolText)
+                currentRedeemed = !currentRedeemed
+                Toast.makeText(context, infoText, Toast.LENGTH_SHORT).show()
             }
         },
         colors = buttonColors,
@@ -766,39 +777,6 @@ private fun RedeemedButton(
             buttonText.uppercase(Locale.getDefault())
         )
     }
-}
-
-@Composable
-private fun RedeemSnackBarHost(
-    hostState: SnackbarHostState,
-) {
-
-    SnackbarHost(
-        hostState = hostState,
-        snackbar = {
-            Snackbar(
-                modifier = Modifier
-                    .padding(16.dp),
-                backgroundColor = AppTheme.colors.neutral900,
-                action = {
-                    TextButton(
-                        onClick = {
-                            hostState.currentSnackbarData?.performAction()
-                        }
-                    ) {
-                        Text(
-                            text = hostState.currentSnackbarData?.actionLabel?.uppercase(Locale.getDefault())
-                                ?: "",
-                            color = AppTheme.colors.primary400
-                        )
-                    }
-                },
-                actionOnNewLine = false
-            ) {
-                Text(text = hostState.currentSnackbarData?.message ?: "")
-            }
-        }
-    )
 }
 
 @Composable
@@ -863,7 +841,8 @@ private fun MedicationInformation(
 ) {
 
     val medicationType = if (isSubstituted) {
-        state.medicationDispense?.type?.let { codeToDosageFormMapping[it] }?.let { stringResource(it) } ?: MISSING_VALUE
+        state.medicationDispense?.type?.let { codeToDosageFormMapping[it] }
+            ?.let { stringResource(it) } ?: MISSING_VALUE
     } else {
         state.medication.type?.let { stringResource(it) } ?: MISSING_VALUE
     }
@@ -953,7 +932,8 @@ private fun PatientInformation(
     patient: PatientDetail,
     insurance: InsuranceCompanyDetail
 ) {
-    val dtFormatter = remember(LocalConfiguration.current) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
+    val dtFormatter =
+        remember(LocalConfiguration.current) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
 
     SubHeader(
         text = stringResource(id = R.string.pres_detail_patient_header)
@@ -1052,7 +1032,8 @@ private fun OrganizationInformation(
 private fun AccidentInformation(
     medicationRequest: MedicationRequestDetail
 ) {
-    val dtFormatter = remember(LocalConfiguration.current) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
+    val dtFormatter =
+        remember(LocalConfiguration.current) { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
 
     SubHeader(
         text = stringResource(id = R.string.pres_detail_accident_header)
@@ -1267,7 +1248,11 @@ private fun SubHeaderWithNavigation(
 private fun EmergencyServiceCard() {
     Card(
         modifier = Modifier
-            .padding(start = PaddingDefaults.Medium, top = PaddingDefaults.Medium, end = PaddingDefaults.Medium)
+            .padding(
+                start = PaddingDefaults.Medium,
+                top = PaddingDefaults.Medium,
+                end = PaddingDefaults.Medium
+            )
             .fillMaxWidth()
     ) {
         Row {
