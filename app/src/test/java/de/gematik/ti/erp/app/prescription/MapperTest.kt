@@ -45,6 +45,7 @@ import de.gematik.ti.erp.app.utils.testSingleKBVBundle
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Communication
 import org.hl7.fhir.r4.model.Composition
+import org.hl7.fhir.r4.model.MedicationDispense
 import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Patient
 import org.hl7.fhir.r4.model.Task
@@ -56,7 +57,6 @@ import org.junit.Test
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.temporal.ChronoUnit
-import org.hl7.fhir.r4.model.MedicationDispense
 
 const val KBVBUNDLE_REFERENCE = "12451ead-1dd6-11b2-8032-7a221f708795"
 const val ACCESS_CODE = "25a2ab3499ebca2504ce074511492a6d85ec1b165eba0ed59659919935b232a3"
@@ -156,7 +156,7 @@ class MapperTest {
     @Test
     fun `map bundle to communication`() {
         val commBundle = testCommunicationBundle()
-        val communication = mapper.mapFhirBundleToCommunications(commBundle).first()
+        val communication = mapper.mapFhirBundleToCommunications(commBundle, "").first()
         assertEquals("16d2cfc8-2023-11b2-81e1-783a425d8e87", communication.communicationId)
         assertEquals("39c67d5b-1df3-11b2-80b4-783a425d8e87", communication.taskId)
         assertEquals("3-09.2.S.10.743", communication.telematicsId)
@@ -230,7 +230,7 @@ class MapperTest {
 
     @Test
     fun `map bundle to Task`() {
-        val task = mapper.mapFhirBundleToTaskWithKBVBundle(bundle)
+        val task = mapper.mapFhirBundleToTaskWithKBVBundle(bundle, "")
 
         assertEquals(TASK_ID, task.taskId)
         assertEquals(ACCESS_CODE, task.accessCode)
@@ -257,7 +257,7 @@ class MapperTest {
 
     @Test
     fun `parse kbv bundle`() {
-        val task = mapper.mapFhirBundleToTaskWithKBVBundle(bundle)
+        val task = mapper.mapFhirBundleToTaskWithKBVBundle(bundle, "")
 
         val parsedBundle = mapper.parseKBVBundle(task.rawKBVBundle!!)
 

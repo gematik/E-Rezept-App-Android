@@ -1,8 +1,8 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 buildscript {
     // keep kotlin version sync with compose version
-    ext.kotlinVersion = '1.5.21'
-    ext.composeVersion = '1.0.2'
+    ext.kotlinVersion = '1.5.30'
+    ext.composeVersion = '1.0.3'
     ext.hiltVersion = '2.38.1'
     ext.navVersion = "2.4.0-alpha04"
     repositories {
@@ -73,12 +73,14 @@ ext {
     locationVersion = "18.0.0"
 
     // ui
-    cameraXVersion = "1.1.0-alpha08"
-    cameraXViewVersion = "1.0.0-alpha28"
+    cameraXVersion = "1.1.0-alpha09"
+    cameraXViewVersion = "1.0.0-alpha29"
     lifecycleVersion = "2.3.1"
     materialVersion = "1.3.0"
     mlkitVersion = "17.0.0"
     navVersion = "2.3.5"
     swipeRefreshLayout = "1.1.0"
     videoPlayerVersion = "2.14.0"
+
+    dataStoreVersion = "1.0.0"
 }

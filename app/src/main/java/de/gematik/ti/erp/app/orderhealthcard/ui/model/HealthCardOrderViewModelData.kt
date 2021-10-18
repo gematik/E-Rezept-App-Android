@@ -16,24 +16,20 @@
  * 
  */
 
-package de.gematik.ti.erp.app.db.daos
+package de.gematik.ti.erp.app.orderhealthcard.ui.model
 
-import androidx.room.Dao
-import androidx.room.Delete
-import androidx.room.Insert
-import androidx.room.Query
-import de.gematik.ti.erp.app.db.entities.HealthCardUser
-import kotlinx.coroutines.flow.Flow
+import androidx.compose.runtime.Immutable
+import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
 
-@Dao
-interface HealthCardUserDao {
+object HealthCardOrderViewModelData {
+    @Immutable
+    data class State(
+        val companies: List<HealthCardOrderUseCaseData.HealthInsuranceCompany>,
+        val selectedCompany: HealthCardOrderUseCaseData.HealthInsuranceCompany?,
+        val selectedOption: ContactInsuranceOption
+    )
 
-    @Query("SELECT * FROM healthCardUsers")
-    fun getAllHealthCardUser(): Flow<List<HealthCardUser>>
-
-    @Insert
-    suspend fun insertHealthCardUser(user: HealthCardUser)
-
-    @Delete
-    suspend fun deleteHealthCardUser(user: HealthCardUser)
+    enum class ContactInsuranceOption {
+        None, WithHealthCardAndPin, PinOnly
+    }
 }

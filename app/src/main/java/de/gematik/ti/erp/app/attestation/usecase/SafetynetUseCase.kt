@@ -11,7 +11,6 @@ import de.gematik.ti.erp.app.attestation.repository.SafetynetAttestationReposito
 import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.toLowerCaseHex
-import javax.inject.Inject
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -20,6 +19,7 @@ import java.security.MessageDigest
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
+import javax.inject.Inject
 
 class SafetynetUseCase @Inject constructor(
     private val repository: SafetynetAttestationRepository,

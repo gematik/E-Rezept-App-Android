@@ -27,14 +27,16 @@ import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailScanned
+import de.gematik.ti.erp.app.prescription.ui.ScannedCode
+import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.createMatrixCode
+import org.hl7.fhir.r4.model.Bundle
+import org.hl7.fhir.r4.model.MedicationDispense
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
 import java.time.OffsetDateTime
-import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.MedicationDispense
 
 const val ASSET_BASE_PATH = "../app/src/test/assets/"
 
@@ -57,11 +59,13 @@ fun testTasks() = listOf(
     Task(
         taskId = "Task/5c19492e-1dd2-11b2-803a-63bf44e44fb8",
         accessCode = "71f62e55a662456195049c59f5c19eb371f62e55a662456195049c59f5c19eb3",
+        profileName = "Tester",
         rawKBVBundle = "{}".toByteArray(),
     ),
     Task(
         taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
         accessCode = "2f5a441e77fc44178f4eea2e6d19a23a2f5a441e77fc44178f4eea2e6d19a23a",
+        profileName = "Tester",
         rawKBVBundle = "{}".toByteArray(),
     ),
     Task(
@@ -71,11 +75,13 @@ fun testTasks() = listOf(
         scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
         nrInScanSession = 7,
         scanSessionName = null,
+        profileName = "Tester",
 
     ),
     Task(
         taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
         accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
+        profileName = "Tester",
         rawKBVBundle = "{}".toByteArray(),
     ),
     Task(
@@ -83,12 +89,14 @@ fun testTasks() = listOf(
         accessCode = "600dd956fab74e3fb842d5afaee20401600dd956fab74e3fb842d5afaee20401",
         scannedOn = OffsetDateTime.parse("2020-12-03T13:40:11+00:00"),
         scanSessionEnd = OffsetDateTime.parse("2020-12-03T13:42:41+00:00"),
+        profileName = "Tester",
         nrInScanSession = 1,
         scanSessionName = "Some Other Name",
     ),
     Task(
         taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
         accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
+        profileName = "Tester",
         rawKBVBundle = "{}".toByteArray(),
     ),
 )
@@ -109,6 +117,7 @@ fun testSyncedTasks() = listOf(
         medicationText = "Schokolade",
         expiresOn = null,
         authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+        profileName = "Tester",
     ),
     Task(
         taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
@@ -117,6 +126,7 @@ fun testSyncedTasks() = listOf(
         medicationText = "Bonbons",
         expiresOn = null,
         authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+        profileName = "Tester",
     ),
     Task(
         taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
@@ -125,6 +135,7 @@ fun testSyncedTasks() = listOf(
         medicationText = "Gummibärchen",
         expiresOn = null,
         authoredOn = OffsetDateTime.parse("2020-12-05T09:49:46+00:00"),
+        profileName = "Tester",
     ),
     Task(
         taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
@@ -133,6 +144,7 @@ fun testSyncedTasks() = listOf(
         medicationText = "Viel zu viel",
         expiresOn = LocalDate.parse("2021-04-01"),
         authoredOn = OffsetDateTime.parse("2020-12-20T09:49:46+00:00"),
+        profileName = "Tester",
     ),
 )
 
@@ -152,6 +164,7 @@ fun testScannedTasks() = listOf(
         scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
         nrInScanSession = 0,
         scanSessionName = "Foo",
+        profileName = "Tester",
     ),
     Task(
         taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
@@ -160,6 +173,7 @@ fun testScannedTasks() = listOf(
         scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
         nrInScanSession = 1,
         scanSessionName = null,
+        profileName = "Tester",
     ),
     Task(
         taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
@@ -168,6 +182,7 @@ fun testScannedTasks() = listOf(
         scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
         nrInScanSession = 2,
         scanSessionName = null,
+        profileName = "Tester",
     ),
     Task(
         taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
@@ -176,6 +191,7 @@ fun testScannedTasks() = listOf(
         scanSessionEnd = OffsetDateTime.parse("2020-12-03T13:42:41+00:00"),
         nrInScanSession = 0,
         scanSessionName = "Some Name",
+        profileName = "Tester",
     ),
 )
 
@@ -341,6 +357,7 @@ fun communicationShipment() =
     Communication(
         "id",
         CommunicationProfile.ErxCommunicationReply,
+        profileName = "Tester",
         "time",
         "taskId",
         "telematiksId",
@@ -353,6 +370,7 @@ fun communicationDelivery() =
     Communication(
         "id",
         CommunicationProfile.ErxCommunicationReply,
+        profileName = "Tester",
         "time",
         "taskId",
         "telematiksId",
@@ -365,6 +383,7 @@ fun errorCommunicationDelivery() =
     Communication(
         "id",
         CommunicationProfile.ErxCommunicationReply,
+        profileName = "Tester",
         "time",
         "taskId",
         "telematiksId",
@@ -377,3 +396,30 @@ fun errorCommunicationDelivery() =
 fun readJsonFile(filename: String): String {
     return File(ASSET_BASE_PATH + filename).readText(Charsets.UTF_8)
 }
+
+val scannedCode = ScannedCode(
+    "{\n" +
+        "  \"urls\": [\n" +
+        "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\",\n" +
+        "    \"Task/2aef43b8c5e8f2d3d7aef64598b3c40e1d9e348f75d62fd39fe4a7bc5c923de8/\$accept?ac=0936cfa582b447144b71ac89eb7bb83a77c67c99d4054f91ee3703acf5d6a629\",\n" +
+        "    \"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5\"\n" +
+        "  ]\n" +
+        "}",
+    OffsetDateTime.now()
+)
+
+val validScannedCode = ValidScannedCode(
+    scannedCode,
+    mutableListOf(
+        "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+        "Task/2aef43b8c5e8f2d3d7aef64598b3c40e1d9e348f75d62fd39fe4a7bc5c923de8/\$accept?ac=0936cfa582b447144b71ac89eb7bb83a77c67c99d4054f91ee3703acf5d6a629",
+        "Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5"
+    )
+)
+
+val validScannedCode2 = ValidScannedCode(
+    scannedCode,
+    mutableListOf(
+        "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+    )
+)

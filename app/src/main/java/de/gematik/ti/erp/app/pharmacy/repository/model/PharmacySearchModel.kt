@@ -19,10 +19,10 @@
 package de.gematik.ti.erp.app.pharmacy.repository.model
 
 import android.os.Parcelable
+import kotlinx.parcelize.Parcelize
 import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.OffsetDateTime
-import kotlinx.parcelize.Parcelize
 import kotlin.math.abs
 
 private const val EPSILON = 1e-6

@@ -42,6 +42,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -51,6 +52,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.Button
@@ -60,10 +63,13 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SwipeableState
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.material.TextFieldColors
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowForward
@@ -86,6 +92,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
@@ -110,6 +117,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
@@ -141,6 +149,7 @@ import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer24
+import de.gematik.ti.erp.app.utils.compose.Spacer32
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.Spacer40
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -152,6 +161,7 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.lang.Exception
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -166,6 +176,7 @@ object OnboardingNavigationScreens {
 private const val MAX_PAGES = 5
 private const val WELCOME_PAGE = 0
 private const val FEATURE_PAGE = 1
+// private const val PROFILE_PAGE = 2
 private const val SECURE_APP_PAGE = 2
 private const val ANALYTICS_PAGE = 3
 private const val TOS_AND_DATA_PAGE = 4
@@ -195,7 +206,9 @@ fun ReturningUserSecureAppOnboardingScreen(
                             is SecureAppMethod.DeviceSecurity ->
                                 settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
                             is SecureAppMethod.Password ->
-                                settingsViewModel.onSelectPasswordAsAuthenticationMode(requireNotNull(sm.checkedPassword))
+                                settingsViewModel.onSelectPasswordAsAuthenticationMode(
+                                    requireNotNull(sm.checkedPassword)
+                                )
                             else -> error("Illegal state. Authentication must be set")
                         }
                         mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
@@ -241,9 +254,10 @@ fun OnboardingScreen(
         startDestination = OnboardingNavigationScreens.Onboarding.route
     ) {
         composable(OnboardingNavigationScreens.Onboarding.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 OnboardingScreenWithScaffold(
                     navController,
+                    settingsViewModel,
                     allowTracking = allowTracking,
                     onAllowTracking = {
                         allowTracking = it
@@ -253,7 +267,9 @@ fun OnboardingScreen(
                             is SecureAppMethod.DeviceSecurity ->
                                 settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
                             is SecureAppMethod.Password ->
-                                settingsViewModel.onSelectPasswordAsAuthenticationMode(requireNotNull(secureMethod.checkedPassword))
+                                settingsViewModel.onSelectPasswordAsAuthenticationMode(
+                                    requireNotNull(secureMethod.checkedPassword)
+                                )
                             else -> error("Illegal state. Authentication must be set")
                         }
 
@@ -275,7 +291,7 @@ fun OnboardingScreen(
             }
         }
         composable(OnboardingNavigationScreens.Analytics.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 AllowAnalyticsScreen {
                     allowTracking = it
                     navController.popBackStack()
@@ -283,12 +299,12 @@ fun OnboardingScreen(
             }
         }
         composable(OnboardingNavigationScreens.TermsOfUse.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 TermsOfUseScreen(navController)
             }
         }
         composable(OnboardingNavigationScreens.DataProtection.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 DataProtectionScreen(navController)
             }
         }
@@ -299,6 +315,7 @@ fun OnboardingScreen(
 @Composable
 private fun OnboardingScreenWithScaffold(
     navController: NavController,
+    settingsViewModel: SettingsViewModel,
     allowTracking: Boolean,
     onAllowTracking: (Boolean) -> Unit,
     onSaveNewUser: (Boolean, SecureAppMethod) -> Unit
@@ -307,6 +324,7 @@ private fun OnboardingScreenWithScaffold(
 
     var tosAndDataToggled by remember { mutableStateOf(false) }
     var secureMethod by rememberSaveable { mutableStateOf<SecureAppMethod>(SecureAppMethod.None) }
+    var profileName by rememberSaveable { mutableStateOf("") }
 
     val state = rememberSwipeableState(initialValue = 0)
 
@@ -358,11 +376,26 @@ private fun OnboardingScreenWithScaffold(
                         Modifier.width(pageSize.width.toDp())
                     }
 
+                    // TODO remove once profile setup is done via UI
+                    LaunchedEffect(key1 = Unit) {
+                        settingsViewModel.profileSetupViaLaunchedEffect()
+                    }
+
                     OnboardingWelcome(
                         mod.semantics { focused = state.currentValue == 0 },
                         state
                     )
-                    OnboardingAppFeatures(mod.semantics { focused = state.currentValue == 2 })
+                    OnboardingAppFeatures(mod.semantics { focused = state.currentValue == 1 })
+
+                    // TODO only use when feature is ready
+//                    OnboardingProfile(
+//                        modifier = mod.semantics { focused = state.currentValue == 2 },
+//                        onSubmitProfileName = {
+//                            profileName = it
+//                            settingsViewModel.profileSetup(profileName)
+//                        }
+//                    )
+
                     OnboardingSecureApp(
                         mod,
                         secureMethod = secureMethod,
@@ -373,7 +406,7 @@ private fun OnboardingScreenWithScaffold(
 
                     val disAllowToast = stringResource(R.string.settings_tracking_disallow_info)
                     OnboardingPageAnalytics(
-                        mod.semantics { focused = state.currentValue == 4 },
+                        mod.semantics { focused = state.currentValue == 3 },
                         allowTracking = allowTracking,
                         onAllowTracking = {
                             if (!it) {
@@ -385,7 +418,7 @@ private fun OnboardingScreenWithScaffold(
                         }
                     )
                     OnboardingPageTerms(
-                        mod.semantics { focused = state.currentValue == 3 },
+                        mod.semantics { focused = state.currentValue == 4 },
                         navController,
                     ) {
                         tosAndDataToggled = it
@@ -397,6 +430,7 @@ private fun OnboardingScreenWithScaffold(
 
             OnboardingNextButton(
                 Modifier.testId("onb_btn_next"),
+                profileName,
                 secureMethod,
                 tosAndDataToggled,
                 state,
@@ -411,7 +445,9 @@ private fun OnboardingScreenWithScaffold(
                     onClick = {
                         onSaveNewUser(false, SecureAppMethod.Password("a", "a"))
                     },
-                    modifier = Modifier.align(Alignment.BottomStart).padding(PaddingDefaults.Medium)
+                    modifier = Modifier
+                        .align(Alignment.BottomStart)
+                        .padding(PaddingDefaults.Medium)
                 )
             }
         }
@@ -436,8 +472,13 @@ private fun BoxScope.BottomPager(swipeableState: SwipeableState<Int>) {
                 Dot(color = AppTheme.colors.neutral300)
             }
         }
-        val fraction =
+        // todo: Some recomposings are not finished yet so "swipeableState.progress.from" will cause an error.
+        // Some recomposing later everything will be fine.
+        //  (https://issuetracker.google.com/issues/194425016).
+
+        val fraction = try {
             swipeableState.progress.from + (swipeableState.progress.to - swipeableState.progress.from) * swipeableState.progress.fraction
+        } catch (_: Exception) { 0f }
         val offsetX = with(LocalDensity.current) {
             val gap = PaddingDefaults.Small.roundToPx()
             val size = 8.dp.roundToPx()
@@ -461,6 +502,7 @@ private fun Dot(modifier: Modifier = Modifier, color: Color) {
 @Composable
 private fun BoxScope.OnboardingNextButton(
     modifier: Modifier = Modifier,
+    profileName: String,
     secureMethod: SecureAppMethod,
     tosAndDataToggled: Boolean,
     swipeableState: SwipeableState<Int>,
@@ -470,6 +512,7 @@ private fun BoxScope.OnboardingNextButton(
 
     val enabled = when {
         currentPage == WELCOME_PAGE || currentPage == FEATURE_PAGE || currentPage == ANALYTICS_PAGE -> true
+//        currentPage == PROFILE_PAGE && profileName.isNotEmpty() -> true
         currentPage == SECURE_APP_PAGE && secureMethod is SecureAppMethod.DeviceSecurity -> true
         currentPage == SECURE_APP_PAGE && secureMethod is SecureAppMethod.Password -> secureMethod.checkedPassword != null
         tosAndDataToggled && currentPage == TOS_AND_DATA_PAGE -> true
@@ -896,7 +939,9 @@ private fun AnalyticsToggle(
 
 private sealed class SecureAppMethod {
     @Parcelize
-    data class Password(val password: String, val repeatedPassword: String) : SecureAppMethod(), Parcelable {
+    data class Password(val password: String, val repeatedPassword: String) :
+        SecureAppMethod(),
+        Parcelable {
         val checkedPassword: String?
             get() =
                 if (password == repeatedPassword && password.isNotEmpty()) {
@@ -921,9 +966,12 @@ private fun OnboardingSecureApp(
     secureMethod: SecureAppMethod,
     onSecureMethodChange: (SecureAppMethod) -> Unit
 ) {
-    val password = remember(secureMethod) { (secureMethod as? SecureAppMethod.Password)?.password ?: "" }
+    val password =
+        remember(secureMethod) { (secureMethod as? SecureAppMethod.Password)?.password ?: "" }
     val repeatedPassword =
-        remember(secureMethod) { (secureMethod as? SecureAppMethod.Password)?.repeatedPassword ?: "" }
+        remember(secureMethod) {
+            (secureMethod as? SecureAppMethod.Password)?.repeatedPassword ?: ""
+        }
 
     var passwordFieldIsFocused by remember { mutableStateOf(false) }
     val extendPassword = passwordFieldIsFocused || password.isNotEmpty()
@@ -983,7 +1031,12 @@ private fun OnboardingSecureApp(
                 if (it.isEmpty()) {
                     onSecureMethodChange(SecureAppMethod.None)
                 } else {
-                    onSecureMethodChange(SecureAppMethod.Password(password = it, repeatedPassword = ""))
+                    onSecureMethodChange(
+                        SecureAppMethod.Password(
+                            password = it,
+                            repeatedPassword = ""
+                        )
+                    )
                 }
             },
             onSubmit = { focusRequester.requestFocus() },
@@ -1008,7 +1061,12 @@ private fun OnboardingSecureApp(
                     password = password,
                     value = repeatedPassword,
                     onValueChange = {
-                        onSecureMethodChange(SecureAppMethod.Password(password = password, repeatedPassword = it))
+                        onSecureMethodChange(
+                            SecureAppMethod.Password(
+                                password = password,
+                                repeatedPassword = it
+                            )
+                        )
                     },
                     onSubmit = { focusManager.clearFocus() }
                 )
@@ -1084,14 +1142,121 @@ private fun OnboardingSecureApp(
             if (secureMethod == SecureAppMethod.DeviceSecurity) {
                 Icon(Icons.Rounded.Check, null)
                 SpacerSmall()
-                Text(stringResource(R.string.onboarding_secure_app_button_best_chosen).uppercase(Locale.getDefault()))
+                Text(
+                    stringResource(R.string.onboarding_secure_app_button_best_chosen).uppercase(
+                        Locale.getDefault()
+                    )
+                )
             } else {
                 Text(stringResource(R.string.onboarding_secure_app_button_best).uppercase(Locale.getDefault()))
             }
         }
         SpacerSmall()
-        Text(stringResource(R.string.onboarding_secure_app_button_best_info), style = AppTheme.typography.body2l)
+        Text(
+            stringResource(R.string.onboarding_secure_app_button_best_info),
+            style = AppTheme.typography.body2l
+        )
     }
+}
+
+@Composable
+fun OnboardingProfile(
+    modifier: Modifier = Modifier,
+    isReturningUser: Boolean = false,
+    onSubmitProfileName: (profileName: String) -> Unit
+) {
+
+    val profileName = rememberSaveable { mutableStateOf("") }
+    val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
+
+    val header = stringResource(R.string.onboarding_profile_header)
+    val info =
+        stringResource(R.string.onboarding_profile_info)
+
+    Column(
+        modifier = modifier
+            .testTag("onboarding/profilePage")
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = PaddingDefaults.Large, vertical = PaddingDefaults.XXLarge)
+    ) {
+
+        Text(
+            text = header,
+            style = MaterialTheme.typography.h6,
+            color = AppTheme.colors.primary900,
+            textAlign = TextAlign.Center
+        )
+
+        Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
+
+        ProfileNameInputField(
+            modifier = Modifier
+                .testTag("onboarding/profile_text_input")
+                .fillMaxWidth()
+                .focusRequester(focusRequester),
+            value = profileName.value,
+            onValueChange = {
+                focusRequester.requestFocus()
+                profileName.value = it
+            },
+            onSubmit = {
+                onSubmitProfileName(profileName.value)
+                focusManager.clearFocus()
+            },
+            label = {
+                Text(stringResource(R.string.onboarding_profile_input_name))
+            }
+        )
+        Spacer(modifier = Modifier.height(PaddingDefaults.Small))
+
+        Text(
+            text = info,
+            style = MaterialTheme.typography.body2,
+            color = AppTheme.colors.neutral600,
+        )
+        if (isReturningUser) {
+            Spacer32()
+            Row {
+                Spacer(modifier = Modifier.weight(1f))
+                Button(
+                    onClick = { onSubmitProfileName(profileName.value) },
+                    enabled = profileName.value.isNotEmpty()
+                ) {
+                    Text(text = stringResource(id = R.string.profile_setup_save).uppercase())
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ProfileNameInputField(
+    modifier: Modifier,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSubmit: (profileName: String) -> Unit,
+    label: @Composable (() -> Unit)? = null,
+    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier
+            .heightIn(min = 56.dp),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(autoCorrect = true, keyboardType = KeyboardType.Text),
+        keyboardActions = KeyboardActions {
+            if (value.isNotEmpty()) {
+                onSubmit(value)
+            }
+        },
+        label = label,
+        shape = RoundedCornerShape(8.dp),
+        colors = colors
+    )
 }
 
 @Composable

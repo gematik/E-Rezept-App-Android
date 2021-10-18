@@ -31,9 +31,10 @@ import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.establishTrustedChannel
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.retrieveCertificate
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.signChallenge
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.verifyPin
-import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.idp.usecase.AltAuthenticationCryptoException
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.secureRandomInstance
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -58,7 +59,8 @@ import java.security.spec.ECGenParameterSpec
 import javax.inject.Inject
 
 class AuthenticationUseCaseProduction @Inject constructor(
-    private val idpUseCase: IdpUseCase
+    private val idpUseCase: IdpUseCase,
+    private val profilesUseCase: ProfilesUseCase
 ) : AuthenticationUseCase {
 
     override fun authenticateWithHealthCard(
@@ -136,7 +138,8 @@ class AuthenticationUseCaseProduction @Inject constructor(
     }
 
     override fun authenticateWithSecureElement() =
-        alternateAuthenticationFlowWithSecureElement()
+
+        alternateAuthenticationFlowWithSecureElement("")
             .onEach { Timber.d("AuthenticationState: $it") }
             .catch { cause ->
                 emit(handleException(cause))
@@ -319,11 +322,11 @@ class AuthenticationUseCaseProduction @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private fun alternateAuthenticationFlowWithSecureElement() = channelFlow {
+    private fun alternateAuthenticationFlowWithSecureElement(profileName: String) = channelFlow {
         send(AuthenticationState.AuthenticationFlowInitialized)
 
         try {
-            idpUseCase.alternateAuthenticationFlowWithSecureElement()
+            idpUseCase.alternateAuthenticationFlowWithSecureElement(profileName)
             send(AuthenticationState.IDPCommunicationFinished)
         } catch (e: Exception) {
             when (e) {

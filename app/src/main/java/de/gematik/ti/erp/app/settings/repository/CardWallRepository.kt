@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.settings.repository
 
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.BuildConfig
@@ -34,12 +33,6 @@ private const val CDW_INTRO_ACCEPTED = "cdwIntroAccepted"
 class CardWallRepository @Inject constructor(
     @ApplicationPreferences private val prefs: SharedPreferences
 ) {
-    fun loadInsuranceCompanies(context: Context, fileName: String): String {
-        context.assets.open(fileName).bufferedReader().use {
-            return it.readText()
-        }
-    }
-
     var hasFakeNFCEnabled: Boolean
         get() =
             if (BuildConfig.DEBUG) {

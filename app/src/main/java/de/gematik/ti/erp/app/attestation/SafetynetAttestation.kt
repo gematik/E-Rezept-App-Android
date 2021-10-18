@@ -8,10 +8,10 @@ import com.google.android.gms.safetynet.SafetyNetClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.attestation.AttestationException.AttestationExceptionType
+import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
-import kotlinx.coroutines.suspendCancellableCoroutine
 
 class SafetynetAttestation @Inject constructor(
     @ApplicationContext val context: Context,

@@ -24,7 +24,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
-import android.graphics.drawable.Icon
 import android.net.Uri
 import android.os.Build
 import android.view.WindowManager
@@ -45,13 +44,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.material.AlertDialog
+import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
@@ -105,6 +104,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -370,20 +370,23 @@ enum class NavigationBarMode {
 
 @Composable
 fun NavigationTopAppBar(
-    mode: NavigationBarMode,
+    navigationMode: NavigationBarMode,
     headline: String,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
     onClick: () -> Unit
 ) = TopAppBar(
     title = {
         Text(headline)
     },
-    backgroundColor = MaterialTheme.colors.surface,
+    backgroundColor = backgroundColor,
     navigationIcon = {
-        when (mode) {
+        when (navigationMode) {
             NavigationBarMode.Back -> NavigationBack { onClick() }
             NavigationBarMode.Close -> NavigationClose { onClick() }
         }
-    }
+    },
+    elevation = elevation
 )
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -546,13 +549,9 @@ fun CommonAlertDialog(
 ) {
 
     AlertDialog(
-        title = {
-            Text(header)
-        },
+        title = { Text(header) },
         onDismissRequest = onCancel,
-        text = {
-            Text(info)
-        },
+        text = { Text(info) },
         buttons = {
             Row(Modifier.padding(bottom = 12.dp, start = 12.dp, end = 12.dp)) {
                 Spacer(modifier = Modifier.weight(1.0f))

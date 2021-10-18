@@ -181,7 +181,7 @@ fun PrescriptionDetailsScreen(
             )
         }
         composable(PrescriptionDetailsNavigationScreens.AuditProtocol.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 AuditProtocolWithScaffold(
                     viewModel,
                     taskId,
@@ -276,7 +276,7 @@ private fun PrescriptionDetailsWithScaffold(
             val unRedeemProtocolText = stringResource(R.string.un_redeem_protocol_text)
 
             state?.let {
-                NavigationAnimation(navigationMode) {
+                NavigationAnimation(mode = navigationMode) {
                     PrescriptionDetails(
                         viewModel = viewModel,
                         mainNavController = mainNavController,

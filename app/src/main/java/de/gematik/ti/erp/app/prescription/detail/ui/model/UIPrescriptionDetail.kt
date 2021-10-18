@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
+import androidx.compose.runtime.Immutable
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.prescription.repository.InsuranceCompanyDetail
 import de.gematik.ti.erp.app.prescription.repository.MedicationDetail
@@ -30,7 +31,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
-import javax.annotation.concurrent.Immutable
 
 interface UIPrescriptionDetail {
     val taskId: String

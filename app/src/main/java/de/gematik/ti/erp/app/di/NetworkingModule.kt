@@ -39,6 +39,7 @@ import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.interceptor.BearerHeadersInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacySearchInterceptor
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.vau.api.VauService
 import de.gematik.ti.erp.app.vau.api.model.OCSPAdapter
 import de.gematik.ti.erp.app.vau.api.model.X509Adapter
@@ -63,8 +64,6 @@ private const val HTTP_WRITE_TIMEOUT = 10000L
 private const val NETWORK_SECURE_PREFS_FILE_NAME = "networkingSecurePrefs"
 private const val NETWORK_PREFS_FILE_NAME = "networkingPrefs"
 private const val MASTER_KEY_ALIAS = "netWorkMasterKey"
-
-private const val USER_AGENT = "eRp-App-Android/1.0.12 GMTIK/eRezeptApp"
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -126,7 +125,7 @@ class NetworkingModule {
     @Named("userAgent")
     @Provides
     fun providesUserAgent(): String {
-        return USER_AGENT
+        return BuildConfig.USER_AGENT
     }
 
     @UserAgentInterceptor
@@ -137,9 +136,10 @@ class NetworkingModule {
     @BearerInterceptor
     @Provides
     fun providesBearerInterceptor(
-        idpUseCase: IdpUseCase
+        idpUseCase: IdpUseCase,
+        profilesUseCase: ProfilesUseCase
     ): Interceptor =
-        BearerHeadersInterceptor(idpUseCase)
+        BearerHeadersInterceptor(idpUseCase, profilesUseCase)
 
     @Singleton
     @Provides

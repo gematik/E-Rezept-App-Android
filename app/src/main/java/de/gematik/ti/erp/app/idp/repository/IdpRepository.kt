@@ -71,7 +71,7 @@ class IdpRepository @Inject constructor(
         }
         get() = securePrefs.getString(cardAccessNumberPrefKey, null)
 
-    suspend fun getSingleSignOnToken() = localDataSource.loadIdpAuthData().let { entity ->
+    suspend fun getSingleSignOnToken(profileName: String) = localDataSource.loadIdpAuthData(profileName).let { entity ->
         entity.singleSignOnToken?.let { token ->
             entity.singleSignOnTokenScope?.let { scope ->
                 SingleSignOnToken(token, scope)
@@ -82,20 +82,20 @@ class IdpRepository @Inject constructor(
     suspend fun setSingleSignOnToken(token: SingleSignOnToken) =
         localDataSource.saveSingleSignOnToken(token.token, token.scope)
 
-    suspend fun getHealthCardCertificate() = localDataSource.loadIdpAuthData().healthCardCertificate
+    suspend fun getHealthCardCertificate(profileName: String) = localDataSource.loadIdpAuthData(profileName).healthCardCertificate
 
     suspend fun setHealthCardCertificate(cert: ByteArray) = localDataSource.saveHealthCardCertificate(cert)
 
-    suspend fun getSingleSignOnTokenScope() =
-        localDataSource.loadIdpAuthData().singleSignOnTokenScope
+    suspend fun getSingleSignOnTokenScope(profileName: String) =
+        localDataSource.loadIdpAuthData(profileName).singleSignOnTokenScope
 
-    suspend fun isPairingScope() =
-        localDataSource.loadIdpAuthData().singleSignOnTokenScope == SingleSignOnToken.Scope.AlternateAuthentication
+    suspend fun isPairingScope(profileName: String) =
+        localDataSource.loadIdpAuthData(profileName).singleSignOnTokenScope == SingleSignOnToken.Scope.AlternateAuthentication
 
     suspend fun setPairingScope() =
         localDataSource.saveSingleSignOnToken(null, SingleSignOnToken.Scope.AlternateAuthentication)
 
-    suspend fun getAliasOfSecureElementEntry() = localDataSource.loadIdpAuthData().aliasOfSecureElementEntry
+    suspend fun getAliasOfSecureElementEntry(profileName: String) = localDataSource.loadIdpAuthData(profileName).aliasOfSecureElementEntry
     suspend fun setAliasOfSecureElementEntry(alias: ByteArray) {
         require(alias.size == 32)
         localDataSource.saveSecureElementAlias(alias)
@@ -195,9 +195,9 @@ class IdpRepository @Inject constructor(
     ): Result<String> =
         remoteDataSource.postAuthenticationData(url, encryptedSignedAuthenticationData)
 
-    suspend fun invalidate() {
+    suspend fun invalidate(profileName: String) {
         try {
-            getAliasOfSecureElementEntry()?.also {
+            getAliasOfSecureElementEntry(profileName)?.also {
                 KeyStore.getInstance("AndroidKeyStore")
                     .apply { load(null) }
                     .deleteEntry(it.decodeToString())
@@ -214,8 +214,8 @@ class IdpRepository @Inject constructor(
         localDataSource.clearIdpInfo()
     }
 
-    suspend fun invalidateWithUserCredentials() {
-        invalidate()
+    suspend fun invalidateWithUserCredentials(profileName: String) {
+        invalidate(profileName)
 
         cardAccessNumber = "" // TODO better handling
     }

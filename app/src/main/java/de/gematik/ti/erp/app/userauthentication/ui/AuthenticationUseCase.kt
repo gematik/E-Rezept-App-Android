@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.userauthentication.ui
 
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod

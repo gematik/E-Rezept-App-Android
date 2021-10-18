@@ -18,9 +18,7 @@
 
 package de.gematik.ti.erp.app.cardwall.usecase
 
-import android.content.Context
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWall
-import de.gematik.ti.erp.app.cardwall.ui.model.InsuranceList
+import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import javax.inject.Inject
 
@@ -37,9 +35,6 @@ class CardWallUseCaseDelegate @Inject constructor(
     override var cardAccessNumber: String? by delegate::cardAccessNumber
     override var deviceHasNFCAndAndroidMOrHigher: Boolean by delegate::deviceHasNFCAndAndroidMOrHigher
     override val deviceHasNFCEnabled: Boolean by delegate::deviceHasNFCEnabled
-    override suspend fun getAuthenticationMethod(): CardWall.AuthenticationMethod =
-        delegate.getAuthenticationMethod()
-
-    override fun loadInsuranceCompanies(context: Context, fileName: String): InsuranceList? =
-        delegate.loadInsuranceCompanies(context, fileName)
+    override suspend fun getAuthenticationMethod(profileName: String): CardWallData.AuthenticationMethod =
+        delegate.getAuthenticationMethod(profileName)
 }

@@ -89,6 +89,12 @@
     <string name="cam_cancel_msg">Scannen von Rezeptcodes abbrechen?</string>
     <string name="cam_cancel_ok">Scannen abbrechen</string>
     <string name="cam_cancel_resume">Fortfahren</string>
+
+    <string name="cam_accept_mlkit_title">Scanner öffnen</string>
+    <string name="cam_accept_mlkit_body">Zum Lesen des Rezeptcodes nutzt diese App einen Service von Google. Dabei werden Daten an Google übertragen.</string>
+    <string name="cam_accept_mlkit_accept">Einverstanden</string>
+    <string name="cam_accept_mlkit_decline">Abbrechen</string>
+
     <!-- Cardwall -->
     <string name="cdw_add_card">Karte hinzufügen</string>
     <string name="cdw_next">Los geht’s</string>
@@ -100,11 +106,6 @@
 
     <string name="cdw_intro_what_you_need_egk">Eine Gesundheitskarte mit Zugangsnummer (CAN)</string>
     <string name="cdw_intro_what_you_need_pin">Die PIN zur Gesundheitskarte</string>
-    <!-- Cardwall: Capability -->
-    <string name="cdw_capability_title">Karte hinzufügen</string>
-    <string name="cdw_capability_headline">Wie schade …</string>
-    <string name="cdw_capability_body">Leider erfüllt Ihr Gerät die Mindestanforderungen für die Anmeldung in der E-Rezept-App nicht.</string>
-    <string name="cdw_capability_more">Warum gibt es Mindestanforderungen für die Anmeldung mit der Gesundheitskarte?</string>
     <!-- Cardwall: CAN Intro -->
     <string name="cdw_can_caption">Ihre Kartenzugangsnummer (Card Access Number, kurz: CAN) hat 6 Stellen. Sie finden die CAN in der rechten oberen Ecke der Vorderseite Ihrer Gesundheitskarte. Steht hier keine sechsstellige Zugangsnummer, benötigen Sie eine neue Gesundheitskarte von Ihrer Krankenversicherung.</string>
     <string name="cdw_can_headline">Zugangsnummer eingeben</string>
@@ -610,5 +611,46 @@
     <string name="cdw_health_card_info_hint_description"><![CDATA[Bitten Sie ausdrücklich um die Zusendung von Karte & PIN zum Zwecke der Nutzung der E-Rezept-App.]]></string>
     <string name="cdw_healthcard_info_mail_description">Die Gesundheitskarte und die zugehörige PIN erhalten Sie kostenfrei von Ihrer Krankenversicherung. Der Antrag kann formlos und per %s gestellt werden.</string>
     <string name="cdw_healthcard_info_mail">Mail</string>
+    <string name="cdw_register_with_healthy_card">Mit Gesundheitskarte anmelden</string>
+    <string name="cdw_register_with_health_insurance">Mit Kassen-App anmelden</string>
+    <string name="cdw_register_healty_card_info">Sichere Anmeldung mit Ihrer neuen elektronischen Gesundheitskarte</string>
+    <string name="cdw_register_health_insurance_info">Nutzen Sie eine App Ihrer Krankenversicherung zur Freischaltung</string>
+    <string name="cdw_register_title">Wie möchten Sie sich anmelden?</string>
+    <string name="cdw_register_body">Um automatisch Rezepte zu empfangen und leicht Medikamente online einlösen oder reservieren zu können, müssen Sie sich anmelden.</string>
+    <string name="cdw_register_screen_title">Anmeldung</string>
+    <string name="cdw_man_register_accessibility">Mann meldet sich mit Gesundheitskarte an</string>
+    <string name="cdw_woman_register_accessibility">Frau meldet sich mit Kassen-App an</string>
+    <string name="cdw_no_nfc">Leider hat ihr Gerät kein NFC um diese Funktion zu nutzen.</string>
+    <string name="profile_edit_name">Name des Profils</string>
+    <string name="profile_edit_name_info">Bitte geben Sie einen Namen für das neue Profil ein.</string>
+    <string name="profile_edit_name_place_holder">Profilname</string>
+    <string name="settings_profile_edit_name">Profilnamen ändern</string>
+    <string name="settings_profile_delete">Löschen</string>
+    <string name="settings_profiles_headline">Profile</string>
+    <string name="onboarding_profile_header">Wie sollen wir Sie nennen?</string>
+    <string name="onboarding_profile_info">Das hilft Ihnen dabei, den Überblick zu behalten, wenn Sie die Rezepte für mehrere Personen verwalten möchten.</string>
+    <string name="onboarding_profile_input_name">Name eingeben</string>
+    <string name="settings_add_profiles_hint_title">Profile verwalten</string>
+    <string name="settings_add_profiles_hint_info">Legen Sie Profile für Ihre Familie oder Angehörige an. Melden Sie sich mit der Gesundheitskarte an, um online bestellen zu können.</string>
+    <string name="settings_add_profile">Profil hinzufügen</string>
+    <string name="profile_setup_save">Speichern</string>
+
+    <string name="cdw_health_insurance_page_title">Gesundheitskarte</string>
+    <string name="cdw_health_insurance_title">Krankenversicherung kontaktieren</string>
+    <string name="cdw_health_insurance_body_what_you_need">Um sich in dieser App anmelden zu können, benötigen Sie eine NFC-fähige Gesundheitskarte sowie eine zugehörige PIN.</string>
+    <string name="cdw_health_insurance_body_how_to_get">Diese erhalten Sie kostenfrei von Ihrer Krankenversicherung. Hierfür müssen Sie sich mittels amtlichem Ausweisdokument identifiziert haben.</string>
+    <string name="cdw_health_insurance_caption_recognize_healthcard">So erkennen Sie eine NFC-fähige Gesundheitskarte</string>
+    <string name="cdw_health_insurance_learn_more" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten/woran-erkenne-ich-ob-ich-eine-nfc-faehige-gesundheitskarte-habe#c204</string>
+    <string name="cdw_health_insurance_select_company">Krankenversicherung wählen</string>
+    <string name="cdw_health_insurance_no_company_selected">Keine Auswahl</string>
+    <string name="cdw_health_insurance_what_to_do">Was möchten Sie beantragen?</string>
+    <string name="cdw_health_insurance_no_cantacts_title">Keine Kontaktaufnahme über diese App möglich</string>
+    <string name="cdw_health_insurance_no_cantacts_body">Bitte nutzen Sie die üblichen Kanäle, um Ihre Versicherung zu kontaktieren.</string>
+    <string name="cdw_health_insurance_contact_healthcard_pin">Gesundheitskarte &amp; PIN</string>
+    <string name="cdw_health_insurance_contact_pin_only">Nur PIN</string>
+    <string name="cdw_health_insurance_contact_insurance_company">Kontaktieren Sie Ihre Krankenversicherung</string>
+    <string name="settings_health_insurance_contact_title">Neue Gesundheitskarte bestellen</string>
+    <string name="settings_health_insurance_contact_body">Für die Anmeldung benötigen Sie eine geeignete Karte mit NFC. Wir unterstützen Sie bei der Bestellung.</string>
+    <string name="settings_health_insurance_contact_action">Fortfahren</string>
 
 </resources>

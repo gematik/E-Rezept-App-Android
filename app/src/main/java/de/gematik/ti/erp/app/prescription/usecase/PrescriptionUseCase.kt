@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.db.entities.AuditEventSimple
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
+import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -35,6 +36,7 @@ import org.json.JSONObject
 import java.time.OffsetDateTime
 
 interface PrescriptionUseCase {
+
     fun tasks(): Flow<List<Task>>
 
     /**
@@ -190,7 +192,7 @@ interface PrescriptionUseCase {
 
     suspend fun deletePrescription(taskId: String, isRemoteTask: Boolean): Result<Unit>
 
-    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime): Flow<List<Task>>
+    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime, profileName: String): Flow<List<Task>>
 
     fun loadAuditEvents(taskId: String): Flow<List<AuditEventSimple>>
 
@@ -200,8 +202,9 @@ interface PrescriptionUseCase {
 
     suspend fun getAllTasksWithTaskIdOnly(): List<String>
     suspend fun redeem(taskIds: List<String>, redeem: Boolean, all: Boolean)
-    suspend fun unRedeemMorePossible(taskId: String): Boolean
+    suspend fun unRedeemMorePossible(taskId: String, profileName: String): Boolean
     suspend fun editScannedPrescriptionsName(name: String, scanSessionEnd: OffsetDateTime)
+    suspend fun mapScannedCodeToTask(scannedCodes: List<ValidScannedCode>)
 }
 
 fun createMatrixCode(payload: String): BitMatrix {

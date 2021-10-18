@@ -53,6 +53,7 @@ fun communicationOnPremise() =
     Communication(
         "id",
         CommunicationProfile.ErxCommunicationReply,
+        profileName = "Hans",
         "time",
         "taskId",
         "telematiksId",

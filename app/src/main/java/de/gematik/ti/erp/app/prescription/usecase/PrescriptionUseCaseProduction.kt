@@ -33,41 +33,89 @@ import de.gematik.ti.erp.app.prescription.repository.extractMedicationRequest
 import de.gematik.ti.erp.app.prescription.repository.extractOrganization
 import de.gematik.ti.erp.app.prescription.repository.extractPatient
 import de.gematik.ti.erp.app.prescription.repository.extractPractitioner
+import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
+import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
+import java.time.OffsetDateTime
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.take
-import java.time.OffsetDateTime
-import javax.inject.Inject
 
+@ExperimentalCoroutinesApi
 class PrescriptionUseCaseProduction @Inject constructor(
     private val repository: PrescriptionRepository,
-    private val mapper: Mapper
+    private val mapper: Mapper,
+    private val profilesUseCase: ProfilesUseCase
 ) : PrescriptionUseCase {
 
-    override suspend fun saveScannedTasks(tasks: List<Task>) =
+    override suspend fun saveScannedTasks(tasks: List<Task>) {
         repository.saveScannedTasks(tasks)
+    }
+
+    override suspend fun mapScannedCodeToTask(scannedCodes: List<ValidScannedCode>) {
+        val activeProfileName = profilesUseCase.activeProfileName().first()
+        val now = OffsetDateTime.now()
+        var i = 1
+        val tasks = scannedCodes.flatMap { code ->
+            code.extract().map { (_, taskId, accessCode) ->
+                Task(
+                    taskId = taskId,
+                    profileName = activeProfileName,
+                    nrInScanSession = i++,
+                    scanSessionName = "",
+                    accessCode = accessCode,
+                    scanSessionEnd = now,
+                    scannedOn = code.raw.scannedOn
+                )
+            }
+        }
+        tasks.takeIf { it.isNotEmpty() }
+            ?.let { saveScannedTasks(it) }
+    }
+
+    private fun ValidScannedCode.extract(): List<List<String>> =
+        this.urls.mapNotNull {
+            TwoDCodeValidator.taskPattern.matchEntire(it)?.groupValues
+        }
 
     override suspend fun capabilityStatement() = repository.loadCapabilityStatement()
 
-    override fun tasks() = repository.tasks()
+    override fun tasks() =
+        profilesUseCase.activeProfileName().flatMapLatest {
+            repository.tasks(it)
+        }
 
-    override fun scannedTasks(): Flow<List<Task>> = repository.scannedTasksWithoutBundle()
+    override fun scannedTasks(): Flow<List<Task>> =
+        profilesUseCase.activeProfileName().flatMapLatest {
+            repository.scannedTasksWithoutBundle(it)
+        }
 
-    override fun syncedTasks(): Flow<List<Task>> = repository.syncedTasksWithoutBundle()
+    override fun syncedTasks(): Flow<List<Task>> {
+        return profilesUseCase.activeProfileName().flatMapLatest {
+            repository.syncedTasksWithoutBundle(it)
+        }
+    }
 
-    override suspend fun downloadCommunications(): Result<Unit> =
-        when (val r = repository.downloadCommunications()) {
+    override suspend fun downloadCommunications(): Result<Unit> {
+        val activeProfileName = profilesUseCase.activeProfileName().first()
+        return when (val r = repository.downloadCommunications(activeProfileName)) {
             is Result.Error -> r
             is Result.Success -> r
         }
+    }
 
-    override suspend fun downloadTasks(): Result<Unit> =
-        when (val r = repository.downloadTasks()) {
+    override suspend fun downloadTasks(): Result<Unit> {
+        val activeProfileName = profilesUseCase.activeProfileName().first()
+        return when (val r = repository.downloadTasks(activeProfileName)) {
             is Result.Error -> r
             is Result.Success -> r
         }
+    }
 
     override suspend fun loadLowDetailEvents(taskId: String): Flow<List<LowDetailEventSimple>> =
         repository.loadLowDetailEvents(taskId)
@@ -80,10 +128,11 @@ class PrescriptionUseCaseProduction @Inject constructor(
         taskId: String,
     ): UIPrescriptionDetail {
 
-        val (task, medicationDispense) = repository.loadTaskWithMedicationDispenseForTaskId(taskId).first()
+        val (task, medicationDispense) = repository.loadTaskWithMedicationDispenseForTaskId(taskId)
+            .first()
         val payload = createDataMatrixPayload(task.taskId, task.accessCode)
         val matrix = BitMatrixCode(createMatrixCode(payload))
-        val unRedeemMorePossible = unRedeemMorePossible(task.taskId)
+        val unRedeemMorePossible = unRedeemMorePossible(task.taskId, task.profileName)
 
         return if (task.rawKBVBundle == null) {
             mapToUIPrescriptionDetailScanned(task, matrix, unRedeemMorePossible)
@@ -133,13 +182,13 @@ class PrescriptionUseCaseProduction @Inject constructor(
         }
     }
 
-    override suspend fun unRedeemMorePossible(taskId: String): Boolean {
+    override suspend fun unRedeemMorePossible(taskId: String, profileName: String): Boolean {
         var unRedeemMorePossible = false
         scannedTasks().take(1).collect { scannedTasks ->
             scannedTasks.forEach {
                 if (it.taskId == taskId) {
                     val tasksForRedeemedOn = it.redeemedOn?.let { actualTask ->
-                        loadTasksForRedeemedOn(actualTask)
+                        loadTasksForRedeemedOn(actualTask, profileName)
                     }
                     tasksForRedeemedOn?.take(1)?.collect { tasksWithActualRedeemedOn ->
                         if (tasksWithActualRedeemedOn.size > 1) {
@@ -163,8 +212,11 @@ class PrescriptionUseCaseProduction @Inject constructor(
         }
     }
 
-    override fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime): Flow<List<Task>> {
-        return repository.loadTasksForRedeemedOn(redeemedOn)
+    override fun loadTasksForRedeemedOn(
+        redeemedOn: OffsetDateTime,
+        profileName: String
+    ): Flow<List<Task>> {
+        return repository.loadTasksForRedeemedOn(redeemedOn, profileName)
     }
 
     override fun loadAuditEvents(taskId: String): Flow<List<AuditEventSimple>> {
@@ -177,6 +229,7 @@ class PrescriptionUseCaseProduction @Inject constructor(
     }
 
     override suspend fun getAllTasksWithTaskIdOnly(): List<String> {
-        return repository.getAllTasksWithTaskIdOnly()
+        val activeProfileName = profilesUseCase.activeProfileName().first()
+        return repository.getAllTasksWithTaskIdOnly(activeProfileName)
     }
 }

@@ -29,13 +29,17 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CommunicationDao {
 
-    @Query("SELECT * FROM communications WHERE profile = :profile")
-    fun getAllCommunications(profile: CommunicationProfile): Flow<List<Communication>>
+    @Query("SELECT * FROM communications WHERE profile = :profile AND profileName = :userProfile")
+    fun getAllCommunications(
+        profile: CommunicationProfile,
+        userProfile: String
+    ): Flow<List<Communication>>
 
-    @Query("SELECT * FROM communications WHERE profile = :profile AND consumed = :consumed")
+    @Query("SELECT * FROM communications WHERE profile = :profile AND consumed = :consumed AND profileName = :userProfile")
     fun getAllUnreadCommunications(
         profile: CommunicationProfile,
-        consumed: Boolean = false
+        consumed: Boolean = false,
+        userProfile: String
     ): Flow<List<Communication>>
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)

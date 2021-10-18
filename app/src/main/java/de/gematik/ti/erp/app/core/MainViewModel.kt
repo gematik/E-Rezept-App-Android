@@ -21,15 +21,19 @@ package de.gematik.ti.erp.app.core
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlinx.coroutines.delay
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val settingsUseCase: SettingsUseCase,
     private val safetynetUseCase: SafetynetUseCase,
+    private val featureToggleManager: FeatureToggleManager
 ) : BaseViewModel() {
     val zoomEnabled by settingsUseCase::zoomEnabled
     val authenticationMethod by settingsUseCase::authenticationMethod
@@ -61,9 +65,32 @@ class MainViewModel @Inject constructor(
                 }
             }
 
+    fun profilesOn() =
+        featureToggleManager.featureState(Features.MULTI_PROFILE.featureName)
+
+    private var profileSetupShown = false
+    val showProfileSetupPrompt =
+        settingsUseCase.isProfileSetupCompleted()
+            .map {
+                if (!it && !profileSetupShown) {
+                    profileSetupShown = true
+                    delay(500)
+                    false
+                } else {
+                    true
+                }
+            }
+
     fun onAcceptInsecureDevice() {
         viewModelScope.launch {
             settingsUseCase.acceptInsecureDevice()
+        }
+    }
+
+    fun overwriteDefaultProfile(profileName: String) {
+        viewModelScope.launch {
+            settingsUseCase.overwriteDefaultProfileName(profileName)
+            settingsUseCase.activateProfile(profileName)
         }
     }
 }

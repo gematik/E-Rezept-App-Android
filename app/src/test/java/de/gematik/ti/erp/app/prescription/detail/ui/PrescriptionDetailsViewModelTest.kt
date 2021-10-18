@@ -54,7 +54,7 @@ class PrescriptionDetailsViewModelTest {
     fun `test loading task`() = coroutineRule.testDispatcher.runBlockingTest {
         val expected = detailPrescriptionScanned()
         coEvery { useCase.generatePrescriptionDetails(any()) } returns expected
-        coEvery { useCase.unRedeemMorePossible(any()) } returns true
+        coEvery { useCase.unRedeemMorePossible(any(), any()) } returns true
 
         assertEquals(expected, viewModel.detailedPrescription(expected.taskId))
     }

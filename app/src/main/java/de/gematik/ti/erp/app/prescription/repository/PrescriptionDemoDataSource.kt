@@ -33,6 +33,7 @@ import javax.inject.Singleton
 private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     Task(
         taskId = "full detail rezept 1_1",
+        profileName = "Demo-Profil",
         accessCode = "594fd81d9cc3c991f8ffc90b52f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Roser",
         expiresOn = now.plusDays(70),
@@ -43,7 +44,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 1_2",
-        accessCode = "909d3c7a75bce88c6b98854ace5733be213594fd81d9cc3c991f8ffc90b52f12",
+        profileName = "Demo-Profil", accessCode = "909d3c7a75bce88c6b98854ace5733be213594fd81d9cc3c991f8ffc90b52f12",
         organization = "Praxis Dr. Roser",
         expiresOn = now.plusDays(70),
         acceptUntil = now.plusDays(12),
@@ -53,7 +54,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 2_1",
-        accessCode = "594fd81d7cc3c991f8ffc90b52f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd81d7cc3c991f8ffc90b52f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Georg Backhaus",
         expiresOn = now.plusDays(70),
         acceptUntil = now.plusDays(12),
@@ -63,7 +64,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 2_2",
-        accessCode = "594fd81d9cb3c991f8ffc90b52f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd81d9cb3c991f8ffc90b52f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Georg Backhaus",
         expiresOn = now.plusDays(70),
         acceptUntil = now.plusDays(12),
@@ -73,7 +74,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 2_3",
-        accessCode = "594fd82d9cc3c991f8ffc90b52f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd82d9cc3c991f8ffc90b52f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Georg Backhaus",
         expiresOn = now.plusDays(70),
         acceptUntil = now.plusDays(12),
@@ -83,7 +84,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 2_4",
-        accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Georg Backhaus",
         expiresOn = now.plusDays(70),
         acceptUntil = now.plusDays(2),
@@ -93,7 +94,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 3_1",
-        accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Georg Backhaus",
         expiresOn = now.plusDays(70),
         acceptUntil = now.plusDays(10),
@@ -103,7 +104,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 3_2",
-        accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Prof. h. c. Dr. med. Schulte",
         expiresOn = now.plusDays(70),
         acceptUntil = now.plusDays(8),
@@ -113,7 +114,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 4_1",
-        accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Mortuus est",
         expiresOn = now.plusDays(70),
         acceptUntil = now,
@@ -123,7 +124,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 4_2",
-        accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Mortuus est",
         expiresOn = now.plusDays(70),
         acceptUntil = now.minusDays(4),
@@ -133,7 +134,7 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
     ),
     Task(
         taskId = "full detail rezept 4_3",
-        accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
+        profileName = "Demo-Profil", accessCode = "594fd82d9cc3c991f8ffc90b92f12909d3c7a75bce88c6b98854ace5733be213",
         organization = "Praxis Dr. Mortuus est",
         expiresOn = now.plusDays(1),
         acceptUntil = now.minusDays(70),

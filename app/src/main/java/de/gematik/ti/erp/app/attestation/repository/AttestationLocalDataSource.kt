@@ -2,8 +2,8 @@ package de.gematik.ti.erp.app.attestation.repository
 
 import de.gematik.ti.erp.app.db.AppDatabase
 import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 class AttestationLocalDataSource @Inject constructor(
     private val db: AppDatabase

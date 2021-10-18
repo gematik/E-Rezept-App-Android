@@ -104,7 +104,7 @@ class PrescriptionRepositoryTest {
     @Test
     fun `if download tasks gets called - ensure that complete tasks are saved together with fresh audit events`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            prescriptionRepository.downloadTasks()
+            prescriptionRepository.downloadTasks("")
 
             coVerify(exactly = taskWithoutKBVBundle.entry.size) { localDataSource.saveTask(any()) }
             coVerify(exactly = 1) { localDataSource.saveAuditEvents(any()) }

@@ -34,17 +34,17 @@ import java.time.OffsetDateTime
 @Dao
 interface TaskDao {
 
-    @Query("SELECT * FROM tasks ORDER BY authoredOn DESC")
-    fun getAllTasks(): Flow<List<Task>>
+    @Query("SELECT * from tasks WHERE profileName = :profileName ORDER BY authoredOn DESC")
+    fun getAllTasks(profileName: String): Flow<List<Task>>
 
-    @Query("SELECT taskId FROM tasks")
-    suspend fun getAllTasksWithTaskIdOnly(): List<String>
+    @Query("SELECT taskId FROM tasks WHERE profileName = :profileName")
+    suspend fun getAllTasksWithTaskIdOnly(profileName: String): List<String>
 
-    @Query("SELECT taskId, accessCode, lastModified, organization, medicationText, expiresOn, acceptUntil, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE scannedOn IS NULL")
-    fun getSyncedTasksWithoutBundle(): Flow<List<Task>>
+    @Query(value = "SELECT taskId, profileName, accessCode, lastModified, organization, medicationText, expiresOn, acceptUntil, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE profileName = :profileName AND scannedOn IS NULL")
+    fun getSyncedTasksWithoutBundle(profileName: String): Flow<List<Task>>
 
-    @Query("SELECT taskId, accessCode, lastModified, organization, medicationText, expiresOn, acceptUntil, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE scannedOn IS NOT NULL")
-    fun getScannedTasksWithoutBundle(): Flow<List<Task>>
+    @Query("SELECT taskId, profileName, accessCode, lastModified, organization, medicationText, expiresOn, acceptUntil, authoredOn, scannedOn, scanSessionEnd, nrInScanSession, scanSessionName, redeemedOn FROM tasks WHERE profileName = :profileName AND scannedOn IS NOT NULL")
+    fun getScannedTasksWithoutBundle(profileName: String): Flow<List<Task>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMultipleTasks(vararg task: Task)
@@ -98,6 +98,6 @@ interface TaskDao {
     @Query("DELETE FROM lowDetailEvents WHERE taskId = :taskId")
     fun deleteLowDetailEvents(taskId: String)
 
-    @Query("SELECT * FROM tasks WHERE redeemedOn = :redeemedOn")
-    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime): Flow<List<Task>>
+    @Query("SELECT * FROM tasks WHERE profileName = :profileName AND redeemedOn = :redeemedOn")
+    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime, profileName: String): Flow<List<Task>>
 }

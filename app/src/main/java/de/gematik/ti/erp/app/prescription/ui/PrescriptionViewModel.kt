@@ -38,7 +38,6 @@ import de.gematik.ti.erp.app.prescription.usecase.PollingUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
-import javax.inject.Inject
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
@@ -52,6 +51,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import java.time.LocalDate
+import javax.inject.Inject
 
 @HiltViewModel
 class PrescriptionViewModel @Inject constructor(
@@ -64,6 +64,8 @@ class PrescriptionViewModel @Inject constructor(
     private val hintUseCase: HintUseCase,
     private val authenticationUseCase: AuthenticationUseCase
 ) : BaseViewModel() {
+
+//    private val profile = session.profile
 
     val defaultState = PrescriptionScreen.State(
         demoUseCase.isDemoModeActive,
@@ -90,6 +92,7 @@ class PrescriptionViewModel @Inject constructor(
             prescriptionUseCase.scannedRecipes(),
         ) { fullDetail, lowDetail ->
 
+            Timber.d("scanned prescriptions: ${lowDetail.size}")
             (fullDetail + lowDetail).sortedByDescending {
                 when (it) {
                     is PrescriptionUseCaseData.Recipe.Synced -> it.authoredOn
@@ -174,7 +177,7 @@ class PrescriptionViewModel @Inject constructor(
             authenticationUseCase.authenticateWithSecureElement()
                 .catch {
                     Timber.e(it)
-                    cancel()
+                    cancel("just because")
                 }
                 .onEach {
                     if (it.isFinal()) {

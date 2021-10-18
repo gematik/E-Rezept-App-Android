@@ -39,6 +39,8 @@ import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,7 +49,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
+import de.gematik.ti.erp.app.utils.compose.Spacer24
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import java.net.URI
+import kotlinx.coroutines.flow.collect
 
 @Composable
 fun EditablePathComponentSetButton(
@@ -287,7 +292,7 @@ fun DebugScreen(navigation: NavController, viewModel: DebugSettingsViewModel = h
                     Spacer(modifier = modifier)
 
                     Text(
-                        text = "Service URL's",
+                        text = "Service URLs",
                         modifier = modifier,
                         style = MaterialTheme.typography.h6
                     )
@@ -340,6 +345,53 @@ fun DebugScreen(navigation: NavController, viewModel: DebugSettingsViewModel = h
                     }
                 }
             }
+            SpacerMedium()
+            FeatureToggles(viewModel = viewModel)
         }
     }
+}
+
+@Composable
+private fun FeatureToggles(modifier: Modifier = Modifier, viewModel: DebugSettingsViewModel) {
+    val featuresState by produceState(initialValue = mutableMapOf<String, Boolean>()) {
+        viewModel.featuresState().collect {
+            value = it
+        }
+    }
+    Card(
+        modifier = Modifier.padding(horizontal = 2.dp),
+        shape = RoundedCornerShape(8.dp),
+        elevation = 2.dp,
+        border = BorderStroke(1.dp, Color.LightGray)
+    ) {
+        Column {
+            Spacer(modifier = modifier)
+            Text(
+                text = "Feature toggles",
+                modifier = modifier.padding(16.dp),
+                style = MaterialTheme.typography.h6
+            )
+
+            for (feature in viewModel.features()) {
+                Row(
+                    modifier = modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text(
+                        text = feature.featureName,
+                        modifier = Modifier
+                            .weight(1f)
+                            .padding(end = 16.dp)
+
+                    )
+                    Switch(
+                        checked = featuresState[feature.featureName] ?: false,
+                        onCheckedChange = { viewModel.toggleFeature(feature) }
+                    )
+                }
+            }
+        }
+    }
+    Spacer24()
 }

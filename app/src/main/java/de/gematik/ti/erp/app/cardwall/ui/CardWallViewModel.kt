@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.cardwall.ui
 
-import android.content.Context
 import android.nfc.Tag
 import android.os.Build
 import android.os.Parcelable
@@ -27,24 +26,27 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWall
+import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.core.BaseViewModel
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.prescription.usecase.PollingUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
-import kotlinx.coroutines.withContext
 
 private const val navStateKey = "cdwNavState"
 @HiltViewModel
@@ -54,20 +56,22 @@ class CardWallViewModel @Inject constructor(
     private val cardWallUseCase: CardWallUseCase,
     private val authenticationUseCase: AuthenticationUseCase,
     private val dispatchProvider: DispatchProvider,
-    private val demoUseCase: DemoUseCase
+    private val demoUseCase: DemoUseCase,
+    private val profilesUseCase: ProfilesUseCase,
+    private val toggleManager: FeatureToggleManager
 ) : BaseViewModel() {
     @Parcelize
     private data class NavState(
         val can: String,
         val pin: String,
-        val authMethod: CardWall.AuthenticationMethod
+        val authMethod: CardWallData.AuthenticationMethod
     ) : Parcelable
 
-    val defaultState = CardWall.State(
+    val defaultState = CardWallData.State(
         hardwareRequirementsFulfilled = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher,
         isIntroSeenByUser = cardWallUseCase.cardWallIntroIsAccepted,
         cardAccessNumber = cardWallUseCase.cardAccessNumber ?: "",
-        selectedAuthenticationMethod = CardWall.AuthenticationMethod.None,
+        selectedAuthenticationMethod = CardWallData.AuthenticationMethod.None,
         personalIdentificationNumber = "",
         demoMode = demoUseCase.demoModeActive.value,
     )
@@ -83,7 +87,7 @@ class CardWallViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (!savedStateHandle.contains(navStateKey)) {
-                onSelectAuthenticationMethod(cardWallUseCase.getAuthenticationMethod())
+                onSelectAuthenticationMethod(cardWallUseCase.getAuthenticationMethod(profilesUseCase.activeProfileName().first()))
             }
             navState.collect {
                 savedStateHandle.set(navStateKey, it)
@@ -91,7 +95,7 @@ class CardWallViewModel @Inject constructor(
         }
     }
 
-    fun state(): Flow<CardWall.State> =
+    fun state(): Flow<CardWallData.State> =
         combine(
             navState,
             demoUseCase.demoModeActive
@@ -107,14 +111,14 @@ class CardWallViewModel @Inject constructor(
     fun doAuthentication(
         can: String,
         pin: String,
-        method: CardWall.AuthenticationMethod,
+        method: CardWallData.AuthenticationMethod,
         tag: Flow<Tag>
     ): Flow<AuthenticationState> {
         val cardChannel = tag.map { NfcHealthCard.connect(it) }
 
         return when {
-            method == CardWall.AuthenticationMethod.None -> error("Authentication method must be set")
-            method == CardWall.AuthenticationMethod.Alternative && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ->
+            method == CardWallData.AuthenticationMethod.None -> error("Authentication method must be set")
+            method == CardWallData.AuthenticationMethod.Alternative && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ->
                 authenticationUseCase.pairDeviceWithHealthCardAndSecureElement(
                     can = can,
                     pin = pin,
@@ -144,7 +148,7 @@ class CardWallViewModel @Inject constructor(
         navState.value = navState.value.copy(pin = pin)
     }
 
-    fun onSelectAuthenticationMethod(authMethod: CardWall.AuthenticationMethod) {
+    fun onSelectAuthenticationMethod(authMethod: CardWallData.AuthenticationMethod) {
         navState.value = navState.value.copy(authMethod = authMethod)
     }
 
@@ -154,7 +158,6 @@ class CardWallViewModel @Inject constructor(
 
     fun isNFCEnabled() = cardWallUseCase.deviceHasNFCEnabled
 
-    suspend fun loadInsuranceCompanies(context: Context) = withContext(dispatchProvider.io()) {
-        cardWallUseCase.loadInsuranceCompanies(context, "insurance_companies.json")
-    }
+    fun fastTrackOn() =
+        toggleManager.featureState(Features.FAST_TRACK.featureName)
 }

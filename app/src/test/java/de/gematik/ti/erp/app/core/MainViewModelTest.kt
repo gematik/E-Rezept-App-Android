@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.core
 
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import io.mockk.MockKAnnotations
@@ -47,6 +48,9 @@ class MainViewModelTest {
     @MockK
     private lateinit var safetynetUseCase: SafetynetUseCase
 
+    @MockK
+    private lateinit var featureToggleManager: FeatureToggleManager
+
     @Before
     fun setup() {
         MockKAnnotations.init(this)
@@ -57,7 +61,8 @@ class MainViewModelTest {
     fun `test showInsecureDevicePrompt - only show once`() = coroutineRule.testDispatcher.runBlockingTest {
         every { useCase.showInsecureDevicePrompt } returns flowOf(true)
         every { useCase.isNewUser } returns false
-        viewModel = MainViewModel(useCase, safetynetUseCase)
+        every { useCase.isProfileSetupCompleted() } returns flowOf(true)
+        viewModel = MainViewModel(useCase, safetynetUseCase, featureToggleManager)
 
         assertEquals(true, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -67,8 +72,9 @@ class MainViewModelTest {
     fun `test showInsecureDevicePrompt - device is secure`() = coroutineRule.testDispatcher.runBlockingTest {
         every { useCase.showInsecureDevicePrompt } returns flowOf(false)
         every { useCase.isNewUser } returns false
+        every { useCase.isProfileSetupCompleted() } returns flowOf(true)
 
-        viewModel = MainViewModel(useCase, safetynetUseCase)
+        viewModel = MainViewModel(useCase, safetynetUseCase, featureToggleManager)
 
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())

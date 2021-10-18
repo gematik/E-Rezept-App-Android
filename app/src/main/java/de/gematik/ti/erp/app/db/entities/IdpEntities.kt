@@ -18,7 +18,9 @@
 
 package de.gematik.ti.erp.app.db.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import org.bouncycastle.cert.X509CertificateHolder
@@ -41,11 +43,24 @@ data class IdpConfiguration(
     var id: Int = 0
 }
 
-@Entity(tableName = "idpAuthenticationDataEntity")
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Profile::class,
+            parentColumns = arrayOf("name"),
+            childColumns = arrayOf("profileName"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ],
+    tableName = "idpAuthenticationDataEntity"
+)
 data class IdpAuthenticationDataEntity(
+    @ColumnInfo(index = true)
+    val profileName: String,
     val singleSignOnToken: String? = null,
     val singleSignOnTokenScope: SingleSignOnToken.Scope? = null,
-
+    val cardAccessNumber: String? = null,
     val healthCardCertificate: ByteArray? = null,
     val aliasOfSecureElementEntry: ByteArray? = null
 ) {

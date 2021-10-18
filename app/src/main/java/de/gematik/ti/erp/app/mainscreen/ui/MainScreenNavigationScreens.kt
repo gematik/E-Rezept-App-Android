@@ -33,6 +33,7 @@ data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 
 object MainNavigationScreens {
     object Onboarding : Route("Onboarding")
+    object ProfileSetup : Route("ProfileSetup")
     object ReturningUserSecureAppOnboarding : Route("ReturningUserSecureAppOnboarding")
     object Settings : Route(
         "Settings",

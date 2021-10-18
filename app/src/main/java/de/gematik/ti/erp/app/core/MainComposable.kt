@@ -58,6 +58,7 @@ import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import kotlin.math.max
 import kotlin.math.min
 
@@ -72,6 +73,7 @@ fun MainContent(
     mainViewModel: MainViewModel = hiltViewModel(),
     content: @Composable (mainViewModel: MainViewModel) -> Unit
 ) {
+    Timber.d("mainviewModel instance: $mainViewModel")
     val zoomEnabled by mainViewModel.zoomEnabled.collectAsState(false)
 
     AppTheme {

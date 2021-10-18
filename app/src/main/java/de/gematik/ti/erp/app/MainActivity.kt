@@ -29,12 +29,16 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.layout
+import androidx.compose.ui.res.painterResource
 import androidx.core.content.edit
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
@@ -46,8 +50,8 @@ import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.di.NavigationObservable
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
 import de.gematik.ti.erp.app.tracking.Tracker
-import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -103,12 +107,27 @@ class MainActivity : AppCompatActivity() {
             ) {
                 MainContent { mainViewModel ->
                     val auth by authenticationModeAndMethod.collectAsState(null)
-
                     val navController = rememberNavController()
 
                     Box(modifier = Modifier.fillMaxSize()) {
-                        // required to stay; otherwise the state of the sub nav-controllers won't be loaded
-                        MainScreen(navController, mainViewModel)
+                        if (auth !is AuthenticationModeAndMethod.Authenticated) {
+                            Image(
+                                painterResource(R.drawable.erp_logo),
+                                null,
+                                modifier = Modifier.align(Alignment.Center)
+                            )
+                        }
+
+                        val noDrawModifier = Modifier
+                            .fillMaxSize()
+                            .layout { _, _ ->
+                                layout(0, 0) {}
+                            }
+                        Box(
+                            if (auth is AuthenticationModeAndMethod.Authenticated) Modifier else noDrawModifier
+                        ) {
+                            MainScreen(navController, mainViewModel)
+                        }
 
                         AnimatedVisibility(
                             visible = auth is AuthenticationModeAndMethod.AuthenticationRequired,

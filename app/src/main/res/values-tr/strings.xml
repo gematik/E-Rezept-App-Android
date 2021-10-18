@@ -84,11 +84,6 @@
     <string name="cdw_intro_what_you_need">İhtiyacınız olan şey:</string>
     <string name="cdw_intro_what_you_need_egk">Erişim numarası (CAN) olan bir sağlık kartı</string>
     <string name="cdw_intro_what_you_need_pin">Sağlık kartının PIN\'i</string>
-    <!-- Cardwall: Capability -->
-    <string name="cdw_capability_title">Kart ekle</string>
-    <string name="cdw_capability_headline">Ne yazık …</string>
-    <string name="cdw_capability_body">Maalesef cihazınız E-Rezept uygulamasına giriş yapmak için gereken minimum gereksinimleri karşılamıyor.</string>
-    <string name="cdw_capability_more">Sağlık kartına kaydolmak için neden minimum gereksinimler var?</string>
     <!-- Cardwall: CAN Intro -->
     <string name="cdw_can_caption">Kart erişim numaranız (Card Access Number, kısaca: CAN) 6 hanelidir. CAN\'ı sağlık sigortası kartınızın ön yüzünün sağ üst köşesinde bulacaksınız. Burada altı haneli bir erişim numarası yoksa sağlık sigortanızdan yeni bir sağlık kartına ihtiyacınız olacaktır.</string>
     <string name="cdw_can_headline">Erişim numarasını girin</string>

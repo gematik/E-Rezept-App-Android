@@ -50,6 +50,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -70,6 +72,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.google.mlkit.common.sdkinternal.MlKitContext
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
 import de.gematik.ti.erp.app.core.LocalActivity
@@ -78,6 +81,7 @@ import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.messages.ui.DisplayPickupScreen
 import de.gematik.ti.erp.app.messages.ui.MessageScreen
 import de.gematik.ti.erp.app.messages.ui.MessageViewModel
+import de.gematik.ti.erp.app.onboarding.ui.OnboardingProfile
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingScreen
 import de.gematik.ti.erp.app.onboarding.ui.ReturningUserSecureAppOnboardingScreen
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacySearchScreenWithNavigation
@@ -89,6 +93,7 @@ import de.gematik.ti.erp.app.settings.ui.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
+import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.flow.collect
@@ -146,6 +151,12 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
         composable(MainNavigationScreens.Prescriptions.route) {
             MainScreenWithScaffold(navController)
         }
+        composable(MainNavigationScreens.ProfileSetup.route) {
+            OnboardingProfile(isReturningUser = true) {
+                mainViewModel.overwriteDefaultProfile(it)
+                navController.popBackStack()
+            }
+        }
         composable(
             MainNavigationScreens.PrescriptionDetail.route,
             MainNavigationScreens.PrescriptionDetail.arguments,
@@ -157,7 +168,8 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
             MainNavigationScreens.Pharmacies.route,
             MainNavigationScreens.Pharmacies.arguments,
         ) {
-            val taskIds = remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
+            val taskIds =
+                remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
             PharmacySearchScreenWithNavigation(taskIds, navController)
         }
         composable(MainNavigationScreens.InsecureDeviceScreen.route) {
@@ -187,7 +199,8 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
             MainNavigationScreens.RedeemLocally.route,
             MainNavigationScreens.RedeemLocally.arguments
         ) {
-            val taskIds = remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
+            val taskIds =
+                remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
             RedeemScreen(
                 taskIds,
                 navController
@@ -217,10 +230,11 @@ fun MainScreen(navController: NavHostController, mainViewModel: MainViewModel) {
 @Composable
 private fun MainScreenWithScaffold(
     mainNavController: NavController,
-    mainViewModel: MainViewModel = hiltViewModel(),
+    mainViewModel: MainViewModel = hiltViewModel(LocalActivity.current),
     mainScreenVM: MainScreenViewModel = hiltViewModel(LocalActivity.current),
     messageVM: MessageViewModel = hiltViewModel()
 ) {
+
     LaunchedEffect(Unit) {
         if (mainViewModel.showInsecureDevicePrompt.first()) {
             mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.route)
@@ -231,6 +245,22 @@ private fun MainScreenWithScaffold(
         mainViewModel.showSafetynetPrompt.collect {
             if (!it) {
                 mainNavController.navigate(MainNavigationScreens.SafetynetNotOkScreen.route)
+            }
+        }
+    }
+
+    val multiProfile by produceState(initialValue = false) {
+        mainViewModel.profilesOn().collect {
+            value = it
+        }
+    }
+
+    if (multiProfile) {
+        LaunchedEffect(Unit) {
+            mainViewModel.showProfileSetupPrompt.collect {
+                if (!it) {
+                    mainNavController.navigate(MainNavigationScreens.ProfileSetup.route)
+                }
             }
         }
     }
@@ -504,10 +534,28 @@ fun MainScreenTopAppBar(
             }
         },
         actions = @Composable {
+            var showMlKitPermissionDialog by remember { mutableStateOf(false) }
+
+            if (showMlKitPermissionDialog) {
+                MlKitPermissionDialog(
+                    onAccept = {
+                        navController.navigate(MainNavigationScreens.Camera.path())
+                        showMlKitPermissionDialog = false
+                    },
+                    onDecline = {
+                        showMlKitPermissionDialog = false
+                    }
+                )
+            }
+
             // data matrix code scanner
             IconButton(
                 onClick = {
-                    navController.navigate(MainNavigationScreens.Camera.path())
+                    if (!isMlKitInitialized()) {
+                        showMlKitPermissionDialog = true
+                    } else {
+                        navController.navigate(MainNavigationScreens.Camera.path())
+                    }
                 },
                 modifier = Modifier
                     .testId("erx_btn_scn_prescription")
@@ -520,5 +568,28 @@ fun MainScreenTopAppBar(
                 )
             }
         }
+    )
+}
+
+private fun isMlKitInitialized() =
+    try {
+        MlKitContext.getInstance()
+        true
+    } catch (_: Exception) {
+        false
+    }
+
+@Composable
+private fun MlKitPermissionDialog(
+    onAccept: () -> Unit,
+    onDecline: () -> Unit
+) {
+    CommonAlertDialog(
+        header = stringResource(R.string.cam_accept_mlkit_title),
+        info = stringResource(R.string.cam_accept_mlkit_body),
+        cancelText = stringResource(R.string.cam_accept_mlkit_decline),
+        actionText = stringResource(R.string.cam_accept_mlkit_accept),
+        onCancel = onDecline,
+        onClickAction = onAccept
     )
 }

@@ -18,18 +18,40 @@
 
 package de.gematik.ti.erp.app.db.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 const val COMMUNICATION_TYPE_DISP_REQ = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
 const val COMMUNICATION_TYPE_REPLY = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply"
 
-@Entity(tableName = "communications")
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Task::class,
+            parentColumns = arrayOf("taskId"),
+            childColumns = arrayOf("taskId"),
+            onDelete = ForeignKey.CASCADE
+        ),
+        ForeignKey(
+            entity = Profile::class,
+            parentColumns = arrayOf("name"),
+            childColumns = arrayOf("profileName"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ],
+    tableName = "communications"
+)
 data class Communication(
     @PrimaryKey
     val communicationId: String,
     val profile: CommunicationProfile,
+    @ColumnInfo(index = true)
+    val profileName: String,
     val time: String,
+    @ColumnInfo(index = true)
     val taskId: String,
     val telematicsId: String,
     val kbvUserId: String,

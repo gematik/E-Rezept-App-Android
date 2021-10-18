@@ -34,16 +34,17 @@ import de.gematik.ti.erp.app.prescription.repository.OrganizationDetail
 import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionDemoDataSource
+import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.OffsetDateTime
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.map
 import org.hl7.fhir.r4.model.CapabilityStatement
-import java.io.IOException
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import javax.inject.Inject
 
 private const val DEMO_DELAY = 500L
 
@@ -125,7 +126,10 @@ class PrescriptionUseCaseDemo @Inject constructor(
         return Result.Success(Unit)
     }
 
-    override fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime): Flow<List<Task>> {
+    override fun loadTasksForRedeemedOn(
+        redeemedOn: OffsetDateTime,
+        profileName: String
+    ): Flow<List<Task>> {
         return emptyFlow()
     }
 
@@ -151,7 +155,7 @@ class PrescriptionUseCaseDemo @Inject constructor(
         return prescriptionDemoDataSource.redeem(taskIds, redeem, all)
     }
 
-    override suspend fun unRedeemMorePossible(taskId: String): Boolean {
+    override suspend fun unRedeemMorePossible(taskId: String, profileName: String): Boolean {
         return prescriptionDemoDataSource.unRedeemMorePossible(taskId)
     }
 
@@ -160,5 +164,8 @@ class PrescriptionUseCaseDemo @Inject constructor(
         scanSessionEnd: OffsetDateTime
     ) {
         prescriptionDemoDataSource.editScannedPrescriptionsName(name, scanSessionEnd)
+    }
+
+    override suspend fun mapScannedCodeToTask(scannedCodes: List<ValidScannedCode>) {
     }
 }

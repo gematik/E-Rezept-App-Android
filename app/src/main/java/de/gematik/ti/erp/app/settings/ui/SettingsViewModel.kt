@@ -29,19 +29,25 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.SCREENSHOTS_ALLOWED
 import de.gematik.ti.erp.app.core.BaseViewModel
+import de.gematik.ti.erp.app.db.entities.Profile
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.di.ApplicationPreferences
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.settings.usecase.DEFAULT_PROFILE_NAME
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.tracking.Tracker
+import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-sealed class SettingsNavigationScreens {
+object SettingsNavigationScreens {
     object Settings : Route("Settings")
     object Terms : Route("Terms")
     object Imprint : Route("Imprint")
@@ -52,6 +58,7 @@ sealed class SettingsNavigationScreens {
     object Password : Route("Password")
     object Debug : Route("Debug")
     object Token : Route("Token")
+    object OrderHealthCard : Route("OrderHealthCard")
 }
 
 object SettingsScreen {
@@ -72,7 +79,7 @@ object SettingsScreen {
     }
 
     @Immutable
-    data class HealthCardUser(val name: String?)
+    data class UIProfile(val id: Int, val name: String, val active: Boolean)
 
     @Immutable
     data class State(
@@ -81,7 +88,7 @@ object SettingsScreen {
         val authenticationMode: AuthenticationMode,
         val zoomEnabled: Boolean,
         val screenShotsAllowed: Boolean,
-        val healthCardUsers: List<HealthCardUser>
+        val uiProfiles: List<UIProfile>
     )
 }
 
@@ -92,36 +99,43 @@ private val defaultState = SettingsScreen.State(
     zoomEnabled = false,
     // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
     screenShotsAllowed = false,
-    healthCardUsers = listOf()
+    uiProfiles = listOf()
 )
 
 const val NEW_USER = "newUser"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val settingsUseCase: SettingsUseCase,
     private val demoUseCase: DemoUseCase,
+    private val profilesUseCase: ProfilesUseCase,
     private val tracker: Tracker,
     @ApplicationPreferences
-    private val appPrefs: SharedPreferences
+    private val appPrefs: SharedPreferences,
+    private val toggleManager: FeatureToggleManager
 ) : BaseViewModel() {
+
     var screenState by mutableStateOf(defaultState)
         private set
 
     var isNewUser by settingsUseCase::isNewUser
-
     private var screenshotsAllowed =
         MutableStateFlow(appPrefs.getBoolean(SCREENSHOTS_ALLOWED, false))
 
+    var addProfilesHintShown =
+        appPrefs.getBoolean(PROFILES_HINT_SHOWN, false)
+
     init {
+
         viewModelScope.launch {
             combine(
                 demoUseCase.demoModeActive,
                 tracker.trackingAllowed,
                 settingsUseCase.settings,
                 screenshotsAllowed,
-                settingsUseCase.healthCardUser()
-            ) { demoActive, analyticsAllowed, settings, screenshotsAllowed, healthCardUser ->
+                settingsUseCase.profiles(),
+            ) { demoActive, analyticsAllowed, settings, screenshotsAllowed, uiProfiles ->
                 SettingsScreen.State(
                     demoModeActive = demoActive,
                     analyticsAllowed = analyticsAllowed,
@@ -132,9 +146,7 @@ class SettingsViewModel @Inject constructor(
                     },
                     zoomEnabled = settings.zoomEnabled,
                     screenShotsAllowed = screenshotsAllowed,
-                    healthCardUsers = healthCardUser.map {
-                        SettingsScreen.HealthCardUser(it.name)
-                    }
+                    uiProfiles = uiProfiles
                 )
             }.collect {
                 screenState = it
@@ -196,4 +208,51 @@ class SettingsViewModel @Inject constructor(
     }
 
     suspend fun getToken() = settingsUseCase.getToken()
+    fun addProfile(profileName: String) {
+        viewModelScope.launch {
+            profilesUseCase.addProfile(Profile(name = profileName))
+        }
+    }
+
+    fun removeProfile(name: String) {
+        viewModelScope.launch {
+            profilesUseCase.removeProfile(name)
+        }
+    }
+
+    fun updateProfileName(profile: SettingsScreen.UIProfile, profileName: String) {
+        viewModelScope.launch {
+            profilesUseCase.updateProfile(profile.id, profileName)
+        }
+    }
+
+    fun activateProfile(name: String) {
+        viewModelScope.launch {
+            profilesUseCase.insertActiveProfile(name)
+        }
+    }
+
+    fun profilesOn() =
+        toggleManager.featureState(Features.MULTI_PROFILE.featureName)
+
+    fun profileSetup(profileName: String) {
+        viewModelScope.launch {
+            profilesUseCase.setupProfile(profileName)
+        }
+    }
+
+    suspend fun profileSetupViaLaunchedEffect() {
+        profilesUseCase.setupProfile(DEFAULT_PROFILE_NAME)
+    }
+
+    fun onAddProfilesHintShown() {
+        appPrefs.edit {
+            putBoolean(PROFILES_HINT_SHOWN, true)
+        }
+        addProfilesHintShown = true
+    }
+
+    companion object {
+        const val PROFILES_HINT_SHOWN = "PROFILES_HINT_SHOWN"
+    }
 }

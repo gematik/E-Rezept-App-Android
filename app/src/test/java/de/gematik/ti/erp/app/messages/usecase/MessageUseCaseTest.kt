@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.messages.listOfCommunicationsUnread
 import de.gematik.ti.erp.app.messages.repository.MessageRepository
 import de.gematik.ti.erp.app.messages.ui.models.ErrorUIMessage
 import de.gematik.ti.erp.app.messages.ui.models.UIMessage
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import de.gematik.ti.erp.app.utils.communicationDelivery
 import de.gematik.ti.erp.app.utils.communicationShipment
@@ -58,19 +59,22 @@ class MessageUseCaseTest {
 
     private lateinit var useCase: MessageUseCase
     private lateinit var repository: MessageRepository
+    private lateinit var profileUseCase: ProfilesUseCase
     private lateinit var moshi: Moshi
 
     @Before
     fun setUp() {
         repository = mockk()
+        profileUseCase = mockk()
         moshi = Moshi.Builder().build()
-        useCase = MessageUseCase(repository, moshi)
+        useCase = MessageUseCase(repository, profileUseCase, moshi)
+        every { profileUseCase.activeProfileName() } returns flow { emit("Tester") }
     }
 
     @Test
     fun `test loading communications - should return non empty list`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow {
+            every { repository.loadCommunications(any(), any()) } returns flow {
                 emit(listOfCommunicationsUnread())
             }
             val result =
@@ -82,7 +86,7 @@ class MessageUseCaseTest {
     @Test
     fun `test unread communications available - should return true`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadUnreadCommunications(any()) } returns flow {
+            every { repository.loadUnreadCommunications(any(), any()) } returns flow {
                 emit(listOfCommunicationsUnread())
             }
             val result =
@@ -94,7 +98,7 @@ class MessageUseCaseTest {
     @Test
     fun `test unread communications available - should return false`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadUnreadCommunications(any()) } returns flow {
+            every { repository.loadUnreadCommunications(any(), any()) } returns flow {
                 emit(listOf<Communication>())
             }
             val result =
@@ -106,7 +110,7 @@ class MessageUseCaseTest {
     @Test
     fun `test loading communications - should map to Shipment`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow {
+            every { repository.loadCommunications(any(), any()) } returns flow {
                 emit(
                     listOf(communicationShipment())
                 )
@@ -123,7 +127,7 @@ class MessageUseCaseTest {
     @Test
     fun `test loading communications - should map to Delivery`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow {
+            every { repository.loadCommunications(any(), any()) } returns flow {
                 emit(listOf(communicationDelivery()))
             }
             val result =
@@ -138,7 +142,7 @@ class MessageUseCaseTest {
     @Test
     fun `test loading communications - should map to OnPremise`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow {
+            every { repository.loadCommunications(any(), any()) } returns flow {
                 emit(listOf(communicationOnPremise()))
             }
             val result =
@@ -153,7 +157,7 @@ class MessageUseCaseTest {
     @Test
     fun `test mapping communications - should map to OnPremise`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow {
+            every { repository.loadCommunications(any(), any()) } returns flow {
                 emit(listOf(communicationOnPremise()))
             }
             val result =
@@ -172,7 +176,7 @@ class MessageUseCaseTest {
     @Test
     fun `test mapping communications - null message`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow {
+            every { repository.loadCommunications(any(), any()) } returns flow {
                 emit(listOf(communicationDelivery()))
             }
             val result =
@@ -189,7 +193,7 @@ class MessageUseCaseTest {
     @Test
     fun `test mapping communications - should map to Error`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            every { repository.loadCommunications(any()) } returns flow {
+            every { repository.loadCommunications(any(), any()) } returns flow {
                 emit(listOf(errorCommunicationDelivery()))
             }
             val result =

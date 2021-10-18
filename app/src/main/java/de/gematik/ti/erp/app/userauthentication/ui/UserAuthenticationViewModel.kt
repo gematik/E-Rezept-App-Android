@@ -18,8 +18,6 @@
 
 package de.gematik.ti.erp.app.userauthentication.ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.core.BaseViewModel

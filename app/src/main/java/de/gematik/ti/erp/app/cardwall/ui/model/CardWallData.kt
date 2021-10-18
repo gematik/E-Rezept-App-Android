@@ -18,7 +18,9 @@
 
 package de.gematik.ti.erp.app.cardwall.ui.model
 
-object CardWall {
+import androidx.compose.runtime.Immutable
+
+object CardWallData {
     const val CAN_LENGTH = 6
     const val PIN_MIN_LENGTH = 6
     const val PIN_MAX_LENGTH = 8
@@ -29,6 +31,7 @@ object CardWall {
         HealthCard
     }
 
+    @Immutable
     data class State(
         val hardwareRequirementsFulfilled: Boolean,
         val isIntroSeenByUser: Boolean,

@@ -18,9 +18,7 @@
 
 package de.gematik.ti.erp.app.cardwall.usecase
 
-import android.content.Context
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWall
-import de.gematik.ti.erp.app.cardwall.ui.model.InsuranceList
+import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 
 interface CardWallUseCase {
     var cardWallIntroIsAccepted: Boolean
@@ -31,6 +29,5 @@ interface CardWallUseCase {
     var deviceHasNFCAndAndroidMOrHigher: Boolean
     val deviceHasNFCEnabled: Boolean
 
-    suspend fun getAuthenticationMethod(): CardWall.AuthenticationMethod
-    fun loadInsuranceCompanies(context: Context, fileName: String): InsuranceList?
+    suspend fun getAuthenticationMethod(profileName: String): CardWallData.AuthenticationMethod
 }

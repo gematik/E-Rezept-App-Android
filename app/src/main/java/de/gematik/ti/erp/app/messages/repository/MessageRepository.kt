@@ -26,11 +26,11 @@ class MessageRepository @Inject constructor(
     private val localDataSource: LocalDataSource
 ) {
 
-    fun loadCommunications(profile: CommunicationProfile) =
-        localDataSource.loadCommunications(profile)
+    fun loadCommunications(profile: CommunicationProfile, profileName: String) =
+        localDataSource.loadCommunications(profile, profileName)
 
-    fun loadUnreadCommunications(profile: CommunicationProfile) =
-        localDataSource.loadUnreadCommunications(profile)
+    fun loadUnreadCommunications(profile: CommunicationProfile, profileName: String) =
+        localDataSource.loadUnreadCommunications(profile, profileName)
 
     suspend fun setCommunicationAcknowledgedStatus(communicationId: String, consumed: Boolean) {
         localDataSource.setCommunicationsAcknowledgedStatus(communicationId, consumed)

@@ -24,6 +24,7 @@ import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
+import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
@@ -97,8 +98,8 @@ class PrescriptionUseCaseDelegate @Inject constructor(
     override suspend fun deletePrescription(taskId: String, isRemoteTask: Boolean) =
         delegate.deletePrescription(taskId, isRemoteTask)
 
-    override fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime): Flow<List<Task>> {
-        return delegate.loadTasksForRedeemedOn(redeemedOn)
+    override fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime, profileName: String): Flow<List<Task>> {
+        return delegate.loadTasksForRedeemedOn(redeemedOn, profileName)
     }
 
     override suspend fun getAllTasksWithTaskIdOnly(): List<String> {
@@ -109,8 +110,8 @@ class PrescriptionUseCaseDelegate @Inject constructor(
         return delegate.redeem(taskIds, redeem, all)
     }
 
-    override suspend fun unRedeemMorePossible(taskId: String): Boolean {
-        return delegate.unRedeemMorePossible(taskId)
+    override suspend fun unRedeemMorePossible(taskId: String, profileName: String): Boolean {
+        return delegate.unRedeemMorePossible(taskId, profileName)
     }
 
     override suspend fun editScannedPrescriptionsName(
@@ -118,5 +119,9 @@ class PrescriptionUseCaseDelegate @Inject constructor(
         scanSessionEnd: OffsetDateTime
     ) {
         delegate.editScannedPrescriptionsName(name, scanSessionEnd)
+    }
+
+    override suspend fun mapScannedCodeToTask(scannedCodes: List<ValidScannedCode>) {
+        delegate.mapScannedCodeToTask(scannedCodes)
     }
 }

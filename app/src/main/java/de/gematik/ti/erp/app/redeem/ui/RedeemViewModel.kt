@@ -121,7 +121,10 @@ class RedeemViewModel @Inject constructor(
             tasks
                 .toList()
                 .map { task ->
-                    Pair(task.scannedOn != null, "Task/${task.taskId}/\$accept?ac=${task.accessCode}")
+                    Pair(
+                        task.scannedOn != null,
+                        "Task/${task.taskId}/\$accept?ac=${task.accessCode}"
+                    )
                 }
                 .windowed(maxTasksPerCode, maxTasksPerCode, partialWindows = true)
                 .map { tasksList ->

@@ -25,6 +25,7 @@ import de.gematik.ti.erp.app.db.entities.CommunicationProfile
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.messages.usecase.MessageUseCase
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
+import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -46,7 +47,8 @@ sealed class ErrorEvent {
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
     private val demoUseCase: DemoUseCase,
-    private val messageUseCase: MessageUseCase
+    private val messageUseCase: MessageUseCase,
+    private val settingsUseCase: SettingsUseCase
 ) : BaseViewModel() {
 
     private val _onRedeemEvent = MutableSharedFlow<RedeemEvent>()

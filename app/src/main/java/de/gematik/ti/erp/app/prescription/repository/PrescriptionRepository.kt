@@ -31,16 +31,16 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Communication
+import org.hl7.fhir.r4.model.MedicationDispense
 import org.hl7.fhir.r4.model.Task.TaskStatus
+import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
-import org.hl7.fhir.r4.model.MedicationDispense
-import timber.log.Timber
 
 typealias FhirTask = org.hl7.fhir.r4.model.Task
-typealias FhirCommunication = org.hl7.fhir.r4.model.Communication
+typealias FhirCommunication = Communication
 
 enum class RemoteRedeemOption(val type: String) {
     Local(type = "onPremise"),
@@ -71,6 +71,7 @@ class PrescriptionRepository @Inject constructor(
     suspend fun saveScannedTasks(tasks: List<Task>) {
         tasks.forEach {
             requireNotNull(it.taskId)
+            requireNotNull(it.profileName)
             requireNotNull(it.scannedOn)
             requireNotNull(it.scanSessionEnd)
             require(it.rawKBVBundle == null)
@@ -79,9 +80,9 @@ class PrescriptionRepository @Inject constructor(
         localDataSource.saveTasks(tasks)
     }
 
-    fun tasks() = localDataSource.loadTasks()
-    fun scannedTasksWithoutBundle() = localDataSource.loadScannedTasksWithoutBundle()
-    fun syncedTasksWithoutBundle() = localDataSource.loadSyncedTasksWithoutBundle()
+    fun tasks(profileName: String) = localDataSource.loadTasks(profileName)
+    fun scannedTasksWithoutBundle(profileName: String) = localDataSource.loadScannedTasksWithoutBundle(profileName)
+    fun syncedTasksWithoutBundle(profileName: String) = localDataSource.loadSyncedTasksWithoutBundle(profileName)
 
     suspend fun redeemPrescription(
         communication: Communication
@@ -92,13 +93,13 @@ class PrescriptionRepository @Inject constructor(
     /**
      * Communications will be downloaded and persisted local
      */
-    suspend fun downloadCommunications(): Result<Unit> {
+    suspend fun downloadCommunications(profileName: String): Result<Unit> {
         return when (val r = remoteDataSource.fetchCommunications()) {
             is Result.Error -> return r
             is Success -> {
                 withContext(dispatchProvider.default()) {
                     Timber.d("mapping communications")
-                    val communications = mapper.mapFhirBundleToCommunications(r.data)
+                    val communications = mapper.mapFhirBundleToCommunications(r.data, profileName)
                     Timber.d("saving communications: ${communications.size}")
 
                     localDataSource.saveCommunications(communications)
@@ -113,7 +114,7 @@ class PrescriptionRepository @Inject constructor(
      * Audit Event will be downloaded as well, so they can be related to the Tasks.
      * If the download of Audit Events fails, it fails silently.
      */
-    suspend fun downloadTasks(): Result<Unit> {
+    suspend fun downloadTasks(profileName: String): Result<Unit> {
         val lastKnownModifierDate = LocalDateTime.ofEpochSecond(
             localDataSource.lastModifyTaskDate, 0,
             ZoneOffset.UTC
@@ -123,24 +124,14 @@ class PrescriptionRepository @Inject constructor(
             is Success -> {
                 try {
                     val taskIds = mapper.parseTaskIds(result.data)
-                    supervisorScope {
-                        launch(dispatchProvider.io()) {
-                            downloadAuditEvents(lastKnownModifierDate)
-                        }
-                        launch(dispatchProvider.io()) {
-                            downloadCommunications()
-                        }
-                    }
                     val errorResults = arrayListOf<Result.Error>()
-
                     var newLastModifyDate: Long = 0
-
                     for (taskId in taskIds) {
                         supervisorScope {
                             launch(dispatchProvider.io()) { deleteLowDetailEvents(taskId) }
                         }
 
-                        when (val kbvResult = downloadTaskWithKBVBundle(taskId)) {
+                        when (val kbvResult = downloadTaskWithKBVBundle(taskId, profileName)) {
                             is Result.Error -> errorResults.add(kbvResult)
                             is Success -> {
                                 kbvResult.data.lastModified?.toEpochSecond()?.let { lastModified ->
@@ -156,7 +147,14 @@ class PrescriptionRepository @Inject constructor(
                             }
                         }
                     }
-
+                    supervisorScope {
+                        launch(dispatchProvider.io()) {
+                            downloadAuditEvents(lastKnownModifierDate)
+                        }
+                        launch(dispatchProvider.io()) {
+                            downloadCommunications(profileName)
+                        }
+                    }
                     if (errorResults.size > 0) {
                         Result.Error(errorResults.first().exception)
                     } else {
@@ -173,12 +171,12 @@ class PrescriptionRepository @Inject constructor(
         }
     }
 
-    private suspend fun downloadTaskWithKBVBundle(taskId: String): Result<Task> {
+    private suspend fun downloadTaskWithKBVBundle(taskId: String, profileName: String): Result<Task> {
         return when (val result = remoteDataSource.taskWithKBVBundle(taskId)) {
             is Result.Error -> return result
             is Success -> {
                 try {
-                    val task = mapper.mapFhirBundleToTaskWithKBVBundle(result.data)
+                    val task = mapper.mapFhirBundleToTaskWithKBVBundle(result.data, profileName)
                     localDataSource.saveTask(task)
                     Success(task)
                 } catch (e: Exception) {
@@ -263,8 +261,8 @@ class PrescriptionRepository @Inject constructor(
         localDataSource.updateRedeemedOnForSingleTask(taskId, tm)
     }
 
-    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime): Flow<List<Task>> {
-        return localDataSource.loadTasksForRedeemedOn(redeemedOn)
+    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime, profileName: String): Flow<List<Task>> {
+        return localDataSource.loadTasksForRedeemedOn(redeemedOn, profileName)
     }
 
     fun loadTaskWithMedicationDispenseForTaskId(taskId: String): Flow<TaskWithMedicationDispense> {
@@ -275,8 +273,8 @@ class PrescriptionRepository @Inject constructor(
         return localDataSource.loadTasksForTaskId(*taskIds)
     }
 
-    suspend fun getAllTasksWithTaskIdOnly(): List<String> {
-        return localDataSource.getAllTasksWithTaskIdOnly()
+    suspend fun getAllTasksWithTaskIdOnly(profileName: String): List<String> {
+        return localDataSource.getAllTasksWithTaskIdOnly(profileName)
     }
 
     fun loadAuditEvents(taskId: String, locale: String): Flow<List<AuditEventSimple>> {

@@ -38,7 +38,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
@@ -63,10 +65,10 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -121,6 +123,11 @@ object HintCardDefaults {
         contentColor = contentColor,
         border = null,
         elevation = 0.dp
+    )
+
+    @Composable
+    fun flatPropertiesAlert() = flatProperties(
+        backgroundColor = AppTheme.colors.red100
     )
 }
 
@@ -346,13 +353,19 @@ fun HintActionButton(
 @Composable
 fun HintTextActionButton(
     text: String,
+    modifier: Modifier = Modifier,
     enabled: Boolean = true,
+    align: Alignment.Horizontal = Alignment.Start,
     onClick: () -> Unit
 ) {
-    val offset = ButtonDefaults.TextButtonContentPadding.calculateLeftPadding(LocalLayoutDirection.current)
+    val offset = if (align == Alignment.Start) {
+        ButtonDefaults.TextButtonContentPadding.calculateStartPadding(LocalLayoutDirection.current) * -1
+    } else {
+        ButtonDefaults.TextButtonContentPadding.calculateEndPadding(LocalLayoutDirection.current)
+    }
 
     TextButton(
-        modifier = Modifier.absoluteOffset(x = -offset),
+        modifier = modifier.absoluteOffset(x = offset),
         onClick = onClick,
         enabled = enabled,
         shape = RoundedCornerShape(8.dp)
@@ -363,19 +376,19 @@ fun HintTextActionButton(
 
 @Composable
 fun HintTextLearnMoreButton(
-    uri: String = "https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten"
+    modifier: Modifier = Modifier,
+    uri: String = "https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten",
+    align: Alignment.Horizontal = Alignment.Start
 ) {
     val uriHandler = LocalUriHandler.current
-    val offset = ButtonDefaults.TextButtonContentPadding.calculateLeftPadding(LocalLayoutDirection.current)
 
-    TextButton(
-        modifier = Modifier.absoluteOffset(x = -offset),
+    HintTextActionButton(
+        modifier = modifier,
         onClick = { uriHandler.openUri(uri) },
         enabled = true,
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(stringResource(R.string.learn_more_btn))
-    }
+        align = align,
+        text = stringResource(R.string.learn_more_btn)
+    )
 }
 
 @Composable

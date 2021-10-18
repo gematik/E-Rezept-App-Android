@@ -55,10 +55,10 @@ class IdpLocalDataSource @Inject constructor(
         db.idpAuthDataDao().updateAliasOfSecureElement(alias)
     }
 
-    suspend fun loadIdpAuthData(): IdpAuthenticationDataEntity = db.withTransaction {
+    suspend fun loadIdpAuthData(profileName: String): IdpAuthenticationDataEntity = db.withTransaction {
         db.idpAuthDataDao().get() ?: run {
-            IdpAuthenticationDataEntity().also {
-                db.idpAuthDataDao().insert(IdpAuthenticationDataEntity())
+            IdpAuthenticationDataEntity(profileName).also {
+                db.idpAuthDataDao().insert(IdpAuthenticationDataEntity(profileName))
             }
         }
     }

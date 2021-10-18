@@ -23,7 +23,7 @@ import android.nfc.NfcAdapter
 import android.os.Build
 import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.app
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWall
+import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.ui.model.InsuranceList
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
@@ -37,7 +37,7 @@ import javax.inject.Inject
 open class CardWallUseCaseProduction @Inject constructor(
     private val idpRepository: IdpRepository,
     private val cardWallRepository: CardWallRepository,
-    private val moshi: Moshi
+    private val moshi: Moshi,
 ) : CardWallUseCase {
 
     private val jsonAdapter by lazy {
@@ -68,17 +68,12 @@ open class CardWallUseCaseProduction @Inject constructor(
     override val deviceHasNFCEnabled
         get() = app().nfcEnabled()
 
-    override suspend fun getAuthenticationMethod(): CardWall.AuthenticationMethod =
-        when (idpRepository.getSingleSignOnTokenScope()) {
-            SingleSignOnToken.Scope.Default -> CardWall.AuthenticationMethod.HealthCard
-            SingleSignOnToken.Scope.AlternateAuthentication -> CardWall.AuthenticationMethod.Alternative
-            null -> CardWall.AuthenticationMethod.None
+    override suspend fun getAuthenticationMethod(profileName: String): CardWallData.AuthenticationMethod =
+        when (idpRepository.getSingleSignOnTokenScope(profileName)) {
+            SingleSignOnToken.Scope.Default -> CardWallData.AuthenticationMethod.HealthCard
+            SingleSignOnToken.Scope.AlternateAuthentication -> CardWallData.AuthenticationMethod.Alternative
+            null -> CardWallData.AuthenticationMethod.None
         }
-
-    override fun loadInsuranceCompanies(context: Context, fileName: String): InsuranceList? {
-        val jsonString = cardWallRepository.loadInsuranceCompanies(context, fileName)
-        return jsonAdapter.fromJson(jsonString)
-    }
 }
 
 private fun Context.deviceHasNFCAndAndroidMOrHigher(): Boolean {

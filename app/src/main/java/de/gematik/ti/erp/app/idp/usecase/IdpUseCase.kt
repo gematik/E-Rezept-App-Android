@@ -25,7 +25,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 import java.io.IOException
-import java.lang.IllegalStateException
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -60,21 +59,21 @@ class AltAuthenticationCryptoException(cause: Throwable) : IllegalStateException
 class IdpUseCase @Inject constructor(
     private val repository: IdpRepository,
     private val basicUseCase: IdpBasicUseCase,
-    private val altAuthUseCase: IdpAlternateAuthenticationUseCase
+    private val altAuthUseCase: IdpAlternateAuthenticationUseCase,
 ) {
     private val lock = Mutex()
 
     /**
      * If no bearer token is set or [refresh] is true, this will trigger [IdpBasicUseCase.refreshAccessTokenWithSsoFlow].
      */
-    suspend fun loadAccessToken(refresh: Boolean = false): String =
+    suspend fun loadAccessToken(refresh: Boolean = false, profileName: String): String =
         lock.withLock {
-            val ssoToken = repository.getSingleSignOnToken()
+            val ssoToken = repository.getSingleSignOnToken(profileName)
             if (ssoToken == null) {
                 repository.invalidateDecryptedAccessToken()
                 throw RefreshFlowException(
                     true,
-                    repository.getSingleSignOnTokenScope(),
+                    repository.getSingleSignOnTokenScope(profileName),
                     "SSO token not set!"
                 )
             }
@@ -168,11 +167,11 @@ class IdpUseCase @Inject constructor(
      * Actual authentication with secure element key material. Just like the [authenticationFlowWithHealthCard] it
      * sets the sso & access token within the repository.
      */
-    suspend fun alternateAuthenticationFlowWithSecureElement() = lock.withLock {
+    suspend fun alternateAuthenticationFlowWithSecureElement(profileName: String) = lock.withLock {
         val healthCardCertificate =
-            requireNotNull(repository.getHealthCardCertificate()) { "Health card certificate not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
+            requireNotNull(repository.getHealthCardCertificate(profileName)) { "Health card certificate not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
         val aliasOfSecureElementEntry =
-            requireNotNull(repository.getAliasOfSecureElementEntry()) { "Alias of secure element entry not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
+            requireNotNull(repository.getAliasOfSecureElementEntry(profileName)) { "Alias of secure element entry not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
 
         lateinit var privateKeyOfSecureElementEntry: PrivateKey
         lateinit var signatureObjectOfSecureElementEntry: Signature
@@ -188,7 +187,7 @@ class IdpUseCase @Inject constructor(
         } catch (e: Exception) {
             // the system might have removed the key during biometric reenrollment
             // therefore their is no choice but to delete everything
-            repository.invalidate()
+            repository.invalidate(profileName)
             throw AltAuthenticationCryptoException(e)
         }
 
@@ -213,4 +212,6 @@ class IdpUseCase @Inject constructor(
         )
         repository.decryptedAccessToken = authData.accessToken
     }
+
+    fun getSavedCardAccessNumber() = repository.cardAccessNumber
 }

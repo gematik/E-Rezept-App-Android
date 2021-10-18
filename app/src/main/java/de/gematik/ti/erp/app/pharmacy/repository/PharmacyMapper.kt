@@ -30,14 +30,14 @@ import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyContacts
 import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacySearchResult
 import de.gematik.ti.erp.app.pharmacy.repository.model.RoleCode
 import de.gematik.ti.erp.app.prescription.repository.extractResources
-import java.time.DayOfWeek
-import java.time.LocalTime
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.CodeableConcept
 import org.hl7.fhir.r4.model.ContactPoint
 import org.hl7.fhir.r4.model.HealthcareService
-import org.hl7.fhir.r4.model.Location as FhirLocation
 import org.hl7.fhir.r4.model.Location.LocationStatus
+import java.time.DayOfWeek
+import java.time.LocalTime
+import org.hl7.fhir.r4.model.Location as FhirLocation
 
 typealias FhirLocationHoursOfOperationComponent = FhirLocation.LocationHoursOfOperationComponent
 typealias FhirHealthcareServiceAvailableTimeComponent = HealthcareService.HealthcareServiceAvailableTimeComponent

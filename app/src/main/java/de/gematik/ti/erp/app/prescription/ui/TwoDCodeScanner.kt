@@ -19,21 +19,28 @@
 package de.gematik.ti.erp.app.prescription.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.util.Size
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
+import com.google.mlkit.common.MlKit
+import com.google.mlkit.common.sdkinternal.MlKitContext
 import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import timber.log.Timber
 import javax.inject.Inject
 
 private const val DEFAULT_SCAN_TIME = 250L
 
-class TwoDCodeScanner @Inject constructor() : ImageAnalysis.Analyzer {
+class TwoDCodeScanner @Inject constructor(
+    @ApplicationContext
+    private val context: Context
+) : ImageAnalysis.Analyzer {
     data class Batch(
         val matrixCodes: List<Barcode>,
         val cameraSize: Size = Size(0, 0),
@@ -46,17 +53,30 @@ class TwoDCodeScanner @Inject constructor() : ImageAnalysis.Analyzer {
     var batch = MutableStateFlow(defaultBatch)
         private set
 
-    private val scanner: BarcodeScanner = BarcodeScanning.getClient(
-        BarcodeScannerOptions.Builder()
-            .setBarcodeFormats(Barcode.FORMAT_DATA_MATRIX)
-            .build()
-    )
+    private val scanner: BarcodeScanner by lazy {
+        BarcodeScanning.getClient(
+            BarcodeScannerOptions.Builder()
+                .setBarcodeFormats(Barcode.FORMAT_DATA_MATRIX)
+                .build()
+        )
+    }
 
     private val countLock = Any()
     private var averageTime = DEFAULT_SCAN_TIME
 
+    private fun onInitMlKit() {
+        try {
+            // will throw if not initialized
+            MlKitContext.getInstance()
+        } catch (_: Exception) {
+            MlKit.initialize(context)
+        }
+    }
+
     @SuppressLint("UnsafeExperimentalUsageError")
     override fun analyze(imageProxy: ImageProxy) {
+        onInitMlKit()
+
         imageProxy.image?.also {
             val image = InputImage.fromMediaImage(it, imageProxy.imageInfo.rotationDegrees)
 

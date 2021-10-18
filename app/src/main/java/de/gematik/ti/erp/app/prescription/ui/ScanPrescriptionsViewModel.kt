@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.prescription.ui.model.ScanScreen
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -100,7 +99,7 @@ class ScanPrescriptionViewModel @Inject constructor(
     }
 
     fun screenState() = scannedCodes.map { codes ->
-        val totalNrOfPrescriptions = codes.sumBy { it.urls.size }
+        val totalNrOfPrescriptions = codes.sumOf { it.urls.size }
         val totalNrOfCodes = codes.size
 
         ScanScreen.State(
@@ -222,32 +221,9 @@ class ScanPrescriptionViewModel @Inject constructor(
     }
 
     fun saveToDatabase() {
-        val now = OffsetDateTime.now()
-
-        var i = 1
-        val tasks = scannedCodes.value.flatMap { code ->
-            code.extract().map { (_, taskId, accessCode) ->
-                Task(
-                    taskId = taskId,
-                    nrInScanSession = i++,
-                    scanSessionName = "",
-                    accessCode = accessCode,
-                    scanSessionEnd = now,
-                    scannedOn = code.raw.scannedOn
-                )
-            }
-        }
-
         viewModelScope.launch(dispatchProvider.io()) {
-            tasks.takeIf { it.isNotEmpty() }
-                ?.let { prescriptionUseCase.saveScannedTasks(it) }
+            prescriptionUseCase.mapScannedCodeToTask(scannedCodes.value)
+            scannedCodes.value = listOf()
         }
-
-        scannedCodes.value = listOf()
     }
 }
-
-private fun ValidScannedCode.extract(): List<List<String>> =
-    this.urls.mapNotNull {
-        TwoDCodeValidator.taskPattern.matchEntire(it)?.groupValues
-    }

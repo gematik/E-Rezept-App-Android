@@ -41,7 +41,6 @@ import org.hl7.fhir.r4.model.ContactPoint
 import org.hl7.fhir.r4.model.DateType
 import org.hl7.fhir.r4.model.DomainResource
 import org.hl7.fhir.r4.model.HumanName
-import org.hl7.fhir.r4.model.Medication
 import org.hl7.fhir.r4.model.MedicationDispense
 import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Reference
@@ -206,14 +205,14 @@ class Mapper @Inject constructor(
     /**
      * Maps a list of Fhir Communications to Communication entities.
      */
-    fun mapFhirBundleToCommunications(bundle: Bundle): List<Communication> {
+    fun mapFhirBundleToCommunications(bundle: Bundle, profileName: String): List<Communication> {
         return bundle.extractResources<FhirCommunication>()?.map { fhirCommunication ->
             when (fhirCommunication.meta.profile[0].value) {
                 COMMUNICATION_TYPE_DISP_REQ -> mapToDispReqCommunication(
-                    fhirCommunication
+                    fhirCommunication, profileName
                 )
                 COMMUNICATION_TYPE_REPLY -> mapToCommunicationReply(
-                    fhirCommunication
+                    fhirCommunication, profileName
                 )
                 else -> error("communication type not supported")
             }
@@ -225,7 +224,8 @@ class Mapper @Inject constructor(
     }
 
     private fun mapToDispReqCommunication(
-        fhirCommunication: FhirCommunication
+        fhirCommunication: FhirCommunication,
+        profileName: String
     ) = Communication(
         communicationId = fhirCommunication.idElement.idPart,
         profile = CommunicationProfile.ErxCommunicationDispReq,
@@ -233,11 +233,13 @@ class Mapper @Inject constructor(
         time = fhirCommunication.sent.toString(),
         telematicsId = fhirCommunication.recipient[0].identifier.value,
         kbvUserId = fhirCommunication.sender.identifier.value,
-        payload = fhirCommunication.payload[0].content.toString()
+        payload = fhirCommunication.payload[0].content.toString(),
+        profileName = profileName
     )
 
     private fun mapToCommunicationReply(
-        fhirCommunication: FhirCommunication
+        fhirCommunication: FhirCommunication,
+        profileName: String
     ) = Communication(
         communicationId = fhirCommunication.idElement.idPart,
         profile = CommunicationProfile.ErxCommunicationReply,
@@ -245,7 +247,8 @@ class Mapper @Inject constructor(
         time = fhirCommunication.sent.toString(),
         kbvUserId = fhirCommunication.recipient[0].identifier.value,
         telematicsId = fhirCommunication.sender.identifier.value,
-        payload = fhirCommunication.payload[0].content.toString()
+        payload = fhirCommunication.payload[0].content.toString(),
+        profileName = profileName
     )
 
     /**
@@ -253,7 +256,7 @@ class Mapper @Inject constructor(
      *
      * @param bundle the bundle consists of a Task which is referencing an included KBV Bundle.
      */
-    fun mapFhirBundleToTaskWithKBVBundle(bundle: Bundle): EntityTask =
+    fun mapFhirBundleToTaskWithKBVBundle(bundle: Bundle, profileName: String): EntityTask =
         bundle.extractResources<FhirTask>()?.firstOrNull()?.let { fhirTask ->
             fhirTask.extractKBVBundleReference()?.let { kbvBundleReference ->
                 val kbvBundle = requireNotNull(bundle.extractKBVBundle(kbvBundleReference))
@@ -282,6 +285,7 @@ class Mapper @Inject constructor(
 
                 EntityTask(
                     taskId = fhirTask.idElement.idPart,
+                    profileName = profileName,
                     accessCode = fhirTask.accessCode(),
                     lastModified = fhirTask.lastModified.convertFhirDateToOffsetDateTime(),
                     organization = fhirOrganization.name
@@ -331,7 +335,8 @@ class Mapper @Inject constructor(
             taskId = medicationDispense.identifier[0].value,
             patientIdentifier = medicationDispense.subject.identifier.value,
             // PZN could be optional in future
-            uniqueIdentifier = medication.code?.coding?.find { it.system == "http://fhir.de/CodeSystem/ifa/pzn" }?.code ?: "",
+            uniqueIdentifier = medication.code?.coding?.find { it.system == "http://fhir.de/CodeSystem/ifa/pzn" }?.code
+                ?: "",
             wasSubstituted = medicationDispense.substitution.wasSubstituted,
             text = medication.code?.text,
             type = medication.form?.coding?.find { it.system == "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM" }?.code,

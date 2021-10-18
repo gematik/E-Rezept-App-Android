@@ -84,11 +84,6 @@
     <string name="cdw_intro_what_you_need">What you need:</string>
     <string name="cdw_intro_what_you_need_egk">A medical card with access number (CAN)</string>
     <string name="cdw_intro_what_you_need_pin">The PIN for the medical card</string>
-    <!-- Cardwall: Capability -->
-    <string name="cdw_capability_title">Add card</string>
-    <string name="cdw_capability_headline">What a pity ...</string>
-    <string name="cdw_capability_body">Unfortunately, your device does not meet the minimum requirements for logging on to the e-prescription app.</string>
-    <string name="cdw_capability_more">Why are there minimum requirements for logging on with your medical card?</string>
     <!-- Cardwall: CAN Intro -->
     <string name="cdw_can_caption">Your card access number (CAN) has six digits. You will find the CAN in the top right-hand corner of the front of your medical card. If there is no six-digit access number here, you will need a new medical card from your health insurance company.</string>
     <string name="cdw_can_headline">Enter access number</string>

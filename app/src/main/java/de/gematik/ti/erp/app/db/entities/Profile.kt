@@ -18,15 +18,16 @@
 
 package de.gematik.ti.erp.app.db.entities
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "healthCardUsers")
-data class HealthCardUser(
-    val name: String? = null,
-    val cardAccessNumber: String,
-    val publicCertificate: String? = null
-) {
+@Entity(tableName = "profiles", indices = [Index(value = ["name"], unique = true)])
+data class Profile(
     @PrimaryKey(autoGenerate = true)
-    var id: Long = 0
-}
+    @ColumnInfo(name = "id")
+    val id: Int = 0,
+    val name: String,
+    val insuranceNumber: String? = null
+)

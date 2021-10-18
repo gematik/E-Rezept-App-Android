@@ -22,8 +22,6 @@ import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.navigation.NavHostController
 import dagger.hilt.android.qualifiers.ApplicationContext

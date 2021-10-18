@@ -18,38 +18,46 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
-import android.content.SharedPreferences
+import android.app.KeyguardManager
 import android.content.Context
+import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
-import de.gematik.ti.erp.app.db.entities.HealthCardUser
+import de.gematik.ti.erp.app.db.entities.Profile
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.settings.repository.HealthCardUserRepository
+import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import de.gematik.ti.erp.app.settings.ui.NEW_USER
+import de.gematik.ti.erp.app.settings.ui.SettingsScreen
+import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapConcat
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
-import android.app.KeyguardManager
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+
+const val DEFAULT_PROFILE_NAME = ""
 
 class SettingsUseCase @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val settingsRepository: SettingsRepository,
     private val idpRepository: IdpRepository,
-    private val userRepository: HealthCardUserRepository,
+    private val profilesRepository: ProfilesRepository,
     @ApplicationPreferences
     private val appPrefs: SharedPreferences,
-    private val demoUseCase: DemoUseCase
+    private val demoUseCase: DemoUseCase,
+    private val profilesUseCase: ProfilesUseCase
 ) {
-    val settings =
-        settingsRepository.settings()
+    val settings = settingsRepository.settings()
 
     val zoomEnabled =
         settings.map { it.zoomEnabled }
@@ -118,20 +126,29 @@ class SettingsUseCase @Inject constructor(
     suspend fun acceptInsecureDevice() =
         settingsRepository.acceptInsecureDevice()
 
+    @ExperimentalCoroutinesApi
     @OptIn(FlowPreview::class)
-    fun healthCardUser(): Flow<List<HealthCardUser>> =
+    fun profiles(): Flow<List<SettingsScreen.UIProfile>> =
         demoUseCase.demoModeActive.flatMapConcat {
             if (it) {
                 flowOf(
                     listOf(
-                        HealthCardUser(
+                        SettingsScreen.UIProfile(
+                            id = 0,
                             name = "Anna Vetter",
-                            cardAccessNumber = "123456"
+                            active = false
                         )
                     )
                 )
             } else {
-                userRepository.healthCardUser()
+                profilesRepository.activeProfile().filterNotNull().flatMapLatest { activeProfile ->
+                    profilesRepository.profiles().map { profiles ->
+                        profiles.map { profile ->
+                            val active = activeProfile.profileName == profile.name
+                            SettingsScreen.UIProfile(profile.id, profile.name, active)
+                        }
+                    }
+                }
             }
         }
 
@@ -141,13 +158,13 @@ class SettingsUseCase @Inject constructor(
         } ?: false
     }
 
-    suspend fun saveHealthCardUser(user: HealthCardUser) {
+    suspend fun saveProfile(profile: Profile) {
         // TODO handle demo mode
-        userRepository.saveHealthCardUser(user)
+        profilesRepository.saveProfile(profile)
     }
 
-    suspend fun clearIDPDataAndCAN() {
-        idpRepository.invalidateWithUserCredentials()
+    suspend fun clearIDPDataAndCAN(profileName: String) {
+        idpRepository.invalidateWithUserCredentials(profileName)
     }
 
     data class Token(
@@ -156,10 +173,28 @@ class SettingsUseCase @Inject constructor(
     )
 
     suspend fun getToken(): Token {
-        return Token(idpRepository.decryptedAccessToken, idpRepository.getSingleSignOnToken())
+        val activeProfileName = profilesUseCase.activeProfileName().first()
+        return Token(
+            idpRepository.decryptedAccessToken,
+            idpRepository.getSingleSignOnToken(activeProfileName)
+        )
     }
 
     suspend fun logout() {
-        idpRepository.invalidateWithUserCredentials()
+        val activeProfileName = profilesUseCase.activeProfileName().first()
+        idpRepository.invalidateWithUserCredentials(activeProfileName)
+    }
+
+    fun isProfileSetupCompleted() =
+        profilesUseCase.activeProfileName().map {
+            it != DEFAULT_PROFILE_NAME
+        }
+
+    suspend fun overwriteDefaultProfileName(profileName: String) {
+        profilesUseCase.updateProfileName(DEFAULT_PROFILE_NAME, profileName)
+    }
+
+    suspend fun activateProfile(profileName: String) {
+        profilesUseCase.insertActiveProfile(profileName)
     }
 }

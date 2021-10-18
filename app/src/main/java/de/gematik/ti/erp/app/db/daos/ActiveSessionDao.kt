@@ -16,19 +16,21 @@
  * 
  */
 
-package de.gematik.ti.erp.app.settings.repository
+package de.gematik.ti.erp.app.db.daos
 
-import de.gematik.ti.erp.app.db.AppDatabase
-import de.gematik.ti.erp.app.db.entities.HealthCardUser
-import javax.inject.Inject
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import de.gematik.ti.erp.app.db.entities.ActiveProfile
+import kotlinx.coroutines.flow.Flow
 
-class HealthCardUserRepository @Inject constructor(
-    private val db: AppDatabase
-) {
-    fun healthCardUser() =
-        db.healthCardUserDao().getAllHealthCardUser()
+@Dao
+interface ActiveProfileDao {
 
-    suspend fun saveHealthCardUser(user: HealthCardUser) {
-        db.healthCardUserDao().insertHealthCardUser(user)
-    }
+    @Query("SELECT * FROM activeProfile")
+    fun activeProfile(): Flow<ActiveProfile?>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertActiveSession(activeProfile: ActiveProfile)
 }

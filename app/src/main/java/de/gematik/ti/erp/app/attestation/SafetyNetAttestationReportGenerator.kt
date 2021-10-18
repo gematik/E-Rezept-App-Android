@@ -1,6 +1,5 @@
 package de.gematik.ti.erp.app.attestation
 
-import javax.inject.Inject
 import org.bouncycastle.asn1.x500.RDN
 import org.bouncycastle.asn1.x500.X500Name
 import org.bouncycastle.asn1.x500.style.BCStyle
@@ -8,6 +7,7 @@ import org.bouncycastle.asn1.x500.style.IETFUtils
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import java.security.cert.X509Certificate
+import javax.inject.Inject
 
 private const val HOSTNAME = "attest.android.com"
 

@@ -32,33 +32,41 @@ import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ContentCopy
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Mail
@@ -93,6 +101,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -110,6 +119,7 @@ import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.debug.ui.DebugScreenWrapper
+import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardContactOrderScreen
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.terms.DataProtectionScreen
 import de.gematik.ti.erp.app.terms.TermsOfUseScreen
@@ -117,10 +127,17 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.userauthentication.ui.BiometricPrompt
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.HintCard
+import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
+import de.gematik.ti.erp.app.utils.compose.HintCloseButton
+import de.gematik.ti.erp.app.utils.compose.HintSmallImage
 import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
+import de.gematik.ti.erp.app.utils.compose.Spacer24
+import de.gematik.ti.erp.app.utils.compose.Spacer32
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -129,10 +146,11 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
 import de.gematik.ti.erp.app.utils.compose.provideWebIntent
 import de.gematik.ti.erp.app.utils.compose.testId
+import java.util.Locale
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
-import java.util.Locale
 
 enum class SettingsScrollTo {
     None,
@@ -148,13 +166,22 @@ fun SettingsScreen(
 ) {
     val navController = rememberNavController()
 
-    val navigationMode by navController.navigationModeState(SettingsNavigationScreens.Settings.route)
+    val navigationMode by navController.navigationModeState(
+        SettingsNavigationScreens.Settings.route,
+        intercept = { previousRoute: String?, currentRoute: String? ->
+            if (previousRoute == SettingsNavigationScreens.OrderHealthCard.route && currentRoute == SettingsNavigationScreens.Settings.route) {
+                NavigationMode.Closed
+            } else {
+                null
+            }
+        }
+    )
     NavHost(
         navController,
         startDestination = SettingsNavigationScreens.Settings.path()
     ) {
         composable(SettingsNavigationScreens.Settings.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 SettingsScreenWithScaffold(
                     scrollTo,
                     mainNavController = mainNavController,
@@ -164,38 +191,38 @@ fun SettingsScreen(
             }
         }
         composable(SettingsNavigationScreens.Debug.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 DebugScreenWrapper(navController)
             }
         }
         composable(SettingsNavigationScreens.Terms.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 TermsOfUseScreen(navController)
             }
         }
         composable(SettingsNavigationScreens.Imprint.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 LegalNoticeWithScaffold(
                     navController
                 )
             }
         }
         composable(SettingsNavigationScreens.DataProtection.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 DataProtectionScreen(
                     navController
                 )
             }
         }
         composable(SettingsNavigationScreens.OpenSourceLicences.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 Licences(
                     navController
                 )
             }
         }
         composable(SettingsNavigationScreens.AllowAnalytics.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 AllowAnalyticsScreen {
                     if (it) {
                         settingsViewModel.onTrackingAllowed()
@@ -207,14 +234,14 @@ fun SettingsScreen(
             }
         }
         composable(SettingsNavigationScreens.FeedbackForm.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 FeedbackForm(
                     navController
                 )
             }
         }
         composable(SettingsNavigationScreens.Password.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 SecureAppWithPassword(
                     navController,
                     settingsViewModel
@@ -222,12 +249,15 @@ fun SettingsScreen(
             }
         }
         composable(SettingsNavigationScreens.Token.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 TokenScreen(
                     navController,
                     settingsViewModel
                 )
             }
+        }
+        composable(SettingsNavigationScreens.OrderHealthCard.route) {
+            HealthCardContactOrderScreen(onBack = { navController.popBackStack() })
         }
     }
 }
@@ -269,6 +299,12 @@ private fun SettingsScreenWithScaffold(
             }
         }
 
+        val multiProfile by produceState(initialValue = false) {
+            settingsViewModel.profilesOn().collect {
+                value = it
+            }
+        }
+
         LazyColumn(modifier = Modifier.testTag("settings_screen"), state = listState) {
             item {
                 Column {
@@ -276,8 +312,17 @@ private fun SettingsScreenWithScaffold(
                         DebugMenuSection(navController)
                         SettingsDivider()
                     }
-                    // HealthCardSection(settingsVM.screenState.healthCardUsers)
-                    // SettingsDivider()
+                    OrderHealthCardHint(
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            navController.navigate(SettingsNavigationScreens.OrderHealthCard.path())
+                        }
+                    )
+                    SettingsDivider()
+                    if (multiProfile) {
+                        ProfileSection(settingsViewModel)
+                        SettingsDivider()
+                    }
                 }
             }
             item {
@@ -375,58 +420,188 @@ private fun SettingsDivider() =
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-private fun HealthCardSection(
-    users: List<SettingsScreen.HealthCardUser>
+private fun ProfileSection(
+    viewModel: SettingsViewModel
 ) {
+
+    val profiles = viewModel.screenState.uiProfiles
+    var showAddProfilesHint by remember { mutableStateOf(profiles.size < 2 && !viewModel.addProfilesHintShown) }
+
     Column {
         Text(
-            text = stringResource(R.string.settings_ehealthcard_headline),
+            text = stringResource(R.string.settings_profiles_headline),
             style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(
-                start = PaddingDefaults.Medium,
-                end = PaddingDefaults.Medium,
-                top = PaddingDefaults.Medium,
-                bottom = PaddingDefaults.Medium / 2
-            )
+            modifier = Modifier
+                .padding(
+                    start = PaddingDefaults.Medium,
+                    end = PaddingDefaults.Medium,
+                    top = PaddingDefaults.Medium,
+                    bottom = PaddingDefaults.Medium / 2
+                )
+                .testTag("Profiles")
         )
 
-        val userUnknown = stringResource(R.string.settings_user_unknown)
-        users.forEach {
+        var showEditProfileNameDialog by remember {
+            mutableStateOf(false)
+        }
+        var selectedProfile by remember { mutableStateOf(SettingsScreen.UIProfile(-1, "", false)) }
+
+        profiles.forEach {
             val visibleState = remember { MutableTransitionState(false) }
             AnimatedVisibility(
                 visibleState = visibleState.apply { targetState = true },
                 enter = fadeIn() + slideInVertically(),
                 exit = fadeOut(),
             ) {
-                HealthCardUser(it.name ?: userUnknown) {}
+                Profile(
+                    it.name,
+                    it.active,
+                    { viewModel.activateProfile(it.name) }
+                ) {
+                    ProfileDropDownItem(
+                        Icons.Outlined.Edit,
+                        stringResource(R.string.settings_profile_edit_name)
+                    ) {
+                        selectedProfile = it
+                        showEditProfileNameDialog = true
+                    }
+
+                    ProfileDropDownItem(
+                        Icons.Outlined.Delete,
+                        stringResource(R.string.settings_profile_delete)
+                    ) {
+
+                        viewModel.removeProfile(it.name)
+                    }
+                }
             }
         }
-        AddHealthCardUser {}
+
+        if (showEditProfileNameDialog) {
+            EditProfileNameDialog(
+                selectedProfile,
+                onEdit = {
+                    viewModel.updateProfileName(
+                        selectedProfile,
+                        it
+                    ); showEditProfileNameDialog = false
+                },
+                onDismissRequest = { showEditProfileNameDialog = false }
+            )
+        }
     }
+
+    var showAddProfileDialog by remember {
+        mutableStateOf(false)
+    }
+
+    if (showAddProfileDialog) {
+        AddProfileDialog(
+            onEdit = { viewModel.addProfile(it); showAddProfileDialog = false },
+            onDismissRequest = { showAddProfileDialog = false }
+        )
+    }
+
+    Spacer32()
+    AddProfile {
+        showAddProfileDialog = true
+    }
+
+    if (showAddProfilesHint) {
+        Spacer32()
+        HintCard(
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            properties = HintCardDefaults.properties(
+                backgroundColor = AppTheme.colors.neutral000,
+                border = BorderStroke(0.5.dp, AppTheme.colors.neutral300),
+                elevation = 0.dp
+            ),
+            image = {
+                HintSmallImage(
+                    painterResource(R.drawable.ic_info),
+                    innerPadding = it
+                )
+            },
+            title = { Text(stringResource(R.string.settings_add_profiles_hint_title)) },
+            body = { Text(stringResource(R.string.settings_add_profiles_hint_info)) },
+            close = {
+                HintCloseButton(it) {
+                    viewModel.onAddProfilesHintShown()
+                    showAddProfilesHint = false
+                }
+            }
+        )
+    }
+    Spacer24()
 }
 
 @Composable
-private fun HealthCardUser(
+private fun Profile(
     name: String,
-    onMenuClick: () -> Unit
+    selected: Boolean,
+    onClick: () -> Unit,
+    content: @Composable () -> Unit,
 ) {
+
+    val color = if (selected) {
+        AppTheme.colors.green600
+    } else {
+        AppTheme.colors.primary500
+    }
+    var showMenu by remember { mutableStateOf(false) }
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PaddingDefaults.Medium)
+            .padding(horizontal = PaddingDefaults.Medium)
+            .clickable {
+                onClick()
+            }
     ) {
-        Icon(Icons.Outlined.PersonOutline, null, tint = AppTheme.colors.primary500)
-        Text(name, style = MaterialTheme.typography.body1, modifier = Modifier.weight(1.0f))
-        IconButton(onClick = onMenuClick) {
+        Icon(Icons.Outlined.PersonOutline, null, tint = color)
+        Text(
+            name, style = MaterialTheme.typography.body1,
+            modifier = Modifier
+                .weight(1.0f)
+        )
+        IconButton(onClick = { showMenu = !showMenu }) {
             Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral400)
+        }
+        DropdownMenu(
+            expanded = showMenu,
+            onDismissRequest = { showMenu = false }
+        ) {
+            content()
         }
     }
 }
 
 @Composable
-private fun AddHealthCardUser(
+fun ProfileDropDownItem(
+    icon: ImageVector,
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    DropdownMenuItem(onClick = onClick) {
+        Icon(
+            icon,
+            tint = AppTheme.colors.neutral600,
+            contentDescription = text,
+            modifier = modifier.size(18.dp)
+        )
+        Spacer(modifier = modifier.width(8.dp))
+        Text(
+            text = text,
+            color = AppTheme.colors.neutral900,
+            style = MaterialTheme.typography.body1
+        )
+    }
+}
+
+@Composable
+private fun AddProfile(
     onClick: () -> Unit
 ) {
     Row(
@@ -435,16 +610,107 @@ private fun AddHealthCardUser(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
-            .padding(PaddingDefaults.Medium)
+            .padding(horizontal = PaddingDefaults.Medium)
     ) {
         Icon(Icons.Rounded.Add, null, tint = AppTheme.colors.primary500)
         Text(
-            stringResource(R.string.settings_ehealthcard_add_ehealthcard),
+            stringResource(R.string.settings_add_profile),
             style = MaterialTheme.typography.body1,
             color = AppTheme.colors.primary600,
             modifier = Modifier.weight(1.0f)
         )
     }
+}
+
+@Composable
+private fun EditProfileNameDialog(
+    profile: SettingsScreen.UIProfile,
+    onEdit: (text: String) -> Unit,
+    onDismissRequest: () -> Unit
+) {
+
+    var textValue by remember { mutableStateOf(profile.name) }
+
+    AlertDialog(
+        title = {
+            Text(
+                stringResource(R.string.profile_edit_name),
+                style = MaterialTheme.typography.subtitle1,
+            )
+        },
+        onDismissRequest = onDismissRequest,
+        text = {
+            Column() {
+                Text(
+                    stringResource(R.string.profile_edit_name_info),
+                    style = MaterialTheme.typography.body2
+                )
+                Box(modifier = Modifier.padding(top = 12.dp)) {
+                    OutlinedTextField(
+                        value = textValue,
+                        onValueChange = {
+                            textValue = it
+                        },
+                    )
+                }
+            }
+        },
+        buttons = {
+            Row(Modifier.padding(bottom = 12.dp, start = 12.dp, end = 12.dp)) {
+                Spacer(modifier = Modifier.weight(1.0f))
+                TextButton(onClick = { onDismissRequest() }) {
+                    Text(stringResource(R.string.cancel).uppercase(Locale.getDefault()))
+                }
+                TextButton(onClick = { onEdit(textValue) }) {
+                    Text(stringResource(R.string.ok).uppercase(Locale.getDefault()))
+                }
+            }
+        },
+    )
+}
+
+@Composable
+private fun AddProfileDialog(onEdit: (text: String) -> Unit, onDismissRequest: () -> Unit) {
+
+    var textValue by remember { mutableStateOf("") }
+
+    AlertDialog(
+        title = {
+            Text(
+                stringResource(R.string.profile_edit_name),
+                style = MaterialTheme.typography.subtitle1,
+            )
+        },
+        onDismissRequest = onDismissRequest,
+        text = {
+            Column() {
+                Text(
+                    stringResource(R.string.profile_edit_name_info),
+                    style = MaterialTheme.typography.body2
+                )
+                Box(modifier = Modifier.padding(top = 12.dp)) {
+                    OutlinedTextField(
+                        value = textValue,
+                        onValueChange = {
+                            textValue = it
+                        },
+                        placeholder = { Text(stringResource(R.string.profile_edit_name_place_holder)) }
+                    )
+                }
+            }
+        },
+        buttons = {
+            Row(Modifier.padding(bottom = 12.dp, start = 12.dp, end = 12.dp)) {
+                Spacer(modifier = Modifier.weight(1.0f))
+                TextButton(onClick = { onDismissRequest() }) {
+                    Text(stringResource(R.string.cancel).uppercase(Locale.getDefault()))
+                }
+                TextButton(onClick = { onEdit(textValue) }) {
+                    Text(stringResource(R.string.ok).uppercase(Locale.getDefault()))
+                }
+            }
+        },
+    )
 }
 
 @Composable

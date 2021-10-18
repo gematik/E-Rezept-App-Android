@@ -22,6 +22,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.nfc.Tag
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.biometric.BiometricManager
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -44,6 +45,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -65,6 +67,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.Lock
@@ -108,6 +111,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -117,13 +121,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWall
+import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallNavigation
+import de.gematik.ti.erp.app.cardwall.ui.model.CardWallSwitchNavigation
+import de.gematik.ti.erp.app.cardwall.ui.model.mapCardWallNavigation
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.demo.ui.DemoBanner
+import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardContactOrderScreen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.PaddingDefaults.Medium
+import de.gematik.ti.erp.app.theme.PaddingDefaults.Small
 import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.HintCard
@@ -170,14 +179,13 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
 
     val state by viewModel.state().collectAsState(viewModel.defaultState)
 
-    val startDestination = rememberSaveable {
-        when {
-            !state.hardwareRequirementsFulfilled -> CardWallNavigation.IntroMissingCapabilities.route
-            state.isIntroSeenByUser && state.isCardAccessNumberValid -> CardWallNavigation.PersonalIdentificationNumber.route
-            state.isIntroSeenByUser -> CardWallNavigation.CardAccessNumber.route
-            else -> CardWallNavigation.Intro.route
+    val fastTrackOn by produceState(initialValue = false) {
+        viewModel.fastTrackOn().collect {
+            value = it
         }
     }
+
+    val startDestination = if (fastTrackOn) CardWallNavigation.Switch.path() else CardWallNavigation.Intro.path()
 
     val context = LocalContext.current
     val biometricMode = remember {
@@ -185,7 +193,16 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
         biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
     }
 
-    val navigationMode by navController.navigationModeState(startDestination = startDestination)
+    val navigationMode by navController.navigationModeState(
+        startDestination = startDestination,
+        intercept = { previousRoute: String?, currentRoute: String? ->
+            if (previousRoute == CardWallNavigation.OrderHealthCard.route && currentRoute == CardWallNavigation.Intro.route) {
+                NavigationMode.Closed
+            } else {
+                null
+            }
+        }
+    )
 
     TrackNavigationChanges(navController)
 
@@ -193,43 +210,73 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
         navController,
         startDestination = startDestination
     ) {
+
         composable(CardWallNavigation.Intro.route) {
             Box(
                 modifier = Modifier
                     .background(AppTheme.colors.primary100)
                     .fillMaxSize()
             ) {
-                NavigationAnimation(navigationMode) {
-                    CardWallIntro(
-                        cardHelper = { navController.navigate(CardWallNavigation.HealthCardHelper.route) }
+                NavigationAnimation(mode = navigationMode) {
+                    val color = AppTheme.colors.primary100
+                    CardWallIntroScaffold(
+                        onNext = { navController.navigate(CardWallNavigation.CardAccessNumber.path()) },
+                        topColor = color,
+                        enableNext = true,
+                        navigationMode = NavigationBarMode.Back,
                     ) {
-                        navController.navigate(CardWallNavigation.CardAccessNumber.route)
+                        AddCardContent(
+                            topColor = color,
+                            onClickLearnMore = { navController.navigate(CardWallNavigation.OrderHealthCard.path()) }
+                        )
                     }
                 }
             }
         }
-        composable(CardWallNavigation.IntroMissingCapabilities.route) {
-            NavigationAnimation(navigationMode) {
-                CardWallMissingCapabilities()
-            }
+
+        composable(CardWallNavigation.OrderHealthCard.route) {
+            HealthCardContactOrderScreen(onBack = { navController.popBackStack() })
         }
+
+        composable(CardWallNavigation.Switch.route) {
+            var navSelection by rememberSaveable { mutableStateOf(CardWallSwitchNavigation.NO_ROUTE) }
+            CardWallIntroScaffold(
+                content = {
+                    CardWallAuthenticationChooser(
+                        navSelection = navSelection,
+                        onSelected = { onSelection -> navSelection = onSelection },
+                        hasNfc = state.hardwareRequirementsFulfilled,
+                    )
+                },
+                onNext = {
+                    if (navSelection == CardWallSwitchNavigation.INSURANCE_APP) {
+                        Toast.makeText(context, "This feature coming soon.", Toast.LENGTH_LONG).show()
+                    } else
+                        navController.navigate(mapCardWallNavigation(navSelection).path())
+                },
+                topColor = MaterialTheme.colors.background,
+                enableNext = navSelection != CardWallSwitchNavigation.NO_ROUTE,
+                navigationMode = NavigationBarMode.Close
+            )
+        }
+
         composable(CardWallNavigation.CardAccessNumber.route) {
             viewModel.onIntroSeenByUser()
 
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 CardAccessNumber(
-                    cardHelper = { navController.navigate(CardWallNavigation.HealthCardHelper.route) },
-                    navigationMode,
-                    state.cardAccessNumber,
+                    onClickLearnMore = { navController.navigate(CardWallNavigation.OrderHealthCard.path()) },
+                    navMode = navigationMode,
+                    can = state.cardAccessNumber,
                     onCanChange = { viewModel.onCardAccessNumberChange(it) },
-                    demoMode = state.demoMode
-                ) {
-                    navController.navigate(CardWallNavigation.PersonalIdentificationNumber.route)
-                }
+                    demoMode = state.demoMode,
+                    next = { navController.navigate(CardWallNavigation.PersonalIdentificationNumber.path()) }
+                )
             }
         }
+
         composable(CardWallNavigation.PersonalIdentificationNumber.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 PersonalIdentificationNumber(
                     navigationMode,
                     state.personalIdentificationNumber,
@@ -250,19 +297,19 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
                     }
                     if (deviceSupportsBiometric &&
                         deviceSupportsStrongbox &&
-                        state.selectedAuthenticationMethod == CardWall.AuthenticationMethod.None
+                        state.selectedAuthenticationMethod == CardWallData.AuthenticationMethod.None
                     ) {
-                        navController.navigate(CardWallNavigation.AuthenticationSelection.route)
+                        navController.navigate(CardWallNavigation.AuthenticationSelection.path())
                     } else {
-                        viewModel.onSelectAuthenticationMethod(CardWall.AuthenticationMethod.HealthCard)
-                        navController.navigate(CardWallNavigation.Authentication.route)
+                        viewModel.onSelectAuthenticationMethod(CardWallData.AuthenticationMethod.HealthCard)
+                        navController.navigate(CardWallNavigation.Authentication.path())
                     }
                 }
             }
         }
 
         composable(CardWallNavigation.AuthenticationSelection.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 AuthenticationSelection(
                     state.demoMode,
                     biometricMode = biometricMode,
@@ -270,30 +317,30 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
                     onSelectAuthMode = { viewModel.onSelectAuthenticationMethod(it) }
                 ) {
                     navController.navigate(
-                        CardWallNavigation.Authentication.route
+                        CardWallNavigation.Authentication.path()
                     )
                 }
             }
         }
 
         composable(CardWallNavigation.Authentication.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 Authentication(
                     viewModel, state.demoMode,
                     authenticationMethod = state.selectedAuthenticationMethod,
                     cardAccessNumber = state.cardAccessNumber,
                     personalIdentificationNumber = state.personalIdentificationNumber,
                     onNext = {
-                        navController.navigate(CardWallNavigation.Happy.route)
+                        navController.navigate(CardWallNavigation.Happy.path())
                     },
                     onRetryCan = {
-                        navController.navigate(CardWallNavigation.CardAccessNumber.route) {
-                            popUpTo(CardWallNavigation.CardAccessNumber.route) { inclusive = true }
+                        navController.navigate(CardWallNavigation.CardAccessNumber.path()) {
+                            popUpTo(CardWallNavigation.CardAccessNumber.path()) { inclusive = true }
                         }
                     },
                     onRetryPin = {
-                        navController.navigate(CardWallNavigation.PersonalIdentificationNumber.route) {
-                            popUpTo(CardWallNavigation.PersonalIdentificationNumber.route) {
+                        navController.navigate(CardWallNavigation.PersonalIdentificationNumber.path()) {
+                            popUpTo(CardWallNavigation.PersonalIdentificationNumber.path()) {
                                 inclusive = true
                             }
                         }
@@ -301,16 +348,12 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
                 )
             }
         }
+
         composable(CardWallNavigation.Happy.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 Outro(demoMode = state.demoMode) {
                     mainNavController.popBackStack()
                 }
-            }
-        }
-        composable(CardWallNavigation.HealthCardHelper.route) {
-            NavigationAnimation(NavigationMode.Open) {
-                HealthCardInfoScreen()
             }
         }
     }
@@ -318,30 +361,31 @@ fun CardWallScreen(mainNavController: NavController, viewModel: CardWallViewMode
 
 @Composable
 private fun CardAccessNumber(
-    cardHelper: () -> Unit,
+    onClickLearnMore: () -> Unit,
     navMode: NavigationMode,
     can: String,
     demoMode: Boolean,
     onCanChange: (String) -> Unit,
-    next: (String) -> Unit
+    next: () -> Unit
 ) {
 
     CardWallScaffold(
         modifier = Modifier.testTag("cardWall/cardAccessNumber"),
         backMode = when (navMode) {
             NavigationMode.Forward,
-            NavigationMode.Back -> NavigationBarMode.Back
+            NavigationMode.Back,
+            NavigationMode.Closed -> NavigationBarMode.Back
             NavigationMode.Open -> NavigationBarMode.Close
         },
         title = stringResource(R.string.cdw_top_bar_title),
         nextEnabled = can.length == 6,
-        onNext = { next(can) },
+        onNext = { next() },
         demoMode = demoMode
     ) {
         Text(
             stringResource(R.string.cdw_can_headline),
             style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(PaddingDefaults.Medium)
+            modifier = Modifier.padding(Medium)
         )
 
         Image(
@@ -377,7 +421,7 @@ private fun CardAccessNumber(
                 keyboardActions = KeyboardActions(
                     onNext = {
                         if (can.length == 6) {
-                            next(can)
+                            next()
                         }
                     }
                 ),
@@ -432,14 +476,14 @@ private fun CardAccessNumber(
             Text(
                 stringResource(R.string.cdw_can_caption),
                 style = AppTheme.typography.captionl,
-                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+                modifier = Modifier.padding(horizontal = Medium)
             )
             Spacer40()
             if (demoMode) {
                 DemoInputHint(
                     stringResource(R.string.cdw_can_demo_info),
                     Modifier
-                        .padding(horizontal = PaddingDefaults.Medium)
+                        .padding(horizontal = Medium)
                         .fillMaxWidth()
                 )
             } else {
@@ -454,10 +498,10 @@ private fun CardAccessNumber(
                     body = { Text(stringResource(R.string.cdw_can_info_hint_info)) },
                     action = {
                         HintTextActionButton(text = stringResource(R.string.learn_more_btn)) {
-                            cardHelper()
+                            onClickLearnMore()
                         }
                     },
-                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+                    modifier = Modifier.padding(horizontal = Medium)
                 )
             }
             SpacerMedium()
@@ -479,7 +523,8 @@ private fun PersonalIdentificationNumber(
         modifier = Modifier.testTag("cardWall/personalIdentificationNumber"),
         backMode = when (navMode) {
             NavigationMode.Forward,
-            NavigationMode.Back -> NavigationBarMode.Back
+            NavigationMode.Back,
+            NavigationMode.Closed -> NavigationBarMode.Back
             NavigationMode.Open -> NavigationBarMode.Close
         },
         title = stringResource(R.string.cdw_top_bar_title),
@@ -491,7 +536,7 @@ private fun PersonalIdentificationNumber(
         Text(
             stringResource(R.string.cdw_pin_title),
             style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(PaddingDefaults.Medium)
+            modifier = Modifier.padding(Medium)
         )
 
         Column {
@@ -530,9 +575,9 @@ private fun PersonalIdentificationNumber(
                     .fillMaxWidth()
                     .testTag("cardWall/personalIdentificationNumberInputField")
                     .padding(
-                        start = PaddingDefaults.Medium,
-                        bottom = PaddingDefaults.Small,
-                        end = PaddingDefaults.Medium
+                        start = Medium,
+                        bottom = Small,
+                        end = Medium
                     )
                     .onFocusChanged {
                         isFocussed = it.isFocused
@@ -607,7 +652,7 @@ private fun PersonalIdentificationNumber(
                 DemoInputHint(
                     stringResource(R.string.cdw_pin_demo_info),
                     Modifier
-                        .padding(horizontal = PaddingDefaults.Medium)
+                        .padding(horizontal = Medium)
                         .fillMaxWidth()
                 )
             } else {
@@ -623,7 +668,7 @@ private fun PersonalIdentificationNumber(
                     action = {
                         HintTextLearnMoreButton()
                     },
-                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+                    modifier = Modifier.padding(horizontal = Medium)
                 )
             }
             SpacerMedium()
@@ -636,14 +681,14 @@ private fun PersonalIdentificationNumber(
 private fun AuthenticationSelection(
     demoMode: Boolean,
     biometricMode: Int,
-    selectedAuthMode: CardWall.AuthenticationMethod,
-    onSelectAuthMode: (CardWall.AuthenticationMethod) -> Unit,
+    selectedAuthMode: CardWallData.AuthenticationMethod,
+    onSelectAuthMode: (CardWallData.AuthenticationMethod) -> Unit,
     next: () -> Unit
 ) {
     CardWallScaffold(
         modifier = Modifier.testTag("cardWall/authenticationSelection"),
         title = stringResource(R.string.cdw_top_bar_title),
-        nextEnabled = selectedAuthMode != CardWall.AuthenticationMethod.None,
+        nextEnabled = selectedAuthMode != CardWallData.AuthenticationMethod.None,
         onNext = {
             next()
         },
@@ -666,16 +711,17 @@ private fun AuthenticationSelection(
                 stringResource(R.string.cdw_biometric_not_possible_info)
             )
         }
+
         if (biometricMode == BiometricManager.BIOMETRIC_SUCCESS) {
             SelectableCard(
                 modifier = Modifier.testId("cdw_btn_option_alternative"),
                 enabled = true,
-                selected = selectedAuthMode == CardWall.AuthenticationMethod.Alternative,
-                Icons.Rounded.Fingerprint,
+                selected = selectedAuthMode == CardWallData.AuthenticationMethod.Alternative,
+                image = { CardImageVector(image = Icons.Rounded.Fingerprint, enabled = true) },
                 biometricText.first,
                 biometricText.second
             ) {
-                onSelectAuthMode(CardWall.AuthenticationMethod.Alternative)
+                onSelectAuthMode(CardWallData.AuthenticationMethod.Alternative)
             }
         } else {
             BiometricInfoCard(biometricText.first, biometricText.second)
@@ -686,23 +732,49 @@ private fun AuthenticationSelection(
                 .testId("cdw_btn_option_healthcard")
                 .testTag("cardWall/authenticationSelection/healthCard"),
             enabled = true,
-            selected = selectedAuthMode == CardWall.AuthenticationMethod.HealthCard,
-            Icons.Rounded.Lock,
+            selected = selectedAuthMode == CardWallData.AuthenticationMethod.HealthCard,
+            image = { CardImageVector(image = Icons.Rounded.Lock, enabled = true) },
             stringResource(R.string.cdw_not_save_with_biometry_title),
             stringResource(R.string.cdw_not_save_with_biometry_info)
         ) {
-            onSelectAuthMode(CardWall.AuthenticationMethod.HealthCard)
+            onSelectAuthMode(CardWallData.AuthenticationMethod.HealthCard)
         }
         Spacer8()
     }
 }
 
+@Preview("SelectableCard")
 @Composable
-private fun SelectableCard(
+private fun PreviewSelectableCard() {
+    AppTheme {
+        SelectableCard(
+            image = { CardImageVector(image = Icons.Filled.Lock, enabled = true) },
+            header = "That is a header", info = "Info here"
+        )
+    }
+}
+
+@Composable
+fun CardImageVector(image: ImageVector, enabled: Boolean) {
+    Surface(
+        modifier = Modifier.size(64.dp),
+        shape = CircleShape,
+        color = if (enabled) AppTheme.colors.primary100 else AppTheme.colors.neutral200
+    ) {
+        Icon(
+            image, null,
+            tint = if (enabled) AppTheme.colors.primary600 else AppTheme.colors.neutral400,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+@Composable
+fun SelectableCard(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
     selected: Boolean = false,
-    image: ImageVector,
+    image: @Composable () -> (Unit),
     header: String,
     info: String,
     onCardSelected: () -> Unit = {},
@@ -727,14 +799,10 @@ private fun SelectableCard(
     }
 
     var cardBackGroundColor = AppTheme.colors.neutral000
-    var iconBackGroundColor = AppTheme.colors.primary100
-    var iconColor = AppTheme.colors.primary600
     var textcolor = MaterialTheme.colors.onBackground
 
     if (!enabled) {
         cardBackGroundColor = AppTheme.colors.neutral050
-        iconBackGroundColor = AppTheme.colors.neutral200
-        iconColor = AppTheme.colors.neutral400
         textcolor = AppTheme.colors.neutral600
     }
 
@@ -742,10 +810,10 @@ private fun SelectableCard(
         border = BorderStroke(0.5.dp, AppTheme.colors.neutral300),
         backgroundColor = cardBackGroundColor,
         modifier = Modifier
-            .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
+            .padding(vertical = Small, horizontal = Medium)
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
-        elevation = elevation
+        elevation = elevation,
     ) {
         Column(
             modifier = modifier
@@ -764,22 +832,10 @@ private fun SelectableCard(
                 Box(
                     Modifier
                         .weight(1f)
-                        .padding(top = 16.dp, bottom = 16.dp)
+                        .padding(vertical = PaddingDefaults.Medium),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Surface(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .align(Alignment.TopCenter),
-                        shape = RoundedCornerShape(32.dp),
-                        color = iconBackGroundColor
-                    ) {
-                        Icon(
-                            image,
-                            null,
-                            tint = iconColor,
-                            modifier = Modifier.padding(16.dp)
-                        )
-                    }
+                    image.invoke()
                 }
                 Box(Modifier.weight(1f)) {
                     Icon(
@@ -829,7 +885,7 @@ private fun BiometricInfoCard(
         border = BorderStroke(0.5.dp, AppTheme.colors.neutral300),
         backgroundColor = AppTheme.colors.neutral050,
         modifier = Modifier
-            .padding(top = 8.dp, bottom = 8.dp, start = 16.dp, end = 16.dp)
+            .padding(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.Small)
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         elevation = 2.dp
@@ -850,7 +906,7 @@ private fun BiometricInfoCard(
                         modifier = Modifier
                             .size(64.dp)
                             .align(Alignment.TopCenter),
-                        shape = RoundedCornerShape(32.dp),
+                        shape = CircleShape,
                         color = AppTheme.colors.neutral200
                     ) {
                         Icon(
@@ -912,7 +968,7 @@ sealed class ToggleAuth {
 private fun Authentication(
     viewModel: CardWallViewModel,
     demoMode: Boolean,
-    authenticationMethod: CardWall.AuthenticationMethod,
+    authenticationMethod: CardWallData.AuthenticationMethod,
     cardAccessNumber: String,
     personalIdentificationNumber: String,
     onNext: () -> Unit,
@@ -920,12 +976,11 @@ private fun Authentication(
     onRetryPin: () -> Unit,
 ) {
     val activity = LocalActivity.current as MainActivity
-
-    var showEnableNfcDialog by remember { mutableStateOf(false) }
-
+    val isNfcEnabled = viewModel.isNFCEnabled()
+    var showEnableNfcDialog by remember { mutableStateOf(!isNfcEnabled) }
     val coroutineScope = rememberCoroutineScope()
-
     val toggleAuth = remember { MutableSharedFlow<ToggleAuth>() }
+
     val state by produceState(initialValue = AuthenticationState.None) {
         toggleAuth.transformLatest {
             emit(AuthenticationState.None)
@@ -1020,7 +1075,6 @@ private fun Authentication(
                 cardCommunicationBottomSheetState.snapTo(ModalBottomSheetValue.HalfExpanded)
             }
             else -> {
-                /* noop */
             }
         }
     }
@@ -1028,14 +1082,7 @@ private fun Authentication(
     LaunchedEffect(state) {
         when {
             state.isInProgress() -> if (!cardCommunicationBottomSheetState.isVisible) {
-                // TODO remove try catch if https://issuetracker.google.com/issues/181593642 is fixed
-                try {
-                    cardCommunicationBottomSheetState.show()
-                } catch (_: CancellationException) {
-                    launch {
-                        cardCommunicationBottomSheetState.show()
-                    }
-                }
+                cardCommunicationBottomSheetState.show()
             }
             state.isFailure() || state.isReady() -> if (cardCommunicationBottomSheetState.isVisible) {
                 cardCommunicationBottomSheetState.hide()
@@ -1135,10 +1182,7 @@ private fun Authentication(
             cancelText = cancelText,
             actionText = enableNfcButtonText,
             onCancel = { showEnableNfcDialog = false },
-            onClickAction = {
-                activity.startActivity(Intent("android.settings.NFC_SETTINGS"))
-                showEnableNfcDialog = false
-            }
+            onClickAction = { activity.startActivity(Intent("android.settings.NFC_SETTINGS")) }
         )
     }
 
@@ -1272,7 +1316,7 @@ fun CardWallScaffold(
         modifier = modifier,
         topBar = {
             NavigationTopAppBar(
-                mode = backMode,
+                navigationMode = backMode,
                 headline = title,
                 onClick = if (onBack == null) {
                     { activity.onBackPressed() }

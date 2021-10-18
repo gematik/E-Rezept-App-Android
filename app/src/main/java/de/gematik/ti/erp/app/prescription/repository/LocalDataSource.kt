@@ -28,11 +28,11 @@ import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskWithMedicationDispense
 import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
+import kotlinx.coroutines.flow.Flow
 import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
-import kotlinx.coroutines.flow.Flow
 
 private const val AUDIT_SYNC_ERROR_KEY = "AUDIT_SYNC_ERROR"
 private const val AUDIT_SYNC_DATE_KEY = "AUDIT_SYNC_DATE"
@@ -95,15 +95,15 @@ class LocalDataSource @Inject constructor(
         return db.taskDao().getAuditEventsInGivenLanguage(taskId, locale)
     }
 
-    fun loadTasks(): Flow<List<Task>> {
-        return db.taskDao().getAllTasks()
+    fun loadTasks(profileName: String): Flow<List<Task>> {
+        return db.taskDao().getAllTasks(profileName)
     }
 
-    fun loadScannedTasksWithoutBundle(): Flow<List<Task>> =
-        db.taskDao().getScannedTasksWithoutBundle()
+    fun loadScannedTasksWithoutBundle(profileName: String): Flow<List<Task>> =
+        db.taskDao().getScannedTasksWithoutBundle(profileName)
 
-    fun loadSyncedTasksWithoutBundle(): Flow<List<Task>> =
-        db.taskDao().getSyncedTasksWithoutBundle()
+    fun loadSyncedTasksWithoutBundle(profileName: String): Flow<List<Task>> =
+        db.taskDao().getSyncedTasksWithoutBundle(profileName)
 
     fun loadTaskWithMedicationDispenseForTaskId(taskId: String): Flow<TaskWithMedicationDispense> {
         return db.taskDao().getTaskWithMedicationDispenseForTaskId(taskId)
@@ -125,24 +125,24 @@ class LocalDataSource @Inject constructor(
         db.taskDao().updateRedeemedOnForSingleTask(taskId, tm)
     }
 
-    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime): Flow<List<Task>> {
-        return db.taskDao().loadTasksForRedeemedOn(redeemedOn)
+    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime, profileName: String): Flow<List<Task>> {
+        return db.taskDao().loadTasksForRedeemedOn(redeemedOn, profileName)
     }
 
-    suspend fun getAllTasksWithTaskIdOnly(): List<String> {
-        return db.taskDao().getAllTasksWithTaskIdOnly()
+    suspend fun getAllTasksWithTaskIdOnly(profileName: String): List<String> {
+        return db.taskDao().getAllTasksWithTaskIdOnly(profileName)
     }
 
     fun updateScanSessionName(name: String?, scanSessionEnd: OffsetDateTime) {
         db.taskDao().updateScanSessionName(name, scanSessionEnd)
     }
 
-    fun loadCommunications(profile: CommunicationProfile): Flow<List<Communication>> {
-        return db.communicationsDao().getAllCommunications(profile)
+    fun loadCommunications(profile: CommunicationProfile, userProfile: String): Flow<List<Communication>> {
+        return db.communicationsDao().getAllCommunications(profile, userProfile)
     }
 
-    fun loadUnreadCommunications(profile: CommunicationProfile): Flow<List<Communication>> {
-        return db.communicationsDao().getAllUnreadCommunications(profile)
+    fun loadUnreadCommunications(profile: CommunicationProfile, userProfile: String): Flow<List<Communication>> {
+        return db.communicationsDao().getAllUnreadCommunications(profile = profile, userProfile = userProfile)
     }
 
     suspend fun setCommunicationsAcknowledgedStatus(communicationId: String, consumed: Boolean) {

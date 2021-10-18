@@ -25,6 +25,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.jakewharton.processphoenix.ProcessPhoenix
@@ -38,15 +39,19 @@ import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.di.ApplicationDemoPreferences
 import de.gematik.ti.erp.app.di.ApplicationPreferences
 import de.gematik.ti.erp.app.di.EndpointHelper
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.ui.NEW_USER
 import de.gematik.ti.erp.app.vau.repository.VauRepository
+import kotlinx.coroutines.flow.first
+import javax.inject.Inject
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.parcelize.Parcelize
-import javax.inject.Inject
 
 const val DEBUG_SETTINGS_STATE = "DEBUG_SETTINGS_STATE"
 
@@ -64,7 +69,9 @@ class DebugSettingsViewModel @Inject constructor(
     private val demoUseCase: DemoUseCase,
     private val prescriptionUseCase: PrescriptionUseCase,
     private val vauRepository: VauRepository,
-    private val idpRepository: IdpRepository
+    private val idpRepository: IdpRepository,
+    private val profilesUseCase: ProfilesUseCase,
+    private val featureToggleManager: FeatureToggleManager
 ) : BaseViewModel() {
 
     var debugSettingsData by mutableStateOf(
@@ -77,7 +84,8 @@ class DebugSettingsViewModel @Inject constructor(
             true,
             cardWallUseCase.deviceHasNFCAndAndroidMOrHigher,
             cardWallUseCase.cardAccessNumberWasSaved,
-            cardWallUseCase.cardWallIntroIsAccepted
+            cardWallUseCase.cardWallIntroIsAccepted,
+            false
         )
     )
         private set
@@ -93,7 +101,8 @@ class DebugSettingsViewModel @Inject constructor(
         val bearerTokenIsSet: Boolean,
         val fakeNFCCapabilities: Boolean,
         val cardAccessNumberIsSet: Boolean,
-        val cardWallIntroIsAccepted: Boolean
+        val cardWallIntroIsAccepted: Boolean,
+        val multiProfile: Boolean
     ) : Parcelable
 
     fun updateState(debugSettingsData: DebugSettingsData) {
@@ -112,7 +121,7 @@ class DebugSettingsViewModel @Inject constructor(
     }
 
     fun breakSSOToken() = runBlocking {
-        idpRepository.getSingleSignOnToken()?.let {
+        idpRepository.getSingleSignOnToken(profilesUseCase.activeProfileName().first())?.let {
             idpRepository.setSingleSignOnToken(it.copy(token = it.token.removeRange(0..2)))
         }
     }
@@ -130,7 +139,7 @@ class DebugSettingsViewModel @Inject constructor(
         )
 
         viewModelScope.launch {
-            idpRepository.invalidateWithUserCredentials()
+            idpRepository.invalidateWithUserCredentials(profilesUseCase.activeProfileName().first())
             vauRepository.invalidate()
         }
 
@@ -162,6 +171,18 @@ class DebugSettingsViewModel @Inject constructor(
         }
         viewModelScope.launch {
             prescriptionUseCase.downloadTasks()
+        }
+    }
+
+    fun features() = featureToggleManager.features
+
+    fun featuresState() =
+        featureToggleManager.featuresState()
+
+    fun toggleFeature(feature: Features) {
+        viewModelScope.launch {
+            val key = booleanPreferencesKey(feature.featureName)
+            featureToggleManager.toggleFeature(key)
         }
     }
 

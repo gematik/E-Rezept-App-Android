@@ -20,6 +20,8 @@ package de.gematik.ti.erp.app.interceptor
 
 import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
@@ -28,8 +30,10 @@ import timber.log.Timber
 import java.net.HttpURLConnection
 
 class BearerHeadersInterceptor(
-    private val idpUseCase: IdpUseCase
+    private val idpUseCase: IdpUseCase,
+    private val profilesUseCase: ProfilesUseCase,
 ) : Interceptor {
+
     override fun intercept(chain: Interceptor.Chain): Response {
         val original: Request = chain.request()
 
@@ -44,7 +48,10 @@ class BearerHeadersInterceptor(
     }
 
     private fun loadAccessToken(refresh: Boolean) =
-        runBlocking { idpUseCase.loadAccessToken(refresh) }
+        runBlocking {
+            val activeProfileName = profilesUseCase.activeProfileName().first()
+            idpUseCase.loadAccessToken(refresh, activeProfileName)
+        }
 
     private fun request(original: Request, token: String) =
         original.newBuilder()

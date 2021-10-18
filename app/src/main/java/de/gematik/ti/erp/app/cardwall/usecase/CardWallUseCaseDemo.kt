@@ -18,9 +18,7 @@
 
 package de.gematik.ti.erp.app.cardwall.usecase
 
-import android.content.Context
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWall
-import de.gematik.ti.erp.app.cardwall.ui.model.InsuranceList
+import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import javax.inject.Inject
 
 class CardWallUseCaseDemo @Inject constructor() : CardWallUseCase {
@@ -36,10 +34,6 @@ class CardWallUseCaseDemo @Inject constructor() : CardWallUseCase {
 
     override val deviceHasNFCEnabled = true
 
-    override suspend fun getAuthenticationMethod(): CardWall.AuthenticationMethod =
-        CardWall.AuthenticationMethod.None
-
-    override fun loadInsuranceCompanies(context: Context, fileName: String): InsuranceList? {
-        return null
-    }
+    override suspend fun getAuthenticationMethod(profileName: String): CardWallData.AuthenticationMethod =
+        CardWallData.AuthenticationMethod.None
 }

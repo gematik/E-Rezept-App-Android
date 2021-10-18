@@ -29,6 +29,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import de.gematik.ti.erp.app.db.AppDatabase
+import de.gematik.ti.erp.app.db.MIGRATION_10_11
 import de.gematik.ti.erp.app.db.MIGRATION_1_2
 import de.gematik.ti.erp.app.db.MIGRATION_2_3
 import de.gematik.ti.erp.app.db.MIGRATION_3_4
@@ -39,11 +40,11 @@ import de.gematik.ti.erp.app.db.MIGRATION_7_8
 import de.gematik.ti.erp.app.db.MIGRATION_8_9
 import de.gematik.ti.erp.app.db.MIGRATION_9_10
 import de.gematik.ti.erp.app.db.converter.TruststoreConverter
-import javax.inject.Qualifier
-import javax.inject.Singleton
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import java.util.UUID
+import javax.inject.Qualifier
+import javax.inject.Singleton
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -81,7 +82,8 @@ object RoomModule {
                 MIGRATION_6_7,
                 MIGRATION_7_8,
                 MIGRATION_8_9,
-                MIGRATION_9_10
+                MIGRATION_9_10,
+                MIGRATION_10_11
             )
             .addTypeConverter(truststoreConverter)
             .openHelperFactory(factory)

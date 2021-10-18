@@ -54,7 +54,7 @@ fun PharmacySearchScreenWithNavigation(
         startDestination = PharmacyNavigationScreens.SearchResults.route
     ) {
         composable(PharmacyNavigationScreens.SearchResults.route) {
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 PharmacySearchScreen(
                     mainNavController = mainNavController,
                     navController = navController,
@@ -65,7 +65,7 @@ fun PharmacySearchScreenWithNavigation(
         }
         composable(PharmacyNavigationScreens.PharmacyDetails.route) {
             selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(navigationMode) {
+                NavigationAnimation(mode = navigationMode) {
                     PharmacyDetailsScreen(
                         navController,
                         pharmacy,
@@ -76,7 +76,7 @@ fun PharmacySearchScreenWithNavigation(
         }
         composable(PharmacyNavigationScreens.ReserveInPharmacy.route) {
             selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(navigationMode) {
+                NavigationAnimation(mode = navigationMode) {
                     ReserveForPickupInPharmacy(
                         navController = navController,
                         viewModel,
@@ -89,7 +89,7 @@ fun PharmacySearchScreenWithNavigation(
         }
         composable(PharmacyNavigationScreens.CourierDelivery.route) {
             selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(navigationMode) {
+                NavigationAnimation(mode = navigationMode) {
                     CourierDelivery(
                         navigation = navController,
                         viewModel,
@@ -103,7 +103,7 @@ fun PharmacySearchScreenWithNavigation(
         }
         composable(PharmacyNavigationScreens.MailDelivery.route) {
             selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(navigationMode) {
+                NavigationAnimation(mode = navigationMode) {
                     MailDelivery(
                         navigation = navController,
                         viewModel,
@@ -119,7 +119,7 @@ fun PharmacySearchScreenWithNavigation(
             PharmacyNavigationScreens.UploadStatus.arguments
         ) {
             val redeemOption = remember { requireNotNull(it.arguments?.getInt("redeemOption")) }
-            NavigationAnimation(navigationMode) {
+            NavigationAnimation(mode = navigationMode) {
                 RedeemOnlineSuccess(
                     redeemOption,
                     mainNavController

@@ -18,15 +18,27 @@
 
 package de.gematik.ti.erp.app.cardwall.ui.model
 
-sealed class CardWallNavigation(
-    val route: String
-) {
-    object Intro : CardWallNavigation("CardWallIntro")
-    object IntroMissingCapabilities : CardWallNavigation("CardWallIntroMissingCapabilities")
-    object CardAccessNumber : CardWallNavigation("CardWallCardAccessNumber")
-    object PersonalIdentificationNumber : CardWallNavigation("CardWallPersonalIdentificationNumber")
-    object AuthenticationSelection : CardWallNavigation("CardWallAuthenticationSelection")
-    object Authentication : CardWallNavigation("CardWallAuthentication")
-    object Happy : CardWallNavigation("CardWallHappy")
-    object HealthCardHelper : CardWallNavigation("CardWallHealthCardHelper")
+import de.gematik.ti.erp.app.Route
+
+object CardWallNavigation {
+    object Intro : Route("CardWallIntro")
+    object CardAccessNumber : Route("CardWallCardAccessNumber")
+    object PersonalIdentificationNumber : Route("CardWallPersonalIdentificationNumber")
+    object AuthenticationSelection : Route("CardWallAuthenticationSelection")
+    object Authentication : Route("CardWallAuthentication")
+    object Happy : Route("CardWallHappy")
+    object Switch : Route("CardWallSwitch")
+    object InsuranceApp : Route("InsuranceApp")
+    object OrderHealthCard : Route("OrderHealthCard")
+    object NoRoute : Route("")
+}
+
+enum class CardWallSwitchNavigation {
+    INTRO, NO_ROUTE, INSURANCE_APP
+}
+
+fun mapCardWallNavigation(nav: CardWallSwitchNavigation) = when (nav) {
+    CardWallSwitchNavigation.INTRO -> CardWallNavigation.Intro
+    CardWallSwitchNavigation.NO_ROUTE -> CardWallNavigation.NoRoute
+    CardWallSwitchNavigation.INSURANCE_APP -> CardWallNavigation.InsuranceApp
 }

@@ -29,13 +29,13 @@ import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
-import java.time.OffsetDateTime
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import java.time.OffsetDateTime
+import javax.inject.Inject
 
 @HiltViewModel
 class PrescriptionDetailsViewModel @Inject constructor(

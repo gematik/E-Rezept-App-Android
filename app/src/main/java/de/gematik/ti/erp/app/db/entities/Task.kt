@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.db.entities
 import androidx.room.ColumnInfo
 import androidx.room.ColumnInfo.BLOB
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -28,12 +29,24 @@ import java.time.OffsetDateTime
 /**
  * @param authoredOn  this is actually the authoredOn value of the medication request, cause this is what we want to display
  */
-@Entity(tableName = "tasks")
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = Profile::class,
+            parentColumns = arrayOf("name"),
+            childColumns = arrayOf("profileName"),
+            onDelete = ForeignKey.CASCADE,
+            onUpdate = ForeignKey.CASCADE
+        )
+    ],
+    tableName = "tasks"
+)
 data class Task(
-
     @ColumnInfo(name = "taskId")
     @PrimaryKey
     val taskId: String,
+    @ColumnInfo(index = true)
+    val profileName: String,
     val accessCode: String,
     val lastModified: OffsetDateTime? = null,
 

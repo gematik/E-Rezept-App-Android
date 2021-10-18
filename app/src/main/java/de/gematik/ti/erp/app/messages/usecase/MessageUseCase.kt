@@ -27,7 +27,10 @@ import de.gematik.ti.erp.app.messages.ui.models.CommunicationReply
 import de.gematik.ti.erp.app.messages.ui.models.ErrorUIMessage
 import de.gematik.ti.erp.app.messages.ui.models.UIMessage
 import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayloadInbox
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import javax.inject.Inject
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 
 const val SHIPMENT = "shipment"
@@ -35,8 +38,10 @@ const val LOCAL = "onPremise"
 const val DELIVERY = "delivery"
 const val ERROR = "none"
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class MessageUseCase @Inject constructor(
     private val repository: MessageRepository,
+    private val profilesUseCase: ProfilesUseCase,
     private val moshi: Moshi
 ) {
 
@@ -45,15 +50,19 @@ class MessageUseCase @Inject constructor(
     }
 
     fun loadCommunicationsLocally(profile: CommunicationProfile) =
-        repository.loadCommunications(profile)
-            .map {
-                it.map { communication ->
-                    mapToUIMessage(communication)
+        profilesUseCase.activeProfileName().flatMapLatest { activeProfileName ->
+            repository.loadCommunications(profile, activeProfileName)
+                .map {
+                    it.map { communication ->
+                        mapToUIMessage(communication)
+                    }
                 }
-            }
+        }
 
     fun unreadCommunicationsAvailable(profile: CommunicationProfile) =
-        repository.loadUnreadCommunications(profile).map { it.isNotEmpty() }
+        profilesUseCase.activeProfileName().flatMapLatest { activeProfileName ->
+            repository.loadUnreadCommunications(profile, activeProfileName).map { it.isNotEmpty() }
+        }
 
     suspend fun updateCommunicationResource(communicationId: String, consumed: Boolean) {
         repository.setCommunicationAcknowledgedStatus(communicationId, consumed)

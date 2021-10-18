@@ -5,10 +5,6 @@ import de.gematik.ti.erp.app.api.FhirConverterFactory
 import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.di.LazyFhirParser
 import de.gematik.ti.erp.app.utils.enqueueResponse
-import javax.net.ssl.SSLContext
-import javax.net.ssl.SSLSocketFactory
-import javax.net.ssl.TrustManager
-import javax.net.ssl.X509TrustManager
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
 import okhttp3.mockwebserver.MockWebServer
@@ -22,6 +18,10 @@ import java.security.SecureRandom
 import java.security.cert.CertificateException
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
+import javax.net.ssl.SSLContext
+import javax.net.ssl.SSLSocketFactory
+import javax.net.ssl.TrustManager
+import javax.net.ssl.X509TrustManager
 
 class RemoteDataSourceTest {
 

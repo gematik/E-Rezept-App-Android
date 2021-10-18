@@ -21,7 +21,6 @@ package de.gematik.ti.erp.app.di
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.BuildConfig
-import de.gematik.ti.erp.app.BuildConfig.PHARMACY_SERVICE_URI
 import javax.inject.Inject
 
 class EndpointHelper @Inject constructor(
