@@ -1,0 +1,18 @@
+{
+  "id": "fe8c4142-9bb5-4ba6-88a1-783bbae4d5e3",
+  "type": "searchset",
+  "timestamp": "2021-11-29T14:31:58.647+00:00",
+  "resourceType": "Bundle",
+  "total": 2,
+  "entry": [],
+  "link": [
+    {
+      "relation": "next",
+      "url": "https://erp-test.zentral.erp.splitdns.ti-dienste.de/AuditEvent?date=ge2021-11-29T14:31:56+00:00&_sort=-date&_count=50&__offset=50"
+    },
+    {
+      "relation": "self",
+      "url": "https://erp-test.zentral.erp.splitdns.ti-dienste.de/AuditEvent?date=ge2021-11-29T14:31:56+00:00&_sort=-date"
+    }
+  ]
+}

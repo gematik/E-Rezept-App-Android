@@ -1,5 +1,10 @@
 # eRezept App
 
+**New Features in 1.1.0:**
+- Authentication without electronical health card: Fasttrack (Feature flagged)
+- Manage multiple profiles (Feature flagged)
+- Desktop Client
+
 ## Introduction
 
 Prescriptions for medicines that are only available in pharmacies can be issued as electronic prescriptions (e-prescriptions resp. E-Rezepte) for people with public health insurance from 1 July 2021.
@@ -51,11 +56,65 @@ Unless required by applicable law or agreed to in writing, software distributed 
 ### Getting started
 
 To get started, build one of the \*Pu\* variants. Currently, the Google and Huawei variants differ only in configuration. The code is identical. This is likely to change soon.
-This document is a work in progress. More information will be added in the near future. 
+
+This repository is an [Kotlin Multiplatform Project](https://kotlinlang.org/docs/multiplatform.html) unifying the upcoming E-Rezept App for desktop and the Android App.
+
+### Structure
+
+```text
+|-- android
+|   `-- src
+|       |-- androidTest
+|       |-- debug
+|       |-- main
+|       |-- release
+|       |-- sharedTest
+|       `-- test
+|-- common
+|   `-- src
+|       |-- androidMain
+|       |-- androidTest
+|       |-- commonMain
+|       |-- commonTest
+|       |-- desktopMain
+|       `-- desktopTest
+|-- desktop
+|   `-- src
+|       |-- jvmMain
+|       `-- jvmTest
+`-- plugins
+    `-- dependencies
+```
+
+`plugins/dependencies` is a [composed build](https://docs.gradle.org/current/userguide/composite_builds.html) required by any of the other modules (android, common and desktop) managing the dependencies in one place.
+
+The `gradle.properties` file contains all pre-defined properties required to communicate with the FD (**F**ach**D**ienst), IDP (**ID**entity **P**rovider) and the pharmacy lookup service.
+Unfortunately the actual values are not meant to be public.
+
+### Android
+
+To build the Android App choose one variant (e.g. `gradle :android:assembleGooglePuExternalDebug -Pbuildkonfig.flavor=googlePuExternal`):
+
+```shell
+gradle :android:assemble(Google|Huawei)Pu(External|Internal)(Debug|Release) -Pbuildkonfig.flavor=(google|huawei)Pu(External|Internal)
+```
+
+*Note: Currently the android build variant is derived from the `buildkonfig.flavor` property.*
+
+The resulting `.apk` can be found in e.g. `android/build/outputs/apk/googlePuExternal/debug/`.
+
+### Desktop
+
+To build a fat JAR run:
+
+```shell
+gradle :desktop:packageUberJarForCurrentOS -Pbuildkonfig.flavor=desktopPu(External|Internal)
+```
+
+Java 15 is required to execute the JAR located in `desktop/build/compose/jars/`.
 
 ### Links Sourcecode
 
 - [E-Rezept iOS implementation](https://github.com/gematik/E-Rezept-App-iOS)
 - Reference implementation of the [IDP (**ID**entity **P**rovider)](https://github.com/gematik/ref-idp-server)
 - Reference implementation of the [FD (**F**ach**D**ienst)](https://github.com/gematik/ref-eRp-FD-Server)
-
