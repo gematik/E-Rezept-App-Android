@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,24 +18,32 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
+import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.core.BaseViewModel
 import de.gematik.ti.erp.app.db.entities.CommunicationProfile
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
+import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.mainscreen.ui.model.MainScreenData
 import de.gematik.ti.erp.app.messages.usecase.MessageUseCase
-import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
+import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import timber.log.Timber
+import java.time.Duration
+import java.time.Instant
 
 data class RedeemEvent(
     val taskIds: List<String>,
@@ -49,63 +57,60 @@ sealed class RefreshEvent {
     data class NewPrescriptionsEvent(val nrOfNewPrescriptions: Int) : RefreshEvent()
 }
 
+enum class PullRefreshState {
+    None,
+    HasFirstTimeValidToken,
+    IsFirstTimeBiometricAuthentication,
+    HasValidToken
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
     private val demoUseCase: DemoUseCase,
     private val messageUseCase: MessageUseCase,
+    private val prescriptionUseCase: PrescriptionUseCase,
     private val profileUseCase: ProfilesUseCase,
-    private val featureToggleManager: FeatureToggleManager,
-    private val coroutineDispatchProvider: DispatchProvider
+    private val coroutineDispatchProvider: DispatchProvider,
+    private val idpUseCase: IdpUseCase,
 ) : BaseViewModel() {
-
-    private val _onRedeemEvent = MutableSharedFlow<RedeemEvent>()
-    val onRedeemEvent: Flow<RedeemEvent>
-        get() = _onRedeemEvent
 
     private val _onRefreshEvent = MutableSharedFlow<RefreshEvent>()
     val onRefreshEvent: Flow<RefreshEvent>
         get() = _onRefreshEvent
 
-    fun isMultiUserFeatureEnabled() = featureToggleManager.isFeatureEnabled(Features.MULTI_PROFILE.featureName)
-
     fun profileUiState() = profileUseCase.profiles.flowOn(coroutineDispatchProvider.unconfined())
 
-    fun saveActiveProfile(profileName: String) {
-        viewModelScope.launch { profileUseCase.insertActiveProfile(profileName) }
+    fun refreshState(): Flow<PullRefreshState> = profileUiState()
+        .map {
+            val activeProfile = it.find { profile -> profile.active }!!
+
+            val ssoToken = activeProfile.ssoToken
+            val now = Instant.now()
+            when {
+                ssoToken is SingleSignOnToken.AlternateAuthenticationWithoutToken -> PullRefreshState.IsFirstTimeBiometricAuthentication
+                ssoToken != null && ssoToken.validOn in (now - Duration.ofSeconds(5))..(now) -> PullRefreshState.HasFirstTimeValidToken
+                ssoToken != null && ssoToken.isValid(now) -> PullRefreshState.HasValidToken
+                else -> PullRefreshState.None
+            }
+        }
+
+    fun redeemState(): Flow<MainScreenData.RedeemState> =
+        combine(
+            prescriptionUseCase.unredeemedSyncedTaskIds(),
+            prescriptionUseCase.unredeemedScannedTaskIds()
+        ) { syncedTaskIds, scannedTaskIds ->
+            MainScreenData.RedeemState(
+                scannedTaskIds = TaskIds(ids = scannedTaskIds), syncedTaskIds = TaskIds(ids = syncedTaskIds)
+            )
+        }
+
+    fun saveActiveProfile(profile: ProfilesUseCaseData.Profile) {
+        viewModelScope.launch { profileUseCase.switchActiveProfile(profile) }
     }
 
     fun unreadMessagesAvailable() =
         messageUseCase.unreadCommunicationsAvailable(CommunicationProfile.ErxCommunicationReply)
-
-    fun onClickRecipeCard(recipe: PrescriptionUseCaseData.Recipe) {
-        viewModelScope.launch {
-            _onRedeemEvent.emit(
-                when (recipe) {
-                    is PrescriptionUseCaseData.Recipe.Synced -> {
-                        RedeemEvent(recipe.prescriptions.map { it.taskId }, true)
-                    }
-                    is PrescriptionUseCaseData.Recipe.Scanned -> {
-                        RedeemEvent(recipe.prescriptions.map { it.taskId }, false)
-                    }
-                }
-            )
-        }
-    }
-
-    fun onClickRecipeScannedCard(recipes: List<PrescriptionUseCaseData.Recipe.Scanned>) {
-        viewModelScope.launch {
-
-            _onRedeemEvent.emit(
-                RedeemEvent(
-                    recipes.flatMap { prescription ->
-                        prescription.prescriptions.map { it.taskId }
-                    },
-                    false
-                )
-            )
-        }
-    }
 
     suspend fun onRefresh(event: RefreshEvent) {
         _onRefreshEvent.emit(event)
@@ -113,5 +118,15 @@ class MainScreenViewModel @Inject constructor(
 
     fun onDeactivateDemoMode() {
         demoUseCase.deactivateDemoMode()
+    }
+
+    fun isDemoActive(): Boolean = demoUseCase.isDemoModeActive
+
+    fun onExternAppAuthorizationResult(uri: Uri) {
+        Timber.d(uri.toString())
+        viewModelScope.launch {
+            idpUseCase.authenticateWithExternalAppAuthorization(uri)
+            prescriptionUseCase.downloadTasks(profileUseCase.activeProfileName().first())
+        }
     }
 }

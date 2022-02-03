@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.prescription.ui.model
 
 import androidx.compose.runtime.Immutable
 
-object ScanScreen {
+object ScanScreenData {
     enum class ScanState {
         Hold,
         Save,
@@ -45,7 +45,7 @@ object ScanScreen {
     }
 
     @Immutable
-    data class SnackBar(val totalNrOfPrescriptions: Int, val totalNrOfCodes: Int) {
+    data class ActionBar(val totalNrOfPrescriptions: Int, val totalNrOfCodes: Int) {
         fun shouldShow() =
             totalNrOfPrescriptions > 0 && totalNrOfCodes > 0
     }
@@ -82,13 +82,13 @@ object ScanScreen {
 
     @Immutable
     data class State(
-        val snackBar: SnackBar
+        val snackBar: ActionBar
     ) {
         fun hasCodesToSave() =
             snackBar.shouldShow()
     }
 
     val defaultScreenState = State(
-        snackBar = SnackBar(0, 0)
+        snackBar = ActionBar(0, 0)
     )
 }

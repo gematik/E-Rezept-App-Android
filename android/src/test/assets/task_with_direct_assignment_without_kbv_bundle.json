@@ -1,0 +1,95 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 1,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Task",
+        "id": "169.000.000.000.021.02",
+        "meta": {
+          "versionId": "1",
+          "lastUpdated": "2021-03-19T14:33:55.233362556+00:00",
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxTask"
+          ]
+        },
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/StructureDefinition/PrescriptionType",
+            "valueCoding": {
+              "system": "https://gematik.de/fhir/CodeSystem/Flowtype",
+              "code": "169",
+              "display": "Muster 16 (Direkte Zuweisung)"
+            }
+          },
+          {
+            "url": "https://gematik.de/fhir/StructureDefinition/AcceptDate",
+            "valueDate": "2021-04-18"
+          },
+          {
+            "url": "https://gematik.de/fhir/StructureDefinition/ExpiryDate",
+            "valueDate": "2021-06-19"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+            "value": "160.000.670.522.800.03"
+          }
+        ],
+        "status": "ready",
+        "intent": "order",
+        "for": {
+          "identifier": {
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+            "value": "X234567890"
+          }
+        },
+        "authoredOn": "2021-03-19T14:33:48.615710542+00:00",
+        "lastModified": "2021-03-19T14:33:48.615723557+00:00",
+        "performerType": [
+          {
+            "coding": [
+              {
+                "system": "urn:ietf:rfc:3986",
+                "code": "urn:oid:1.2.276.0.76.4.54",
+                "display": "Öffentliche Apotheke"
+              }
+            ]
+          }
+        ],
+        "input": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "https://gematik.de/fhir/CodeSystem/Documenttype",
+                  "code": "1",
+                  "display": "Health Care Provider Prescription"
+                }
+              ]
+            },
+            "valueReference": {
+              "reference": "881a985c-f25b-4aae-91a6-41ad744080b0"
+            }
+          },
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "https://gematik.de/fhir/CodeSystem/Documenttype",
+                  "code": "2",
+                  "display": "Patient Confirmation"
+                }
+              ]
+            },
+            "valueReference": {
+              "reference": "12451ead-1dd6-11b2-8032-7a221f708795"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

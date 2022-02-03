@@ -13,9 +13,26 @@ plugins {
     id("de.gematik.ti.erp.dependencies")
 }
 
+afterEvaluate {
+    tasks.getByName("createDistributable").apply {
+        doLast {
+            // remove build env dirs
+            val configFile = fileTree(outputs.files.asPath) { include("**/E-Rezept-Desktop.cfg") }.asFileTree.singleFile
+            configFile.writeText(
+                configFile.useLines { lines ->
+                    lines
+                        .filter { !it.contains(rootProject.rootDir.path, ignoreCase = true) }
+                        .joinToString(System.lineSeparator())
+                }
+            )
+        }
+    }
+}
+
 tasks.withType<AndroidStringResourceGeneratorTask> {
     resourceFiles = listOf(
         stringResPath("values/strings.xml") to Locale.GERMAN,
+        stringResPath("values/strings_desktop.xml") to Locale.GERMAN,
         stringResPath("values/strings_kbv_codes.xml") to Locale.GERMAN,
         stringResPath("values-en/strings.xml") to Locale.ENGLISH,
         stringResPath("values-tr/strings.xml") to Locale.forLanguageTag("tr"),
@@ -54,12 +71,19 @@ kotlin {
                 // TODO move to multiplatform lib for nfc
                 implementation("de.gematik.ti.erp.app:smartcard-wrapper:1.0")
 
+                implementation("androidx.paging:paging-common:3.1.0")
+                implementation("androidx.paging:paging-common-ktx:3.1.0")
+
                 implementation(compose.desktop.currentOs)
                 implementation(compose.desktop.common)
                 implementation(compose.runtime)
                 implementation(compose.materialIconsExtended)
 
                 app {
+                    androidX {
+                        implementation(paging("common"))
+                        implementation(paging("common-ktx"))
+                    }
                     dependencyInjection {
                         implementation(kodein("di"))
                         implementation(kodein("di-framework-compose"))
@@ -106,7 +130,12 @@ compose.desktop {
                 // iconFile.set(rootProject.file("resources/icon/ERezept.icns"))
             }
             windows {
-                // iconFile.set(rootProject.file("resources/icon/ERezept.ico"))
+                val path = if ((project.property("buildkonfig.flavor") as String).endsWith("Internal")) {
+                    "E-Rezept-Dev.ico"
+                } else {
+                    "E-Rezept.ico"
+                }
+                iconFile.set(project.file(path))
                 menuGroup = "gematik"
             }
             linux {

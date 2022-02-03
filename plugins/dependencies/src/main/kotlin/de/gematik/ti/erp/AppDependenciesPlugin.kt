@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -68,8 +68,8 @@ class AppDependenciesPlugin : Plugin<Project> {
         const val TargetSdkVersion = 31
 
         object DependencyInjection {
-            fun hilt(module: String) = "com.google.dagger:hilt-$module:2.39.1"
-            fun kodein(module: String) = "org.kodein.di:kodein-$module:7.9.0"
+            fun hilt(module: String) = "com.google.dagger:hilt-$module:2.40.5"
+            fun kodein(module: String) = "org.kodein.di:kodein-$module:7.10.0"
         }
 
         object Tracker {
@@ -84,20 +84,20 @@ class AppDependenciesPlugin : Plugin<Project> {
         }
 
         object KotlinX {
-            fun coroutines(target: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$target:1.5.2"
+            fun coroutines(target: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$target:1.6.0"
             object Test {
                 val coroutinesTest = coroutines("test")
             }
         }
 
         object PlayServices {
-            const val location = "com.google.android.gms:play-services-location:18.0.0"
-            const val safetynet = "com.google.android.gms:play-services-safetynet:17.0.0"
+            const val location = "com.google.android.gms:play-services-location:19.0.1"
+            const val safetynet = "com.google.android.gms:play-services-safetynet:18.0.1"
         }
 
         object Android {
             const val desugaring = "com.android.tools:desugar_jdk_libs:1.1.5"
-            const val appcompat = "androidx.appcompat:appcompat:1.3.1"
+            const val appcompat = "androidx.appcompat:appcompat:1.4.0"
             const val legacySupport = "androidx.legacy:legacy-support-v4:1.0.0"
             const val coreKtx = "androidx.core:core-ktx:1.6.0"
             const val datastorePreferences = "androidx.datastore:datastore-preferences:1.0.0"
@@ -107,14 +107,14 @@ class AppDependenciesPlugin : Plugin<Project> {
 
             fun lifecycle(module: String) = "androidx.lifecycle:lifecycle-$module:2.4.0"
 
-            const val composeNavigation = "androidx.navigation:navigation-compose:2.4.0-alpha10"
-            const val composeHiltNavigation = "androidx.hilt:hilt-navigation-compose:1.0.0-alpha03"
-            const val composeActivity = "androidx.activity:activity-compose:1.4.0-rc01"
-            const val composePaging = "androidx.paging:paging-compose:1.0.0-alpha13"
-            const val constraintLayout = "androidx.constraintlayout:constraintlayout-compose:1.0.0-rc01"
+            const val composeNavigation = "androidx.navigation:navigation-compose:2.4.0-rc01"
+            const val composeHiltNavigation = "androidx.hilt:hilt-navigation-compose:1.0.0-rc01"
+            const val composeActivity = "androidx.activity:activity-compose:1.4.0"
+            const val composePaging = "androidx.paging:paging-compose:1.0.0-alpha14"
+            const val constraintLayout = "androidx.constraintlayout:constraintlayout-compose:1.0.0-rc02"
 
-            const val cameraViewVersion = "1.0.0-alpha29"
-            const val cameraVersion = "1.1.0-alpha09"
+            const val cameraViewVersion = "1.0.0-alpha32"
+            const val cameraVersion = "1.1.0-alpha12"
             fun camera(module: String, version: String = cameraVersion) = "androidx.camera:camera-$module:$version"
 
             const val processPhoenix = "com.jakewharton:process-phoenix:2.1.2"
@@ -130,14 +130,18 @@ class AppDependenciesPlugin : Plugin<Project> {
             }
         }
 
+        object AndroidX {
+            fun paging(suffix: String) = "androidx.paging:paging-$suffix:3.1.0"
+        }
+
         object Logging {
             const val timber = "com.jakewharton.timber:timber:5.0.1"
-            const val napier = "io.github.aakira:napier:2.1.0"
-            const val slf4jNoOp = "org.slf4j:slf4j-nop:2.0.0-alpha1"
+            const val napier = "io.github.aakira:napier:2.3.0"
+            const val slf4jNoOp = "org.slf4j:slf4j-nop:2.0.0-alpha5"
         }
 
         object Serialization {
-            fun moshi(target: String) = "com.squareup.moshi:$target:1.12.0"
+            fun moshi(target: String) = "com.squareup.moshi:$target:1.13.0"
             const val kotlinXJson = "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.0"
 
             const val fhir = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:5.5.1"
@@ -147,7 +151,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val jose4j = "org.bitbucket.b_c:jose4j:0.7.9"
 
             fun bouncyCastle(provider: String, targetPlatform: String = "jdk15to18") =
-                "org.bouncycastle:$provider-$targetPlatform:1.69"
+                "org.bouncycastle:$provider-$targetPlatform:1.70"
         }
 
         object Network {
@@ -160,14 +164,14 @@ class AppDependenciesPlugin : Plugin<Project> {
         }
 
         object Database {
-            const val sqlCipher = "net.zetetic:android-database-sqlcipher:4.4.0"
+            const val sqlCipher = "net.zetetic:android-database-sqlcipher:4.5.0"
             fun room(target: String) = "androidx.room:room-$target:2.3.0"
             object Test {
                 val roomTesting = room("testing")
             }
         }
 
-        internal const val composeVersion = "1.1.0-beta03"
+        internal const val composeVersion = "1.1.0-rc01"
 
         object Compose {
             const val compiler = "androidx.compose.compiler:compiler:$composeVersion"
@@ -183,7 +187,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val materialIconsExtended =
                 "androidx.compose.material:material-icons-extended:$composeVersion"
 
-            fun accompanist(module: String) = "com.google.accompanist:accompanist-$module:0.21.3-beta"
+            fun accompanist(module: String) = "com.google.accompanist:accompanist-$module:0.22.0-rc"
 
             object Test {
                 const val ui = "androidx.compose.ui:ui-test:$composeVersion"
@@ -196,10 +200,10 @@ class AppDependenciesPlugin : Plugin<Project> {
         }
 
         object Test {
-            fun mockk(module: String) = "io.mockk:$module:1.12.0"
+            fun mockk(module: String) = "io.mockk:$module:1.12.2"
             const val junit4 = "junit:junit:4.13.2"
-            const val snakeyaml = "org.yaml:snakeyaml:1.27"
-            const val json = "org.json:json:20190722"
+            const val snakeyaml = "org.yaml:snakeyaml:1.30"
+            const val json = "org.json:json:20211205"
         }
     }
 }
@@ -225,6 +229,9 @@ object App {
 
     fun android(init: AppDependenciesPlugin.Dependencies.Android.() -> Unit) =
         AppDependenciesPlugin.Dependencies.Android.init()
+
+    fun androidX(init: AppDependenciesPlugin.Dependencies.AndroidX.() -> Unit) =
+        AppDependenciesPlugin.Dependencies.AndroidX.init()
 
     fun androidTest(init: AppDependenciesPlugin.Dependencies.Android.Test.() -> Unit) =
         AppDependenciesPlugin.Dependencies.Android.Test.init()

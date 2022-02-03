@@ -1,3 +1,22 @@
+/*
+ * Copyright (c) 2022 gematik GmbH
+ * 
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the Licence);
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ *     https://joinup.ec.europa.eu/software/page/eupl
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * 
+ */
+
+package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.VerticalScrollbar
@@ -8,7 +27,6 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,7 +41,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.ButtonElevation
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -41,8 +58,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.semantics.Role
@@ -53,13 +68,10 @@ import de.gematik.ti.erp.app.common.Dialog
 import de.gematik.ti.erp.app.common.HorizontalDivider
 import de.gematik.ti.erp.app.common.HorizontalSplittable
 import de.gematik.ti.erp.app.common.SpacerSmall
-import de.gematik.ti.erp.app.common.SpacerTiny
 import de.gematik.ti.erp.app.common.theme.AppTheme
 import de.gematik.ti.erp.app.common.theme.PaddingDefaults
 import de.gematik.ti.erp.app.main.ui.MainNavigation
 import de.gematik.ti.erp.app.navigation.ui.Navigation
-import de.gematik.ti.erp.app.prescription.ui.PrescriptionDetailsScreen
-import de.gematik.ti.erp.app.prescription.ui.PrescriptionViewModel
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.rememberScope
@@ -179,10 +191,10 @@ private fun PrescriptionList(
         LazyColumn(
             state = lazyListState
         ) {
-            itemsIndexed(prescriptions, key = { _, it -> it }) { index, it ->
+            itemsIndexed(prescriptions, key = { _, it -> it }) { _, it ->
                 Prescription(
                     modifier = Modifier.fillMaxWidth(),
-                    name = it.name,
+                    name = it.name ?: App.strings.desktopPrescriptionNoData(),
                     selected = it.taskId == selectedPrescription.taskId,
                     expiresOnText = expiresOrAcceptedUntil(it),
                     prescribedOnText = App.strings.desktopPrescriptionPrescribedOn(
@@ -315,24 +327,5 @@ fun IconHoverButton(
         Box(Modifier.padding(PaddingDefaults.Small)) {
             content()
         }
-    }
-}
-
-@Composable
-private fun PrescriptionFlagChip(
-    text: String,
-    backgroundColor: Color,
-    textColor: Color,
-    iconColor: Color,
-    icon: ImageVector,
-) {
-    Row(
-        Modifier
-            .background(backgroundColor, CircleShape).height(22.dp)
-            .padding(horizontal = PaddingDefaults.Small, vertical = PaddingDefaults.Small / 4)
-    ) {
-        Text(text, style = MaterialTheme.typography.subtitle1, color = textColor)
-        SpacerTiny()
-        Icon(icon, null, modifier = Modifier.size(16.dp), tint = iconColor)
     }
 }

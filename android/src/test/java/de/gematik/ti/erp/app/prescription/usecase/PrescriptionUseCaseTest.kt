@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,27 +19,22 @@
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
-import de.gematik.ti.erp.app.utils.TEST_SCANNED_TASK_GROUPS
-import de.gematik.ti.erp.app.utils.TEST_SCANNED_TASK_GROUP_1
-import de.gematik.ti.erp.app.utils.TEST_SCANNED_TASK_GROUP_2
-import de.gematik.ti.erp.app.utils.TEST_SYNCED_TASK_GROUPS
-import de.gematik.ti.erp.app.utils.TEST_SYNCED_TASK_GROUP_1
-import de.gematik.ti.erp.app.utils.TEST_SYNCED_TASK_GROUP_2
-import de.gematik.ti.erp.app.utils.TEST_SYNCED_TASK_GROUP_3
+import de.gematik.ti.erp.app.utils.testRedeemedTasksOrdered
 import de.gematik.ti.erp.app.utils.testScannedTasks
+import de.gematik.ti.erp.app.utils.testScannedTasksOrdered
 import de.gematik.ti.erp.app.utils.testSyncedTasks
+import de.gematik.ti.erp.app.utils.testSyncedTasksOrdered
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.test.runBlockingTest
-import org.junit.Assert.assertArrayEquals
-import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class PrescriptionUseCaseTest {
@@ -56,46 +51,29 @@ class PrescriptionUseCaseTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        every { useCase.syncedTasks() } answers { flowOf(testSyncedTasks()) }
-        every { useCase.scannedTasks() } answers { flowOf(testScannedTasks()) }
+        every { useCase.syncedTasks() } answers { flowOf(testSyncedTasks) }
+        every { useCase.scannedTasks() } answers { flowOf(testScannedTasks) }
 
         every { useCase.syncedRecipes() } answers { callOriginal() }
         every { useCase.scannedRecipes() } answers { callOriginal() }
+        every { useCase.redeemedPrescriptions() } answers { callOriginal() }
     }
 
     @Test
     fun `syncedRecipes - should return synchronized tasks in form of recipes sorted by authoredOn and grouped by organization`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            useCase.syncedRecipes().toCollection(mutableListOf()).first().let {
-                assertEquals(TEST_SYNCED_TASK_GROUPS, it.size)
-                assertArrayEquals(
-                    TEST_SYNCED_TASK_GROUP_1,
-                    it[0].prescriptions.map { it.taskId }.toTypedArray()
-                )
-                assertArrayEquals(
-                    TEST_SYNCED_TASK_GROUP_2,
-                    it[1].prescriptions.map { it.taskId }.toTypedArray()
-                )
-                assertArrayEquals(
-                    TEST_SYNCED_TASK_GROUP_3,
-                    it[2].prescriptions.map { it.taskId }.toTypedArray()
-                )
-            }
+            assertEquals(testSyncedTasksOrdered.map { it.taskId }, useCase.syncedRecipes().first().map { it.taskId })
         }
 
     @Test
-    fun `scannedRecipes - should return scanned tasks in form of recipes sorted by scannedOn and grouped by scanSessionEnd`() =
+    fun `scannedRecipes - should return scanned tasks in form of recipes sorted by scanSessionEnd`() =
         coroutineRule.testDispatcher.runBlockingTest {
-            useCase.scannedRecipes().toCollection(mutableListOf()).first().let {
-                assertEquals(TEST_SCANNED_TASK_GROUPS, it.size)
-                assertArrayEquals(
-                    TEST_SCANNED_TASK_GROUP_1,
-                    it[0].prescriptions.map { it.taskId }.toTypedArray()
-                )
-                assertArrayEquals(
-                    TEST_SCANNED_TASK_GROUP_2,
-                    it[1].prescriptions.map { it.taskId }.toTypedArray()
-                )
-            }
+            assertEquals(testScannedTasksOrdered.map { it.taskId }, useCase.scannedRecipes().first().map { it.taskId })
+        }
+
+    @Test
+    fun `redeemed recipes - should return redeemed tasks ordered by redeemedOn`() =
+        coroutineRule.testDispatcher.runBlockingTest {
+            assertEquals(testRedeemedTasksOrdered.map { it.taskId }, useCase.redeemedPrescriptions().first().map { it.taskId })
         }
 }

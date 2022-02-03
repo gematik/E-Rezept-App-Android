@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -16,22 +16,12 @@
  * 
  */
 
-package de.gematik.ti.erp.app.prescription.usecase
+package de.gematik.ti.erp.app.db.entities
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import javax.inject.Inject
-import javax.inject.Singleton
+import java.time.OffsetDateTime
 
-@Singleton
-class PollingUseCaseDemo @Inject constructor() : PollingUseCase {
-    private val doInstantRefresh = MutableSharedFlow<Unit>()
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    override val doRefresh: Flow<Unit> = doInstantRefresh
-
-    override suspend fun refreshNow() {
-        doInstantRefresh.emit(Unit)
-    }
-}
+data class AuditEventWithMedicationText(
+    val medicationText: String?,
+    val text: String,
+    val timestamp: OffsetDateTime,
+)

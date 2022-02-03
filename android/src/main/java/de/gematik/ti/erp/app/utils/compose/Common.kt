@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -25,6 +25,7 @@ import android.content.pm.PackageManager
 import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.net.Uri
+import android.text.format.DateFormat
 import androidx.activity.addCallback
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
@@ -72,10 +73,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -115,7 +118,13 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.sanitizeProfileName
 import timber.log.Timber
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Date
 import java.util.Locale
 
 @Composable
@@ -692,16 +701,23 @@ fun ProfileNameInputField(
     onSubmit: (profileName: String) -> Unit,
     label: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
-    isError: Boolean = false,
+    isError: Boolean = false
 ) {
+    val initialProfileName = rememberSaveable { value }
 
     OutlinedTextField(
         value = value,
-        onValueChange = onValueChange,
+        onValueChange = {
+            onValueChange(sanitizeProfileName(it))
+        },
         modifier = modifier
             .heightIn(min = 56.dp),
         singleLine = true,
-        keyboardOptions = KeyboardOptions(autoCorrect = true, keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
+        keyboardOptions = KeyboardOptions(
+            autoCorrect = true,
+            keyboardType = KeyboardType.Text,
+            imeAction = ImeAction.Done
+        ),
         keyboardActions = KeyboardActions {
             if (value.isNotEmpty()) {
                 onSubmit(value)
@@ -710,6 +726,32 @@ fun ProfileNameInputField(
         label = label,
         shape = RoundedCornerShape(8.dp),
         colors = colors,
-        isError = isError
+        isError = isError,
+        trailingIcon = if (initialProfileName != value) {
+            {
+                IconButton(onClick = { onValueChange(initialProfileName) }) {
+                    Icon(Icons.Rounded.Undo, null)
+                }
+            }
+        } else {
+            null
+        }
     )
+}
+
+@Composable
+fun phrasedDateString(date: LocalDateTime): String {
+    val locales = LocalConfiguration.current.locales
+    val context = LocalContext.current
+
+    val timeFormatter = remember { DateFormat.getTimeFormat(context) }
+    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locales[0]) }
+
+    val timeOfDate = Date.from(date.atZone(ZoneId.systemDefault()).toInstant())
+
+    val at = stringResource(R.string.at)
+    // TODO take more care of the characteristics in different languages
+    // val clock = stringResource(R.string.descriptive_date_appendix)
+
+    return "${date.format(dateFormatter)} $at ${timeFormatter.format(timeOfDate)}"
 }

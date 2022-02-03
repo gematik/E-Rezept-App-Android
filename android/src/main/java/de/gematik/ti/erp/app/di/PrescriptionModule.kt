@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -24,8 +24,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import de.gematik.ti.erp.app.DefaultDispatchProvider
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.prescription.usecase.PollingUseCase
-import de.gematik.ti.erp.app.prescription.usecase.PollingUseCaseDelegate
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCaseDelegate
 
@@ -37,7 +35,4 @@ abstract class PrescriptionModule {
 
     @Binds
     abstract fun bindsPrescriptionUseCase(delegate: PrescriptionUseCaseDelegate): PrescriptionUseCase
-
-    @Binds
-    abstract fun bindsPollingUseCase(delegate: PollingUseCaseDelegate): PollingUseCase
 }

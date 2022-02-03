@@ -40,6 +40,8 @@ licenseReport {
 }
 
 android {
+    // currently not working with an app suffix
+    // namespace = "de.gematik.ti.erp.app"
     defaultConfig {
         applicationId = "de.gematik.ti.erp.app"
         versionCode = VERSION_CODE.toInt()
@@ -174,6 +176,14 @@ android {
                 applicationIdSuffix = ".huawei"
                 versionNameSuffix = "-huawei"
                 signingConfig = signingConfigs.findByName("huaweiRelease")
+            }
+        }
+        if (flavor?.startsWith("konnektathon") == true) {
+            create(flavor) {
+                dimension = "version"
+                applicationIdSuffix = ".konnektathon"
+                versionNameSuffix = "-konnektathon"
+                signingConfig = signingConfigs.findByName("googleRelease")
             }
         }
     }

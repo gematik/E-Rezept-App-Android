@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -29,15 +29,15 @@ class DateConverter {
     private val offsetDateTimeFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME
 
     @TypeConverter
-    fun toInstant(value: Long?): Instant? {
+    fun toInstant(value: String?): Instant? {
         return value?.let {
-            Instant.ofEpochMilli(it)
+            Instant.parse(it)
         }
     }
 
     @TypeConverter
-    fun fromInstant(timestamp: Instant?): Long? {
-        return timestamp?.toEpochMilli()
+    fun fromInstant(timestamp: Instant?): String? {
+        return timestamp?.toString()
     }
 
     @TypeConverter

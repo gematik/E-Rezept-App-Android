@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -25,15 +25,18 @@ import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskStatus
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIAuditEvent
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 import org.json.JSONObject
 import java.time.OffsetDateTime
+
+// gemSpec_FD_eRp: A_21267 Prozessparameter - Berechtigungen für Nutzer
+const val DIRECT_ASSIGNMENT_INDICATOR = "169" // direct assignment taskID starts with 169
 
 interface PrescriptionUseCase {
 
@@ -51,123 +54,95 @@ interface PrescriptionUseCase {
 
     /**
      * Tasks grouped by timestamp and organization (e.g. doctor).
-     * Mapped to [PrescriptionUseCaseData.Recipe.Synced].
+     * Mapped to [PrescriptionUseCaseData.Prescription.Synced].
      */
-    fun syncedRecipes(): Flow<List<PrescriptionUseCaseData.Recipe.Synced>> =
+    fun syncedRecipes(): Flow<List<PrescriptionUseCaseData.Prescription.Synced>> =
         syncedTasks().map { tasks ->
-            tasks.filter { task -> task.redeemedOn == null }
+            tasks.filter { it.isRedeemable() }
                 .sortedByDescending { it.authoredOn }
-                .groupBy { requireNotNull(it.authoredOn) }
-                .flatMap { (authoredOn, tasks) ->
-                    tasks
-                        .groupBy { it.organization }
-                        .map { (organization, tasks) ->
-                            val prescriptions = tasks.map {
-                                PrescriptionUseCaseData.Prescription.Synced(
-                                    taskId = it.taskId,
-                                    name = it.medicationText ?: "",
-                                    expiresOn = it.expiresOn,
-                                    acceptUntil = it.acceptUntil,
-                                    status = mapStatus(it.status)
-                                )
-                            }
-
-                            PrescriptionUseCaseData.Recipe.Synced(
-                                organization = organization ?: "",
-                                authoredOn = authoredOn,
-                                prescriptions = prescriptions,
-                                redeemedOn = null
-                            )
-                        }
-                }
-        }
-
-    /**
-     * Tasks grouped by timestamp. Mapped to [PrescriptionUseCaseData.Recipe.Scanned].
-     */
-    fun scannedRecipes(): Flow<List<PrescriptionUseCaseData.Recipe.Scanned>> =
-        scannedTasks().map { tasks ->
-            tasks.filter { task -> task.redeemedOn == null }
-                .groupBy { requireNotNull(it.scanSessionEnd) }
-                .map { (scanSessionEnd, tasks) ->
-                    val prescriptions = tasks
-                        .sortedBy { requireNotNull(it.nrInScanSession) }
-                        .map { task ->
-                            PrescriptionUseCaseData.Prescription.Scanned(
-                                taskId = task.taskId,
-                                nr = requireNotNull(task.nrInScanSession),
-                            )
-                        }
-
-                    PrescriptionUseCaseData.Recipe.Scanned(
-                        title = tasks.first().scanSessionName,
-                        scanSessionEnd = scanSessionEnd,
-                        prescriptions = prescriptions,
-                        redeemedOn = null
-                    )
-                }
-                .sortedByDescending { it.scanSessionEnd }
-        }
-
-    /**
-     * Redeemed Tasks grouped by timestamp. Mapped to [PrescriptionUseCaseData.RedeemedRecipe.Synced].
-     */
-    fun redeemedSyncedRecipes(): Flow<List<PrescriptionUseCaseData.Recipe.Synced>> =
-        syncedTasks().map { tasks ->
-            tasks.filter { task -> task.redeemedOn != null }.sortedByDescending { it.redeemedOn }
-                .groupBy { requireNotNull(it.authoredOn) }
-                .flatMap { (authoredOn, tasks) ->
-                    tasks
-                        .groupBy { it.organization }
-                        .map { (organization, tasks) ->
-                            val prescriptions = tasks.map {
-                                PrescriptionUseCaseData.Prescription.Synced(
-                                    taskId = it.taskId,
-                                    name = it.medicationText ?: "",
-                                    expiresOn = it.expiresOn,
-                                    acceptUntil = it.acceptUntil,
-                                    status = mapStatus(it.status)
-                                )
-                            }
-
-                            PrescriptionUseCaseData.Recipe.Synced(
-                                organization = requireNotNull(organization),
-                                authoredOn = authoredOn,
-                                prescriptions = prescriptions,
-                                redeemedOn = tasks.first().redeemedOn
-                            )
-                        }
-                }
-        }
-
-    /**
-     * Redeemed Tasks grouped by timestamp. Mapped to [PrescriptionUseCaseData.RedeemedRecipe.Scanned].
-     */
-    fun redeemedScannedRecipes(): Flow<List<PrescriptionUseCaseData.Recipe.Scanned>> =
-        scannedTasks().map { tasks ->
-            tasks.filter { task -> task.redeemedOn != null }
-                .groupBy { requireNotNull(it.redeemedOn) }
-                .flatMap { (redeemed, tasks) ->
-                    tasks.groupBy {
-                        redeemed
-                    }.map { (_, tasks) ->
-                        val prescriptions = tasks
-                            .map { task ->
-                                PrescriptionUseCaseData.Prescription.Scanned(
-                                    taskId = task.taskId,
-                                    nr = requireNotNull(task.nrInScanSession),
-                                )
-                            }
-
-                        PrescriptionUseCaseData.Recipe.Scanned(
-                            title = tasks.first().scanSessionName,
-                            scanSessionEnd = tasks.first().scanSessionEnd!!,
-                            prescriptions = prescriptions,
-                            redeemedOn = tasks.first().redeemedOn
+                .groupBy { it.organization }
+                .flatMap { (_, tasks) ->
+                    tasks.map {
+                        PrescriptionUseCaseData.Prescription.Synced(
+                            taskId = it.taskId,
+                            name = it.medicationText ?: "",
+                            organization = it.organization ?: "",
+                            authoredOn = requireNotNull(it.authoredOn),
+                            redeemedOn = null,
+                            expiresOn = it.expiresOn,
+                            acceptUntil = it.acceptUntil,
+                            status = mapStatus(it.status),
+                            isDirectAssignment = it.taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR)
                         )
                     }
                 }
         }
+
+    /**
+     * Tasks grouped by timestamp. Mapped to [PrescriptionUseCaseData.Prescription.Scanned].
+     */
+    fun scannedRecipes(): Flow<List<PrescriptionUseCaseData.Prescription.Scanned>> =
+        scannedTasks().map { tasks ->
+            tasks
+                .filter { it.isRedeemable() }
+                .sortedWith(compareByDescending<Task> { it.scanSessionEnd }.thenBy { requireNotNull(it.nrInScanSession) })
+                .map { task ->
+                    PrescriptionUseCaseData.Prescription.Scanned(
+                        taskId = task.taskId,
+                        scannedOn = requireNotNull(task.scanSessionEnd),
+                        redeemedOn = task.redeemedOn
+                    )
+                }
+        }
+
+    fun redeemedPrescriptions(): Flow<List<PrescriptionUseCaseData.Prescription>> =
+        combine(
+            scannedTasks(),
+            syncedTasks()
+        ) { scannedTasks, syncedTasks ->
+            val syncedPrescriptions = syncedTasks
+                .filter { it.isRedeemed() }
+                .map {
+                    PrescriptionUseCaseData.Prescription.Synced(
+                        taskId = it.taskId,
+                        name = it.medicationText ?: "",
+                        organization = it.organization ?: "",
+                        authoredOn = requireNotNull(it.authoredOn),
+                        redeemedOn = it.redeemedOn,
+                        expiresOn = it.expiresOn,
+                        acceptUntil = it.acceptUntil,
+                        status = mapStatus(it.status),
+                        isDirectAssignment = it.taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR)
+                    )
+                }
+
+            val scannedPrescriptions = scannedTasks
+                .filter { task -> task.redeemedOn != null }
+                .map { task ->
+                    PrescriptionUseCaseData.Prescription.Scanned(
+                        taskId = task.taskId,
+                        scannedOn = requireNotNull(task.scanSessionEnd),
+                        redeemedOn = task.redeemedOn
+                    )
+                }
+
+            (syncedPrescriptions + scannedPrescriptions)
+                .sortedWith(compareByDescending<PrescriptionUseCaseData.Prescription> { it.redeemedOn }.thenBy { it.taskId })
+        }
+
+    fun unredeemedSyncedTaskIds(): Flow<List<String>> =
+        syncedTasks().map { tasks ->
+            tasks.filter { it.isRedeemable() }.map { it.taskId }
+        }
+
+    fun unredeemedScannedTaskIds(): Flow<List<String>> =
+        scannedTasks().map { tasks ->
+            tasks.filter { it.isRedeemable() }.map { it.taskId }
+        }
+
+    // TODO: add proper redeem logic
+    private fun Task.isRedeemable(): Boolean = this.redeemedOn == null
+    private fun Task.isRedeemed(): Boolean = !isRedeemable()
 
     private fun mapStatus(status: TaskStatus?): PrescriptionUseCaseData.Prescription.Synced.Status =
         when (status) {
@@ -196,7 +171,9 @@ interface PrescriptionUseCase {
     /**
      * Fetch audit events from the backend and store them into the database.
      */
-    suspend fun downloadAuditEvents(profileName: String, count: Int? = null, offset: Int? = null): Result<Any>
+    fun downloadAllAuditEvents(
+        profileName: String
+    )
 
     suspend fun generatePrescriptionDetails(
         taskId: String,
@@ -204,9 +181,10 @@ interface PrescriptionUseCase {
 
     suspend fun deletePrescription(taskId: String, isRemoteTask: Boolean): Result<Unit>
 
-    fun loadTasksForRedeemedOn(redeemedOn: OffsetDateTime, profileName: String): Flow<List<Task>>
-
-    fun loadAuditEvents(taskId: String): Flow<List<UIAuditEvent>>
+    fun loadTasksForRedeemedOn(
+        redeemedOn: OffsetDateTime,
+        profileName: String
+    ): Flow<List<Task>>
 
     suspend fun saveLowDetailEvent(lowDetailEvent: LowDetailEventSimple)
     suspend fun loadLowDetailEvents(taskId: String): Flow<List<LowDetailEventSimple>>

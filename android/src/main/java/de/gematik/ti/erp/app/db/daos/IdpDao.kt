@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -24,7 +24,6 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import de.gematik.ti.erp.app.db.entities.IdpAuthenticationDataEntity
 import de.gematik.ti.erp.app.db.entities.IdpConfiguration
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
 
@@ -50,8 +49,11 @@ interface IdpAuthenticationDataDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(data: IdpAuthenticationDataEntity)
 
+    @Query("UPDATE idpAuthenticationDataEntity SET singleSignOnToken = null, singleSignOnTokenScope = null, singleSignOnTokenValidOn = null, singleSignOnTokenExpiresON = null, cardAccessNumber = null, healthCardCertificate = null, aliasOfSecureElementEntry = null WHERE profileName = :profileName")
+    suspend fun clear(profileName: String)
+
     @Query("UPDATE idpAuthenticationDataEntity SET singleSignOnToken = :token, singleSignOnTokenScope = :scope, singleSignOnTokenValidOn = :validOn, singleSignOnTokenExpiresON = :expiresOn WHERE profileName = :profileName")
-    suspend fun updateToken(profileName: String, token: String?, scope: SingleSignOnToken.Scope?, validOn: Instant?, expiresOn: Instant?)
+    suspend fun updateToken(profileName: String, token: String?, scope: IdpAuthenticationDataEntity.SingleSignOnTokenScope?, validOn: Instant?, expiresOn: Instant?)
 
     @Query("UPDATE idpAuthenticationDataEntity SET singleSignOnToken = :token, singleSignOnTokenValidOn = :validOn, singleSignOnTokenExpiresON = :expiresOn WHERE profileName = :profileName")
     suspend fun updateTokenWithoutScope(profileName: String, token: String?, validOn: Instant?, expiresOn: Instant?)
@@ -67,7 +69,4 @@ interface IdpAuthenticationDataDao {
 
     @Query("UPDATE idpAuthenticationDataEntity SET aliasOfSecureElementEntry = :alias WHERE profileName = :profileName")
     suspend fun updateAliasOfSecureElement(profileName: String, alias: ByteArray?)
-
-    @Query("DELETE FROM idpAuthenticationDataEntity WHERE profileName = :profileName")
-    suspend fun clear(profileName: String)
 }

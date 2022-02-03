@@ -1,5 +1,24 @@
+/*
+ * Copyright (c) 2022 gematik GmbH
+ * 
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the Licence);
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ *     https://joinup.ec.europa.eu/software/page/eupl
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * 
+ */
+
 package de.gematik.ti.erp.app.profiles.ui
 
+import AuditEventsScreen
 import TokenScreen
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavController
@@ -17,6 +36,7 @@ import de.gematik.ti.erp.app.utils.compose.NavigationMode
 object ProfileDestinations {
     object Profile : Route("profile")
     object Token : Route("token")
+    object AuditEvents : Route("auditEvents")
 }
 
 @Composable
@@ -34,9 +54,10 @@ fun EditProfileNavGraph(
         composable(ProfileDestinations.Profile.route) {
             EditProfileScreenContent(
                 onClickToken = { navController.navigate(ProfileDestinations.Token.path()) },
+                onClickAuditEvents = { navController.navigate(ProfileDestinations.AuditEvents.path()) },
                 ssoTokenValid = profile.ssoTokenValid(),
                 onClickLogIn = {
-                    settingsViewModel.switchProfile(profile.name)
+                    settingsViewModel.switchProfile(profile)
                     mainNavController.navigate(
                         MainNavigationScreens.CardWall.path(settingsViewModel.isCanAvailable(profile))
                     )
@@ -52,9 +73,21 @@ fun EditProfileNavGraph(
             NavigationAnimation(mode = NavigationMode.Closed) {
                 TokenScreen(
                     onBack = { navController.popBackStack() },
-                    ssoToken = profile.ssoToken?.token,
+                    ssoToken = profile.ssoToken?.tokenOrNull(),
                     accessToken = profile.accessToken,
                 )
+            }
+        }
+        composable(
+            ProfileDestinations.AuditEvents.route,
+        ) {
+            NavigationAnimation(mode = NavigationMode.Closed) {
+                AuditEventsScreen(
+                    profile.name,
+                    settingsViewModel,
+                    profile.lastAuthenticated,
+                    profile.ssoTokenValid(),
+                ) { navController.popBackStack() }
             }
         }
     }

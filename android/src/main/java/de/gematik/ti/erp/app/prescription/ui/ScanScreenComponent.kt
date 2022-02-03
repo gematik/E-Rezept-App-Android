@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -63,15 +63,20 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -81,6 +86,9 @@ import androidx.compose.material.icons.rounded.CropFree
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.FlashOff
 import androidx.compose.material.icons.rounded.FlashOn
+import androidx.compose.material.icons.rounded.SaveAlt
+import androidx.compose.material.icons.rounded.ShoppingBag
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -88,8 +96,8 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -103,40 +111,43 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.toUpperCase
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.constraintlayout.compose.ChainStyle
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.systemBarsPadding
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.prescription.ui.model.ScanScreen
-import de.gematik.ti.erp.app.theme.AppColorsThemeLight
+import de.gematik.ti.erp.app.prescription.ui.model.ScanScreenData
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
+import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
-import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer4
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
-import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.concurrent.Executors
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScanScreen(
     mainNavController: NavController,
@@ -175,11 +186,16 @@ fun ScanScreen(
 
     var flashEnabled by remember { mutableStateOf(false) }
 
-    val state by scanViewModel.screenState().collectAsState(ScanScreen.defaultScreenState)
+    val state by scanViewModel.screenState().collectAsState(ScanScreenData.defaultScreenState)
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val coroutineScope = rememberCoroutineScope()
 
     var cancelRequested by remember { mutableStateOf(false) }
     BackHandler(!cancelRequested && state.hasCodesToSave()) {
         cancelRequested = true
+    }
+    BackHandler(sheetState.isVisible) {
+        coroutineScope.launch { sheetState.hide() }
     }
 
     if (cancelRequested && state.hasCodesToSave()) {
@@ -189,82 +205,143 @@ fun ScanScreen(
         )
     }
 
-    Box(Modifier.systemBarsPadding()) {
-        if (camPermissionGranted) {
-            CameraView(
-                scanViewModel,
-                Modifier.fillMaxSize(),
-                flashEnabled = flashEnabled,
-                onFlashToggled = {
-                    flashEnabled = it
+    ModalBottomSheetLayout(
+        sheetState = sheetState,
+        sheetContent = {
+            SheetContent(
+                onClickSave = {
+                    scanViewModel.saveToDatabase()
+                    mainNavController.popBackStack()
                 }
             )
-        } else {
-            Surface(
-                color = Color.Black,
-                contentColor = Color.White,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                ConstraintLayout(
-                    modifier = Modifier
-                        .padding(16.dp)
-                        .testId("camera/disallowed")
-                ) {
-                    val (icon, header, info) = createRefs()
+        }
+    ) {
+        Box {
+            if (camPermissionGranted) {
+                CameraView(
+                    scanViewModel,
+                    Modifier.fillMaxSize(),
+                    flashEnabled = flashEnabled,
+                    onFlashToggled = {
+                        flashEnabled = it
+                    }
+                )
+            } else {
+                AccessDenied()
+            }
+            if (camPermissionGranted) {
+                ScanOverlay(
+                    enabled = !sheetState.isVisible && !cancelRequested,
+                    flashEnabled = flashEnabled,
+                    onFlashClick = { flashEnabled = it },
+                    modifier = Modifier.fillMaxSize()
+                )
 
-                    createVerticalChain(icon, header, info, chainStyle = ChainStyle.Packed(0.5f))
-
-                    Icon(
-                        Icons.Rounded.ErrorOutline, null,
+                if (state.snackBar.shouldShow()) {
+                    ActionBarButton(
+                        state.snackBar,
+                        onClick = { coroutineScope.launch { sheetState.show() } },
                         modifier = Modifier
-                            .size(48.dp)
-                            .constrainAs(icon) {
-                                centerHorizontallyTo(parent)
-                            }
-                    )
-                    Text(
-                        stringResource(R.string.cam_access_denied_headline),
-                        style = MaterialTheme.typography.h6,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.constrainAs(header) {
-                            centerHorizontallyTo(parent)
-                            top.linkTo(icon.bottom, 16.dp)
-                        }
-                    )
-                    Text(
-                        stringResource(R.string.cam_access_denied_description),
-                        style = MaterialTheme.typography.subtitle1,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.constrainAs(info) {
-                            centerHorizontallyTo(parent)
-                            top.linkTo(header.bottom, 8.dp)
-                        }
+                            .fillMaxWidth()
+                            .align(Alignment.BottomCenter)
+                            .navigationBarsPadding()
+                            .padding(PaddingDefaults.Medium)
+                            .padding(bottom = PaddingDefaults.Medium)
                     )
                 }
-            }
-        }
-        ScanOverlay(
-            flashEnabled = flashEnabled,
-            onFlashClick = { flashEnabled = it },
-            modifier = Modifier.fillMaxSize()
-        )
-
-        Column {
-            Spacer(modifier = Modifier.weight(1.0f))
-            if (state.snackBar.shouldShow()) {
-                SnackBar(
-                    state.snackBar,
-                    onSaveClick = {
-                        scanViewModel.saveToDatabase()
-                        mainNavController.popBackStack()
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                )
             }
         }
     }
 
     HapticAndAudibleFeedback()
+}
+
+@Composable
+private fun SheetContent(
+    onClickSave: () -> Unit
+) {
+    SpacerMedium()
+    Text(
+        stringResource(R.string.cam_next_sheet_how_to_proceed),
+        style = AppTheme.typography.body1l,
+        modifier = Modifier
+            .padding(horizontal = PaddingDefaults.Medium)
+    )
+    SpacerSmall()
+    BottomSheetAction(
+        enabled = false,
+        icon = { Icon(Icons.Rounded.ShoppingBag, null) },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(stringResource(R.string.cam_next_sheet_order_now_title))
+                SpacerSmall()
+                Surface(
+                    color = AppTheme.colors.primary100,
+                    contentColor = AppTheme.colors.primary600,
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Text(stringResource(R.string.cam_next_sheet_available_soon), Modifier.padding(horizontal = PaddingDefaults.Small, vertical = 2.dp))
+                }
+            }
+        },
+        info = { Text(stringResource(R.string.cam_next_sheet_order_now_info)) },
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        // TODO - currently disabled; teaser for prescription orders without eGK
+    }
+    BottomSheetAction(
+        icon = Icons.Rounded.SaveAlt,
+        title = stringResource(R.string.cam_next_sheet_order_later_title),
+        info = stringResource(R.string.cam_next_sheet_order_later_info),
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClickSave
+    )
+    Spacer(Modifier.navigationBarsPadding())
+}
+
+@Composable
+private fun AccessDenied() {
+    Surface(
+        color = Color.Black,
+        contentColor = Color.White,
+        modifier = Modifier.fillMaxSize()
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+                .testTag("camera/disallowed"),
+        ) {
+            TopBar(
+                flashEnabled = false,
+                onFlashClick = {}
+            )
+            Spacer(Modifier.weight(0.4f))
+            Column(
+                modifier = Modifier
+                    .padding(PaddingDefaults.Medium),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    Icons.Rounded.ErrorOutline, null,
+                    modifier = Modifier.size(48.dp)
+                )
+                Text(
+                    stringResource(R.string.cam_access_denied_headline),
+                    style = MaterialTheme.typography.h6,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+                Text(
+                    stringResource(R.string.cam_access_denied_description),
+                    style = MaterialTheme.typography.subtitle1,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+            Spacer(Modifier.weight(0.6f))
+        }
+    }
 }
 
 @Composable
@@ -340,22 +417,22 @@ private fun SaveDialog(
         }
     )
 
-private fun beep(toneGenerator: ToneGenerator, pattern: ScanScreen.VibrationPattern) {
+private fun beep(toneGenerator: ToneGenerator, pattern: ScanScreenData.VibrationPattern) {
     @Suppress("NON_EXHAUSTIVE_WHEN")
     when (pattern) {
-        ScanScreen.VibrationPattern.Saved -> toneGenerator.startTone(
+        ScanScreenData.VibrationPattern.Saved -> toneGenerator.startTone(
             ToneGenerator.TONE_PROP_PROMPT,
             1000
         )
-        ScanScreen.VibrationPattern.Error -> toneGenerator.startTone(
+        ScanScreenData.VibrationPattern.Error -> toneGenerator.startTone(
             ToneGenerator.TONE_PROP_NACK,
             1000
         )
     }
 }
 
-private fun vibrate(vibrator: Vibrator, pattern: ScanScreen.VibrationPattern) {
-    if (pattern == ScanScreen.VibrationPattern.None) {
+private fun vibrate(vibrator: Vibrator, pattern: ScanScreenData.VibrationPattern) {
+    if (pattern == ScanScreenData.VibrationPattern.None) {
         return
     }
 
@@ -364,11 +441,11 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanScreen.VibrationPattern) {
         if (VERSION.SDK_INT >= VERSION_CODES.O) {
             vibrator.vibrate(
                 when (pattern) {
-                    ScanScreen.VibrationPattern.Focused ->
+                    ScanScreenData.VibrationPattern.Focused ->
                         createOneShot(100L, 100)
-                    ScanScreen.VibrationPattern.Saved ->
+                    ScanScreenData.VibrationPattern.Saved ->
                         createOneShot(300L, 100)
-                    ScanScreen.VibrationPattern.Error ->
+                    ScanScreenData.VibrationPattern.Error ->
                         createWaveform(
                             longArrayOf(100, 100, 300),
                             intArrayOf(
@@ -378,75 +455,54 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanScreen.VibrationPattern) {
                             ),
                             -1
                         )
-                    ScanScreen.VibrationPattern.None -> error("Should not be reached")
+                    ScanScreenData.VibrationPattern.None -> error("Should not be reached")
                 }
             )
         } else {
             @Suppress("DEPRECATION")
             when (pattern) {
-                ScanScreen.VibrationPattern.Focused ->
+                ScanScreenData.VibrationPattern.Focused ->
                     vibrator.vibrate(longArrayOf(0L, 100L), -1)
-                ScanScreen.VibrationPattern.Saved ->
+                ScanScreenData.VibrationPattern.Saved ->
                     vibrator.vibrate(longArrayOf(0L, 300L), -1)
-                ScanScreen.VibrationPattern.Error ->
+                ScanScreenData.VibrationPattern.Error ->
                     vibrator.vibrate(longArrayOf(0L, 100L, 100L, 300L), -1)
-                ScanScreen.VibrationPattern.None -> error("Should not be reached")
+                ScanScreenData.VibrationPattern.None -> error("Should not be reached")
             }
         }
     }
 }
 
 @Composable
-private fun SnackBar(
-    data: ScanScreen.SnackBar,
-    onSaveClick: () -> Unit,
+private fun ActionBarButton(
+    data: ScanScreenData.ActionBar,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) =
-    Card(
-        backgroundColor = Color.Black.copy(alpha = 0.6f),
-        contentColor = Color.White,
-        shape = RoundedCornerShape(8.dp),
-        elevation = 0.dp,
-        modifier = modifier.padding(16.dp)
+    Button(
+        onClick = onClick,
+        colors = ButtonDefaults.buttonColors(
+            contentColor = AppTheme.colors.primary700,
+            backgroundColor = AppTheme.colors.neutral100
+        ),
+        elevation = ButtonDefaults.elevation(defaultElevation = 0.dp),
+        shape = RoundedCornerShape(16.dp),
+        modifier = modifier
+            .heightIn(min = 48.dp)
+            .testTag("camera/nextButton")
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            val codeTxt =
-                annotatedPluralsResource(R.plurals.txt_recipe, data.totalNrOfCodes)
-            val prescriptionTxt =
-                annotatedPluralsResource(R.plurals.txt_prescription, data.totalNrOfPrescriptions)
-
-            Text(
-                annotatedStringResource(
-                    R.string.txt_number_of_prescriptions_available,
-                    annotatedStringBold(data.totalNrOfPrescriptions.toString()),
-                    prescriptionTxt,
-                    annotatedStringBold(data.totalNrOfCodes.toString()),
-                    codeTxt
-                ),
-                style = MaterialTheme.typography.subtitle1
+        Text(
+            annotatedPluralsResource(
+                R.plurals.cam_next_with,
+                data.totalNrOfPrescriptions,
+                AnnotatedString(data.totalNrOfPrescriptions.toString()),
             )
-            Spacer16()
-            TextButton(
-                onClick = onSaveClick,
-                colors = ButtonDefaults.textButtonColors(contentColor = AppColorsThemeLight.primary300),
-                modifier = Modifier
-                    .align(Alignment.End)
-                    .testId("camera/saveButton")
-            ) {
-                Text(
-                    annotatedPluralsResource(
-                        R.plurals.txt_btn_add_prescriptions,
-                        data.totalNrOfPrescriptions,
-                        buildAnnotatedString { data.totalNrOfPrescriptions.toString() },
-                    ).toUpperCase()
-                )
-            }
-        }
+        )
     }
 
 @Composable
 private fun InfoCard(
-    info: ScanScreen.Info,
+    info: ScanScreenData.Info,
     modifier: Modifier,
 ) =
     Card(
@@ -454,17 +510,17 @@ private fun InfoCard(
         contentColor = Color.White,
         shape = RoundedCornerShape(8.dp),
         elevation = 0.dp,
-        modifier = modifier.padding(start = 24.dp, end = 24.dp)
+        modifier = modifier.padding(horizontal = PaddingDefaults.Large)
     ) {
         Box(
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 4.dp, bottom = 4.dp)
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.Tiny)
         ) {
             val view = LocalView.current
 
             val scanning = stringResource(R.string.cam_info_scanning)
             val invalid = stringResource(R.string.cam_info_invalid)
             val duplicated = stringResource(R.string.cam_info_duplicated)
-            val detected = if (info is ScanScreen.Info.Scanned) {
+            val detected = if (info is ScanScreenData.Info.Scanned) {
                 annotatedPluralsResource(
                     R.plurals.cam_info_detected,
                     info.nr,
@@ -475,14 +531,14 @@ private fun InfoCard(
             }
 
             when (info) {
-                ScanScreen.Info.Focus -> Text(
+                ScanScreenData.Info.Focus -> Text(
                     scanning,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.subtitle1
                 )
-                ScanScreen.Info.ErrorNotValid -> InfoError(invalid)
-                ScanScreen.Info.ErrorDuplicated -> InfoError(duplicated)
-                is ScanScreen.Info.Scanned -> Text(
+                ScanScreenData.Info.ErrorNotValid -> InfoError(invalid)
+                ScanScreenData.Info.ErrorDuplicated -> InfoError(duplicated)
+                is ScanScreenData.Info.Scanned -> Text(
                     detected,
                     textAlign = TextAlign.Center,
                     style = MaterialTheme.typography.subtitle1
@@ -490,10 +546,10 @@ private fun InfoCard(
             }
 
             val acc = when (info) {
-                ScanScreen.Info.Focus -> scanning
-                ScanScreen.Info.ErrorNotValid -> invalid
-                ScanScreen.Info.ErrorDuplicated -> duplicated
-                is ScanScreen.Info.Scanned -> detected.text
+                ScanScreenData.Info.Focus -> scanning
+                ScanScreenData.Info.ErrorNotValid -> invalid
+                ScanScreenData.Info.ErrorDuplicated -> duplicated
+                is ScanScreenData.Info.Scanned -> detected.text
             }
 
             DisposableEffect(view, acc) {
@@ -506,7 +562,7 @@ private fun InfoCard(
 
 @Composable
 private fun InfoError(text: String) {
-    Row {
+    Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Rounded.Close, null, modifier = Modifier.size(24.dp))
         Spacer4()
         Text(
@@ -662,6 +718,7 @@ private fun TopBar(
 
 @Composable
 private fun ScanOverlay(
+    enabled: Boolean,
     flashEnabled: Boolean,
     onFlashClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
@@ -669,34 +726,38 @@ private fun ScanOverlay(
 ) {
     var points by remember { mutableStateOf(FloatArray(8)) }
 
-    val state by produceState(
-        ScanScreen.defaultOverlayState
-    ) {
-        scanVM.scanOverlayState().collect {
-            value = it
-            it.area?.let {
-                points = it
+    var state by remember { mutableStateOf(ScanScreenData.defaultOverlayState) }
+
+    LaunchedEffect(enabled) {
+        if (enabled) {
+            scanVM.scanOverlayState().collect {
+                state = it
+                it.area?.let {
+                    points = it
+                }
             }
+        } else {
+            state = ScanScreenData.defaultOverlayState
         }
     }
 
     val fillColor =
         when (state.state) {
-            ScanScreen.ScanState.Hold -> AppTheme.colors.scanOverlayHoldFill
-            ScanScreen.ScanState.Save -> AppTheme.colors.scanOverlaySavedFill
-            ScanScreen.ScanState.Error -> AppTheme.colors.scanOverlayErrorFill
-            ScanScreen.ScanState.Final -> AppTheme.colors.scanOverlayHoldFill
+            ScanScreenData.ScanState.Hold -> AppTheme.colors.scanOverlayHoldFill
+            ScanScreenData.ScanState.Save -> AppTheme.colors.scanOverlaySavedFill
+            ScanScreenData.ScanState.Error -> AppTheme.colors.scanOverlayErrorFill
+            ScanScreenData.ScanState.Final -> AppTheme.colors.scanOverlayHoldFill
         }
 
     val outlineColor =
         when (state.state) {
-            ScanScreen.ScanState.Hold -> AppTheme.colors.scanOverlayHoldOutline
-            ScanScreen.ScanState.Save -> AppTheme.colors.scanOverlaySavedOutline
-            ScanScreen.ScanState.Error -> AppTheme.colors.scanOverlayErrorOutline
-            ScanScreen.ScanState.Final -> AppTheme.colors.scanOverlayHoldOutline
+            ScanScreenData.ScanState.Hold -> AppTheme.colors.scanOverlayHoldOutline
+            ScanScreenData.ScanState.Save -> AppTheme.colors.scanOverlaySavedOutline
+            ScanScreenData.ScanState.Error -> AppTheme.colors.scanOverlayErrorOutline
+            ScanScreenData.ScanState.Final -> AppTheme.colors.scanOverlayHoldOutline
         }
 
-    val showAimAid = state.area == null
+    val showAimAid = state.area == null && enabled
 
     Box(modifier = modifier) {
         Canvas(modifier = Modifier.fillMaxSize()) {
@@ -706,7 +767,6 @@ private fun ScanOverlay(
                     lineTo(points[2], points[3])
                     lineTo(points[4], points[5])
                     lineTo(points[6], points[7])
-
                     close()
                 }
 
@@ -724,7 +784,11 @@ private fun ScanOverlay(
                 )
             }
         }
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .systemBarsPadding()
+        ) {
             TopBar(
                 flashEnabled = flashEnabled,
                 onFlashClick = onFlashClick

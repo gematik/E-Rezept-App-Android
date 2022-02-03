@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -101,99 +101,198 @@ fun testTasks() = listOf(
     ),
 )
 
-const val TEST_SYNCED_TASK_GROUPS = 3
-val TEST_SYNCED_TASK_GROUP_1 = arrayOf("Task/2910233f-0ea2-46b7-b174-240a6240de3a")
-val TEST_SYNCED_TASK_GROUP_2 = arrayOf("Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e")
-val TEST_SYNCED_TASK_GROUP_3 = arrayOf(
-    "Task/5c19492e-1dd2-11b2-803a-63bf44e44fb8",
-    "Task/a90e60e3-75a2-458d-a027-1539fa612f83"
-)
+val testSyncedTasks by lazy {
+    listOf(
+        Task(
+            taskId = "Task/a2619fd0-6e48-11ec-90d6-0242ac120003",
+            accessCode = "71f62e55a662456195049c59f5c19eb371f62e55a662456195049c59f5c19eb3",
+            organization = "Praxis Glücklicher gehts nicht",
+            medicationText = "Schokolade",
+            expiresOn = null,
+            authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            profileName = "Tester",
+            redeemedOn = OffsetDateTime.parse("2020-12-06T14:49:46+00:00"),
+        ),
+        Task(
+            taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
+            accessCode = "2f5a441e77fc44178f4eea2e6d19a23a2f5a441e77fc44178f4eea2e6d19a23a",
+            organization = "Praxis Glücklicher gehts nicht",
+            medicationText = "Bonbons",
+            expiresOn = null,
+            authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            profileName = "Tester",
+            redeemedOn = OffsetDateTime.parse("2020-12-05T14:49:46+00:00"),
+        ),
+        Task(
+            taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
+            accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
+            organization = "Praxis Glücklicher gehts nicht",
+            medicationText = "Gummibärchen",
+            expiresOn = null,
+            authoredOn = OffsetDateTime.parse("2020-12-05T09:49:46+00:00"),
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
+            accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
+            organization = "MVZ Haus der vielen Ärzte",
+            medicationText = "Viel zu viel",
+            expiresOn = LocalDate.parse("2021-04-01"),
+            authoredOn = OffsetDateTime.parse("2020-12-20T09:49:46+00:00"),
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
+            accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
+            organization = "MVZ Haus der vielen Ärzte",
+            medicationText = "Viel zu viel",
+            expiresOn = LocalDate.parse("2021-03-05"),
+            authoredOn = OffsetDateTime.parse("2020-12-04T09:49:46+00:00"),
+            profileName = "Tester",
+        ),
+    )
+}
 
-fun testSyncedTasks() = listOf(
-    Task(
-        taskId = "Task/5c19492e-1dd2-11b2-803a-63bf44e44fb8",
-        accessCode = "71f62e55a662456195049c59f5c19eb371f62e55a662456195049c59f5c19eb3",
-        organization = "Praxis Glücklicher gehts nicht",
-        medicationText = "Schokolade",
-        expiresOn = null,
-        authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
-        profileName = "Tester",
-    ),
-    Task(
-        taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
-        accessCode = "2f5a441e77fc44178f4eea2e6d19a23a2f5a441e77fc44178f4eea2e6d19a23a",
-        organization = "Praxis Glücklicher gehts nicht",
-        medicationText = "Bonbons",
-        expiresOn = null,
-        authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
-        profileName = "Tester",
-    ),
-    Task(
-        taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
-        accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
-        organization = "Praxis Glücklicher gehts nicht",
-        medicationText = "Gummibärchen",
-        expiresOn = null,
-        authoredOn = OffsetDateTime.parse("2020-12-05T09:49:46+00:00"),
-        profileName = "Tester",
-    ),
-    Task(
-        taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
-        accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
-        organization = "MVZ Haus der vielen Ärzte",
-        medicationText = "Viel zu viel",
-        expiresOn = LocalDate.parse("2021-04-01"),
-        authoredOn = OffsetDateTime.parse("2020-12-20T09:49:46+00:00"),
-        profileName = "Tester",
-    ),
-)
+val testScannedTasks by lazy {
+    listOf(
+        Task(
+            taskId = "Task/5c19492e-1dd2-11b2-803a-63bf44e44fb8",
+            accessCode = "71f62e55a662456195049c59f5c19eb371f62e55a662456195049c59f5c19eb3",
+            scannedOn = OffsetDateTime.parse("2020-12-02T14:48:36+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            nrInScanSession = 0,
+            scanSessionName = "Foo",
+            profileName = "Tester",
+            redeemedOn = OffsetDateTime.parse("2020-12-05T14:49:46+00:00"),
+        ),
+        Task(
+            taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
+            accessCode = "2f5a441e77fc44178f4eea2e6d19a23a2f5a441e77fc44178f4eea2e6d19a23a",
+            scannedOn = OffsetDateTime.parse("2020-12-02T14:48:37+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            nrInScanSession = 1,
+            scanSessionName = null,
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
+            accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
+            scannedOn = OffsetDateTime.parse("2020-12-02T14:48:41+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            nrInScanSession = 2,
+            scanSessionName = null,
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
+            accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
+            scannedOn = OffsetDateTime.parse("2020-12-03T13:40:11+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-03T13:42:41+00:00"),
+            nrInScanSession = 0,
+            scanSessionName = "Some Name",
+            profileName = "Tester",
+        ),
+    )
+}
 
-const val TEST_SCANNED_TASK_GROUPS = 2
-val TEST_SCANNED_TASK_GROUP_1 = arrayOf("Task/2910233f-0ea2-46b7-b174-240a6240de3a")
-val TEST_SCANNED_TASK_GROUP_2 = arrayOf(
-    "Task/5c19492e-1dd2-11b2-803a-63bf44e44fb8",
-    "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
-    "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e"
-)
+val testSyncedTasksOrdered by lazy {
+    listOf(
+        Task(
+            taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
+            accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
+            organization = "MVZ Haus der vielen Ärzte",
+            medicationText = "Viel zu viel",
+            expiresOn = LocalDate.parse("2021-04-01"),
+            authoredOn = OffsetDateTime.parse("2020-12-20T09:49:46+00:00"),
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
+            accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
+            organization = "MVZ Haus der vielen Ärzte",
+            medicationText = "Viel zu viel",
+            expiresOn = LocalDate.parse("2021-03-05"),
+            authoredOn = OffsetDateTime.parse("2020-12-04T09:49:46+00:00"),
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
+            accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
+            organization = "Praxis Glücklicher gehts nicht",
+            medicationText = "Gummibärchen",
+            expiresOn = null,
+            authoredOn = OffsetDateTime.parse("2020-12-05T09:49:46+00:00"),
+            profileName = "Tester",
+        ),
+    )
+}
 
-fun testScannedTasks() = listOf(
-    Task(
-        taskId = "Task/5c19492e-1dd2-11b2-803a-63bf44e44fb8",
-        accessCode = "71f62e55a662456195049c59f5c19eb371f62e55a662456195049c59f5c19eb3",
-        scannedOn = OffsetDateTime.parse("2020-12-02T14:48:36+00:00"),
-        scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
-        nrInScanSession = 0,
-        scanSessionName = "Foo",
-        profileName = "Tester",
-    ),
-    Task(
-        taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
-        accessCode = "2f5a441e77fc44178f4eea2e6d19a23a2f5a441e77fc44178f4eea2e6d19a23a",
-        scannedOn = OffsetDateTime.parse("2020-12-02T14:48:37+00:00"),
-        scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
-        nrInScanSession = 1,
-        scanSessionName = null,
-        profileName = "Tester",
-    ),
-    Task(
-        taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
-        accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
-        scannedOn = OffsetDateTime.parse("2020-12-02T14:48:41+00:00"),
-        scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
-        nrInScanSession = 2,
-        scanSessionName = null,
-        profileName = "Tester",
-    ),
-    Task(
-        taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
-        accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
-        scannedOn = OffsetDateTime.parse("2020-12-03T13:40:11+00:00"),
-        scanSessionEnd = OffsetDateTime.parse("2020-12-03T13:42:41+00:00"),
-        nrInScanSession = 0,
-        scanSessionName = "Some Name",
-        profileName = "Tester",
-    ),
-)
+val testScannedTasksOrdered by lazy {
+    listOf(
+        Task(
+            taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
+            accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
+            scannedOn = OffsetDateTime.parse("2020-12-03T13:40:11+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-03T13:42:41+00:00"),
+            nrInScanSession = 0,
+            scanSessionName = "Some Name",
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
+            accessCode = "2f5a441e77fc44178f4eea2e6d19a23a2f5a441e77fc44178f4eea2e6d19a23a",
+            scannedOn = OffsetDateTime.parse("2020-12-02T14:48:37+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            nrInScanSession = 1,
+            scanSessionName = null,
+            profileName = "Tester",
+        ),
+        Task(
+            taskId = "Task/1aeea131-651a-4229-8b16-9bdc73dbdb6e",
+            accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
+            scannedOn = OffsetDateTime.parse("2020-12-02T14:48:41+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            nrInScanSession = 2,
+            scanSessionName = null,
+            profileName = "Tester",
+        ),
+    )
+}
+
+val testRedeemedTasksOrdered by lazy {
+    listOf(
+        Task(
+            taskId = "Task/a2619fd0-6e48-11ec-90d6-0242ac120003",
+            accessCode = "71f62e55a662456195049c59f5c19eb371f62e55a662456195049c59f5c19eb3",
+            organization = "Praxis Glücklicher gehts nicht",
+            medicationText = "Schokolade",
+            expiresOn = null,
+            authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            profileName = "Tester",
+            redeemedOn = OffsetDateTime.parse("2020-12-06T14:49:46+00:00"),
+        ),
+        Task(
+            taskId = "Task/5c19492e-1dd2-11b2-803a-63bf44e44fb8",
+            accessCode = "71f62e55a662456195049c59f5c19eb371f62e55a662456195049c59f5c19eb3",
+            scannedOn = OffsetDateTime.parse("2020-12-02T14:48:36+00:00"),
+            scanSessionEnd = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            nrInScanSession = 0,
+            scanSessionName = "Foo",
+            profileName = "Tester",
+            redeemedOn = OffsetDateTime.parse("2020-12-05T14:49:46+00:00"),
+        ),
+        Task(
+            taskId = "Task/a90e60e3-75a2-458d-a027-1539fa612f83",
+            accessCode = "2f5a441e77fc44178f4eea2e6d19a23a2f5a441e77fc44178f4eea2e6d19a23a",
+            organization = "Praxis Glücklicher gehts nicht",
+            medicationText = "Bonbons",
+            expiresOn = null,
+            authoredOn = OffsetDateTime.parse("2020-12-02T14:49:46+00:00"),
+            profileName = "Tester",
+            redeemedOn = OffsetDateTime.parse("2020-12-05T14:49:46+00:00"),
+        ),
+    )
+}
 
 fun detailPrescriptionScanned(scannedOn: OffsetDateTime = OffsetDateTime.now()) =
     UIPrescriptionDetailScanned(
@@ -326,6 +425,10 @@ fun taskWithoutKBVBundle(): Bundle {
 
 fun taskWithBundle(): Bundle {
     return getBundleFromAssetFileName("task_with_bundle_response.json")
+}
+
+fun taskWithDirectAssignmentWithoutKBVBundle(): Bundle {
+    return getBundleFromAssetFileName("task_with_direct_assignment_without_kbv_bundle.json")
 }
 
 fun allAuditEvents(): Bundle {

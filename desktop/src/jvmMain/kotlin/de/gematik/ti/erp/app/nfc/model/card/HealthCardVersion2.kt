@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,10 +19,9 @@
 package de.gematik.ti.erp.app.nfc.model.card
 
 import org.bouncycastle.asn1.ASN1InputStream
-import org.bouncycastle.asn1.ASN1Sequence
-import org.bouncycastle.asn1.BERTags
-import org.bouncycastle.asn1.DLPrivate
+import org.bouncycastle.asn1.DEROctetString
 import org.bouncycastle.asn1.DLSequence
+import org.bouncycastle.asn1.DLTaggedObject
 import java.io.IOException
 
 /**
@@ -68,12 +67,10 @@ class HealthCardVersion2(
         private fun processData(data: ByteArray): Map<Int, ByteArray> =
             ASN1InputStream(data).use { decoder ->
                 val tagMap = mutableMapOf<Int, ByteArray>()
-                (decoder.readObject() as DLPrivate)
-                    .takeIf { it.isConstructed }
-                    ?.let {
-                        val seq = ASN1Sequence.getInstance(it.getObject(BERTags.SEQUENCE)) as DLSequence
-                        seq.objects.iterator().forEach { obj ->
-                            tagMap[(obj as DLPrivate).privateTag] = obj.contents
+                (decoder.readObject() as DLTaggedObject)
+                    .let {
+                        (it.baseObject as DLSequence).objects.iterator().forEach { obj ->
+                            tagMap[(obj as DLTaggedObject).tagNo] = (obj.baseObject as DEROctetString).octets
                         }
                     }
                 tagMap

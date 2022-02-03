@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,27 +22,18 @@ import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
-import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import timber.log.Timber
+import java.time.LocalDate
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val settingsUseCase: SettingsUseCase,
-    private val safetynetUseCase: SafetynetUseCase,
-    private val featureToggleManager: FeatureToggleManager,
-    private val idpUseCase: IdpUseCase,
-    private val prescriptionUseCase: PrescriptionUseCase,
-    private val profilesUseCase: ProfilesUseCase
+    safetynetUseCase: SafetynetUseCase,
+    private val profilesUseCase: ProfilesUseCase,
 ) : BaseViewModel() {
     var externalAuthorizationUri: Uri? = null
     val zoomEnabled by settingsUseCase::zoomEnabled
@@ -63,6 +54,8 @@ class MainViewModel @Inject constructor(
             }
         }
 
+    var showDataTermsUpdate = settingsUseCase.showDataTermsUpdate
+
     private var safetynetPromptShown = false
     val showSafetynetPrompt =
         safetynetUseCase.runSafetynetAttestation()
@@ -75,20 +68,9 @@ class MainViewModel @Inject constructor(
                 }
             }
 
-    fun profilesOn() = featureToggleManager.isFeatureEnabled(Features.MULTI_PROFILE.featureName)
-
-    private var profileSetupShown = false
     val showProfileSetupPrompt =
         profilesUseCase.isProfileSetupCompleted()
-            .map {
-                if (!it && !profileSetupShown) {
-                    profileSetupShown = true
-                    delay(500)
-                    false
-                } else {
-                    true
-                }
-            }
+            .map { ! it }
 
     fun onAcceptInsecureDevice() {
         viewModelScope.launch {
@@ -102,11 +84,12 @@ class MainViewModel @Inject constructor(
         }
     }
 
-    fun onExternAppAuthorizationResult(uri: Uri) {
-        Timber.d(uri.toString())
+    fun acceptUpdatedDataTerms(date: LocalDate) {
         viewModelScope.launch {
-            idpUseCase.authenticateWithExternalAppAuthorization(uri)
-            prescriptionUseCase.downloadTasks(profilesUseCase.activeProfileName().first())
+            settingsUseCase.updatedDataTermsAccepted(date)
         }
     }
+
+    fun dataProtectionVersionAccepted() =
+        settingsUseCase.dataProtectionVersionAccepted()
 }

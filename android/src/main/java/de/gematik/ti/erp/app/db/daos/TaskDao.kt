@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,13 +18,16 @@
 
 package de.gematik.ti.erp.app.db.daos
 
+import androidx.paging.DataSource
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.RoomWarnings
 import androidx.room.Transaction
+import androidx.room.Update
 import de.gematik.ti.erp.app.db.entities.AuditEventSimple
+import de.gematik.ti.erp.app.db.entities.AuditEventWithMedicationText
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.db.entities.Task
@@ -55,8 +58,18 @@ interface TaskDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMultipleTasks(vararg task: Task)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTask(vararg task: Task)
+    @Transaction
+    suspend fun insertTask(task: Task) {
+        if (insertTaskIgnore(task) == -1L) {
+            insertTaskUpdate(task)
+        }
+    }
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    suspend fun insertTaskIgnore(task: Task): Long
+
+    @Update
+    suspend fun insertTaskUpdate(task: Task)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMedicationDispenses(medicationDispense: MedicationDispenseSimple)
@@ -94,6 +107,13 @@ interface TaskDao {
 
     @Query("SELECT * FROM auditEvents WHERE taskId = :taskId AND locale = :locale ORDER BY timestamp DESC LIMIT 50")
     fun getAuditEventsInGivenLanguage(taskId: String, locale: String): Flow<List<AuditEventSimple>>
+
+    @Query(
+        "SELECT t.medicationText, ae.timestamp, ae.text " +
+            "FROM auditEvents as ae LEFT JOIN tasks as t ON t.taskId = ae.taskId " +
+            "WHERE ae.profileName = :profileName ORDER BY timestamp DESC"
+    )
+    fun getAuditEventsForProfileName(profileName: String): DataSource.Factory<Int, AuditEventWithMedicationText>
 
     @Query("SELECT timestamp FROM auditEvents ORDER BY timestamp DESC LIMIT 1")
     suspend fun getLatestAuditEventTimeStamp(): OffsetDateTime

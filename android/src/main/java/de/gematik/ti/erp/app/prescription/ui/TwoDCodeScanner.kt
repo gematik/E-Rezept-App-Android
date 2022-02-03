@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -32,7 +32,8 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import timber.log.Timber
 import javax.inject.Inject
 
@@ -49,9 +50,9 @@ class TwoDCodeScanner @Inject constructor(
         val averageScanTime: Long = DEFAULT_SCAN_TIME
     )
 
-    val defaultBatch = Batch(listOf())
-
-    var batch = MutableStateFlow(defaultBatch)
+    var batch: MutableSharedFlow<Batch> = MutableSharedFlow(
+        replay = 0, extraBufferCapacity = 3, onBufferOverflow = BufferOverflow.DROP_OLDEST
+    )
         private set
 
     private val scanner: BarcodeScanner by lazy {
@@ -91,12 +92,13 @@ class TwoDCodeScanner @Inject constructor(
                         }
 
                         if (matrixCodes.isNotEmpty()) {
-                            batch.value =
+                            batch.tryEmit(
                                 Batch(
                                     matrixCodes = matrixCodes,
                                     cameraSize = Size(image.width, image.height),
                                     cameraRotation = image.rotationDegrees
                                 )
+                            )
                         }
                     }
                     .addOnCompleteListener { imageProxy.close() }

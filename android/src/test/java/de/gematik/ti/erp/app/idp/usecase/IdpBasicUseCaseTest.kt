@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.db.entities.IdpConfiguration
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.mockk.MockKAnnotations
@@ -46,6 +47,9 @@ class IdpBasicUseCaseTest {
 
     @MockK
     private lateinit var idpRepository: IdpRepository
+
+    @MockK
+    private lateinit var profilesRepository: ProfilesRepository
 
     @MockK
     private lateinit var truststoreUseCase: TruststoreUseCase
@@ -75,7 +79,8 @@ class IdpBasicUseCaseTest {
         useCase = spyk(
             IdpBasicUseCase(
                 repository = idpRepository,
-                truststoreUseCase = truststoreUseCase
+                truststoreUseCase = truststoreUseCase,
+                profilesRepository = profilesRepository
             )
         )
 

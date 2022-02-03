@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -28,11 +28,10 @@ import de.gematik.ti.erp.app.prescription.repository.OrganizationDetail
 import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
-import java.time.LocalDateTime
 
 fun mapToUIPrescriptionDetailScanned(
     task: Task,
-    matrix: BitMatrixCode,
+    matrix: BitMatrixCode?,
     unRedeemMorePossible: Boolean
 ): UIPrescriptionDetailScanned {
     return UIPrescriptionDetailScanned(
@@ -55,12 +54,11 @@ fun mapToUIPrescriptionDetailSynced(
     organization: OrganizationDetail,
     patient: PatientDetail,
     practitioner: PractitionerDetail,
-    matrix: BitMatrixCode,
-    hasSyncError: Boolean,
-    lastSyncDate: LocalDateTime?
+    matrix: BitMatrixCode?
 ): UIPrescriptionDetailSynced {
     return UIPrescriptionDetailSynced(
         taskId = task.taskId,
+        taskStatus = task.status,
         redeemedOn = task.redeemedOn,
         accessCode = task.accessCode,
         redeemUntil = task.expiresOn,
@@ -72,9 +70,7 @@ fun mapToUIPrescriptionDetailSynced(
         insurance = insurance,
         medication = medication,
         medicationRequest = medicationRequest,
-        medicationDispense = medicationDispense,
-        hasSyncError = hasSyncError,
-        lastSyncDate = lastSyncDate
+        medicationDispense = medicationDispense
     )
 }
 
@@ -86,7 +82,7 @@ fun mapToUIPrescriptionOrder(
 ): UIPrescriptionOrder {
     val uiPrescriptionOrder = UIPrescriptionOrder(
         taskId = task.taskId,
-        accessCode = task.accessCode,
+        accessCode = task.accessCode!!,
         title = medication.text,
         substitutionsAllowed = medicationRequest.substitutionAllowed,
     )

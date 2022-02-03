@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,7 +23,6 @@ import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
 import dagger.hilt.android.HiltAndroidApp
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
-import de.gematik.ti.erp.app.prescription.usecase.PollingUseCaseProduction
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import timber.log.Timber
@@ -40,9 +39,6 @@ class App : Application() {
     @Inject
     lateinit var authUseCase: AuthenticationUseCase
 
-    @Inject
-    lateinit var pollingUseCase: PollingUseCaseProduction
-
     override fun onCreate() {
         super.onCreate()
         appContext = this
@@ -53,7 +49,6 @@ class App : Application() {
         ProcessLifecycleOwner.get().lifecycle.apply {
             addObserver(demoUseCase)
             addObserver(authUseCase)
-            addObserver(pollingUseCase)
         }
     }
 

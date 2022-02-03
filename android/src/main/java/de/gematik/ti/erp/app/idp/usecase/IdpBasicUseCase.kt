@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -32,9 +32,19 @@ import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithHealthCard
 import de.gematik.ti.erp.app.idp.buildKeyVerifier
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import de.gematik.ti.erp.app.vau.usecase.checkIdpCertificate
+import java.security.MessageDigest
+import java.security.PublicKey
+import java.security.Security
+import java.security.interfaces.ECPublicKey
+import java.time.Duration
+import java.time.Instant
+import javax.crypto.SecretKey
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.jose4j.base64url.Base64
@@ -50,15 +60,6 @@ import org.jose4j.jwt.consumer.NumericDateValidator
 import org.jose4j.jwx.JsonWebStructure
 import org.json.JSONObject
 import timber.log.Timber
-import java.security.MessageDigest
-import java.security.PublicKey
-import java.security.Security
-import java.security.interfaces.ECPublicKey
-import java.time.Duration
-import java.time.Instant
-import javax.crypto.SecretKey
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private val discoveryDocumentMaxValidityMinutes: Int = Duration.ofHours(24).toMinutes().toInt()
 private val discoveryDocumentMaxValiditySeconds: Int = Duration.ofHours(24).seconds.toInt()
@@ -75,7 +76,10 @@ data class IdpChallengeFlowResult(
 
 data class IdpAuthFlowResult(
     val accessToken: String,
-    val ssoToken: String
+    val ssoToken: String,
+    val idTokenInsurantName: String,
+    val idTokenInsuranceIdentifier: String,
+    val idTokenInsuranceName: String
 )
 
 data class IdpRefreshFlowResult(
@@ -97,6 +101,11 @@ data class IdpUnsignedChallenge(
     val signedChallenge: String, // raw jws
     val challenge: String, // payload extracted from the jws
     val expires: Long // expiry timestamp parsed from challenge
+)
+
+data class IdpTokenResult(
+    val decryptedAccessToken: String,
+    val idTokenPayload: String,
 )
 
 @JvmInline
@@ -170,6 +179,7 @@ internal fun generateRandomUrlSafeStringSecure(outLength: Int = 32): String {
 @Singleton
 class IdpBasicUseCase @Inject constructor(
     private val repository: IdpRepository,
+    private val profilesRepository: ProfilesRepository,
     private val truststoreUseCase: TruststoreUseCase
 ) {
 
@@ -291,7 +301,7 @@ class IdpBasicUseCase @Inject constructor(
 
         // post [redirectCodeJwe] &b get the access token
 
-        val accessToken = postCodeAndDecryptAccessToken(
+        val idpTokenResult = postCodeAndDecryptAccessToken(
             config.tokenEndpoint,
             nonce = nonce,
             codeVerifier = codeVerifier,
@@ -300,10 +310,17 @@ class IdpBasicUseCase @Inject constructor(
             pukSigKey = pukSigKey
         )
 
+        val idTokenJson = JSONObject(
+            idpTokenResult.idTokenPayload
+        )
+
         // final [redirectSsoToken] & [accessToken]
         return IdpAuthFlowResult(
-            accessToken = accessToken,
-            ssoToken = redirectSsoToken
+            accessToken = idpTokenResult.decryptedAccessToken,
+            ssoToken = redirectSsoToken,
+            idTokenInsuranceIdentifier = idTokenJson.getStringOrNull("idNummer") ?: "",
+            idTokenInsuranceName = idTokenJson.getStringOrNull("organizationName") ?: "",
+            idTokenInsurantName = idTokenJson.getStringOrNull("given_name")?.let { it + " " + idTokenJson.getString("family_name") } ?: ""
         )
     }
 
@@ -337,7 +354,7 @@ class IdpBasicUseCase @Inject constructor(
 
         val codeFromRedirect = IdpService.extractQueryParameter(redirect, "code")
 
-        val accessToken = postCodeAndDecryptAccessToken(
+        val idpTokenResult = postCodeAndDecryptAccessToken(
             config.tokenEndpoint,
             nonce = nonce,
             codeVerifier = codeVerifier,
@@ -346,7 +363,7 @@ class IdpBasicUseCase @Inject constructor(
             pukSigKey = pukSigKey
         )
 
-        return IdpRefreshFlowResult(scope, accessToken)
+        return IdpRefreshFlowResult(scope, idpTokenResult.decryptedAccessToken)
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////////
@@ -443,7 +460,7 @@ class IdpBasicUseCase @Inject constructor(
         pukEncKey: JWSPublicKey,
         pukSigKey: JWSPublicKey,
         redirectUri: String = REDIRECT_URI
-    ): String {
+    ): IdpTokenResult {
         val symmetricalKey = generateRandomAES256Key()
 
         val keyVerifier = buildKeyVerifier(
@@ -461,14 +478,20 @@ class IdpBasicUseCase @Inject constructor(
             )
         ) {
             is Result.Success -> {
+                val decryptedIdToken = decryptIdToken(r.data, symmetricalKey)
+                val idTokenPayload = decryptedIdToken.apply {
+                    key = pukSigKey.jws.publicKey
+                }.payload
                 checkNonce(
-                    decryptIdToken(r.data, symmetricalKey),
-                    pukSigKey.jws.publicKey,
+                    idTokenPayload,
                     nonce.nonce
                 )
 
                 val json = decryptAccessToken(r.data, symmetricalKey)
-                JSONObject(json)["njwt"] as String
+                IdpTokenResult(
+                    decryptedAccessToken = JSONObject(json)["njwt"] as String,
+                    idTokenPayload = idTokenPayload
+                )
             }
             is Result.Error -> throw r.exception
         }
@@ -523,7 +546,7 @@ class IdpBasicUseCase @Inject constructor(
     }
 
     suspend fun checkIdpConfigurationValidity(config: IdpConfiguration, timestamp: Instant) {
-        truststoreUseCase.checkIdpCertificate(config.certificate)
+        truststoreUseCase.checkIdpCertificate(config.certificate, true)
 
         val claims = JwtClaims().apply {
             issuedAt = NumericDate.fromMilliseconds(config.issueTimestamp.toEpochMilli())
@@ -553,12 +576,10 @@ class IdpBasicUseCase @Inject constructor(
     /**
      * Compares the contained nonce with [nonce] after checking the signature of the JWS.
      */
-    private fun checkNonce(idToken: JsonWebSignature, idpPukSigKey: PublicKey, nonce: String) {
+    private fun checkNonce(idTokenPayload: String, nonce: String) {
         require(
             JSONObject(
-                idToken.apply {
-                    key = idpPukSigKey
-                }.payload
+                idTokenPayload
             ).getString("nonce") == nonce
         )
     }
@@ -577,3 +598,6 @@ class IdpBasicUseCase @Inject constructor(
         private var cryptoInitializedLock = Mutex()
     }
 }
+
+fun JSONObject.getStringOrNull(name: String) =
+    if (has(name)) getString(name) else null

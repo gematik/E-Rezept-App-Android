@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -140,7 +140,8 @@ fun Bundle.extractKBVBundle(reference: String): Bundle.BundleEntryComponent? {
             reference
         }
 
-    return entry.find { it.resource.id == cleanRefId }
+    // BUG: Workaround for https://github.com/hapifhir/org.hl7.fhir.core/pull/12
+    return entry.find { it.resource.id.removePrefix("urn:uuid:") == cleanRefId }
 }
 
 fun FhirTask.accessCode(): String {

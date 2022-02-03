@@ -1,7 +1,5 @@
-package de.gematik.ti.erp.app.core
-
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -17,6 +15,8 @@ package de.gematik.ti.erp.app.core
  * limitations under the Licence.
  * 
  */
+
+package de.gematik.ti.erp.app.core
 
 import retrofit2.Response
 import java.io.IOException

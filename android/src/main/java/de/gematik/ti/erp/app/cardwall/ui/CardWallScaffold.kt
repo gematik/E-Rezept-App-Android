@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -67,9 +67,6 @@ fun CardWallIntroScaffold(
     val activity = LocalActivity.current
 
     val scrollState = rememberScrollState()
-
-    // todo: Its buggy when jumping forward and back
-    // WindowDecorationColors(topColor)
 
     AnimatedElevationScaffold(
         modifier = Modifier.testTag("cardWall/intro"),

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.settings.ui
 
-import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColor
@@ -62,7 +61,6 @@ import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.Security
-import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.material.icons.outlined.Wysiwyg
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Camera
@@ -74,6 +72,7 @@ import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.ZoomIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -82,10 +81,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
@@ -94,6 +95,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
@@ -123,6 +125,7 @@ import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
@@ -200,12 +203,6 @@ fun SettingsScreenWithScaffold(
             }
         }
 
-        val isMultiProfile by produceState(initialValue = false) {
-            settingsViewModel.profilesOn().collect {
-                value = it
-            }
-        }
-
         LazyColumn(
             modifier = Modifier.testTag("settings_screen"),
             contentPadding = rememberInsetsPaddingValues(
@@ -230,10 +227,8 @@ fun SettingsScreenWithScaffold(
                 SettingsDivider()
             }
             item {
-                if (isMultiProfile) {
-                    ProfileSection(state, settingsViewModel, navController)
-                    SettingsDivider()
-                }
+                ProfileSection(state, settingsViewModel, navController)
+                SettingsDivider()
             }
             item {
                 DemoSection(
@@ -274,7 +269,7 @@ fun SettingsScreenWithScaffold(
                 ) {
                     if (!it) {
                         settingsViewModel.onTrackingDisallowed()
-                        Toast.makeText(context, disAllowToast, Toast.LENGTH_SHORT).show()
+                        createToastShort(context, disAllowToast)
                     } else {
                         navController.navigate(SettingsNavigationScreens.AllowAnalytics.path())
                     }
@@ -291,25 +286,13 @@ fun SettingsScreenWithScaffold(
                 }
                 SettingsDivider()
             }
-            if (!isMultiProfile) {
-                item {
-                    TokenSection {
-                        navController.navigate(SettingsNavigationScreens.Token.path())
-                    }
-                    SettingsDivider()
-                }
-            }
+
             item {
                 ContactSection(onClickFeedback = { navController.navigate(SettingsNavigationScreens.FeedbackForm.path()) })
                 SettingsDivider()
             }
             item {
                 LegalSection(navController)
-            }
-            if (!isMultiProfile) {
-                item {
-                    LogoutButton(onClick = { settingsViewModel.logout(state.activeProfile()) })
-                }
             }
             item {
                 AboutSection(Modifier.padding(top = 76.dp))
@@ -339,6 +322,11 @@ private fun ProfileSection(
     val profiles = state.uiProfiles
 
     var showAddProfileDialog by remember { mutableStateOf(false) }
+    val allowAddProfiles by produceState(initialValue = false) {
+        viewModel.allowAddProfiles().collect {
+            value = it
+        }
+    }
 
     Column {
         Text(
@@ -354,12 +342,12 @@ private fun ProfileSection(
                 .testTag("Profiles")
         )
 
-        profiles.forEach {
+        profiles.forEach { profile ->
             ProfileCard(
                 demoModeActive = state.demoModeActive,
-                it,
-                { viewModel.switchProfile(it.name) },
-                { navController.navigate(SettingsNavigationScreens.EditProfile.path(profileId = it.id)) }
+                profile = profile,
+                onSwitchProfile = { viewModel.switchProfile(profile) },
+                onClickEdit = { navController.navigate(SettingsNavigationScreens.EditProfile.path(profileId = profile.id)) }
             )
         }
     }
@@ -372,11 +360,18 @@ private fun ProfileSection(
         )
     }
 
-    AddProfile {
-        if (!state.demoModeActive) {
+    val context = LocalContext.current
+    val demoToastText = stringResource(R.string.function_not_availlable_on_demo_mode)
+    val addProfilesNotAllowedText = stringResource(R.string.settings_add_profile_not_allowed)
+
+    AddProfile(onClick = {
+        if (!state.demoModeActive && allowAddProfiles)
             showAddProfileDialog = true
+        else {
+            if (!allowAddProfiles) createToastShort(context, addProfilesNotAllowedText)
+            else createToastShort(context, demoToastText)
         }
-    }
+    })
     Spacer24()
 }
 
@@ -387,7 +382,7 @@ private fun ProfileCard(
     onSwitchProfile: () -> Unit,
     onClickEdit: () -> Unit,
 ) {
-    val colors = profileColor(profileColors = profile.color)
+    val colors = profileColor(profileColorNames = profile.color)
     val profileSsoToken = profile.ssoToken
 
     Row(
@@ -427,10 +422,15 @@ private fun ProfileCard(
             }
         }
 
+        val context = LocalContext.current
+        val demoToastText = stringResource(R.string.function_not_availlable_on_demo_mode)
+
         IconButton(
             onClick = {
                 if (!demoModeActive) {
                     onClickEdit()
+                } else {
+                    createToastShort(context, demoToastText)
                 }
             }
         ) {
@@ -456,6 +456,7 @@ private fun AddProfile(
 }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddProfileDialog(
     state: SettingsScreen.State,
@@ -463,11 +464,8 @@ fun AddProfileDialog(
     onEdit: (text: String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-
     var textValue by remember { mutableStateOf("") }
-    var duplicated by remember {
-        mutableStateOf(false)
-    }
+    var duplicated by remember { mutableStateOf(false) }
 
     val title = if (wantRemoveLastProfile) {
         stringResource(R.string.profile_edit_name_for_default)
@@ -488,6 +486,7 @@ fun AddProfileDialog(
                 style = MaterialTheme.typography.subtitle1,
             )
         },
+        properties = DialogProperties(dismissOnClickOutside = false),
         onDismissRequest = onDismissRequest,
         text = {
             Column {
@@ -501,7 +500,7 @@ fun AddProfileDialog(
                         singleLine = true,
                         onValueChange = {
                             textValue = it.trimStart()
-                            duplicated = false
+                            duplicated = state.containsProfileWithName(textValue)
                         },
                         keyboardOptions = KeyboardOptions(
                             autoCorrect = true,
@@ -532,15 +531,21 @@ fun AddProfileDialog(
                 Text(stringResource(R.string.cancel).uppercase(Locale.getDefault()))
             }
             TextButton(onClick = {
-                duplicated = state.containsProfileWithName(textValue)
                 if (!duplicated && textValue.isNotEmpty()) {
                     onEdit(textValue)
                 }
             }) {
                 Text(stringResource(R.string.ok).uppercase(Locale.getDefault()))
             }
-        },
+        }
     )
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+    DisposableEffect(Unit) {
+        onDispose {
+            keyboardController?.hide()
+        }
+    }
 }
 
 @Composable
@@ -1071,13 +1076,4 @@ private fun secureOptionEnabled(biometricManager: BiometricManager): Boolean {
         BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return false
     }
     return false
-}
-
-@Composable
-private fun TokenSection(onClick: () -> Unit) {
-    LabelButton(
-        icon = Icons.Outlined.VpnKey,
-        text = stringResource(R.string.settings_show_token),
-        onClick = onClick
-    )
 }

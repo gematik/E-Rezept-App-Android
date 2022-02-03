@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -21,6 +21,11 @@ package de.gematik.ti.erp.app.cardwall.ui.model
 import de.gematik.ti.erp.app.Route
 
 object CardWallNavigation {
+    object TroubleshootingPageA : Route("TroubleshootingPageA")
+    object TroubleshootingPageB : Route("TroubleshootingPageB")
+    object TroubleshootingPageC : Route("TroubleshootingPageC")
+    object TroubleshootingNoSuccessPage : Route("TroubleshootingNoSuccessPage")
+    object TroubleshootingContactUs : Route("TroubleshootingContactUs")
     object ExternalAuthenticator : Route("ExternalAuthenticatorOverview")
     object Intro : Route("CardWallIntro")
     object MissingCapabilities : Route("MissingCapabilities")
@@ -28,7 +33,6 @@ object CardWallNavigation {
     object PersonalIdentificationNumber : Route("CardWallPersonalIdentificationNumber")
     object AuthenticationSelection : Route("CardWallAuthenticationSelection")
     object Authentication : Route("CardWallAuthentication")
-    object Happy : Route("CardWallHappy")
     object Switch : Route("CardWallSwitch")
     object InsuranceApp : Route("InsuranceApp")
     object OrderHealthCard : Route("OrderHealthCard")

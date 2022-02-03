@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -46,31 +46,6 @@ import org.hl7.fhir.r4.model.MedicationRequest
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.StringType
 import org.hl7.fhir.r4.model.Task
-
-/*
-Since these bundles are hard to understand, here's a short overview:
-
-  +------------------+
-  | FD Bundle        |
-  |                  |
-  |  +------+        |
-  |  | Task |-----------+
-  |  +------+        |  |
-  |  +------------+  |  |
-  |  | KBV Bundle |-----+
-  |  +------------+  |
-  |  +------+        |
-  |  | Task |-----------+
-  |  +------+        |  |
-  |  +------------+  |  |
-  |  | KBV Bundle |-----+
-  |  +------------+  |
-  |                  |
-  +------------------+
-
-Each Task contains a reference to a KBV Bundle (one to one relation), which in turn contains the actual prescription.
-The FD Bundle is actually just an outer wrapper.
- */
 
 typealias EntityTask = de.gematik.ti.erp.app.db.entities.Task
 typealias FhirPractitioner = org.hl7.fhir.r4.model.Practitioner
@@ -155,10 +130,11 @@ fun Bundle.extractKBVBundle(reference: String): Bundle.BundleEntryComponent? {
             reference
         }
 
-    return entry.find { it.resource.id == cleanRefId }
+    // BUG: Workaround for https://github.com/hapifhir/org.hl7.fhir.core/pull/12
+    return entry.find { it.resource.id.removePrefix("urn:uuid:") == cleanRefId }
 }
 
-fun Task.accessCode(): String {
+fun Task.accessCode(): String? {
     identifier.forEach {
         if (it.hasSystem()) {
             if (it.system == "https://gematik.de/fhir/NamingSystem/AccessCode") {
@@ -166,7 +142,7 @@ fun Task.accessCode(): String {
             }
         }
     }
-    error("Access code not found!")
+    return null
 }
 
 fun Task.prescriptionId(): String? {

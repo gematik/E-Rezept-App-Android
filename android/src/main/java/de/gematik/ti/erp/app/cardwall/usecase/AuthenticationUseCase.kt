@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,42 +20,52 @@ package de.gematik.ti.erp.app.cardwall.usecase
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardChannel
 import kotlinx.coroutines.flow.Flow
 
-enum class AuthenticationState {
-    None,
+@Stable
+sealed class AuthenticationState {
+    object None : AuthenticationState()
 
     // initial state
-    AuthenticationFlowInitialized,
+    object AuthenticationFlowInitialized : AuthenticationState()
 
-    HealthCardCommunicationChannelReady,
-    HealthCardCommunicationTrustedChannelEstablished,
-    HealthCardCommunicationCertificateLoaded,
-    HealthCardCommunicationFinished,
+    object HealthCardCommunicationChannelReady : AuthenticationState()
+    object HealthCardCommunicationTrustedChannelEstablished : AuthenticationState()
+    object HealthCardCommunicationCertificateLoaded : AuthenticationState()
+    object HealthCardCommunicationFinished : AuthenticationState()
 
-    IDPCommunicationFinished,
+    object IDPCommunicationFinished : AuthenticationState()
 
     // final state
-    AuthenticationFlowFinished,
+    object AuthenticationFlowFinished : AuthenticationState()
 
     // nfc failure
-    HealthCardCommunicationInterrupted,
+    object HealthCardCommunicationInterrupted : AuthenticationState()
 
     // health card failure states
-    HealthCardCardAccessNumberWrong,
-    HealthCardPin2RetriesLeft,
-    HealthCardPin1RetryLeft,
-    HealthCardBlocked,
+    object HealthCardCardAccessNumberWrong : AuthenticationState()
+    object HealthCardPin2RetriesLeft : AuthenticationState()
+    object HealthCardPin1RetryLeft : AuthenticationState()
+    object HealthCardBlocked : AuthenticationState()
 
     // IDP failure states
-    IDPCommunicationFailed,
-    IDPCommunicationInvalidCertificate,
-    IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate,
+    object IDPCommunicationFailed : AuthenticationState()
+    object IDPCommunicationInvalidCertificate : AuthenticationState()
+    object IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate : AuthenticationState()
+
+    // profile failure
+    class InsuranceIdentifierAlreadyExists(
+        val inActiveProfile: Boolean,
+        val profileName: String,
+        val insuranceIdentifier: String
+    ) : AuthenticationState()
 
     // secure element failure
-    SecureElementCryptographyFailed;
+    object SecureElementCryptographyFailed : AuthenticationState()
 
+    @Stable
     fun isFailure() =
         when (this) {
             HealthCardCommunicationInterrupted,
@@ -65,10 +75,12 @@ enum class AuthenticationState {
             HealthCardBlocked,
             IDPCommunicationFailed,
             IDPCommunicationInvalidCertificate,
+            is InsuranceIdentifierAlreadyExists,
             SecureElementCryptographyFailed -> true
             else -> false
         }
 
+    @Stable
     fun isInProgress() =
         when (this) {
             AuthenticationFlowInitialized,
@@ -76,11 +88,14 @@ enum class AuthenticationState {
             HealthCardCommunicationTrustedChannelEstablished,
             HealthCardCommunicationCertificateLoaded,
             HealthCardCommunicationFinished,
-            IDPCommunicationFinished, -> true
+            IDPCommunicationFinished -> true
             else -> false
         }
 
+    @Stable
     fun isFinal() = this == AuthenticationFlowFinished
+
+    @Stable
     fun isReady() = this == None
 }
 
@@ -100,5 +115,5 @@ interface AuthenticationUseCase {
 
     fun authenticateWithSecureElement(): Flow<AuthenticationState>
 
-    fun isCanAvailable(): Flow<Boolean>
+    suspend fun isCanAvailable(): Boolean
 }

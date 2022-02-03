@@ -12,6 +12,7 @@
 Jenkinsfile
 Jenkinsfile_Archive
 Jenkinsfile_GitHubPublish
+Jenkinsfile_Desktop
 Jenkinsfile_GitHubPublishFasttrack
 ci-overrides.properties
 nexus-init.gradle.kts

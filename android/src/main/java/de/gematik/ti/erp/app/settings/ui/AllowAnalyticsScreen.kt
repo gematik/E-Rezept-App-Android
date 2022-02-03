@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.settings.ui
 
-import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -44,6 +43,7 @@ import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer8
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.compose.createToastShort
 import java.util.Locale
 
 @Composable
@@ -69,7 +69,7 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit) {
                 TextButton(
                     onClick = {
                         onAllowAnalytics(false)
-                        Toast.makeText(context, disAllowToast, Toast.LENGTH_SHORT).show()
+                        createToastShort(context, disAllowToast)
                     }
                 ) {
                     Text(stringResource(R.string.settings_tracking_not_allow).uppercase(Locale.getDefault()))
@@ -78,7 +78,7 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit) {
                 TextButton(
                     onClick = {
                         onAllowAnalytics(true)
-                        Toast.makeText(context, allowText, Toast.LENGTH_SHORT).show()
+                        createToastShort(context, allowText)
                     }
                 ) {
                     Text(stringResource(R.string.settings_tracking_allow).uppercase(Locale.getDefault()))

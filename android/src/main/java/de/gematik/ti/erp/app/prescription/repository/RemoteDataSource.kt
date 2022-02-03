@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -26,17 +26,24 @@ import java.time.OffsetDateTime
 import javax.inject.Inject
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.Communication
+import java.time.Instant
+import java.time.ZoneOffset
+import java.time.format.DateTimeFormatter
 
 class RemoteDataSource @Inject constructor(
     private val service: ErpService
 ) {
 
-    suspend fun fetchTasks(lastKnownUpdate: OffsetDateTime?, profileName: String): Result<Bundle> =
+    // greater _than_, otherwise we query the same resource again
+    private fun gtString(timestamp: Instant) =
+        "gt${timestamp.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}"
+
+    suspend fun fetchTasks(lastKnownUpdate: Instant?, profileName: String): Result<Bundle> =
         safeApiCall(
             "error while loading tasks"
         ) {
-            val dateTimeString: String? =
-                lastKnownUpdate?.let { "ge${DateConverter().fromOffsetDateTime(it)}" }
+            val dateTimeString =
+                lastKnownUpdate?.let { gtString(it) }
             service.allTasks(profileName, dateTimeString)
         }
 
@@ -59,7 +66,7 @@ class RemoteDataSource @Inject constructor(
         errorMessage = "Error getting all Audit Events"
     ) {
         val dateTimeString: String? =
-            lastKnownUpdate?.let { "ge${DateConverter().fromOffsetDateTime(it)}" }
+            lastKnownUpdate?.let { "gt${DateConverter().fromOffsetDateTime(it)}" }
         service.allAuditEvents(
             profileName = profileName,
             lastKnownDate = dateTimeString,

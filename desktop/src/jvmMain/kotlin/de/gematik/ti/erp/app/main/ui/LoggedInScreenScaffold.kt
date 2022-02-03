@@ -1,6 +1,23 @@
+/*
+ * Copyright (c) 2022 gematik GmbH
+ * 
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the Licence);
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ *     https://joinup.ec.europa.eu/software/page/eupl
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * 
+ */
+
 package de.gematik.ti.erp.app.main.ui
 
-import PrescriptionScreen
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
@@ -33,6 +50,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Archive
 import androidx.compose.material.icons.outlined.ChatBubbleOutline
+import androidx.compose.material.icons.outlined.History
 import androidx.compose.material.icons.outlined.Logout
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Message
@@ -49,6 +67,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
@@ -62,6 +81,8 @@ import de.gematik.ti.erp.app.common.theme.AppTheme
 import de.gematik.ti.erp.app.common.theme.PaddingDefaults
 import de.gematik.ti.erp.app.communication.ui.CommunicationScreen
 import de.gematik.ti.erp.app.navigation.ui.Navigation
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
+import de.gematik.ti.erp.app.protocol.ui.ProtocolScreen
 import java.util.Locale
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -93,6 +114,7 @@ fun LoggedInScreen(
                     when (navigation.currentBackStackEntry) {
                         is MainNavigation.Prescriptions -> PrescriptionScreen(navigation)
                         is MainNavigation.PharmacyCommunications -> CommunicationScreen()
+                        is MainNavigation.Protocol -> ProtocolScreen()
                     }
                 }
             }
@@ -228,6 +250,14 @@ private fun SideBar(
             ) {
                 navigation.navigate(MainNavigation.PrescriptionsRedeemed)
             }
+            SideBarItem(
+                Icons.Outlined.History,
+                App.strings.desktopMainPharmacyProtocol(),
+                style = AppTheme.typography.subtitle2l,
+                selected = selected == MainNavigation.Protocol
+            ) {
+                navigation.navigate(MainNavigation.Protocol)
+            }
         }
         SpacerMedium()
         Text(
@@ -253,6 +283,8 @@ private fun SideBar(
             Modifier.padding(PaddingDefaults.Small),
             verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
         ) {
+            val uriHandler = LocalUriHandler.current
+            val helpLink = App.strings.desktopHelpLink()
             if (mainState.zoomed) {
                 SideBarItem(Icons.Outlined.ZoomOut, App.strings.desktopMainZoomOut()) {
                     mainViewModel.onZoomOut()
@@ -262,7 +294,9 @@ private fun SideBar(
                     mainViewModel.onZoomIn()
                 }
             }
-            SideBarItem(Icons.Outlined.ChatBubbleOutline, App.strings.desktopMainHelp()) {}
+            SideBarItem(Icons.Outlined.ChatBubbleOutline, App.strings.desktopMainHelp()) {
+                uriHandler.openUri(helpLink)
+            }
             SideBarItem(Icons.Outlined.Logout, App.strings.desktopMainLogout()) {
                 coScope.launch { mainViewModel.onLogout() }
             }

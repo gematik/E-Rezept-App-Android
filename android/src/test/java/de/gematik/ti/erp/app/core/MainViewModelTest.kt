@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.core
 
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
@@ -54,14 +53,11 @@ class MainViewModelTest {
     @MockK
     private lateinit var profilesUseCase: ProfilesUseCase
 
-    @MockK
+    @MockK(relaxed = true)
     private lateinit var idpUseCase: IdpUseCase
 
     @MockK
     private lateinit var safetynetUseCase: SafetynetUseCase
-
-    @MockK
-    private lateinit var featureToggleManager: FeatureToggleManager
 
     @Before
     fun setup() {
@@ -71,10 +67,11 @@ class MainViewModelTest {
 
     @Test
     fun `test showInsecureDevicePrompt - only show once`() = coroutineRule.testDispatcher.runBlockingTest {
+        every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(true)
         every { settingsUseCase.isNewUser } returns false
         every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, featureToggleManager, idpUseCase, prescriptionUseCase, profilesUseCase)
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
 
         assertEquals(true, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -82,13 +79,38 @@ class MainViewModelTest {
 
     @Test
     fun `test showInsecureDevicePrompt - device is secure`() = coroutineRule.testDispatcher.runBlockingTest {
+        every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.isNewUser } returns false
         every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
 
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, featureToggleManager, idpUseCase, prescriptionUseCase, profilesUseCase)
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
 
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
+    }
+
+    @Test
+    fun `test showDataTermsUpdate - dataTerms updates should be shown`() = coroutineRule.testDispatcher.runBlockingTest {
+        every { settingsUseCase.showDataTermsUpdate } returns flowOf(true)
+        every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
+        every { settingsUseCase.isNewUser } returns false
+        every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
+
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
+
+        assertEquals(true, viewModel.showDataTermsUpdate.first())
+    }
+
+    @Test
+    fun `test showDataTermsUpdate - dataTerms updates should not be shown`() = coroutineRule.testDispatcher.runBlockingTest {
+        every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
+        every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
+        every { settingsUseCase.isNewUser } returns false
+        every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
+
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
+
+        assertEquals(false, viewModel.showDataTermsUpdate.first())
     }
 }

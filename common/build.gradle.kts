@@ -27,6 +27,7 @@ fun getGitHash() =
     }
 
 val USER_AGENT: String by overriding()
+val DATA_PROTECTION_LAST_UPDATED: String by overriding()
 
 val VERSION_CODE: String by overriding()
 val VERSION_NAME: String by overriding()
@@ -37,7 +38,9 @@ val VAU_OCSP_RESPONSE_MAX_AGE: String by overriding()
 val APP_TRUST_ANCHOR_BASE64: String by overriding()
 val APP_TRUST_ANCHOR_BASE64_TEST: String by overriding()
 val PHARMACY_SERVICE_URI: String by overriding()
+val PHARMACY_SERVICE_URI_TEST: String by overriding()
 val PHARMACY_API_KEY: String by overriding()
+val PHARMACY_API_KEY_TEST: String by overriding()
 
 val PIWIK_TRACKER_URI: String by overriding()
 
@@ -114,10 +117,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    // namespace = "de.gematik.ti.erp.lib"
 }
 
 enum class Platforms {
-    Google, Huawei, Desktop
+    Google, Huawei, Konnektathon, Desktop
 }
 
 enum class Environments {
@@ -137,9 +141,7 @@ buildkonfig {
         buildConfigField(STRING, "GIT_HASH", getGitHash())
         buildConfigField(STRING, "PIWIK_TRACKER_URI", PIWIK_TRACKER_URI)
         buildConfigField(STRING, "SAFETYNET_API_KEY", SAFETYNET_API_KEY)
-
-        buildConfigField(STRING, "PHARMACY_SERVICE_URI", PHARMACY_SERVICE_URI)
-        buildConfigField(STRING, "PHARMACY_API_KEY", PHARMACY_API_KEY)
+        buildConfigField(STRING, "BUILD_FLAVOR", project.property("buildkonfig.flavor") as String)
     }
 
     fun defaultConfigs(
@@ -149,6 +151,8 @@ buildkonfig {
         idpServiceUri: String,
         erpApiKey: String,
         piwikTrackerId: String?,
+        pharmacyServiceUri: String,
+        pharmacyServiceApiKey: String,
         trustAnchor: String,
     ) {
         defaultConfigs(flavor) {
@@ -159,6 +163,8 @@ buildkonfig {
             piwikTrackerId?.let {
                 buildConfigField(STRING, "PIWIK_TRACKER_ID", piwikTrackerId)
             }
+            buildConfigField(STRING, "PHARMACY_SERVICE_URI", pharmacyServiceUri)
+            buildConfigField(STRING, "PHARMACY_API_KEY", pharmacyServiceApiKey)
             buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64", trustAnchor)
         }
     }
@@ -193,7 +199,7 @@ buildkonfig {
                         Environments.TR -> IDP_SERVICE_URI_TR
                     },
                     erpApiKey = when (platform) {
-                        Platforms.Desktop, Platforms.Google -> when (environment) {
+                        Platforms.Desktop, Platforms.Google, Platforms.Konnektathon -> when (environment) {
                             Environments.PU -> ERP_API_KEY_GOOGLE_PU
                             Environments.TU -> ERP_API_KEY_GOOGLE_TU
                             Environments.RU -> ERP_API_KEY_GOOGLE_RU
@@ -207,9 +213,21 @@ buildkonfig {
                         }
                     },
                     piwikTrackerId = when (platform) {
-                        Platforms.Google -> PIWIK_TRACKER_ID_GOOGLE
+                        Platforms.Google, Platforms.Konnektathon -> PIWIK_TRACKER_ID_GOOGLE
                         Platforms.Huawei -> PIWIK_TRACKER_ID_HUAWEI
                         Platforms.Desktop -> null
+                    },
+                    pharmacyServiceUri = when (environment) {
+                        Environments.PU -> PHARMACY_SERVICE_URI
+                        Environments.TU,
+                        Environments.RU,
+                        Environments.TR -> PHARMACY_SERVICE_URI_TEST
+                    },
+                    pharmacyServiceApiKey = when (environment) {
+                        Environments.PU -> PHARMACY_API_KEY
+                        Environments.TU,
+                        Environments.RU,
+                        Environments.TR -> PHARMACY_API_KEY_TEST
                     },
                     trustAnchor = when (environment) {
                         Environments.PU -> APP_TRUST_ANCHOR_BASE64
@@ -228,6 +246,7 @@ buildkonfig {
         }
         create("android") {
             buildConfigField(STRING, "USER_AGENT", USER_AGENT)
+            buildConfigField(STRING, "DATA_PROTECTION_LAST_UPDATED", DATA_PROTECTION_LAST_UPDATED)
 
             // test configs
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false")

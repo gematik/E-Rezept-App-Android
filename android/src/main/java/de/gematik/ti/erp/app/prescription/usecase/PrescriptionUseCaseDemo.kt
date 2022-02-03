@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -24,7 +24,6 @@ import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIAuditEvent
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.detail.ui.model.mapToUIPrescriptionDetailScanned
 import de.gematik.ti.erp.app.prescription.detail.ui.model.mapToUIPrescriptionDetailSynced
@@ -38,9 +37,7 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionDemoDataSource
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.io.IOException
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -72,13 +69,9 @@ class PrescriptionUseCaseDemo @Inject constructor(
         prescriptionDemoDataSource.saveTasks(tasks)
     }
 
-    override suspend fun downloadCommunications(profileName: String): Result<Unit> {
-        return demoRefreshResult()
-    }
+    override suspend fun downloadCommunications(profileName: String): Result<Unit> = Result.Success(Unit)
 
-    override suspend fun downloadAuditEvents(profileName: String, count: Int?, offset: Int?): Result<Unit> {
-        return demoRefreshResult()
-    }
+    override fun downloadAllAuditEvents(profileName: String) {}
 
     override suspend fun downloadTasks(profileName: String): Result<Int> {
         delay(DEMO_DELAY)
@@ -103,8 +96,9 @@ class PrescriptionUseCaseDemo @Inject constructor(
     ): UIPrescriptionDetail {
         return loadTaskByTaskId(taskId)
             ?.let { task ->
-                val payload = createDataMatrixPayload("Task/${task.taskId}", task.accessCode)
-                val matrix = BitMatrixCode(createMatrixCode(payload))
+                val payload =
+                    task.accessCode?.let { createDataMatrixPayload("Task/${task.taskId}", it) }
+                val matrix = payload?.let { createMatrixCode(it) }?.let { BitMatrixCode(it) }
 
                 if (task.rawKBVBundle != null) {
                     mapToUIPrescriptionDetailSynced(
@@ -116,9 +110,7 @@ class PrescriptionUseCaseDemo @Inject constructor(
                         OrganizationDetail(name = task.organization),
                         PatientDetail(),
                         PractitionerDetail(),
-                        matrix,
-                        false,
-                        LocalDateTime.now()
+                        matrix
                     )
                 } else {
                     mapToUIPrescriptionDetailScanned(task, matrix, false)
@@ -136,21 +128,6 @@ class PrescriptionUseCaseDemo @Inject constructor(
         profileName: String
     ): Flow<List<Task>> {
         return emptyFlow()
-    }
-
-    override fun loadAuditEvents(taskId: String): Flow<List<UIAuditEvent>> {
-        return prescriptionDemoDataSource.loadAuditEvents(taskId).map {
-            it.map { auditEventSimple ->
-                UIAuditEvent(
-                    id = auditEventSimple.id,
-                    locale = auditEventSimple.locale,
-                    text = auditEventSimple.text,
-                    timestamp = auditEventSimple.timestamp.atZoneSameInstant(ZoneId.systemDefault())
-                        .toLocalDateTime(),
-                    taskId = auditEventSimple.taskId
-                )
-            }
-        }
     }
 
     override suspend fun saveLowDetailEvent(lowDetailEvent: LowDetailEventSimple) {

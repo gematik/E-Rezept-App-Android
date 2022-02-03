@@ -5,11 +5,6 @@ plugins {
     `java-gradle-plugin`
 }
 
-repositories {
-    google()
-    mavenCentral()
-}
-
 tasks.withType<KotlinCompile>() {
     kotlinOptions.jvmTarget = "11"
 }

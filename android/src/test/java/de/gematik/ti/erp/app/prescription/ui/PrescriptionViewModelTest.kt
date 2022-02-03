@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDefineSecurity
@@ -28,14 +27,11 @@ import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintTryDemoM
 import de.gematik.ti.erp.app.db.entities.Settings
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
-import de.gematik.ti.erp.app.prescription.usecase.PollingUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.impl.annotations.RelaxedMockK
@@ -68,9 +64,6 @@ class PrescriptionViewModelTest {
     @RelaxedMockK
     private lateinit var profilesUseCase: ProfilesUseCase
 
-    @RelaxedMockK
-    private lateinit var pollingUseCase: PollingUseCase
-
     @MockK
     private lateinit var demoUseCase: DemoUseCase
 
@@ -89,8 +82,7 @@ class PrescriptionViewModelTest {
 
         every { prescriptionUseCase.syncedRecipes() } answers { flowOf(listOf()) }
         every { prescriptionUseCase.scannedRecipes() } answers { flowOf(listOf()) }
-        every { prescriptionUseCase.redeemedScannedRecipes() } answers { flowOf(listOf()) }
-        every { prescriptionUseCase.redeemedSyncedRecipes() } answers { flowOf(listOf()) }
+        every { prescriptionUseCase.redeemedPrescriptions() } answers { flowOf(listOf()) }
 
         every { demoUseCase.demoModeActive } answers { MutableStateFlow(false) }
         every { demoUseCase.isDemoModeActive } answers { false }
@@ -106,7 +98,6 @@ class PrescriptionViewModelTest {
             profilesUseCase = profilesUseCase,
             settingsUseCase = settingsUseCase,
             demoUseCase = demoUseCase,
-            pollingUseCase = pollingUseCase,
             dispatchProvider = coroutineRule.testDispatchProvider,
             hintUseCase = hintUseCase,
             authenticationUseCase = authenticationUseCase
@@ -265,26 +256,4 @@ class PrescriptionViewModelTest {
                     .first().hints.find { it == PrescriptionScreenHintDemoModeActivated }
             )
         }
-
-    @Test
-    fun `test downloading auditEvents - break out of loop when result is not success`() {
-        coEvery { prescriptionUseCase.downloadAuditEvents(any(), null, null) } returns Result.Error(
-            Exception("just an exception")
-        )
-        instantiateViewModel()
-        coroutineRule.testDispatcher.runBlockingTest {
-            viewModel.downloadAllAuditEvents("")
-            coVerify(exactly = 1) { prescriptionUseCase.downloadAuditEvents(any()) }
-        }
-    }
-
-    @Test
-    fun `test downloading auditEvents - break from loop when nextLink is empty`() {
-        coEvery { prescriptionUseCase.downloadAuditEvents(any(), null, null) } returns Result.Success("")
-        instantiateViewModel()
-        coroutineRule.testDispatcher.runBlockingTest {
-            viewModel.downloadAllAuditEvents("")
-            coVerify(exactly = 1) { prescriptionUseCase.downloadAuditEvents(any()) }
-        }
-    }
 }

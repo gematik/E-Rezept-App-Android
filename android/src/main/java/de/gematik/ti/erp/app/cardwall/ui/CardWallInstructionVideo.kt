@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -73,7 +73,7 @@ fun InstructionVideo() {
     val player = remember {
         MediaPlayer().apply {
             setOnTimedTextListener { _, text ->
-                caption = text.text?.trim() ?: ""
+                caption = text?.text?.trim() ?: ""
             }
 
             setDataSource(context.resources.openRawResourceFd(R.raw.animation_cdw_instruction))

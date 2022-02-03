@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,21 +22,23 @@ import android.app.KeyguardManager
 import android.content.Context
 import android.content.SharedPreferences
 import dagger.hilt.android.qualifiers.ApplicationContext
+import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.di.ApplicationPreferences
-import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import de.gematik.ti.erp.app.settings.ui.NEW_USER
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.time.LocalDate
 import javax.inject.Inject
 
 const val DEFAULT_PROFILE_NAME = ""
+val DATA_PROTECTION_LAST_UPDATED: LocalDate = LocalDate.parse(BuildKonfig.DATA_PROTECTION_LAST_UPDATED)
 
 class SettingsUseCase @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val settingsRepository: SettingsRepository,
-    private val idpRepository: IdpRepository,
     @ApplicationPreferences
     private val appPrefs: SharedPreferences,
 ) {
@@ -65,6 +67,11 @@ class SettingsUseCase @Inject constructor(
         get() = appPrefs.getBoolean(NEW_USER, true)
         set(v) {
             appPrefs.edit().putBoolean(NEW_USER, v).apply()
+        }
+
+    var showDataTermsUpdate: Flow<Boolean> =
+        settings.map {
+            it.dataProtectionVersionAccepted < DATA_PROTECTION_LAST_UPDATED
         }
 
     val pharmacySearch =
@@ -113,5 +120,13 @@ class SettingsUseCase @Inject constructor(
         return settingsRepository.loadPassword()?.let {
             settingsRepository.hashPasswordWithSalt(password, it.salt).contentEquals(it.hash)
         } ?: false
+    }
+
+    suspend fun updatedDataTermsAccepted(date: LocalDate) {
+        settingsRepository.updatedDataTermsAccepted(date)
+    }
+
+    fun dataProtectionVersionAccepted(): Flow<LocalDate> = settings.map {
+        it.dataProtectionVersionAccepted
     }
 }

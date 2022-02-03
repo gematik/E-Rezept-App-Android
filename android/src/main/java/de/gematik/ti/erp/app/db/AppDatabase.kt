@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -43,15 +43,17 @@ import de.gematik.ti.erp.app.db.entities.IdpAuthenticationDataEntity
 import de.gematik.ti.erp.app.db.entities.IdpConfiguration
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
+import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.db.entities.ProfileEntity
 import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
 import de.gematik.ti.erp.app.db.entities.Settings
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.db.entities.TruststoreEntity
+import de.gematik.ti.erp.app.settings.usecase.DEFAULT_PROFILE_NAME
 import javax.inject.Singleton
 
-const val DB_VERSION = 17
+const val DB_VERSION = 26
 
 @Singleton
 @Database(
@@ -174,7 +176,7 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
         database.execSQL(
             "INSERT INTO `profiles` (`id`, `name`, `insuranceNumber`) VALUES(0, '', NULL)"
         )
-        database.execSQL("INSERT INTO `activeProfile` (`id`, `profileName`) VALUES (0, '')")
+        database.execSQL("INSERT INTO `activeProfile` (`id`, `profileName`) VALUES (0, '$DEFAULT_PROFILE_NAME')")
         database.execSQL(
             "CREATE TABLE IF NOT EXISTS `tasks_new` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL DEFAULT '', `accessCode` TEXT NOT NULL, `lastModified` TEXT, `organization` TEXT, `medicationText` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `scanSessionName` TEXT, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)",
         )
@@ -290,5 +292,108 @@ val MIGRATION_16_17 = object : Migration(16, 17) {
         database.execSQL("CREATE INDEX IF NOT EXISTS `index_auditEvents_profileName` ON `auditEvents` (`profileName`)")
 
         database.execSQL("ALTER TABLE profiles ADD COLUMN `lastAuditEventSynced` Text")
+    }
+}
+
+val MIGRATION_17_18 = object : Migration(17, 18) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("DROP TABLE IF EXISTS auditEvents")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `auditEvents` (`id` TEXT NOT NULL, `locale` TEXT NOT NULL, `profileName` TEXT NOT NULL, `text` TEXT NOT NULL, `timestamp` TEXT NOT NULL, `taskId` TEXT NOT NULL, PRIMARY KEY(`id`, `locale`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE )")
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_auditEvents_profileName` ON `auditEvents` (`profileName`)")
+    }
+}
+
+val MIGRATION_18_19 = object : Migration(18, 19) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE profiles ADD COLUMN `lastTaskSynced` INTEGER")
+    }
+}
+
+val MIGRATION_19_20 = object : Migration(19, 20) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "DROP TABLE idpAuthenticationDataEntity"
+        )
+
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `idpAuthenticationDataEntity` (`profileName` TEXT NOT NULL, `singleSignOnToken` TEXT, `singleSignOnTokenScope` TEXT, `cardAccessNumber` TEXT, `healthCardCertificate` BLOB, `aliasOfSecureElementEntry` BLOB, `singleSignOnTokenValidOn` INTEGER, `singleSignOnTokenExpiresOn` INTEGER, PRIMARY KEY(`profileName`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)"
+        )
+    }
+}
+
+val MIGRATION_20_21 = object : Migration(20, 21) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `tasks_new` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL, `accessCode` TEXT, `lastModified` TEXT, `organization` TEXT, `medicationText` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `scanSessionName` TEXT, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)",
+        )
+        database.execSQL(
+            "INSERT INTO `tasks_new` (`taskId`, `profileName`, `accessCode`, `lastModified`, `organization`, `medicationText`, `expiresOn`, `acceptUntil`, `authoredOn`, `status`, `scannedOn`, `scanSessionEnd`, `nrInScanSession`, `scanSessionName`, `redeemedOn`, `rawKBVBundle`) select `taskId`, `profileName`, `accessCode`, `lastModified`, `organization`, `medicationText`, `expiresOn`, `acceptUntil`, `authoredOn`, `status`, `scannedOn`, `scanSessionEnd`, `nrInScanSession`, `scanSessionName`, `redeemedOn`, `rawKBVBundle` FROM `tasks`"
+        )
+        database.execSQL(
+            "DROP table tasks"
+        )
+        database.execSQL(
+            "ALTER TABLE tasks_new RENAME TO tasks"
+        )
+
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_profileName` ON `tasks` (`profileName`)")
+    }
+}
+
+val MIGRATION_21_22 = object : Migration(21, 22) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "DROP TABLE idpAuthenticationDataEntity"
+        )
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `idpAuthenticationDataEntity` (`profileName` TEXT NOT NULL, `singleSignOnToken` TEXT, `singleSignOnTokenScope` TEXT, `cardAccessNumber` TEXT, `healthCardCertificate` BLOB, `aliasOfSecureElementEntry` BLOB, `singleSignOnTokenValidOn` TEXT, `singleSignOnTokenExpiresOn` TEXT, PRIMARY KEY(`profileName`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)"
+        )
+        database.execSQL(
+            "DROP TABLE profiles"
+        )
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `profiles` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `insuranceNumber` TEXT, `color` TEXT NOT NULL DEFAULT '${ProfileColorNames.SPRING_GRAY}', `lastAuthenticated` TEXT DEFAULT NULL, `lastAuditEventSynced` TEXT DEFAULT NULL, `lastTaskSynced` TEXT DEFAULT NULL)"
+        )
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_profiles_name` ON `profiles` (`name`)")
+        database.execSQL(
+            "INSERT INTO `profiles` (`id`, `name`, `insuranceNumber`) VALUES(0, '', NULL)"
+        )
+    }
+}
+
+val MIGRATION_22_23 = object : Migration(22, 23) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE profiles ADD COLUMN `insurantName` TEXT")
+        database.execSQL("ALTER TABLE profiles ADD COLUMN `insuranceName` TEXT")
+        database.execSQL("ALTER TABLE profiles RENAME COLUMN insuranceNumber TO insuranceIdentifier")
+    }
+}
+
+val MIGRATION_23_24 = object : Migration(23, 24) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("DROP TABLE IF EXISTS idpConfiguration")
+        database.execSQL("CREATE TABLE IF NOT EXISTS `idpConfiguration` (`authorizationEndpoint` TEXT NOT NULL, `ssoEndpoint` TEXT NOT NULL, `tokenEndpoint` TEXT NOT NULL, `pairingEndpoint` TEXT NOT NULL, `authenticationEndpoint` TEXT NOT NULL, `pukIdpEncEndpoint` TEXT NOT NULL, `pukIdpSigEndpoint` TEXT NOT NULL, `certificate` BLOB NOT NULL, `expirationTimestamp` TEXT NOT NULL, `issueTimestamp` TEXT NOT NULL,  `externalAuthorizationIDsEndpoint` TEXT ,`thirdPartyAuthorizationEndpoint` TEXT ,`id` INTEGER NOT NULL, PRIMARY KEY(`id`))")
+    }
+}
+
+val MIGRATION_24_25 = object : Migration(24, 25) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL("ALTER TABLE settings ADD COLUMN `dataProtectionVersionAccepted` TEXT NOT NULL DEFAULT '2021-10-15'")
+    }
+}
+
+val MIGRATION_25_26 = object : Migration(25, 26) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "DROP TABLE profiles"
+        )
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `profiles` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `insurantName` TEXT, `insuranceName` TEXT, `insuranceIdentifier` TEXT, `color` TEXT NOT NULL DEFAULT '${ProfileColorNames.SPRING_GRAY}', `lastAuthenticated` TEXT DEFAULT NULL, `lastAuditEventSynced` TEXT DEFAULT NULL, `lastTaskSynced` TEXT DEFAULT NULL)"
+        )
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_profiles_name` ON `profiles` (`name`)")
+        database.execSQL(
+            "INSERT INTO `profiles` (`id`, `name`, `insuranceIdentifier`) VALUES(0, '$DEFAULT_PROFILE_NAME', NULL)"
+        )
+        database.execSQL("INSERT OR REPLACE INTO `activeProfile` (`id`, `profileName`) VALUES (0, '$DEFAULT_PROFILE_NAME')")
     }
 }

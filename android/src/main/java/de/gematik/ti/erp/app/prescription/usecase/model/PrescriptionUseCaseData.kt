@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -27,16 +27,22 @@ object PrescriptionUseCaseData {
      * Individual prescription backed by its original task id.
      */
     sealed class Prescription {
+        abstract val taskId: String
+        abstract val redeemedOn: OffsetDateTime?
         /**
          *  Represents a single [Task] synchronized with the backend.
          */
         @Immutable
         data class Synced(
-            val taskId: String,
+            override val taskId: String,
             val name: String,
+            val organization: String,
+            val authoredOn: OffsetDateTime,
+            override val redeemedOn: OffsetDateTime?,
             val expiresOn: LocalDate?,
             val acceptUntil: LocalDate?,
-            val status: Status
+            val status: Status,
+            val isDirectAssignment: Boolean
         ) : Prescription() {
             enum class Status {
                 Ready, InProgress, Completed, Unknown
@@ -48,35 +54,9 @@ object PrescriptionUseCaseData {
          */
         @Immutable
         data class Scanned(
-            val taskId: String,
-            val nr: Int,
+            override val taskId: String,
+            val scannedOn: OffsetDateTime,
+            override val redeemedOn: OffsetDateTime?
         ) : Prescription()
-    }
-
-    /**
-     * One recipe contains several prescriptions.
-     */
-    sealed class Recipe {
-        /**
-         * Represents a group of [Task]s synchronized with the backend.
-         */
-        @Immutable
-        data class Synced(
-            val organization: String,
-            val authoredOn: OffsetDateTime,
-            val prescriptions: List<Prescription.Synced>,
-            val redeemedOn: OffsetDateTime?
-        ) : Recipe()
-
-        /**
-         * Represents a group of [Task]s scanned by the user (e.g. of the paper based prescriptions).
-         */
-        @Immutable
-        data class Scanned(
-            val title: String?,
-            val scanSessionEnd: OffsetDateTime,
-            val prescriptions: List<Prescription.Scanned>,
-            val redeemedOn: OffsetDateTime?
-        ) : Recipe()
     }
 }

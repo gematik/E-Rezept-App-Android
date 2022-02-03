@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.cardwall.ui
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.nfc.Tag
 import android.os.Build
@@ -52,13 +51,10 @@ import androidx.compose.foundation.verticalScroll
 import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.Card
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
 import androidx.compose.material.LinearProgressIndicator
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -71,10 +67,7 @@ import androidx.compose.material.icons.rounded.ModelTraining
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.Visibility
 import androidx.compose.material.icons.rounded.VisibilityOff
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -96,17 +89,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.VerbatimTtsAnnotation
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -114,22 +103,18 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallNavigation
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallSwitchNavigation
 import de.gematik.ti.erp.app.cardwall.ui.model.mapCardWallNavigation
-import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.demo.ui.DemoBanner
 import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardContactOrderScreen
+import de.gematik.ti.erp.app.settings.ui.FeedbackForm
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.PaddingDefaults.Medium
-import de.gematik.ti.erp.app.theme.PaddingDefaults.Small
 import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.HintCard
 import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
 import de.gematik.ti.erp.app.utils.compose.HintLargeImage
@@ -146,25 +131,11 @@ import de.gematik.ti.erp.app.utils.compose.Spacer40
 import de.gematik.ti.erp.app.utils.compose.Spacer8
 import de.gematik.ti.erp.app.utils.compose.SpacerMaxWidth
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.testId
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.retry
-import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import java.util.Locale
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.cancellation.CancellationException
 
 private val framePadding = PaddingValues(start = 16.dp, top = 24.dp, end = 16.dp, bottom = 24.dp)
 
@@ -187,8 +158,8 @@ fun CardWallScreen(
 
     val startDestination = when {
         fastTrackOn -> CardWallNavigation.Switch.path()
-        state.isIntroSeenByUser -> CardWallNavigation.CardAccessNumber.path()
         canAvailable -> CardWallNavigation.PersonalIdentificationNumber.path()
+        state.isIntroSeenByUser -> CardWallNavigation.CardAccessNumber.path()
         state.hardwareRequirementsFulfilled -> CardWallNavigation.Intro.path()
         else -> CardWallNavigation.MissingCapabilities.path()
     }
@@ -209,6 +180,20 @@ fun CardWallScreen(
             }
         }
     )
+
+    val onRetryCan = {
+        navController.navigate(CardWallNavigation.CardAccessNumber.path()) {
+            popUpTo(CardWallNavigation.CardAccessNumber.path()) { inclusive = true }
+        }
+    }
+    val onRetryPin = {
+        navController.navigate(CardWallNavigation.PersonalIdentificationNumber.path()) {
+            popUpTo(CardWallNavigation.PersonalIdentificationNumber.path()) {
+                inclusive = true
+            }
+        }
+    }
+    val onBack: () -> Unit = { navController.popBackStack() }
 
     TrackNavigationChanges(navController)
 
@@ -355,6 +340,9 @@ fun CardWallScreen(
                                 inclusive = true
                             }
                         }
+                    },
+                    onClickTroubleshooting = {
+                        navController.navigate(CardWallNavigation.TroubleshootingPageA.path())
                     }
                 )
             }
@@ -363,6 +351,70 @@ fun CardWallScreen(
         composable(CardWallNavigation.ExternalAuthenticator.route) {
             NavigationAnimation(mode = navigationMode) {
                 ExternalAuthenticatorListScreen(navController)
+            }
+        }
+
+        composable(CardWallNavigation.TroubleshootingPageA.route) {
+            NavigationAnimation(mode = navigationMode) {
+                CardWallTroubleshootingPageA(
+                    viewModel = viewModel,
+                    onFinal = onFinishedCardWall,
+                    onBack = onBack,
+                    onNext = { navController.navigate(CardWallNavigation.TroubleshootingPageB.path()) },
+                    authenticationMethod = state.selectedAuthenticationMethod,
+                    cardAccessNumber = state.cardAccessNumber,
+                    personalIdentificationNumber = state.personalIdentificationNumber,
+                    onRetryCan = onRetryCan,
+                    onRetryPin = onRetryPin
+                )
+            }
+        }
+
+        composable(CardWallNavigation.TroubleshootingPageB.route) {
+            NavigationAnimation(mode = navigationMode) {
+                CardWallTroubleshootingPageB(
+                    viewModel = viewModel,
+                    onFinal = onFinishedCardWall,
+                    onBack = onBack,
+                    onNext = { navController.navigate(CardWallNavigation.TroubleshootingPageC.path()) },
+                    authenticationMethod = state.selectedAuthenticationMethod,
+                    cardAccessNumber = state.cardAccessNumber,
+                    personalIdentificationNumber = state.personalIdentificationNumber,
+                    onRetryCan = onRetryCan,
+                    onRetryPin = onRetryPin
+                )
+            }
+        }
+
+        composable(CardWallNavigation.TroubleshootingPageC.route) {
+            NavigationAnimation(mode = navigationMode) {
+                CardWallTroubleshootingPageC(
+                    viewModel = viewModel,
+                    onFinal = onFinishedCardWall,
+                    onBack = onBack,
+                    onNext = { navController.navigate(CardWallNavigation.TroubleshootingNoSuccessPage.path()) },
+                    authenticationMethod = state.selectedAuthenticationMethod,
+                    cardAccessNumber = state.cardAccessNumber,
+                    personalIdentificationNumber = state.personalIdentificationNumber,
+                    onRetryCan = onRetryCan,
+                    onRetryPin = onRetryPin
+                )
+            }
+        }
+
+        composable(CardWallNavigation.TroubleshootingNoSuccessPage.route) {
+            NavigationAnimation(mode = navigationMode) {
+                CardWallTroubleshootingNoSuccessPage(
+                    onClickContactUs = { navController.navigate(CardWallNavigation.TroubleshootingContactUs.path()) },
+                    onBack = onBack,
+                    onNext = onFinishedCardWall
+                )
+            }
+        }
+
+        composable(CardWallNavigation.TroubleshootingContactUs.route) {
+            NavigationAnimation(mode = navigationMode) {
+                FeedbackForm(navController)
             }
         }
     }
@@ -394,7 +446,7 @@ private fun CardAccessNumber(
         Text(
             stringResource(R.string.cdw_can_headline),
             style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(Medium)
+            modifier = Modifier.padding(PaddingDefaults.Medium)
         )
 
         Image(
@@ -485,14 +537,14 @@ private fun CardAccessNumber(
             Text(
                 stringResource(R.string.cdw_can_caption),
                 style = AppTheme.typography.captionl,
-                modifier = Modifier.padding(horizontal = Medium)
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
             )
             Spacer40()
             if (demoMode) {
                 DemoInputHint(
                     stringResource(R.string.cdw_can_demo_info),
                     Modifier
-                        .padding(horizontal = Medium)
+                        .padding(horizontal = PaddingDefaults.Medium)
                         .fillMaxWidth()
                 )
             } else {
@@ -510,7 +562,7 @@ private fun CardAccessNumber(
                             onClickLearnMore()
                         }
                     },
-                    modifier = Modifier.padding(horizontal = Medium)
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
                 )
             }
             SpacerMedium()
@@ -545,7 +597,7 @@ private fun PersonalIdentificationNumber(
         Text(
             stringResource(R.string.cdw_pin_title),
             style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(Medium)
+            modifier = Modifier.padding(PaddingDefaults.Medium)
         )
 
         Column {
@@ -584,9 +636,9 @@ private fun PersonalIdentificationNumber(
                     .fillMaxWidth()
                     .testTag("cardWall/personalIdentificationNumberInputField")
                     .padding(
-                        start = Medium,
-                        bottom = Small,
-                        end = Medium
+                        start = PaddingDefaults.Medium,
+                        bottom = PaddingDefaults.Small,
+                        end = PaddingDefaults.Medium
                     )
                     .onFocusChanged {
                         isFocussed = it.isFocused
@@ -661,7 +713,7 @@ private fun PersonalIdentificationNumber(
                 DemoInputHint(
                     stringResource(R.string.cdw_pin_demo_info),
                     Modifier
-                        .padding(horizontal = Medium)
+                        .padding(horizontal = PaddingDefaults.Medium)
                         .fillMaxWidth()
                 )
             } else {
@@ -677,7 +729,7 @@ private fun PersonalIdentificationNumber(
                     action = {
                         HintTextLearnMoreButton()
                     },
-                    modifier = Modifier.padding(horizontal = Medium)
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
                 )
             }
             SpacerMedium()
@@ -819,7 +871,7 @@ fun SelectableCard(
         border = BorderStroke(0.5.dp, AppTheme.colors.neutral300),
         backgroundColor = cardBackGroundColor,
         modifier = Modifier
-            .padding(vertical = Small, horizontal = Medium)
+            .padding(vertical = PaddingDefaults.Small, horizontal = PaddingDefaults.Medium)
             .fillMaxWidth(),
         shape = RoundedCornerShape(8.dp),
         elevation = elevation,
@@ -972,11 +1024,6 @@ sealed class ToggleAuth {
     data class ToggleByHealthCard(val tag: Tag) : ToggleAuth()
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalCoroutinesApi::class
-)
 @Composable
 private fun Authentication(
     viewModel: CardWallViewModel,
@@ -987,295 +1034,68 @@ private fun Authentication(
     onNext: () -> Unit,
     onRetryCan: () -> Unit,
     onRetryPin: () -> Unit,
+    onClickTroubleshooting: () -> Unit
 ) {
-    val activity = LocalActivity.current as MainActivity
-    val coroutineScope = rememberCoroutineScope()
-    val toggleAuth = remember { MutableSharedFlow<ToggleAuth>() }
+    var showProgressIndicator by remember { mutableStateOf(false) }
+    val dialogState = rememberCardWallAuthenticationDialogState()
 
-    var showEnableNfcDialog by remember { mutableStateOf(false) }
-    SideEffect {
-        showEnableNfcDialog = !viewModel.isNFCEnabled()
-    }
-
-    val state by produceState(initialValue = AuthenticationState.None) {
-        toggleAuth.transformLatest {
-            emit(AuthenticationState.None)
-            when (it) {
-                is ToggleAuth.ToggleByUser -> {
-                    if (it.value) {
-                        emitAll(
-                            viewModel.doAuthentication(
-                                can = cardAccessNumber,
-                                pin = personalIdentificationNumber,
-                                method = authenticationMethod,
-                                activity.nfcTagFlow
-                            )
-                        )
-                    } else {
-                        value = AuthenticationState.None
-                    }
-                }
-                is ToggleAuth.ToggleByHealthCard -> {
-                    val collectedOnce = AtomicBoolean(false)
-                    val f = flow {
-                        if (collectedOnce.get()) {
-                            activity.nfcTagFlow.collect {
-                                emit(it)
-                            }
-                        } else {
-                            collectedOnce.set(true)
-                            emit(it.tag)
-                        }
-                    }
-                    emitAll(
-                        viewModel.doAuthentication(
-                            can = cardAccessNumber,
-                            pin = personalIdentificationNumber,
-                            method = authenticationMethod,
-                            f
-                        )
-                    )
-                }
-            }
-        }.catch {
-            Timber.e(it)
-            // if this happens we can't recover from here
-            emit(AuthenticationState.HealthCardCommunicationInterrupted)
-            delay(1000)
-        }.onCompletion { cause ->
-            if (cause is CancellationException) {
-                value = AuthenticationState.None
-            }
-        }.collect {
-            value = it
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        activity.nfcTagFlow.retry()
-            .filter {
-                // only let interrupted communications through
-                !(state.isFailure() && state != AuthenticationState.HealthCardCommunicationInterrupted)
-            }
-            .collect {
-                toggleAuth.emit(ToggleAuth.ToggleByHealthCard(it))
-            }
-    }
-
-    val cardCommunicationBottomSheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-        confirmStateChange = {
-            when (it) {
-                ModalBottomSheetValue.Hidden -> {
-                    when (state) {
-                        AuthenticationState.AuthenticationFlowInitialized,
-                        AuthenticationState.HealthCardCommunicationChannelReady,
-                        AuthenticationState.HealthCardCommunicationTrustedChannelEstablished,
-                        AuthenticationState.HealthCardCommunicationCertificateLoaded,
-                        AuthenticationState.HealthCardCommunicationFinished,
-                        AuthenticationState.IDPCommunicationFinished -> false
-                        else -> true
-                    }
-                }
-                ModalBottomSheetValue.Expanded -> false
-                else -> true
-            }
+    CardWallAuthenticationDialog(
+        dialogState = dialogState,
+        viewModel = viewModel,
+        authenticationMethod = authenticationMethod,
+        cardAccessNumber = cardAccessNumber,
+        personalIdentificationNumber = personalIdentificationNumber,
+        troubleShootingEnabled = true,
+        allowUserCancellation = !demoMode,
+        onFinal = onNext,
+        onRetryCan = onRetryCan,
+        onRetryPin = onRetryPin,
+        onClickTroubleshooting = onClickTroubleshooting,
+        onStateChange = {
+            showProgressIndicator = it.isInProgress()
         }
     )
 
-    // prevent the bottom sheet from 'disappearing' while clicking outside
-    LaunchedEffect(cardCommunicationBottomSheetState.targetValue) {
-        when (state) {
-            AuthenticationState.AuthenticationFlowInitialized,
-            AuthenticationState.HealthCardCommunicationChannelReady,
-            AuthenticationState.HealthCardCommunicationTrustedChannelEstablished,
-            AuthenticationState.HealthCardCommunicationCertificateLoaded,
-            AuthenticationState.HealthCardCommunicationFinished,
-            AuthenticationState.IDPCommunicationFinished,
-            AuthenticationState.HealthCardCommunicationInterrupted -> if (cardCommunicationBottomSheetState.targetValue == ModalBottomSheetValue.Hidden) {
-                cardCommunicationBottomSheetState.snapTo(ModalBottomSheetValue.HalfExpanded)
-            }
-            else -> {
-            }
-        }
-    }
+    val coroutineScope = rememberCoroutineScope()
 
-    LaunchedEffect(state) {
-        when {
-            state.isInProgress() -> if (!cardCommunicationBottomSheetState.isVisible) {
-                cardCommunicationBottomSheetState.show()
-            }
-            state.isFailure() || state.isReady() -> if (cardCommunicationBottomSheetState.isVisible) {
-                cardCommunicationBottomSheetState.hide()
-            }
-            state.isFinal() -> {
-                onNext()
-            }
-        }
-    }
-
-    ModalBottomSheetLayout(
-        sheetContent = {
-            CardWallAuthenticationBottomSheet(state) {
-                coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(false)) }
-            }
-        },
-        sheetState = cardCommunicationBottomSheetState,
+    CardWallScaffold(
+        modifier = Modifier.testTag("cardWall/authentication"),
+        title = stringResource(R.string.cdw_top_bar_title),
+        onNext = if (demoMode) {
+            { coroutineScope.launch { dialogState.show() } }
+        } else null,
+        demoMode = demoMode
     ) {
-        CardWallScaffold(
-            modifier = Modifier.testTag("cardWall/authentication"),
-            title = stringResource(R.string.cdw_top_bar_title),
-            nextEnabled = true,
-            onNext = {
-                if (viewModel.isNFCEnabled()) {
-                    coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(true)) }
-                } else {
-                    showEnableNfcDialog = true
+        Box {
+            Column(modifier = Modifier.padding(framePadding)) {
+                Text(
+                    stringResource(R.string.cdw_nfc_intro_headline),
+                    style = MaterialTheme.typography.h6,
+                    modifier = Modifier.testTag("cdw_txt_auth_title")
+                )
+                Spacer8()
+                Text(
+                    stringResource(R.string.cdw_nfc_intro_body),
+                    style = MaterialTheme.typography.body1
+                )
+                Spacer16()
+                Surface(modifier = Modifier.fillMaxSize()) {
+                    InstructionVideo()
                 }
-            },
-            nextText = stringResource(R.string.cdw_auth_btn_txt),
-            demoMode = demoMode
-        ) {
-            Box {
-                Column(modifier = Modifier.padding(framePadding)) {
-                    Text(
-                        stringResource(R.string.cdw_nfc_intro_headline),
-                        style = MaterialTheme.typography.h6,
-                        modifier = Modifier.testId("cdw_txt_auth_title")
-                    )
-                    Spacer8()
-                    Text(
-                        stringResource(R.string.cdw_nfc_intro_body),
-                        style = MaterialTheme.typography.body1
-                    )
-                    Spacer16()
-                    Surface(modifier = Modifier.fillMaxSize()) {
-                        InstructionVideo()
-                    }
-                }
-                if (state.isInProgress()) {
-                    LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
-                }
+            }
+            if (showProgressIndicator) {
+                LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
             }
         }
-    }
-
-    val nextText = when (state) {
-        AuthenticationState.HealthCardCardAccessNumberWrong -> stringResource(R.string.cdw_auth_retry_pin_can)
-        AuthenticationState.HealthCardPin2RetriesLeft,
-        AuthenticationState.HealthCardPin1RetryLeft -> stringResource(R.string.cdw_auth_retry_pin_can)
-        else -> stringResource(R.string.cdw_auth_retry)
-    }
-
-    val retryText = when (state) {
-        AuthenticationState.IDPCommunicationFailed -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step1_header_on_error).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_intro_step1_info_on_error).toAnnotatedString()
-        )
-        AuthenticationState.IDPCommunicationInvalidCertificate -> Pair(
-            stringResource(R.string.cdw_nfc_error_title_invalid_certificate).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_error_body_invalid_certificate).toAnnotatedString()
-        )
-        AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate -> Pair(
-            stringResource(R.string.cdw_nfc_error_title_invalid_ocsp_response_of_health_card_certificate).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_error_body_invalid_ocsp_response_of_health_card_certificate).toAnnotatedString()
-        )
-        AuthenticationState.HealthCardCardAccessNumberWrong -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_intro_step2_info_on_can_error).toAnnotatedString()
-        )
-        AuthenticationState.HealthCardPin2RetriesLeft -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error).toAnnotatedString(),
-            pinRetriesLeft(2)
-        )
-        AuthenticationState.HealthCardPin1RetryLeft -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error).toAnnotatedString(),
-            pinRetriesLeft(1)
-        )
-        AuthenticationState.HealthCardBlocked -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_card_blocked).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_intro_step2_info_on_card_blocked).toAnnotatedString()
-        )
-        else -> null
-    }
-
-    if (showEnableNfcDialog) {
-        val header = stringResource(R.string.cdw_enable_nfc_header)
-        val info = stringResource(R.string.cdw_enable_nfc_info)
-        val enableNfcButtonText = stringResource(R.string.cdw_enable_nfc_btn_text)
-        val cancelText = stringResource(R.string.cancel)
-
-        CommonAlertDialog(
-            header = header,
-            info = info,
-            cancelText = cancelText,
-            actionText = enableNfcButtonText,
-            onCancel = { showEnableNfcDialog = false },
-            onClickAction = {
-                activity.startActivity(Intent("android.settings.NFC_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                showEnableNfcDialog = false
-            }
-        )
-    }
-
-    retryText?.let {
-        ErrorDialog(
-            header = it.first,
-            info = it.second,
-            retryButtonText = nextText,
-            onCancel = {
-                coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(false)) }
-            },
-            onRetry = {
-                when (state) {
-                    AuthenticationState.HealthCardCardAccessNumberWrong -> onRetryCan()
-                    AuthenticationState.HealthCardPin2RetriesLeft,
-                    AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
-                    else -> if (viewModel.isNFCEnabled()) {
-                        coroutineScope.launch {
-                            toggleAuth.emit(ToggleAuth.ToggleByUser(true))
-                        }
-                    }
-                }
-            }
-        )
     }
 }
-
-@Composable
-private fun ErrorDialog(
-    header: AnnotatedString,
-    info: AnnotatedString,
-    retryButtonText: String,
-    onCancel: () -> Unit,
-    onRetry: () -> Unit,
-) =
-    CommonAlertDialog(
-        header = header,
-        info = info,
-        onCancel = onCancel,
-        onClickAction = onRetry,
-        cancelText = stringResource(R.string.cancel),
-        actionText = retryButtonText
-    )
-
-private fun String.toAnnotatedString() =
-    buildAnnotatedString { append(this@toAnnotatedString) }
-
-@Composable
-private fun pinRetriesLeft(count: Int) =
-    annotatedPluralsResource(
-        R.plurals.cdw_nfc_intro_step2_info_on_pin_error,
-        count,
-        buildAnnotatedString { withStyle(SpanStyle(fontWeight = FontWeight.Bold)) { append(count.toString()) } }
-    )
 
 @Composable
 fun CardWallScaffold(
     modifier: Modifier = Modifier,
     title: String,
     onBack: (() -> Unit)? = null,
-    onNext: () -> Unit,
+    onNext: (() -> Unit)?,
     nextEnabled: Boolean = true,
     nextText: String = stringResource(R.string.cdw_next),
     demoMode: Boolean,
@@ -1298,7 +1118,9 @@ fun CardWallScaffold(
             )
         },
         bottomBar = {
-            CardWallBottomBar(onNext, nextEnabled, nextText)
+            if (onNext != null) {
+                CardWallBottomBar(onNext, nextEnabled, nextText)
+            }
         }
     ) {
         Column {

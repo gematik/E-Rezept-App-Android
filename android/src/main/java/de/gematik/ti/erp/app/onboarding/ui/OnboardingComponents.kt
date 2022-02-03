@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.onboarding.ui
 
 import android.os.Parcelable
-import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.FloatRange
 import androidx.annotation.StringRes
@@ -132,6 +131,7 @@ import de.gematik.ti.erp.app.settings.ui.PasswordStrength
 import de.gematik.ti.erp.app.settings.ui.PasswordTextField
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.settings.ui.checkPassword
+import de.gematik.ti.erp.app.settings.usecase.DEFAULT_PROFILE_NAME
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
@@ -142,10 +142,8 @@ import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.LargeButton
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
-import de.gematik.ti.erp.app.utils.compose.ProfileNameInputField
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer24
-import de.gematik.ti.erp.app.utils.compose.Spacer32
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.Spacer40
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -153,12 +151,14 @@ import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.minimalSystemBarsPadding
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.testId
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -170,14 +170,14 @@ object OnboardingNavigationScreens {
     object DataProtection : Route("DataProtection")
 }
 
-private const val MAX_PAGES = 5
+private const val MAX_PAGES = 6
 private const val WELCOME_PAGE = 0
 private const val FEATURE_PAGE = 1
 
-// private const val PROFILE_PAGE = 2
-private const val SECURE_APP_PAGE = 2
-private const val ANALYTICS_PAGE = 3
-private const val TOS_AND_DATA_PAGE = 4
+private const val PROFILE_PAGE = 2
+private const val SECURE_APP_PAGE = 3
+private const val ANALYTICS_PAGE = 4
+private const val TOS_AND_DATA_PAGE = 5
 
 @Composable
 fun ReturningUserSecureAppOnboardingScreen(
@@ -256,12 +256,11 @@ fun OnboardingScreen(
             NavigationAnimation(mode = navigationMode) {
                 OnboardingScreenWithScaffold(
                     navController,
-                    settingsViewModel,
                     allowTracking = allowTracking,
                     onAllowTracking = {
                         allowTracking = it
                     },
-                    onSaveNewUser = { allowTracking, secureMethod ->
+                    onSaveNewUser = { allowTracking, secureMethod, profileName ->
                         when (secureMethod) {
                             is SecureAppMethod.DeviceSecurity ->
                                 settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
@@ -273,6 +272,8 @@ fun OnboardingScreen(
                         }
 
                         settingsViewModel.isNewUser = false
+                        settingsViewModel.overwriteDefaultProfile(profileName)
+                        settingsViewModel.acceptUpdatedDataTerms(LocalDate.now())
 
                         if (allowTracking) {
                             settingsViewModel.onTrackingAllowed()
@@ -322,10 +323,9 @@ fun OnboardingScreen(
 @Composable
 private fun OnboardingScreenWithScaffold(
     navController: NavController,
-    settingsViewModel: SettingsViewModel,
     allowTracking: Boolean,
     onAllowTracking: (Boolean) -> Unit,
-    onSaveNewUser: (Boolean, SecureAppMethod) -> Unit
+    onSaveNewUser: (allowTracking: Boolean, secureAppMethod: SecureAppMethod, profileName: String) -> Unit
 ) {
     val context = LocalContext.current
 
@@ -335,13 +335,16 @@ private fun OnboardingScreenWithScaffold(
 
     val state = rememberPagerState(initialPage = 0)
 
-    val maxPages = when (secureMethod) {
-        is SecureAppMethod.Password -> (secureMethod as? SecureAppMethod.Password)?.let {
-            if (it.checkedPassword != null) MAX_PAGES else SECURE_APP_PAGE + 1
-        } ?: SECURE_APP_PAGE + 1
-        is SecureAppMethod.DeviceSecurity -> MAX_PAGES
-        else -> SECURE_APP_PAGE + 1
-    }
+    val maxPages = if (profileName.isBlank()) {
+        PROFILE_PAGE + 1
+    } else
+        when (secureMethod) {
+            is SecureAppMethod.Password -> (secureMethod as? SecureAppMethod.Password)?.let {
+                if (it.checkedPassword != null) MAX_PAGES else SECURE_APP_PAGE + 1
+            } ?: (SECURE_APP_PAGE + 1)
+            is SecureAppMethod.DeviceSecurity -> MAX_PAGES
+            else -> SECURE_APP_PAGE + 1
+        }
 
     val scope = rememberCoroutineScope()
     BackHandler(enabled = state.currentPage > 0) {
@@ -350,12 +353,11 @@ private fun OnboardingScreenWithScaffold(
         }
     }
 
-    // TODO remove once profile setup is done via UI
-    LaunchedEffect(Unit) {
-        settingsViewModel.profileSetupViaLaunchedEffect()
-    }
-
-    Scaffold(modifier = Modifier.testTag("screen_onboarding").minimalSystemBarsPadding()) {
+    Scaffold(
+        modifier = Modifier
+            .testTag("screen_onboarding")
+            .minimalSystemBarsPadding()
+    ) {
         Box {
             HorizontalPager(
                 count = maxPages,
@@ -377,16 +379,22 @@ private fun OnboardingScreenWithScaffold(
                             state
                         )
                     }
-                    // TODO only use when feature is ready
-//                    OnboardingProfile(
-//                        modifier = mod.semantics { focused = state.currentValue == 2 },
-//                        onSubmitProfileName = {
-//                            profileName = it
-//                            settingsViewModel.profileSetup(profileName)
-//                        }
-//                    )
                     FEATURE_PAGE -> {
-                        OnboardingAppFeatures(Modifier.semantics { focused = state.currentPage == FEATURE_PAGE })
+                        OnboardingAppFeatures(
+                            Modifier.semantics {
+                                focused = state.currentPage == FEATURE_PAGE
+                            }
+                        )
+                    }
+                    PROFILE_PAGE -> {
+                        OnboardingProfile(
+                            modifier = Modifier.semantics {
+                                focused = state.currentPage == PROFILE_PAGE
+                            },
+                            profileName = profileName,
+                            onProfileNameChange = { profileName = it },
+                            onNext = {}
+                        )
                     }
                     SECURE_APP_PAGE -> {
                         OnboardingSecureApp(
@@ -405,7 +413,7 @@ private fun OnboardingScreenWithScaffold(
                             onAllowTracking = {
                                 if (!it) {
                                     onAllowTracking(false)
-                                    Toast.makeText(context, disAllowToast, Toast.LENGTH_SHORT).show()
+                                    createToastShort(context, disAllowToast)
                                 } else {
                                     navController.navigate(OnboardingNavigationScreens.Analytics.path())
                                 }
@@ -437,7 +445,7 @@ private fun OnboardingScreenWithScaffold(
                     }
                 },
                 onSaveNewUser = {
-                    onSaveNewUser(allowTracking, secureMethod)
+                    onSaveNewUser(allowTracking, secureMethod, profileName)
                 }
             )
 
@@ -445,7 +453,7 @@ private fun OnboardingScreenWithScaffold(
                 OutlinedDebugButton(
                     "SKIP",
                     onClick = {
-                        onSaveNewUser(false, SecureAppMethod.Password("a", "a", 9))
+                        onSaveNewUser(false, SecureAppMethod.Password("a", "a", 9), DEFAULT_PROFILE_NAME)
                     },
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -508,14 +516,13 @@ private fun BoxScope.OnboardingNextButton(
 ) {
     val enabled = when {
         currentPage == WELCOME_PAGE || currentPage == FEATURE_PAGE || currentPage == ANALYTICS_PAGE -> true
-//        currentPage == PROFILE_PAGE && profileName.isNotEmpty() -> true
+        currentPage == PROFILE_PAGE && profileName.isNotEmpty() -> true
         currentPage == SECURE_APP_PAGE && secureMethod is SecureAppMethod.DeviceSecurity -> true
         currentPage == SECURE_APP_PAGE && secureMethod is SecureAppMethod.Password -> secureMethod.checkedPassword != null
         tosAndDataToggled && currentPage == TOS_AND_DATA_PAGE -> true
         else -> false
     }
 
-    val coroutineScope = rememberCoroutineScope()
     NextButton(
         onNext = {
             when {
@@ -607,7 +614,10 @@ private fun PeopleLayer(
                 val p = measurable.measure(constraints)
 
                 layout(constraints.maxWidth, constraints.maxHeight) {
-                    p.place(x = -(p.height / 8f + p.height * relativePageOffset / 3f).roundToInt(), y = 0)
+                    p.place(
+                        x = -(p.height / 8f + p.height * relativePageOffset / 3f).roundToInt(),
+                        y = 0
+                    )
                 }
             }
     ) {
@@ -1176,78 +1186,6 @@ private fun OnboardingSecureApp(
             stringResource(R.string.onboarding_secure_app_button_best_info),
             style = AppTheme.typography.body2l
         )
-    }
-}
-
-@Composable
-fun OnboardingProfile(
-    modifier: Modifier = Modifier,
-    isReturningUser: Boolean = false,
-    onSubmitProfileName: (profileName: String) -> Unit
-) {
-
-    val profileName = rememberSaveable { mutableStateOf("") }
-    val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
-
-    val header = stringResource(R.string.onboarding_profile_header)
-    val info =
-        stringResource(R.string.onboarding_profile_info)
-
-    Column(
-        modifier = modifier
-            .testTag("onboarding/profilePage")
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = PaddingDefaults.Large, vertical = PaddingDefaults.XXLarge)
-    ) {
-
-        Text(
-            text = header,
-            style = MaterialTheme.typography.h6,
-            color = AppTheme.colors.primary900,
-            textAlign = TextAlign.Center
-        )
-
-        Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
-
-        ProfileNameInputField(
-            modifier = Modifier
-                .testTag("onboarding/profile_text_input")
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
-            value = profileName.value,
-            onValueChange = {
-                focusRequester.requestFocus()
-                profileName.value = it
-            },
-            onSubmit = {
-                onSubmitProfileName(profileName.value)
-                focusManager.clearFocus()
-            },
-            label = {
-                Text(stringResource(R.string.onboarding_profile_input_name))
-            }
-        )
-        Spacer(modifier = Modifier.height(PaddingDefaults.Small))
-
-        Text(
-            text = info,
-            style = MaterialTheme.typography.body2,
-            color = AppTheme.colors.neutral600,
-        )
-        if (isReturningUser) {
-            Spacer32()
-            Row {
-                Spacer(modifier = Modifier.weight(1f))
-                Button(
-                    onClick = { onSubmitProfileName(profileName.value) },
-                    enabled = profileName.value.isNotEmpty()
-                ) {
-                    Text(text = stringResource(id = R.string.profile_setup_save).uppercase())
-                }
-            }
-        }
     }
 }
 

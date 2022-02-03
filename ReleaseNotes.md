@@ -1,3 +1,30 @@
+# Release 1.2.1
+# Release 1.2.1
+
+### Added
+
+- Support for multiple profiles/health cards (Not enabled yet)
+- NFC troubleshooting
+- Display differences in data terms since accepting it originally
+- Konnektathon build-type
+
+### Changed
+
+- Refactoring of audit events processing
+- Update health insurances list
+- Updated Readme
+- Moved audit events to profile details
+- Moved loading of audit events to background 
+
+### Fixed
+
+- Token-Display in Demo Mode
+- SafetyNet handling on devices without Google services
+
+### Internal
+
+- Restructured database-schemes
+
 # Release 1.1.0
 - Insurance list is now up to date.
 - Onboarding enforces a password strength of at least two (yellow indicator)

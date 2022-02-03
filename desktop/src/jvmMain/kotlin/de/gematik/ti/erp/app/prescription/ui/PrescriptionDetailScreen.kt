@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -75,7 +75,6 @@ import de.gematik.ti.erp.app.fhir.normSizeMapping
 import de.gematik.ti.erp.app.fhir.statusMapping
 import de.gematik.ti.erp.app.navigation.ui.Navigation
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
-import expiresOrAcceptedUntil
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -140,11 +140,11 @@ class MessageUseCase @Inject constructor(
         UIMessage(
             communicationId = communicationId,
             supplyOptionsType = payload.supplyOptionsType,
-            header = R.string.communication_local_inbox_header,
+            header = if (payload.pickUpCodeHR.isNullOrEmpty()) R.string.communication_local_inbox_header_no_dmc else R.string.communication_local_inbox_header_dmc,
             message = if (payload.infoText.isEmpty()) null else payload.infoText,
             pickUpCodeHR = payload.pickUpCodeHR,
             pickUpCodeDMC = payload.pickUpCodeDMC,
-            actionText = R.string.communication_local_action_text,
+            actionText = if (payload.pickUpCodeHR.isNullOrEmpty()) -1 else R.string.communication_local_action_text,
             consumed = consumed
         )
 

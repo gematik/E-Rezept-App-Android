@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.prescription.repository
 
-import android.content.SharedPreferences
 import androidx.room.withTransaction
 import de.gematik.ti.erp.app.db.AppDatabase
 import de.gematik.ti.erp.app.db.entities.AuditEventSimple
@@ -28,21 +27,14 @@ import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskWithMedicationDispense
-import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
 import kotlinx.coroutines.flow.Flow
 import java.time.Instant
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import javax.inject.Inject
 
-private const val AUDIT_SYNC_ERROR_KEY = "AUDIT_SYNC_ERROR"
-private const val AUDIT_SYNC_DATE_KEY = "AUDIT_SYNC_DATE"
-
 class LocalDataSource @Inject constructor(
-    private val db: AppDatabase,
-    @NetworkSecureSharedPreferences
-    private var securePrefs: SharedPreferences
+    private val db: AppDatabase
 ) {
     suspend fun saveTasks(tasks: List<EntityTask>) {
         db.taskDao().insertMultipleTasks(*tasks.toTypedArray())
@@ -65,9 +57,6 @@ class LocalDataSource @Inject constructor(
 
     suspend fun saveAuditEvents(auditEvents: List<AuditEventSimple>) {
         db.taskDao().insertAuditEvents(*auditEvents.toTypedArray())
-        securePrefs.edit()
-            .putString(AUDIT_SYNC_ERROR_KEY, null)
-            .putLong(AUDIT_SYNC_DATE_KEY, LocalDateTime.now().toEpochSecond(ZoneOffset.UTC)).apply()
     }
 
     suspend fun saveMedicationDispense(medicationDispense: MedicationDispenseSimple) {
@@ -83,24 +72,6 @@ class LocalDataSource @Inject constructor(
 
     fun deleteLowDetailEvents(taskId: String) {
         db.taskDao().deleteLowDetailEvents(taskId)
-    }
-
-    fun getAuditSyncError(): Boolean {
-        return securePrefs.getBoolean(AUDIT_SYNC_ERROR_KEY, false)
-    }
-
-    fun getAuditSyncDate(): LocalDateTime? {
-        val storedDate = securePrefs.getLong(AUDIT_SYNC_DATE_KEY, -1)
-        if (storedDate == -1L) return null
-        return LocalDateTime.ofEpochSecond(storedDate, 0, ZoneOffset.UTC)
-    }
-
-    fun storeAuditEventSyncError() {
-        securePrefs.edit().putBoolean(AUDIT_SYNC_ERROR_KEY, true).apply()
-    }
-
-    fun loadAuditEvents(taskId: String, locale: String): Flow<List<AuditEventSimple>> {
-        return db.taskDao().getAuditEventsInGivenLanguage(taskId, locale)
     }
 
     fun loadTasks(profileName: String): Flow<List<Task>> {
@@ -164,14 +135,12 @@ class LocalDataSource @Inject constructor(
         db.communicationsDao().updateCommunication(communicationId, consumed)
     }
 
-    // TODO maybe use something else then secure prefs
-    fun setLastModifiedTaskDate(profileName: String, value: Long) {
-        securePrefs.edit().putLong(profileName, value).apply()
+    suspend fun updateTaskSyncedUpTo(profileName: String, timestamp: Instant?) {
+        db.profileDao().updateLastTaskSynced(profileName, timestamp)
     }
 
-    // TODO maybe use something else then secure prefs
-    fun lastModifiedTaskDate(profileName: String): Long {
-        return securePrefs.getLong(profileName, 0)
+    suspend fun taskSyncedUpTo(profileName: String): Instant? {
+        return db.profileDao().getLastTaskSynced(profileName)
     }
 
     suspend fun setAllAuditEventsSyncedUpTo(profileName: String) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,19 +23,20 @@ import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.map
 import de.gematik.ti.erp.app.api.mapCatching
 import de.gematik.ti.erp.app.api.mapSuccessful
-import de.gematik.ti.erp.app.db.entities.AuditEventSimple
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.db.entities.TaskWithMedicationDispense
+import java.time.OffsetDateTime
+import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Communication
@@ -52,20 +53,14 @@ enum class RemoteRedeemOption(val type: String) {
 
 const val PROFILE = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
 
+const val AUDIT_EVENT_PAGE_SIZE = 50
+
 class PrescriptionRepository @Inject constructor(
     private val dispatchProvider: DispatchProvider,
     private val localDataSource: LocalDataSource,
     private val remoteDataSource: RemoteDataSource,
     private val mapper: Mapper
 ) {
-
-    fun hasAuditEventsSyncError(): Boolean {
-        return localDataSource.getAuditSyncError()
-    }
-
-    fun lastSuccessfulAuditEventSyncDate(): LocalDateTime? {
-        return localDataSource.getAuditSyncDate()
-    }
 
     /**
      * Saves all scanned tasks. It doesn't matter if they already exist.
@@ -108,19 +103,11 @@ class PrescriptionRepository @Inject constructor(
             }
         }
 
-    private fun lastKnownModifierDate(profileName: String) =
-        LocalDateTime.ofEpochSecond(
-            localDataSource.lastModifiedTaskDate(profileName), 0,
-            ZoneOffset.UTC
-        ).atOffset(ZoneOffset.UTC)
-
     /**
-     * All Tasks with inherited KBV Bundle will be stored in the local storage.
-     * Audit Event will be downloaded as well, so they can be related to the Tasks.
-     * If the download of Audit Events fails, it fails silently.
+     * Downloads all tasks and each referenced bundle. Each bundle is persisted locally.
      */
     suspend fun downloadTasks(profileName: String): Result<Int> =
-        remoteDataSource.fetchTasks(lastKnownModifierDate(profileName), profileName).mapCatching { bundle ->
+        remoteDataSource.fetchTasks(localDataSource.taskSyncedUpTo(profileName), profileName).mapCatching { bundle ->
             val taskIds = mapper.parseTaskIds(bundle)
 
             supervisorScope {
@@ -144,7 +131,7 @@ class PrescriptionRepository @Inject constructor(
                         .awaitAll()
                         .mapSuccessful { lastModified: List<OffsetDateTime> ->
                             lastModified.maxOrNull()?.let {
-                                localDataSource.setLastModifiedTaskDate(profileName, it.toEpochSecond())
+                                localDataSource.updateTaskSyncedUpTo(profileName, it.toInstant())
                             }
                             Result.Success(lastModified.size)
                         }
@@ -162,40 +149,44 @@ class PrescriptionRepository @Inject constructor(
             Result.Success(task)
         }
 
-    suspend fun downloadAuditEvents(
-        profileName: String,
-        count: Int? = null,
-        offset: Int? = null
-    ): Result<Any> {
-        val syncedUpTo = localDataSource.auditEventsSyncedUpTo(profileName)
-        return when (
-            val result =
-                remoteDataSource.allAuditEvents(
-                    profileName,
-                    syncedUpTo,
-                    count,
-                    offset
-                )
-        ) {
-            is Result.Error -> {
-                localDataSource.storeAuditEventSyncError()
-                result
-            }
-            is Result.Success -> {
-                try {
-                    val auditEvents = mapper.mapFhirBundleToAuditEvents(profileName, result.data)
-                    localDataSource.saveAuditEvents(auditEvents)
-                    val nextLink = if (auditEvents.isEmpty()) {
-                        localDataSource.setAllAuditEventsSyncedUpTo(profileName)
-                        ""
-                    } else {
-                        result.data.link.filter { it.relation == "next" }[0].url
+    private val coroutineScope = CoroutineScope(dispatchProvider.io())
+    private val mutex = Mutex()
+
+    fun downloadAllAuditEvents(
+        profileName: String
+    ) {
+        coroutineScope.launch {
+            mutex.withLock {
+                while (true) {
+                    val result = downloadAuditEvents(
+                        profileName = profileName,
+                        count = AUDIT_EVENT_PAGE_SIZE
+                    )
+                    if (result is Result.Error || (result is Result.Success && result.data != AUDIT_EVENT_PAGE_SIZE)) {
+                        break
                     }
-                    Result.Success(nextLink)
-                } catch (e: Exception) {
-                    localDataSource.storeAuditEventSyncError()
-                    Result.Error(e)
                 }
+            }
+        }
+    }
+
+    private suspend fun downloadAuditEvents(
+        profileName: String,
+        count: Int? = null
+    ): Result<Int> {
+        val syncedUpTo = localDataSource.auditEventsSyncedUpTo(profileName)
+        return remoteDataSource.allAuditEvents(
+            profileName,
+            syncedUpTo,
+            count = count
+        ).mapCatching { bundle ->
+            try {
+                val auditEvents = mapper.mapFhirBundleToAuditEvents(profileName, bundle)
+                localDataSource.saveAuditEvents(auditEvents)
+                localDataSource.setAllAuditEventsSyncedUpTo(profileName)
+                Result.Success(auditEvents.size)
+            } catch (e: Exception) {
+                Result.Error(e)
             }
         }
     }
@@ -280,10 +271,6 @@ class PrescriptionRepository @Inject constructor(
 
     suspend fun getAllTasksWithTaskIdOnly(profileName: String): List<String> {
         return localDataSource.getAllTasksWithTaskIdOnly(profileName)
-    }
-
-    fun loadAuditEvents(taskId: String, locale: String): Flow<List<AuditEventSimple>> {
-        return localDataSource.loadAuditEvents(taskId = taskId, locale = locale)
     }
 
     fun updateScanSessionName(name: String?, scanSessionEnd: OffsetDateTime) {

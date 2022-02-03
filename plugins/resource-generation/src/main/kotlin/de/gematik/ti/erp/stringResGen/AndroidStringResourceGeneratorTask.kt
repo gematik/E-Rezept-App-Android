@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2022 gematik GmbH
+ * 
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the Licence);
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ *     https://joinup.ec.europa.eu/software/page/eupl
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * 
+ */
+
 package de.gematik.ti.erp.stringResGen
 
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -96,8 +114,11 @@ open class AndroidStringResourceGeneratorTask : DefaultTask() {
         val trTypeName = TypeVariableName("Translatable")
         val trListTypeName = TypeVariableName("Map<Int, Translatable>")
 
+        val stableAnnotation = ClassName("androidx.compose.runtime", "Stable")
+
         val stringsClassSpec = TypeSpec
             .classBuilder("Strings")
+            .addAnnotation(stableAnnotation)
             .let { classBuilder ->
                 val constBuilder = FunSpec.constructorBuilder().addParameter("src", trListTypeName)
 
@@ -105,6 +126,7 @@ open class AndroidStringResourceGeneratorTask : DefaultTask() {
                     val name = s.toCamelCase()
                     classBuilder.addProperty(
                         PropertySpec.builder(name, trTypeName)
+                            .addAnnotation(stableAnnotation)
                             .initializer("src.getValue(%L)", index)
                             .build()
                     )
@@ -170,7 +192,6 @@ open class AndroidStringResourceGeneratorTask : DefaultTask() {
 
         FileSpec.builder(packagePath, "StringResource")
             .addComment("\nDO NOT MODIFY - GENERATED ON ${LocalDateTime.now()}\n")
-            .addImport("kotlin.util", "Locale")
             .addAnnotation(
                 AnnotationSpec.builder(ClassName("", "Suppress"))
                     .addMember("%S", "RedundantVisibilityModifier")

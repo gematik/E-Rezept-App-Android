@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,11 +18,10 @@
 
 package de.gematik.ti.erp.app.idp.repository
 
-import android.content.SharedPreferences
 import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.api.Result
+import de.gematik.ti.erp.app.db.entities.IdpAuthenticationDataEntity
 import de.gematik.ti.erp.app.db.entities.IdpConfiguration
-import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
 import de.gematik.ti.erp.app.idp.api.REDIRECT_URI
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationID
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationIDList
@@ -57,19 +56,36 @@ private const val cardAccessNumberPrefKey = "cardAccessNumber"
 @JvmInline
 value class JWSDiscoveryDocument(val jws: JsonWebSignature)
 
-data class SingleSignOnToken(
-    val token: String,
-    val scope: Scope = Scope.Default,
-    val expiresOn: Instant = extractExpirationTimestamp(token),
-    val validOn: Instant = extractValidOnTimestamp(token)
-) {
-    enum class Scope {
-        Default,
-        AlternateAuthentication
-    }
+sealed class SingleSignOnToken {
+    abstract val expiresOn: Instant
+    abstract val validOn: Instant
 
     fun isValid(instant: Instant = Instant.now()) =
         instant < expiresOn && instant >= validOn
+
+    fun tokenOrNull(): String? =
+        when (this) {
+            is AlternateAuthenticationToken -> this.token
+            is AlternateAuthenticationWithoutToken -> null
+            is DefaultToken -> this.token
+        }
+
+    data class DefaultToken(
+        val token: String,
+        override val expiresOn: Instant = extractExpirationTimestamp(token),
+        override val validOn: Instant = extractValidOnTimestamp(token),
+    ) : SingleSignOnToken()
+
+    data class AlternateAuthenticationToken(
+        val token: String,
+        override val expiresOn: Instant = extractExpirationTimestamp(token),
+        override val validOn: Instant = extractValidOnTimestamp(token),
+    ) : SingleSignOnToken()
+
+    data class AlternateAuthenticationWithoutToken(
+        override val expiresOn: Instant = Instant.MIN,
+        override val validOn: Instant = Instant.MIN,
+    ) : SingleSignOnToken()
 }
 
 fun extractExpirationTimestamp(ssoToken: String): Instant =
@@ -87,8 +103,7 @@ fun extractValidOnTimestamp(ssoToken: String): Instant =
 class IdpRepository @Inject constructor(
     moshi: Moshi,
     private val remoteDataSource: IdpRemoteDataSource,
-    private val localDataSource: IdpLocalDataSource,
-    @NetworkSecureSharedPreferences private val securePrefs: SharedPreferences
+    private val localDataSource: IdpLocalDataSource
 ) {
     private val discoveryDocumentBodyAdapter = moshi.adapter(IdpDiscoveryInfo::class.java)
     private val authenticationIDAdapter = moshi.adapter(AuthenticationIDList::class.java)
@@ -108,7 +123,7 @@ class IdpRepository @Inject constructor(
     fun updateDecryptedAccessTokenMap(currentName: String, updatedName: String) {
         decryptedAccessTokenMap.update {
             val token = it[currentName]
-            it + (updatedName to token) - currentName
+            it - currentName + (updatedName to token)
         }
     }
 
@@ -116,23 +131,50 @@ class IdpRepository @Inject constructor(
         localDataSource.cardAccessNumber(profileName)
 
     suspend fun getSingleSignOnToken(profileName: String) = localDataSource.loadIdpAuthData(profileName).map { entity ->
-        entity.singleSignOnToken?.let { token ->
-            entity.singleSignOnTokenScope?.let { scope ->
-                SingleSignOnToken(
-                    token = token,
-                    scope = scope,
-                    expiresOn = entity.singleSignOnTokenExpiresOn ?: extractExpirationTimestamp(token), // scope & token present; this must be not null
-                    validOn = entity.singleSignOnTokenValidOn ?: extractValidOnTimestamp(token), // scope & token present; this must be not null
-                )
-            }
+        when (entity.singleSignOnTokenScope) {
+            IdpAuthenticationDataEntity.SingleSignOnTokenScope.Default ->
+                entity.singleSignOnToken?.let { token ->
+                    SingleSignOnToken.DefaultToken(
+                        token = token,
+                        expiresOn = entity.singleSignOnTokenExpiresOn
+                            ?: extractExpirationTimestamp(token), // scope & token present; this must be not null
+                        validOn = entity.singleSignOnTokenValidOn
+                            ?: extractValidOnTimestamp(token), // scope & token present; this must be not null
+                    )
+                }
+            IdpAuthenticationDataEntity.SingleSignOnTokenScope.AlternateAuthentication ->
+                entity.singleSignOnToken?.let { token ->
+                    SingleSignOnToken.AlternateAuthenticationToken(
+                        token = token,
+                        expiresOn = entity.singleSignOnTokenExpiresOn
+                            ?: extractExpirationTimestamp(token), // scope & token present; this must be not null
+                        validOn = entity.singleSignOnTokenValidOn
+                            ?: extractValidOnTimestamp(token), // scope & token present; this must be not null
+                    )
+                } ?: SingleSignOnToken.AlternateAuthenticationWithoutToken()
+            else -> null
         }
     }
 
     suspend fun setSingleSignOnToken(profileName: String, token: SingleSignOnToken) {
+        val actualToken = when (token) {
+            is SingleSignOnToken.AlternateAuthenticationToken -> token.token
+            is SingleSignOnToken.DefaultToken -> token.token
+            is SingleSignOnToken.AlternateAuthenticationWithoutToken -> null
+        }
+
+        val actualTokenScope = when (token) {
+            is SingleSignOnToken.AlternateAuthenticationWithoutToken,
+            is SingleSignOnToken.AlternateAuthenticationToken ->
+                IdpAuthenticationDataEntity.SingleSignOnTokenScope.AlternateAuthentication
+            is SingleSignOnToken.DefaultToken ->
+                IdpAuthenticationDataEntity.SingleSignOnTokenScope.Default
+        }
+
         localDataSource.saveSingleSignOnToken(
             profileName = profileName,
-            token = token.token,
-            scope = token.scope,
+            token = actualToken,
+            scope = actualTokenScope,
             validOn = token.validOn,
             expiresOn = token.expiresOn
         )
@@ -149,15 +191,6 @@ class IdpRepository @Inject constructor(
 
     suspend fun getSingleSignOnTokenScope(profileName: String) =
         localDataSource.loadIdpAuthData(profileName).map { it.singleSignOnTokenScope }
-
-    suspend fun setScopeToPairing(profileName: String) =
-        localDataSource.saveSingleSignOnToken(
-            profileName = profileName,
-            token = null,
-            scope = SingleSignOnToken.Scope.AlternateAuthentication,
-            validOn = null,
-            expiresOn = null
-        )
 
     suspend fun getAliasOfSecureElementEntry(profileName: String) =
         localDataSource.loadIdpAuthData(profileName).map { it.aliasOfSecureElementEntry }

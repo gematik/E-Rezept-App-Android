@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -141,7 +141,7 @@ fun FeedbackForm(navController: NavController) {
                 SpacerSmall()
                 Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)) {
                     Text(stringResource(R.string.seetings_feedback_form_additional_data_info))
-                    val os = Detail(
+                    val os = detail(
                         stringResource(R.string.seetings_feedback_form_additional_data_os),
                         annotatedStringResource(
                             R.string.seetings_feedback_form_additional_data_os_detail,
@@ -151,7 +151,7 @@ fun FeedbackForm(navController: NavController) {
                         )
                     )
 
-                    val device = Detail(
+                    val device = detail(
                         stringResource(R.string.seetings_feedback_form_additional_data_device),
                         annotatedStringResource(
                             R.string.seetings_feedback_form_additional_data_device_detail,
@@ -162,7 +162,7 @@ fun FeedbackForm(navController: NavController) {
                     )
                     Text(os)
                     Text(device)
-                    val darkModeText = Detail(
+                    val darkModeText = detail(
                         stringResource(R.string.seetings_feedback_form_additional_data_darkmode),
                         AnnotatedString(
                             stringResource(
@@ -176,7 +176,7 @@ fun FeedbackForm(navController: NavController) {
                     )
                     Text(darkModeText)
                     Text(
-                        Detail(
+                        detail(
                             stringResource(R.string.seetings_feedback_form_additional_data_language),
                             AnnotatedString(Locale.getDefault().displayName)
                         )
@@ -188,7 +188,7 @@ fun FeedbackForm(navController: NavController) {
 }
 
 @Composable
-private fun Detail(
+private fun detail(
     header: String,
     detail: AnnotatedString
 ): AnnotatedString =

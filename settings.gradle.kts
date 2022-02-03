@@ -16,7 +16,6 @@ pluginManagement {
         }
     }
     includeBuild("plugins/dependencies")
-    includeBuild("plugins/dependencies")
     includeBuild("plugins/resource-generation")
 }
 
@@ -26,6 +25,12 @@ dependencyResolutionManagement {
         google()
         jcenter()
         mavenCentral()
+    }
+}
+
+includeBuild("rules") {
+    dependencySubstitution {
+        substitute(module("de.gematik.ti.erp.app:rules")).using(project(":"))
     }
 }
 

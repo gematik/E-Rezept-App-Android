@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -70,7 +70,6 @@ class ScanPrescriptionViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        every { scanner.defaultBatch } returns batch
         every { scanner.batch } returns MutableStateFlow(batch)
 
         viewModel = ScanPrescriptionViewModel(

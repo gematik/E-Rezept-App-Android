@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -16,14 +16,18 @@
  * 
  */
 
-package de.gematik.ti.erp.app.prescription.usecase
+package de.gematik.ti.erp.app.protocol.di
 
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
+import de.gematik.ti.erp.app.protocol.repository.model.ProtocolRepository
+import de.gematik.ti.erp.app.protocol.usecase.ProtocolUseCase
+import org.kodein.di.DI
+import org.kodein.di.bind
+import org.kodein.di.bindings.Scope
+import org.kodein.di.instance
+import org.kodein.di.scoped
+import org.kodein.di.singleton
 
-@OptIn(ExperimentalCoroutinesApi::class)
-interface PollingUseCase {
-    val doRefresh: Flow<Unit>
-
-    suspend fun refreshNow()
+fun protocolModule(scope: Scope<Any?>) = DI.Module("Protocol Module") {
+    bind { scoped(scope).singleton { ProtocolRepository(instance(), instance()) } }
+    bind { scoped(scope).singleton { ProtocolUseCase(instance()) } }
 }

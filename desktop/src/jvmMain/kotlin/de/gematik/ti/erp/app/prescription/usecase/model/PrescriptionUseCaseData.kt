@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -33,7 +33,7 @@ object PrescriptionUseCaseData {
     data class Prescription(
         val taskId: String,
         val accessCode: String,
-        val name: String,
+        val name: String?,
         val organization: String,
         val authoredOn: LocalDateTime,
         val expiresOn: LocalDate,

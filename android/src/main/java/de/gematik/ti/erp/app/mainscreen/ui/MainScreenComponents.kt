@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,13 +18,13 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
-import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -43,10 +44,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import de.gematik.ti.erp.app.utils.compose.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -56,7 +57,6 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import de.gematik.ti.erp.app.utils.compose.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MarkChatRead
 import androidx.compose.material.icons.outlined.MarkChatUnread
@@ -65,8 +65,8 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.ArrowDropDown
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.QrCode
-import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.material.icons.rounded.ShoppingBag
+import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -76,20 +76,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -108,12 +107,14 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.MainViewModel
-import de.gematik.ti.erp.app.db.entities.ProfileColors
+import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.mainscreen.ui.model.MainScreenData
 import de.gematik.ti.erp.app.messages.ui.DisplayPickupScreen
 import de.gematik.ti.erp.app.messages.ui.MessageScreen
 import de.gematik.ti.erp.app.messages.ui.MessageViewModel
+import de.gematik.ti.erp.app.onboarding.ui.OnboardingNavigationScreens
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingProfile
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingScreen
 import de.gematik.ti.erp.app.onboarding.ui.ReturningUserSecureAppOnboardingScreen
@@ -123,8 +124,8 @@ import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
 import de.gematik.ti.erp.app.prescription.ui.ScanScreen
 import de.gematik.ti.erp.app.profiles.ui.Avatar
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
-import de.gematik.ti.erp.app.profiles.ui.connectionTextColor
 import de.gematik.ti.erp.app.profiles.ui.connectionText
+import de.gematik.ti.erp.app.profiles.ui.connectionTextColor
 import de.gematik.ti.erp.app.profiles.ui.profileColor
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.redeem.ui.RedeemScreen
@@ -134,16 +135,25 @@ import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
+import de.gematik.ti.erp.app.utils.compose.BottomNavigation
+import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.Dialog
-import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
+import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.TopAppBar
+import de.gematik.ti.erp.app.utils.compose.createToastShort
+import de.gematik.ti.erp.app.utils.compose.minimalSystemBarsPadding
 import de.gematik.ti.erp.app.utils.compose.testId
+import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
+import de.gematik.ti.erp.app.webview.WebViewScreen
 import de.gematik.ti.erp.app.utils.dateTimeShortText
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
+import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -177,6 +187,7 @@ fun MainScreen(
         }
 
     TrackNavigationChanges(navController)
+    val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
 
     NavHost(
         navController,
@@ -187,6 +198,27 @@ fun MainScreen(
         }
         composable(MainNavigationScreens.ReturningUserSecureAppOnboarding.route) {
             ReturningUserSecureAppOnboardingScreen(navController)
+        }
+        composable(MainNavigationScreens.DataTermsUpdateScreen.route) {
+            val dataProtectionVersionAccepted by mainViewModel.dataProtectionVersionAccepted().collectAsState(
+                initial = LocalDate.MIN
+            )
+            DataTermsUpdateScreen(
+                dataProtectionVersionAccepted,
+                onClickDataTerms = { navController.navigate(MainNavigationScreens.DataProtection.route) }
+            ) {
+                mainViewModel.acceptUpdatedDataTerms(LocalDate.now())
+                navController.navigate(MainNavigationScreens.Prescriptions.route)
+            }
+        }
+        composable(MainNavigationScreens.DataProtection.route) {
+            NavigationAnimation(mode = navigationMode) {
+                WebViewScreen(
+                    title = stringResource(R.string.onb_data_consent),
+                    onBack = { navController.popBackStack() },
+                    url = URI_DATA_TERMS
+                )
+            }
         }
         composable(
             MainNavigationScreens.Settings.route,
@@ -199,11 +231,18 @@ fun MainScreen(
             ScanScreen(navController)
         }
         composable(MainNavigationScreens.Prescriptions.route) {
-            MainScreenWithScaffold(navController)
+            MainScreenWithScaffold(navController, mainViewModel)
         }
         composable(MainNavigationScreens.ProfileSetup.route) {
-            OnboardingProfile(isReturningUser = true) {
-                mainViewModel.overwriteDefaultProfile(it)
+            var profileName by remember { mutableStateOf("") }
+
+            OnboardingProfile(
+                modifier = Modifier.minimalSystemBarsPadding(),
+                isReturningUser = true,
+                profileName = profileName,
+                onProfileNameChange = { profileName = it }
+            ) {
+                mainViewModel.overwriteDefaultProfile(profileName)
                 navController.popBackStack()
             }
         }
@@ -280,7 +319,11 @@ fun MainScreen(
             CardWallScreen(onFinishedCardWall = {
                 navController.navigate(
                     MainNavigationScreens.Prescriptions.path(),
-                    navOptions { popUpTo(MainNavigationScreens.Prescriptions.route) }
+                    navOptions {
+                        popUpTo(MainNavigationScreens.Prescriptions.route) {
+                            inclusive = true
+                        }
+                    }
                 )
             }, canAvailable)
         }
@@ -293,10 +336,6 @@ fun MainScreen(
             EditProfileScreen(
                 profileId,
                 settingsViewModel,
-                onRemoveProfile = {
-                    settingsViewModel.removeProfile(profileId, it)
-                    navController.popBackStack()
-                },
                 onBack = { navController.popBackStack() },
                 mainNavController = navController
             )
@@ -314,8 +353,12 @@ fun MainScreenWithScaffold(
 ) {
 
     LaunchedEffect(Unit) {
-        if (mainViewModel.showInsecureDevicePrompt.first()) {
-            mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.route)
+        if (mainViewModel.showDataTermsUpdate.first()) {
+            mainNavController.navigate(MainNavigationScreens.DataTermsUpdateScreen.path())
+        } else if (mainViewModel.showInsecureDevicePrompt.first()) {
+            mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.path())
+        } else if (mainViewModel.showProfileSetupPrompt.first()) {
+            mainNavController.navigate(MainNavigationScreens.ProfileSetup.path())
         }
     }
 
@@ -327,33 +370,11 @@ fun MainScreenWithScaffold(
         }
     }
 
-    val multiProfile by produceState(initialValue = false) {
-        mainViewModel.profilesOn().collect {
-            value = it
-        }
-    }
-
-    if (multiProfile) {
-        LaunchedEffect(Unit) {
-            mainViewModel.showProfileSetupPrompt.collect {
-                if (!it) {
-                    mainNavController.navigate(MainNavigationScreens.ProfileSetup.route)
-                }
-            }
-        }
-    }
-
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
-    val currentRedeemEvent by produceState(
-        RedeemEvent(
-            emptyList(),
-            false
-        )
-    ) {
-        mainScreenVM.onRedeemEvent.collect {
+    val redeemState by produceState(MainScreenData.emptyRedeemState) {
+        mainScreenVM.redeemState().collect {
             value = it
-            sheetState.show()
         }
     }
 
@@ -363,77 +384,41 @@ fun MainScreenWithScaffold(
 
     val scaffoldState = rememberScaffoldState()
 
-    val errNetworkNotAvailable = stringResource(R.string.error_message_network_not_available)
-    val errServerComFailed = stringResource(R.string.error_message_server_communication_failed)
-    val errVau = stringResource(R.string.error_message_vau_error)
+    MainScreenSnackbar(
+        mainScreenViewModel = mainScreenVM,
+        scaffoldState = scaffoldState,
+    )
 
-    val refreshEvent by mainScreenVM.onRefreshEvent.collectAsState(initial = null)
-
-    val refreshEventText = refreshEvent.let {
-        when (it) {
-            RefreshEvent.NetworkNotAvailable -> errNetworkNotAvailable
-            is RefreshEvent.ServerCommunicationFailedWhileRefreshing -> errServerComFailed.format(
-                it.code
-            )
-            RefreshEvent.FatalTruststoreState -> errVau
-            is RefreshEvent.NewPrescriptionsEvent -> {
-                if (it.nrOfNewPrescriptions == 0) {
-                    stringResource(R.string.zero_prescriptions_updatet)
-                } else {
-                    annotatedPluralsResource(
-                        R.plurals.prescriptions_updated,
-                        quantity = it.nrOfNewPrescriptions,
-                        AnnotatedString(it.nrOfNewPrescriptions.toString())
-                    )
-                }
-            }
-            else -> null
-        }
-    }
-
-    LaunchedEffect(refreshEvent, refreshEventText) {
-
-        if (refreshEventText != null) {
-            scaffoldState.snackbarHostState.showSnackbar(
-                refreshEventText.toString()
-            )
-        }
-    }
+    val coroutineScope = rememberCoroutineScope()
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
-            MainScreenBottomSheetAction(
+            BottomSheetAction(
                 icon = Icons.Rounded.QrCode,
                 title = stringResource(R.string.dialog_redeem_headline),
                 info = stringResource(R.string.dialog_redeem_info),
-                modifier = Modifier.testId("main/redeemInLocalPharmacyButton")
+                modifier = Modifier.testTag("main/redeemInLocalPharmacyButton")
             ) {
                 mainNavController.navigate(
                     MainNavigationScreens.RedeemLocally.path(
-                        TaskIds(currentRedeemEvent.taskIds)
+                        TaskIds(redeemState.scannedTaskIds + redeemState.syncedTaskIds)
                     )
                 )
             }
 
-            val orderNotPossibleTxt = stringResource(R.string.dialog_order_not_possible)
-            val context = LocalContext.current
-            MainScreenBottomSheetAction(
-                enabled = currentRedeemEvent.isFullDetail,
+            BottomSheetAction(
+                enabled = redeemState.syncedTaskIds.isNotEmpty(),
                 icon = Icons.Rounded.ShoppingBag,
                 title = stringResource(R.string.dialog_order_headline),
                 info = stringResource(R.string.dialog_order_info),
-                modifier = Modifier.testId("main/redeemRemoteButton")
+                modifier = Modifier.testTag("main/redeemRemoteButton")
             ) {
-                if (currentRedeemEvent.isFullDetail) {
-                    mainNavController.navigate(
-                        MainNavigationScreens.Pharmacies.path(
-                            TaskIds(currentRedeemEvent.taskIds)
-                        )
+                mainNavController.navigate(
+                    MainNavigationScreens.Pharmacies.path(
+                        TaskIds(redeemState.syncedTaskIds)
                     )
-                } else {
-                    Toast.makeText(context, orderNotPossibleTxt, Toast.LENGTH_SHORT).show()
-                }
+                )
             }
 
             Box(Modifier.navigationBarsHeight())
@@ -441,9 +426,29 @@ fun MainScreenWithScaffold(
     ) {
         val bottomNavController = rememberNavController()
 
+        val showFab by produceState(false) {
+            bottomNavController.currentBackStackEntryFlow.collect {
+                value = it.destination.route == MainNavigationScreens.Prescriptions.route
+            }
+        }
+
         Scaffold(
             topBar = { MultiProfileTopAppBar(mainNavController, mainScreenVM) },
             bottomBar = { MainScreenBottomNavigation(mainNavController, bottomNavController) },
+            floatingActionButton = {
+                AnimatedVisibility(
+                    visible = redeemState.hasRedeemableTasks() && showFab,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    ExtendedFloatingActionButton(
+                        modifier = Modifier.heightIn(min = 56.dp),
+                        text = { Text(stringResource(R.string.main_redeem_button)) },
+                        icon = { Icon(Icons.Rounded.Upload, null) },
+                        onClick = { coroutineScope.launch { sheetState.show() } }
+                    )
+                }
+            },
             scaffoldState = scaffoldState
         ) { innerPadding ->
             Box(
@@ -456,7 +461,7 @@ fun MainScreenWithScaffold(
                     startDestination = MainNavigationScreens.Prescriptions.path()
                 ) {
                     composable(MainNavigationScreens.Prescriptions.route) {
-                        PrescriptionScreen(mainNavController)
+                        PrescriptionScreen(mainNavController, uri = mainViewModel.externalAuthorizationUri)
                     }
                     composable(MainNavigationScreens.Messages.route) {
                         MessageScreen(mainNavController, messageVM)
@@ -545,57 +550,6 @@ private fun MainScreenBottomNavigation(
     }
 }
 
-@Composable
-fun MainScreenBottomSheetAction(
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    icon: ImageVector,
-    title: String,
-    info: String,
-    onClick: () -> Unit,
-) {
-
-    val titleColor = if (enabled) {
-        Color.Unspecified
-    } else {
-        AppTheme.typographyColors.subtitle1l
-    }
-
-    val textColor = if (enabled) {
-        AppTheme.typographyColors.body2l
-    } else {
-        AppTheme.colors.neutral400
-    }
-
-    Row(
-        modifier = modifier
-            .clickable(onClick = onClick)
-            .padding(16.dp)
-    ) {
-        Icon(
-            icon, null,
-            modifier = Modifier
-                .size(24.dp)
-                .align(Alignment.CenterVertically),
-            tint = textColor
-        )
-        Spacer16()
-        Column {
-            Text(
-                title,
-                style = MaterialTheme.typography.subtitle1,
-                color = titleColor
-
-            )
-            Text(
-                info,
-                style = MaterialTheme.typography.body2,
-                color = textColor
-            )
-        }
-    }
-}
-
 @Preview(showBackground = true)
 @Composable
 fun TopAppBarMultiUserPreview() {
@@ -617,7 +571,8 @@ fun TopAppBarMultiUser(
                 id = 0,
                 name = "",
                 active = true,
-                color = ProfileColors.SPRING_GRAY,
+                color = ProfileColorNames.SPRING_GRAY,
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation()
             )
         )
     ) {
@@ -642,10 +597,6 @@ fun TopAppBarMultiUser(
     val ssoStatusColor = ssoStatusColor(activeProfile, ssoToken)
 
     var expanded by remember { mutableStateOf(false) }
-
-    val onClickUser = { profileName: String ->
-        mainScreenViewModel.saveActiveProfile(profileName)
-    }
 
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -691,7 +642,7 @@ fun TopAppBarMultiUser(
                 ProfileSelector(
                     onClickEdit = onClickEdit,
                     onClickEditProfiles = onClickEditProfiles,
-                    onClickUser = onClickUser,
+                    onClickProfile = { mainScreenViewModel.saveActiveProfile(it) },
                     userList = profileList,
                     onDismiss = { expanded = false },
                 )
@@ -712,7 +663,7 @@ private fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoToken: Singl
 private fun ProfileSelector(
     onClickEdit: (Int) -> Unit,
     onClickEditProfiles: () -> Unit,
-    onClickUser: (String) -> Unit,
+    onClickProfile: (ProfilesUseCaseData.Profile) -> Unit,
     userList: List<ProfilesUseCaseData.Profile>,
     onDismiss: () -> Unit
 ) {
@@ -789,7 +740,12 @@ private fun ProfileSelector(
                             ) {
                                 userList.forEach {
                                     item {
-                                        ProfileCard(it, onClickEdit, onClickUser, onDismiss)
+                                        ProfileCard(
+                                            profile = it,
+                                            onClickEdit = onClickEdit,
+                                            onClickProfile = onClickProfile,
+                                            onDismiss = onDismiss
+                                        )
                                     }
                                 }
                             }
@@ -817,10 +773,10 @@ private fun ProfileSelector(
 fun ProfileCard(
     profile: ProfilesUseCaseData.Profile,
     onClickEdit: (Int) -> Unit,
-    onClickUser: (String) -> Unit,
+    onClickProfile: (profile: ProfilesUseCaseData.Profile) -> Unit,
     onDismiss: () -> Unit
 ) {
-    val colors = profileColor(profileColors = profile.color)
+    val colors = profileColor(profileColorNames = profile.color)
     val profileSsoToken = profile.ssoToken
 
     Row(
@@ -828,7 +784,7 @@ fun ProfileCard(
             .wrapContentHeight()
             .fillMaxWidth()
             .clickable {
-                onClickUser(profile.name)
+                onClickProfile(profile)
                 onDismiss()
             },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -887,27 +843,28 @@ fun MultiProfileTopAppBar(
     mainScreenVieModel: MainScreenViewModel
 ) {
     val accScan = stringResource(R.string.main_scan_acc)
-    val isMultiUserFeatureEnabled by produceState(initialValue = false, producer = {
-        mainScreenVieModel.isMultiUserFeatureEnabled().collect { value = it }
-    })
+    val context = LocalContext.current
+    val demoToastText = stringResource(R.string.function_not_availlable_on_demo_mode)
 
     TopAppBar(
         title = {
-            if (isMultiUserFeatureEnabled) {
-                TopAppBarMultiUser(
-                    mainScreenVieModel,
-                    onClickEditProfiles = {
-                        navController.navigate(
-                            MainNavigationScreens.Settings.path(
-                                SettingsScrollTo.Profiles
-                            )
+            TopAppBarMultiUser(
+                mainScreenVieModel,
+                onClickEditProfiles = {
+                    navController.navigate(
+                        MainNavigationScreens.Settings.path(
+                            SettingsScrollTo.Profiles
                         )
-                    },
-                    onClickEdit = { navController.navigate(MainNavigationScreens.EditProfile.path(it)) }
-                )
-            } else {
-                Text(stringResource(R.string.main_nav_title_prescriptions))
-            }
+                    )
+                },
+                onClickEdit = {
+                    if (mainScreenVieModel.isDemoActive()) {
+                        createToastShort(context, demoToastText)
+                    } else {
+                        navController.navigate(MainNavigationScreens.EditProfile.path(it))
+                    }
+                }
+            )
         },
         elevation = 8.dp,
         backgroundColor = MaterialTheme.colors.surface,

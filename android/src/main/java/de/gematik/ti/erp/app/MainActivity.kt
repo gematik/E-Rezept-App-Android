@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -33,8 +33,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -91,8 +89,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val externalAuthorizationParameters = intent.data
-
         if (BuildKonfig.INTERNAL) {
             appPrefs.edit {
                 putBoolean(SCREENSHOTS_ALLOWED, true)
@@ -116,10 +112,9 @@ class MainActivity : AppCompatActivity() {
                 MainContent { mainViewModel ->
                     val auth by authenticationModeAndMethod.collectAsState(null)
                     val navController = rememberNavController()
+                    val noDrawModifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0f)
 
-                    SideEffect {
-                        mainViewModel.externalAuthorizationUri = intent.data
-                    }
+                    mainViewModel.externalAuthorizationUri = intent.data
 
                     Box(modifier = Modifier.fillMaxSize()) {
                         if (auth !is AuthenticationModeAndMethod.Authenticated) {
@@ -130,9 +125,6 @@ class MainActivity : AppCompatActivity() {
                             )
                         }
 
-                        val noDrawModifier = Modifier
-                            .fillMaxSize()
-                            .graphicsLayer(alpha = 0f)
                         DialogHost {
                             Box(
                                 if (auth is AuthenticationModeAndMethod.Authenticated) Modifier else noDrawModifier
@@ -148,13 +140,6 @@ class MainActivity : AppCompatActivity() {
                                 exit = fadeOut()
                             ) {
                                 UserAuthenticationScreen()
-                            }
-                        }
-                        LaunchedEffect(auth) {
-                            if (auth is AuthenticationModeAndMethod.Authenticated) {
-                                intent.data?.let {
-                                    mainViewModel.onExternAppAuthorizationResult(it)
-                                }
                             }
                         }
                     }

@@ -4,11 +4,6 @@ plugins {
     kotlin("jvm") version "1.5.31"
 }
 
-repositories {
-    google()
-    mavenCentral()
-}
-
 version = 1.0
 group = "de.gematik.ti.erp.app"
 

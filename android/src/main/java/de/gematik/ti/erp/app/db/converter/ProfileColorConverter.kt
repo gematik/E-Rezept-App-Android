@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,12 +19,12 @@
 package de.gematik.ti.erp.app.db.converter
 
 import androidx.room.TypeConverter
-import de.gematik.ti.erp.app.db.entities.ProfileColors
+import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 
 class ProfileColorsConverter {
     @TypeConverter
-    fun toProfileColors(color: String) = enumValueOf<ProfileColors>(color)
+    fun toProfileColors(color: String) = enumValueOf<ProfileColorNames>(color)
 
     @TypeConverter
-    fun fromProfileColors(color: ProfileColors) = color.name
+    fun fromProfileColors(color: ProfileColorNames) = color.name
 }

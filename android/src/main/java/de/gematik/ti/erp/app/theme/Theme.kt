@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -82,6 +82,10 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
         content = {
             val typo =
                 AppTypography(
+                    body1l = MaterialTheme.typography.body1.copy(
+                        color = colors.neutral600,
+                        lineHeight = 1.5.em
+                    ),
                     body2l = MaterialTheme.typography.body2.copy(
                         color = typoColors.body2l,
                         lineHeight = 1.5.em

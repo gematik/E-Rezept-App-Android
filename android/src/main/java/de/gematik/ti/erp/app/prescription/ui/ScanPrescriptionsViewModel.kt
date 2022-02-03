@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,7 +22,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.prescription.ui.model.ScanScreen
+import de.gematik.ti.erp.app.prescription.ui.model.ScanScreenData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -42,8 +42,8 @@ import java.time.OffsetDateTime
 import javax.inject.Inject
 
 private data class ScanWorkflow(
-    val info: ScanScreen.Info? = null,
-    val state: ScanScreen.ScanState? = null,
+    val info: ScanScreenData.Info? = null,
+    val state: ScanScreenData.ScanState? = null,
     val code: ScannedCode,
     val coordinates: FloatArray
 ) {
@@ -81,13 +81,13 @@ class ScanPrescriptionViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val scannedCodes = MutableStateFlow(listOf<ValidScannedCode>())
-    var vibration = MutableSharedFlow<ScanScreen.VibrationPattern>()
+    var vibration = MutableSharedFlow<ScanScreenData.VibrationPattern>()
         private set
 
     private val emptyScanWorkflow = ScanWorkflow(
         code = ScannedCode("", OffsetDateTime.now()),
         coordinates = FloatArray(0),
-        state = ScanScreen.ScanState.Final
+        state = ScanScreenData.ScanState.Final
     )
 
     private var existingTaskIds = scannedCodes.map {
@@ -102,35 +102,22 @@ class ScanPrescriptionViewModel @Inject constructor(
         val totalNrOfPrescriptions = codes.sumOf { it.urls.size }
         val totalNrOfCodes = codes.size
 
-        ScanScreen.State(
-            snackBar = ScanScreen.SnackBar(totalNrOfPrescriptions, totalNrOfCodes)
+        ScanScreenData.State(
+            snackBar = ScanScreenData.ActionBar(totalNrOfPrescriptions, totalNrOfCodes)
         )
     }
 
     fun scanOverlayState() = flow {
-//        scanner.batch.mapNotNull {
-//            processor.process(it)?.second
-//        }.collect {
-//            emit(ScanScreen.OverlayState(
-//                area = it,
-//                info = ScanScreen.Info.Focus,
-//                state = ScanScreen.ScanState.Hold,
-//            ))
-//        }
         val batchFlow = scanner.batch.mapNotNull { batch ->
-            if (batch == scanner.defaultBatch) {
-                Pair(batch.averageScanTime, emptyScanWorkflow)
-            } else {
-                processor.process(batch)?.let { result ->
-                    val (json, coords) = result
-                    Pair(
-                        batch.averageScanTime,
-                        ScanWorkflow(
-                            code = ScannedCode(json, OffsetDateTime.now()),
-                            coordinates = coords
-                        )
+            processor.process(batch)?.let { result ->
+                val (json, coords) = result
+                Pair(
+                    batch.averageScanTime,
+                    ScanWorkflow(
+                        code = ScannedCode(json, OffsetDateTime.now()),
+                        coordinates = coords
                     )
-                }
+                )
             }
         }.transformLatest { (avgTime, scanWorkflow) ->
             emit(scanWorkflow)
@@ -155,50 +142,50 @@ class ScanPrescriptionViewModel @Inject constructor(
                 emit(emptyScanWorkflow)
                 return@transformLatest
             }
-            val state = it.copy(state = ScanScreen.ScanState.Hold)
+            val state = it.copy(state = ScanScreenData.ScanState.Hold)
 
             emit(state) // hold
             delay(1000L)
-            emit(it.copy(state = ScanScreen.ScanState.Save)) // saved
+            emit(it.copy(state = ScanScreenData.ScanState.Save)) // saved
             delay(3000L)
-            emit(it.copy(state = ScanScreen.ScanState.Final)) // final
+            emit(it.copy(state = ScanScreenData.ScanState.Final)) // final
         }.map {
-            if (it.state == ScanScreen.ScanState.Hold) {
-                vibration.emit(ScanScreen.VibrationPattern.Focused)
+            if (it.state == ScanScreenData.ScanState.Hold) {
+                vibration.emit(ScanScreenData.VibrationPattern.Focused)
             }
 
-            if (it.state == ScanScreen.ScanState.Save) {
+            if (it.state == ScanScreenData.ScanState.Save) {
                 val validCode = validateScannedCode(it.code)
 
                 if (validCode == null) {
-                    vibration.emit(ScanScreen.VibrationPattern.Error)
+                    vibration.emit(ScanScreenData.VibrationPattern.Error)
                     it.copy(
-                        info = ScanScreen.Info.ErrorNotValid,
-                        state = ScanScreen.ScanState.Error
+                        info = ScanScreenData.Info.ErrorNotValid,
+                        state = ScanScreenData.ScanState.Error
                     )
                 } else if (!addScannedCode(validCode)) {
-                    vibration.emit(ScanScreen.VibrationPattern.Error)
+                    vibration.emit(ScanScreenData.VibrationPattern.Error)
                     it.copy(
-                        info = ScanScreen.Info.ErrorDuplicated,
-                        state = ScanScreen.ScanState.Error
+                        info = ScanScreenData.Info.ErrorDuplicated,
+                        state = ScanScreenData.ScanState.Error
                     )
                 } else {
-                    vibration.emit(ScanScreen.VibrationPattern.Saved)
-                    it.copy(info = ScanScreen.Info.Scanned(validCode.urls.size))
+                    vibration.emit(ScanScreenData.VibrationPattern.Saved)
+                    it.copy(info = ScanScreenData.Info.Scanned(validCode.urls.size))
                 }
             } else {
                 it
             }
         }.collect {
             emit(
-                ScanScreen.OverlayState(
+                ScanScreenData.OverlayState(
                     area = if (it != emptyScanWorkflow) it.coordinates else null,
-                    state = it.state ?: ScanScreen.ScanState.Hold,
-                    info = it.info ?: ScanScreen.Info.Focus,
+                    state = it.state ?: ScanScreenData.ScanState.Hold,
+                    info = it.info ?: ScanScreenData.Info.Focus,
                 )
             )
         }
-    }.flowOn(dispatchProvider.unconfined())
+    }.flowOn(dispatchProvider.default())
 
     private fun validateScannedCode(scannedCode: ScannedCode): ValidScannedCode? =
         validator.validate(scannedCode)

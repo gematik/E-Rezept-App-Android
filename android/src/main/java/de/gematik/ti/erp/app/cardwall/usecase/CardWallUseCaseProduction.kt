@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,8 +23,8 @@ import android.nfc.NfcAdapter
 import android.os.Build
 import de.gematik.ti.erp.app.app
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
+import de.gematik.ti.erp.app.db.entities.IdpAuthenticationDataEntity
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
 import javax.inject.Inject
@@ -77,8 +77,8 @@ open class CardWallUseCaseProduction @Inject constructor(
 
     override suspend fun getAuthenticationMethod(profileName: String): CardWallData.AuthenticationMethod =
         when (idpRepository.getSingleSignOnTokenScope(profileName).first()) {
-            SingleSignOnToken.Scope.Default -> CardWallData.AuthenticationMethod.HealthCard
-            SingleSignOnToken.Scope.AlternateAuthentication -> CardWallData.AuthenticationMethod.Alternative
+            IdpAuthenticationDataEntity.SingleSignOnTokenScope.Default -> CardWallData.AuthenticationMethod.HealthCard
+            IdpAuthenticationDataEntity.SingleSignOnTokenScope.AlternateAuthentication -> CardWallData.AuthenticationMethod.Alternative
             null -> CardWallData.AuthenticationMethod.None
         }
 }

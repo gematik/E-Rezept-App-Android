@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.db.entities
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -28,16 +27,18 @@ import java.time.OffsetDateTime
 @Entity(tableName = "profiles", indices = [Index(value = ["name"], unique = true)])
 data class ProfileEntity(
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "id")
     val id: Int = 0,
     val name: String,
-    val insuranceNumber: String? = null,
-    val color: ProfileColors = ProfileColors.values().random(),
+    val insurantName: String? = null,
+    val insuranceIdentifier: String? = null,
+    val insuranceName: String? = null,
+    val color: ProfileColorNames = ProfileColorNames.values().random(),
     val lastAuthenticated: Instant? = null,
-    val lastAuditEventSynced: OffsetDateTime? = null
+    val lastAuditEventSynced: OffsetDateTime? = null,
+    val lastTaskSynced: Instant? = null
 )
 
-enum class ProfileColors {
+enum class ProfileColorNames {
     SPRING_GRAY,
     SUN_DEW,
     PINK,

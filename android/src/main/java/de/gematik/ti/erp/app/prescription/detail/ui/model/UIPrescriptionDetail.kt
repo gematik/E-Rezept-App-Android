@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.prescription.detail.ui.model
 
 import androidx.compose.runtime.Immutable
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
+import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.prescription.repository.InsuranceCompanyDetail
 import de.gematik.ti.erp.app.prescription.repository.MedicationDetail
 import de.gematik.ti.erp.app.prescription.repository.MedicationRequestDetail
@@ -28,23 +29,22 @@ import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 
 interface UIPrescriptionDetail {
     val taskId: String
     val redeemedOn: OffsetDateTime?
-    val accessCode: String
-    val bitmapMatrix: BitMatrixCode
+    val accessCode: String?
+    val bitmapMatrix: BitMatrixCode?
 }
 
 @Immutable
 data class UIPrescriptionDetailScanned(
     override val taskId: String,
     override val redeemedOn: OffsetDateTime?,
-    override val accessCode: String,
-    override val bitmapMatrix: BitMatrixCode,
+    override val accessCode: String?,
+    override val bitmapMatrix: BitMatrixCode?,
     val number: Int,
     val scannedOn: OffsetDateTime,
     val unRedeemMorePossible: Boolean
@@ -60,8 +60,8 @@ data class UIPrescriptionDetailScanned(
 data class UIPrescriptionDetailSynced(
     override val taskId: String,
     override val redeemedOn: OffsetDateTime?,
-    override val accessCode: String,
-    override val bitmapMatrix: BitMatrixCode,
+    override val accessCode: String?,
+    override val bitmapMatrix: BitMatrixCode?,
     val redeemUntil: LocalDate?,
     val acceptUntil: LocalDate?,
     val patient: PatientDetail,
@@ -70,7 +70,6 @@ data class UIPrescriptionDetailSynced(
     val insurance: InsuranceCompanyDetail,
     val organization: OrganizationDetail,
     val medicationRequest: MedicationRequestDetail,
-    val hasSyncError: Boolean,
-    val lastSyncDate: LocalDateTime?,
-    val medicationDispense: MedicationDispenseSimple?
+    val medicationDispense: MedicationDispenseSimple?,
+    val taskStatus: TaskStatus?
 ) : UIPrescriptionDetail

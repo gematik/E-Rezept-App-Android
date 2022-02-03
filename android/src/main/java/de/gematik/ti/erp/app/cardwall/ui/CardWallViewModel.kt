@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -34,9 +34,7 @@ import de.gematik.ti.erp.app.core.BaseViewModel
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
-import de.gematik.ti.erp.app.prescription.usecase.PollingUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
-import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
@@ -47,13 +45,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.parcelize.Parcelize
+import javax.inject.Inject
 
 private const val navStateKey = "cdwNavState"
 
 @HiltViewModel
 class CardWallViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val pollingUseCase: PollingUseCase,
     private val cardWallUseCase: CardWallUseCase,
     private val authenticationUseCase: AuthenticationUseCase,
     private val dispatchProvider: DispatchProvider,

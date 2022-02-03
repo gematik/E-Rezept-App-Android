@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.db.entities
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import java.time.LocalDate
 
 enum class SettingsAuthenticationMethod {
     HealthCard,
@@ -86,7 +87,8 @@ data class Settings(
         filterOnlineService = false,
         filterOpenNow = false
     ),
-    val userHasAcceptedInsecureDevice: Boolean = false
+    val userHasAcceptedInsecureDevice: Boolean = false,
+    val dataProtectionVersionAccepted: LocalDate = LocalDate.of(2021, 10, 15)
 ) {
     @PrimaryKey
     var id: Long = 0

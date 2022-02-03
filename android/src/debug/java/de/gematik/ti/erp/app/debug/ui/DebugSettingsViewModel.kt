@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -40,6 +40,7 @@ import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.ui.NEW_USER
@@ -117,9 +118,18 @@ class DebugSettingsViewModel @Inject constructor(
     fun breakSSOToken() = runBlocking {
         val activeProfileName = profilesUseCase.activeProfileName().first()
         idpRepository.getSingleSignOnToken(activeProfileName).first()?.let {
+            val newToken = when (it) {
+                is SingleSignOnToken.AlternateAuthenticationToken ->
+                    it.copy(token = it.token.removeRange(0..2))
+                is SingleSignOnToken.AlternateAuthenticationWithoutToken ->
+                    it
+                is SingleSignOnToken.DefaultToken ->
+                    it.copy(token = it.token.removeRange(0..2))
+            }
+
             idpRepository.setSingleSignOnToken(
                 activeProfileName,
-                it.copy(token = it.token.removeRange(0..2))
+                newToken
             )
         }
     }

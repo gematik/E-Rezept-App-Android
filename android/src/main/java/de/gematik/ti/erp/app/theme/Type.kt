@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -32,6 +32,7 @@ data class AppTypographyColors(
 
 @Immutable
 data class AppTypography(
+    val body1l: TextStyle,
     val body2l: TextStyle,
     val subtitle1l: TextStyle,
     val subtitle2l: TextStyle,

@@ -1,3 +1,21 @@
+/*
+ * Copyright (c) 2022 gematik GmbH
+ * 
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the Licence);
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ *     https://joinup.ec.europa.eu/software/page/eupl
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * 
+ */
+
 package de.gematik.ti.erp.app.main.ui
 
 import androidx.compose.foundation.Image
@@ -11,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
@@ -33,10 +52,12 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import com.google.zxing.common.BitMatrix
+import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.common.App
 import de.gematik.ti.erp.app.common.ClosablePopupScaffold
 import de.gematik.ti.erp.app.common.OverlayPopup
 import de.gematik.ti.erp.app.common.SpacerLarge
+import de.gematik.ti.erp.app.common.SpacerMedium
 import de.gematik.ti.erp.app.common.SpacerSmall
 import de.gematik.ti.erp.app.common.theme.AppTheme
 import de.gematik.ti.erp.app.common.theme.PaddingDefaults
@@ -75,6 +96,8 @@ object MainNavigation {
 
     // communications
     object PharmacyCommunications : Communications
+
+    object Protocol : Destination
 }
 
 @Composable
@@ -101,6 +124,7 @@ fun MainScreen(
         when (navigation.currentBackStackEntry) {
             is MainNavigation.Onboarding ->
                 InitialWelcomeScreen(onClickShowLogin = { navigation.navigate(MainNavigation.Login) })
+            is MainNavigation.Protocol,
             is MainNavigation.Communications,
             is MainNavigation.Prescriptions ->
                 LoggedInScreen(
@@ -250,6 +274,14 @@ fun InitialWelcomeScreen(
             )
             Spacer(Modifier.weight(1f))
             Column(Modifier.align(Alignment.CenterHorizontally), horizontalAlignment = Alignment.CenterHorizontally) {
+                if (BuildKonfig.INTERNAL) {
+                    Image(
+                        painterResource("images/erp_logo_dev.webp"),
+                        null,
+                        modifier = Modifier.size(100.dp)
+                    )
+                    SpacerMedium()
+                }
                 Text(App.strings.desktopMainWelcomeTitle(), style = MaterialTheme.typography.h5)
                 SpacerSmall()
                 Text(App.strings.desktopMainWelcomeSubtitle(), style = MaterialTheme.typography.body1)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -27,12 +27,14 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface ActiveProfileDao {
+    @Query("SELECT * FROM activeProfile")
+    fun activeProfileFlow(): Flow<ActiveProfile?>
 
     @Query("SELECT * FROM activeProfile")
-    fun activeProfile(): Flow<ActiveProfile?>
+    suspend fun activeProfile(): ActiveProfile?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertActiveSession(activeProfile: ActiveProfile)
+    suspend fun insertActiveProfile(activeProfile: ActiveProfile)
 
     @Query("UPDATE activeProfile SET profileName = :profileName WHERE id = 0")
     suspend fun updateActiveProfile(profileName: String)

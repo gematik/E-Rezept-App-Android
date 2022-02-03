@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -29,19 +29,16 @@ import de.gematik.ti.erp.app.utils.taskWithoutKBVBundle
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
+import java.io.IOException
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.io.IOException
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
 @ExperimentalCoroutinesApi
 class PrescriptionRepositoryTest {
@@ -60,10 +57,8 @@ class PrescriptionRepositoryTest {
     @MockK
     lateinit var remoteDataSource: RemoteDataSource
 
-    var lastModified = LocalDateTime.ofEpochSecond(
-        OffsetDateTime.now().toEpochSecond(), 0,
-        ZoneOffset.UTC
-    ).atOffset(ZoneOffset.UTC)
+    var lastModifiedTask = Instant.now()
+    var lastModifiedAudit = OffsetDateTime.now()
 
     var mapper: Mapper = Mapper(FhirContext.forR4().newJsonParser())
 
@@ -79,12 +74,12 @@ class PrescriptionRepositoryTest {
             remoteDataSource,
             mapper
         )
-        coEvery { remoteDataSource.fetchTasks(lastModified, any()) } answers {
+        coEvery { remoteDataSource.fetchTasks(lastModifiedTask, any()) } answers {
             Result.Success(
                 taskWithoutKBVBundle
             )
         }
-        coEvery { remoteDataSource.allAuditEvents(any(), lastModified, null, null) } answers {
+        coEvery { remoteDataSource.allAuditEvents(any(), lastModifiedAudit, null, null) } answers {
             Result.Success(
                 allAuditEvents
             )
@@ -98,72 +93,79 @@ class PrescriptionRepositoryTest {
 
         coEvery { localDataSource.saveAuditEvents(any()) } answers { nothing }
         coEvery { localDataSource.saveTask(any()) } answers { nothing }
-        every { localDataSource.lastModifiedTaskDate(any()) } answers { lastModified.toEpochSecond() }
-        every { localDataSource.setLastModifiedTaskDate(any(), 1618826574) } answers { }
+        coEvery { localDataSource.taskSyncedUpTo(any()) } answers { lastModifiedTask }
+        coEvery { localDataSource.updateTaskSyncedUpTo(any(), any()) } answers { }
         coEvery { localDataSource.deleteLowDetailEvents(any()) } answers { nothing }
-        coEvery { localDataSource.auditEventsSyncedUpTo(any()) } answers { lastModified }
+        coEvery { localDataSource.auditEventsSyncedUpTo(any()) } answers { lastModifiedAudit }
     }
 
     @Test
-    fun `if download tasks gets called - ensure that complete tasks are saved together with fresh audit events`() =
+    fun `if download tasks gets called - ensure that complete tasks are saved`() =
         coroutineRule.testDispatcher.runBlockingTest {
+            val emptyAuditEvents = emptyAuditEvents()
+
+            coEvery { localDataSource.auditEventsSyncedUpTo(any()) } returns Instant.ofEpochSecond(0)
+                .atOffset(ZoneOffset.UTC)
+            coEvery { remoteDataSource.allAuditEvents(any(), any()) } answers {
+                Result.Success(
+                    emptyAuditEvents
+                )
+            }
             prescriptionRepository.downloadTasks("")
-            prescriptionRepository.downloadAuditEvents("")
             coVerify(exactly = taskWithoutKBVBundle.entry.size) { localDataSource.saveTask(any()) }
-            coVerify(exactly = 1) { localDataSource.saveAuditEvents(any()) }
-            verify { localDataSource.setLastModifiedTaskDate(any(), 1618826574) }
+            coVerify { localDataSource.updateTaskSyncedUpTo(any(), any()) }
         }
 
     @Test
-    fun `download auditEvents - stores synced up time when all are downloaded`() {
-        val emptyAuditEvents = emptyAuditEvents()
-        coEvery { localDataSource.auditEventsSyncedUpTo(any()) } returns Instant.ofEpochSecond(0).atOffset(ZoneOffset.UTC)
-        every { localDataSource.storeAuditEventSyncError() } answers { nothing }
-        coEvery { localDataSource.setAllAuditEventsSyncedUpTo(any()) } answers { nothing }
-        coEvery { remoteDataSource.allAuditEvents(any(), any()) } answers {
-            Result.Success(
-                emptyAuditEvents
+    fun `download auditEvents - stores synced up time each page`() {
+        val timestamp = OffsetDateTime.parse("2022-01-03T09:11:30+02:00")
+        val profileName = "Test"
+        coEvery { localDataSource.auditEventsSyncedUpTo(profileName) } returns timestamp
+        coEvery { localDataSource.setAllAuditEventsSyncedUpTo(profileName) } answers { }
+
+        coEvery {
+            remoteDataSource.allAuditEvents(
+                profileName = profileName,
+                lastKnownUpdate = timestamp,
+                count = 50,
+                offset = null
             )
+        } answers {
+            Result.Success(allAuditEvents())
+        } andThenAnswer {
+            Result.Success(emptyAuditEvents())
         }
-        coEvery { localDataSource.saveAuditEvents(any()) } answers { nothing }
+        coEvery { localDataSource.saveAuditEvents(any()) } answers { }
+
         coroutineRule.testDispatcher.runBlockingTest {
-            val result = prescriptionRepository.downloadAuditEvents("") as Result.Success<String>
-            assert(result.data.isEmpty())
-            coVerify(exactly = 1) { localDataSource.setAllAuditEventsSyncedUpTo(any()) }
+            prescriptionRepository.downloadAllAuditEvents(profileName)
         }
+
+        coVerify(exactly = 2) { localDataSource.setAllAuditEventsSyncedUpTo(profileName) }
     }
 
     @Test
-    fun `download auditEvents - provides link for next page of auditEvents`() {
-        coEvery { localDataSource.auditEventsSyncedUpTo(any()) } returns Instant.ofEpochSecond(0).atOffset(ZoneOffset.UTC)
-        every { localDataSource.storeAuditEventSyncError() } answers { nothing }
-        coEvery { localDataSource.setAllAuditEventsSyncedUpTo(any()) } answers { nothing }
-        coEvery { remoteDataSource.allAuditEvents(any(), any()) } answers {
-            Result.Success(
-                allAuditEvents
-            )
-        }
-        coEvery { localDataSource.saveAuditEvents(any()) } answers { nothing }
-        coroutineRule.testDispatcher.runBlockingTest {
-            val result = prescriptionRepository.downloadAuditEvents("") as Result.Success<String>
-            assert(result.data.isNotEmpty())
-            coVerify(exactly = 0) { localDataSource.setAllAuditEventsSyncedUpTo(any()) }
-        }
-    }
+    fun `failed to download auditEvents - doesn't save any audits`() {
+        val timestamp = OffsetDateTime.parse("2022-01-03T09:11:30+02:00")
+        val profileName = "Test"
+        coEvery { localDataSource.auditEventsSyncedUpTo(profileName) } returns timestamp
+        coEvery { localDataSource.setAllAuditEventsSyncedUpTo(profileName) } answers { }
 
-    @Test
-    fun `download auditEvents - returns error and therefore does not store synced up time`() {
-        coEvery { localDataSource.auditEventsSyncedUpTo(any()) } returns Instant.ofEpochSecond(0).atOffset(ZoneOffset.UTC)
-        every { localDataSource.storeAuditEventSyncError() } answers { nothing }
-        coEvery { localDataSource.setAllAuditEventsSyncedUpTo(any()) } answers { nothing }
-        coEvery { remoteDataSource.allAuditEvents(any(), any()) } answers {
-            Result.Error(Exception("testException"))
+        coEvery {
+            remoteDataSource.allAuditEvents(
+                profileName = profileName,
+                lastKnownUpdate = timestamp,
+                count = 50,
+                offset = null
+            )
+        } answers {
+            Result.Error(IllegalArgumentException(""))
         }
-        coEvery { localDataSource.saveAuditEvents(any()) } answers { nothing }
+
         coroutineRule.testDispatcher.runBlockingTest {
-            prescriptionRepository.downloadAuditEvents("") as Result.Error
-            coVerify(exactly = 0) { localDataSource.setAllAuditEventsSyncedUpTo(any()) }
-            coVerify(exactly = 1) { localDataSource.storeAuditEventSyncError() }
+            prescriptionRepository.downloadAllAuditEvents(profileName)
         }
+
+        coVerify(exactly = 0) { localDataSource.setAllAuditEventsSyncedUpTo(profileName) }
     }
 }

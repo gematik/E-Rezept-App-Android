@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -75,5 +75,5 @@ class AuthenticationUseCaseDemo @Inject constructor(
     override fun authenticateWithSecureElement(): Flow<AuthenticationState> =
         authenticateWithHealthCard("", "", emptyFlow())
 
-    override fun isCanAvailable(): Flow<Boolean> = flow { emit(false) }
+    override suspend fun isCanAvailable(): Boolean = false
 }

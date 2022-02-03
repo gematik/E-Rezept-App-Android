@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -163,7 +163,7 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
 
         // post [redirectCodeJwe] &b get the access token
 
-        val accessToken = basicUseCase.postCodeAndDecryptAccessToken(
+        val idpTokenResult = basicUseCase.postCodeAndDecryptAccessToken(
             config.tokenEndpoint,
             nonce = nonce,
             codeVerifier = codeVerifier,
@@ -172,10 +172,17 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
             pukSigKey = pukSigKey
         )
 
+        val idTokenJson = JSONObject(
+            idpTokenResult.idTokenPayload
+        )
+
         // final [redirectSsoToken] & [accessToken]
         return IdpAuthFlowResult(
-            accessToken = accessToken,
-            ssoToken = redirectSsoToken
+            accessToken = idpTokenResult.decryptedAccessToken,
+            ssoToken = redirectSsoToken,
+            idTokenInsuranceIdentifier = idTokenJson.getStringOrNull("idNummer") ?: "",
+            idTokenInsuranceName = idTokenJson.getStringOrNull("organizationName") ?: "",
+            idTokenInsurantName = idTokenJson.getStringOrNull("given_name")?.let { it + " " + idTokenJson.getString("family_name") } ?: ""
         )
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -45,7 +45,7 @@ class IdpLocalDataSource @Inject constructor(
     suspend fun saveSingleSignOnToken(
         profileName: String,
         token: String?,
-        scope: SingleSignOnToken.Scope?,
+        scope: IdpAuthenticationDataEntity.SingleSignOnTokenScope?,
         validOn: Instant?,
         expiresOn: Instant?
     ) {

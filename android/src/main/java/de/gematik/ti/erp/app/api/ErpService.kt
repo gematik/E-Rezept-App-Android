@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -51,13 +51,13 @@ interface ErpService {
 
     /**
      * @param lastKnownDate expects format like that ge2021-01-31T10:00 where ge stays for Greater or Equal. Null value will remove this query parameter
-     * @param sort refers to the date attribute DESC
+     * @param sort refers to the date attribute ASC
      */
     @GET("AuditEvent")
     suspend fun allAuditEvents(
         @Tag profileName: String,
         @Query("date") lastKnownDate: String?,
-        @Query("_sort") sort: String = "-date",
+        @Query("_sort") sort: String = "+date",
         @Query("_count") count: Int? = null,
         @Query("__offset") offset: Int? = null
     ): Response<Bundle>

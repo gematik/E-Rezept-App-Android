@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,15 +20,14 @@ package de.gematik.ti.erp.app.settings.ui
 
 import android.content.SharedPreferences
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.core.content.edit
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.SCREENSHOTS_ALLOWED
 import de.gematik.ti.erp.app.core.BaseViewModel
-import de.gematik.ti.erp.app.db.entities.ProfileColors
+import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.di.ApplicationPreferences
@@ -40,12 +39,14 @@ import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.tracking.Tracker
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import java.time.LocalDate
 import javax.inject.Inject
 
 object SettingsScreen {
@@ -93,6 +94,7 @@ object SettingsScreen {
 }
 
 const val NEW_USER = "newUser"
+const val UPDATED_DATA_TERMS_ACCEPTED = "UpdatedDataTermsAccepted"
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
@@ -108,6 +110,7 @@ class SettingsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     var isNewUser by settingsUseCase::isNewUser
+
     private var screenshotsAllowed =
         MutableStateFlow(appPrefs.getBoolean(SCREENSHOTS_ALLOWED, false))
 
@@ -128,7 +131,7 @@ class SettingsViewModel @Inject constructor(
             },
             zoomEnabled = settings.zoomEnabled,
             screenShotsAllowed = screenshotsAllowed,
-            uiProfiles = if (demoActive) profilesUseCase.demoProfiles() else uiProfiles
+            uiProfiles = uiProfiles
         )
     }.flowOn(coroutineDispatchProvider.default())
 
@@ -187,55 +190,57 @@ class SettingsViewModel @Inject constructor(
 
     fun addProfile(profileName: String) {
         viewModelScope.launch {
-            profilesUseCase.addProfile(profileName)
+            profilesUseCase.addProfile(profileName, activate = true)
         }
     }
 
-    fun removeProfile(name: String, newProfileName: String?) {
+    fun overwriteDefaultProfile(profileName: String) {
         viewModelScope.launch {
-            profilesUseCase.removeProfile(name, newProfileName)
+            profilesUseCase.overwriteDefaultProfileName(profileName)
         }
     }
 
-    fun removeProfile(id: Int, newProfileName: String?) {
+    fun removeProfile(profile: ProfilesUseCaseData.Profile, newProfileName: String?) {
         viewModelScope.launch {
-            profilesUseCase.getProfileById(id).first()?.name?.let { name ->
-                profilesUseCase.removeProfile(name, newProfileName)
+            if (newProfileName != null) {
+                profilesUseCase.removeProfile(profile, newProfileName)
+            } else {
+                profilesUseCase.removeProfile(profile)
             }
         }
     }
 
     fun updateProfileName(profile: ProfilesUseCaseData.Profile, newName: String) {
         viewModelScope.launch {
-            profilesUseCase.updateProfile(profile, newName)
+            profilesUseCase.updateProfileName(profile, newName)
         }
     }
 
-    fun updateProfileColor(profileName: String, color: ProfileColors) {
+    fun updateProfileColor(profile: ProfilesUseCaseData.Profile, color: ProfileColorNames) {
         viewModelScope.launch {
-            profilesUseCase.updateProfileColor(profileName, color)
+            profilesUseCase.updateProfileColor(profile, color)
         }
     }
 
-    fun switchProfile(name: String) {
+    fun switchProfile(profile: ProfilesUseCaseData.Profile) {
         viewModelScope.launch {
-            profilesUseCase.switchActiveProfile(name)
+            profilesUseCase.switchActiveProfile(profile)
         }
     }
 
-    fun profilesOn() =
-        toggleManager.isFeatureEnabled(Features.MULTI_PROFILE.featureName)
-
-    suspend fun profileSetupViaLaunchedEffect() {
-        profilesUseCase.addDefaultProfile()
-    }
+    fun allowAddProfiles() = toggleManager.isFeatureEnabled(Features.ADD_PROFILE.featureName)
 
     fun isCanAvailable(profile: ProfilesUseCaseData.Profile) =
         runBlocking {
             profilesUseCase.isCanAvailable(profile).first()
         }
 
-    companion object {
-        const val PROFILES_HINT_SHOWN = "PROFILES_HINT_SHOWN"
+    fun loadAuditEventsForProfile(profileName: String): Flow<PagingData<ProfilesUseCaseData.AuditEvent>> =
+        profilesUseCase.loadAuditEventsForProfile(profileName)
+
+    fun acceptUpdatedDataTerms(date: LocalDate) {
+        viewModelScope.launch {
+            settingsUseCase.updatedDataTermsAccepted(date)
+        }
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -29,10 +29,9 @@ import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationID
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
 import de.gematik.ti.erp.app.vau.extractECPublicKey
 import kotlinx.coroutines.sync.withLock
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import java.io.IOException
 import java.security.KeyStore
 import java.security.PrivateKey
@@ -41,7 +40,6 @@ import java.security.Signature
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
@@ -55,24 +53,24 @@ class RefreshFlowException : IOException {
      * Is true if the sso token is not valid anymore and the user is required to authenticate again.
      */
     val userActionRequired: Boolean
-    val tokenScope: SingleSignOnToken.Scope?
+    val ssoToken: SingleSignOnToken?
 
     constructor(
         userActionRequired: Boolean,
-        tokenScope: SingleSignOnToken.Scope?,
+        ssoToken: SingleSignOnToken?,
         cause: Throwable
     ) : super(cause) {
         this.userActionRequired = userActionRequired
-        this.tokenScope = tokenScope
+        this.ssoToken = ssoToken
     }
 
     constructor(
         userActionRequired: Boolean,
-        tokenScope: SingleSignOnToken.Scope?,
+        ssoToken: SingleSignOnToken?,
         message: String
     ) : super(message) {
         this.userActionRequired = userActionRequired
-        this.tokenScope = tokenScope
+        this.ssoToken = ssoToken
     }
 }
 
@@ -86,9 +84,9 @@ private const val EXT_AUTH_NONCE: String = "EXT_AUTH_NONCE"
 @Singleton
 class IdpUseCase @Inject constructor(
     private val repository: IdpRepository,
-    private val basicUseCase: IdpBasicUseCase,
     private val altAuthUseCase: IdpAlternateAuthenticationUseCase,
-    private val profilesUseCase: ProfilesUseCase,
+    private val profilesRepository: ProfilesRepository,
+    private val basicUseCase: IdpBasicUseCase,
     @NetworkSecureSharedPreferences
     private val sharedPreferences: SharedPreferences
 ) {
@@ -97,52 +95,64 @@ class IdpUseCase @Inject constructor(
     /**
      * If no bearer token is set or [refresh] is true, this will trigger [IdpBasicUseCase.refreshAccessTokenWithSsoFlow].
      */
-    suspend fun loadAccessToken(refresh: Boolean = false, profileName: String): String =
-        lock.withLock {
-            val ssoToken = repository.getSingleSignOnToken(profileName).first()
-            if (ssoToken == null) {
+    suspend fun loadAccessToken(refresh: Boolean = false, profileName: String): String = lock.withLock {
+        val ssoToken = repository.getSingleSignOnToken(profileName).first()
+
+        when (ssoToken) {
+            null,
+            is SingleSignOnToken.AlternateAuthenticationWithoutToken -> {
                 repository.invalidateDecryptedAccessToken(profileName)
                 throw RefreshFlowException(
                     true,
-                    repository.getSingleSignOnTokenScope(profileName).first(),
+                    ssoToken,
                     "SSO token not set for $profileName!"
                 )
             }
+            is SingleSignOnToken.AlternateAuthenticationToken,
+            is SingleSignOnToken.DefaultToken -> {
+                val accToken = repository.decryptedAccessTokenMap.value[profileName]
 
-            val accToken = repository.decryptedAccessTokenMap.value[profileName]
+                if (refresh || accToken == null) {
+                    repository.invalidateDecryptedAccessToken(profileName)
 
-            if (refresh || accToken == null) {
-                repository.invalidateDecryptedAccessToken(profileName)
+                    val actualToken = when (ssoToken) {
+                        is SingleSignOnToken.AlternateAuthenticationToken -> ssoToken.token
+                        is SingleSignOnToken.DefaultToken -> ssoToken.token
+                        else -> error("Unknown token scope")
+                    }
 
-                val initialData = basicUseCase.initializeConfigurationAndKeys()
-                try {
-                    val refreshData = basicUseCase.refreshAccessTokenWithSsoFlow(
-                        initialData,
-                        scope = IdpScope.Default,
-                        ssoToken = ssoToken.token
-                    )
-                    refreshData.accessToken
-                } catch (e: Exception) {
-                    Timber.e(e, "Couldn't refresh access token")
-                    (e as? ApiCallException)?.also {
-                        when (it.response.code()) {
-                            // 400 returned by redirect call if sso token is not valid anymore
-                            400, 401, 403 -> {
-                                repository.invalidateSingleSignOnTokenRetainingScope(profileName)
-                                throw RefreshFlowException(true, ssoToken.scope, e)
+                    val initialData = basicUseCase.initializeConfigurationAndKeys()
+                    try {
+                        val refreshData = basicUseCase.refreshAccessTokenWithSsoFlow(
+                            initialData,
+                            scope = IdpScope.Default,
+                            ssoToken = actualToken
+                        )
+                        refreshData.accessToken
+                    } catch (e: Exception) {
+                        Timber.e(e, "Couldn't refresh access token")
+                        (e as? ApiCallException)?.also {
+                            when (it.response.code()) {
+                                // 400 returned by redirect call if sso token is not valid anymore
+                                400, 401, 403 -> {
+                                    repository.invalidateSingleSignOnTokenRetainingScope(profileName)
+                                    throw RefreshFlowException(true, ssoToken, e)
+                                }
                             }
                         }
+                        throw RefreshFlowException(false, null, e)
                     }
-                    throw RefreshFlowException(false, null, e)
+                } else {
+                    accToken
                 }
-            } else {
-                accToken
-            }.also {
-                repository.decryptedAccessTokenMap.update { decryptedAccessTokenMap ->
-                    decryptedAccessTokenMap + (profileName to it)
-                }
+                    .also {
+                        repository.decryptedAccessTokenMap.update { decryptedAccessTokenMap ->
+                            decryptedAccessTokenMap + (profileName to it)
+                        }
+                    }
             }
         }
+    }
 
     /**
      * Initial flow fetching the sso & access token requiring the health card to sign the challenge.
@@ -152,22 +162,27 @@ class IdpUseCase @Inject constructor(
         sign: suspend (hash: ByteArray) -> ByteArray
     ) = lock.withLock {
         val initialData = basicUseCase.initializeConfigurationAndKeys()
-        val challengeData = basicUseCase.challengeFlow(initialData, scope = IdpScope.Default)
-        val activeProfileName = profilesUseCase.activeProfileName().first()
+        val challengeData =
+            basicUseCase.challengeFlow(initialData, scope = IdpScope.Default)
+        val activeProfileName = getActiveProfileName()
         val basicData = basicUseCase.basicAuthFlow(
             initialData = initialData,
             challengeData = challengeData,
             healthCardCertificate = healthCardCertificate(),
             sign = sign
         )
-        val ssoToken = SingleSignOnToken(
+        val ssoToken = SingleSignOnToken.DefaultToken(
             token = basicData.ssoToken
         )
+        profilesRepository.setInsuranceInformation(activeProfileName, basicData.idTokenInsurantName, basicData.idTokenInsuranceIdentifier, basicData.idTokenInsuranceName)
         repository.setSingleSignOnToken(activeProfileName, ssoToken)
         repository.decryptedAccessTokenMap.update { decryptedAccessTokenMap ->
             decryptedAccessTokenMap + (activeProfileName to basicData.accessToken)
         }
     }
+
+    private suspend fun getActiveProfileName() =
+        profilesRepository.activeProfile().map { it.profileName }.first()
 
     /**
      * Get all the information for the correct endpoints from the discovery document and request
@@ -234,7 +249,7 @@ class IdpUseCase @Inject constructor(
         val redirectCodeJwe = IdpService.extractQueryParameter(redirect, "code")
         val redirectSsoToken = IdpService.extractQueryParameter(redirect, "ssotoken")
 
-        val accessToken = basicUseCase.postCodeAndDecryptAccessToken(
+        val idpTokenResult = basicUseCase.postCodeAndDecryptAccessToken(
             url = initialData.config.tokenEndpoint,
             nonce = IdpNonce(sharedPreferences.getString(EXT_AUTH_NONCE, "")!!),
             codeVerifier = sharedPreferences.getString(EXT_AUTH_CODE_VERIFIER, "")!!,
@@ -243,11 +258,14 @@ class IdpUseCase @Inject constructor(
             pukSigKey = initialData.pukSigKey,
             redirectUri = EXT_AUTH_REDIRECT_URI
         )
-        val activeProfileName = profilesUseCase.activeProfileName().first()
+        val activeProfileName = getActiveProfileName()
 
-        repository.setSingleSignOnToken(activeProfileName, SingleSignOnToken(redirectSsoToken, scope = SingleSignOnToken.Scope.Default,))
+        repository.setSingleSignOnToken(
+            activeProfileName,
+            SingleSignOnToken.DefaultToken(redirectSsoToken)
+        )
         repository.decryptedAccessTokenMap.update { decryptedAccessTokenMap ->
-            decryptedAccessTokenMap + (activeProfileName to accessToken)
+            decryptedAccessTokenMap + (activeProfileName to idpTokenResult.decryptedAccessToken)
         }
     }
 
@@ -262,7 +280,10 @@ class IdpUseCase @Inject constructor(
     ) = lock.withLock {
         val initialData = basicUseCase.initializeConfigurationAndKeys()
         val challengeData =
-            basicUseCase.challengeFlow(initialData, scope = IdpScope.BiometricPairing)
+            basicUseCase.challengeFlow(
+                initialData,
+                scope = IdpScope.BiometricPairing
+            )
         val healthCardCert = healthCardCertificate()
         val basicData = basicUseCase.basicAuthFlow(
             initialData = initialData,
@@ -279,10 +300,11 @@ class IdpUseCase @Inject constructor(
             aliasOfSecureElementEntry = aliasOfSecureElementEntry,
             signWithHealthCard = signWithHealthCard,
         )
-        val activeProfileName = profilesUseCase.activeProfileName().first()
-
+        val activeProfileName = getActiveProfileName()
+        profilesRepository.setInsuranceInformation(activeProfileName, basicData.idTokenInsurantName, basicData.idTokenInsuranceIdentifier, basicData.idTokenInsuranceName)
         repository.setHealthCardCertificate(activeProfileName, healthCardCert)
-        repository.setScopeToPairing(activeProfileName)
+        // set pairing scope
+        repository.setSingleSignOnToken(activeProfileName, SingleSignOnToken.AlternateAuthenticationWithoutToken())
         repository.setAliasOfSecureElementEntry(activeProfileName, aliasOfSecureElementEntry)
     }
 
@@ -330,11 +352,11 @@ class IdpUseCase @Inject constructor(
             signatureObjectOfSecureElementEntry = signatureObjectOfSecureElementEntry,
         )
 
+        profilesRepository.setInsuranceInformation(profileName, authData.idTokenInsurantName, authData.idTokenInsuranceIdentifier, authData.idTokenInsuranceName)
         repository.setSingleSignOnToken(
             profileName,
-            SingleSignOnToken(
+            SingleSignOnToken.AlternateAuthenticationToken(
                 token = authData.ssoToken,
-                scope = SingleSignOnToken.Scope.AlternateAuthentication
             )
         )
         repository.decryptedAccessTokenMap.update { decryptedAccessTokenMap ->
@@ -342,11 +364,6 @@ class IdpUseCase @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun isCanAvailable() =
-        profilesUseCase.activeProfileName().flatMapLatest {
-            repository.cardAccessNumber(it).map { can ->
-                can != null
-            }
-        }
+    suspend fun isCanAvailable() =
+        repository.cardAccessNumber(getActiveProfileName()).map { can -> can != null }.first()
 }

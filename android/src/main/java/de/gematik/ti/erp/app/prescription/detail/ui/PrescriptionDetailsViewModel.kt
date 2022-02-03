@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,15 +18,12 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui
 
-import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
-import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIAuditEvent
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import kotlinx.coroutines.flow.Flow
@@ -40,14 +37,10 @@ import javax.inject.Inject
 @HiltViewModel
 class PrescriptionDetailsViewModel @Inject constructor(
     val prescriptionUseCase: PrescriptionUseCase,
-    @NetworkSecureSharedPreferences private val securePrefs: SharedPreferences,
     private val dispatchProvider: DispatchProvider
 ) : ViewModel() {
     suspend fun detailedPrescription(taskId: String): UIPrescriptionDetail =
         withContext(dispatchProvider.unconfined()) { prescriptionUseCase.generatePrescriptionDetails(taskId) }
-
-    fun auditEvents(taskId: String): Flow<List<UIAuditEvent>> =
-        prescriptionUseCase.loadAuditEvents(taskId)
 
     fun deletePrescription(taskId: String, isRemoteTask: Boolean): Result<Unit> {
         // TODO find better way than runBlocking

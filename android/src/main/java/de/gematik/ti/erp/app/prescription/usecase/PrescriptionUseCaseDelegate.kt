@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,7 +22,6 @@ import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIAuditEvent
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -56,10 +55,6 @@ class PrescriptionUseCaseDelegate @Inject constructor(
     override fun scannedTasks(): Flow<List<Task>> =
         demoUseCase.demoModeActive.flatMapLatest { delegate.scannedTasks() }
 
-    override fun loadAuditEvents(taskId: String): Flow<List<UIAuditEvent>> {
-        return demoUseCase.demoModeActive.flatMapLatest { delegate.loadAuditEvents(taskId) }
-    }
-
     override suspend fun saveLowDetailEvent(lowDetailEvent: LowDetailEventSimple) {
         delegate.saveLowDetailEvent(lowDetailEvent)
     }
@@ -84,9 +79,8 @@ class PrescriptionUseCaseDelegate @Inject constructor(
         return delegate.downloadCommunications(profileName)
     }
 
-    override suspend fun downloadAuditEvents(profileName: String, count: Int?, offset: Int?): Result<Any> {
-        return delegate.downloadAuditEvents(profileName, count, offset)
-    }
+    override fun downloadAllAuditEvents(profileName: String) =
+        delegate.downloadAllAuditEvents(profileName)
 
     override suspend fun generatePrescriptionDetails(
         taskId: String

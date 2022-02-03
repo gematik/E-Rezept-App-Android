@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -25,6 +25,7 @@ import androidx.room.Query
 import de.gematik.ti.erp.app.db.entities.Settings
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import kotlinx.coroutines.flow.Flow
+import java.time.LocalDate
 
 @Dao
 interface SettingsDao {
@@ -75,4 +76,7 @@ interface SettingsDao {
 
     @Query("UPDATE settings SET userHasAcceptedInsecureDevice = 1")
     suspend fun acceptInsecureDevice()
+
+    @Query("UPDATE settings SET dataProtectionVersionAccepted = :date")
+    suspend fun acceptDataProtectionVersion(date: LocalDate)
 }

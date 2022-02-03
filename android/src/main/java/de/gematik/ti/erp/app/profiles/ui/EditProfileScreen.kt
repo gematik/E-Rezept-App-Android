@@ -1,9 +1,29 @@
+/*
+ * Copyright (c) 2022 gematik GmbH
+ * 
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the Licence);
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ *     https://joinup.ec.europa.eu/software/page/eupl
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * 
+ */
+
 package de.gematik.ti.erp.app.profiles.ui
 
 import android.widget.Toast
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,8 +33,10 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -25,21 +47,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudQueue
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.VpnKey
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
-import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 
@@ -53,7 +76,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.db.entities.ProfileColors
+import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.ui.AddProfileDialog
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
@@ -62,13 +85,20 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.HintCard
+import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
+import de.gematik.ti.erp.app.utils.compose.HintSmallImage
+import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.ProfileNameInputField
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.Spacer40
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.firstCharOfForeNameSurName
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import java.util.Locale
 
@@ -98,7 +128,6 @@ fun EditProfileScreen(
 fun EditProfileScreen(
     profileId: Int,
     settingsViewModel: SettingsViewModel,
-    onRemoveProfile: (newProfileName: String?) -> Unit,
     onBack: () -> Unit,
     mainNavController: NavController,
 ) {
@@ -108,13 +137,16 @@ fun EditProfileScreen(
         }
     }
 
-    state.profileById(profileId)?.let {
+    state.profileById(profileId)?.let { profile ->
         EditProfileScreen(
             state = state,
             onBack = onBack,
-            profile = it,
+            profile = profile,
             settingsViewModel = settingsViewModel,
-            onRemoveProfile = onRemoveProfile,
+            onRemoveProfile = {
+                settingsViewModel.removeProfile(profile, it)
+                onBack()
+            },
             mainNavController = mainNavController
         )
     }
@@ -129,7 +161,8 @@ fun EditProfileScreenContent(
     onRemoveProfile: (newProfileName: String?) -> Unit,
     onClickToken: () -> Unit,
     ssoTokenValid: Boolean = false,
-    onClickLogIn: () -> Unit
+    onClickLogIn: () -> Unit,
+    onClickAuditEvents: () -> Unit
 ) {
     val listState = rememberLazyListState()
 
@@ -144,14 +177,31 @@ fun EditProfileScreenContent(
             modifier = Modifier.testTag("edit_profile_screen"),
             state = listState,
             contentPadding = rememberInsetsPaddingValues(
-                insets = LocalWindowInsets.current.systemBars,
+                insets = LocalWindowInsets.current.navigationBars,
+                applyStart = false,
+                applyTop = false,
+                applyEnd = false,
                 applyBottom = true
             )
         ) {
-            item {
-                ColorAndProfileNameSection(selectedProfile, state, settingsViewModel)
+            if (!selectedProfile.connected()) {
+                item {
+                    ConnectProfileHint(onClickLogIn = onClickLogIn)
+                }
             }
-            item { SecuritySection(onClickToken, ssoTokenValid) }
+            item {
+                ColorAndProfileNameSection(
+                    profile = selectedProfile,
+                    state = state,
+                    onChangeProfileName = {
+                        settingsViewModel.updateProfileName(selectedProfile, it)
+                    },
+                    onSelectProfileColor = {
+                        settingsViewModel.updateProfileColor(selectedProfile, it)
+                    }
+                )
+            }
+            item { SecuritySection(onClickToken, onClickAuditEvents, selectedProfile.ssoToken != null) }
             item {
                 if (ssoTokenValid) {
                     LogoutButton(onClick = {
@@ -165,7 +215,7 @@ fun EditProfileScreenContent(
             item {
                 RemoveProfileSection(
                     onClickRemoveProfile = {
-                        if (state.uiProfiles.count() == 1) {
+                        if (state.uiProfiles.size == 1) {
                             showAddDefaultProfileDialog = true
                         } else {
                             onRemoveProfile(null)
@@ -187,9 +237,74 @@ fun EditProfileScreenContent(
 }
 
 @Composable
-fun SecuritySection(onClick: () -> Unit, tokenAvailable: Boolean) {
+fun ConnectProfileHint(onClickLogIn: () -> Unit) {
+    HintCard(
+        modifier = Modifier.padding(PaddingDefaults.Medium),
+        properties = HintCardDefaults.properties(
+            backgroundColor = AppTheme.colors.primary100,
+            border = BorderStroke(0.0.dp, AppTheme.colors.primary100),
+            elevation = 0.dp
+        ),
+        image = {
+            HintSmallImage(
+                painterResource(R.drawable.connect_profile),
+                innerPadding = it
+            )
+        },
+        title = { Text(stringResource(R.string.connect_profile_header)) },
+        body = { Text(stringResource(R.string.connect_profile_info)) },
+        action = {
+            HintTextActionButton(
+                text = stringResource(R.string.connect_profile_connect),
+                onClick = onClickLogIn,
+            )
+        }
+    ) {
+    }
+}
+
+@Composable
+fun SecuritySection(
+    onClickToken: () -> Unit,
+    onClickAuditEvents: () -> Unit,
+    tokenAvailable: Boolean
+) {
     SecurityHeadline()
-    SecurityTokenSubSection(tokenAvailable, onClick)
+    SecurityTokenSubSection(tokenAvailable, onClickToken)
+    SecurityAuditEventsSubSection(onClickAuditEvents)
+}
+
+@Composable
+fun SecurityAuditEventsSubSection(onClickAuditEvents: () -> Unit) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                onClick = {
+                    onClickAuditEvents()
+                }
+            )
+            .padding(PaddingDefaults.Medium)
+            .semantics(mergeDescendants = true) {},
+    ) {
+        Icon(Icons.Outlined.CloudQueue, null, tint = AppTheme.colors.primary500)
+        Column {
+            Text(
+                stringResource(
+                    R.string.settings_show_audit_events
+                ),
+                style = MaterialTheme.typography.body1
+            )
+            Text(
+                stringResource(
+                    R.string.settings_show_audit_events_info
+                ),
+                style = AppTheme.typography.body2l
+            )
+        }
+    }
 }
 
 @Composable
@@ -210,7 +325,7 @@ fun SecurityTokenSubSection(tokenAvailable: Boolean, onClick: () -> Unit) {
     }
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.Top,
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
@@ -228,12 +343,20 @@ fun SecurityTokenSubSection(tokenAvailable: Boolean, onClick: () -> Unit) {
             .semantics(mergeDescendants = true) {},
     ) {
         Icon(Icons.Outlined.VpnKey, null, tint = iconColor)
-        Text(
-            stringResource(
-                R.string.settings_show_token
-            ),
-            style = MaterialTheme.typography.body1, color = textColor
-        )
+        Column {
+            Text(
+                stringResource(
+                    R.string.settings_show_token
+                ),
+                style = MaterialTheme.typography.body1, color = textColor
+            )
+            Text(
+                stringResource(
+                    R.string.settings_show_token_info
+                ),
+                style = AppTheme.typography.body2l
+            )
+        }
     }
 }
 
@@ -256,7 +379,7 @@ private fun SecurityHeadline() {
 private fun LoginButton(onClick: () -> Unit) {
     LoginLogoutButton(
         onClick = onClick,
-        buttonText = R.string.login,
+        buttonText = R.string.login_profile,
         buttonDescription = R.string.login_description,
         contentColor = AppTheme.colors.primary700
     )
@@ -282,7 +405,7 @@ private fun LogoutButton(onClick: () -> Unit) {
 
     LoginLogoutButton(
         onClick = { dialogVisible = true },
-        buttonText = R.string.logout,
+        buttonText = R.string.logout_profile,
         buttonDescription = R.string.logout_description,
         contentColor = AppTheme.colors.red700
     )
@@ -332,28 +455,26 @@ private fun LoginLogoutButton(
     )
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ColorAndProfileNameSection(
     profile: ProfilesUseCaseData.Profile,
     state: SettingsScreen.State,
-    settingsViewModel: SettingsViewModel
+    onChangeProfileName: (String) -> Unit,
+    onSelectProfileColor: (ProfileColorNames) -> Unit
 ) {
+    val currentSelectedColors = profileColor(profileColorNames = profile.color)
 
-    val colors = profileColor(profileColors = profile.color)
-    var currentSelectedColors by remember { mutableStateOf(colors) }
-
-    val name = rememberSaveable(profile.name) { mutableStateOf(profile.name) }
-    var nameDuplicated by remember { mutableStateOf(false) }
+    var profileName by rememberSaveable(profile.name) { mutableStateOf(profile.name) }
+    var profileNameError by remember { mutableStateOf(false) }
     val initials = remember(profile.name) { firstCharOfForeNameSurName(profile.name) }
 
-    val focusRequester = remember { FocusRequester() }
-    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(PaddingDefaults.Medium)
     ) {
-        Spacer40()
+        SpacerTiny()
         Surface(
             modifier = Modifier
                 .size(140.dp)
@@ -361,14 +482,14 @@ fun ColorAndProfileNameSection(
             shape = CircleShape,
             color = currentSelectedColors.backGroundColor
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
             ) {
                 Text(
-                    initials, style = MaterialTheme.typography.body2,
+                    text = initials,
+                    style = MaterialTheme.typography.body2,
                     color = currentSelectedColors.textColor,
-                    modifier = Modifier.align(Alignment.CenterVertically),
                     textAlign = TextAlign.Center,
                     fontWeight = FontWeight.Bold,
                     fontSize = 60.sp,
@@ -376,36 +497,46 @@ fun ColorAndProfileNameSection(
             }
         }
 
+        LaunchedEffect(profileName) {
+            if (!profileNameError) {
+                delay(500)
+                onChangeProfileName(profileName)
+            }
+        }
+
+        val keyboardController = LocalSoftwareKeyboardController.current
+
         Spacer40()
         ProfileNameInputField(
             modifier = Modifier
                 .testTag("editProfile/profile_text_input")
-                .fillMaxWidth()
-                .focusRequester(focusRequester),
-            value = name.value,
+                .fillMaxWidth(),
+            value = profileName,
             onValueChange = {
-                focusRequester.requestFocus()
-                name.value = it.trimStart()
-                nameDuplicated = false
+                profileName = it.trimStart()
+                profileNameError = profileName.isEmpty() ||
+                    (
+                        profileName.trim() != profile.name && state.containsProfileWithName(
+                            profileName
+                        )
+                        )
             },
-            onSubmit = { editedName ->
-                if (!state.containsProfileWithName(editedName)) {
-                    settingsViewModel.updateProfileName(profile, name.value)
-                    focusManager.clearFocus()
-                } else {
-                    nameDuplicated = true
+            onSubmit = {
+                if (!profileNameError) {
+                    onChangeProfileName(profileName)
+                    keyboardController?.hide()
                 }
             },
-            isError = name.value.isEmpty() || nameDuplicated
+            isError = profileNameError,
         )
 
-        val errorText = if (name.value.isEmpty()) {
+        val errorText = if (profileName.isEmpty()) {
             stringResource(R.string.edit_profile_empty_profile_name)
         } else {
             stringResource(R.string.edit_profile_duplicated_profile_name)
         }
 
-        if (name.value.isEmpty() || nameDuplicated) {
+        if (profileNameError) {
             Spacer4()
             Text(
                 text = errorText,
@@ -414,6 +545,8 @@ fun ColorAndProfileNameSection(
                 modifier = Modifier.padding(start = PaddingDefaults.Medium)
             )
         }
+        SpacerMedium()
+        ProfileConnectedCard(profile.insuranceInformation)
         Spacer40()
         Text(
             stringResource(R.string.edit_profile_background_color),
@@ -425,44 +558,76 @@ fun ColorAndProfileNameSection(
             horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
             modifier = Modifier.align(Alignment.CenterHorizontally)
         ) {
-            ProfileColors.values().forEach {
-                val currentValueColors = profileColor(profileColors = it)
+            ProfileColorNames.values().forEach {
+                val currentValueColors = profileColor(profileColorNames = it)
                 ColorSelector(
-                    profileColors = it,
-                    selected = currentValueColors == currentSelectedColors
-                ) { newColors ->
-                    settingsViewModel.updateProfileColor(profile.name, it)
-                    currentSelectedColors = newColors
-                }
+                    profileColorName = it,
+                    selected = currentValueColors == currentSelectedColors,
+                    onSelectColor = onSelectProfileColor
+                )
             }
         }
         Spacer16()
         Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             Text(
                 currentSelectedColors.colorName,
-                style = MaterialTheme.typography.body2,
-                color = AppTheme.colors.neutral600
+                style = AppTheme.typography.body2l
             )
         }
     }
 }
 
 @Composable
-fun createProfileColor(colors: ProfileColors): ProfileColor {
-    return profileColor(profileColors = colors)
+fun ProfileConnectedCard(insuranceInformation: ProfilesUseCaseData.ProfileInsuranceInformation) {
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(8.dp),
+        backgroundColor = AppTheme.colors.neutral100,
+        contentColor = AppTheme.colors.neutral999,
+        elevation = 0.dp,
+    ) {
+        val textStyle = AppTheme.typography.body2l
+
+        if (insuranceInformation.insurantName != null && insuranceInformation.insuranceIdentifier != null && insuranceInformation.insuranceName != null) {
+            Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
+                Text(
+                    stringResource(
+                        R.string.profile_connected
+                    ),
+                    style = MaterialTheme.typography.body1
+                )
+                Text(insuranceInformation.insurantName, style = textStyle)
+                Text(insuranceInformation.insuranceIdentifier, style = textStyle)
+                Text(insuranceInformation.insuranceName, style = textStyle)
+            }
+        } else {
+            Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
+                Text(
+                    stringResource(R.string.profile_not_connected),
+                    textAlign = TextAlign.Center,
+                    style = textStyle
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun createProfileColor(colors: ProfileColorNames): ProfileColor {
+    return profileColor(profileColorNames = colors)
 }
 
 @Composable
 fun ColorSelector(
-    profileColors: ProfileColors,
+    profileColorName: ProfileColorNames,
     selected: Boolean,
-    onSelectColor: (ProfileColor) -> Unit,
+    onSelectColor: (ProfileColorNames) -> Unit,
 ) {
-
-    val colors = createProfileColor(profileColors)
+    val colors = createProfileColor(profileColorName)
     val contentDescription = annotatedStringResource(
         R.string.edit_profile_color_selected,
-        profileColors.name
+        profileColorName.name
     ).toString()
 
     Surface(
@@ -472,7 +637,7 @@ fun ColorSelector(
         color = colors.backGroundColor
     ) {
         Row(
-            modifier = Modifier.clickable(onClick = { onSelectColor(colors) }),
+            modifier = Modifier.clickable(onClick = { onSelectColor(profileColorName) }),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {

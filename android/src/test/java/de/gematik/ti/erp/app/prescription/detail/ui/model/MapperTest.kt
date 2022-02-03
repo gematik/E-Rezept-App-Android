@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -30,14 +30,14 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-class MapperKtTest {
+class MapperTest {
 
     private lateinit var task: Task
     private lateinit var matrix: BitMatrixCode
 
     @Before
     fun setup() {
-        task = testScannedTasks()[0]
+        task = testScannedTasks[0]
         matrix = BitMatrixCode(createMatrixCode("somePayload"))
     }
 
@@ -62,7 +62,7 @@ class MapperKtTest {
         assertEquals(uiPrescriptionOrder.taskId, task.taskId)
         assertEquals(uiPrescriptionOrder.accessCode, task.accessCode)
         assertEquals(uiPrescriptionOrder.selected, true)
-        assertEquals(uiPrescriptionOrder.address, "Musterstr. 1, 10623, Berlin")
-        assertEquals(uiPrescriptionOrder.patientName, "Ludger Ludger Königsstein")
+        assertEquals("Siegburger Str. 155, 51105, Köln", uiPrescriptionOrder.address)
+        assertEquals("Prof. Dr. Karl-Friederich Graf Freiherr von Schaumberg", uiPrescriptionOrder.patientName)
     }
 }

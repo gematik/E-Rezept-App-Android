@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui
 
-import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -42,9 +41,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -60,9 +57,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.KeyboardArrowUp
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -83,7 +78,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -94,12 +88,13 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
+import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.TaskIds
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsNavigationScreens
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIAuditEvent
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailScanned
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailSynced
@@ -110,6 +105,7 @@ import de.gematik.ti.erp.app.prescription.repository.PatientDetail
 import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
 import de.gematik.ti.erp.app.prescription.repository.codeToDosageFormMapping
 import de.gematik.ti.erp.app.prescription.ui.expiryOrAcceptString
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import de.gematik.ti.erp.app.redeem.ui.DataMatrixCode
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -128,37 +124,18 @@ import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.Spacer8
 import de.gematik.ti.erp.app.utils.compose.annotatedLinkStringLight
+import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import de.gematik.ti.erp.app.utils.compose.phrasedDateString
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
-import okhttp3.internal.immutableListOf
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.util.Date
 import java.util.Locale
 
 private const val MISSING_VALUE = "---"
-private const val maxAuditEventsToShow = 3
-
-@Composable
-fun phrasedDateString(date: LocalDateTime): String {
-    val locales = LocalConfiguration.current.locales
-    val context = LocalContext.current
-
-    val timeFormatter = DateFormat.getTimeFormat(context)
-    val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(locales[0])
-
-    val timeOfDate = Date.from(date.atZone(ZoneId.systemDefault()).toInstant())
-
-    val at = stringResource(R.string.at)
-    // TODO take more care of the characteristics in different languages
-    // val clock = stringResource(R.string.descriptive_date_appendix)
-
-    return "${date.format(dateFormatter)} $at ${timeFormatter.format(timeOfDate)}"
-}
+private const val FORBIDDEN = 403
 
 @Composable
 fun PrescriptionDetailsScreen(
@@ -179,55 +156,8 @@ fun PrescriptionDetailsScreen(
                 viewModel,
                 taskId,
                 navigationMode,
-                onShowAllAuditEvents = { navController.navigate(PrescriptionDetailsNavigationScreens.AuditProtocol.route) },
                 onCancel = { mainNavController.popBackStack() }
             )
-        }
-        composable(PrescriptionDetailsNavigationScreens.AuditProtocol.route) {
-            NavigationAnimation(mode = navigationMode) {
-                AuditProtocolWithScaffold(
-                    viewModel,
-                    taskId,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun AuditProtocolWithScaffold(
-    viewModel: PrescriptionDetailsViewModel,
-    taskId: String,
-    onBack: () -> Unit
-) {
-    val auditEvents by produceState<List<UIAuditEvent>>(immutableListOf()) {
-        viewModel.auditEvents(taskId).collect {
-            value = it
-        }
-    }
-
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Back,
-                title = stringResource(R.string.pres_detail_protocol_header),
-                onBack = onBack
-            )
-        }
-    ) { innerPadding ->
-        LazyColumn(modifier = Modifier.padding(innerPadding)) {
-            items(auditEvents) {
-                Label(
-                    text = if (it.text.isNullOrEmpty()) {
-                        stringResource(id = R.string.pres_detail_protocol_empty_text)
-                    } else {
-                        it.text
-                    },
-                    label = phrasedDateString(it.timestamp)
-                )
-            }
         }
     }
 }
@@ -239,17 +169,10 @@ private fun PrescriptionDetailsWithScaffold(
     viewModel: PrescriptionDetailsViewModel,
     taskId: String,
     navigationMode: NavigationMode,
-    onShowAllAuditEvents: () -> Unit,
     onCancel: () -> Unit
 ) {
     val state by produceState<UIPrescriptionDetail?>(null) {
         value = viewModel.detailedPrescription(taskId)
-    }
-
-    val auditEvents by produceState<List<UIAuditEvent>>(immutableListOf()) {
-        viewModel.auditEvents(taskId).collect {
-            value = it
-        }
     }
 
     val lowDetailRedeemEvents by produceState<List<LowDetailEventSimple>>(mutableListOf()) {
@@ -279,9 +202,7 @@ private fun PrescriptionDetailsWithScaffold(
                         viewModel = viewModel,
                         mainNavController = mainNavController,
                         state = it,
-                        auditEvents = auditEvents,
                         lowDetailRedeemEvents = lowDetailRedeemEvents,
-                        onShowAllAuditEvents = onShowAllAuditEvents,
                         onCancel = onCancel
                     )
                 }
@@ -297,9 +218,7 @@ private fun PrescriptionDetails(
     mainNavController: NavController,
     viewModel: PrescriptionDetailsViewModel,
     state: UIPrescriptionDetail,
-    auditEvents: List<UIAuditEvent>,
     lowDetailRedeemEvents: List<LowDetailEventSimple>,
-    onShowAllAuditEvents: () -> Unit,
     onCancel: () -> Unit
 ) {
     var showMore by remember { mutableStateOf(false) }
@@ -370,9 +289,11 @@ private fun PrescriptionDetails(
             }
         }
 
-        if (state.redeemedOn == null) {
-            item {
-                DataMatrixCode(state)
+        state.bitmapMatrix?.let { bitMatrix ->
+            if (state.redeemedOn == null) {
+                item {
+                    DataMatrixCode(bitMatrix)
+                }
             }
         }
 
@@ -398,7 +319,13 @@ private fun PrescriptionDetails(
         when (state) {
             is UIPrescriptionDetailSynced -> item {
                 FullDetailSecondHeader(state) {
-                    mainNavController.navigate(MainNavigationScreens.Pharmacies.path(taskIds = TaskIds(listOf(taskId))))
+                    mainNavController.navigate(
+                        MainNavigationScreens.Pharmacies.path(
+                            taskIds = TaskIds(
+                                listOf(taskId)
+                            )
+                        )
+                    )
                 }
             }
             is UIPrescriptionDetailScanned -> item {
@@ -477,12 +404,6 @@ private fun PrescriptionDetails(
                             PractitionerInformation(state.practitioner)
                             OrganizationInformation(state.organization)
                             AccidentInformation(state.medicationRequest)
-                            AuditProtocol(
-                                auditEvents,
-                                state.lastSyncDate,
-                                state.hasSyncError,
-                                onShowAllAuditEvents = onShowAllAuditEvents
-                            )
                         }
                         TechnicalPrescriptionInformation(
                             accessCode = state.accessCode,
@@ -491,6 +412,8 @@ private fun PrescriptionDetails(
 
                         val context = LocalContext.current
                         val accessInfoText = stringResource(R.string.logout_delete_no_access)
+                        val prescriptionInProgressText =
+                            stringResource(R.string.logout_delete_in_progress)
 
                         DeleteButton(state is UIPrescriptionDetailSynced) {
                             viewModel.deletePrescription(
@@ -498,8 +421,15 @@ private fun PrescriptionDetails(
                                 state is UIPrescriptionDetailSynced
                             ).apply {
                                 if (this is Result.Error) {
-                                    Toast.makeText(context, accessInfoText, Toast.LENGTH_SHORT)
-                                        .show()
+                                    if (this.exception is ApiCallException) {
+                                        if (this.exception.response.code() == FORBIDDEN) {
+                                            createToastShort(context, prescriptionInProgressText)
+                                        } else {
+                                            createToastShort(context, accessInfoText)
+                                        }
+                                    } else {
+                                        createToastShort(context, accessInfoText)
+                                    }
                                 } else {
                                     onCancel()
                                 }
@@ -524,14 +454,14 @@ private fun PrescriptionDetails(
 }
 
 @Composable
-private fun DataMatrixCode(prescriptionDetail: UIPrescriptionDetail) {
+private fun DataMatrixCode(bitmapMatrix: BitMatrixCode) {
     Surface(
         shape = RoundedCornerShape(PaddingDefaults.Medium / 2),
         border = BorderStroke(1.dp, AppTheme.colors.neutral300),
         modifier = Modifier.padding(16.dp)
     ) {
         DataMatrixCode(
-            prescriptionDetail.bitmapMatrix,
+            bitmapMatrix,
             modifier = Modifier
                 .aspectRatio(1.0f)
         )
@@ -608,6 +538,10 @@ private fun FullDetailSecondHeader(
                 id = R.string.pres_detail_medication_redeemed_on,
                 prescriptionDetail.medicationDispense.whenHandedOver.format(dtFormatter)
             )
+        } else if (prescriptionDetail.taskStatus == TaskStatus.InProgress) {
+            stringResource(
+                id = R.string.pres_detail_medication_in_progress,
+            )
         } else {
             prescriptionDetail.redeemUntil?.let { expiryDate ->
                 prescriptionDetail.acceptUntil?.let { acceptDate ->
@@ -631,7 +565,11 @@ private fun FullDetailSecondHeader(
 
     var redeemable by remember { mutableStateOf(false) }
     prescriptionDetail.redeemUntil.let {
-        if (it != null && it.toEpochDay() >= LocalDate.now().toEpochDay()) {
+        if (
+            it != null && it.toEpochDay() >= LocalDate.now().toEpochDay() &&
+            prescriptionDetail.accessCode != null &&
+            prescriptionDetail.taskStatus == TaskStatus.Ready
+        ) {
             redeemable = true
         }
     }
@@ -730,7 +668,7 @@ private fun RedeemedButton(
                 onSwitchRedeemed(redeem, all, protocolText)
                 showUnRedeemDialog = false
                 currentRedeemed = !currentRedeemed
-                Toast.makeText(context, infoText, Toast.LENGTH_SHORT).show()
+                createToastShort(context, infoText)
             },
         )
     }
@@ -766,7 +704,7 @@ private fun RedeemedButton(
             } else {
                 onSwitchRedeemed(!currentRedeemed, false, protocolText)
                 currentRedeemed = !currentRedeemed
-                Toast.makeText(context, infoText, Toast.LENGTH_SHORT).show()
+                createToastShort(context, infoText)
             }
         },
         colors = buttonColors,
@@ -1069,62 +1007,6 @@ private fun AccidentInformation(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun AuditProtocol(
-    auditEvents: List<UIAuditEvent>,
-    lastUpdate: LocalDateTime?,
-    hasSyncError: Boolean,
-    onShowAllAuditEvents: () -> Unit
-) {
-    SubHeaderWithNavigation(
-        text = stringResource(R.string.pres_detail_protocol_header),
-        buttonText = stringResource(R.string.pres_detail_protocol_show_all),
-        onClickButton = onShowAllAuditEvents
-    )
-
-    Column {
-        if (hasSyncError) {
-            ErrorCard(
-                errorText = stringResource(id = R.string.audit_protocol_sync_failed),
-                modifier = Modifier.padding(PaddingDefaults.Medium)
-            )
-        }
-
-        if (auditEvents.size <= maxAuditEventsToShow) {
-            auditEvents
-        } else {
-            auditEvents.subList(
-                0,
-                maxAuditEventsToShow
-            )
-        }.forEach {
-            Label(
-                text = if (it.text.isNullOrEmpty()) {
-                    stringResource(id = R.string.pres_detail_protocol_empty_text)
-                } else {
-                    it.text
-                },
-                label = phrasedDateString(it.timestamp)
-            )
-        }
-        lastUpdate?.let {
-            Text(
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp),
-                text = stringResource(
-                    id = R.string.audit_protocol_last_update_info,
-                    phrasedDateString(lastUpdate)
-                ),
-                style = AppTheme.typography.body2l
-            )
-            Spacer8()
-        }
-    }
-}
-
 @Composable
 private fun ProtocolScanned(
     uiPrescriptionDetail: UIPrescriptionDetailScanned,
@@ -1153,13 +1035,15 @@ private fun ProtocolScanned(
 }
 
 @Composable
-private fun TechnicalPrescriptionInformation(accessCode: String, taskId: String) {
+private fun TechnicalPrescriptionInformation(accessCode: String?, taskId: String) {
     SubHeader(stringResource(R.string.pres_detail_technical_information))
 
-    Label(
-        text = accessCode,
-        label = stringResource(id = R.string.access_code)
-    )
+    if (accessCode != null) {
+        Label(
+            text = accessCode,
+            label = stringResource(id = R.string.access_code)
+        )
+    }
 
     Label(
         text = taskId,
@@ -1234,35 +1118,6 @@ private fun SubHeader(
     )
 
 @Composable
-private fun SubHeaderWithNavigation(
-    text: String,
-    buttonText: String,
-    onClickButton: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .padding(
-                top = 40.dp,
-                end = PaddingDefaults.Medium,
-                start = PaddingDefaults.Medium,
-                bottom = PaddingDefaults.Medium
-            ),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.subtitle1,
-            fontWeight = FontWeight(500),
-            modifier = Modifier.weight(1f)
-        )
-        TextButton(onClick = onClickButton) {
-            Text(buttonText)
-            Icon(Icons.Rounded.KeyboardArrowRight, null)
-        }
-    }
-}
-
-@Composable
 private fun EmergencyServiceCard() {
     Card(
         modifier = Modifier
@@ -1315,22 +1170,3 @@ fun SubstitutionAllowed() {
         }
     )
 }
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun ErrorCard(
-    errorText: String,
-    modifier: Modifier = Modifier
-) =
-    HintCard(
-        modifier = modifier,
-        properties = HintCardDefaults.properties(
-            backgroundColor = AppTheme.colors.red100,
-            contentColor = AppTheme.colors.red900
-        ),
-        image = {
-            Icon(Icons.Rounded.Warning, null, modifier = Modifier.size(40.dp))
-        },
-        title = null,
-        body = { Text(errorText) }
-    )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,11 +18,9 @@
 
 package de.gematik.ti.erp.app.db.entities
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import org.bouncycastle.cert.X509CertificateHolder
 import java.time.Instant
 
@@ -58,18 +56,20 @@ data class IdpConfiguration(
     tableName = "idpAuthenticationDataEntity"
 )
 data class IdpAuthenticationDataEntity(
-    @ColumnInfo(index = true)
+    @PrimaryKey
     val profileName: String,
     val singleSignOnToken: String? = null,
-    val singleSignOnTokenScope: SingleSignOnToken.Scope? = null,
+    val singleSignOnTokenScope: SingleSignOnTokenScope? = null,
     val singleSignOnTokenExpiresOn: Instant? = null,
     val singleSignOnTokenValidOn: Instant? = null,
     val cardAccessNumber: String? = null,
     val healthCardCertificate: ByteArray? = null,
     val aliasOfSecureElementEntry: ByteArray? = null
 ) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Int = 0
+    enum class SingleSignOnTokenScope {
+        Default,
+        AlternateAuthentication
+    }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -87,7 +87,7 @@ data class IdpAuthenticationDataEntity(
             if (other.aliasOfSecureElementEntry == null) return false
             if (!aliasOfSecureElementEntry.contentEquals(other.aliasOfSecureElementEntry)) return false
         } else if (other.aliasOfSecureElementEntry != null) return false
-        if (id != other.id) return false
+        if (profileName != other.profileName) return false
 
         return true
     }
@@ -97,7 +97,7 @@ data class IdpAuthenticationDataEntity(
         result = 31 * result + (singleSignOnTokenScope?.hashCode() ?: 0)
         result = 31 * result + (healthCardCertificate?.contentHashCode() ?: 0)
         result = 31 * result + (aliasOfSecureElementEntry?.contentHashCode() ?: 0)
-        result = 31 * result + id
+        result = 31 * result + (profileName.hashCode())
         return result
     }
 }

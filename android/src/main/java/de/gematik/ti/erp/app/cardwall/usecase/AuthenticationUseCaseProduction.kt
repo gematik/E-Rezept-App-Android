@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -34,6 +34,7 @@ import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.signChallenge
 import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.verifyPin
 import de.gematik.ti.erp.app.idp.usecase.AltAuthenticationCryptoException
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.profiles.repository.KVNRAlreadyAssignedException
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.secureRandomInstance
 import kotlinx.coroutines.CancellationException
@@ -42,14 +43,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.channels.consumeEach
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
@@ -83,74 +81,50 @@ class AuthenticationUseCaseProduction @Inject constructor(
         can: String,
         pin: String,
         cardChannel: Flow<NfcCardChannel>
-    ) = flow {
-        var retry: Boolean
-        do {
-            retry = false
-            authenticationFlowWithHealthCard(
-                can,
-                pin,
-                cardChannel
-            )
-                .onEach { Timber.d("AuthenticationState: $it") }
-                .catch { cause ->
-                    Timber.e(cause)
-                    handleException(cause).let {
-                        emit(it)
-
-                        delay(1000)
-                        retry = it == AuthenticationState.HealthCardCommunicationInterrupted
-                    }
-                }
-                .collect {
+    ) =
+        authenticationFlowWithHealthCard(
+            can,
+            pin,
+            cardChannel
+        )
+            .onEach { Timber.d("AuthenticationState: $it") }
+            .catch { cause ->
+                Timber.e(cause)
+                handleException(cause).let {
                     emit(it)
                 }
-        } while (retry)
-    }
+            }
 
     @RequiresApi(Build.VERSION_CODES.P)
     override fun pairDeviceWithHealthCardAndSecureElement(
         can: String,
         pin: String,
         cardChannel: Flow<NfcCardChannel>
-    ) = flow {
-        var retry: Boolean
-        do {
-            retry = false
+    ): Flow<AuthenticationState> {
+        val aliasOfSecureElementEntry = ByteArray(32).apply {
+            secureRandomInstance().nextBytes(this)
+        }
 
-            val aliasOfSecureElementEntry = ByteArray(32).apply {
-                secureRandomInstance().nextBytes(this)
-            }
+        return alternatePairingFlowWithSecureElement(
+            can,
+            pin,
+            aliasOfSecureElementEntry,
+            cardChannel
+        )
+            .onEach { Timber.d("AuthenticationState: $it") }
+            .catch { cause ->
+                handleException(cause).let {
+                    emit(it)
 
-            alternatePairingFlowWithSecureElement(
-                can,
-                pin,
-                aliasOfSecureElementEntry,
-                cardChannel
-            )
-                .onEach { Timber.d("AuthenticationState: $it") }
-                .catch { cause ->
-                    handleException(cause).let {
-                        emit(it)
-
-                        if (it == AuthenticationState.HealthCardCommunicationInterrupted) {
-                            delay(1000)
-                            retry = true
-                        } else {
-                            try {
-                                KeyStore.getInstance("AndroidKeyStore")
-                                    .apply { load(null) }
-                                    .deleteEntry(aliasOfSecureElementEntry.decodeToString())
-                            } catch (e: Exception) {
-                                Timber.e(e, "Couldn't remove key from keystore on failure; expected to happen.")
-                            }
-                        }
+                    try {
+                        KeyStore.getInstance("AndroidKeyStore")
+                            .apply { load(null) }
+                            .deleteEntry(aliasOfSecureElementEntry.decodeToString())
+                    } catch (e: Exception) {
+                        Timber.e(e, "Couldn't remove key from keystore on failure; expected to happen.")
                     }
                 }
-                .collect {
-                    emit(it)
-                }
-        } while (retry)
+            }
     }
 
     override fun authenticateWithSecureElement() =
@@ -162,8 +136,7 @@ class AuthenticationUseCaseProduction @Inject constructor(
                 }
         }
 
-    override fun isCanAvailable(): Flow<Boolean> =
-        idpUseCase.isCanAvailable()
+    override suspend fun isCanAvailable(): Boolean = idpUseCase.isCanAvailable()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun authenticationFlowWithHealthCard(
@@ -351,6 +324,8 @@ class AuthenticationUseCaseProduction @Inject constructor(
                             else ->
                                 throw AuthenticationException(kind)
                         }
+                    } else if (e is KVNRAlreadyAssignedException) {
+                        throw AuthenticationException(AuthenticationExceptionKind.InsuranceIdentifierAlreadyAssigned, e)
                     } else {
                         throw AuthenticationException(kind)
                     }
@@ -439,6 +414,15 @@ class AuthenticationUseCaseProduction @Inject constructor(
                         AuthenticationState.SecureElementCryptographyFailed
                     AuthenticationExceptionKind.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate ->
                         AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate
+
+                    AuthenticationExceptionKind.InsuranceIdentifierAlreadyAssigned -> {
+                        val alreadyAssignedException = (e.cause !!as KVNRAlreadyAssignedException)
+                        AuthenticationState.InsuranceIdentifierAlreadyExists(
+                            inActiveProfile = alreadyAssignedException.isActiveProfile,
+                            profileName = alreadyAssignedException.inProfile,
+                            insuranceIdentifier = alreadyAssignedException.insuranceIdentifier
+                        )
+                    }
                 }
             }
             is ResponseException -> {
@@ -468,6 +452,8 @@ private enum class AuthenticationExceptionKind {
     HealthCardPin1RetryLeft,
     HealthCardPin2RetriesLeft,
     HealthCardCommunicationFailed,
+
+    InsuranceIdentifierAlreadyAssigned,
 
     SecureElementFailure,
 }

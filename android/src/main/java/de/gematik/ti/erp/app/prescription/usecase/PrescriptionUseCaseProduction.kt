@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,10 +19,8 @@
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.db.entities.AuditEventSimple
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIAuditEvent
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.detail.ui.model.mapToUIPrescriptionDetailScanned
 import de.gematik.ti.erp.app.prescription.detail.ui.model.mapToUIPrescriptionDetailSynced
@@ -39,7 +37,6 @@ import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.time.OffsetDateTime
-import java.time.ZoneId
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -108,8 +105,8 @@ class PrescriptionUseCaseProduction @Inject constructor(
     override suspend fun downloadCommunications(profileName: String): Result<Unit> =
         repository.downloadCommunications(profileName)
 
-    override suspend fun downloadAuditEvents(profileName: String, count: Int?, offset: Int?): Result<Any> =
-        repository.downloadAuditEvents(profileName, count, offset)
+    override fun downloadAllAuditEvents(profileName: String) =
+        repository.downloadAllAuditEvents(profileName)
 
     override suspend fun loadLowDetailEvents(taskId: String): Flow<List<LowDetailEventSimple>> =
         repository.loadLowDetailEvents(taskId)
@@ -124,8 +121,8 @@ class PrescriptionUseCaseProduction @Inject constructor(
 
         val (task, medicationDispense) = repository.loadTaskWithMedicationDispenseForTaskId(taskId)
             .first()
-        val payload = createDataMatrixPayload(task.taskId, task.accessCode)
-        val matrix = BitMatrixCode(createMatrixCode(payload))
+        val payload = task.accessCode?.let { createDataMatrixPayload(task.taskId, it) }
+        val matrix = payload?.let { createMatrixCode(it) }?.let { BitMatrixCode(it) }
         val unRedeemMorePossible = unRedeemMorePossible(task.taskId, task.profileName)
 
         return if (task.rawKBVBundle == null) {
@@ -141,9 +138,7 @@ class PrescriptionUseCaseProduction @Inject constructor(
                 requireNotNull(bundle.extractOrganization()),
                 requireNotNull(bundle.extractPatient()),
                 requireNotNull(bundle.extractPractitioner()),
-                matrix,
-                repository.hasAuditEventsSyncError(),
-                repository.lastSuccessfulAuditEventSyncDate()
+                matrix
             )
         }
     }
@@ -213,27 +208,6 @@ class PrescriptionUseCaseProduction @Inject constructor(
         profileName: String
     ): Flow<List<Task>> {
         return repository.loadTasksForRedeemedOn(redeemedOn, profileName)
-    }
-
-    override fun loadAuditEvents(taskId: String): Flow<List<UIAuditEvent>> {
-        // TODO: add language support
-        return repository.loadAuditEvents(taskId, "de")
-            .map {
-                it.map { auditEvent ->
-                    convertToSystemDefaultTime(auditEvent)
-                }
-            }
-    }
-
-    private fun convertToSystemDefaultTime(auditEventSimple: AuditEventSimple): UIAuditEvent {
-        return UIAuditEvent(
-            id = auditEventSimple.id,
-            locale = auditEventSimple.locale,
-            text = auditEventSimple.text,
-            timestamp = auditEventSimple.timestamp.atZoneSameInstant(ZoneId.systemDefault())
-                .toLocalDateTime(),
-            taskId = auditEventSimple.taskId
-        )
     }
 
     override suspend fun saveLowDetailEvent(lowDetailEvent: LowDetailEventSimple) {

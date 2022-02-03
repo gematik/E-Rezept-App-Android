@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.userauthentication.ui
 
-import android.widget.Toast
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
@@ -29,6 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
+import de.gematik.ti.erp.app.utils.compose.createToastShort
 
 @Composable
 fun BiometricPrompt(
@@ -70,7 +70,7 @@ fun BiometricPrompt(
                 ) {
                     onCancel()
                 } else {
-                    Toast.makeText(activity, errString, Toast.LENGTH_LONG).show()
+                    createToastShort(context, errString.toString())
                     onAuthenticationError()
                 }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 gematik GmbH
+ * Copyright (c) 2022 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -25,6 +25,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import de.gematik.ti.erp.app.db.converter.TruststoreConverter
+import de.gematik.ti.erp.app.di.RoomModule
 import de.gematik.ti.erp.app.di.TruststoreModule
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -35,25 +36,6 @@ import org.junit.runner.RunWith
 class AppDatabaseMigrationTest {
 
     private val TEST_DB = "migration-test"
-
-    private val migration = arrayOf(
-        MIGRATION_1_2,
-        MIGRATION_2_3,
-        MIGRATION_3_4,
-        MIGRATION_4_5,
-        MIGRATION_5_6,
-        MIGRATION_6_7,
-        MIGRATION_7_8,
-        MIGRATION_8_9,
-        MIGRATION_9_10,
-        MIGRATION_10_11,
-        MIGRATION_11_12,
-        MIGRATION_12_13,
-        MIGRATION_13_14,
-        MIGRATION_14_15,
-        MIGRATION_15_16,
-        MIGRATION_16_17
-    )
 
     private val truststoreConverter = TruststoreConverter(TruststoreModule.provideTruststoreMoshi())
 
@@ -76,7 +58,7 @@ class AppDatabaseMigrationTest {
             TEST_DB
         )
             .addTypeConverter(truststoreConverter)
-            .addMigrations(*migration).build().apply {
+            .addMigrations(*RoomModule.migrations).build().apply {
                 openHelper.writableDatabase
                 close()
             }
