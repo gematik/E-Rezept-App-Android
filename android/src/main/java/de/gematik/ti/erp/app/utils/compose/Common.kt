@@ -31,8 +31,10 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -57,14 +59,13 @@ import androidx.compose.material.ButtonElevation
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalAbsoluteElevation
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Switch
-import androidx.compose.material.SwitchColors
-import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TextFieldColors
@@ -118,7 +119,6 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.sanitizeProfileName
 import timber.log.Timber
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -363,7 +363,7 @@ fun LabeledSwitch(
     enabled: Boolean = true,
     icon: ImageVector,
     header: String,
-    description: String
+    description: String?
 ) {
     LabeledSwitch(
         checked = checked,
@@ -371,10 +371,14 @@ fun LabeledSwitch(
         modifier = modifier,
         enabled = enabled
     ) {
+
+        val iconColorTint = if (enabled) AppTheme.colors.primary600 else AppTheme.colors.primary300
+        val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral600
+
         Row(
             modifier = Modifier.weight(1.0f)
         ) {
-            Icon(icon, null, tint = AppTheme.colors.primary500)
+            Icon(icon, null, tint = iconColorTint)
             Column(
                 modifier = Modifier
                     .weight(1.0f)
@@ -383,10 +387,65 @@ fun LabeledSwitch(
                 Text(
                     text = header,
                     style = MaterialTheme.typography.body1,
+                    color = textColor
+                )
+                if (description != null) Text(
+                    text = description,
+                    style = AppTheme.typography.body2l,
+                    color = textColor
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun LabeledSwitchWithLink(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    icon: ImageVector,
+    header: String,
+    description: String,
+    link: String,
+    onClickLink: () -> (Unit),
+) {
+    LabeledSwitch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        enabled = enabled
+    ) {
+
+        val iconColorTint = if (enabled) AppTheme.colors.primary600 else AppTheme.colors.primary300
+        val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral600
+
+        Row(
+            modifier = Modifier.weight(1.0f)
+        ) {
+            Icon(icon, null, tint = iconColorTint)
+            Column(
+                modifier = Modifier
+                    .weight(1.0f)
+                    .padding(horizontal = PaddingDefaults.Small)
+            ) {
+                Text(
+                    text = header,
+                    style = MaterialTheme.typography.body1,
+                    color = textColor
                 )
                 Text(
                     text = description,
-                    style = AppTheme.typography.body2l
+                    style = AppTheme.typography.body2l,
+                    color = textColor
+                )
+                Text(
+                    text = link,
+                    style = AppTheme.typography.body2l,
+                    color = AppTheme.colors.primary600,
+                    modifier = Modifier.clickable { onClickLink() }
                 )
             }
         }
@@ -400,7 +459,6 @@ fun LabeledSwitch(
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: SwitchColors = SwitchDefaults.colors(),
     label: @Composable RowScope.() -> Unit
 ) {
     Row(
@@ -422,12 +480,14 @@ fun LabeledSwitch(
 
         label()
 
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            enabled = enabled,
-            colors = colors
-        )
+        // for better visibility in dark mode
+        CompositionLocalProvider(LocalAbsoluteElevation provides 8.dp) {
+            Switch(
+                checked = checked,
+                onCheckedChange = null,
+                enabled = enabled
+            )
+        }
     }
 }
 
@@ -694,49 +754,65 @@ fun SimpleCheck(text: String) {
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ProfileNameInputField(
+fun InputField(
     modifier: Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    onSubmit: (profileName: String) -> Unit,
+    onSubmit: (value: String) -> Unit,
     label: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
-    isError: Boolean = false
+    isError: Boolean = false,
+    errorText: @Composable (() -> Unit)? = null,
+    keyBoardType: KeyboardType? = null
 ) {
-    val initialProfileName = rememberSaveable { value }
+    val initialValue = rememberSaveable { value }
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = {
-            onValueChange(sanitizeProfileName(it))
-        },
-        modifier = modifier
-            .heightIn(min = 56.dp),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            autoCorrect = true,
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions {
-            if (value.isNotEmpty()) {
-                onSubmit(value)
+    Column {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+            },
+            modifier = modifier
+                .heightIn(min = 56.dp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                autoCorrect = true,
+                keyboardType = keyBoardType ?: KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions {
+                if (value.isNotEmpty()) {
+                    onSubmit(value)
+                }
+            },
+            label = label,
+            shape = RoundedCornerShape(8.dp),
+            colors = colors,
+            isError = isError,
+            trailingIcon = if (initialValue != value) {
+                {
+                    IconButton(onClick = { onValueChange(initialValue) }) {
+                        Icon(Icons.Rounded.Undo, null)
+                    }
+                }
+            } else {
+                null
             }
-        },
-        label = label,
-        shape = RoundedCornerShape(8.dp),
-        colors = colors,
-        isError = isError,
-        trailingIcon = if (initialProfileName != value) {
-            {
-                IconButton(onClick = { onValueChange(initialProfileName) }) {
-                    Icon(Icons.Rounded.Undo, null)
+        )
+        if (isError) {
+            errorText?.let {
+                CompositionLocalProvider(
+                    LocalTextStyle provides MaterialTheme.typography.caption,
+                    LocalContentColor provides AppTheme.colors.red600
+                ) {
+                    Box(Modifier.padding(start = PaddingDefaults.Medium, top = PaddingDefaults.Small)) {
+                        errorText()
+                    }
                 }
             }
-        } else {
-            null
         }
-    )
+    }
 }
 
 @Composable

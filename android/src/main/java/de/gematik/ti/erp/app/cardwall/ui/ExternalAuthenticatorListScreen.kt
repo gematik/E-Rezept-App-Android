@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.cardwall.ui
 
 import android.content.Intent
-import android.net.Uri
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -36,7 +35,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.BuildConfig
+import com.google.accompanist.insets.systemBarsPadding
 import de.gematik.ti.erp.app.cardwall.ui.model.ExternalAuthenticatorListViewModel
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationID
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -52,21 +51,15 @@ fun ExternalAuthenticatorListScreen(
     val redirectScope = rememberCoroutineScope()
     val externalAuthenticatorList by produceState(
         initialValue = emptyList<AuthenticationID>(),
-        producer = {
-            value = if (BuildConfig.DEBUG)
-                listOf(AuthenticationID("Test_Krankenkasse", "test_authentication_id"))
-            else
-                viewModel.externalAuthenticatorIDList()
-        }
+        producer = { value = viewModel.externalAuthenticatorIDList() }
     )
 
     val context = LocalContext.current
     LazyColumn(
         modifier = Modifier
+            .systemBarsPadding()
             .fillMaxWidth()
-            .padding(
-                all = PaddingDefaults.Medium
-            )
+            .padding(PaddingDefaults.Medium),
     ) {
         items(externalAuthenticatorList) {
             Button(
@@ -75,11 +68,7 @@ fun ExternalAuthenticatorListScreen(
                 ),
                 onClick = {
                     redirectScope.launch {
-                        val redirectUri =
-                            if (BuildConfig.DEBUG)
-                                Uri.parse("https://kk.dev.gematik.solutions?client_id=smartcardIdp&state=0f27adbd1ca19d807b31bc786ee17872&redirect_uri=https%3A%2F%2Fdas-e-rezept-fuer-deutschland.de%2Fextauth&code_challenge=8ieJJp-xeDBcz1yscBV_xEqnbkSqKQfxPvkfr_XjsaE&code_challenge_method=S256&response_type=code&nonce=eb509ac2910e82acddfb8a88827eb705&scope=erp_sek_auth%2Bopenid")
-                            else
-                                viewModel.startAuthorizationWithExternal(it.authenticationID)
+                        val redirectUri = viewModel.startAuthorizationWithExternal(it.authenticationID)
 
                         context.startActivity(Intent(Intent.ACTION_VIEW, redirectUri))
                     }

@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.db
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
@@ -34,6 +35,7 @@ import de.gematik.ti.erp.app.db.daos.IdpAuthenticationDataDao
 import de.gematik.ti.erp.app.db.daos.IdpConfigurationDao
 import de.gematik.ti.erp.app.db.daos.ProfileDao
 import de.gematik.ti.erp.app.db.daos.SettingsDao
+import de.gematik.ti.erp.app.db.daos.ShippingContactDao
 import de.gematik.ti.erp.app.db.daos.TaskDao
 import de.gematik.ti.erp.app.db.daos.TruststoreDao
 import de.gematik.ti.erp.app.db.entities.ActiveProfile
@@ -47,13 +49,14 @@ import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.db.entities.ProfileEntity
 import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
 import de.gematik.ti.erp.app.db.entities.Settings
+import de.gematik.ti.erp.app.db.entities.ShippingContactEntity
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.db.entities.TruststoreEntity
 import de.gematik.ti.erp.app.settings.usecase.DEFAULT_PROFILE_NAME
 import javax.inject.Singleton
 
-const val DB_VERSION = 26
+const val DB_VERSION = 27
 
 @Singleton
 @Database(
@@ -69,10 +72,13 @@ const val DB_VERSION = 26
         LowDetailEventSimple::class,
         MedicationDispenseSimple::class,
         SafetynetAttestationEntity::class,
-        ActiveProfile::class
+        ActiveProfile::class,
+        ShippingContactEntity::class
     ],
     version = DB_VERSION,
-    exportSchema = true
+    exportSchema = true,
+    autoMigrations = [AutoMigration(from = 26, to = 27)]
+
 )
 @TypeConverters(
     DateConverter::class,
@@ -90,6 +96,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun communicationsDao(): CommunicationDao
     abstract fun attestationDao(): AttestationDao
     abstract fun activeProfileDao(): ActiveProfileDao
+    abstract fun shippingContactDao(): ShippingContactDao
 }
 
 val MIGRATION_1_2 = object : Migration(1, 2) {

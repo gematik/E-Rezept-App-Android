@@ -19,8 +19,8 @@
 package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.db.entities.ActiveProfile
-import de.gematik.ti.erp.app.db.entities.ProfileEntity
 import de.gematik.ti.erp.app.db.entities.ProfileColorNames
+import de.gematik.ti.erp.app.db.entities.ProfileEntity
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
@@ -34,7 +34,7 @@ import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -82,24 +82,22 @@ class ProfilesUseCaseTest {
     }
 
     @Test
-    fun `profiles - should return list of four profiles`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            profilesUseCase.profiles.first().let {
-                assertEquals(expectedProfiles.size, it.size)
-            }
+    fun `profiles - should return list of four profiles`() = runTest {
+        profilesUseCase.profiles.first().let {
+            assertEquals(expectedProfiles.size, it.size)
         }
+    }
 
     @Test
-    fun `active profile name - should return tester 2`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            profilesUseCase.activeProfileName().first().let {
-                assertEquals(expectedActiveProfile.profileName, it)
-            }
+    fun `active profile name - should return tester 2`() = runTest {
+        profilesUseCase.activeProfileName().first().let {
+            assertEquals(expectedActiveProfile.profileName, it)
         }
+    }
 
     @Test
     fun `active profile - should return expected active profile`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             profilesUseCase.activeProfile().first().let {
                 assertEquals(expectedActiveProfile, it)
             }
@@ -107,7 +105,7 @@ class ProfilesUseCaseTest {
 
     @Test
     fun `get profile by id (2) - should return expected profile (2)`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             profilesUseCase.getProfileById(2).first().let {
                 assertEquals(expectedProfile, it)
             }

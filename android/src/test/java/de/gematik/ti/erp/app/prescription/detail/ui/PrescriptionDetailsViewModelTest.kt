@@ -26,7 +26,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -51,7 +51,7 @@ class PrescriptionDetailsViewModelTest {
     }
 
     @Test
-    fun `test loading task`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `test loading task`() = runTest {
         val expected = detailPrescriptionScanned()
         coEvery { useCase.generatePrescriptionDetails(any()) } returns expected
         coEvery { useCase.unRedeemMorePossible(any(), any()) } returns true

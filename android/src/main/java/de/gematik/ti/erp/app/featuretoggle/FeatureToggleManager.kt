@@ -31,7 +31,8 @@ private val Context.dataStore by preferencesDataStore("featureToggles")
 
 enum class Features(val featureName: String) {
     FAST_TRACK("FastTrack"),
-    ADD_PROFILE("AddProfiles")
+    ADD_PROFILE("AddProfiles"),
+    BIO_LOGIN("BioLogin")
 }
 
 class FeatureToggleManager @Inject constructor(@ApplicationContext val context: Context) {

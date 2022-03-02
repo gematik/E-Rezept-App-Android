@@ -31,7 +31,7 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -88,7 +88,7 @@ class IdpBasicUseCaseTest {
     }
 
     @Test
-    fun `checkIdpConfigurationValidity - valid document`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `checkIdpConfigurationValidity - valid document`() = runTest {
         useCase.checkIdpConfigurationValidity(
             idpConfigNow,
             now
@@ -96,7 +96,7 @@ class IdpBasicUseCaseTest {
     }
 
     @Test(expected = Exception::class)
-    fun `checkIdpConfigurationValidity - document expired - throws exception`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `checkIdpConfigurationValidity - document expired - throws exception`() = runTest {
         useCase.checkIdpConfigurationValidity(
             idpConfigNow,
             now.plus(Duration.ofHours(25)) // account for clock skew
@@ -104,7 +104,7 @@ class IdpBasicUseCaseTest {
     }
 
     @Test(expected = Exception::class)
-    fun `checkIdpConfigurationValidity - document expires too late - throws exception`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `checkIdpConfigurationValidity - document expires too late - throws exception`() = runTest {
         useCase.checkIdpConfigurationValidity(
             idpConfigNow.copy(
                 expirationTimestamp = now.plus(Duration.ofHours(25))
@@ -134,7 +134,7 @@ class IdpBasicUseCaseTest {
     }
 
     @Test(expected = Exception::class)
-    fun `initializeConfigurationAndKeys - invalid idp config causes exception`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `initializeConfigurationAndKeys - invalid idp config causes exception`() = runTest {
         coEvery { idpRepository.loadUncheckedIdpConfiguration() } returns idpConfigNow
         coEvery { idpRepository.invalidateConfig() } coAnswers {}
         coEvery { useCase.checkIdpConfigurationValidity(any(), any()) } coAnswers { error("") }
@@ -157,7 +157,7 @@ class IdpBasicUseCaseTest {
     }
 
     @Test
-    fun `initializeConfigurationAndKeys - invalid local idp config - reload idp config`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `initializeConfigurationAndKeys - invalid local idp config - reload idp config`() = runTest {
         val expected = Exception()
 
         coEvery { idpRepository.loadUncheckedIdpConfiguration() } returns idpConfigNow
@@ -185,7 +185,7 @@ class IdpBasicUseCaseTest {
     }
 
     @Test
-    fun `initializeConfigurationAndKeys - valid idp config`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `initializeConfigurationAndKeys - valid idp config`() = runTest {
         val expected = Exception()
 
         coEvery { idpRepository.loadUncheckedIdpConfiguration() } returns idpConfigNow

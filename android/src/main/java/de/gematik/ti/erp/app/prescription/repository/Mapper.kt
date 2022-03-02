@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.db.entities.COMMUNICATION_TYPE_REPLY
 import de.gematik.ti.erp.app.db.entities.Communication
 import de.gematik.ti.erp.app.db.entities.CommunicationProfile
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
+import de.gematik.ti.erp.app.db.entities.ShippingContactEntity
 import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.utils.convertFhirDateToLocalDate
 import de.gematik.ti.erp.app.utils.convertFhirDateToOffsetDateTime
@@ -276,7 +277,7 @@ class Mapper @Inject constructor(
                         fhirTask,
                         "https://gematik.de/fhir/StructureDefinition/AcceptDate"
                     ),
-                    authoredOn = fhirMedicationRequest.authoredOn?.convertFhirDateToOffsetDateTime(),
+                    authoredOn = fhirTask.authoredOn.convertFhirDateToOffsetDateTime(),
                     status = TaskStatus.fromFhirTask(fhirTask.status),
                     scannedOn = null,
                     scanSessionEnd = null,
@@ -341,7 +342,7 @@ data class PractitionerDetail(
 data class NormSize(val code: String, @StringRes val text: Int?)
 
 data class MedicationDetail(
-    val text: String? = null,
+    val text: String,
     @StringRes val type: Int? = null,
     val normSize: NormSize? = null,
     val uniqueIdentifier: String? = null, // PZN
@@ -381,6 +382,19 @@ fun FhirPatient.mapToUi(): PatientDetail = PatientDetail(
     insuranceIdentifier = this.identifier.firstOrNull()?.value
 )
 
+fun FhirPatient.mapToShippingContact(): ShippingContactEntity {
+    require(this.meta.profile[0].value == "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3")
+    val address = this.address.find { it.type == Address.AddressType.BOTH }!!
+    val line1 = address.line[0].value
+    val line2 = address.line.getOrNull(1)?.value ?: ""
+    return ShippingContactEntity(
+        name = this.name[0].nameAsSingleString,
+        line1 = line1,
+        line2 = line2,
+        postalCodeAndCity = address.postalCode + " " + address.city
+    )
+}
+
 fun FhirPractitioner.mapToUi(): PractitionerDetail = PractitionerDetail(
     name = this.name.find { it.use == HumanName.NameUse.OFFICIAL }?.nameAsSingleString,
     qualification = this.qualification.find { it.code?.hasText() == true }?.code?.text,
@@ -388,7 +402,7 @@ fun FhirPractitioner.mapToUi(): PractitionerDetail = PractitionerDetail(
 )
 
 fun FhirMedication.mapToUi(): MedicationDetail = MedicationDetail(
-    text = this.code?.text,
+    text = this.code.text ?: "",
     type = this.form?.coding?.find { it.system == "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM" }?.code?.let {
         codeToDosageFormMapping[it]
     },
@@ -433,6 +447,7 @@ fun FhirMedicationRequest.mapToUi() = MedicationRequestDetail(
 )
 
 fun Bundle.extractPatient() = this.extractResources<FhirPatient>()?.firstOrNull()?.mapToUi()
+fun Bundle.extractShippingContact() = this.extractResources<FhirPatient>()?.firstOrNull()?.mapToShippingContact()
 
 fun Bundle.extractMedication() =
     this.extractResources<FhirMedication>()?.firstOrNull()?.mapToUi()

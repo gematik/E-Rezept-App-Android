@@ -32,16 +32,16 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toCollection
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.time.OffsetDateTime
-import kotlinx.coroutines.flow.flow
 
 @ExperimentalCoroutinesApi
 class PrescriptionUseCaseProductionTest {
@@ -74,7 +74,7 @@ class PrescriptionUseCaseProductionTest {
 
     @Test
     fun `tasks - should return every task`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             useCase.tasks().toCollection(mutableListOf()).first().let {
                 val expectedTasks = (TEST_TASK_GROUP_SCANNED + TEST_TASK_GROUP_SYNCED).sortedArray()
                 assertEquals(expectedTasks.size, it.size)
@@ -84,7 +84,7 @@ class PrescriptionUseCaseProductionTest {
 
     @Test
     fun `syncedTasks - should only return synced tasks`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             useCase.syncedTasks().toCollection(mutableListOf()).first().let {
                 val expectedTasks = TEST_TASK_GROUP_SYNCED.sortedArray()
                 assertEquals(expectedTasks.size, it.size)
@@ -94,7 +94,7 @@ class PrescriptionUseCaseProductionTest {
 
     @Test
     fun `scannedTasks - should only return scanned tasks`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             useCase.scannedTasks().toCollection(mutableListOf()).first().let {
                 val expectedTasks = TEST_TASK_GROUP_SCANNED.sortedArray()
                 assertEquals(expectedTasks.size, it.size)
@@ -104,7 +104,7 @@ class PrescriptionUseCaseProductionTest {
 
     @Test
     fun `edit scanPrescriptionsName`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             val scanSessionEnd = OffsetDateTime.now()
             every { repo.updateScanSessionName(null, scanSessionEnd) } answers {}
             useCase.editScannedPrescriptionsName("", scanSessionEnd)
@@ -114,7 +114,7 @@ class PrescriptionUseCaseProductionTest {
         }
 
     @Test
-    fun `test saveToDatabase() with three tasks`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `test saveToDatabase() with three tasks`() = runTest {
         val capTasks = mutableListOf<List<Task>>()
         coEvery { useCase.saveScannedTasks(capture(capTasks)) } coAnswers { }
         useCase.mapScannedCodeToTask(listOf(validScannedCode))

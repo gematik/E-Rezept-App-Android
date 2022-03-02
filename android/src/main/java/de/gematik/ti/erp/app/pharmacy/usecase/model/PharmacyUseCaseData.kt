@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.pharmacy.usecase.model
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.pharmacy.repository.model.Location
 import de.gematik.ti.erp.app.pharmacy.repository.model.OpeningHours
 import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyContacts
@@ -57,6 +58,8 @@ object PharmacyUseCaseData {
         val roleCode: List<RoleCode>,
         val ready: Boolean
     ) : Parcelable {
+
+        @Stable
         fun removeLineBreaksFromAddress(): String {
             if (address.isNullOrEmpty()) return ""
             return address.replace("\n", ", ")
@@ -84,8 +87,63 @@ object PharmacyUseCaseData {
     /**
      * State with list of pharmacies
      */
+    @Immutable
     data class State(
         val search: SearchData,
         val showLocationHint: Boolean
+    )
+
+    @Immutable
+    data class PrescriptionOrder(
+        val taskId: String,
+        val accessCode: String,
+        val title: String,
+        val substitutionsAllowed: Boolean
+    )
+
+    @Immutable
+    @Parcelize
+    data class ShippingContact(
+        val name: String,
+        val line1: String,
+        val line2: String,
+        val postalCodeAndCity: String,
+        val telephoneNumber: String,
+        val mail: String,
+        val deliveryInformation: String
+    ) : Parcelable {
+        @Stable
+        fun toList() = listOf(
+            name,
+            line1,
+            line2,
+            postalCodeAndCity,
+            telephoneNumber,
+            mail,
+            deliveryInformation
+        ).filter { it.isNotBlank() }
+
+        @Stable
+        fun address() = listOf(
+            line1,
+            line2,
+            postalCodeAndCity
+        ).filter { it.isNotBlank() }
+
+        @Stable
+        fun other() = listOf(
+            telephoneNumber,
+            mail,
+            deliveryInformation
+        ).filter { it.isNotBlank() }
+
+        @Stable
+        fun phoneOrAddressMissing() = telephoneNumber.isBlank() || name.isBlank() || line1.isBlank() || postalCodeAndCity.isBlank()
+    }
+
+    @Immutable
+    data class OrderState(
+        val prescriptions: List<PrescriptionOrder>,
+        val contact: ShippingContact?
     )
 }

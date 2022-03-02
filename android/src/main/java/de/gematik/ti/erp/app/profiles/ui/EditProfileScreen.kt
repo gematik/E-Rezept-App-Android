@@ -50,6 +50,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudQueue
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.VpnKey
+import androidx.compose.material.icons.rounded.Devices
+import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.produceState
@@ -61,6 +63,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -76,6 +79,9 @@ import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.cardwall.domain.biometric.deviceStrongBiometricStatus
+import de.gematik.ti.erp.app.cardwall.domain.biometric.hasDeviceStrongBox
+import de.gematik.ti.erp.app.cardwall.domain.biometric.isDeviceSupportsBiometric
 import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.ui.AddProfileDialog
@@ -89,7 +95,9 @@ import de.gematik.ti.erp.app.utils.compose.HintCard
 import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
 import de.gematik.ti.erp.app.utils.compose.HintSmallImage
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
-import de.gematik.ti.erp.app.utils.compose.ProfileNameInputField
+import de.gematik.ti.erp.app.utils.compose.InputField
+import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
+import de.gematik.ti.erp.app.utils.compose.LabeledSwitchWithLink
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer4
@@ -98,8 +106,8 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.firstCharOfForeNameSurName
+import de.gematik.ti.erp.app.utils.sanitizeProfileName
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import java.util.Locale
 
 @Composable
@@ -165,6 +173,9 @@ fun EditProfileScreenContent(
     onClickAuditEvents: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    val isFeatureBioLogin by produceState(false) {
+        settingsViewModel.isFeatureBioLoginEnabled().collect { value = it }
+    }
 
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.edit_profile_title),
@@ -201,6 +212,7 @@ fun EditProfileScreenContent(
                     }
                 )
             }
+            if (isFeatureBioLogin) item { LoginSection() }
             item { SecuritySection(onClickToken, onClickAuditEvents, selectedProfile.ssoToken != null) }
             item {
                 if (ssoTokenValid) {
@@ -269,9 +281,59 @@ fun SecuritySection(
     onClickAuditEvents: () -> Unit,
     tokenAvailable: Boolean
 ) {
-    SecurityHeadline()
+    MenuHeadline(stringResource(R.string.settings_appprotection_headline))
     SecurityTokenSubSection(tokenAvailable, onClickToken)
     SecurityAuditEventsSubSection(onClickAuditEvents)
+}
+
+@Composable
+fun LoginSection() {
+    val context = LocalContext.current
+    val deviceBioStatus = deviceStrongBiometricStatus(context)
+    val isStrongBoxAndBiometric = isDeviceSupportsBiometric(deviceBioStatus) && hasDeviceStrongBox(context)
+    val checked = false // todo: ERA-4389 - Check Saved Bio-Strong data on repo
+    val onCheckedChange: (Boolean) -> Unit = {} // todo: ERA-4389 - toggleOn = open Cardwall for save bioStrong data on IDP; toggleOff = ERA-4388
+    val onConnectedDevicesClicked: () -> Unit = {} // todo: ERA-4389 - Geräte mit gemerkten Zugangsdaten anzeigen
+    val uriHandler = LocalUriHandler.current
+    val uri = stringResource(R.string.settings_faq_link)
+
+    MenuHeadline(stringResource(R.string.settings_login_headline))
+    if (isStrongBoxAndBiometric) {
+        LabeledSwitch(
+            enabled = isStrongBoxAndBiometric,
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            icon = Icons.Rounded.LockOpen,
+            header = stringResource(R.string.settings_login_data_save),
+            description = null,
+        )
+    } else {
+        LabeledSwitchWithLink(
+            enabled = isStrongBoxAndBiometric,
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            icon = Icons.Rounded.LockOpen,
+            header = stringResource(R.string.settings_login_data_save),
+            description = stringResource(R.string.settings_login_no_bio_and_strongbox_device),
+            link = stringResource(R.string.settings_faq),
+            onClickLink = { uriHandler.openUri(uri) }
+        )
+    }
+
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.Top,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                onClick = onConnectedDevicesClicked
+            )
+            .padding(PaddingDefaults.Medium)
+            .semantics(mergeDescendants = true) {},
+    ) {
+        Icon(Icons.Rounded.Devices, null, tint = AppTheme.colors.primary600)
+        Text(stringResource(R.string.settings_login_connected_devices), style = MaterialTheme.typography.body1)
+    }
 }
 
 @Composable
@@ -361,18 +423,12 @@ fun SecurityTokenSubSection(tokenAvailable: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SecurityHeadline() {
-    Column {
-        Column(
-            modifier = Modifier.padding(PaddingDefaults.Medium),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Text(
-                text = stringResource(R.string.settings_appprotection_headline),
-                style = MaterialTheme.typography.h6
-            )
-        }
-    }
+private fun MenuHeadline(text: String) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.h6,
+        modifier = Modifier.padding(PaddingDefaults.Medium),
+    )
 }
 
 @Composable
@@ -507,13 +563,13 @@ fun ColorAndProfileNameSection(
         val keyboardController = LocalSoftwareKeyboardController.current
 
         Spacer40()
-        ProfileNameInputField(
+        InputField(
             modifier = Modifier
                 .testTag("editProfile/profile_text_input")
                 .fillMaxWidth(),
             value = profileName,
             onValueChange = {
-                profileName = it.trimStart()
+                profileName = sanitizeProfileName(it.trimStart())
                 profileNameError = profileName.isEmpty() ||
                     (
                         profileName.trim() != profile.name && state.containsProfileWithName(

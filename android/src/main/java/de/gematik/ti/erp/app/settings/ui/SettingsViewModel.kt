@@ -230,6 +230,8 @@ class SettingsViewModel @Inject constructor(
 
     fun allowAddProfiles() = toggleManager.isFeatureEnabled(Features.ADD_PROFILE.featureName)
 
+    fun isFeatureBioLoginEnabled() = toggleManager.isFeatureEnabled(Features.BIO_LOGIN.featureName)
+
     fun isCanAvailable(profile: ProfilesUseCaseData.Profile) =
         runBlocking {
             profilesUseCase.isCanAvailable(profile).first()

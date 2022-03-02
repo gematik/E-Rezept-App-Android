@@ -1,6 +1,7 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.LONG
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
+import de.gematik.ti.erp.App.kotlinX
 import de.gematik.ti.erp.overriding
 import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
@@ -61,11 +62,17 @@ val ERP_API_KEY_HUAWEI_PU: String by overriding()
 val ERP_API_KEY_HUAWEI_TU: String by overriding()
 val ERP_API_KEY_HUAWEI_RU: String by overriding()
 val ERP_API_KEY_HUAWEI_TR: String by overriding()
+val ERP_API_KEY_DESKTOP_PU: String by overriding()
+val ERP_API_KEY_DESKTOP_TU: String by overriding()
+val ERP_API_KEY_DESKTOP_RU: String by overriding()
 
 val PIWIK_TRACKER_ID_GOOGLE: String by overriding()
 val PIWIK_TRACKER_ID_HUAWEI: String by overriding()
 
 val SAFETYNET_API_KEY: String by overriding()
+
+val DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE: String by overriding()
+val DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY: String by overriding()
 
 kotlin {
     android()
@@ -82,6 +89,10 @@ kotlin {
                 api(compose.material)
                 api(compose.materialIconsExtended)
                 api(compose.ui)
+
+                kotlinX {
+                    api(coroutines("core"))
+                }
             }
         }
         val commonTest by getting {
@@ -141,6 +152,8 @@ buildkonfig {
         buildConfigField(STRING, "GIT_HASH", getGitHash())
         buildConfigField(STRING, "PIWIK_TRACKER_URI", PIWIK_TRACKER_URI)
         buildConfigField(STRING, "SAFETYNET_API_KEY", SAFETYNET_API_KEY)
+        buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE", DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
+        buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY", DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY)
         buildConfigField(STRING, "BUILD_FLAVOR", project.property("buildkonfig.flavor") as String)
     }
 
@@ -199,10 +212,16 @@ buildkonfig {
                         Environments.TR -> IDP_SERVICE_URI_TR
                     },
                     erpApiKey = when (platform) {
-                        Platforms.Desktop, Platforms.Google, Platforms.Konnektathon -> when (environment) {
+                        Platforms.Google, Platforms.Konnektathon -> when (environment) {
                             Environments.PU -> ERP_API_KEY_GOOGLE_PU
                             Environments.TU -> ERP_API_KEY_GOOGLE_TU
                             Environments.RU -> ERP_API_KEY_GOOGLE_RU
+                            Environments.TR -> ERP_API_KEY_GOOGLE_TR
+                        }
+                        Platforms.Desktop -> when (environment) {
+                            Environments.PU -> ERP_API_KEY_DESKTOP_PU
+                            Environments.TU -> ERP_API_KEY_DESKTOP_TU
+                            Environments.RU -> ERP_API_KEY_DESKTOP_RU
                             Environments.TR -> ERP_API_KEY_GOOGLE_TR
                         }
                         Platforms.Huawei -> when (environment) {
@@ -250,6 +269,7 @@ buildkonfig {
 
             // test configs
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false")
+            buildConfigField(BOOLEAN, "TEST_RUN_WITH_IDP_INTEGRATION", "false")
             buildConfigField(BOOLEAN, "DEBUG_TEST_IDS_ENABLED", DEBUG_TEST_IDS_ENABLED)
 
             // VAU feature toggles for development

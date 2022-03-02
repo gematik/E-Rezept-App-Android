@@ -18,9 +18,7 @@
 
 package de.gematik.ti.erp.app.cardwall.ui
 
-import android.content.pm.PackageManager
 import android.nfc.Tag
-import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.BorderStroke
@@ -104,6 +102,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.cardwall.domain.biometric.deviceStrongBiometricStatus
+import de.gematik.ti.erp.app.cardwall.domain.biometric.hasDeviceStrongBox
+import de.gematik.ti.erp.app.cardwall.domain.biometric.isDeviceSupportsBiometric
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallNavigation
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallSwitchNavigation
@@ -133,7 +134,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMaxWidth
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.testId
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import java.util.Locale
 
@@ -165,10 +165,7 @@ fun CardWallScreen(
     }
 
     val context = LocalContext.current
-    val biometricMode = remember {
-        val biometricManager = BiometricManager.from(context)
-        biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
-    }
+    val biometricMode = remember { deviceStrongBiometricStatus(context) }
 
     val navigationMode by navController.navigationModeState(
         startDestination = startDestination,
@@ -278,19 +275,8 @@ fun CardWallScreen(
                     demoMode = state.demoMode,
                     onPinChange = { viewModel.onPersonalIdentificationChange(it) }
                 ) {
-                    val deviceSupportsBiometric = when (biometricMode) {
-                        BiometricManager.BIOMETRIC_SUCCESS,
-                        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
-                            true
-                        else ->
-                            false
-                    }
-                    val deviceSupportsStrongbox =
-                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                            context.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)
-                        } else {
-                            false
-                        }
+                    val deviceSupportsBiometric = isDeviceSupportsBiometric(biometricMode)
+                    val deviceSupportsStrongbox = hasDeviceStrongBox(context)
                     if (deviceSupportsBiometric &&
                         deviceSupportsStrongbox &&
                         state.selectedAuthenticationMethod == CardWallData.AuthenticationMethod.None

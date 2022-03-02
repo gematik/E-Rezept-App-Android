@@ -27,6 +27,9 @@ import okhttp3.Request
 import okhttp3.Response
 import timber.log.Timber
 
+private const val invalidAccessTokenHeader = "Www-Authenticate"
+private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"
+
 class BearerHeadersInterceptor(
     private val idpUseCase: IdpUseCase,
 ) : Interceptor {
@@ -35,7 +38,9 @@ class BearerHeadersInterceptor(
         val original: Request = chain.request()
         val profileName = original.tag(String::class.java)
         val response = chain.proceed(request(original, loadAccessToken(false, profileName)))
-        return if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
+        return if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED &&
+            response.header(invalidAccessTokenHeader) == invalidAccessTokenValue
+        ) {
             Timber.d("Received 401 -> refresh access token")
             chain.proceed(request(original, loadAccessToken(true, profileName)))
         } else {

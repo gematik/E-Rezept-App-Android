@@ -47,9 +47,9 @@ data class CommunicationPayloadInbox(
     @SerialName("version") val version: String = "1",
     @SerialName("supplyOptionsType") val supplyOptionsType: CommunicationSupplyOption,
     @SerialName("info_text") val infoText: String,
-    @SerialName("url") val url: String?,
-    @SerialName("pickUpCodeHR") val pickUpCodeHR: String?,
-    @SerialName("pickUpCodeDMC") val pickUpCodeDMC: String?
+    @SerialName("url") val url: String? = null,
+    @SerialName("pickUpCodeHR") val pickUpCodeHR: String? = null,
+    @SerialName("pickUpCodeDMC") val pickUpCodeDMC: String? = null
 )
 
 @Serializable

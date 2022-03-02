@@ -30,7 +30,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -61,19 +61,19 @@ class PrescriptionUseCaseTest {
 
     @Test
     fun `syncedRecipes - should return synchronized tasks in form of recipes sorted by authoredOn and grouped by organization`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             assertEquals(testSyncedTasksOrdered.map { it.taskId }, useCase.syncedRecipes().first().map { it.taskId })
         }
 
     @Test
     fun `scannedRecipes - should return scanned tasks in form of recipes sorted by scanSessionEnd`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             assertEquals(testScannedTasksOrdered.map { it.taskId }, useCase.scannedRecipes().first().map { it.taskId })
         }
 
     @Test
     fun `redeemed recipes - should return redeemed tasks ordered by redeemedOn`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             assertEquals(testRedeemedTasksOrdered.map { it.taskId }, useCase.redeemedPrescriptions().first().map { it.taskId })
         }
 }

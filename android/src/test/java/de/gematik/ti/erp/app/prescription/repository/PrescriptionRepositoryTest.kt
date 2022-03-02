@@ -35,7 +35,7 @@ import java.time.Instant
 import java.time.OffsetDateTime
 import java.time.ZoneOffset
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -101,7 +101,7 @@ class PrescriptionRepositoryTest {
 
     @Test
     fun `if download tasks gets called - ensure that complete tasks are saved`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             val emptyAuditEvents = emptyAuditEvents()
 
             coEvery { localDataSource.auditEventsSyncedUpTo(any()) } returns Instant.ofEpochSecond(0)
@@ -137,7 +137,7 @@ class PrescriptionRepositoryTest {
         }
         coEvery { localDataSource.saveAuditEvents(any()) } answers { }
 
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             prescriptionRepository.downloadAllAuditEvents(profileName)
         }
 
@@ -162,7 +162,7 @@ class PrescriptionRepositoryTest {
             Result.Error(IllegalArgumentException(""))
         }
 
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             prescriptionRepository.downloadAllAuditEvents(profileName)
         }
 

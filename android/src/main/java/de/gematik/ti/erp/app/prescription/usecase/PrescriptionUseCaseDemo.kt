@@ -103,7 +103,7 @@ class PrescriptionUseCaseDemo @Inject constructor(
                 if (task.rawKBVBundle != null) {
                     mapToUIPrescriptionDetailSynced(
                         task,
-                        MedicationDetail(text = task.medicationText),
+                        MedicationDetail(text = task.medicationText!!),
                         MedicationRequestDetail(),
                         null,
                         InsuranceCompanyDetail(),

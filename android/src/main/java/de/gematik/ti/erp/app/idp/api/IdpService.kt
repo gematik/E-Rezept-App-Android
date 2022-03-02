@@ -18,12 +18,13 @@
 
 package de.gematik.ti.erp.app.idp.api
 
-import android.net.Uri
 import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
+import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntries
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
 import de.gematik.ti.erp.app.idp.repository.JWSDiscoveryDocument
+import java.net.URI
 import okhttp3.ResponseBody
 import org.jose4j.jws.JsonWebSignature
 import retrofit2.Response
@@ -137,11 +138,23 @@ interface IdpService {
     @Headers(
         "Accept: application/json",
     )
-    suspend fun pairing(
+    suspend fun postPairing(
         @Url url: String,
         @Header("Authorization") bearerToken: String,
         @Field("encrypted_registration_data") data: String,
     ): Response<PairingResponseEntry>
+
+    /**
+     * Registration `gemF_Biometrie 4.1.3.3`
+     */
+    @GET
+    @Headers(
+        "Accept: application/json",
+    )
+    suspend fun getPairing(
+        @Url url: String,
+        @Header("Authorization") bearerToken: String
+    ): Response<PairingResponseEntries>
 
     /**
      * Authentication `gemF_Biometrie 4.1.3.2`
@@ -169,9 +182,14 @@ interface IdpService {
     ): Response<ResponseBody>
 
     companion object {
-        fun extractQueryParameter(location: Uri, key: String): String {
-            return location.getQueryParameter(key)
-                ?: error("no parameter for key: $key")
+        fun extractQueryParameter(location: URI, key: String): String {
+            return location.query
+                .split("&")
+                .map {
+                    val (k, v) = it.split("=", limit = 2)
+                    Pair(k, v)
+                }
+                .find { it.first == key }?.second ?: error("no parameter for key: $key")
         }
     }
 }

@@ -20,7 +20,9 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.db.entities.AuditEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
+import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -39,7 +41,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(12),
         authoredOn = nowOffset.minusDays(2),
         medicationText = "Paracetamol Gematikpharm 500mg Tabletten",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 1_2",
@@ -49,7 +52,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(12),
         authoredOn = nowOffset.minusDays(2),
         medicationText = "Ibuprofen 400mg Gematikpharm Filmtabletten",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 2_1",
@@ -59,7 +63,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(12),
         authoredOn = nowOffset.minusHours(2),
         medicationText = "Amoxicillin Gematikpharm 1000 Filmtabletten",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 2_2",
@@ -69,7 +74,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(12),
         authoredOn = nowOffset.minusHours(2),
         medicationText = "Metronidazol Gematikpharm 400 Tabletten",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 2_3",
@@ -79,7 +85,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(12),
         authoredOn = nowOffset.minusHours(2),
         medicationText = "Clotrimazol 1% Creme",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 2_4",
@@ -89,7 +96,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(2),
         authoredOn = nowOffset.minusHours(2),
         medicationText = "Betaisodona Salbe",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 3_1",
@@ -99,7 +107,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(10),
         authoredOn = nowOffset.minusMinutes(1),
         medicationText = "Hyrimoz 40 Mg/0,8 ml Inj.-Lösung",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 3_2",
@@ -109,7 +118,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.plusDays(8),
         authoredOn = nowOffset.minusMinutes(1),
         medicationText = "Lenalidomid",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 4_1",
@@ -119,7 +129,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now,
         authoredOn = nowOffset,
         medicationText = "Epinephrin 1mg/ml",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 4_2",
@@ -129,7 +140,8 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.minusDays(4),
         authoredOn = nowOffset,
         medicationText = "Amiodaron 200 Gematikpharm Tabl.",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     ),
     Task(
         taskId = "full detail rezept 4_3",
@@ -139,13 +151,23 @@ private fun demoTasks(now: LocalDate, nowOffset: OffsetDateTime) = listOf(
         acceptUntil = now.minusDays(70),
         authoredOn = nowOffset,
         medicationText = "Vasopressin",
-        rawKBVBundle = "{}".toByteArray()
+        rawKBVBundle = "{}".toByteArray(),
+        status = TaskStatus.Ready
     )
 )
 
 private val demoAuditEvents = listOf(
     AuditEventSimple(id = "egal", "egal", "P1", "Dr Mortuss hat das Rezept erstellt", OffsetDateTime.now().minusDays(2), "egal"),
     AuditEventSimple(id = "egal", "egal", "P2", "Dr Mortuss hat das Rezept übermittelt", OffsetDateTime.now().minusDays(1), "egal")
+)
+
+private val demoContact = PharmacyUseCaseData.ShippingContact(
+    "Max Mustermann",
+    "Mustermann Straße",
+    "10",
+    "12345",
+    "0123/456789",
+    "max.mustermann@email.de", ""
 )
 
 @Suppress("UNUSED_PARAMETER")
@@ -228,4 +250,6 @@ class PrescriptionDemoDataSource @Inject constructor() {
     fun editScannedPrescriptionsName(name: String, scanSessionEnd: OffsetDateTime) {
         // TODO: not implemented
     }
+
+    fun getDemoContact() = demoContact
 }

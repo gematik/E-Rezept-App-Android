@@ -38,7 +38,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.apache.commons.codec.binary.Base64
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
 import org.bouncycastle.cert.ocsp.OCSPResp
@@ -218,7 +218,7 @@ class TruststoreTest {
 
     @Test
     fun `new instance of truststore contains no cached store - fetches and creates store from repository`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
@@ -247,7 +247,7 @@ class TruststoreTest {
 
     @Test
     fun `new instance of truststore contains no cached store - fetches and creates store with invalid ocsp from repository`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
@@ -289,7 +289,7 @@ class TruststoreTest {
 
     @Test
     fun `truststore contains cached store - cached store is invalid - fetches and creates store with invalid ocsp from repository`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
@@ -345,7 +345,7 @@ class TruststoreTest {
 
     @Test(expected = Exception::class)
     fun `truststore creation finally fails`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
@@ -385,7 +385,7 @@ class TruststoreTest {
 
     @Test(expected = Exception::class)
     fun `truststore creation succeeds - block throws exception`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
@@ -427,7 +427,7 @@ class TruststoreTest {
 
     @Test
     fun `truststore creation succeeds - idp certificate found`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
@@ -464,7 +464,7 @@ class TruststoreTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `truststore creation succeeds - idp certificate not found`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
@@ -503,7 +503,7 @@ class TruststoreTest {
 
     @Test(expected = Exception::class)
     fun `truststore creation succeeds - idp certificate not found - invalidate`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {

@@ -1,3 +1,29 @@
+# Release 1.2.3
+### Added
+
+- New empty state screen
+- New tabbed layout on main screen
+- Contact section in prescription redemption
+
+### Changed
+
+- Changed app auth appearance
+- Improved NFC handling in Cardwall
+
+### Fixed
+
+- Handling of invalid prescriptions
+- Properly display redeemed prescriptions
+- Various fixes in demo mode (prescriptions)
+- Error handling for bearer tokens
+- Minor theming issues
+    
+### Internal
+
+- IDP integration tests
+- Support for virtual health cards
+
+
 # Release 1.2.1
 # Release 1.2.1
 

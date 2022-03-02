@@ -25,6 +25,7 @@ import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -120,6 +121,8 @@ import de.gematik.ti.erp.app.onboarding.ui.OnboardingScreen
 import de.gematik.ti.erp.app.onboarding.ui.ReturningUserSecureAppOnboardingScreen
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacySearchScreenWithNavigation
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsScreen
+import de.gematik.ti.erp.app.prescription.ui.EmptyScreenState
+import de.gematik.ti.erp.app.prescription.ui.HomeNoHealthCardSignInHint
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
 import de.gematik.ti.erp.app.prescription.ui.ScanScreen
 import de.gematik.ti.erp.app.profiles.ui.Avatar
@@ -138,22 +141,22 @@ import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
 import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
-import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.Dialog
-import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
-import de.gematik.ti.erp.app.utils.compose.TopAppBar
+import de.gematik.ti.erp.app.utils.compose.TopAppBarWithContent
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.minimalSystemBarsPadding
+import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.testId
+import de.gematik.ti.erp.app.utils.dateTimeShortText
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.WebViewScreen
-import de.gematik.ti.erp.app.utils.dateTimeShortText
 import kotlinx.coroutines.flow.collect
+import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -354,7 +357,15 @@ fun MainScreenWithScaffold(
 
     LaunchedEffect(Unit) {
         if (mainViewModel.showDataTermsUpdate.first()) {
-            mainNavController.navigate(MainNavigationScreens.DataTermsUpdateScreen.path())
+            mainNavController.navigate(
+                MainNavigationScreens.DataTermsUpdateScreen.path(),
+                navOptions {
+                    launchSingleTop = true
+                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
+                        inclusive = true
+                    }
+                }
+            )
         } else if (mainViewModel.showInsecureDevicePrompt.first()) {
             mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.path())
         } else if (mainViewModel.showProfileSetupPrompt.first()) {
@@ -388,6 +399,8 @@ fun MainScreenWithScaffold(
         mainScreenViewModel = mainScreenVM,
         scaffoldState = scaffoldState,
     )
+
+    OrderSuccessDialog(mainScreenVM)
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -426,15 +439,51 @@ fun MainScreenWithScaffold(
     ) {
         val bottomNavController = rememberNavController()
 
-        val showFab by produceState(false) {
+        var selectedPrescriptionScreenTab by remember { mutableStateOf(PrescriptionTabs.Redeemable) }
+
+        val showFab by produceState(false, key1 = selectedPrescriptionScreenTab) {
+            bottomNavController.currentBackStackEntryFlow.collect {
+                value = selectedPrescriptionScreenTab == PrescriptionTabs.Redeemable &&
+                    it.destination.route == MainNavigationScreens.Prescriptions.route
+            }
+        }
+
+        val showRedeemAndArchiveTopBar by produceState(true) {
             bottomNavController.currentBackStackEntryFlow.collect {
                 value = it.destination.route == MainNavigationScreens.Prescriptions.route
             }
         }
 
+        var emptyScreenState by remember { mutableStateOf(EmptyScreenState.NotEmpty) }
+
         Scaffold(
-            topBar = { MultiProfileTopAppBar(mainNavController, mainScreenVM) },
-            bottomBar = { MainScreenBottomNavigation(mainNavController, bottomNavController) },
+            topBar = {
+                MultiProfileTopAppBar(
+                    navController = mainNavController,
+                    mainScreenVieModel = mainScreenVM,
+                    tabBar = if (showRedeemAndArchiveTopBar) {
+                        {
+                            RedeemAndArchiveTabs(
+                                selectedTab = selectedPrescriptionScreenTab,
+                                onSelectedTab = { selectedPrescriptionScreenTab = it }
+                            )
+                        }
+                    } else null
+                )
+            },
+            bottomBar = {
+                MainScreenBottomNavigation(
+                    navController = mainNavController,
+                    bottomNavController = bottomNavController,
+                    signInHint = {
+                        if (emptyScreenState == EmptyScreenState.NoHealthCard) {
+                            HomeNoHealthCardSignInHint(
+                                onClickAction = { mainNavController.navigate(MainNavigationScreens.CardWall.route) }
+                            )
+                        } else null
+                    }
+                )
+            },
             floatingActionButton = {
                 AnimatedVisibility(
                     visible = redeemState.hasRedeemableTasks() && showFab,
@@ -461,7 +510,12 @@ fun MainScreenWithScaffold(
                     startDestination = MainNavigationScreens.Prescriptions.path()
                 ) {
                     composable(MainNavigationScreens.Prescriptions.route) {
-                        PrescriptionScreen(mainNavController, uri = mainViewModel.externalAuthorizationUri)
+                        PrescriptionScreen(
+                            navController = mainNavController,
+                            uri = mainViewModel.externalAuthorizationUri,
+                            selectedTab = selectedPrescriptionScreenTab,
+                            displayedScreen = { emptyScreenState = it }
+                        )
                     }
                     composable(MainNavigationScreens.Messages.route) {
                         MessageScreen(mainNavController, messageVM)
@@ -476,7 +530,8 @@ fun MainScreenWithScaffold(
 private fun MainScreenBottomNavigation(
     navController: NavController,
     bottomNavController: NavController,
-    viewModel: MainScreenViewModel = hiltViewModel(LocalActivity.current)
+    viewModel: MainScreenViewModel = hiltViewModel(LocalActivity.current),
+    signInHint: (@Composable () -> Unit)? = null
 ) {
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -484,7 +539,7 @@ private fun MainScreenBottomNavigation(
     val unreadMessagesAvailable by viewModel.unreadMessagesAvailable()
         .collectAsState(initial = false)
 
-    BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
+    BottomNavigation(backgroundColor = MaterialTheme.colors.surface, extraContent = { signInHint?.invoke() }) {
         MainScreenBottomNavigationItems.forEach { screen ->
             BottomNavigationItem(
                 modifier = Modifier.testTag(
@@ -607,7 +662,7 @@ fun TopAppBarMultiUser(
             .clickable { expanded = !expanded }
             .padding(PaddingDefaults.Tiny)
     ) {
-        Avatar(activeProfileName, activeProfileColor, ssoStatusColor)
+        Avatar(Modifier.size(36.dp), activeProfileName, activeProfileColor, ssoStatusColor)
         Column(
             Modifier.padding(
                 start = PaddingDefaults.Small + PaddingDefaults.Tiny,
@@ -652,7 +707,7 @@ fun TopAppBarMultiUser(
 }
 
 @Composable
-private fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoToken: SingleSignOnToken?) =
+fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoToken: SingleSignOnToken?) =
     when {
         ssoToken?.isValid() == true -> AppTheme.colors.green400
         profile.lastAuthenticated != null -> AppTheme.colors.red400
@@ -795,7 +850,7 @@ fun ProfileCard(
                 .weight(1f)
                 .padding(PaddingDefaults.Medium)
         ) {
-            Avatar(profile.name, colors, null, active = profile.active)
+            Avatar(Modifier.size(36.dp), profile.name, colors, null, active = profile.active)
 
             SpacerSmall()
 
@@ -840,13 +895,14 @@ fun ProfileCard(
 @Composable
 fun MultiProfileTopAppBar(
     navController: NavController,
-    mainScreenVieModel: MainScreenViewModel
+    mainScreenVieModel: MainScreenViewModel,
+    tabBar: (@Composable () -> Unit)? = null
 ) {
     val accScan = stringResource(R.string.main_scan_acc)
     val context = LocalContext.current
     val demoToastText = stringResource(R.string.function_not_availlable_on_demo_mode)
 
-    TopAppBar(
+    TopAppBarWithContent(
         title = {
             TopAppBarMultiUser(
                 mainScreenVieModel,
@@ -897,11 +953,19 @@ fun MultiProfileTopAppBar(
                     .semantics { contentDescription = accScan }
             ) {
                 Icon(
-                    Icons.Rounded.QrCode, null,
+                    imageVector = Icons.Rounded.QrCode,
+                    contentDescription = null,
                     tint = AppTheme.colors.primary700,
                     modifier = Modifier.size(24.dp)
                 )
             }
+        },
+        content = {
+            AnimatedVisibility(
+                visible = tabBar != null,
+                enter = expandVertically(),
+                exit = shrinkVertically()
+            ) { tabBar?.invoke() }
         }
     )
 }

@@ -41,6 +41,7 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -53,6 +54,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -125,13 +127,20 @@ fun UserAuthenticationScreen(userAuthViewModel: UserAuthenticationViewModel = hi
         Modifier.systemBarsPadding()
     }
 
-    Scaffold(paddingModifier) { innerPadding ->
+    // clear underlying text input focus
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(Unit) {
+        focusManager.clearFocus(true)
+    }
+
+    Scaffold { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .testId("auth_screen")
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
+                .then(paddingModifier)
         ) {
             Row(
                 modifier = Modifier

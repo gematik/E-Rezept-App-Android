@@ -29,7 +29,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -83,7 +83,7 @@ class ScanPrescriptionViewModelTest {
 
     @Test
     fun `test addScannedCode with three tasks and one duplicated - should return true`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery { useCase.getAllTasksWithTaskIdOnly() } returns mutableListOf("234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc")
             val codeHasUniqueUrls = viewModel.addScannedCode(validScannedCode)
             assertTrue("codeHasUniqueUrls", codeHasUniqueUrls)
@@ -91,7 +91,7 @@ class ScanPrescriptionViewModelTest {
 
     @Test
     fun `test addScannedCode with one task duplicated - should return false`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery { useCase.getAllTasksWithTaskIdOnly() } returns mutableListOf("234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc")
             val codeHasUniqueUrls = viewModel.addScannedCode(validScannedCode2)
             assertFalse("codeHasUniqueUrls", codeHasUniqueUrls)

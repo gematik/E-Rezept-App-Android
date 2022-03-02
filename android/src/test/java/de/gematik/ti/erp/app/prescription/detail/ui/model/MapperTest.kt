@@ -21,7 +21,6 @@ package de.gematik.ti.erp.app.prescription.detail.ui.model
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.prescription.repository.extractMedication
 import de.gematik.ti.erp.app.prescription.repository.extractMedicationRequest
-import de.gematik.ti.erp.app.prescription.repository.extractPatient
 import de.gematik.ti.erp.app.prescription.usecase.createMatrixCode
 import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import de.gematik.ti.erp.app.utils.testScannedTasks
@@ -56,13 +55,10 @@ class MapperTest {
         val uiPrescriptionOrder = mapToUIPrescriptionOrder(
             task,
             requireNotNull(bundle.extractMedication()),
-            requireNotNull(bundle.extractMedicationRequest()),
-            requireNotNull(bundle.extractPatient()),
+            requireNotNull(bundle.extractMedicationRequest())
         )
-        assertEquals(uiPrescriptionOrder.taskId, task.taskId)
-        assertEquals(uiPrescriptionOrder.accessCode, task.accessCode)
-        assertEquals(uiPrescriptionOrder.selected, true)
-        assertEquals("Siegburger Str. 155, 51105, Köln", uiPrescriptionOrder.address)
-        assertEquals("Prof. Dr. Karl-Friederich Graf Freiherr von Schaumberg", uiPrescriptionOrder.patientName)
+        assertEquals(task.taskId, uiPrescriptionOrder.taskId)
+        assertEquals(task.accessCode, uiPrescriptionOrder.accessCode)
+        assertEquals(false, uiPrescriptionOrder.substitutionsAllowed)
     }
 }

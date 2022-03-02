@@ -128,6 +128,7 @@ import androidx.navigation.NavController
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.systemBarsPadding
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.core.LocalTracker
 import de.gematik.ti.erp.app.prescription.ui.model.ScanScreenData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -205,12 +206,14 @@ fun ScanScreen(
         )
     }
 
+    val tracker = LocalTracker.current
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
             SheetContent(
                 onClickSave = {
                     scanViewModel.saveToDatabase()
+                    tracker.trackSaveScannedPrescriptions()
                     mainNavController.popBackStack()
                 }
             )

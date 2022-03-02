@@ -31,8 +31,8 @@ import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
 import de.gematik.ti.erp.app.vau.extractECPublicKey
-import kotlinx.coroutines.sync.withLock
 import java.io.IOException
+import java.net.URI
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -43,6 +43,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import timber.log.Timber
 
 /**
@@ -74,6 +75,8 @@ class RefreshFlowException : IOException {
     }
 }
 
+class IDPConfigException(cause: Throwable) : IOException(cause)
+
 class AltAuthenticationCryptoException(cause: Throwable) : IllegalStateException(cause)
 
 private const val EXT_AUTH_CODE_CHALLENGE: String = "EXT_AUTH_CODE_CHALLENGE"
@@ -88,7 +91,8 @@ class IdpUseCase @Inject constructor(
     private val profilesRepository: ProfilesRepository,
     private val basicUseCase: IdpBasicUseCase,
     @NetworkSecureSharedPreferences
-    private val sharedPreferences: SharedPreferences
+    private val sharedPreferences: SharedPreferences,
+    private val cryptoProvider: IdpCryptoProvider
 ) {
     private val lock = Mutex()
 
@@ -121,7 +125,11 @@ class IdpUseCase @Inject constructor(
                         else -> error("Unknown token scope")
                     }
 
-                    val initialData = basicUseCase.initializeConfigurationAndKeys()
+                    val initialData = try {
+                        basicUseCase.initializeConfigurationAndKeys()
+                    } catch (e: Exception) {
+                        throw IDPConfigException(e)
+                    }
                     try {
                         val refreshData = basicUseCase.refreshAccessTokenWithSsoFlow(
                             initialData,
@@ -174,7 +182,12 @@ class IdpUseCase @Inject constructor(
         val ssoToken = SingleSignOnToken.DefaultToken(
             token = basicData.ssoToken
         )
-        profilesRepository.setInsuranceInformation(activeProfileName, basicData.idTokenInsurantName, basicData.idTokenInsuranceIdentifier, basicData.idTokenInsuranceName)
+        profilesRepository.setInsuranceInformation(
+            activeProfileName,
+            basicData.idTokenInsurantName,
+            basicData.idTokenInsuranceIdentifier,
+            basicData.idTokenInsuranceName
+        )
         repository.setSingleSignOnToken(activeProfileName, ssoToken)
         repository.decryptedAccessTokenMap.update { decryptedAccessTokenMap ->
             decryptedAccessTokenMap + (activeProfileName to basicData.accessToken)
@@ -224,13 +237,13 @@ class IdpUseCase @Inject constructor(
         return parsedUri
     }
 
-    class ExternalAuthorizationData(uri: Uri) {
+    class ExternalAuthorizationData(uri: URI) {
         val code = IdpService.extractQueryParameter(uri, "code")
         val state = IdpService.extractQueryParameter(uri, "state")
         val kkAppRedirectUri = IdpService.extractQueryParameter(uri, "kk_app_redirect_uri")
     }
 
-    suspend fun authenticateWithExternalAppAuthorization(uri: Uri) {
+    suspend fun authenticateWithExternalAppAuthorization(uri: URI) {
 
         val externalAuthorizationData = ExternalAuthorizationData(uri)
 
@@ -244,7 +257,7 @@ class IdpUseCase @Inject constructor(
         if (redirectStringResult is Result.Error) {
             error(redirectStringResult.exception)
         }
-        val redirect = Uri.parse((redirectStringResult as Result.Success).data)
+        val redirect = URI((redirectStringResult as Result.Success).data)
 
         val redirectCodeJwe = IdpService.extractQueryParameter(redirect, "code")
         val redirectSsoToken = IdpService.extractQueryParameter(redirect, "ssotoken")
@@ -301,7 +314,12 @@ class IdpUseCase @Inject constructor(
             signWithHealthCard = signWithHealthCard,
         )
         val activeProfileName = getActiveProfileName()
-        profilesRepository.setInsuranceInformation(activeProfileName, basicData.idTokenInsurantName, basicData.idTokenInsuranceIdentifier, basicData.idTokenInsuranceName)
+        profilesRepository.setInsuranceInformation(
+            activeProfileName,
+            basicData.idTokenInsurantName,
+            basicData.idTokenInsuranceIdentifier,
+            basicData.idTokenInsuranceName
+        )
         repository.setHealthCardCertificate(activeProfileName, healthCardCert)
         // set pairing scope
         repository.setSingleSignOnToken(activeProfileName, SingleSignOnToken.AlternateAuthenticationWithoutToken())
@@ -314,27 +332,30 @@ class IdpUseCase @Inject constructor(
      */
     suspend fun alternateAuthenticationFlowWithSecureElement(profileName: String) = lock.withLock {
         val healthCardCertificate =
-            requireNotNull(repository.getHealthCardCertificate(profileName).first()) { "Health card certificate not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
+            requireNotNull(
+                repository.getHealthCardCertificate(profileName).first()
+            ) { "Health card certificate not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
         val aliasOfSecureElementEntry =
-            requireNotNull(repository.getAliasOfSecureElementEntry(profileName).first()) { "Alias of secure element entry not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
+            requireNotNull(
+                repository.getAliasOfSecureElementEntry(profileName).first()
+            ) { "Alias of secure element entry not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
 
         lateinit var privateKeyOfSecureElementEntry: PrivateKey
         lateinit var signatureObjectOfSecureElementEntry: Signature
 
         try {
             privateKeyOfSecureElementEntry = (
-                KeyStore.getInstance("AndroidKeyStore")
+                cryptoProvider.keyStoreInstance()
                     .apply { load(null) }
                     .getEntry(
                         aliasOfSecureElementEntry.decodeToString(),
                         null
                     ) as KeyStore.PrivateKeyEntry
                 ).privateKey
-            signatureObjectOfSecureElementEntry =
-                Signature.getInstance("SHA256withECDSA", "AndroidKeyStoreBCWorkaround")
+            signatureObjectOfSecureElementEntry = cryptoProvider.signatureInstance()
         } catch (e: Exception) {
             // the system might have removed the key during biometric reenrollment
-            // therefore their is no choice but to delete everything
+            // therefore there's no choice but to delete everything
             repository.invalidate(profileName)
             throw AltAuthenticationCryptoException(e)
         }
@@ -352,7 +373,12 @@ class IdpUseCase @Inject constructor(
             signatureObjectOfSecureElementEntry = signatureObjectOfSecureElementEntry,
         )
 
-        profilesRepository.setInsuranceInformation(profileName, authData.idTokenInsurantName, authData.idTokenInsuranceIdentifier, authData.idTokenInsuranceName)
+        profilesRepository.setInsuranceInformation(
+            profileName,
+            authData.idTokenInsurantName,
+            authData.idTokenInsuranceIdentifier,
+            authData.idTokenInsuranceName
+        )
         repository.setSingleSignOnToken(
             profileName,
             SingleSignOnToken.AlternateAuthenticationToken(
@@ -362,6 +388,80 @@ class IdpUseCase @Inject constructor(
         repository.decryptedAccessTokenMap.update { decryptedAccessTokenMap ->
             decryptedAccessTokenMap + (profileName to authData.accessToken)
         }
+    }
+
+    suspend fun getPairedDevicesWithSecureElement(profileName: String) = lock.withLock {
+        val healthCardCertificate =
+            requireNotNull(
+                repository.getHealthCardCertificate(profileName).first()
+            ) { "Health card certificate not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
+        val aliasOfSecureElementEntry =
+            requireNotNull(
+                repository.getAliasOfSecureElementEntry(profileName).first()
+            ) { "Alias of secure element entry not set! Maybe you forgot to call alternatePairingFlowWithSecureElement before." }
+
+        lateinit var privateKeyOfSecureElementEntry: PrivateKey
+        lateinit var signatureObjectOfSecureElementEntry: Signature
+
+        try {
+            privateKeyOfSecureElementEntry = (
+                cryptoProvider.keyStoreInstance()
+                    .apply { load(null) }
+                    .getEntry(
+                        aliasOfSecureElementEntry.decodeToString(),
+                        null
+                    ) as KeyStore.PrivateKeyEntry
+                ).privateKey
+            signatureObjectOfSecureElementEntry =
+                cryptoProvider.signatureInstance()
+        } catch (e: Exception) {
+            // the system might have removed the key during biometric reenrollment
+            // therefore there's no choice but to delete everything
+            repository.invalidate(profileName)
+            throw AltAuthenticationCryptoException(e)
+        }
+
+        val initialData = basicUseCase.initializeConfigurationAndKeys()
+        val challengeData = basicUseCase.challengeFlow(initialData, scope = IdpScope.BiometricPairing)
+
+        val authData = altAuthUseCase.authenticateWithSecureElement(
+            initialData = initialData,
+            challenge = challengeData.challenge,
+            healthCardCertificate = healthCardCertificate,
+            authenticationMethod = IdpAlternateAuthenticationUseCase.AuthenticationMethod.Strong,
+            aliasOfSecureElementEntry = aliasOfSecureElementEntry,
+            privateKeyOfSecureElementEntry = privateKeyOfSecureElementEntry,
+            signatureObjectOfSecureElementEntry = signatureObjectOfSecureElementEntry,
+        )
+
+        altAuthUseCase.getPairedDevices(
+            initialData = initialData,
+            accessToken = authData.accessToken
+        )
+    }
+
+    suspend fun getPairedDevices(
+        healthCardCertificate: suspend () -> ByteArray,
+        sign: suspend (hash: ByteArray) -> ByteArray
+    ) = lock.withLock {
+        val initialData = basicUseCase.initializeConfigurationAndKeys()
+        val challengeData =
+            basicUseCase.challengeFlow(
+                initialData,
+                scope = IdpScope.BiometricPairing
+            )
+        val healthCardCert = healthCardCertificate()
+        val basicData = basicUseCase.basicAuthFlow(
+            initialData = initialData,
+            challengeData = challengeData,
+            healthCardCertificate = healthCardCert,
+            sign = sign
+        )
+
+        altAuthUseCase.getPairedDevices(
+            initialData = initialData,
+            accessToken = basicData.accessToken
+        )
     }
 
     suspend fun isCanAvailable() =

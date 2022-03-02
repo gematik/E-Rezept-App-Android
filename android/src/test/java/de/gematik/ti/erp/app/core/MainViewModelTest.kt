@@ -31,7 +31,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
@@ -66,7 +66,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `test showInsecureDevicePrompt - only show once`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `test showInsecureDevicePrompt - only show once`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(true)
         every { settingsUseCase.isNewUser } returns false
@@ -78,7 +78,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `test showInsecureDevicePrompt - device is secure`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `test showInsecureDevicePrompt - device is secure`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.isNewUser } returns false
@@ -91,7 +91,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `test showDataTermsUpdate - dataTerms updates should be shown`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `test showDataTermsUpdate - dataTerms updates should be shown`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(true)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.isNewUser } returns false
@@ -103,7 +103,7 @@ class MainViewModelTest {
     }
 
     @Test
-    fun `test showDataTermsUpdate - dataTerms updates should not be shown`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `test showDataTermsUpdate - dataTerms updates should not be shown`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.isNewUser } returns false

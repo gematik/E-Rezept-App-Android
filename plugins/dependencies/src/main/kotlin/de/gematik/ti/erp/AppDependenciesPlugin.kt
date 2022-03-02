@@ -165,7 +165,7 @@ class AppDependenciesPlugin : Plugin<Project> {
 
         object Database {
             const val sqlCipher = "net.zetetic:android-database-sqlcipher:4.5.0"
-            fun room(target: String) = "androidx.room:room-$target:2.3.0"
+            fun room(target: String) = "androidx.room:room-$target:2.4.1"
             object Test {
                 val roomTesting = room("testing")
             }
@@ -187,7 +187,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val materialIconsExtended =
                 "androidx.compose.material:material-icons-extended:$composeVersion"
 
-            fun accompanist(module: String) = "com.google.accompanist:accompanist-$module:0.22.0-rc"
+            fun accompanist(module: String) = "com.google.accompanist:accompanist-$module:0.22.1-rc"
 
             object Test {
                 const val ui = "androidx.compose.ui:ui-test:$composeVersion"

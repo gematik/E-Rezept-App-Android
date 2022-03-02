@@ -41,6 +41,9 @@ class DemoUseCase @Inject constructor(
     private val prescriptionDemoDataUseCase: PrescriptionDemoDataSource,
 ) : LifecycleObserver {
 
+    val demoTasks = prescriptionDemoDataUseCase.tasks
+    val demoContact = prescriptionDemoDataUseCase.getDemoContact()
+
     val isDemoModeActive
         get() = demoModeActive.value
 

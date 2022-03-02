@@ -269,6 +269,8 @@ dependencies {
             implementation(jose4j)
             implementation(bouncyCastle("bcprov"))
             implementation(bouncyCastle("bcpkix"))
+            testImplementation(bouncyCastle("bcprov", "jdk15on"))
+            testImplementation(bouncyCastle("bcpkix", "jdk15on"))
         }
         network {
             implementation(retrofit2("retrofit"))

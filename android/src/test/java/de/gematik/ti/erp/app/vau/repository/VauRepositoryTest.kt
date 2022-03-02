@@ -26,7 +26,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -55,7 +55,7 @@ class VauRepositoryTest {
     }
 
     @Test
-    fun `local database is empty - load from remote`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `local database is empty - load from remote`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
@@ -74,7 +74,7 @@ class VauRepositoryTest {
     }
 
     @Test
-    fun `local database is empty - load from remote fails`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `local database is empty - load from remote fails`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
@@ -98,7 +98,7 @@ class VauRepositoryTest {
     }
 
     @Test
-    fun `local database is not empty`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `local database is not empty`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers {
             Pair(
                 TestCertificates.Vau.CertList,
@@ -121,7 +121,7 @@ class VauRepositoryTest {
 
     @Test
     fun `local database is not empty - exception thrown in block of withUntrusted`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery { localDataSource.loadUntrusted() } coAnswers {
                 Pair(
                     TestCertificates.Vau.CertList,

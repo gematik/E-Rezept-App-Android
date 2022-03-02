@@ -19,16 +19,28 @@
 package de.gematik.ti.erp.app.prescription.ui.model
 
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.common.usecase.model.Hint
+import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 
 object PrescriptionScreenData {
     @Immutable
     data class State(
         val showDemoBanner: Boolean,
-        val hints: List<Hint>,
         val prescriptions: List<PrescriptionUseCaseData.Prescription>,
         val redeemedPrescriptions: List<PrescriptionUseCaseData.Prescription>,
-        val nowInEpochDays: Long
-    )
+        val nowInEpochDays: Long,
+        val activeProfile: ProfilesUseCaseData.Profile?
+    ) {
+        @Stable
+        fun noSsoTokenSet() = activeProfile?.ssoToken == null
+
+        @Stable
+        fun ssoTokenSetAndConnected() = activeProfile?.ssoToken != null && activeProfile.ssoToken.isValid()
+
+        @Stable
+        fun ssoTokenSetAndDisconnected() =
+            (activeProfile?.ssoToken != null && !activeProfile.ssoToken.isValid()) ||
+                activeProfile?.lastAuthenticated != null
+    }
 }

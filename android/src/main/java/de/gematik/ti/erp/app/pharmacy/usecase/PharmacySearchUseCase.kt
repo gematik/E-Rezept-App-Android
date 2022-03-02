@@ -26,11 +26,12 @@ import androidx.paging.PagingState
 import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.Result
+import de.gematik.ti.erp.app.db.entities.ShippingContactEntity
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
+import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayload
 import de.gematik.ti.erp.app.pharmacy.repository.model.Pharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
 import de.gematik.ti.erp.app.prescription.detail.ui.model.mapToUIPrescriptionOrder
 import de.gematik.ti.erp.app.prescription.repository.Mapper
 import de.gematik.ti.erp.app.prescription.repository.PROFILE
@@ -38,14 +39,15 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.prescription.repository.extractMedication
 import de.gematik.ti.erp.app.prescription.repository.extractMedicationRequest
-import de.gematik.ti.erp.app.prescription.repository.extractPatient
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.prescription.repository.extractShippingContact
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import javax.inject.Inject
+import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.withContext
 import okhttp3.ResponseBody
 import org.hl7.fhir.r4.model.Communication
@@ -53,20 +55,17 @@ import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Meta
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.StringType
-import javax.inject.Inject
-import kotlin.math.max
-import kotlinx.coroutines.flow.first
 
 private const val initialResultsPerPage = 80
 
 class PharmacySearchUseCase @Inject constructor(
     private val repository: PharmacyRepository,
+    private val shippingContactRepository: ShippingContactRepository,
     private val prescriptionRepository: PrescriptionRepository,
     private val settingsUseCase: SettingsUseCase,
     private val mapper: Mapper,
     private val moshi: Moshi,
     private val dispatchProvider: DispatchProvider,
-    private val profilesUseCase: ProfilesUseCase
 ) {
     data class PharmacyPagingKey(val bundleId: String, val offset: Int)
 
@@ -215,46 +214,105 @@ class PharmacySearchUseCase @Inject constructor(
         }
 
     fun prescriptionDetailsForOrdering(
-        vararg taskIds: String
-    ): Flow<List<UIPrescriptionOrder>> {
-        return prescriptionRepository.loadTasksForTaskId(*taskIds).take(1).map { taskList ->
-            taskList.filter {
-                it.accessCode != null
-            }.map { task ->
-                val bundle = mapper.parseKBVBundle(requireNotNull(task.rawKBVBundle))
-                mapToUIPrescriptionOrder(
-                    task,
-                    requireNotNull(bundle.extractMedication()),
-                    requireNotNull(bundle.extractMedicationRequest()),
-                    requireNotNull(bundle.extractPatient()),
+        taskIds: List<String>
+    ): Flow<PharmacyUseCaseData.OrderState> {
+        return combine(
+            shippingContactRepository.shippingContact(),
+            prescriptionRepository.loadTasksForTaskId(*taskIds.toTypedArray()).map { tasks ->
+                tasks.filter {
+                    // filter prescriptions already assigned to a pharmacy
+                    it.accessCode != null
+                }
+            }
+        ) { shippingContacts, tasks ->
+            if (tasks.isNotEmpty()) {
+                val shippingContact = (
+                    shippingContacts.firstOrNull() ?: run {
+                        val bundle = mapper.parseKBVBundle(requireNotNull(tasks.first().rawKBVBundle))
+                        // initialize shipping contact with patient information from bundle
+                        requireNotNull(bundle.extractShippingContact()).also {
+                            shippingContactRepository.insertShippingContact(it)
+                        }
+                    }
+                    ).let {
+                    PharmacyUseCaseData.ShippingContact(
+                        name = it.name,
+                        line1 = it.line1,
+                        line2 = it.line2,
+                        postalCodeAndCity = it.postalCodeAndCity,
+                        telephoneNumber = it.telephoneNumber,
+                        mail = it.mail,
+                        deliveryInformation = it.deliveryInformation
+                    )
+                }
+
+                PharmacyUseCaseData.OrderState(
+                    tasks.map { task ->
+                        val bundle = mapper.parseKBVBundle(requireNotNull(task.rawKBVBundle))
+                        mapToUIPrescriptionOrder(
+                            task,
+                            requireNotNull(bundle.extractMedication()),
+                            requireNotNull(bundle.extractMedicationRequest())
+                        )
+                    },
+                    shippingContact
+                )
+            } else {
+                PharmacyUseCaseData.OrderState(
+                    emptyList(), null
                 )
             }
         }.flowOn(Dispatchers.Default)
     }
 
+    suspend fun saveShippingContact(contact: PharmacyUseCaseData.ShippingContact) {
+        shippingContactRepository.insertShippingContact(
+            mapShippingContact(contact)
+        )
+    }
+
     suspend fun redeemPrescription(
+        profileName: String,
         redeemOption: RemoteRedeemOption,
-        order: UIPrescriptionOrder,
+        order: PharmacyUseCaseData.PrescriptionOrder,
+        contact: PharmacyUseCaseData.ShippingContact,
         pharmacyTelematikId: String
     ): Result<ResponseBody> {
-        val profileName = profilesUseCase.activeProfileName().first()
-        val payload = generatePayLoad(redeemOption, order.patientName, order.address)
+        val payload = generatePayLoad(
+            redeemOption,
+            contact.name,
+            listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
+            phone = contact.telephoneNumber
+        )
         val reference = assembleReference(order.taskId, order.accessCode)
         val communication = generateFhirObject(reference, pharmacyTelematikId, payload)
         return prescriptionRepository.redeemPrescription(profileName, communication)
     }
 
+    private fun mapShippingContact(contact: PharmacyUseCaseData.ShippingContact) =
+        ShippingContactEntity(
+            id = 0,
+            name = contact.name.trim(),
+            line1 = contact.line1.trim(),
+            line2 = contact.line2.trim(),
+            postalCodeAndCity = contact.postalCodeAndCity.trim(),
+            telephoneNumber = contact.telephoneNumber.trim(),
+            mail = contact.mail.trim(),
+            deliveryInformation = contact.deliveryInformation.trim()
+        )
+
     private fun generatePayLoad(
         redeemOption: RemoteRedeemOption,
         patientName: String,
-        address: String
+        address: List<String>,
+        phone: String
     ): String {
         val com = CommunicationPayload(
             version = "1",
             supplyOptionsType = redeemOption.type,
             name = patientName,
-            address = address.split(",").toTypedArray(),
-            phone = null
+            address = address,
+            phone = phone
         )
         return comAdapter.toJson(com)
     }

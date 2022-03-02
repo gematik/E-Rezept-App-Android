@@ -96,6 +96,8 @@ class TruststoreUseCase @Inject constructor(
     ) = lock.withLock {
         val timestamp = timeSourceProvider.now()
 
+        Timber.d("Check IDP certificate with truststore")
+
         val exception = withLoadedStore(timestamp) { store ->
             try {
                 requireNotNull(store.idpCertificates.find { it == idpCertificate }) { "IDP certificate could not be validated" }

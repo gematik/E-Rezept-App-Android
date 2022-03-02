@@ -18,121 +18,174 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.SavedStateHandle
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
+import de.gematik.ti.erp.app.db.entities.ProfileColorNames
+import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyContacts
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
-import de.gematik.ti.erp.app.utils.listOfUIPrescriptions
-import de.gematik.ti.erp.app.utils.testUIPrescription
+import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
-import junit.framework.Assert.assertFalse
-import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class PharmacySearchViewModelTest {
-
-    @get:Rule
-    val instantTaskExecutorRule = InstantTaskExecutorRule()
-
     @get:Rule
     val coroutineRule = CoroutineTestRule()
 
     private lateinit var viewModel: PharmacySearchViewModel
     private lateinit var useCase: PharmacySearchUseCase
     private lateinit var hintUseCase: HintUseCase
+    private lateinit var profileUseCase: ProfilesUseCase
+    private lateinit var savedStateHandle: SavedStateHandle
+
+    private val profile = ProfilesUseCaseData.Profile(
+        id = 0,
+        name = "",
+        insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
+            insurantName = null,
+            insuranceIdentifier = null,
+            insuranceName = null
+        ),
+        active = true,
+        color = ProfileColorNames.SPRING_GRAY,
+        lastAuthenticated = null,
+        ssoToken = null,
+        accessToken = null
+    )
+
+    private val tasks = listOf("A", "B", "C")
+    private val prescriptions = listOf(
+        PharmacyUseCaseData.PrescriptionOrder(
+            taskId = "A", accessCode = "1234", title = "Test", substitutionsAllowed = false
+        ),
+        PharmacyUseCaseData.PrescriptionOrder(
+            taskId = "B", accessCode = "1234", title = "Test", substitutionsAllowed = false
+        ),
+        PharmacyUseCaseData.PrescriptionOrder(
+            taskId = "C", accessCode = "1234", title = "Test", substitutionsAllowed = false
+        )
+    )
+
+    private val pharmacy = PharmacyUseCaseData.Pharmacy(
+        name = "Test - Pharmacy",
+        address = null,
+        location = null,
+        distance = null,
+        contacts = PharmacyContacts(phone = "", mail = "", url = ""),
+        provides = listOf(),
+        openingHours = null,
+        telematikId = "",
+        roleCode = listOf(),
+        ready = false
+    )
+
+    private val orderOption = PharmacyScreenData.OrderOption.ReserveInPharmacy
+
+    private val contacts = PharmacyUseCaseData.ShippingContact(
+        name = "Beate Muster",
+        line1 = "Friedrichstraße 136",
+        line2 = "",
+        postalCodeAndCity = "10117 Berlin",
+        telephoneNumber = "",
+        mail = "",
+        deliveryInformation = ""
+    )
 
     @Before
     fun setUp() {
         useCase = mockk()
         hintUseCase = mockk()
-        viewModel = PharmacySearchViewModel(mockk(), useCase, hintUseCase, coroutineRule.testDispatchProvider)
+        profileUseCase = mockk()
+        savedStateHandle = mockk(relaxed = true)
+        every { savedStateHandle.get<Unit?>(any()) } returns null
+        every { useCase.previousSearch } returns channelFlow { } // suspends
+        viewModel = PharmacySearchViewModel(
+            mockk(),
+            useCase,
+            profileUseCase,
+            hintUseCase,
+            coroutineRule.testDispatchProvider,
+            savedStateHandle,
+            mockk(relaxed = true)
+        )
+        coEvery { profileUseCase.profiles } returns flowOf(listOf(profile))
+        coEvery { useCase.prescriptionDetailsForOrdering(tasks) } returns flowOf(
+            PharmacyUseCaseData.OrderState(
+                prescriptions = prescriptions,
+                contact = null
+            )
+        )
+        viewModel.onSelectPharmacy(pharmacy)
+        viewModel.onSelectOrderOption(orderOption)
     }
 
     @Test
-    fun `tests fetching of orders from db - list is not empty`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            every { useCase.prescriptionDetailsForOrdering(any()) } answers {
-                flowOf(
-                    listOfUIPrescriptions()
-                )
-            }
-            viewModel.fetchSelectedOrders(listOf("")).collect {
-                assertTrue(it.isNotEmpty())
-            }
-        }
+    fun `order screen state - default`() = runTest {
+        val state = viewModel.orderScreenState(tasks).first()
 
-    @Test
-    fun `tests fetching of orders from db - element is not selected`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            val uiPrescriptionOrder = testUIPrescription()
-            every { useCase.prescriptionDetailsForOrdering(any()) } answers {
-                flowOf(
-                    listOf(
-                        uiPrescriptionOrder
-                    )
-                )
-            }
-            viewModel.fetchSelectedOrders(listOf("")).collect {
-                assertFalse(it.first().selected)
-            }
-        }
-
-    @Test
-    fun `tests fetching of orders from db - element is selected`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            val uiPrescriptionOrder = testUIPrescription()
-            uiPrescriptionOrder.selected = false
-            viewModel.toggleOrder(uiPrescriptionOrder)
-            every { useCase.prescriptionDetailsForOrdering(any()) } answers {
-                flowOf(
-                    listOf(
-                        uiPrescriptionOrder
-                    )
-                )
-            }
-            viewModel.fetchSelectedOrders(listOf("")).collect {
-                assertTrue(it.first().selected)
-            }
-        }
-
-    @Test
-    fun `tests toggling order - adds order to list of orders`() {
-        val uiPrescriptionOrder = testUIPrescription()
-        uiPrescriptionOrder.selected = false
-        val result = viewModel.toggleOrder(uiPrescriptionOrder)
-        assertTrue(result)
+        assertEquals(profile, state.activeProfile)
+        assertEquals(null, state.contact)
+        assertEquals(pharmacy, state.selectedPharmacy)
+        assertEquals(orderOption, state.orderOption)
+        assertEquals(prescriptions.map { Pair(it, true) }, state.prescriptions)
     }
 
     @Test
-    fun `tests toggling order - removes order from list of orders`() {
-        val uiPrescriptionOrder = testUIPrescription()
-        uiPrescriptionOrder.selected = true
-        val result = viewModel.toggleOrder(uiPrescriptionOrder)
-        assertFalse(result)
+    fun `order screen state - select prescriptions`() = runTest {
+        viewModel.onSelectOrder(prescriptions[0])
+        viewModel.onSelectOrder(prescriptions[1])
+        viewModel.onSelectOrder(prescriptions[2])
+
+        viewModel.onDeselectOrder(prescriptions[0])
+
+        val state = viewModel.orderScreenState(tasks).first()
+
+        assertEquals(profile, state.activeProfile)
+        assertEquals(null, state.contact)
+        assertEquals(pharmacy, state.selectedPharmacy)
+        assertEquals(orderOption, state.orderOption)
+        assertEquals(
+            listOf(Pair(prescriptions[0], false), Pair(prescriptions[1], true), Pair(prescriptions[2], true)),
+            state.prescriptions
+        )
     }
 
     @Test
-    fun `tests fabState enabled - should be false`() {
-        val uiPrescriptionOrder = testUIPrescription()
-        viewModel.toggleOrder(uiPrescriptionOrder)
-        val result = viewModel.uiState.fabState
-        assertFalse(result)
-    }
+    fun `order screen state - set contacts`() = runTest {
+        coEvery { useCase.saveShippingContact(any()) } answers {}
+        coEvery { useCase.prescriptionDetailsForOrdering(tasks) } returns flowOf(
+            PharmacyUseCaseData.OrderState(
+                prescriptions = prescriptions,
+                contact = contacts
+            )
+        )
 
-    @Test
-    fun `tests fabState enabled - should be true`() {
-        val uiPrescriptionOrder = testUIPrescription()
-        uiPrescriptionOrder.selected = false
-        viewModel.toggleOrder(uiPrescriptionOrder)
-        val result = viewModel.uiState.fabState
-        assertTrue(result)
+        viewModel.onSaveContact(contacts)
+
+        coroutineRule.testDispatcher.scheduler.runCurrent()
+        coVerify(exactly = 1) { useCase.saveShippingContact(contacts) }
+
+        val state = viewModel.orderScreenState(tasks).first()
+
+        assertEquals(profile, state.activeProfile)
+        assertEquals(contacts, state.contact)
+        assertEquals(pharmacy, state.selectedPharmacy)
+        assertEquals(orderOption, state.orderOption)
+        assertEquals(prescriptions.map { Pair(it, true) }, state.prescriptions)
     }
 }

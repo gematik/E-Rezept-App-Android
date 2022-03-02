@@ -49,11 +49,9 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.SwipeableState
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Update
 import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
@@ -76,7 +74,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.Velocity
@@ -86,23 +83,19 @@ import androidx.fragment.app.FragmentActivity
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDefineSecurity
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDemoModeActivated
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintTryDemoMode
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.demo.ui.DemoBanner
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
+import de.gematik.ti.erp.app.mainscreen.ui.PrescriptionTabs
 import de.gematik.ti.erp.app.mainscreen.ui.PullRefreshState
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
-import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
-import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import java.time.Duration
 import java.time.LocalDate
@@ -182,7 +175,9 @@ fun PrescriptionScreen(
     navController: NavController,
     mainViewModel: MainScreenViewModel = hiltViewModel(LocalActivity.current),
     prescriptionViewModel: PrescriptionViewModel = hiltViewModel(),
-    uri: Uri?
+    selectedTab: PrescriptionTabs,
+    uri: Uri?,
+    displayedScreen: (EmptyScreenState) -> Unit
 ) {
     val refreshState = rememberSwipeableState(false)
 
@@ -269,19 +264,19 @@ fun PrescriptionScreen(
                     }
                 }
 
-                NavigationAnimation(mode = NavigationMode.Open) {
-                    val coroutineScope = rememberCoroutineScope()
+                val coroutineScope = rememberCoroutineScope()
 
-                    Prescriptions(
-                        onClickRefresh = {
-                            coroutineScope.launch { refreshState.animateTo(true) }
-                        },
-                        prescriptionViewModel = prescriptionViewModel,
-                        state = state,
-                        navController = navController,
-                        uri = uri
-                    )
-                }
+                Prescriptions(
+                    onClickRefresh = {
+                        coroutineScope.launch { refreshState.animateTo(true) }
+                    },
+                    prescriptionViewModel = prescriptionViewModel,
+                    state = state,
+                    navController = navController,
+                    selectedTab = selectedTab,
+                    uri = uri,
+                    displayedScreen = displayedScreen
+                )
             }
             // todo FastTrack: combine success/error result from FastTrack auth process with app.
             // Processing = banner, Error = Dialog?
@@ -300,7 +295,9 @@ private fun Prescriptions(
     state: PrescriptionScreenData.State,
     navController: NavController,
     onClickRefresh: () -> Unit,
-    uri: Uri?
+    selectedTab: PrescriptionTabs,
+    uri: Uri?,
+    displayedScreen: (EmptyScreenState) -> Unit
 ) {
     val cardPaddingModifier = Modifier
         .padding(
@@ -318,152 +315,186 @@ private fun Prescriptions(
         )
         .fillMaxWidth()
 
+    when (selectedTab) {
+
+        PrescriptionTabs.Redeemable -> RedeemedTabInformation(
+            onClickRefresh = onClickRefresh,
+            state = state,
+            navController = navController,
+            cardPaddingModifier = cardPaddingModifier,
+            headerPaddingModifier = headerPaddingModifier,
+            displayedScreen = displayedScreen
+        )
+
+        PrescriptionTabs.Archive -> ArchiveTabInformation(
+            state = state,
+            navController = navController,
+            cardPaddingModifier = cardPaddingModifier,
+            headerPaddingModifier = headerPaddingModifier
+        )
+    }
+}
+
+@Composable
+private fun RedeemedTabInformation(
+    onClickRefresh: () -> Unit,
+    state: PrescriptionScreenData.State,
+    navController: NavController,
+    cardPaddingModifier: Modifier,
+    headerPaddingModifier: Modifier,
+    displayedScreen: (EmptyScreenState) -> Unit
+) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(bottom = 68.dp), // padding for fab
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        item { SpacerMedium() }
+        when {
+            state.prescriptions.isEmpty() && state.ssoTokenSetAndConnected() -> {
+                item {
+                    SpacerXXLarge()
+                    HomeHealthCardConnected(
+                        modifier = cardPaddingModifier,
+                        onClickAction = onClickRefresh,
+                        displayedScreen = displayedScreen
+                    )
+                }
+            }
+            state.prescriptions.isEmpty() && state.ssoTokenSetAndDisconnected() -> {
+                item {
+                    SpacerXXLarge()
+                    HomeHealthCardDisconnected(
+                        modifier = cardPaddingModifier,
+                        onClickAction = onClickRefresh,
+                        displayedScreen = displayedScreen
+                    )
+                }
+            }
+            state.prescriptions.isEmpty() && state.noSsoTokenSet() -> {
+                item {
+                    SpacerXXLarge()
+                    HomeNoHealthCard(
+                        modifier = cardPaddingModifier,
+                        onClickAction = {
+                            navController.navigate(MainNavigationScreens.Camera.path())
+                        }, displayedScreen = displayedScreen
+                    )
+                }
+            }
+            else -> {
+                displayedScreen(EmptyScreenState.ofValue(3)!!)
+                item { SpacerMedium() }
+                itemsIndexed(state.prescriptions) { index, prescription ->
+                    val isFirstSyncedPrescription =
+                        (index == 0 && prescription is PrescriptionUseCaseData.Prescription.Synced)
+                    val titleChanged = (
+                        index > 0 &&
+                            (state.prescriptions[index - 1] as? PrescriptionUseCaseData.Prescription.Synced)?.organization !=
+                            (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization
+                        )
 
-        // TODO: remove hints
-        items(state.hints, key = { it.hashCode() }) {
-            when (it) {
-                is PrescriptionScreenHintDemoModeActivated ->
-                    PrescriptionScreenDemoModeActivatedCard(cardPaddingModifier) {
-                        prescriptionViewModel.onCloseHintCard(it)
+                    if (isFirstSyncedPrescription || titleChanged) {
+                        Text(
+                            (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization ?: "",
+                            style = MaterialTheme.typography.h6,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(headerPaddingModifier)
+                        )
                     }
-                is PrescriptionScreenHintTryDemoMode ->
-                    PrescriptionScreenTryDemoModeCard(
-                        cardPaddingModifier,
-                        onClickAction = {
-                            navController.navigate(
-                                MainNavigationScreens.Settings.path(
-                                    SettingsScrollTo.DemoMode
-                                )
-                            )
-                        },
-                        onClose = { prescriptionViewModel.onCloseHintCard(it) }
-                    )
-                is PrescriptionScreenHintDefineSecurity ->
-                    PrescriptionScreenDefineSecurityCard(
-                        cardPaddingModifier,
-                        onClickAction = {
-                            navController.navigate(
-                                MainNavigationScreens.Settings.path(
-                                    SettingsScrollTo.Authentication
-                                )
-                            )
-                        }
-                    )
-            }
-        }
 
-        item {
-            RefreshDivider(
-                modifier = headerPaddingModifier,
-                onClickRefresh = onClickRefresh
-            )
-        }
-
-        if (state.prescriptions.isEmpty()) {
-            item {
-                NothingToShowNote(
-                    cardPaddingModifier.padding(
-                        top = PaddingDefaults.Small
-                    ),
-                    stringResource(R.string.prescription_overview_info_no_recipes)
-                )
-            }
-        } else {
-            itemsIndexed(state.prescriptions) { index, prescription ->
-                val isFirstSyncedPrescription =
-                    (index == 0 && prescription is PrescriptionUseCaseData.Prescription.Synced)
-                val titleChanged = (
-                    index > 0 &&
-                        (state.prescriptions[index - 1] as? PrescriptionUseCaseData.Prescription.Synced)?.organization !=
-                        (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization
-                    )
-
-                if (isFirstSyncedPrescription || titleChanged) {
-                    Text(
-                        (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization ?: "",
-                        style = MaterialTheme.typography.h6,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(headerPaddingModifier)
-                    )
-                }
-
-                when (prescription) {
-                    is PrescriptionUseCaseData.Prescription.Synced ->
-                        FullDetailMedication(
-                            prescription,
-                            state.nowInEpochDays,
-                            modifier = cardPaddingModifier,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
+                    when (prescription) {
+                        is PrescriptionUseCaseData.Prescription.Synced ->
+                            FullDetailMedication(
+                                prescription,
+                                state.nowInEpochDays,
+                                modifier = cardPaddingModifier,
+                                onClick = {
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            prescription.taskId
+                                        )
                                     )
-                                )
-                            }
-                        )
+                                }
+                            )
 
-                    is PrescriptionUseCaseData.Prescription.Scanned ->
-                        LowDetailMedication(
-                            modifier = cardPaddingModifier,
-                            prescription,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
+                        is PrescriptionUseCaseData.Prescription.Scanned ->
+                            LowDetailMedication(
+                                modifier = cardPaddingModifier,
+                                prescription,
+                                onClick = {
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            prescription.taskId
+                                        )
                                     )
-                                )
-                            }
-                        )
+                                }
+                            )
+                    }
                 }
             }
         }
+    }
+}
 
-        item { RedeemedHeader(headerPaddingModifier) }
-
-        if (state.redeemedPrescriptions.isEmpty()) {
-            item {
-                NothingToShowNote(
-                    cardPaddingModifier.padding(
-                        top = PaddingDefaults.Small
-                    ),
-                    stringResource(R.string.prs_not_redeemed_note)
-                )
+@Composable
+private fun ArchiveTabInformation(
+    state: PrescriptionScreenData.State,
+    navController: NavController,
+    cardPaddingModifier: Modifier,
+    headerPaddingModifier: Modifier,
+) {
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        when {
+            state.redeemedPrescriptions.isEmpty() && state.noSsoTokenSet() -> {
+                item {
+                    SpacerXXLarge()
+                    ArchiveNoEGKInitial(
+                        modifier = cardPaddingModifier
+                    )
+                }
             }
-        } else {
-            items(state.redeemedPrescriptions) { prescription ->
-                when (prescription) {
-                    is PrescriptionUseCaseData.Prescription.Scanned ->
-                        LowDetailMedication(
-                            modifier = cardPaddingModifier,
-                            prescription,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
+            state.redeemedPrescriptions.isEmpty() -> {
+                item {
+                    SpacerXXLarge()
+                    ArchiveNoEGKRedeemed(
+                        modifier = cardPaddingModifier
+                    )
+                }
+            }
+            else -> {
+                item { SpacerMedium() }
+                items(state.redeemedPrescriptions) { prescription ->
+                    when (prescription) {
+                        is PrescriptionUseCaseData.Prescription.Scanned ->
+                            LowDetailMedication(
+                                modifier = cardPaddingModifier,
+                                prescription,
+                                onClick = {
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            prescription.taskId
+                                        )
                                     )
-                                )
-                            }
-                        )
-                    is PrescriptionUseCaseData.Prescription.Synced ->
-                        FullDetailMedication(
-                            prescription,
-                            state.nowInEpochDays,
-                            modifier = cardPaddingModifier,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
+                                }
+                            )
+                        is PrescriptionUseCaseData.Prescription.Synced ->
+                            FullDetailMedication(
+                                prescription,
+                                state.nowInEpochDays,
+                                modifier = cardPaddingModifier,
+                                onClick = {
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            prescription.taskId
+                                        )
                                     )
-                                )
-                            }
-                        )
+                                }
+                            )
+                    }
                 }
             }
         }
@@ -476,34 +507,18 @@ private fun Banner(modifier: Modifier, onClose: () -> Unit) {
         Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             CircularProgressIndicator(Modifier.padding(end = 16.dp), AppTheme.colors.neutral400)
             Text(
-                text = stringResource(R.string.main_banner_authentication_text), Modifier.weight(1f), color = AppTheme.colors.neutral700,
+                text = stringResource(R.string.main_banner_authentication_text),
+                Modifier.weight(1f),
+                color = AppTheme.colors.neutral700,
                 style = AppTheme.typography.body2l
             )
-            Image(Icons.Rounded.Close, null, modifier = Modifier.padding(start = 20.dp).clickable { onClose() }, alpha = 0.3f)
+            Image(
+                Icons.Rounded.Close,
+                null,
+                modifier = Modifier.padding(start = 20.dp).clickable { onClose() },
+                alpha = 0.3f
+            )
         }
-    }
-}
-
-@Composable
-private fun NothingToShowNote(
-    modifier: Modifier = Modifier,
-    text: String
-) {
-    Card(
-        modifier = modifier,
-        backgroundColor = AppTheme.colors.neutral100,
-        contentColor = AppTheme.colors.neutral600,
-        elevation = 1.dp,
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(
-            text,
-            textAlign = TextAlign.Center,
-            style = AppTheme.typography.body2l,
-            modifier = Modifier
-                .padding(16.dp)
-                .testTag("erx_txt_empty_list")
-        )
     }
 }
 
@@ -863,47 +878,5 @@ private fun LowDetailMedication(
                     .align(Alignment.CenterVertically)
             )
         }
-    }
-}
-
-/**
- * | Current        X Refresh |
- */
-@Composable
-private fun RefreshDivider(modifier: Modifier = Modifier, onClickRefresh: () -> Unit) {
-    Row(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.prs_divider_refresh_info),
-            style = MaterialTheme.typography.h6,
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-        Spacer(modifier = Modifier.weight(1.0f))
-        TextButton(
-            onClick = onClickRefresh,
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .testTag("erx_btn_refresh")
-        ) {
-            Icon(
-                Icons.Rounded.Update, null,
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(end = 4.dp)
-            )
-            Text(
-                stringResource(R.string.prs_divider_refresh_action),
-                style = MaterialTheme.typography.subtitle2
-            )
-        }
-    }
-}
-
-@Composable
-private fun RedeemedHeader(modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
-        Text(
-            style = MaterialTheme.typography.h6,
-            text = stringResource(R.string.prs_divider_redeemed_info),
-        )
     }
 }

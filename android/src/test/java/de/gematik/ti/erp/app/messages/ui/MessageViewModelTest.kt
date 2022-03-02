@@ -26,9 +26,8 @@ import io.mockk.every
 import io.mockk.mockk
 import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -50,7 +49,7 @@ class MessageViewModelTest {
 
     @Test
     fun `test loading communications - not empty list`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             every { useCase.loadCommunicationsLocally(any()) } returns flow { listOfCommunicationsRead() }
             viewModel.fetchCommunications().collect {
                 assertTrue(it.isNotEmpty())
@@ -59,7 +58,7 @@ class MessageViewModelTest {
 
     @Test
     fun `test loading communications - empty list`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             every { useCase.loadCommunicationsLocally(any()) } returns flow { listOf<Communication>() }
             viewModel.fetchCommunications().collect {
                 assertTrue(it.isEmpty())

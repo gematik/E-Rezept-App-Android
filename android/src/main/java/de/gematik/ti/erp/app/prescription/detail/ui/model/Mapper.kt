@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.prescription.detail.ui.model
 
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.db.entities.Task
-import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PrescriptionOrder
 import de.gematik.ti.erp.app.prescription.repository.InsuranceCompanyDetail
 import de.gematik.ti.erp.app.prescription.repository.MedicationDetail
 import de.gematik.ti.erp.app.prescription.repository.MedicationRequestDetail
@@ -77,16 +77,11 @@ fun mapToUIPrescriptionDetailSynced(
 fun mapToUIPrescriptionOrder(
     task: Task,
     medication: MedicationDetail,
-    medicationRequest: MedicationRequestDetail,
-    patient: PatientDetail,
-): UIPrescriptionOrder {
-    val uiPrescriptionOrder = UIPrescriptionOrder(
+    medicationRequest: MedicationRequestDetail
+) =
+    PrescriptionOrder(
         taskId = task.taskId,
         accessCode = task.accessCode!!,
         title = medication.text,
-        substitutionsAllowed = medicationRequest.substitutionAllowed,
+        substitutionsAllowed = medicationRequest.substitutionAllowed
     )
-    uiPrescriptionOrder.address = patient.address ?: ""
-    uiPrescriptionOrder.patientName = patient.name ?: ""
-    return uiPrescriptionOrder
-}

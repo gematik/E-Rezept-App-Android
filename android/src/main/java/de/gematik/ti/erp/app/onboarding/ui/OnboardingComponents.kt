@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.onboarding.ui
 
-import android.os.Parcelable
 import androidx.activity.compose.BackHandler
 import androidx.annotation.FloatRange
 import androidx.annotation.StringRes
@@ -41,7 +40,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -52,8 +50,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Icon
@@ -85,16 +81,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -123,23 +114,15 @@ import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
-import de.gematik.ti.erp.app.settings.ui.ConfirmationPasswordTextField
-import de.gematik.ti.erp.app.settings.ui.PasswordStrength
-import de.gematik.ti.erp.app.settings.ui.PasswordTextField
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
-import de.gematik.ti.erp.app.settings.ui.checkPassword
 import de.gematik.ti.erp.app.settings.usecase.DEFAULT_PROFILE_NAME
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.userauthentication.ui.BiometricPrompt
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
-import de.gematik.ti.erp.app.utils.compose.LargeButton
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.Spacer16
@@ -148,7 +131,6 @@ import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.Spacer40
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.createToastShort
@@ -157,7 +139,6 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.testId
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
 import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.max
@@ -184,10 +165,10 @@ fun ReturningUserSecureAppOnboardingScreen(
     mainNavController: NavController,
     settingsViewModel: SettingsViewModel = hiltViewModel()
 ) {
-    var secureMethod by rememberSaveable { mutableStateOf<SecureAppMethod>(SecureAppMethod.None) }
+    var secureMethod by rememberSaveable { mutableStateOf<OnboardingSecureAppMethod>(OnboardingSecureAppMethod.None) }
     val enabled = when {
-        secureMethod is SecureAppMethod.DeviceSecurity -> true
-        secureMethod is SecureAppMethod.Password -> (secureMethod as? SecureAppMethod.Password)?.let {
+        secureMethod is OnboardingSecureAppMethod.DeviceSecurity -> true
+        secureMethod is OnboardingSecureAppMethod.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.let {
             it.checkedPassword != null
         } ?: false
         else -> false
@@ -202,9 +183,9 @@ fun ReturningUserSecureAppOnboardingScreen(
                     enabled = enabled,
                     onClick = {
                         when (val sm = secureMethod) {
-                            is SecureAppMethod.DeviceSecurity ->
+                            is OnboardingSecureAppMethod.DeviceSecurity ->
                                 settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
-                            is SecureAppMethod.Password ->
+                            is OnboardingSecureAppMethod.Password ->
                                 settingsViewModel.onSelectPasswordAsAuthenticationMode(
                                     requireNotNull(sm.checkedPassword)
                                 )
@@ -231,7 +212,8 @@ fun ReturningUserSecureAppOnboardingScreen(
             isReturningUser = true,
             onSecureMethodChange = {
                 secureMethod = it
-            }
+            },
+            onNext = {}
         )
     }
 }
@@ -262,9 +244,9 @@ fun OnboardingScreen(
                     },
                     onSaveNewUser = { allowTracking, secureMethod, profileName ->
                         when (secureMethod) {
-                            is SecureAppMethod.DeviceSecurity ->
+                            is OnboardingSecureAppMethod.DeviceSecurity ->
                                 settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
-                            is SecureAppMethod.Password ->
+                            is OnboardingSecureAppMethod.Password ->
                                 settingsViewModel.onSelectPasswordAsAuthenticationMode(
                                     requireNotNull(secureMethod.checkedPassword)
                                 )
@@ -325,12 +307,12 @@ private fun OnboardingScreenWithScaffold(
     navController: NavController,
     allowTracking: Boolean,
     onAllowTracking: (Boolean) -> Unit,
-    onSaveNewUser: (allowTracking: Boolean, secureAppMethod: SecureAppMethod, profileName: String) -> Unit
+    onSaveNewUser: (allowTracking: Boolean, secureAppMethod: OnboardingSecureAppMethod, profileName: String) -> Unit
 ) {
     val context = LocalContext.current
 
     var tosAndDataToggled by remember { mutableStateOf(false) }
-    var secureMethod by rememberSaveable { mutableStateOf<SecureAppMethod>(SecureAppMethod.None) }
+    var secureMethod by rememberSaveable { mutableStateOf<OnboardingSecureAppMethod>(OnboardingSecureAppMethod.None) }
     var profileName by rememberSaveable { mutableStateOf("") }
 
     val state = rememberPagerState(initialPage = 0)
@@ -339,10 +321,10 @@ private fun OnboardingScreenWithScaffold(
         PROFILE_PAGE + 1
     } else
         when (secureMethod) {
-            is SecureAppMethod.Password -> (secureMethod as? SecureAppMethod.Password)?.let {
+            is OnboardingSecureAppMethod.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.let {
                 if (it.checkedPassword != null) MAX_PAGES else SECURE_APP_PAGE + 1
             } ?: (SECURE_APP_PAGE + 1)
-            is SecureAppMethod.DeviceSecurity -> MAX_PAGES
+            is OnboardingSecureAppMethod.DeviceSecurity -> MAX_PAGES
             else -> SECURE_APP_PAGE + 1
         }
 
@@ -393,7 +375,11 @@ private fun OnboardingScreenWithScaffold(
                             },
                             profileName = profileName,
                             onProfileNameChange = { profileName = it },
-                            onNext = {}
+                            onNext = {
+                                scope.launch {
+                                    state.animateScrollToPage(state.currentPage + 1)
+                                }
+                            }
                         )
                     }
                     SECURE_APP_PAGE -> {
@@ -402,6 +388,11 @@ private fun OnboardingScreenWithScaffold(
                             secureMethod = secureMethod,
                             onSecureMethodChange = {
                                 secureMethod = it
+                            },
+                            onNext = {
+                                scope.launch {
+                                    state.animateScrollToPage(state.currentPage + 1)
+                                }
                             }
                         )
                     }
@@ -453,7 +444,7 @@ private fun OnboardingScreenWithScaffold(
                 OutlinedDebugButton(
                     "SKIP",
                     onClick = {
-                        onSaveNewUser(false, SecureAppMethod.Password("a", "a", 9), DEFAULT_PROFILE_NAME)
+                        onSaveNewUser(false, OnboardingSecureAppMethod.Password("a", "a", 9), DEFAULT_PROFILE_NAME)
                     },
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -508,7 +499,7 @@ private fun Dot(modifier: Modifier = Modifier, color: Color) {
 private fun BoxScope.OnboardingNextButton(
     modifier: Modifier = Modifier,
     profileName: String,
-    secureMethod: SecureAppMethod,
+    secureMethod: OnboardingSecureAppMethod,
     tosAndDataToggled: Boolean,
     currentPage: Int,
     onNextPage: () -> Unit,
@@ -517,8 +508,8 @@ private fun BoxScope.OnboardingNextButton(
     val enabled = when {
         currentPage == WELCOME_PAGE || currentPage == FEATURE_PAGE || currentPage == ANALYTICS_PAGE -> true
         currentPage == PROFILE_PAGE && profileName.isNotEmpty() -> true
-        currentPage == SECURE_APP_PAGE && secureMethod is SecureAppMethod.DeviceSecurity -> true
-        currentPage == SECURE_APP_PAGE && secureMethod is SecureAppMethod.Password -> secureMethod.checkedPassword != null
+        currentPage == SECURE_APP_PAGE && secureMethod is OnboardingSecureAppMethod.DeviceSecurity -> true
+        currentPage == SECURE_APP_PAGE && secureMethod is OnboardingSecureAppMethod.Password -> secureMethod.checkedPassword != null
         tosAndDataToggled && currentPage == TOS_AND_DATA_PAGE -> true
         else -> false
     }
@@ -944,247 +935,6 @@ private fun AnalyticsToggle(
         Switch(
             checked = analyticsAllowed,
             onCheckedChange = null,
-        )
-    }
-}
-
-private sealed class SecureAppMethod {
-    @Parcelize
-    data class Password(val password: String, val repeatedPassword: String, val score: Int) :
-        SecureAppMethod(),
-        Parcelable {
-        val checkedPassword: String?
-            get() =
-                if (checkPassword(password, repeatedPassword, score)) {
-                    password
-                } else {
-                    null
-                }
-    }
-
-    @Parcelize
-    object DeviceSecurity : SecureAppMethod(), Parcelable
-
-    @Parcelize
-    object None : SecureAppMethod(), Parcelable
-}
-
-@OptIn(ExperimentalAnimationApi::class)
-@Composable
-private fun OnboardingSecureApp(
-    modifier: Modifier,
-    isReturningUser: Boolean = false,
-    secureMethod: SecureAppMethod,
-    onSecureMethodChange: (SecureAppMethod) -> Unit
-) {
-    val password =
-        remember(secureMethod) { (secureMethod as? SecureAppMethod.Password)?.password ?: "" }
-    val repeatedPassword =
-        remember(secureMethod) {
-            (secureMethod as? SecureAppMethod.Password)?.repeatedPassword ?: ""
-        }
-    val passwordScore =
-        remember(secureMethod) {
-            (secureMethod as? SecureAppMethod.Password)?.score ?: 0
-        }
-
-    var passwordFieldIsFocused by remember { mutableStateOf(false) }
-    val extendPassword = passwordFieldIsFocused || password.isNotEmpty()
-
-    val header = stringResource(R.string.on_boarding_secure_app_page_header)
-    val info = stringResource(R.string.on_boarding_secure_app_page_info)
-
-    Column(
-        modifier = modifier
-            .testTag("onboarding/secureAppPage")
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = PaddingDefaults.Large, vertical = PaddingDefaults.XXLarge)
-    ) {
-
-        if (isReturningUser) {
-            Image(
-                painterResource(R.drawable.laptop_woman_blue),
-                null,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxSize()
-            )
-            SpacerMedium()
-        }
-
-        Text(
-            text = header,
-            style = MaterialTheme.typography.h6,
-            color = AppTheme.colors.primary900,
-            textAlign = TextAlign.Center
-        )
-
-        if (isReturningUser) {
-            SpacerMedium()
-
-            Text(
-                text = info,
-                style = MaterialTheme.typography.body1,
-                color = AppTheme.colors.neutral999,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
-
-        val focusRequester = FocusRequester.Default
-        val focusManager = LocalFocusManager.current
-
-        PasswordTextField(
-            modifier = Modifier
-                .testTag("onboarding/secure_text_input_1")
-                .fillMaxWidth()
-                .onFocusChanged {
-                    passwordFieldIsFocused = it.isFocused
-                },
-            value = password,
-            onValueChange = {
-                if (it.isEmpty()) {
-                    onSecureMethodChange(SecureAppMethod.None)
-                } else {
-                    onSecureMethodChange(
-                        SecureAppMethod.Password(
-                            password = it,
-                            repeatedPassword = "",
-                            score = passwordScore
-                        )
-                    )
-                }
-            },
-            onSubmit = { focusRequester.requestFocus() },
-            allowAutofill = true,
-            allowVisiblePassword = true,
-            label = {
-                Text(stringResource(R.string.settings_password_enter_password))
-            }
-        )
-        AnimatedVisibility(visible = extendPassword) {
-            Column {
-                SpacerTiny()
-                PasswordStrength(
-                    modifier = Modifier.fillMaxWidth(),
-                    password = password,
-                    onScoreChange = {
-                        onSecureMethodChange(
-                            SecureAppMethod.Password(
-                                password = password,
-                                repeatedPassword = repeatedPassword,
-                                score = it
-                            )
-                        )
-                    }
-                )
-
-                SpacerMedium()
-
-                ConfirmationPasswordTextField(
-                    modifier = Modifier
-                        .testTag("onboarding/secure_text_input_2")
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    password = password,
-                    value = repeatedPassword,
-                    passwordScore = passwordScore,
-                    onValueChange = {
-                        onSecureMethodChange(
-                            SecureAppMethod.Password(
-                                password = password,
-                                repeatedPassword = it,
-                                score = passwordScore
-                            )
-                        )
-                    },
-                    onSubmit = { focusManager.clearFocus() }
-                )
-            }
-        }
-        Row(
-            modifier = Modifier.padding(vertical = PaddingDefaults.XXLarge),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Divider(modifier = Modifier.weight(0.5f))
-            Text(
-                stringResource(R.string.onboarding_secure_app_or).uppercase(Locale.getDefault()),
-                modifier = Modifier.padding(horizontal = 12.dp),
-                style = AppTheme.typography.body2l,
-                fontWeight = FontWeight.Medium
-            )
-            Divider(modifier = Modifier.weight(0.5f))
-        }
-
-        var showBiometricPrompt by rememberSaveable { mutableStateOf(false) }
-        var showAcceptDeviceAuthenticationInfo by rememberSaveable { mutableStateOf(false) }
-
-        if (showAcceptDeviceAuthenticationInfo) {
-            CommonAlertDialog(
-                header = stringResource(R.string.settings_biometric_dialog_title),
-                info = stringResource(R.string.settings_biometric_dialog_text),
-                actionText = stringResource(R.string.settings_device_security_allow),
-                cancelText = stringResource(R.string.cancel),
-                onCancel = { showAcceptDeviceAuthenticationInfo = false },
-                onClickAction = {
-                    showBiometricPrompt = true
-                    showAcceptDeviceAuthenticationInfo = false
-                }
-            )
-        }
-
-        if (showBiometricPrompt) {
-            BiometricPrompt(
-                authenticationMethod = SettingsAuthenticationMethod.DeviceSecurity,
-                title = stringResource(R.string.auth_prompt_headline),
-                description = "",
-                negativeButton = stringResource(R.string.auth_prompt_cancel),
-                onAuthenticated = {
-                    onSecureMethodChange(SecureAppMethod.DeviceSecurity)
-                    showBiometricPrompt = false
-                },
-                onCancel = {
-                    showBiometricPrompt = false
-                },
-                onAuthenticationError = {
-                    showBiometricPrompt = false
-                },
-                onAuthenticationSoftError = {
-                }
-            )
-        }
-
-        val buttonColors = if (secureMethod == SecureAppMethod.DeviceSecurity) {
-            ButtonDefaults.buttonColors(
-                backgroundColor = AppTheme.colors.green600,
-                contentColor = AppTheme.colors.neutral000
-            )
-        } else {
-            ButtonDefaults.buttonColors()
-        }
-
-        LargeButton(
-            onClick = {
-                showAcceptDeviceAuthenticationInfo = true
-            },
-            colors = buttonColors
-        ) {
-            if (secureMethod == SecureAppMethod.DeviceSecurity) {
-                Icon(Icons.Rounded.Check, null)
-                SpacerSmall()
-                Text(
-                    stringResource(R.string.onboarding_secure_app_button_best_chosen).uppercase(
-                        Locale.getDefault()
-                    )
-                )
-            } else {
-                Text(stringResource(R.string.onboarding_secure_app_button_best).uppercase(Locale.getDefault()))
-            }
-        }
-        SpacerSmall()
-        Text(
-            stringResource(R.string.onboarding_secure_app_button_best_info),
-            style = AppTheme.typography.body2l
         )
     }
 }

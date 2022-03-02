@@ -27,24 +27,25 @@ import androidx.navigation.NavHostController
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.core.LocalTracker
+import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
 import pro.piwik.sdk.Piwik
 import pro.piwik.sdk.Tracker
 import pro.piwik.sdk.TrackerConfig
 import pro.piwik.sdk.extra.TrackHelper
 import pro.piwik.sdk.tools.Checksum
 import timber.log.Timber
-import javax.inject.Inject
-import javax.inject.Singleton
 
 private const val trackerName = "Tracker"
 
 // `gemSpec_eRp_FdV A_20187`
 @Singleton
 class Tracker @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    private val demoUseCase: DemoUseCase
 ) {
     private val _trackingAllowed = MutableStateFlow(false)
     val trackingAllowed: StateFlow<Boolean>
@@ -99,7 +100,33 @@ class Tracker @Inject constructor(
     }
 
     fun trackScreen(path: String) {
-        TrackHelper.track().screen(path).with(tracker)
+        val p = if (demoUseCase.isDemoModeActive) "demo/$path" else path
+        TrackHelper.track().screen(p).with(tracker)
+    }
+
+    fun trackIdentifiedWithIDP() {
+        TrackHelper.track().event("CardWall", "Identified").with(tracker)
+    }
+
+    enum class AuthenticationProblem {
+        CardBlocked,
+        CardAccessNumberWrong,
+        CardCommunicationInterrupted,
+        CardPinWrong,
+        IDPCommunicationFailed,
+        IDPCommunicationInvalidCertificate,
+        IDPCommunicationInvalidOCSPOfCard,
+        SecureElementCryptographyFailed
+    }
+
+    fun trackAuthenticationProblem(kind: AuthenticationProblem) {
+        if (!demoUseCase.isDemoModeActive) {
+            TrackHelper.track().event("CardWall", "AuthFailed-${kind.name}").with(tracker)
+        }
+    }
+
+    fun trackSaveScannedPrescriptions() {
+        TrackHelper.track().event("Scanner", "ScannedCodesSaved").with(tracker)
     }
 }
 

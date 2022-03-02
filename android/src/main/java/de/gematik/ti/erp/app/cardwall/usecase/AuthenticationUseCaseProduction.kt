@@ -37,6 +37,11 @@ import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.profiles.repository.KVNRAlreadyAssignedException
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.secureRandomInstance
+import java.io.IOException
+import java.security.KeyPairGenerator
+import java.security.KeyStore
+import java.security.spec.ECGenParameterSpec
+import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
@@ -51,13 +56,9 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
+import org.json.JSONException
 import org.json.JSONObject
 import timber.log.Timber
-import java.io.IOException
-import java.security.KeyPairGenerator
-import java.security.KeyStore
-import java.security.spec.ECGenParameterSpec
-import javax.inject.Inject
 
 /**
  * Error codes returned by the IDP as an error JSON: `{ "gematik_code" : "..." }`.
@@ -313,7 +314,13 @@ class AuthenticationUseCaseProduction @Inject constructor(
                 else -> {
                     if (e is ApiCallException) {
                         val code = e.response.errorBody()
-                            ?.let { JSONObject(it.string())["gematik_code"] as? String }
+                            ?.let {
+                                try {
+                                    JSONObject(it.string())["gematik_code"] as? String
+                                } catch (_: JSONException) {
+                                    null
+                                }
+                            }
                             ?.let { IDPErrorCodes.valueOfCode(it) }
 
                         when (code) {
@@ -416,7 +423,7 @@ class AuthenticationUseCaseProduction @Inject constructor(
                         AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate
 
                     AuthenticationExceptionKind.InsuranceIdentifierAlreadyAssigned -> {
-                        val alreadyAssignedException = (e.cause !!as KVNRAlreadyAssignedException)
+                        val alreadyAssignedException = (e.cause!! as KVNRAlreadyAssignedException)
                         AuthenticationState.InsuranceIdentifierAlreadyExists(
                             inActiveProfile = alreadyAssignedException.isActiveProfile,
                             profileName = alreadyAssignedException.inProfile,

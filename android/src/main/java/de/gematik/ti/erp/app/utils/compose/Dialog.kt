@@ -170,8 +170,10 @@ fun DialogHost(
     content: @Composable () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
+        val dialogHostState = remember { DialogHostState() }
+
         CompositionLocalProvider(
-            LocalDialogHostState provides DialogHostState()
+            LocalDialogHostState provides dialogHostState
         ) {
             content()
 

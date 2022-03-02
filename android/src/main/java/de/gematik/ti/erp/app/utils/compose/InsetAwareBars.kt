@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.utils.compose
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.AppBarDefaults
@@ -48,7 +49,7 @@ fun TopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
-    elevation: Dp = AppBarDefaults.TopAppBarElevation
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
 ) {
     Surface(
         modifier = modifier,
@@ -65,6 +66,38 @@ fun TopAppBar(
             contentColor,
             elevation = 0.dp
         )
+    }
+}
+
+@Composable
+fun TopAppBarWithContent(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        color = backgroundColor,
+        elevation = elevation,
+        shape = RectangleShape
+    ) {
+        Column {
+            androidx.compose.material.TopAppBar(
+                title,
+                Modifier.statusBarsPadding(),
+                navigationIcon,
+                actions,
+                backgroundColor,
+                contentColor,
+                elevation = 0.dp,
+            )
+            content()
+        }
     }
 }
 
@@ -101,20 +134,25 @@ fun BottomNavigation(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationDefaults.Elevation,
-    content: @Composable RowScope.() -> Unit
+    extraContent: @Composable () -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
     Surface(
         modifier = modifier,
         color = backgroundColor,
         elevation = elevation
     ) {
-        androidx.compose.material.BottomNavigation(
-            Modifier.navigationBarsPadding(),
-            backgroundColor,
-            contentColor,
-            elevation = 0.dp,
-            content
-        )
+        Column {
+            extraContent()
+
+            androidx.compose.material.BottomNavigation(
+                Modifier.navigationBarsPadding(),
+                backgroundColor,
+                contentColor,
+                elevation = 0.dp,
+                content
+            )
+        }
     }
 }
 

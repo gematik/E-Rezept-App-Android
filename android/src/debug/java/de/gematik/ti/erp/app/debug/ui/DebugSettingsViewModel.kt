@@ -29,6 +29,9 @@ import androidx.lifecycle.viewModelScope
 import com.jakewharton.processphoenix.ProcessPhoenix
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.App
+import de.gematik.ti.erp.app.BCProvider
+import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
@@ -41,17 +44,28 @@ import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.ui.NEW_USER
 import de.gematik.ti.erp.app.vau.repository.VauRepository
+import java.math.BigInteger
+import java.security.KeyFactory
+import java.security.Signature
 import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
+import org.bouncycastle.cert.X509CertificateHolder
+import org.bouncycastle.jce.ECNamedCurveTable
+import org.bouncycastle.util.encoders.Base64
+import org.jose4j.jws.EcdsaUsingShaAlgorithm
 
 const val DEBUG_SETTINGS_STATE = "DEBUG_SETTINGS_STATE"
+private val healthCardCert = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
+private val healthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
 
 @HiltViewModel
 class DebugSettingsViewModel @Inject constructor(
@@ -65,8 +79,10 @@ class DebugSettingsViewModel @Inject constructor(
     private val prescriptionUseCase: PrescriptionUseCase,
     private val vauRepository: VauRepository,
     private val idpRepository: IdpRepository,
+    private val idpUseCase: IdpUseCase,
     private val profilesUseCase: ProfilesUseCase,
-    private val featureToggleManager: FeatureToggleManager
+    private val featureToggleManager: FeatureToggleManager,
+    private val dispatchProvider: DispatchProvider
 ) : BaseViewModel() {
 
     var debugSettingsData by mutableStateOf(
@@ -84,7 +100,9 @@ class DebugSettingsViewModel @Inject constructor(
         false,
         cardWallUseCase.cardWallIntroIsAccepted,
         false,
-        activeProfileName = ""
+        activeProfileName = "",
+        virtualHealthCardCert = healthCardCert,
+        virtualHealthCardPrivateKey = healthCardCertPrivateKey
     )
 
     suspend fun state() {
@@ -154,7 +172,7 @@ class DebugSettingsViewModel @Inject constructor(
         restart()
     }
 
-    suspend fun resetCardAccessNumber() {
+    fun resetCardAccessNumber() = runBlocking {
         cardWallUseCase.setCardAccessNumber(null)
         updateState(debugSettingsData.copy(cardAccessNumberIsSet = false))
     }
@@ -201,6 +219,50 @@ class DebugSettingsViewModel @Inject constructor(
         Thread.sleep(500)
         ProcessPhoenix.triggerRebirth(
             App.appContext, Intent(App.appContext, MainActivity::class.java)
+        )
+    }
+
+    fun onResetVirtualHealthCard() {
+        updateState(
+            debugSettingsData.copy(
+                virtualHealthCardCert = healthCardCert,
+                virtualHealthCardPrivateKey = healthCardCertPrivateKey
+            )
+        )
+    }
+
+    fun onSetVirtualHealthCardCertificate(cert: String) {
+        updateState(debugSettingsData.copy(virtualHealthCardCert = cert))
+    }
+
+    fun onSetVirtualHealthCardPrivateKey(privateKey: String) {
+        updateState(debugSettingsData.copy(virtualHealthCardPrivateKey = privateKey))
+    }
+
+    fun getVirtualHealthCardCertificateSubjectInfo(): String =
+        try {
+            X509CertificateHolder(Base64.decode(debugSettingsData.virtualHealthCardCert)).subject.toString()
+        } catch (e: Exception) {
+            e.message ?: "Error"
+        }
+
+    suspend fun onTriggerVirtualHealthCard(
+        certificateBase64: String,
+        privateKeyBase64: String
+    ) = withContext(dispatchProvider.io()) {
+        idpUseCase.authenticationFlowWithHealthCard(
+            healthCardCertificate = { Base64.decode(certificateBase64) },
+            sign = {
+                val curveSpec = ECNamedCurveTable.getParameterSpec("brainpoolP256r1")
+                val keySpec =
+                    org.bouncycastle.jce.spec.ECPrivateKeySpec(BigInteger(Base64.decode(privateKeyBase64)), curveSpec)
+                val privateKey = KeyFactory.getInstance("EC", BCProvider).generatePrivate(keySpec)
+                val signed = Signature.getInstance("NoneWithECDSA").apply {
+                    initSign(privateKey)
+                    update(it)
+                }.sign()
+                EcdsaUsingShaAlgorithm.convertDerToConcatenated(signed, 64)
+            }
         )
     }
 }

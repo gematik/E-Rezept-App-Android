@@ -23,6 +23,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -33,6 +35,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun AnimatedElevationScaffold(
     modifier: Modifier = Modifier,
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
     topBarColor: Color = MaterialTheme.colors.surface,
     navigationMode: NavigationBarMode = NavigationBarMode.Close,
     bottomBar: @Composable () -> Unit = {},
@@ -43,6 +46,7 @@ fun AnimatedElevationScaffold(
 ) {
     Scaffold(
         modifier = modifier,
+        scaffoldState = scaffoldState,
         topBar = {
             NavigationTopAppBar(
                 navigationMode = navigationMode,

@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.idp.usecase
 
-import android.net.Uri
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.unwrap
@@ -36,6 +35,7 @@ import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import de.gematik.ti.erp.app.vau.usecase.checkIdpCertificate
+import java.net.URI
 import java.security.MessageDigest
 import java.security.PublicKey
 import java.security.Security
@@ -372,13 +372,13 @@ class IdpBasicUseCase @Inject constructor(
         url: String,
         codeChallenge: JsonWebEncryption,
         state: IdpState,
-    ): Uri {
+    ): URI {
         val redirect = when (
             val r =
                 repository.postSignedChallenge(url, codeChallenge.compactSerialization)
         ) {
             is Result.Success -> {
-                Uri.parse(r.data)
+                URI(r.data)
             }
             is Result.Error -> throw r.exception
         }
@@ -394,13 +394,13 @@ class IdpBasicUseCase @Inject constructor(
         unsignedCodeChallenge: String,
         ssoToken: String,
         state: IdpState,
-    ): Uri {
+    ): URI {
         val redirect = when (
             val r =
                 repository.postUnsignedChallengeWithSso(url, ssoToken, unsignedCodeChallenge)
         ) {
             is Result.Success -> {
-                Uri.parse(r.data)
+                URI(r.data)
             }
             is Result.Error -> throw r.exception
         }

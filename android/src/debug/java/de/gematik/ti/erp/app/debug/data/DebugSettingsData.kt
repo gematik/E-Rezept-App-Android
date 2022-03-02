@@ -35,5 +35,7 @@ data class DebugSettingsData(
     val cardAccessNumberIsSet: Boolean,
     val cardWallIntroIsAccepted: Boolean,
     val multiProfile: Boolean,
-    val activeProfileName: String
+    val activeProfileName: String,
+    val virtualHealthCardCert: String,
+    val virtualHealthCardPrivateKey: String,
 ) : Parcelable

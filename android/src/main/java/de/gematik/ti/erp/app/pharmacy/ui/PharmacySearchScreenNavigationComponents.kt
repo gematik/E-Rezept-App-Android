@@ -20,16 +20,16 @@ package de.gematik.ti.erp.app.pharmacy.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.mainscreen.ui.ActionEvent
+import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
@@ -38,13 +38,10 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 fun PharmacySearchScreenWithNavigation(
     taskIds: List<String>,
     mainNavController: NavController,
-    viewModel: PharmacySearchViewModel = hiltViewModel()
+    viewModel: PharmacySearchViewModel = hiltViewModel(),
+    mainScreenVM: MainScreenViewModel = hiltViewModel(LocalActivity.current)
 ) {
     val navController = rememberNavController()
-    val selectedPharmacy = rememberSaveable {
-        mutableStateOf<PharmacyUseCaseData.Pharmacy?>(null)
-    }
-
     val navigationMode by navController.navigationModeState(PharmacyNavigationScreens.SearchResults.route)
 
     TrackNavigationChanges(navController)
@@ -57,72 +54,42 @@ fun PharmacySearchScreenWithNavigation(
             NavigationAnimation(mode = navigationMode) {
                 PharmacySearchScreen(
                     mainNavController = mainNavController,
-                    navController = navController,
-                    selectedPharmacy,
+                    onSelectPharmacy = {
+                        viewModel.onSelectPharmacy(it)
+                        navController.navigate(PharmacyNavigationScreens.PharmacyDetails.path())
+                    },
                     viewModel,
                 )
             }
         }
         composable(PharmacyNavigationScreens.PharmacyDetails.route) {
-            selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(mode = navigationMode) {
-                    PharmacyDetailsScreen(
-                        navController,
-                        pharmacy,
-                        showRedeemOptions = !taskIds.isEmpty()
-                    )
-                }
-            }
-        }
-        composable(PharmacyNavigationScreens.ReserveInPharmacy.route) {
-            selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(mode = navigationMode) {
-                    ReserveForPickupInPharmacy(
-                        navController = navController,
-                        viewModel,
-                        taskIds,
-                        pharmacy.name,
-                        pharmacy.telematikId
-                    )
-                }
-            }
-        }
-        composable(PharmacyNavigationScreens.CourierDelivery.route) {
-            selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(mode = navigationMode) {
-                    CourierDelivery(
-                        navigation = navController,
-                        viewModel,
-                        taskIds,
-                        pharmacy.name,
-                        pharmacy.telematikId,
-                        pharmacy.contacts.phone
-                    )
-                }
-            }
-        }
-        composable(PharmacyNavigationScreens.MailDelivery.route) {
-            selectedPharmacy.value?.let { pharmacy ->
-                NavigationAnimation(mode = navigationMode) {
-                    MailDelivery(
-                        navigation = navController,
-                        viewModel,
-                        taskIds,
-                        pharmacy.name,
-                        pharmacy.telematikId
-                    )
-                }
-            }
-        }
-        composable(
-            PharmacyNavigationScreens.UploadStatus.route,
-            PharmacyNavigationScreens.UploadStatus.arguments
-        ) {
-            val redeemOption = remember { requireNotNull(it.arguments?.getInt("redeemOption")) }
             NavigationAnimation(mode = navigationMode) {
-                RedeemOnlineSuccess(
-                    redeemOption,
-                    mainNavController
+                PharmacyDetailsScreen(
+                    navController,
+                    showRedeemOptions = taskIds.isNotEmpty(),
+                    viewModel
+                )
+            }
+        }
+        composable(PharmacyNavigationScreens.OrderPrescription.route) {
+            NavigationAnimation(mode = navigationMode) {
+                PharmacyOrderScreen(
+                    navController,
+                    taskIds,
+                    viewModel,
+                    onSuccessfullyOrdered = {
+                        mainScreenVM.onAction(ActionEvent.ReturnFromPharmacyOrder(it))
+                        mainNavController.popBackStack(MainNavigationScreens.Prescriptions.path(), false)
+                    }
+                )
+            }
+        }
+        composable(PharmacyNavigationScreens.EditShippingContact.route) {
+            NavigationAnimation(mode = navigationMode) {
+                EditShippingContactScreen(
+                    navController,
+                    taskIds,
+                    viewModel
                 )
             }
         }

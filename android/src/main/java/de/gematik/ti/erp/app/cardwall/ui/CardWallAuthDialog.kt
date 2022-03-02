@@ -90,12 +90,14 @@ import androidx.compose.ui.window.DialogProperties
 import com.google.accompanist.insets.systemBarsPadding
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.R.string
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.LocalTracker
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.tracking.Tracker
+import de.gematik.ti.erp.app.tracking.Tracker.AuthenticationProblem
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -163,8 +165,11 @@ fun CardWallAuthenticationDialog(
     val coroutineScope = rememberCoroutineScope()
     val toggleAuth = dialogState.toggleAuth
 
-    var showEnableNfcDialog by remember { mutableStateOf(false) }
+    // TODO: `viewModel.isNFCEnabled()` is not a proper key. Maybe find a better way to re-trigger this
+    var showEnableNfcDialog by remember(viewModel.isNFCEnabled()) { mutableStateOf(!viewModel.isNFCEnabled()) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
+
+    val tracker = LocalTracker.current
 
     val state by produceState<AuthenticationState>(initialValue = AuthenticationState.None) {
         toggleAuth.transformLatest {
@@ -221,6 +226,8 @@ fun CardWallAuthenticationDialog(
         }.collect {
             errorCount += if (it == AuthenticationState.HealthCardCommunicationInterrupted) 1 else 0
             value = it
+
+            tracker.trackAuth(it)
         }
     }
 
@@ -244,6 +251,7 @@ fun CardWallAuthenticationDialog(
             state.isInProgress() -> showAuthDialog = true
             state.isReady() -> showAuthDialog = false
             state.isFinal() -> {
+                tracker.trackIdentifiedWithIDP()
                 onFinal()
             }
         }
@@ -272,7 +280,7 @@ fun CardWallAuthenticationDialog(
     val retryText = when (val s = state) {
         AuthenticationState.IDPCommunicationFailed -> Pair(
             stringResource(R.string.cdw_nfc_intro_step1_header_on_error).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_intro_step1_info_on_error).toAnnotatedString()
+            stringResource(R.string.cdw_idp_error_time_and_connection).toAnnotatedString()
         )
         AuthenticationState.IDPCommunicationInvalidCertificate -> Pair(
             stringResource(R.string.cdw_nfc_error_title_invalid_certificate).toAnnotatedString(),
@@ -300,11 +308,11 @@ fun CardWallAuthenticationDialog(
         )
         is AuthenticationState.InsuranceIdentifierAlreadyExists -> {
             Pair(
-                stringResource(string.cdw_nfc_error_assign_title).toAnnotatedString(),
+                stringResource(R.string.cdw_nfc_error_assign_title).toAnnotatedString(),
                 if (s.inActiveProfile) {
-                    stringResource(string.cdw_nfc_error_assign_subtitle, s.insuranceIdentifier).toAnnotatedString()
+                    stringResource(R.string.cdw_nfc_error_assign_subtitle, s.insuranceIdentifier).toAnnotatedString()
                 } else {
-                    stringResource(string.cdw_nfc_error_assign_other_subtitle, s.profileName).toAnnotatedString()
+                    stringResource(R.string.cdw_nfc_error_assign_other_subtitle, s.profileName).toAnnotatedString()
                 }
             )
         }
@@ -325,7 +333,6 @@ fun CardWallAuthenticationDialog(
             onCancel = { showEnableNfcDialog = false },
             onClickAction = {
                 activity.startActivity(Intent("android.settings.NFC_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-                showEnableNfcDialog = false
             }
         )
     }
@@ -765,4 +772,29 @@ private fun TagLostCard() {
         painterResource(R.drawable.ic_healthcard_tag_lost),
         null,
     )
+}
+
+private fun Tracker.trackAuth(state: AuthenticationState) {
+    if (trackingAllowed.value) {
+        when (state) {
+            AuthenticationState.HealthCardBlocked ->
+                trackAuthenticationProblem(AuthenticationProblem.CardBlocked)
+            AuthenticationState.HealthCardCardAccessNumberWrong ->
+                trackAuthenticationProblem(AuthenticationProblem.CardAccessNumberWrong)
+            AuthenticationState.HealthCardCommunicationInterrupted ->
+                trackAuthenticationProblem(AuthenticationProblem.CardCommunicationInterrupted)
+            AuthenticationState.HealthCardPin1RetryLeft,
+            AuthenticationState.HealthCardPin2RetriesLeft ->
+                trackAuthenticationProblem(AuthenticationProblem.CardPinWrong)
+            AuthenticationState.IDPCommunicationFailed ->
+                trackAuthenticationProblem(AuthenticationProblem.IDPCommunicationFailed)
+            AuthenticationState.IDPCommunicationInvalidCertificate ->
+                trackAuthenticationProblem(AuthenticationProblem.IDPCommunicationInvalidCertificate)
+            AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate ->
+                trackAuthenticationProblem(AuthenticationProblem.IDPCommunicationInvalidOCSPOfCard)
+            AuthenticationState.SecureElementCryptographyFailed ->
+                trackAuthenticationProblem(AuthenticationProblem.SecureElementCryptographyFailed)
+            else -> {}
+        }
+    }
 }

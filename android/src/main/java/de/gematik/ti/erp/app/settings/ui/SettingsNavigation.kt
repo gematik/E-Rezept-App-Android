@@ -43,7 +43,6 @@ import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.URI_LICENCES
 import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
-import kotlinx.coroutines.flow.collect
 
 object SettingsNavigationScreens {
     object Settings : Route("Settings")
@@ -51,6 +50,7 @@ object SettingsNavigationScreens {
     object Imprint : Route("Imprint")
     object DataProtection : Route("DataProtection")
     object OpenSourceLicences : Route("OpenSourceLicences")
+    object AdditionalLicences : Route("AdditionalLicences")
     object AllowAnalytics : Route("AcceptAnalytics")
     object FeedbackForm : Route("FeedbackForm")
     object Password : Route("Password")
@@ -135,6 +135,13 @@ fun SettingsNavGraph(
                     onBack = { settingsNavController.popBackStack() },
                     url = URI_LICENCES
                 )
+            }
+        }
+        composable(SettingsNavigationScreens.AdditionalLicences.route) {
+            NavigationAnimation(mode = navigationMode) {
+                PharmacyLicenseScreen {
+                    settingsNavController.popBackStack()
+                }
             }
         }
         composable(SettingsNavigationScreens.AllowAnalytics.route) {

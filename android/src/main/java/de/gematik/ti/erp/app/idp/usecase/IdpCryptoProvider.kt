@@ -16,15 +16,15 @@
  * 
  */
 
-package de.gematik.ti.erp.app.pharmacy.usecase.model
+package de.gematik.ti.erp.app.idp.usecase
 
-data class UIPrescriptionOrder(
-    val taskId: String,
-    val title: String?,
-    val substitutionsAllowed: Boolean,
-    val accessCode: String
-) {
-    var selected: Boolean = true
-    var address: String = ""
-    var patientName: String = ""
+import java.security.KeyStore
+import java.security.Signature
+import javax.inject.Inject
+
+class IdpCryptoProvider @Inject constructor() {
+    fun keyStoreInstance(): KeyStore =
+        KeyStore.getInstance("AndroidKeyStore")
+    fun signatureInstance(algorithm: String = "SHA256withECDSA"): Signature =
+        Signature.getInstance(algorithm, "AndroidKeyStoreBCWorkaround")
 }

@@ -84,6 +84,9 @@ kotlin {
                         implementation(paging("common"))
                         implementation(paging("common-ktx"))
                     }
+                    kotlinX {
+                        implementation(coroutines("core"))
+                    }
                     dependencyInjection {
                         implementation(kodein("di"))
                         implementation(kodein("di-framework-compose"))

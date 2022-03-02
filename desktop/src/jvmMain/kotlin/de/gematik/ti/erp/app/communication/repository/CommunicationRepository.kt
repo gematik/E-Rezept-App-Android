@@ -35,4 +35,6 @@ class CommunicationRepository(
             val communications = mapper.mapFhirBundleToSimpleCommunications(it)
             localDataSource.saveCommunications(communications)
         }
+
+    suspend fun invalidate() = localDataSource.invalidate()
 }

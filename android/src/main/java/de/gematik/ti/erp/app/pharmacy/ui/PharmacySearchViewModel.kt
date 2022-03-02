@@ -22,11 +22,9 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.os.Parcelable
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
@@ -43,15 +41,20 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.common.usecase.model.PharmacyScreenHintEnableLocation
+import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.pharmacy.repository.model.DeliveryPharmacyService
 import de.gematik.ti.erp.app.pharmacy.repository.model.Location
 import de.gematik.ti.erp.app.pharmacy.repository.model.isOpenAt
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import java.time.OffsetDateTime
+import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -59,22 +62,23 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
-import java.time.OffsetDateTime
-import javax.inject.Inject
+import kotlinx.parcelize.Parcelize
 
 private const val waitForLocationUpdate = 5000L
 
@@ -83,13 +87,18 @@ sealed class PharmacySearchUi {
     object LocationHint : PharmacySearchUi()
 }
 
+private const val navStateKey = "pharmacyNavState"
+
 @HiltViewModel
 class PharmacySearchViewModel @Inject constructor(
     @ApplicationContext
     private val context: Context,
     private val useCase: PharmacySearchUseCase,
+    private val profilesUseCase: ProfilesUseCase,
     private val hintUseCase: HintUseCase,
-    private val dispatcher: DispatchProvider
+    private val dispatcher: DispatchProvider,
+    private val savedStateHandle: SavedStateHandle,
+    private val demoUseCase: DemoUseCase,
 ) : ViewModel() {
     private val searchChannel = Channel<PharmacyUseCaseData.SearchData>()
     private var searchState = MutableStateFlow<PharmacyUseCaseData.SearchData?>(null)
@@ -169,6 +178,22 @@ class PharmacySearchViewModel @Inject constructor(
         }
     }
 
+    @Parcelize
+    private data class NavState(
+        // orders identified by their taskId
+        val unSelectedPrescriptions: Set<String>,
+        val selectedOrderOption: PharmacyScreenData.OrderOption?,
+        val selectedPharmacy: PharmacyUseCaseData.Pharmacy?
+    ) : Parcelable
+
+    private val navState = MutableStateFlow(
+        savedStateHandle.get(navStateKey) ?: NavState(
+            unSelectedPrescriptions = setOf(),
+            selectedOrderOption = null,
+            selectedPharmacy = null
+        )
+    )
+
     init {
         viewModelScope.launch(dispatcher.unconfined()) {
             val searchData = useCase.previousSearch.map {
@@ -180,6 +205,11 @@ class PharmacySearchViewModel @Inject constructor(
                 searchData.filter,
                 searchData.locationMode is PharmacyUseCaseData.LocationMode.EnabledWithoutPosition
             )
+        }
+        viewModelScope.launch {
+            navState.collect {
+                savedStateHandle.set(navStateKey, it)
+            }
         }
     }
 
@@ -219,72 +249,131 @@ class PharmacySearchViewModel @Inject constructor(
         hintUseCase.cancelHint(PharmacyScreenHintEnableLocation)
     }
 
-    @Immutable
-    data class RedeemUIState(
-        val loading: Boolean = false,
-        val success: Boolean = false,
-        val error: Boolean = false,
-        val fabState: Boolean = false
-    )
-
-    var uiState by mutableStateOf(RedeemUIState())
-    private val orders = mutableSetOf<UIPrescriptionOrder>()
-
-    fun fetchSelectedOrders(taskIds: List<String>): Flow<List<UIPrescriptionOrder>> {
-        return useCase.prescriptionDetailsForOrdering(*taskIds.toTypedArray())
-            .onStart { updateUIState(loading = true, fabState = false) }
-            .onCompletion { updateUIState(loading = false, fabState = orders.isNotEmpty()) }
-            .map {
-                it.map { order ->
-                    order.selected = orders.contains(order)
-                    order
-                }
-            }
-    }
-
-    fun toggleOrder(order: UIPrescriptionOrder): Boolean {
-        order.selected = !order.selected
-        if (order.selected) {
-            orders.add(order)
-        } else {
-            orders.remove(order)
+    fun detailScreenState() = navState.transform {
+        if (it.selectedPharmacy != null) {
+            emit(
+                PharmacyScreenData.DetailScreenState(
+                    it.selectedPharmacy
+                )
+            )
         }
-        updateUIState(fabState = orders.isNotEmpty())
-        return order.selected
     }
 
-    fun triggerOrderInPharmacy(telematikId: String, redeemOption: RemoteRedeemOption) {
-        viewModelScope.launch(dispatcher.io()) {
-            updateUIState(loading = true, fabState = false)
-            var uploadStatus = false
-            for (order in orders) {
-                val deferred = async {
-                    useCase.redeemPrescription(
-                        redeemOption,
-                        order,
-                        telematikId,
-                    )
-                }
-                uploadStatus = deferred.await() is Result.Success
-            }
-            updateUIState(loading = false, fabState = true)
-            if (uploadStatus) {
-                updateUIState(success = true, fabState = false)
-            } else {
-                updateUIState(error = true, fabState = true)
+    fun onSelectPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
+        navState.update {
+            it.copy(selectedPharmacy = pharmacy)
+        }
+    }
+
+    fun orderScreenState(taskIds: List<String>): Flow<PharmacyScreenData.OrderScreenState> =
+        combine(
+            profilesUseCase.profiles.map {
+                it.find { profile ->
+                    profile.active
+                }!!
+            },
+            if (demoUseCase.isDemoModeActive) getDemoOrders(taskIds) else useCase.prescriptionDetailsForOrdering(taskIds),
+            navState.filter { it.selectedPharmacy != null && it.selectedOrderOption != null }
+        ) { activeProfile, state, navState ->
+            PharmacyScreenData.OrderScreenState(
+                activeProfile = activeProfile,
+                contact = state.contact,
+                prescriptions = state.prescriptions.map {
+                    Pair(it, it.taskId !in navState.unSelectedPrescriptions)
+                },
+                selectedPharmacy = navState.selectedPharmacy!!,
+                orderOption = navState.selectedOrderOption!!
+            )
+        }
+
+    private fun getDemoOrders(taskIds: List<String>): Flow<PharmacyUseCaseData.OrderState> {
+        return flow {
+            taskIds.map { taskIdToOrder ->
+                demoUseCase.demoTasks.value.find { demoTasks -> demoTasks.taskId == taskIdToOrder }!!
+                    .let {
+                        PharmacyUseCaseData.PrescriptionOrder(it.taskId, it.accessCode ?: "", it.medicationText ?: "", true)
+                    }
+            }.apply {
+                emit(PharmacyUseCaseData.OrderState(this, demoUseCase.demoContact))
             }
         }
     }
 
-    private fun updateUIState(
-        loading: Boolean = false,
-        success: Boolean = false,
-        error: Boolean = false,
-        fabState: Boolean = false
-    ) {
-        uiState =
-            uiState.copy(loading = loading, success = success, error = error, fabState = fabState)
+    fun onSelectOrderOption(option: PharmacyScreenData.OrderOption) {
+        navState.update {
+            it.copy(selectedOrderOption = option)
+        }
     }
+
+    fun onSelectOrder(order: PharmacyUseCaseData.PrescriptionOrder) {
+        navState.update {
+            it.copy(unSelectedPrescriptions = it.unSelectedPrescriptions - order.taskId)
+        }
+    }
+
+    fun onDeselectOrder(order: PharmacyUseCaseData.PrescriptionOrder) {
+        navState.update {
+            it.copy(unSelectedPrescriptions = it.unSelectedPrescriptions + order.taskId)
+        }
+    }
+
+    fun onSaveContact(contact: PharmacyUseCaseData.ShippingContact) {
+        viewModelScope.launch(dispatcher.default()) {
+            useCase.saveShippingContact(contact)
+        }
+    }
+
+    suspend fun triggerOrderInPharmacy(state: PharmacyScreenData.OrderScreenState): Result<Unit> {
+        return if (demoUseCase.isDemoModeActive)
+            orderDemoRecipe(state)
+        else
+            orderRecipe(state)
+    }
+
+    private fun orderDemoRecipe(state: PharmacyScreenData.OrderScreenState): Result<Unit> {
+        demoUseCase.demoTasks.update { demoTasks ->
+            demoTasks.map { task ->
+                if (state.prescriptions.any { it.first.taskId == task.taskId })
+                    task.copy(redeemedOn = OffsetDateTime.now())
+                else
+                    task
+            }
+        }
+        return Result.Success(Unit)
+    }
+
+    private suspend fun orderRecipe(state: PharmacyScreenData.OrderScreenState): Result<Unit> {
+        return supervisorScope {
+            withContext(dispatcher.io()) {
+                val redeemOption = state.orderOption
+                val telematikId = state.selectedPharmacy.telematikId
+                val contact = requireNotNull(state.contact)
+
+                val result = state.prescriptions.filter { it.second }
+                    .map { (prescription, _) ->
+                        async {
+                            useCase.redeemPrescription(
+                                profileName = state.activeProfile.name,
+                                redeemOption = when (redeemOption) {
+                                    PharmacyScreenData.OrderOption.ReserveInPharmacy -> RemoteRedeemOption.Local
+                                    PharmacyScreenData.OrderOption.CourierDelivery -> RemoteRedeemOption.Delivery
+                                    PharmacyScreenData.OrderOption.MailDelivery -> RemoteRedeemOption.Shipment
+                                },
+                                order = prescription,
+                                contact = contact,
+                                pharmacyTelematikId = telematikId
+                            )
+                        }
+                    }
+                    .awaitAll()
+                    .find { it is Result.Error }
+
+                result as? Result.Error ?: Result.Success(Unit)
+            }
+        }
+    }
+
+    fun isDemoMode() = demoUseCase.isDemoModeActive
 }
 
 val locationPermissions = arrayOf(

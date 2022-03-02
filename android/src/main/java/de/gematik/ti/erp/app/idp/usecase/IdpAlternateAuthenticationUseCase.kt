@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.idp.usecase
 
-import android.net.Uri
 import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.idp.api.IdpService
@@ -26,11 +25,13 @@ import de.gematik.ti.erp.app.idp.api.models.AuthenticationData
 import de.gematik.ti.erp.app.idp.api.models.DeviceInformation
 import de.gematik.ti.erp.app.idp.api.models.DeviceType
 import de.gematik.ti.erp.app.idp.api.models.PairingData
+import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntries
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.idp.api.models.RegistrationData
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithHealthCard
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithSecureElement
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import java.net.URI
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.cert.X509CertificateHolder
@@ -52,7 +53,8 @@ import javax.inject.Singleton
 class IdpAlternateAuthenticationUseCase @Inject constructor(
     private val moshi: Moshi,
     private val basicUseCase: IdpBasicUseCase,
-    private val repository: IdpRepository
+    private val repository: IdpRepository,
+    private val deviceInfo: IdpDeviceInfoProvider
 ) {
 
     suspend fun registerDeviceWithHealthCard(
@@ -68,7 +70,7 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
         val (config, pukSigKey, pukEncKey) = initialData
 
         // TODO phone name? shall we support a real user chosen name?
-        val deviceInformation = buildDeviceInformation("Some Android")
+        val deviceInformation = buildDeviceInformation(deviceInfo.deviceName)
         Timber.d("Device information: $deviceInformation")
 
         val healthCardCertificateHolder = X509CertificateHolder(healthCardCertificate)
@@ -95,6 +97,27 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
             val r = repository.postPairing(
                 config.pairingEndpoint,
                 encryptedRegistrationData.compactSerialization,
+                encryptedAccessToken.compactSerialization
+            )
+        ) {
+            is Result.Success -> r.data
+            is Result.Error -> throw r.exception
+        }
+    }
+
+    suspend fun getPairedDevices(
+        initialData: IdpInitialData,
+        accessToken: String
+    ): PairingResponseEntries {
+        val (config, pukSigKey, pukEncKey) = initialData
+
+        val encryptedAccessToken = buildEncryptedAccessToken(
+            accessToken, idpPukSigKey = pukSigKey.jws.publicKey, idpPukEncKey = pukEncKey.jws.publicKey,
+        )
+
+        return when (
+            val r = repository.getPairing(
+                config.pairingEndpoint,
                 encryptedAccessToken.compactSerialization
             )
         ) {
@@ -138,7 +161,7 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
         val (config, pukSigKey, pukEncKey, state, nonce) = initialData
         val codeVerifier = initialData.codeVerifier
 
-        val deviceInformation = buildDeviceInformation("Some Android")
+        val deviceInformation = buildDeviceInformation(deviceInfo.deviceName)
 
         val authData = buildAuthenticationData(
             challenge.signedChallenge,
@@ -190,13 +213,13 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
         url: String,
         codeChallenge: JsonWebEncryption,
         state: IdpState,
-    ): Uri {
+    ): URI {
         val redirect = when (
             val r =
                 repository.postBiometricAuthenticationData(url, codeChallenge.compactSerialization)
         ) {
             is Result.Success -> {
-                Uri.parse(r.data)
+                URI(r.data)
             }
             is Result.Error -> throw r.exception
         }
@@ -209,11 +232,11 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
 
     fun buildDeviceType(): DeviceType =
         DeviceType(
-            manufacturer = android.os.Build.MANUFACTURER,
-            productName = android.os.Build.PRODUCT,
-            model = android.os.Build.MODEL,
-            operatingSystem = "Android",
-            operatingSystemVersion = android.os.Build.VERSION.SDK_INT.toString()
+            manufacturer = deviceInfo.manufacturer,
+            productName = deviceInfo.productName,
+            model = deviceInfo.model,
+            operatingSystem = deviceInfo.operatingSystem,
+            operatingSystemVersion = deviceInfo.operatingSystemVersion
         )
 
     fun buildDeviceInformation(userChosenName: String): DeviceInformation {
@@ -235,7 +258,7 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
                 subjectPublicKeyInfoOfSecureElement.toASN1Primitive().encoded
             ),
             keyAliasOfSecureElement = Base64Url.encode(keyAliasOfSecureElement),
-            productName = android.os.Build.PRODUCT,
+            productName = deviceInfo.productName,
 
             serialNumberOfHealthCard = healthCardCertificate.serialNumber.toString(),
             issuerOfHealthCard = Base64Url.encode(

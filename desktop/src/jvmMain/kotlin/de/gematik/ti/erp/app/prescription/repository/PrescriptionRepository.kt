@@ -86,4 +86,6 @@ class PrescriptionRepository(
             val medicationDispenses = mapper.mapFhirMedicationDispenseToSimpleMedicationDispense(it)
             localDataSource.saveMedicationDispenses(medicationDispenses)
         }
+
+    suspend fun invalidate() = localDataSource.invalidate()
 }

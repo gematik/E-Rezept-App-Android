@@ -77,14 +77,14 @@ fun MainContent(
 ) {
     val zoomEnabled by mainViewModel.zoomEnabled.collectAsState(false)
 
-    val systemUiController = rememberSystemUiController()
-    val useDarkIcons = MaterialTheme.colors.isLight
-    SideEffect {
-        systemUiController.setSystemBarsColor(Color.Transparent, darkIcons = useDarkIcons)
-    }
-
-    ProvideWindowInsets(windowInsetsAnimationsEnabled = true) {
+    ProvideWindowInsets(windowInsetsAnimationsEnabled = false) {
         AppTheme {
+            val systemUiController = rememberSystemUiController()
+            val useDarkIcons = MaterialTheme.colors.isLight
+            SideEffect {
+                systemUiController.setSystemBarsColor(Color.Transparent, darkIcons = useDarkIcons)
+            }
+
             Box(
                 modifier = Modifier.zoomable(enabled = zoomEnabled)
             ) {

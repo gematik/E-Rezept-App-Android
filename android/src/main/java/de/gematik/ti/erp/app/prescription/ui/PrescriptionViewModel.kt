@@ -27,14 +27,10 @@ import de.gematik.ti.erp.app.api.map
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.common.usecase.model.CancellableHint
-import de.gematik.ti.erp.app.common.usecase.model.Hint
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDefineSecurity
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDemoModeActivated
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintTryDemoMode
 import de.gematik.ti.erp.app.core.BaseViewModel
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
 import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.idp.usecase.IDPConfigException
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
 import de.gematik.ti.erp.app.mainscreen.ui.PullRefreshState
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshEvent
@@ -76,8 +72,8 @@ class PrescriptionViewModel @Inject constructor(
         demoUseCase.isDemoModeActive,
         emptyList(),
         emptyList(),
-        emptyList(),
-        0
+        0,
+        activeProfile = null
     )
 
     fun downloadAllAuditEvents(profileName: String) {
@@ -100,34 +96,17 @@ class PrescriptionViewModel @Inject constructor(
             prescriptionFlow,
             prescriptionUseCase.redeemedPrescriptions(),
             settingsUseCase.settings,
-            hintUseCase.cancelledHints,
-        ) { demoActive, prescriptions, redeemed, settings, cancelledHints ->
-            // TODO: remove hints
-            val hints = mutableListOf<Hint>()
-
-            if (demoActive && PrescriptionScreenHintDemoModeActivated !in cancelledHints) {
-                hints += PrescriptionScreenHintDemoModeActivated
-            } else if (!demoActive && settings.authenticationMethod == SettingsAuthenticationMethod.Unspecified) {
-                hints += PrescriptionScreenHintDefineSecurity
-            }
-            // TODO: combine any authenticated when hints are gone
-            if (!demoUseCase.demoModeHasBeenSeen && PrescriptionScreenHintTryDemoMode !in cancelledHints && !anyProfileAuthenticated()) {
-                hints += PrescriptionScreenHintTryDemoMode
-            }
-
+            profilesUseCase.profiles,
+        ) { demoActive, prescriptions, redeemed, settings, profiles ->
             // TODO: split redeemed & unredeemed
             PrescriptionScreenData.State(
                 showDemoBanner = demoActive,
-                hints = hints,
                 prescriptions = prescriptions,
-                redeemed,
-                LocalDate.now().toEpochDay()
+                redeemedPrescriptions = redeemed,
+                nowInEpochDays = LocalDate.now().toEpochDay(),
+                activeProfile = profiles.find { it.active }
             )
         }.flowOn(dispatchProvider.unconfined())
-    }
-
-    private suspend fun anyProfileAuthenticated() = withContext(dispatchProvider.io()) {
-        profilesUseCase.anyProfileAuthenticated()
     }
 
     suspend fun refreshPrescriptions(
@@ -171,6 +150,12 @@ class PrescriptionViewModel @Inject constructor(
                     return
                 }
 
+                (result.exception.cause as? IDPConfigException)?.let {
+                    // TODO propagate a more meaningful message
+                    onRefresh(RefreshEvent.FatalTruststoreState)
+                    return
+                }
+
                 when (result.exception.cause?.cause) {
                     is SocketTimeoutException,
                     is UnknownHostException -> {
@@ -179,7 +164,7 @@ class PrescriptionViewModel @Inject constructor(
                     }
                 }
 
-                (result.exception.cause as? ApiCallException)?.let {
+                (result.exception as? ApiCallException)?.let {
                     onRefresh(
                         RefreshEvent.ServerCommunicationFailedWhileRefreshing(
                             it.response.code()

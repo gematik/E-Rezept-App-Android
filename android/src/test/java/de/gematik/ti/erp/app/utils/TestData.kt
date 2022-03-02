@@ -23,16 +23,16 @@ import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.db.entities.Communication
 import de.gematik.ti.erp.app.db.entities.CommunicationProfile
 import de.gematik.ti.erp.app.db.entities.Task
+import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
-import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailScanned
 import de.gematik.ti.erp.app.prescription.ui.ScannedCode
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.createMatrixCode
+import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import org.hl7.fhir.r4.model.Bundle
 import org.hl7.fhir.r4.model.MedicationDispense
-import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
 import java.io.File
 import java.io.IOException
 import java.time.LocalDate
@@ -128,27 +128,30 @@ val testSyncedTasks by lazy {
             accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
             organization = "Praxis Glücklicher gehts nicht",
             medicationText = "Gummibärchen",
-            expiresOn = null,
+            expiresOn = LocalDate.parse("2022-04-01"),
             authoredOn = OffsetDateTime.parse("2020-12-05T09:49:46+00:00"),
             profileName = "Tester",
+            status = TaskStatus.Ready
         ),
         Task(
             taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
             accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
             organization = "MVZ Haus der vielen Ärzte",
             medicationText = "Viel zu viel",
-            expiresOn = LocalDate.parse("2021-04-01"),
+            expiresOn = LocalDate.parse("2022-04-01"),
             authoredOn = OffsetDateTime.parse("2020-12-20T09:49:46+00:00"),
             profileName = "Tester",
+            status = TaskStatus.Ready
         ),
         Task(
             taskId = "Task/2910233f-0ea2-46b7-b174-240a6240de3a",
             accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
             organization = "MVZ Haus der vielen Ärzte",
             medicationText = "Viel zu viel",
-            expiresOn = LocalDate.parse("2021-03-05"),
+            expiresOn = LocalDate.parse("2022-03-05"),
             authoredOn = OffsetDateTime.parse("2020-12-04T09:49:46+00:00"),
             profileName = "Tester",
+            status = TaskStatus.Ready
         ),
     )
 }
@@ -454,11 +457,6 @@ fun emptyTestBundle(): Bundle {
 fun testMedicationDispenseBundle(): MedicationDispense {
     return getMedicationDispenseFromAssetFileName("medication_dispense.json")
 }
-
-fun listOfUIPrescriptions() =
-    listOf(testUIPrescription())
-
-fun testUIPrescription() = UIPrescriptionOrder("taskId", "title", false, "accessCode")
 
 fun communicationShipment() =
     Communication(

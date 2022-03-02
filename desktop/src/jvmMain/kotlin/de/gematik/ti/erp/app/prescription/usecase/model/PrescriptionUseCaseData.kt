@@ -32,7 +32,6 @@ object PrescriptionUseCaseData {
     @Stable
     data class Prescription(
         val taskId: String,
-        val accessCode: String,
         val name: String?,
         val organization: String,
         val authoredOn: LocalDateTime,

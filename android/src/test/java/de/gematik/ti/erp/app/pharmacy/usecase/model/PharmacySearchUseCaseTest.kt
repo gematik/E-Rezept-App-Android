@@ -26,18 +26,17 @@ import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import de.gematik.ti.erp.app.utils.testTasks
-import de.gematik.ti.erp.app.utils.testUIPrescription
 import io.mockk.coEvery
 import io.mockk.mockk
-import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
 class PharmacySearchUseCaseTest {
@@ -52,18 +51,17 @@ class PharmacySearchUseCaseTest {
 
     @Before
     fun setUp() {
-        repository =
-            PrescriptionRepository(coroutineRule.testDispatchProvider, mockk(), mockk(), mockk())
+        repository = PrescriptionRepository(coroutineRule.testDispatchProvider, mockk(), mockk(), mockk())
         moshi = Moshi.Builder().build()
         profilesUseCase = mockk()
         useCase = PharmacySearchUseCase(
-            mockk(),
-            repository,
-            mockk(relaxed = true),
-            mockk(),
-            moshi,
-            coroutineRule.testDispatchProvider,
-            profilesUseCase
+            repository = mockk(),
+            shippingContactRepository = mockk(),
+            prescriptionRepository = repository,
+            settingsUseCase = mockk(relaxed = true),
+            mapper = mockk(),
+            moshi = moshi,
+            dispatchProvider = coroutineRule.testDispatchProvider,
         )
         coEvery {
             repository.redeemPrescription(
@@ -76,12 +74,29 @@ class PharmacySearchUseCaseTest {
     }
 
     @Test
-    fun `tests redeemPrescription`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            val redeemOption = RemoteRedeemOption.Local
-            val uiPrescriptionOrder = testUIPrescription()
-            val telematicsId = "foo"
-            val result = useCase.redeemPrescription(redeemOption, uiPrescriptionOrder, telematicsId)
-            assertTrue(result is Result.Success)
-        }
+    fun `tests redeemPrescription`() = runTest {
+        val redeemOption = RemoteRedeemOption.Local
+        val telematicsId = "foo"
+        val result = useCase.redeemPrescription(
+            "Test",
+            redeemOption,
+            PharmacyUseCaseData.PrescriptionOrder(
+                taskId = "",
+                accessCode = "",
+                title = "",
+                substitutionsAllowed = false
+            ),
+            PharmacyUseCaseData.ShippingContact(
+                name = "",
+                line1 = "",
+                line2 = "",
+                postalCodeAndCity = "",
+                telephoneNumber = "",
+                mail = "",
+                deliveryInformation = ""
+            ),
+            telematicsId
+        )
+        assertTrue(result is Result.Success)
+    }
 }

@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.idp.api.models.AuthenticationIDList
 import de.gematik.ti.erp.app.idp.api.models.AuthorizationRedirectInfo
 import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.IdpDiscoveryInfo
+import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntries
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.idp.usecase.IdpNonce
 import de.gematik.ti.erp.app.idp.usecase.IdpState
@@ -36,7 +37,6 @@ import de.gematik.ti.erp.app.vau.extractECPublicKey
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import org.bouncycastle.cert.X509CertificateHolder
@@ -320,6 +320,15 @@ class IdpRepository @Inject constructor(
             url,
             token = token,
             encryptedRegistrationData = encryptedRegistrationData
+        )
+
+    suspend fun getPairing(
+        url: String,
+        token: String
+    ): Result<PairingResponseEntries> =
+        remoteDataSource.getPairing(
+            url,
+            token = token,
         )
 
     suspend fun postBiometricAuthenticationData(

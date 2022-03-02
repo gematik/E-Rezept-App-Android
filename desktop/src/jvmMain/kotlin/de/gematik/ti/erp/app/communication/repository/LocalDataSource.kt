@@ -36,4 +36,8 @@ class LocalDataSource {
     fun loadCommunications(): Flow<List<SimpleCommunication>> {
         return communications
     }
+
+    suspend fun invalidate() = lock.withLock {
+        communications.value = emptyList()
+    }
 }

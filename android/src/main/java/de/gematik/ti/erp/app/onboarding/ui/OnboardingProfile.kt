@@ -47,10 +47,11 @@ import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.ProfileNameInputField
+import de.gematik.ti.erp.app.utils.compose.InputField
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 import de.gematik.ti.erp.app.utils.compose.Spacer32
 import de.gematik.ti.erp.app.utils.compose.Spacer8
+import de.gematik.ti.erp.app.utils.sanitizeProfileName
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -86,15 +87,16 @@ fun OnboardingProfile(
         var profileNameError by remember { mutableStateOf(false) }
         val keyboardController = LocalSoftwareKeyboardController.current
 
-        ProfileNameInputField(
+        InputField(
             modifier = Modifier
                 .testTag("onboarding/profile_text_input")
                 .fillMaxWidth()
                 .focusRequester(focusRequester),
             value = profileName,
             onValueChange = {
-                onProfileNameChange(it)
-                profileNameError = it.isEmpty()
+                val name = sanitizeProfileName(it.trimStart())
+                onProfileNameChange(name)
+                profileNameError = name.isEmpty()
             },
             onSubmit = {
                 if (!profileNameError) {

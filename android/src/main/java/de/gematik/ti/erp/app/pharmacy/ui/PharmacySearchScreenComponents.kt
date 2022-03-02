@@ -83,7 +83,6 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -124,7 +123,6 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.navigationBarsPadding
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -154,8 +152,7 @@ import java.time.OffsetDateTime
 @Composable
 fun PharmacySearchScreen(
     mainNavController: NavController,
-    navController: NavController,
-    selectedPharmacy: MutableState<PharmacyUseCaseData.Pharmacy?>,
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
     viewModel: PharmacySearchViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
@@ -421,8 +418,7 @@ fun PharmacySearchScreen(
                                                 modifier = itemPaddingModifier,
                                                 pharmacy = item.pharmacy
                                             ) {
-                                                selectedPharmacy.value = item.pharmacy
-                                                navController.navigate(PharmacyNavigationScreens.PharmacyDetails.path())
+                                                onSelectPharmacy(item.pharmacy)
                                             }
                                             if (index < searchPagingItems.itemCount - 1) {
                                                 Divider(startIndent = PaddingDefaults.Medium)

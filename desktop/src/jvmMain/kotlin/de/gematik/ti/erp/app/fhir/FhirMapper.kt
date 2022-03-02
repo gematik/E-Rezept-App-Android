@@ -144,17 +144,6 @@ fun Bundle.extractKBVBundle(reference: String): Bundle.BundleEntryComponent? {
     return entry.find { it.resource.id.removePrefix("urn:uuid:") == cleanRefId }
 }
 
-fun FhirTask.accessCode(): String {
-    identifier.forEach {
-        if (it.hasSystem()) {
-            if (it.system == "https://gematik.de/fhir/NamingSystem/AccessCode") {
-                return it.value
-            }
-        }
-    }
-    error("Access code not found!")
-}
-
 fun FhirTask.prescriptionId(): String? {
     identifier.forEach {
         if (it.hasSystem()) {
@@ -217,7 +206,6 @@ class FhirMapper(
 
                 SimpleTask(
                     taskId = fhirTask.idElement.idPart,
-                    accessCode = fhirTask.accessCode(),
                     lastModified = fhirTask.lastModified.convertFhirDateToLocalDateTime(),
                     organization = fhirOrganization.name
                         ?: fhirPractitioner.nameFirstRep.nameAsSingleString,

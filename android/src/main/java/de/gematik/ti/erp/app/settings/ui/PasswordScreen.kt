@@ -23,6 +23,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,7 +35,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
@@ -49,12 +49,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillNode
@@ -79,6 +81,7 @@ import com.nulabinc.zxcvbn.Zxcvbn
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -228,34 +231,33 @@ fun PasswordTextField(
         singleLine = true,
         keyboardOptions = KeyboardOptions(autoCorrect = true, keyboardType = KeyboardType.Password),
         keyboardActions = KeyboardActions {
-            if (!isError && value.isNotEmpty()) {
+            if (!isError && isConsistent) {
                 onSubmit()
             }
         },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
-            if (allowVisiblePassword) {
+            if (isConsistent) {
+                Icon(
+                    Icons.Rounded.Check,
+                    stringResource(R.string.consistent_password)
+                )
+            } else if (allowVisiblePassword) {
                 IconToggleButton(
                     checked = passwordVisible,
                     onCheckedChange = { passwordVisible = it }
                 ) {
                     when (passwordVisible) {
                         true -> Icon(
-                            Icons.Outlined.VisibilityOff,
+                            Icons.Outlined.Visibility,
                             stringResource(R.string.settings_password_acc_show_password_toggle)
                         )
                         false -> Icon(
-                            Icons.Outlined.Visibility,
+                            Icons.Outlined.VisibilityOff,
                             stringResource(R.string.settings_password_acc_show_password_toggle)
                         )
                     }
                 }
-            } else if (isConsistent) {
-                Icon(
-                    Icons.Rounded.Check,
-                    stringResource(R.string.consistent_password),
-                    tint = AppTheme.colors.green600
-                )
             }
         },
         isError = isError,
@@ -288,8 +290,8 @@ fun ConfirmationPasswordTextField(
         isConsistent = isConsistent,
         isError = isError,
         onSubmit = onSubmit,
-        allowAutofill = false,
-        allowVisiblePassword = false,
+        allowAutofill = true,
+        allowVisiblePassword = true,
         label = {
             Text(stringResource(R.string.settings_password_repeat_password))
         },
@@ -303,6 +305,9 @@ fun ConfirmationPasswordTextField(
                 ),
                 unfocusedBorderColor = AppTheme.colors.green600.copy(alpha = ContentAlpha.high),
                 unfocusedLabelColor = AppTheme.colors.green600.copy(
+                    alpha = ContentAlpha.high
+                ),
+                trailingIconColor = AppTheme.colors.green600.copy(
                     alpha = ContentAlpha.high
                 )
             )
@@ -363,7 +368,8 @@ fun PasswordStrength(
                     suggestions
                 }
             ),
-            style = AppTheme.typography.captionl
+            style = AppTheme.typography.captionl,
+            modifier = Modifier.padding(start = PaddingDefaults.Medium)
         )
 
         SpacerMedium()
@@ -380,10 +386,23 @@ fun PasswordStrength(
             )
         }
         SpacerTiny()
-        Text(
-            stringResource(R.string.settings_password_strength),
-            style = AppTheme.typography.captionl
-        )
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            if (checkPasswordScore(strength.score)) {
+                Text(
+                    stringResource(R.string.settings_password_strength_sufficient),
+                    style = AppTheme.typography.body2l
+                )
+                SpacerTiny()
+                Icon(Icons.Rounded.Check, null, tint = AppTheme.colors.green600)
+            } else {
+                Text(
+                    stringResource(R.string.settings_password_strength_not_sufficient),
+                    style = AppTheme.typography.body2l
+                )
+                SpacerTiny()
+                Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red600)
+            }
+        }
     }
 }
 

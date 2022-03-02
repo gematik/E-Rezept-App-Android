@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.json.JSONArray
 import org.json.JSONObject
+import java.time.LocalDate
 import java.time.OffsetDateTime
 
 // gemSpec_FD_eRp: A_21267 Prozessparameter - Berechtigungen für Nutzer
@@ -58,7 +59,7 @@ interface PrescriptionUseCase {
      */
     fun syncedRecipes(): Flow<List<PrescriptionUseCaseData.Prescription.Synced>> =
         syncedTasks().map { tasks ->
-            tasks.filter { it.isRedeemable() }
+            tasks.filter { it.isSyncedTaskRedeemable() }
                 .sortedByDescending { it.authoredOn }
                 .groupBy { it.organization }
                 .flatMap { (_, tasks) ->
@@ -84,7 +85,7 @@ interface PrescriptionUseCase {
     fun scannedRecipes(): Flow<List<PrescriptionUseCaseData.Prescription.Scanned>> =
         scannedTasks().map { tasks ->
             tasks
-                .filter { it.isRedeemable() }
+                .filter { it.isScannedTaskRedeemable() }
                 .sortedWith(compareByDescending<Task> { it.scanSessionEnd }.thenBy { requireNotNull(it.nrInScanSession) })
                 .map { task ->
                     PrescriptionUseCaseData.Prescription.Scanned(
@@ -101,7 +102,7 @@ interface PrescriptionUseCase {
             syncedTasks()
         ) { scannedTasks, syncedTasks ->
             val syncedPrescriptions = syncedTasks
-                .filter { it.isRedeemed() }
+                .filter { it.isSyncedTaskRedeemed() }
                 .map {
                     PrescriptionUseCaseData.Prescription.Synced(
                         taskId = it.taskId,
@@ -130,19 +131,29 @@ interface PrescriptionUseCase {
                 .sortedWith(compareByDescending<PrescriptionUseCaseData.Prescription> { it.redeemedOn }.thenBy { it.taskId })
         }
 
-    fun unredeemedSyncedTaskIds(): Flow<List<String>> =
+    fun redeemableAndValidSyncedTaskIds(): Flow<List<String>> =
         syncedTasks().map { tasks ->
-            tasks.filter { it.isRedeemable() }.map { it.taskId }
+            tasks.filter { it.isRedeemableAndValid() }.map { it.taskId }
         }
 
-    fun unredeemedScannedTaskIds(): Flow<List<String>> =
+    fun redeemableScannedTaskIds(): Flow<List<String>> =
         scannedTasks().map { tasks ->
-            tasks.filter { it.isRedeemable() }.map { it.taskId }
+            tasks.filter { it.isScannedTaskRedeemable() }.map { it.taskId }
         }
 
-    // TODO: add proper redeem logic
-    private fun Task.isRedeemable(): Boolean = this.redeemedOn == null
-    private fun Task.isRedeemed(): Boolean = !isRedeemable()
+    private fun Task.isSyncedTaskRedeemable(): Boolean = with(expiresOn) {
+        this != null && this.toEpochDay() >= LocalDate.now().toEpochDay() &&
+            (status == TaskStatus.Ready || status == TaskStatus.InProgress)
+    }
+
+    private fun Task.isScannedTaskRedeemable(): Boolean = when (this.status) {
+        TaskStatus.Completed -> false
+        else -> this.redeemedOn == null
+    }
+
+    private fun Task.isRedeemableAndValid(): Boolean = isSyncedTaskRedeemable() && accessCode != null
+
+    private fun Task.isSyncedTaskRedeemed(): Boolean = !isSyncedTaskRedeemable()
 
     private fun mapStatus(status: TaskStatus?): PrescriptionUseCaseData.Prescription.Synced.Status =
         when (status) {

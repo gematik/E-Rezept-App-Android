@@ -54,6 +54,7 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Info
@@ -61,6 +62,7 @@ import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.Source
 import androidx.compose.material.icons.outlined.Wysiwyg
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Camera
@@ -120,6 +122,7 @@ import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
+import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -130,12 +133,10 @@ import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
 import de.gematik.ti.erp.app.utils.compose.provideWebIntent
-import de.gematik.ti.erp.app.utils.compose.testId
 import java.util.Locale
 import de.gematik.ti.erp.app.utils.dateTimeShortText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -401,7 +402,7 @@ private fun ProfileCard(
                 .weight(1f)
                 .padding(PaddingDefaults.Medium)
         ) {
-            Avatar(profile.name, colors, null, active = profile.active)
+            Avatar(Modifier.size(36.dp), profile.name, colors, null, active = profile.active)
 
             SpacerSmall()
 
@@ -584,7 +585,7 @@ private fun DemoSection(
             Text(
                 text = stringResource(R.string.settings_demo_headline),
                 style = MaterialTheme.typography.h6,
-                modifier = Modifier.testId("stg_txt_header_demo_mode")
+                modifier = Modifier.testTag("stg_txt_header_demo_mode")
             )
             Text(
                 text = stringResource(R.string.settings_demo_info),
@@ -594,7 +595,7 @@ private fun DemoSection(
         LabeledSwitch(
             checked = demoChecked,
             onCheckedChange = onDemoChange,
-            modifier = Modifier.testId("stg_btn_demo_mode")
+            modifier = Modifier.testTag("stg_btn_demo_mode")
         ) {
             Text(
                 modifier = Modifier.weight(1.0f),
@@ -786,20 +787,18 @@ private fun AuthenticationModeCard(
 
 @Composable
 private fun DebugMenuSection(navController: NavController) {
-    Text(
+    OutlinedDebugButton(
         text = stringResource(id = R.string.debug_menu),
-        style = MaterialTheme.typography.h6,
+        onClick = { navController.navigate(SettingsNavigationScreens.Debug.path()) },
         modifier = Modifier
+            .fillMaxWidth()
             .padding(
                 start = PaddingDefaults.Medium,
                 end = PaddingDefaults.Medium,
                 bottom = PaddingDefaults.Medium / 2,
                 top = PaddingDefaults.Medium
             )
-            .clickable {
-                navController.navigate(SettingsNavigationScreens.Debug.path())
-            }
-            .testId("stg_btn_debug_menu")
+            .testTag("stg_btn_debug_menu")
     )
 }
 
@@ -828,7 +827,7 @@ private fun AnalyticsSection(
             checked = analyticsAllowed,
             onCheckedChange = onCheckedChange,
             modifier = modifier
-                .testId("settings/trackingToggle"),
+                .testTag("settings/trackingToggle"),
             icon = Icons.Rounded.ModelTraining,
             header = stringResource(R.string.settings_tracking_toggle_text),
             description = stringResource(R.string.settings_tracking_description)
@@ -848,7 +847,7 @@ private fun AllowScreenShotsSection(
             onAllowScreenshotsChange(!it)
         },
         modifier = modifier
-            .testId("settings/allowScreenshotsToggle"),
+            .testTag("settings/allowScreenshotsToggle"),
         icon = Icons.Rounded.Camera,
         header = stringResource(R.string.settings_screenshots_toggle_text),
         description = stringResource(R.string.settings_screenshots_description)
@@ -885,30 +884,37 @@ private fun LegalSection(navController: NavController) {
         LabelButton(
             Icons.Outlined.Info,
             stringResource(R.string.settings_legal_imprint),
-            modifier = Modifier.testId("settings/imprint")
+            modifier = Modifier.testTag("settings/imprint")
         ) {
             navController.navigate(SettingsNavigationScreens.Imprint.route)
         }
         LabelButton(
             Icons.Outlined.PrivacyTip,
             stringResource(R.string.settings_legal_dataprotection),
-            modifier = Modifier.testId("settings/privacy")
+            modifier = Modifier.testTag("settings/privacy")
         ) {
             navController.navigate(SettingsNavigationScreens.DataProtection.route)
         }
         LabelButton(
             Icons.Outlined.Wysiwyg,
             stringResource(R.string.settings_legal_tos),
-            modifier = Modifier.testId("settings/tos")
+            modifier = Modifier.testTag("settings/tos")
         ) {
             navController.navigate(SettingsNavigationScreens.Terms.route)
         }
         LabelButton(
-            Icons.Outlined.PrivacyTip,
+            Icons.Outlined.Code,
             stringResource(R.string.settings_legal_licences),
-            modifier = Modifier.testId("settings/licences")
+            modifier = Modifier.testTag("settings/licences")
         ) {
             navController.navigate(SettingsNavigationScreens.OpenSourceLicences.route)
+        }
+        LabelButton(
+            Icons.Outlined.Source,
+            stringResource(R.string.settings_licence_pharmacy_search),
+            modifier = Modifier.testTag("settings/additional_licences")
+        ) {
+            navController.navigate(SettingsNavigationScreens.AdditionalLicences.route)
         }
     }
 }

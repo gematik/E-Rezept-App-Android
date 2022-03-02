@@ -88,7 +88,12 @@ class IdpRemoteDataSource @Inject constructor(
 
     suspend fun postPairing(url: String, token: String, encryptedRegistrationData: String) =
         safeApiCall("failed to pair device") {
-            service.pairing(url, "Bearer $token", encryptedRegistrationData)
+            service.postPairing(url, "Bearer $token", encryptedRegistrationData)
+        }
+
+    suspend fun getPairing(url: String, token: String) =
+        safeApiCall("failed to get paired devices") {
+            service.getPairing(url, "Bearer $token")
         }
 
     /**

@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
-import android.net.Uri
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
@@ -29,9 +28,11 @@ import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.mainscreen.ui.model.MainScreenData
 import de.gematik.ti.erp.app.messages.usecase.MessageUseCase
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import java.net.URI
 import javax.inject.Inject
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -44,17 +45,22 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.time.Duration
 import java.time.Instant
-
-data class RedeemEvent(
-    val taskIds: List<String>,
-    val isFullDetail: Boolean
-)
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 
 sealed class RefreshEvent {
     object NetworkNotAvailable : RefreshEvent()
     data class ServerCommunicationFailedWhileRefreshing(val code: Int) : RefreshEvent()
     object FatalTruststoreState : RefreshEvent()
     data class NewPrescriptionsEvent(val nrOfNewPrescriptions: Int) : RefreshEvent()
+}
+
+/**
+ * Event used to indicate an action that should be visible to the user on main screen.
+ */
+sealed class ActionEvent {
+    data class ReturnFromPharmacyOrder(val successfullyOrdered: PharmacyScreenData.OrderOption) : ActionEvent()
 }
 
 enum class PullRefreshState {
@@ -79,6 +85,10 @@ class MainScreenViewModel @Inject constructor(
     val onRefreshEvent: Flow<RefreshEvent>
         get() = _onRefreshEvent
 
+    private val _onActionEvent = MutableStateFlow<ActionEvent?>(null)
+    val onActionEvent: Flow<ActionEvent>
+        get() = _onActionEvent.filterNotNull().onEach { _onActionEvent.value = null }
+
     fun profileUiState() = profileUseCase.profiles.flowOn(coroutineDispatchProvider.unconfined())
 
     fun refreshState(): Flow<PullRefreshState> = profileUiState()
@@ -97,8 +107,8 @@ class MainScreenViewModel @Inject constructor(
 
     fun redeemState(): Flow<MainScreenData.RedeemState> =
         combine(
-            prescriptionUseCase.unredeemedSyncedTaskIds(),
-            prescriptionUseCase.unredeemedScannedTaskIds()
+            prescriptionUseCase.redeemableAndValidSyncedTaskIds(),
+            prescriptionUseCase.redeemableScannedTaskIds()
         ) { syncedTaskIds, scannedTaskIds ->
             MainScreenData.RedeemState(
                 scannedTaskIds = TaskIds(ids = scannedTaskIds), syncedTaskIds = TaskIds(ids = syncedTaskIds)
@@ -116,13 +126,19 @@ class MainScreenViewModel @Inject constructor(
         _onRefreshEvent.emit(event)
     }
 
+    fun onAction(event: ActionEvent) {
+        viewModelScope.launch(coroutineDispatchProvider.default()) {
+            _onActionEvent.emit(event)
+        }
+    }
+
     fun onDeactivateDemoMode() {
         demoUseCase.deactivateDemoMode()
     }
 
     fun isDemoActive(): Boolean = demoUseCase.isDemoModeActive
 
-    fun onExternAppAuthorizationResult(uri: Uri) {
+    fun onExternAppAuthorizationResult(uri: URI) {
         Timber.d(uri.toString())
         viewModelScope.launch {
             idpUseCase.authenticateWithExternalAppAuthorization(uri)

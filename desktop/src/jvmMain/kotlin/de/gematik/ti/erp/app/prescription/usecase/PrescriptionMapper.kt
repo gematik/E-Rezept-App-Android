@@ -33,7 +33,6 @@ class PrescriptionMapper {
     fun mapSimpleTask(task: SimpleTask, redeemedOn: LocalDate?) =
         PrescriptionUseCaseData.Prescription(
             taskId = task.taskId,
-            accessCode = task.accessCode,
             name = task.medicationText,
             expiresOn = task.expiresOn,
             acceptUntil = task.acceptUntil,

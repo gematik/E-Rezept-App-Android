@@ -22,7 +22,9 @@ import de.gematik.ti.erp.app.DispatchProvider
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import org.junit.rules.TestWatcher
@@ -30,7 +32,7 @@ import org.junit.runner.Description
 
 @ExperimentalCoroutinesApi
 class CoroutineTestRule(
-    val testDispatcher: TestCoroutineDispatcher = TestCoroutineDispatcher()
+    val testDispatcher: TestDispatcher = StandardTestDispatcher()
 ) : TestWatcher() {
 
     val testDispatchProvider = object : DispatchProvider {
@@ -48,6 +50,6 @@ class CoroutineTestRule(
     override fun finished(description: Description?) {
         super.finished(description)
         Dispatchers.resetMain()
-        testDispatcher.cleanupTestCoroutines()
+        testDispatcher.cancel()
     }
 }

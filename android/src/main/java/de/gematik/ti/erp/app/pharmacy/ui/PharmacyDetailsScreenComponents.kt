@@ -43,6 +43,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,6 +67,8 @@ import de.gematik.ti.erp.app.pharmacy.repository.model.OpeningHours
 import de.gematik.ti.erp.app.pharmacy.repository.model.OpeningTime
 import de.gematik.ti.erp.app.pharmacy.repository.model.RoleCode
 import de.gematik.ti.erp.app.pharmacy.repository.model.isOpenToday
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -96,10 +100,14 @@ import java.util.Locale
 @Composable
 fun PharmacyDetailsScreen(
     navController: NavController,
-    pharmacy: PharmacyUseCaseData.Pharmacy,
-    showRedeemOptions: Boolean
+    showRedeemOptions: Boolean,
+    viewModel: PharmacySearchViewModel
 ) {
     val context = LocalContext.current
+
+    val state by viewModel.detailScreenState().collectAsState(null)
+    val pharmacy = state?.selectedPharmacy
+
     Scaffold(
         topBar = {
             NavigationTopAppBar(
@@ -120,97 +128,106 @@ fun PharmacyDetailsScreen(
                     )
                 )
         ) {
-            SpacerMedium()
+            if (pharmacy != null) {
 
-            if (pharmacy.ready) {
-                ReadyFlag()
-                SpacerSmall()
-            }
+                SpacerMedium()
 
-            Text(
-                text = pharmacy.name,
-                style = MaterialTheme.typography.h5
-            )
-            SpacerSmall()
-            Row(
-                modifier = Modifier
-                    .clickable {
-                        pharmacy.location?.let {
-                            launchMaps(context, it, pharmacy.name)
-                        }
-                    },
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
+                if (pharmacy.ready) {
+                    ReadyFlag()
+                    SpacerSmall()
+                }
+
                 Text(
-                    text = pharmacy.removeLineBreaksFromAddress(),
-                    style = MaterialTheme.typography.subtitle2,
-                    color = MaterialTheme.colors.secondary,
+                    text = pharmacy.name,
+                    style = MaterialTheme.typography.h5
                 )
-                Spacer8()
-                Icon(
-                    imageVector = Icons.Default.Map,
-                    contentDescription = "",
-                    tint = MaterialTheme.colors.secondary
-                )
-            }
+                SpacerSmall()
+                Row(
+                    modifier = Modifier
+                        .clickable {
+                            pharmacy.location?.let {
+                                launchMaps(context, it, pharmacy.name)
+                            }
+                        },
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = pharmacy.removeLineBreaksFromAddress(),
+                        style = MaterialTheme.typography.subtitle2,
+                        color = MaterialTheme.colors.secondary,
+                    )
+                    Spacer8()
+                    Icon(
+                        imageVector = Icons.Default.Map,
+                        contentDescription = "",
+                        tint = MaterialTheme.colors.secondary
+                    )
+                }
 
-            Spacer24()
+                Spacer24()
 
-            if (pharmacy.ready) {
-                if (showRedeemOptions) {
-                    OrderOptions(navController, pharmacy)
-                    Spacer16()
+                if (pharmacy.ready) {
+                    if (showRedeemOptions) {
+                        OrderOptions(pharmacy) {
+                            viewModel.onSelectOrderOption(it)
+                            navController.navigate(PharmacyNavigationScreens.OrderPrescription.path())
+                        }
+                        Spacer16()
+                        HintCard(
+                            properties = HintCardDefaults.properties(
+                                backgroundColor = AppTheme.colors.primary100,
+                                border = BorderStroke(0.0.dp, AppTheme.colors.neutral300),
+                                elevation = 0.dp
+                            ),
+                            image = {
+                                HintSmallImage(
+                                    painterResource(R.drawable.ic_info),
+                                    innerPadding = it
+                                )
+                            },
+                            title = { Text(stringResource(R.string.pharm_detail_hint_header)) },
+                            body = { Text(stringResource(R.string.pharm_detail_hint)) }
+                        )
+                    }
+                } else {
                     HintCard(
                         properties = HintCardDefaults.properties(
-                            backgroundColor = AppTheme.colors.primary100,
+                            backgroundColor = AppTheme.colors.red100,
+                            contentColor = AppTheme.colors.neutral999,
                             border = BorderStroke(0.0.dp, AppTheme.colors.neutral300),
                             elevation = 0.dp
                         ),
                         image = {
                             HintSmallImage(
-                                painterResource(R.drawable.ic_info),
+                                painterResource(R.drawable.medical_hand_out_circle_red),
                                 innerPadding = it
                             )
                         },
-                        title = { Text(stringResource(R.string.pharm_detail_hint_header)) },
-                        body = { Text(stringResource(R.string.pharm_detail_hint)) }
+                        title = { Text(stringResource(R.string.pharmacy_detail_not_ready_header)) },
+                        body = { Text(stringResource(R.string.pharmacy_detail_not_ready_info)) }
                     )
                 }
-            } else {
-                HintCard(
-                    properties = HintCardDefaults.properties(
-                        backgroundColor = AppTheme.colors.red100,
-                        contentColor = AppTheme.colors.neutral999,
-                        border = BorderStroke(0.0.dp, AppTheme.colors.neutral300),
-                        elevation = 0.dp
-                    ),
-                    image = {
-                        HintSmallImage(
-                            painterResource(R.drawable.medical_hand_out_circle_red),
-                            innerPadding = it
-                        )
-                    },
-                    title = { Text(stringResource(R.string.pharmacy_detail_not_ready_header)) },
-                    body = { Text(stringResource(R.string.pharmacy_detail_not_ready_info)) }
-                )
+                Spacer(modifier = Modifier.size(PaddingDefaults.XXLarge))
+
+                PharmacyInfo(pharmacy)
+
+                SpacerMedium()
             }
-            Spacer(modifier = Modifier.size(PaddingDefaults.XXLarge))
-
-            PharmacyInfo(pharmacy)
-
-            SpacerMedium()
         }
     }
 }
 
 @Composable
-private fun OrderOptions(navController: NavController, pharmacy: PharmacyUseCaseData.Pharmacy) {
+private fun OrderOptions(
+    pharmacy: PharmacyUseCaseData.Pharmacy,
+    onClickOrder: (PharmacyScreenData.OrderOption) -> Unit
+) {
     if (pharmacy.roleCode.any { it == RoleCode.OUT_PHARM }) {
         Button(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            onClick = { navController.navigate("reserveInPharmacy") },
+            onClick = { onClickOrder(PharmacyScreenData.OrderOption.ReserveInPharmacy) },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = MaterialTheme.colors.secondary
             ),
@@ -230,7 +247,7 @@ private fun OrderOptions(navController: NavController, pharmacy: PharmacyUseCase
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            onClick = { navController.navigate("courierDelivery") },
+            onClick = { onClickOrder(PharmacyScreenData.OrderOption.CourierDelivery) },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppTheme.colors.neutral050,
                 contentColor = AppTheme.colors.primary700
@@ -251,7 +268,7 @@ private fun OrderOptions(navController: NavController, pharmacy: PharmacyUseCase
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            onClick = { navController.navigate("mailDelivery") },
+            onClick = { onClickOrder(PharmacyScreenData.OrderOption.MailDelivery) },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppTheme.colors.neutral050,
                 contentColor = AppTheme.colors.primary700

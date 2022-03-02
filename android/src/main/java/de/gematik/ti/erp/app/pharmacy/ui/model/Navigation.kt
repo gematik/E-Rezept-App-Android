@@ -25,9 +25,8 @@ import de.gematik.ti.erp.app.Route
 object PharmacyNavigationScreens {
     object SearchResults : Route("PharmacySearchResults")
     object PharmacyDetails : Route("PharmacyDetails")
-    object ReserveInPharmacy : Route("ReserveInPharmacy")
-    object CourierDelivery : Route("CourierDelivery")
-    object MailDelivery : Route("MailDelivery")
+    object OrderPrescription : Route("OrderPrescription")
+    object EditShippingContact : Route("EditShippingContact")
     object UploadStatus : Route("UploadStatus", navArgument("redeemOption") { type = NavType.IntType }) {
         fun path(redeemOption: Int) = path("redeemOption" to redeemOption)
     }

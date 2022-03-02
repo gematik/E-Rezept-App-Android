@@ -34,7 +34,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -61,8 +61,8 @@ class SafetynetUseCaseTest {
     }
 
     @Test
-    fun `test running safetynet attestation - throws AttestationException`() {
-        coroutineRule.testDispatcher.runBlockingTest {
+    fun `test running safetynet attestation - throws AttestationException`() =
+        runTest {
             every { repo.fetchAttestationsLocal() } returns flowOf(listOfAttestationEntities())
             coEvery { reportGenerator.convertToReport(any(), any()) } returns attestationReport
             every { attestationReport.attestationCheckOK(any()) } throws AttestationException(
@@ -72,11 +72,10 @@ class SafetynetUseCaseTest {
             val result = useCase.runSafetynetAttestation().first()
             assertFalse(result)
         }
-    }
 
     @Test
     fun `test running safetynet attestation - throws Exception when creating report`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             every { repo.fetchAttestationsLocal() } returns flow { emit(listOfAttestationEntities()) }
             coEvery { repo.fetchAttestationReportRemote(any()) } returns safetynetResult()
 
@@ -96,7 +95,7 @@ class SafetynetUseCaseTest {
 
     @Test
     fun `test running safetynet attestation - throws Exception when fetching safetynet from remote`() {
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             every { repo.fetchAttestationsLocal() } returns flow { emit(listOfAttestationEntities()) }
             coEvery { repo.fetchAttestationReportRemote(any()) } throws Exception("failed fetching safetynet")
 
@@ -109,7 +108,7 @@ class SafetynetUseCaseTest {
 
     @Test
     fun `test running safetynet attestation - passes`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             every { repo.fetchAttestationsLocal() } returns flow { emit(listOfAttestationEntities()) }
             coEvery { reportGenerator.convertToReport(any(), any()) } returns attestationReport
             every { attestationReport.attestationCheckOK(any()) } returns Unit
