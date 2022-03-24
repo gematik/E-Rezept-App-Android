@@ -153,7 +153,6 @@ import de.gematik.ti.erp.app.utils.compose.testId
 import de.gematik.ti.erp.app.utils.dateTimeShortText
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.WebViewScreen
-import kotlinx.coroutines.flow.collect
 import java.time.LocalDate
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -456,6 +455,14 @@ fun MainScreenWithScaffold(
 
         var emptyScreenState by remember { mutableStateOf(EmptyScreenState.NotEmpty) }
 
+        val showLogInHint by produceState(false, key1 = emptyScreenState, key2 = selectedPrescriptionScreenTab) {
+            bottomNavController.currentBackStackEntryFlow.collect {
+                value = emptyScreenState == EmptyScreenState.NoHealthCard &&
+                    selectedPrescriptionScreenTab == PrescriptionTabs.Redeemable &&
+                    it.destination.route == MainNavigationScreens.Prescriptions.route
+            }
+        }
+
         Scaffold(
             topBar = {
                 MultiProfileTopAppBar(
@@ -476,11 +483,13 @@ fun MainScreenWithScaffold(
                     navController = mainNavController,
                     bottomNavController = bottomNavController,
                     signInHint = {
-                        if (emptyScreenState == EmptyScreenState.NoHealthCard) {
+                        if (showLogInHint) {
                             HomeNoHealthCardSignInHint(
                                 onClickAction = { mainNavController.navigate(MainNavigationScreens.CardWall.route) }
                             )
-                        } else null
+                        } else {
+                            null
+                        }
                     }
                 )
             },
@@ -539,7 +548,16 @@ private fun MainScreenBottomNavigation(
     val unreadMessagesAvailable by viewModel.unreadMessagesAvailable()
         .collectAsState(initial = false)
 
-    BottomNavigation(backgroundColor = MaterialTheme.colors.surface, extraContent = { signInHint?.invoke() }) {
+    BottomNavigation(
+        backgroundColor = MaterialTheme.colors.surface,
+        extraContent = {
+            AnimatedVisibility(
+                visible = signInHint != null,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) { signInHint?.invoke() }
+        }
+    ) {
         MainScreenBottomNavigationItems.forEach { screen ->
             BottomNavigationItem(
                 modifier = Modifier.testTag(

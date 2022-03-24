@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.pharmacy.usecase.model
 
 import com.squareup.moshi.Moshi
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
@@ -68,7 +67,7 @@ class PharmacySearchUseCaseTest {
                 any(),
                 any()
             )
-        } answers { Result.Success("".toResponseBody()) }
+        } answers { Result.success("".toResponseBody()) }
         coEvery { repository.loadTasksForTaskId(any()) } answers { flow { testTasks() } }
         coEvery { profilesUseCase.activeProfileName() } answers { flowOf("tester") }
     }
@@ -97,6 +96,6 @@ class PharmacySearchUseCaseTest {
             ),
             telematicsId
         )
-        assertTrue(result is Result.Success)
+        assertTrue(result.isSuccess)
     }
 }

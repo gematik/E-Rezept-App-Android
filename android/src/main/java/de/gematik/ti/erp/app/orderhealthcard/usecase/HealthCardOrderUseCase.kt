@@ -19,6 +19,10 @@
 package de.gematik.ti.erp.app.orderhealthcard.usecase
 
 import android.content.Context
+import com.squareup.moshi.FromJson
+import com.squareup.moshi.JsonReader
+import com.squareup.moshi.Moshi
+import com.squareup.moshi.Types
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
@@ -30,7 +34,7 @@ class HealthCardOrderUseCase @Inject constructor(
     @ApplicationContext private val context: Context,
 ) {
     private val companies: List<HealthCardOrderUseCaseData.HealthInsuranceCompany> by lazy {
-        loadHealthInsuranceContactsFromCSV(
+        loadHealthInsuranceContactsFromJSON(
             context.resources.openRawResourceFd(R.raw.health_insurance_contacts).createInputStream()
         ).sortedBy { it.name.lowercase() }
     }
@@ -40,30 +44,31 @@ class HealthCardOrderUseCase @Inject constructor(
     }
 }
 
-fun loadHealthInsuranceContactsFromCSV(csv: InputStream): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> {
-    return csv.bufferedReader().useLines { lines ->
-        lines.mapIndexedNotNull { index, line ->
-            if (index > 0) {
-                // ignore header
+fun loadHealthInsuranceContactsFromJSON(jsonInput: InputStream): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> {
+    val type = Types.newParameterizedType(
+        List::class.java,
+        HealthCardOrderUseCaseData.HealthInsuranceCompany::class.java
+    )
+    val moshiAdapter = Moshi.Builder().add(EmptyStringToNullAdapter).build().adapter<List<HealthCardOrderUseCaseData.HealthInsuranceCompany>>(type)
+    return moshiAdapter.fromJson(jsonInput.bufferedReader().readText()) as List<HealthCardOrderUseCaseData.HealthInsuranceCompany>
+}
 
-                val attrs = line.split(";").map {
-                    if (it.isBlank()) {
-                        null
-                    } else {
-                        it
-                    }
+object EmptyStringToNullAdapter {
+    @FromJson
+    fun fromJson(reader: JsonReader): String? {
+        return when (reader.peek()) {
+            JsonReader.Token.STRING -> {
+                val nextString = reader.nextString()
+                if (nextString.equals("")) {
+                    null
+                } else {
+                    nextString
                 }
-
-                HealthCardOrderUseCaseData.HealthInsuranceCompany(
-                    name = requireNotNull(attrs[0]),
-                    healthCardAndPinPhone = attrs[1],
-                    healthCardAndPinMail = attrs[2],
-                    healthCardAndPinUrl = attrs[3],
-                    pinUrl = attrs[4]
-                )
-            } else {
-                null
             }
-        }.toList()
+            JsonReader.Token.NUMBER -> {
+                error("${reader.nextLong()} was not a string")
+            }
+            else -> null
+        }
     }
 }

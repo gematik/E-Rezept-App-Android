@@ -22,8 +22,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.api.map
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.common.usecase.model.CancellableHint
@@ -100,7 +98,7 @@ class PrescriptionViewModel @Inject constructor(
         ) { demoActive, prescriptions, redeemed, settings, profiles ->
             // TODO: split redeemed & unredeemed
             PrescriptionScreenData.State(
-                showDemoBanner = demoActive,
+                isDemoModeActive = demoActive,
                 prescriptions = prescriptions,
                 redeemedPrescriptions = redeemed,
                 nowInEpochDays = LocalDate.now().toEpochDay(),
@@ -121,24 +119,24 @@ class PrescriptionViewModel @Inject constructor(
         Timber.d("Refreshing prescriptions for $profileName")
 
         val result = withContext(dispatchProvider.io()) { prescriptionUseCase.downloadTasks(profileName) }
-            .map { nrOfNewPrescriptions ->
+            .map {
                 if (!isDemoModeActive) {
                     prescriptionUseCase.downloadCommunications(profileName).map {
                         downloadAllAuditEvents(profileName)
-                        Result.Success(nrOfNewPrescriptions)
                     }
-                } else {
-                    Result.Success(nrOfNewPrescriptions)
                 }
-            }
-
-        when (result) {
-            is Result.Error -> {
-                (result.exception.cause as? CancellationException)?.let {
+                it
+            }.fold(
+                onSuccess = {
+                    if (pullRefreshState != PullRefreshState.HasValidToken && !isDemoModeActive) {
+                        onRefresh(RefreshEvent.NewPrescriptionsEvent(it))
+                    }
+                }, onFailure = {
+                (it.cause as? CancellationException)?.let {
                     return
                 }
 
-                (result.exception.cause as? RefreshFlowException)?.let { // Hint: We are now in unauthorized state
+                (it.cause as? RefreshFlowException)?.let { // Hint: We are now in unauthorized state
                     if (it.userActionRequired) {
                         if (it.ssoToken is SingleSignOnToken.AlternateAuthenticationWithoutToken) {
                             onShowSecureHardwarePrompt()
@@ -150,13 +148,13 @@ class PrescriptionViewModel @Inject constructor(
                     return
                 }
 
-                (result.exception.cause as? IDPConfigException)?.let {
+                (it.cause as? IDPConfigException)?.let {
                     // TODO propagate a more meaningful message
                     onRefresh(RefreshEvent.FatalTruststoreState)
                     return
                 }
 
-                when (result.exception.cause?.cause) {
+                when (it.cause?.cause) {
                     is SocketTimeoutException,
                     is UnknownHostException -> {
                         onRefresh(RefreshEvent.NetworkNotAvailable)
@@ -164,7 +162,7 @@ class PrescriptionViewModel @Inject constructor(
                     }
                 }
 
-                (result.exception as? ApiCallException)?.let {
+                (it as? ApiCallException)?.let {
                     onRefresh(
                         RefreshEvent.ServerCommunicationFailedWhileRefreshing(
                             it.response.code()
@@ -173,17 +171,12 @@ class PrescriptionViewModel @Inject constructor(
                     return
                 }
 
-                (result.exception.cause as? VauException)?.let {
+                (it.cause as? VauException)?.let {
                     onRefresh(RefreshEvent.FatalTruststoreState)
                     return
                 }
             }
-            is Result.Success -> {
-                if (pullRefreshState != PullRefreshState.HasValidToken && !isDemoModeActive) {
-                    onRefresh(RefreshEvent.NewPrescriptionsEvent(result.data))
-                }
-            }
-        }
+            )
     }
 
     fun onCloseHintCard(hint: CancellableHint) {

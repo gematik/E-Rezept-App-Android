@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.FhirConverterFactory
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.di.LazyFhirParser
 import de.gematik.ti.erp.app.utils.enqueueResponse
 import kotlinx.coroutines.runBlocking
@@ -71,8 +70,8 @@ class RemoteDataSourceTest {
         mockWebServer.enqueueResponse("taskResponse.txt", 200)
         val actual = remoteDataSource.fetchTasks(null, "")
         val expected = "Task"
-        assertTrue(actual is Result.Success)
-        assertEquals(expected, (actual as Result.Success).data.entry[0].resource.resourceType.name)
+        assertTrue(actual.isSuccess)
+        assertEquals(expected, actual.getOrThrow().entry[0].resource.resourceType.name)
     }
 
     private fun getUnsafeOkHttpClient(): OkHttpClient? {

@@ -34,6 +34,7 @@ import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
@@ -54,15 +55,15 @@ class PrescriptionUseCaseTest {
         every { useCase.syncedTasks() } answers { flowOf(testSyncedTasks) }
         every { useCase.scannedTasks() } answers { flowOf(testScannedTasks) }
 
-        every { useCase.syncedRecipes() } answers { callOriginal() }
+        every { useCase.syncedRecipes(any()) } answers { callOriginal() }
         every { useCase.scannedRecipes() } answers { callOriginal() }
-        every { useCase.redeemedPrescriptions() } answers { callOriginal() }
+        every { useCase.redeemedPrescriptions(any()) } answers { callOriginal() }
     }
 
     @Test
     fun `syncedRecipes - should return synchronized tasks in form of recipes sorted by authoredOn and grouped by organization`() =
         runTest {
-            assertEquals(testSyncedTasksOrdered.map { it.taskId }, useCase.syncedRecipes().first().map { it.taskId })
+            assertEquals(testSyncedTasksOrdered.map { it.taskId }, useCase.syncedRecipes(LocalDate.parse("2021-02-01")).first().map { it.taskId })
         }
 
     @Test
@@ -74,6 +75,6 @@ class PrescriptionUseCaseTest {
     @Test
     fun `redeemed recipes - should return redeemed tasks ordered by redeemedOn`() =
         runTest {
-            assertEquals(testRedeemedTasksOrdered.map { it.taskId }, useCase.redeemedPrescriptions().first().map { it.taskId })
+            assertEquals(testRedeemedTasksOrdered.map { it.taskId }, useCase.redeemedPrescriptions(LocalDate.parse("2021-02-01")).first().map { it.taskId })
         }
 }

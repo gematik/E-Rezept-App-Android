@@ -174,6 +174,7 @@ fun ReturningUserSecureAppOnboardingScreen(
         else -> false
     }
 
+    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         modifier = Modifier.statusBarsPadding(),
         bottomBar = {
@@ -182,19 +183,21 @@ fun ReturningUserSecureAppOnboardingScreen(
                 Button(
                     enabled = enabled,
                     onClick = {
-                        when (val sm = secureMethod) {
-                            is OnboardingSecureAppMethod.DeviceSecurity ->
-                                settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
-                            is OnboardingSecureAppMethod.Password ->
-                                settingsViewModel.onSelectPasswordAsAuthenticationMode(
-                                    requireNotNull(sm.checkedPassword)
-                                )
-                            else -> error("Illegal state. Authentication must be set")
-                        }
-                        mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
-                            launchSingleTop = true
-                            popUpTo(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
-                                inclusive = true
+                        coroutineScope.launch {
+                            when (val sm = secureMethod) {
+                                is OnboardingSecureAppMethod.DeviceSecurity ->
+                                    settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
+                                is OnboardingSecureAppMethod.Password ->
+                                    settingsViewModel.onSelectPasswordAsAuthenticationMode(
+                                        requireNotNull(sm.checkedPassword)
+                                    )
+                                else -> error("Illegal state. Authentication must be set")
+                            }
+                            mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
+                                launchSingleTop = true
+                                popUpTo(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
+                                    inclusive = true
+                                }
                             }
                         }
                     },
@@ -226,7 +229,7 @@ fun OnboardingScreen(
     )
 ) {
     val navController = rememberNavController()
-
+    val coroutineScope = rememberCoroutineScope()
     var allowTracking by rememberSaveable { mutableStateOf(false) }
 
     val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
@@ -243,29 +246,31 @@ fun OnboardingScreen(
                         allowTracking = it
                     },
                     onSaveNewUser = { allowTracking, secureMethod, profileName ->
-                        when (secureMethod) {
-                            is OnboardingSecureAppMethod.DeviceSecurity ->
-                                settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
-                            is OnboardingSecureAppMethod.Password ->
-                                settingsViewModel.onSelectPasswordAsAuthenticationMode(
-                                    requireNotNull(secureMethod.checkedPassword)
-                                )
-                            else -> error("Illegal state. Authentication must be set")
-                        }
+                        coroutineScope.launch {
+                            when (secureMethod) {
+                                is OnboardingSecureAppMethod.DeviceSecurity ->
+                                    settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
+                                is OnboardingSecureAppMethod.Password ->
+                                    settingsViewModel.onSelectPasswordAsAuthenticationMode(
+                                        requireNotNull(secureMethod.checkedPassword)
+                                    )
+                                else -> error("Illegal state. Authentication must be set")
+                            }
 
-                        settingsViewModel.isNewUser = false
-                        settingsViewModel.overwriteDefaultProfile(profileName)
-                        settingsViewModel.acceptUpdatedDataTerms(LocalDate.now())
+                            settingsViewModel.isNewUser = false
+                            settingsViewModel.overwriteDefaultProfile(profileName)
+                            settingsViewModel.acceptUpdatedDataTerms(LocalDate.now())
 
-                        if (allowTracking) {
-                            settingsViewModel.onTrackingAllowed()
-                        } else {
-                            settingsViewModel.onTrackingDisallowed()
-                        }
-                        mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
-                            launchSingleTop = true
-                            popUpTo(MainNavigationScreens.Onboarding.path()) {
-                                inclusive = true
+                            if (allowTracking) {
+                                settingsViewModel.onTrackingAllowed()
+                            } else {
+                                settingsViewModel.onTrackingDisallowed()
+                            }
+                            mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
+                                launchSingleTop = true
+                                popUpTo(MainNavigationScreens.Onboarding.path()) {
+                                    inclusive = true
+                                }
                             }
                         }
                     }

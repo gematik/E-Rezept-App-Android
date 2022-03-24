@@ -26,10 +26,10 @@ object HealthCardOrderViewModelData {
     data class State(
         val companies: List<HealthCardOrderUseCaseData.HealthInsuranceCompany>,
         val selectedCompany: HealthCardOrderUseCaseData.HealthInsuranceCompany?,
-        val selectedOption: ContactInsuranceOption
+        val selectedOption: ContactInsuranceOption,
     )
 
     enum class ContactInsuranceOption {
-        None, WithHealthCardAndPin, PinOnly
+        WithHealthCardAndPin, PinOnly
     }
 }

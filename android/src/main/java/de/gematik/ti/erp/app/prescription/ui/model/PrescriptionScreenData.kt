@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 object PrescriptionScreenData {
     @Immutable
     data class State(
-        val showDemoBanner: Boolean,
+        val isDemoModeActive: Boolean,
         val prescriptions: List<PrescriptionUseCaseData.Prescription>,
         val redeemedPrescriptions: List<PrescriptionUseCaseData.Prescription>,
         val nowInEpochDays: Long,

@@ -37,7 +37,6 @@ import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import de.gematik.ti.erp.app.tracking.Tracker
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -135,17 +134,13 @@ class SettingsViewModel @Inject constructor(
         )
     }.flowOn(coroutineDispatchProvider.default())
 
-    fun onSelectDeviceSecurityAuthenticationMode() =
-        viewModelScope.launch(Dispatchers.IO) {
-            settingsUseCase.saveAuthenticationMethod(
-                SettingsAuthenticationMethod.DeviceSecurity
-            )
-        }
+    suspend fun onSelectDeviceSecurityAuthenticationMode() =
+        settingsUseCase.saveAuthenticationMethod(
+            SettingsAuthenticationMethod.DeviceSecurity
+        )
 
-    fun onSelectPasswordAsAuthenticationMode(password: String) =
-        viewModelScope.launch(Dispatchers.IO) {
-            settingsUseCase.savePasswordAsAuthenticationMethod(password)
-        }
+    suspend fun onSelectPasswordAsAuthenticationMode(password: String) =
+        settingsUseCase.savePasswordAsAuthenticationMethod(password)
 
     fun onSwitchAllowScreenshots(allowScreenshots: Boolean) {
         appPrefs.edit {

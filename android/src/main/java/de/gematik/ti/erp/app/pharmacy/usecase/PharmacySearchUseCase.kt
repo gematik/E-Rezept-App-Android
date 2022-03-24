@@ -25,7 +25,6 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.ShippingContactEntity
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
@@ -96,56 +95,44 @@ class PharmacySearchUseCase @Inject constructor(
 
             when (params) {
                 is LoadParams.Refresh -> {
-                    return when (val resultSearchBundle = repository.searchPharmacies(name, filter)) {
-                        is Result.Error -> LoadResult.Error(
-                            resultSearchBundle.exception
-                        )
-                        is Result.Success -> {
+                    return repository.searchPharmacies(name, filter)
+                        .map {
                             LoadResult.Page(
-                                data = mapPharmacies(resultSearchBundle.data.pharmacies),
-                                nextKey = if (resultSearchBundle.data.bundleResultCount == initialResultsPerPage) {
+                                data = mapPharmacies(it.pharmacies),
+                                nextKey = if (it.bundleResultCount == initialResultsPerPage) {
                                     PharmacyPagingKey(
-                                        resultSearchBundle.data.bundleId,
-                                        resultSearchBundle.data.bundleResultCount
+                                        it.bundleId,
+                                        it.bundleResultCount
                                     )
                                 } else {
                                     null
                                 },
                                 prevKey = null
                             )
-                        }
-                    }
+                        }.getOrElse { LoadResult.Error(it) }
                 }
                 is LoadParams.Append, is LoadParams.Prepend -> {
                     val key = params.key!!
 
-                    val resultSearchBundle =
-                        repository.searchPharmaciesByBundle(key.bundleId, offset = key.offset, count = count)
-
-                    return when (resultSearchBundle) {
-                        is Result.Error -> LoadResult.Error(
-                            resultSearchBundle.exception
-                        )
-                        is Result.Success -> {
-                            val nextKey = if (resultSearchBundle.data.bundleResultCount == count) {
-                                PharmacyPagingKey(
-                                    key.bundleId,
-                                    key.offset + resultSearchBundle.data.bundleResultCount
-                                )
-                            } else {
-                                null
-                            }
-                            val prevKey = if (key.offset == 0) null else key.copy(offset = max(0, key.offset - count))
-
-                            LoadResult.Page(
-                                data = mapPharmacies(resultSearchBundle.data.pharmacies),
-                                nextKey = nextKey,
-                                prevKey = prevKey,
-                                itemsBefore = if (prevKey != null) count else 0,
-                                itemsAfter = if (nextKey != null) count else 0,
+                    return repository.searchPharmaciesByBundle(key.bundleId, offset = key.offset, count = count).map {
+                        val nextKey = if (it.bundleResultCount == count) {
+                            PharmacyPagingKey(
+                                key.bundleId,
+                                key.offset + it.bundleResultCount
                             )
+                        } else {
+                            null
                         }
-                    }
+                        val prevKey = if (key.offset == 0) null else key.copy(offset = max(0, key.offset - count))
+
+                        LoadResult.Page(
+                            data = mapPharmacies(it.pharmacies),
+                            nextKey = nextKey,
+                            prevKey = prevKey,
+                            itemsBefore = if (prevKey != null) count else 0,
+                            itemsAfter = if (nextKey != null) count else 0,
+                        )
+                    }.getOrElse { LoadResult.Error(it) }
                 }
             }
         }

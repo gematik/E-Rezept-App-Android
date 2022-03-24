@@ -41,7 +41,7 @@ class HealthCardOrderViewModel @Inject constructor(
     val defaultState = HealthCardOrderViewModelData.State(
         companies = emptyList(),
         selectedCompany = null,
-        selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.None,
+        selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin,
     )
 
     private val state = MutableStateFlow(defaultState)
@@ -54,7 +54,7 @@ class HealthCardOrderViewModel @Inject constructor(
     fun onSelectInsuranceCompany(company: HealthCardOrderUseCaseData.HealthInsuranceCompany) {
         state.value = state.value.copy(
             selectedCompany = company,
-            selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.None
+            selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin
         )
     }
 

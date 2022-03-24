@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.orderhealthcard.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -33,10 +32,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -52,6 +49,7 @@ import androidx.compose.material.icons.filled.PhoneInTalk
 import androidx.compose.material.icons.rounded.ArrowRight
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
@@ -91,7 +89,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
-import kotlinx.coroutines.flow.collect
 
 @Composable
 fun HealthCardContactOrderScreen(
@@ -114,31 +111,21 @@ fun HealthCardContactOrderScreen(
         startDestination = HealthCardOrderNavigationScreens.HealthCardOrder.path()
     ) {
         composable(HealthCardOrderNavigationScreens.HealthCardOrder.route) {
-            val scrollState = rememberScrollState()
+            val listState = rememberLazyListState()
 
             NavigationAnimation(mode = navigationMode) {
                 AnimatedElevationScaffold(
                     topBarTitle = title,
-                    elevated = scrollState.value > 0,
+                    elevated = listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0,
                     navigationMode = NavigationBarMode.Close,
                     onBack = onBack
                 ) {
-                    Box(
-                        Modifier
-                            .verticalScroll(scrollState)
-                            .padding(
-                                rememberInsetsPaddingValues(
-                                    insets = LocalWindowInsets.current.systemBars,
-                                    applyBottom = true
-                                )
-                            )
-                    ) {
-                        HealthCardOrder(
-                            state = state,
-                            onClickInsuranceSelector = { navController.navigate(HealthCardOrderNavigationScreens.HealthCardOrderInsuranceCompanies.path()) },
-                            onSelectOption = { healthCardOrderViewModel.onSelectContactOption(it) }
-                        )
-                    }
+                    HealthCardOrder(
+                        listState = listState,
+                        state = state,
+                        onClickInsuranceSelector = { navController.navigate(HealthCardOrderNavigationScreens.HealthCardOrderInsuranceCompanies.path()) },
+                        onSelectOption = { healthCardOrderViewModel.onSelectContactOption(it) }
+                    )
                 }
             }
         }
@@ -156,7 +143,10 @@ fun HealthCardContactOrderScreen(
                         state = listState,
                         insuranceCompanies = state.companies,
                         selected = state.selectedCompany,
-                        onSelectionChange = { healthCardOrderViewModel.onSelectInsuranceCompany(it) }
+                        onSelectionChange = {
+                            healthCardOrderViewModel.onSelectInsuranceCompany(it)
+                            navController.popBackStack()
+                        }
                     )
                 }
             }
@@ -173,7 +163,11 @@ private fun HealthInsuranceSelectorPreview() {
             healthCardAndPinPhone = null,
             healthCardAndPinMail = null,
             healthCardAndPinUrl = null,
-            pinUrl = null
+            pinUrl = null,
+            subjectCardAndPinMail = null,
+            bodyCardAndPinMail = null,
+            subjectPinMail = null,
+            bodyPinMail = null,
         )
     }
     AppTheme {
@@ -238,76 +232,99 @@ private fun HealthInsuranceCompanySelectable(
 
 @Composable
 private fun HealthCardOrder(
+    listState: LazyListState = rememberLazyListState(),
     state: HealthCardOrderViewModelData.State,
     onClickInsuranceSelector: () -> Unit,
     onSelectOption: (HealthCardOrderViewModelData.ContactInsuranceOption) -> Unit
 ) {
-    Column(Modifier.fillMaxWidth()) {
-        Column(Modifier.padding(PaddingDefaults.Medium)) {
-            Text(
-                stringResource(R.string.cdw_health_insurance_title),
-                style = MaterialTheme.typography.h5,
-                textAlign = TextAlign.Center
-            )
-            SpacerLarge()
-            Text(
-                stringResource(R.string.cdw_health_insurance_body_what_you_need),
-                style = MaterialTheme.typography.body1
-            )
-            SpacerSmall()
-            Text(stringResource(R.string.cdw_health_insurance_body_how_to_get), style = MaterialTheme.typography.body1)
-            SpacerSmall()
-            Text(
-                stringResource(R.string.cdw_health_insurance_caption_recognize_healthcard),
-                style = AppTheme.typography.body2l
-            )
-            SpacerSmall()
-            HintTextLearnMoreButton(
-                modifier = Modifier.align(Alignment.End),
-                uri = stringResource(R.string.cdw_health_insurance_learn_more),
-                align = Alignment.End
-            )
+    var onlyScrollOnce by remember { mutableStateOf(true) }
+
+    LaunchedEffect(state.selectedCompany != null) {
+        if (state.selectedCompany != null && onlyScrollOnce) {
+            onlyScrollOnce = false
+            listState.animateScrollToItem(2)
         }
+    }
 
-        SpacerXXLarge()
-
-        Text(
-            stringResource(R.string.cdw_health_insurance_select_company),
-            style = MaterialTheme.typography.h6,
-            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+    LazyColumn(
+        modifier = Modifier.fillMaxWidth(),
+        state = listState,
+        contentPadding = rememberInsetsPaddingValues(
+            insets = LocalWindowInsets.current.navigationBars,
+            applyBottom = true
         )
-        SpacerMedium()
+    ) {
 
-        // insurance company selection button
-        TextButton(
-            onClick = onClickInsuranceSelector,
-            contentPadding = PaddingValues(vertical = PaddingDefaults.Medium, horizontal = PaddingDefaults.Small),
-            modifier = Modifier.padding(horizontal = PaddingDefaults.Small)
-        ) {
-            Text(state.selectedCompany?.name ?: stringResource(R.string.cdw_health_insurance_no_company_selected))
-            Spacer(Modifier.weight(1f))
-            Icon(Icons.Rounded.ArrowRight, null)
+        item {
+            Column(Modifier.padding(PaddingDefaults.Medium)) {
+
+                Text(
+                    stringResource(R.string.cdw_health_insurance_title),
+                    style = MaterialTheme.typography.h5,
+                    textAlign = TextAlign.Center
+                )
+                SpacerLarge()
+                Text(
+                    stringResource(R.string.cdw_health_insurance_body_what_you_need),
+                    style = MaterialTheme.typography.body1
+                )
+                SpacerSmall()
+                Text(stringResource(R.string.cdw_health_insurance_body_how_to_get), style = MaterialTheme.typography.body1)
+                SpacerSmall()
+                Text(
+                    stringResource(R.string.cdw_health_insurance_caption_recognize_healthcard),
+                    style = AppTheme.typography.body2l
+                )
+
+                SpacerSmall()
+                HintTextLearnMoreButton(
+                    modifier = Modifier.align(Alignment.End),
+                    uri = stringResource(R.string.cdw_health_insurance_learn_more),
+                    align = Alignment.End
+                )
+            }
         }
 
-        if (state.selectedCompany != null) {
+        item {
             SpacerXXLarge()
-            if (state.selectedCompany.noContactInformation()) {
-                NoContactsHint()
-            } else {
-                Text(
-                    stringResource(R.string.cdw_health_insurance_what_to_do),
-                    style = MaterialTheme.typography.h6,
-                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
-                )
 
-                SpacerMedium()
-                ContactInsuranceOptions(
-                    company = state.selectedCompany,
-                    selected = state.selectedOption,
-                    onSelectionChange = onSelectOption
-                )
+            Text(
+                stringResource(R.string.cdw_health_insurance_select_company),
+                style = MaterialTheme.typography.h6,
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+            )
+            SpacerMedium()
 
-                if (state.selectedOption != HealthCardOrderViewModelData.ContactInsuranceOption.None) {
+            // insurance company selection button
+            TextButton(
+                onClick = onClickInsuranceSelector,
+                contentPadding = PaddingValues(vertical = PaddingDefaults.Medium, horizontal = PaddingDefaults.Small),
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Small)
+            ) {
+                Text(state.selectedCompany?.name ?: stringResource(R.string.cdw_health_insurance_no_company_selected))
+                Spacer(Modifier.weight(1f))
+                Icon(Icons.Rounded.ArrowRight, null)
+            }
+        }
+        item {
+            if (state.selectedCompany != null) {
+                SpacerXXLarge()
+                if (state.selectedCompany.noContactInformation()) {
+                    NoContactsHint()
+                } else {
+                    Text(
+                        stringResource(R.string.cdw_health_insurance_what_to_do),
+                        style = MaterialTheme.typography.h6,
+                        modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+                    )
+
+                    SpacerMedium()
+                    ContactInsuranceOptions(
+                        company = state.selectedCompany,
+                        selected = state.selectedOption,
+                        onSelectionChange = onSelectOption
+                    )
+
                     SpacerXXLarge()
                     Text(
                         stringResource(R.string.cdw_health_insurance_contact_insurance_company),
@@ -320,9 +337,8 @@ private fun HealthCardOrder(
                     )
                 }
             }
+            SpacerMedium()
         }
-
-        SpacerMedium()
     }
 }
 
@@ -397,14 +413,18 @@ private fun ContactInsurance(
         ContactMethodRow(
             phone = company.healthCardAndPinPhone,
             url = company.healthCardAndPinUrl,
-            mail = company.healthCardAndPinMail
+            mail = company.healthCardAndPinMail,
+            company = company,
+            option = option,
         )
     }
     if (option == HealthCardOrderViewModelData.ContactInsuranceOption.PinOnly) {
         ContactMethodRow(
             phone = null,
             url = company.pinUrl,
-            mail = null
+            mail = company.healthCardAndPinMail,
+            company = company,
+            option = option,
         )
     }
 }
@@ -414,6 +434,8 @@ private fun ContactMethodRow(
     phone: String?,
     url: String?,
     mail: String?,
+    company: HealthCardOrderUseCaseData.HealthInsuranceCompany,
+    option: HealthCardOrderViewModelData.ContactInsuranceOption
 ) {
     val uriHandler = LocalUriHandler.current
 
@@ -449,7 +471,15 @@ private fun ContactMethodRow(
                 name = "Mail",
                 icon = Icons.Filled.MailOutline,
                 onClick = {
-                    uriHandler.openUri("mailto:$it?subject=$mailSubject")
+                    when {
+                        option == HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin &&
+                            company.hasMailContentForCardAndPin() -> uriHandler.openUri("mailto:$it?subject=${company.subjectCardAndPinMail}&body=${company.bodyCardAndPinMail}")
+
+                        option == HealthCardOrderViewModelData.ContactInsuranceOption.PinOnly &&
+                            company.hasMailContentForPin() -> uriHandler.openUri("mailto:$it?subject=${company.subjectPinMail}&body=${company.bodyPinMail}")
+
+                        else -> uriHandler.openUri("mailto:$it?subject=$mailSubject")
+                    }
                 }
             )
         }

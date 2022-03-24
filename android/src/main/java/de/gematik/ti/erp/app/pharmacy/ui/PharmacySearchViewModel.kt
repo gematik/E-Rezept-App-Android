@@ -38,7 +38,6 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.common.usecase.model.PharmacyScreenHintEnableLocation
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
@@ -291,7 +290,12 @@ class PharmacySearchViewModel @Inject constructor(
             taskIds.map { taskIdToOrder ->
                 demoUseCase.demoTasks.value.find { demoTasks -> demoTasks.taskId == taskIdToOrder }!!
                     .let {
-                        PharmacyUseCaseData.PrescriptionOrder(it.taskId, it.accessCode ?: "", it.medicationText ?: "", true)
+                        PharmacyUseCaseData.PrescriptionOrder(
+                            it.taskId,
+                            it.accessCode ?: "",
+                            it.medicationText ?: "",
+                            true
+                        )
                     }
             }.apply {
                 emit(PharmacyUseCaseData.OrderState(this, demoUseCase.demoContact))
@@ -339,7 +343,7 @@ class PharmacySearchViewModel @Inject constructor(
                     task
             }
         }
-        return Result.Success(Unit)
+        return Result.success(Unit)
     }
 
     private suspend fun orderRecipe(state: PharmacyScreenData.OrderScreenState): Result<Unit> {
@@ -366,9 +370,9 @@ class PharmacySearchViewModel @Inject constructor(
                         }
                     }
                     .awaitAll()
-                    .find { it is Result.Error }
+                    .find { it.isFailure }
 
-                result as? Result.Error ?: Result.Success(Unit)
+                result?.let { Result.failure(it.exceptionOrNull()!!) } ?: Result.success(Unit)
             }
         }
     }

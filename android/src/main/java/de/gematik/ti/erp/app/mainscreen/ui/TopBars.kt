@@ -44,6 +44,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
@@ -74,6 +75,7 @@ fun RedeemAndArchiveTabs(
         selectedTabIndex = selectedTab.index,
         modifier = Modifier.fillMaxWidth(),
         tabs = tabNames,
+        backGroundColor = MaterialTheme.colors.surface,
         onClick = { onSelectedTab(PrescriptionTabs.ofValue(it)!!) }
     )
 }
@@ -83,14 +85,15 @@ fun TextTabRow(
     selectedTabIndex: Int,
     modifier: Modifier = Modifier,
     onClick: (index: Int) -> Unit,
-    tabs: List<String>
+    backGroundColor: Color,
+    tabs: List<String>,
 ) {
     var contentWidth by remember { mutableStateOf(0) }
 
     TabRow(
         modifier = modifier,
         selectedTabIndex = selectedTabIndex,
-        backgroundColor = MaterialTheme.colors.surface,
+        backgroundColor = backGroundColor,
         indicator = { tabPositions ->
             TabIndicator(tabPositions, selectedTabIndex, with(LocalDensity.current) { contentWidth.toDp() })
         },

@@ -78,7 +78,7 @@ android {
     }
 
     androidResources {
-        noCompress("srt", "csv")
+        noCompress("srt", "csv", "json")
     }
 
     compileOptions {

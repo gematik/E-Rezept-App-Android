@@ -80,6 +80,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -137,6 +138,7 @@ import java.util.Locale
 import de.gematik.ti.erp.app.utils.dateTimeShortText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
@@ -254,10 +256,11 @@ fun SettingsScreenWithScaffold(
                 SettingsDivider()
             }
             item {
+                val coroutineScope = rememberCoroutineScope()
                 AuthenticationSection(state.authenticationMode) {
                     when (it) {
                         SettingsScreen.AuthenticationMode.Password -> navController.navigate("Password")
-                        else -> settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
+                        else -> coroutineScope.launch { settingsViewModel.onSelectDeviceSecurityAuthenticationMode() }
                     }
                 }
                 SettingsDivider()

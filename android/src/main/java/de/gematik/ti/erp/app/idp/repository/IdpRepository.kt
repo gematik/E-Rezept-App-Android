@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.idp.repository
 
 import com.squareup.moshi.Moshi
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.IdpAuthenticationDataEntity
 import de.gematik.ti.erp.app.db.entities.IdpConfiguration
 import de.gematik.ti.erp.app.idp.api.REDIRECT_URI
@@ -214,14 +213,9 @@ class IdpRepository @Inject constructor(
      */
     suspend fun loadUncheckedIdpConfiguration(): IdpConfiguration {
         return localDataSource.loadIdpInfo() ?: run {
-            when (val r = remoteDataSource.fetchDiscoveryDocument()) {
-                is Result.Error -> throw r.exception
-                is Result.Success -> extractUncheckedIdpConfiguration(r.data).also {
-                    localDataSource.saveIdpInfo(
-                        it
-                    )
-                }
-            }
+            extractUncheckedIdpConfiguration(
+                remoteDataSource.fetchDiscoveryDocument().getOrThrow()
+            ).also { localDataSource.saveIdpInfo(it) }
         }
     }
 
@@ -252,12 +246,9 @@ class IdpRepository @Inject constructor(
         url: String,
         idpPukSigKey: PublicKey,
     ): List<AuthenticationID> {
-        val jwtResult = remoteDataSource.fetchExternalAuthorizationIDList(url)
-        if (jwtResult is Result.Success<JsonWebSignature>) {
-            return extractAuthenticationIDList(jwtResult.data.apply { key = idpPukSigKey }.payload)
-        } else {
-            error("couldn't extract authentication ID List")
-        }
+        val jwtResult = remoteDataSource.fetchExternalAuthorizationIDList(url).getOrThrow()
+
+        return extractAuthenticationIDList(jwtResult.apply { key = idpPukSigKey }.payload)
     }
 
     suspend fun fetchIdpPukSig(url: String) =
@@ -386,16 +377,11 @@ class IdpRepository @Inject constructor(
         nonce: IdpNonce,
         kkAppId: String
     ): String {
-        val result = remoteDataSource.requestAuthorizationRedirect(
+        return remoteDataSource.requestAuthorizationRedirect(
             url = url, externalAppId = kkAppId,
             codeChallenge = codeChallenge,
             nonce = nonce.nonce,
             state = state.state
-        )
-        if (result is Result.Success) {
-            return result.data
-        } else {
-            throw (result as Result.Error).exception
-        }
+        ).getOrThrow()
     }
 }

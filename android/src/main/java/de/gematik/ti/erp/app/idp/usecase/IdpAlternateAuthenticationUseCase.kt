@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.idp.usecase
 
 import com.squareup.moshi.Moshi
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationData
 import de.gematik.ti.erp.app.idp.api.models.DeviceInformation
@@ -93,16 +92,11 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
             accessToken, idpPukSigKey = pukSigKey.jws.publicKey, idpPukEncKey = pukEncKey.jws.publicKey,
         )
 
-        return when (
-            val r = repository.postPairing(
-                config.pairingEndpoint,
-                encryptedRegistrationData.compactSerialization,
-                encryptedAccessToken.compactSerialization
-            )
-        ) {
-            is Result.Success -> r.data
-            is Result.Error -> throw r.exception
-        }
+        return repository.postPairing(
+            config.pairingEndpoint,
+            encryptedRegistrationData.compactSerialization,
+            encryptedAccessToken.compactSerialization
+        ).getOrThrow()
     }
 
     suspend fun getPairedDevices(
@@ -114,16 +108,10 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
         val encryptedAccessToken = buildEncryptedAccessToken(
             accessToken, idpPukSigKey = pukSigKey.jws.publicKey, idpPukEncKey = pukEncKey.jws.publicKey,
         )
-
-        return when (
-            val r = repository.getPairing(
-                config.pairingEndpoint,
-                encryptedAccessToken.compactSerialization
-            )
-        ) {
-            is Result.Success -> r.data
-            is Result.Error -> throw r.exception
-        }
+        return repository.getPairing(
+            config.pairingEndpoint,
+            encryptedAccessToken.compactSerialization
+        ).getOrThrow()
     }
 
     fun buildEncryptedAccessToken(
@@ -214,15 +202,7 @@ class IdpAlternateAuthenticationUseCase @Inject constructor(
         codeChallenge: JsonWebEncryption,
         state: IdpState,
     ): URI {
-        val redirect = when (
-            val r =
-                repository.postBiometricAuthenticationData(url, codeChallenge.compactSerialization)
-        ) {
-            is Result.Success -> {
-                URI(r.data)
-            }
-            is Result.Error -> throw r.exception
-        }
+        val redirect = URI(repository.postBiometricAuthenticationData(url, codeChallenge.compactSerialization).getOrThrow())
 
         val redirectState = IdpService.extractQueryParameter(redirect, "state")
         require(state.state == redirectState) { "Invalid state" }

@@ -75,7 +75,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.google.accompanist.insets.navigationBarsPadding
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.cardwall.ui.PrimaryButton
 import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.mainscreen.ui.ssoStatusColor
@@ -168,12 +167,13 @@ fun PharmacyOrderScreen(
                             coroutineScope.launch {
                                 try {
                                     delay(1000)
-                                    when (viewModel.triggerOrderInPharmacy(state)) {
-                                        is Result.Error -> scaffoldState.snackbarHostState.showSnackbar(uploadErrorText)
-                                        is Result.Success -> withContext(Dispatchers.Main) {
-                                            onSuccessfullyOrdered(state.orderOption)
-                                        }
-                                    }
+                                    viewModel.triggerOrderInPharmacy(state).fold(
+                                        onSuccess = {
+                                            withContext(Dispatchers.Main) {
+                                                onSuccessfullyOrdered(state.orderOption)
+                                            }
+                                        }, onFailure = { scaffoldState.snackbarHostState.showSnackbar(uploadErrorText) }
+                                    )
                                 } finally {
                                     uploadInProgress = false
                                 }

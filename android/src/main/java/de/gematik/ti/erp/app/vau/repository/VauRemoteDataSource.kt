@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.vau.repository
 
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.vau.api.VauService
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList

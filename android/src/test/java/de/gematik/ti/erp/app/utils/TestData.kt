@@ -128,7 +128,7 @@ val testSyncedTasks by lazy {
             accessCode = "3ea8dc08e5aa4693825437cf73e6d0333ea8dc08e5aa4693825437cf73e6d033",
             organization = "Praxis Glücklicher gehts nicht",
             medicationText = "Gummibärchen",
-            expiresOn = LocalDate.parse("2022-04-01"),
+            expiresOn = LocalDate.parse("2021-04-01"),
             authoredOn = OffsetDateTime.parse("2020-12-05T09:49:46+00:00"),
             profileName = "Tester",
             status = TaskStatus.Ready
@@ -138,7 +138,7 @@ val testSyncedTasks by lazy {
             accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
             organization = "MVZ Haus der vielen Ärzte",
             medicationText = "Viel zu viel",
-            expiresOn = LocalDate.parse("2022-04-01"),
+            expiresOn = LocalDate.parse("2021-04-01"),
             authoredOn = OffsetDateTime.parse("2020-12-20T09:49:46+00:00"),
             profileName = "Tester",
             status = TaskStatus.Ready
@@ -148,7 +148,7 @@ val testSyncedTasks by lazy {
             accessCode = "82de8475f352482dbd602972c6024c6a82de8475f352482dbd602972c6024c6a",
             organization = "MVZ Haus der vielen Ärzte",
             medicationText = "Viel zu viel",
-            expiresOn = LocalDate.parse("2022-03-05"),
+            expiresOn = LocalDate.parse("2021-03-05"),
             authoredOn = OffsetDateTime.parse("2020-12-04T09:49:46+00:00"),
             profileName = "Tester",
             status = TaskStatus.Ready

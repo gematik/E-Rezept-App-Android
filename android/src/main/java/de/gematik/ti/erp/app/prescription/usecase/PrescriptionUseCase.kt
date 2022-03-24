@@ -21,7 +21,6 @@ package de.gematik.ti.erp.app.prescription.usecase
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.datamatrix.DataMatrixWriter
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskStatus
@@ -57,9 +56,9 @@ interface PrescriptionUseCase {
      * Tasks grouped by timestamp and organization (e.g. doctor).
      * Mapped to [PrescriptionUseCaseData.Prescription.Synced].
      */
-    fun syncedRecipes(): Flow<List<PrescriptionUseCaseData.Prescription.Synced>> =
+    fun syncedRecipes(now: LocalDate = LocalDate.now()): Flow<List<PrescriptionUseCaseData.Prescription.Synced>> =
         syncedTasks().map { tasks ->
-            tasks.filter { it.isSyncedTaskRedeemable() }
+            tasks.filter { it.isSyncedTaskRedeemable(now) }
                 .sortedByDescending { it.authoredOn }
                 .groupBy { it.organization }
                 .flatMap { (_, tasks) ->
@@ -96,13 +95,13 @@ interface PrescriptionUseCase {
                 }
         }
 
-    fun redeemedPrescriptions(): Flow<List<PrescriptionUseCaseData.Prescription>> =
+    fun redeemedPrescriptions(now: LocalDate = LocalDate.now()): Flow<List<PrescriptionUseCaseData.Prescription>> =
         combine(
             scannedTasks(),
             syncedTasks()
         ) { scannedTasks, syncedTasks ->
             val syncedPrescriptions = syncedTasks
-                .filter { it.isSyncedTaskRedeemed() }
+                .filter { it.isSyncedTaskRedeemed(now) }
                 .map {
                     PrescriptionUseCaseData.Prescription.Synced(
                         taskId = it.taskId,
@@ -141,8 +140,8 @@ interface PrescriptionUseCase {
             tasks.filter { it.isScannedTaskRedeemable() }.map { it.taskId }
         }
 
-    private fun Task.isSyncedTaskRedeemable(): Boolean = with(expiresOn) {
-        this != null && this.toEpochDay() >= LocalDate.now().toEpochDay() &&
+    private fun Task.isSyncedTaskRedeemable(now: LocalDate = LocalDate.now()): Boolean {
+        return expiresOn != null && expiresOn >= now &&
             (status == TaskStatus.Ready || status == TaskStatus.InProgress)
     }
 
@@ -153,7 +152,7 @@ interface PrescriptionUseCase {
 
     private fun Task.isRedeemableAndValid(): Boolean = isSyncedTaskRedeemable() && accessCode != null
 
-    private fun Task.isSyncedTaskRedeemed(): Boolean = !isSyncedTaskRedeemable()
+    private fun Task.isSyncedTaskRedeemed(now: LocalDate): Boolean = !isSyncedTaskRedeemable(now)
 
     private fun mapStatus(status: TaskStatus?): PrescriptionUseCaseData.Prescription.Synced.Status =
         when (status) {

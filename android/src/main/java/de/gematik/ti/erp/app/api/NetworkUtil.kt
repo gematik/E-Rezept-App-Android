@@ -34,15 +34,15 @@ suspend fun <T : Any> safeApiCall(
     try {
         val response = call()
         if (response.isSuccessful) {
-            response.body()?.let { Result.Success(it) } ?: Result.Success(null)
+            requireNotNull(response.body()).let { Result.success(it) }
         } else {
-            Result.Error(
+            Result.failure(
                 ApiCallException("Error executing safe api call ${response.code()} ${response.message()}", response)
             )
         }
     } catch (e: Exception) {
         // An exception was thrown when calling the API so we're converting this to an [IOException]
-        Result.Error(IOException(errorMessage, e))
+        Result.failure(IOException(errorMessage, e))
     }
 
 /**
@@ -56,5 +56,5 @@ suspend fun <T : Any> safeApiCallRaw(
         call()
     } catch (e: Exception) {
         // An exception was thrown when calling the API so we're converting this to an IOException
-        Result.Error(IOException(errorMessage, e))
+        Result.failure(IOException(errorMessage, e))
     }

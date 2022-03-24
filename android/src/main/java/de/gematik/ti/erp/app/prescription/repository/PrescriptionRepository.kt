@@ -19,10 +19,6 @@
 package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.api.map
-import de.gematik.ti.erp.app.api.mapCatching
-import de.gematik.ti.erp.app.api.mapSuccessful
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.db.entities.TaskStatus
@@ -99,7 +95,6 @@ class PrescriptionRepository @Inject constructor(
             withContext(dispatchProvider.default()) {
                 val communications = mapper.mapFhirBundleToCommunications(it, profileName)
                 localDataSource.saveCommunications(communications)
-                Result.Success(Unit)
             }
         }
 
@@ -112,9 +107,9 @@ class PrescriptionRepository @Inject constructor(
 
             supervisorScope {
                 withContext(dispatchProvider.io()) {
-                    taskIds.map { taskId ->
+                    val results = taskIds.map { taskId ->
                         async {
-                            downloadTaskWithKBVBundle(taskId, profileName).map {
+                            downloadTaskWithKBVBundle(taskId, profileName).mapCatching {
                                 deleteLowDetailEvents(taskId)
 
                                 if (it.status == TaskStatus.Completed) {
@@ -124,17 +119,21 @@ class PrescriptionRepository @Inject constructor(
                                     )
                                 }
 
-                                Result.Success(requireNotNull(it.lastModified))
+                                requireNotNull(it.lastModified)
                             }
                         }
+                    }.awaitAll()
+
+                    // throw if any result is not parsed correctly
+                    results.find { it.isFailure }?.getOrThrow()
+
+                    val lastModified = results.map { it.getOrNull()!! }
+                    lastModified.maxOrNull()?.let {
+                        localDataSource.updateTaskSyncedUpTo(profileName, it.toInstant())
                     }
-                        .awaitAll()
-                        .mapSuccessful { lastModified: List<OffsetDateTime> ->
-                            lastModified.maxOrNull()?.let {
-                                localDataSource.updateTaskSyncedUpTo(profileName, it.toInstant())
-                            }
-                            Result.Success(lastModified.size)
-                        }
+
+                    // return number of bundles saved to db
+                    lastModified.size
                 }
             }
         }
@@ -146,7 +145,7 @@ class PrescriptionRepository @Inject constructor(
         remoteDataSource.taskWithKBVBundle(profileName, taskId).mapCatching {
             val task = mapper.mapFhirBundleToTaskWithKBVBundle(it, profileName)
             localDataSource.saveTask(task)
-            Result.Success(task)
+            task
         }
 
     private val coroutineScope = CoroutineScope(dispatchProvider.io())
@@ -162,7 +161,7 @@ class PrescriptionRepository @Inject constructor(
                         profileName = profileName,
                         count = AUDIT_EVENT_PAGE_SIZE
                     )
-                    if (result is Result.Error || (result is Result.Success && result.data != AUDIT_EVENT_PAGE_SIZE)) {
+                    if (result.isFailure || result.getOrThrow() != AUDIT_EVENT_PAGE_SIZE) {
                         break
                     }
                 }
@@ -179,15 +178,11 @@ class PrescriptionRepository @Inject constructor(
             profileName,
             syncedUpTo,
             count = count
-        ).mapCatching { bundle ->
-            try {
-                val auditEvents = mapper.mapFhirBundleToAuditEvents(profileName, bundle)
-                localDataSource.saveAuditEvents(auditEvents)
-                localDataSource.setAllAuditEventsSyncedUpTo(profileName)
-                Result.Success(auditEvents.size)
-            } catch (e: Exception) {
-                Result.Error(e)
-            }
+        ).mapCatching {
+            val auditEvents = mapper.mapFhirBundleToAuditEvents(profileName, it)
+            localDataSource.saveAuditEvents(auditEvents)
+            localDataSource.setAllAuditEventsSyncedUpTo(profileName)
+            auditEvents.size
         }
     }
 
@@ -195,24 +190,16 @@ class PrescriptionRepository @Inject constructor(
         profileName: String,
         taskId: String
     ): Result<Unit> {
-        return when (val result = remoteDataSource.medicationDispense(profileName, taskId)) {
-            is Result.Error -> result
-            is Result.Success -> {
-                try {
-                    // FIXME cast can never succeed
-                    mapper.mapMedicationDispenseToMedicationDispenseSimple(result.data as MedicationDispense)
-                        .let {
-                            localDataSource.saveMedicationDispense(it)
-                            localDataSource.updateRedeemedOnForSingleTask(
-                                taskId,
-                                it.whenHandedOver
-                            )
-                        }
-                    Result.Success(Unit)
-                } catch (e: Exception) {
-                    Result.Error(e)
+        return remoteDataSource.medicationDispense(profileName, taskId).mapCatching {
+            // FIXME cast can never succeed
+            mapper.mapMedicationDispenseToMedicationDispenseSimple(it as MedicationDispense)
+                .let {
+                    localDataSource.saveMedicationDispense(it)
+                    localDataSource.updateRedeemedOnForSingleTask(
+                        taskId,
+                        it.whenHandedOver
+                    )
                 }
-            }
         }
     }
 
@@ -232,21 +219,11 @@ class PrescriptionRepository @Inject constructor(
         taskId: String,
         isRemoteTask: Boolean
     ): Result<Unit> {
-        val result = if (isRemoteTask) {
-            when (val result = remoteDataSource.deleteTask(profileName, taskId)) {
-                is Result.Success -> {
-                    Result.Success(Unit)
-                }
-                is Result.Error -> result
-            }
+        return if (isRemoteTask) {
+            remoteDataSource.deleteTask(profileName, taskId)
         } else {
-            Result.Success(Unit)
-        }
-
-        if (result is Result.Success) {
-            localDataSource.deleteTaskByTaskId(taskId)
-        }
-        return result
+            Result.success(Unit)
+        }.map { localDataSource.deleteTaskByTaskId(taskId) }
     }
 
     suspend fun updateRedeemedOnForAllTasks(taskIds: List<String>, tm: OffsetDateTime?) {

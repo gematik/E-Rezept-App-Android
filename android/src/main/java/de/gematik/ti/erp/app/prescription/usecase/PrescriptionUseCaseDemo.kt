@@ -18,8 +18,6 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.api.map
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.Task
 import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
@@ -69,21 +67,21 @@ class PrescriptionUseCaseDemo @Inject constructor(
         prescriptionDemoDataSource.saveTasks(tasks)
     }
 
-    override suspend fun downloadCommunications(profileName: String): Result<Unit> = Result.Success(Unit)
+    override suspend fun downloadCommunications(profileName: String): Result<Unit> = Result.success(Unit)
 
     override fun downloadAllAuditEvents(profileName: String) {}
 
     override suspend fun downloadTasks(profileName: String): Result<Int> {
         delay(DEMO_DELAY)
-        return demoRefreshResult().map { Result.Success(0) }
+        return demoRefreshResult().map { 0 }
     }
 
     private fun demoRefreshResult(): Result<Unit> {
         return if (demoUseCase.authTokenReceived.value) {
             prescriptionDemoDataSource.incrementRefresh()
-            Result.Success(Unit)
+            Result.success(Unit)
         } else {
-            Result.Error(IOException(RefreshFlowException(true, null, "demo mode")))
+            Result.failure(IOException(RefreshFlowException(true, null, "demo mode")))
         }
     }
 
@@ -120,7 +118,7 @@ class PrescriptionUseCaseDemo @Inject constructor(
 
     override suspend fun deletePrescription(taskId: String, isRemoteTask: Boolean): Result<Unit> {
         prescriptionDemoDataSource.deleteTaskByTaskId(taskId)
-        return Result.Success(Unit)
+        return Result.success(Unit)
     }
 
     override fun loadTasksForRedeemedOn(

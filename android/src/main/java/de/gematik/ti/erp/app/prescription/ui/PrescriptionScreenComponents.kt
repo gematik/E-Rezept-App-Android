@@ -191,7 +191,8 @@ fun PrescriptionScreen(
             when (pullRefreshState) {
                 PullRefreshState.IsFirstTimeBiometricAuthentication,
                 PullRefreshState.HasFirstTimeValidToken,
-                PullRefreshState.HasValidToken -> {
+                PullRefreshState.HasValidToken,
+                PullRefreshState.DemoLoggedIn -> {
                     refreshState.animateTo(true)
                 }
                 else -> {
@@ -226,7 +227,7 @@ fun PrescriptionScreen(
             if (refreshState.currentValue) {
                 prescriptionViewModel.refreshPrescriptions(
                     pullRefreshState = pullRefreshState,
-                    isDemoModeActive = state.showDemoBanner,
+                    isDemoModeActive = state.isDemoModeActive,
                     onShowSecureHardwarePrompt = {
                         showSecureHardwarePrompt = true
                     },
@@ -258,7 +259,7 @@ fun PrescriptionScreen(
         val modifier = Modifier
         Box {
             Column(modifier = Modifier.fillMaxSize()) {
-                if (state.showDemoBanner) {
+                if (state.isDemoModeActive) {
                     DemoBanner {
                         mainViewModel.onDeactivateDemoMode()
                     }
@@ -270,7 +271,6 @@ fun PrescriptionScreen(
                     onClickRefresh = {
                         coroutineScope.launch { refreshState.animateTo(true) }
                     },
-                    prescriptionViewModel = prescriptionViewModel,
                     state = state,
                     navController = navController,
                     selectedTab = selectedTab,
@@ -291,7 +291,6 @@ fun PrescriptionScreen(
 
 @Composable
 private fun Prescriptions(
-    prescriptionViewModel: PrescriptionViewModel,
     state: PrescriptionScreenData.State,
     navController: NavController,
     onClickRefresh: () -> Unit,
@@ -323,7 +322,7 @@ private fun Prescriptions(
             navController = navController,
             cardPaddingModifier = cardPaddingModifier,
             headerPaddingModifier = headerPaddingModifier,
-            displayedScreen = displayedScreen
+            displayedScreen = displayedScreen,
         )
 
         PrescriptionTabs.Archive -> ArchiveTabInformation(
@@ -342,7 +341,7 @@ private fun RedeemedTabInformation(
     navController: NavController,
     cardPaddingModifier: Modifier,
     headerPaddingModifier: Modifier,
-    displayedScreen: (EmptyScreenState) -> Unit
+    displayedScreen: (EmptyScreenState) -> Unit,
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
@@ -350,6 +349,18 @@ private fun RedeemedTabInformation(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when {
+            state.isDemoModeActive && state.prescriptions.isEmpty() -> {
+                item {
+                    SpacerXXLarge()
+                    HomeNoHealthCard(
+                        modifier = cardPaddingModifier,
+                        onClickAction = {
+                            navController.navigate(MainNavigationScreens.Camera.path())
+                        }, displayedScreen = displayedScreen
+                    )
+                }
+            }
+
             state.prescriptions.isEmpty() && state.ssoTokenSetAndConnected() -> {
                 item {
                     SpacerXXLarge()
@@ -393,7 +404,19 @@ private fun RedeemedTabInformation(
                             (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization
                         )
 
-                    if (isFirstSyncedPrescription || titleChanged) {
+                    if (isFirstSyncedPrescription) {
+                        Text(
+                            (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization ?: "",
+                            style = MaterialTheme.typography.h6,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    bottom = PaddingDefaults.Small,
+                                    start = PaddingDefaults.Medium,
+                                    end = PaddingDefaults.Medium
+                                )
+                        )
+                    } else if (titleChanged) {
                         Text(
                             (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization ?: "",
                             style = MaterialTheme.typography.h6,

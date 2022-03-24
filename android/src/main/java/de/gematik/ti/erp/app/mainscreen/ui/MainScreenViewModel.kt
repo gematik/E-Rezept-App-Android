@@ -67,7 +67,9 @@ enum class PullRefreshState {
     None,
     HasFirstTimeValidToken,
     IsFirstTimeBiometricAuthentication,
-    HasValidToken
+    HasValidToken,
+    DemoMode,
+    DemoLoggedIn
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -98,6 +100,8 @@ class MainScreenViewModel @Inject constructor(
             val ssoToken = activeProfile.ssoToken
             val now = Instant.now()
             when {
+                demoUseCase.isDemoModeActive && demoUseCase.authTokenReceived.value -> PullRefreshState.DemoLoggedIn
+                demoUseCase.isDemoModeActive -> PullRefreshState.DemoMode
                 ssoToken is SingleSignOnToken.AlternateAuthenticationWithoutToken -> PullRefreshState.IsFirstTimeBiometricAuthentication
                 ssoToken != null && ssoToken.validOn in (now - Duration.ofSeconds(5))..(now) -> PullRefreshState.HasFirstTimeValidToken
                 ssoToken != null && ssoToken.isValid(now) -> PullRefreshState.HasValidToken

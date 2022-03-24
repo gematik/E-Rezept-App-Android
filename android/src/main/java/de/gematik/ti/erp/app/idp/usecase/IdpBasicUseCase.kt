@@ -19,8 +19,6 @@
 package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.BCProvider
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.api.unwrap
 import de.gematik.ti.erp.app.db.entities.IdpConfiguration
 import de.gematik.ti.erp.app.generateRandomAES256Key
 import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
@@ -215,8 +213,8 @@ class IdpBasicUseCase @Inject constructor(
         }
 
         // fetch both keys
-        val pukSigKey = repository.fetchIdpPukSig(config.pukIdpSigEndpoint).unwrap()
-        val pukEncKey = repository.fetchIdpPukEnc(config.pukIdpEncEndpoint).unwrap()
+        val pukSigKey = repository.fetchIdpPukSig(config.pukIdpSigEndpoint).getOrThrow()
+        val pukEncKey = repository.fetchIdpPukEnc(config.pukIdpEncEndpoint).getOrThrow()
 
         // check signature key with truststore
         val certPubKey = pukSigKey.jws.leafCertificate.publicKey as ECPublicKey
@@ -373,15 +371,7 @@ class IdpBasicUseCase @Inject constructor(
         codeChallenge: JsonWebEncryption,
         state: IdpState,
     ): URI {
-        val redirect = when (
-            val r =
-                repository.postSignedChallenge(url, codeChallenge.compactSerialization)
-        ) {
-            is Result.Success -> {
-                URI(r.data)
-            }
-            is Result.Error -> throw r.exception
-        }
+        val redirect = URI(repository.postSignedChallenge(url, codeChallenge.compactSerialization).getOrThrow())
 
         val redirectState = IdpService.extractQueryParameter(redirect, "state")
         require(state.state == redirectState) { "Invalid state" }
@@ -395,15 +385,7 @@ class IdpBasicUseCase @Inject constructor(
         ssoToken: String,
         state: IdpState,
     ): URI {
-        val redirect = when (
-            val r =
-                repository.postUnsignedChallengeWithSso(url, ssoToken, unsignedCodeChallenge)
-        ) {
-            is Result.Success -> {
-                URI(r.data)
-            }
-            is Result.Error -> throw r.exception
-        }
+        val redirect = URI(repository.postUnsignedChallengeWithSso(url, ssoToken, unsignedCodeChallenge).getOrThrow())
 
         val redirectState = IdpService.extractQueryParameter(redirect, "state")
         require(state.state == redirectState) { "Invalid state" }
@@ -419,23 +401,18 @@ class IdpBasicUseCase @Inject constructor(
         scope: IdpScope,
         pukSigKey: JWSPublicKey
     ): IdpUnsignedChallenge {
-        val signedChallenge = when (
-            val r = repository.fetchChallenge(
-                url = url,
-                codeChallenge = codeChallenge,
-                state = state.state,
-                nonce = nonce.nonce,
-                isDeviceRegistration = scope == IdpScope.BiometricPairing
-            )
-        ) {
-            is Result.Success -> {
-                r.data.challenge.jws.apply {
-                    key = pukSigKey.jws.publicKey
-                }
-                r.data.challenge
+        val signedChallenge = repository.fetchChallenge(
+            url = url,
+            codeChallenge = codeChallenge,
+            state = state.state,
+            nonce = nonce.nonce,
+            isDeviceRegistration = scope == IdpScope.BiometricPairing
+        ).map {
+            it.challenge.jws.apply {
+                key = pukSigKey.jws.publicKey
             }
-            is Result.Error -> throw r.exception
-        }
+            it.challenge
+        }.getOrThrow()
 
         // check state & nonce
         val unsignedChallenge = signedChallenge.jws.payload
@@ -468,33 +445,27 @@ class IdpBasicUseCase @Inject constructor(
             codeVerifier,
             pukEncKey.jws.publicKey
         )
-
-        return when (
-            val r = repository.postToken(
-                url = url,
-                keyVerifier = keyVerifier.compactSerialization,
-                code = code,
-                redirectUri = redirectUri
+        return repository.postToken(
+            url = url,
+            keyVerifier = keyVerifier.compactSerialization,
+            code = code,
+            redirectUri = redirectUri
+        ).map {
+            val decryptedIdToken = decryptIdToken(it, symmetricalKey)
+            val idTokenPayload = decryptedIdToken.apply {
+                key = pukSigKey.jws.publicKey
+            }.payload
+            checkNonce(
+                idTokenPayload,
+                nonce.nonce
             )
-        ) {
-            is Result.Success -> {
-                val decryptedIdToken = decryptIdToken(r.data, symmetricalKey)
-                val idTokenPayload = decryptedIdToken.apply {
-                    key = pukSigKey.jws.publicKey
-                }.payload
-                checkNonce(
-                    idTokenPayload,
-                    nonce.nonce
-                )
 
-                val json = decryptAccessToken(r.data, symmetricalKey)
-                IdpTokenResult(
-                    decryptedAccessToken = JSONObject(json)["njwt"] as String,
-                    idTokenPayload = idTokenPayload
-                )
-            }
-            is Result.Error -> throw r.exception
-        }
+            val json = decryptAccessToken(it, symmetricalKey)
+            IdpTokenResult(
+                decryptedAccessToken = JSONObject(json)["njwt"] as String,
+                idTokenPayload = idTokenPayload
+            )
+        }.getOrThrow()
     }
 
     suspend fun buildSignedChallenge(

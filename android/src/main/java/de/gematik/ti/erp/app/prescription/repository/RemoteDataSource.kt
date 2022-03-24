@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.api.ErpService
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.db.converter.DateConverter
 import java.time.OffsetDateTime

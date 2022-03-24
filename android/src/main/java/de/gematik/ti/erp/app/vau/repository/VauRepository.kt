@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.vau.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import kotlinx.coroutines.async
@@ -44,14 +43,9 @@ class VauRepository @Inject constructor(
                 val certsResult = async { remoteDataSource.loadCertificates() }
                 val ocspResult = async { remoteDataSource.loadOcspResponses() }
 
-                val certs = when (val r = certsResult.await()) {
-                    is Result.Error -> throw r.exception
-                    is Result.Success -> r.data
-                }
-                val ocsp = when (val r = ocspResult.await()) {
-                    is Result.Error -> throw r.exception
-                    is Result.Success -> r.data
-                }
+                val certs = certsResult.await().getOrThrow()
+
+                val ocsp = ocspResult.await().getOrThrow()
 
                 Timber.d("...GET cert & ocsp from backend was successful")
 

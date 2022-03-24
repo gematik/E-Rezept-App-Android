@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.idp.repository
 
 import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.api.safeApiCallRaw
 import de.gematik.ti.erp.app.idp.api.IdpService
@@ -144,9 +143,9 @@ class IdpRemoteDataSource @Inject constructor(
                 val headers = response.headers()
                 val location = requireNotNull(headers["Location"])
 
-                Result.Success(location)
+                Result.success(location)
             } else {
-                Result.Error(
+                Result.failure(
                     ApiCallException(
                         "Expected redirect ${response.code()} ${response.message()}",
                         response

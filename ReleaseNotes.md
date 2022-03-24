@@ -1,3 +1,23 @@
+# Release 1.2.4
+### Added
+
+- New empty state screen
+
+### Changed
+
+- Improved health-card order process
+
+### Fixed
+
+- Several demomode fixes
+- Adjusted layout of prescriptions
+- Removed duplicate password request
+- Adjusted login hints
+
+### Internal
+
+- Adjusted   integration of upcoming fasttrack feature
+
 # Release 1.2.3
 ### Added
 

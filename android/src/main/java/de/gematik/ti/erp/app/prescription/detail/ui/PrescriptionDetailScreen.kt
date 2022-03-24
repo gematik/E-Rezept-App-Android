@@ -89,7 +89,6 @@ import com.google.accompanist.insets.LocalWindowInsets
 import com.google.accompanist.insets.rememberInsetsPaddingValues
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.TaskStatus
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
@@ -420,19 +419,20 @@ private fun PrescriptionDetails(
                                 state.taskId,
                                 state is UIPrescriptionDetailSynced
                             ).apply {
-                                if (this is Result.Error) {
-                                    if (this.exception is ApiCallException) {
-                                        if (this.exception.response.code() == FORBIDDEN) {
-                                            createToastShort(context, prescriptionInProgressText)
+                                fold(
+                                    onSuccess = { onCancel() },
+                                    onFailure = {
+                                        if (it is ApiCallException) {
+                                            if (it.response.code() == FORBIDDEN) {
+                                                createToastShort(context, prescriptionInProgressText)
+                                            } else {
+                                                createToastShort(context, accessInfoText)
+                                            }
                                         } else {
                                             createToastShort(context, accessInfoText)
                                         }
-                                    } else {
-                                        createToastShort(context, accessInfoText)
                                     }
-                                } else {
-                                    onCancel()
-                                }
+                                )
                             }
                         }
                     }

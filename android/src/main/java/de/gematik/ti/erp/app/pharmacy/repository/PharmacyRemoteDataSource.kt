@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.api.PharmacySearchService
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.safeApiCall
 import org.hl7.fhir.r4.model.Bundle
 import javax.inject.Inject

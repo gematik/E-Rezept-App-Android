@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import ca.uhn.fhir.context.FhirContext
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import de.gematik.ti.erp.app.utils.allAuditEvents
 import de.gematik.ti.erp.app.utils.emptyAuditEvents
@@ -75,21 +74,21 @@ class PrescriptionRepositoryTest {
             mapper
         )
         coEvery { remoteDataSource.fetchTasks(lastModifiedTask, any()) } answers {
-            Result.Success(
+            Result.success(
                 taskWithoutKBVBundle
             )
         }
         coEvery { remoteDataSource.allAuditEvents(any(), lastModifiedAudit, null, null) } answers {
-            Result.Success(
+            Result.success(
                 allAuditEvents
             )
         }
         coEvery { remoteDataSource.taskWithKBVBundle(any(), any()) } answers {
-            Result.Success(
+            Result.success(
                 taskWithBundle()
             )
         }
-        coEvery { remoteDataSource.fetchCommunications(any()) } coAnswers { Result.Error(IOException()) }
+        coEvery { remoteDataSource.fetchCommunications(any()) } coAnswers { Result.failure(IOException()) }
 
         coEvery { localDataSource.saveAuditEvents(any()) } answers { nothing }
         coEvery { localDataSource.saveTask(any()) } answers { nothing }
@@ -107,7 +106,7 @@ class PrescriptionRepositoryTest {
             coEvery { localDataSource.auditEventsSyncedUpTo(any()) } returns Instant.ofEpochSecond(0)
                 .atOffset(ZoneOffset.UTC)
             coEvery { remoteDataSource.allAuditEvents(any(), any()) } answers {
-                Result.Success(
+                Result.success(
                     emptyAuditEvents
                 )
             }
@@ -131,9 +130,9 @@ class PrescriptionRepositoryTest {
                 offset = null
             )
         } answers {
-            Result.Success(allAuditEvents())
+            Result.success(allAuditEvents())
         } andThenAnswer {
-            Result.Success(emptyAuditEvents())
+            Result.success(emptyAuditEvents())
         }
         coEvery { localDataSource.saveAuditEvents(any()) } answers { }
 
@@ -159,7 +158,7 @@ class PrescriptionRepositoryTest {
                 offset = null
             )
         } answers {
-            Result.Error(IllegalArgumentException(""))
+            Result.failure(IllegalArgumentException(""))
         }
 
         runTest {

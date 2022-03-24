@@ -22,7 +22,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
@@ -45,13 +44,7 @@ class PrescriptionDetailsViewModel @Inject constructor(
     fun deletePrescription(taskId: String, isRemoteTask: Boolean): Result<Unit> {
         // TODO find better way than runBlocking
         return runBlocking(dispatchProvider.io()) {
-            when (val r = prescriptionUseCase.deletePrescription(taskId, isRemoteTask)) {
-                is Result.Error -> r
-                is Result.Success -> {
-                    prescriptionUseCase.deleteLowDetailEvents(taskId)
-                    r
-                }
-            }
+            prescriptionUseCase.deletePrescription(taskId, isRemoteTask).map { prescriptionUseCase.deleteLowDetailEvents(taskId) }
         }
     }
 

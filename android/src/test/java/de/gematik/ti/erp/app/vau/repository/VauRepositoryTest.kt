@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.vau.repository
 
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.TestCertificates
 import io.mockk.MockKAnnotations
@@ -59,8 +58,8 @@ class VauRepositoryTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
-        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.Success(TestCertificates.Vau.CertList) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.Success(TestCertificates.OCSPList.OCSPList) }
+        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.success(TestCertificates.Vau.CertList) }
+        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSPList.OCSPList) }
 
         repo.withUntrusted { certs, ocsp ->
             assertEquals(TestCertificates.Vau.CertList, certs)
@@ -78,8 +77,8 @@ class VauRepositoryTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
-        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.Error(IOException()) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.Success(TestCertificates.OCSPList.OCSPList) }
+        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.failure(IOException()) }
+        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSPList.OCSPList) }
 
         val r = try {
             repo.withUntrusted { certs, ocsp ->

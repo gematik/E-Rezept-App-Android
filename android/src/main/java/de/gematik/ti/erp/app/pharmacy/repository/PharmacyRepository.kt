@@ -18,8 +18,6 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.api.map
 import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacySearchResult
 import javax.inject.Inject
 
@@ -32,9 +30,7 @@ class PharmacyRepository @Inject constructor(
         filter: Map<String, String>
     ): Result<PharmacySearchResult> =
         remoteDataSource.searchPharmacies(names, filter).map {
-            Result.Success(
-                PharmacyMapper.extractLocalPharmacyServices(it),
-            )
+            PharmacyMapper.extractLocalPharmacyServices(it)
         }
 
     suspend fun searchPharmaciesByBundle(
@@ -46,9 +42,5 @@ class PharmacyRepository @Inject constructor(
             bundleId = bundleId,
             offset = offset,
             count = count
-        ).map {
-            Result.Success(
-                PharmacyMapper.extractLocalPharmacyServices(it),
-            )
-        }
+        ).map { PharmacyMapper.extractLocalPharmacyServices(it) }
 }

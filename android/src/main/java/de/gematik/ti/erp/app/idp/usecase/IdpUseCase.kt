@@ -22,7 +22,6 @@ import android.annotation.SuppressLint
 import android.content.SharedPreferences
 import android.net.Uri
 import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
 import de.gematik.ti.erp.app.idp.api.EXT_AUTH_REDIRECT_URI
 import de.gematik.ti.erp.app.idp.api.IdpService
@@ -254,10 +253,7 @@ class IdpUseCase @Inject constructor(
             url = initialData.config.thirdPartyAuthorizationEndpoint ?: error("Fasttrack is not available"),
             externalAuthorizationData = externalAuthorizationData
         )
-        if (redirectStringResult is Result.Error) {
-            error(redirectStringResult.exception)
-        }
-        val redirect = URI((redirectStringResult as Result.Success).data)
+        val redirect = URI(redirectStringResult.getOrThrow())
 
         val redirectCodeJwe = IdpService.extractQueryParameter(redirect, "code")
         val redirectSsoToken = IdpService.extractQueryParameter(redirect, "ssotoken")

@@ -55,6 +55,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -87,6 +88,7 @@ import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 private const val minimalPasswordScore = 2
@@ -97,7 +99,7 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
     var repeatedPassword by remember { mutableStateOf("") }
     var passwordScore by remember { mutableStateOf(0) }
     val focusRequester = FocusRequester.Default
-
+    val coroutineScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
             NavigationTopAppBar(
@@ -110,8 +112,10 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        viewModel.onSelectPasswordAsAuthenticationMode(password)
-                        navController.popBackStack()
+                        coroutineScope.launch {
+                            viewModel.onSelectPasswordAsAuthenticationMode(password)
+                            navController.popBackStack()
+                        }
                     },
                     enabled = checkPassword(
                         password = password,
@@ -175,8 +179,10 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
                             score = passwordScore
                         )
                     ) {
-                        viewModel.onSelectPasswordAsAuthenticationMode(password)
-                        navController.popBackStack()
+                        coroutineScope.launch {
+                            viewModel.onSelectPasswordAsAuthenticationMode(password)
+                            navController.popBackStack()
+                        }
                     }
                 }
             )
