@@ -23,11 +23,21 @@ import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.mainscreen.ui.TaskIds
 
 object MainScreenData {
+
+    data class SentTask(
+        val taskId: String,
+        val medicationText: String
+    )
+
     @Immutable
-    data class RedeemState(val scannedTaskIds: TaskIds, val syncedTaskIds: TaskIds) {
+    data class RedeemState(
+        val scannedTaskIds: TaskIds,
+        val syncedTaskIds: TaskIds,
+        val alreadySentTaskIdsAndNames: List<SentTask>
+    ) {
         @Stable
         fun hasRedeemableTasks() = scannedTaskIds.isNotEmpty() || syncedTaskIds.isNotEmpty()
     }
 
-    val emptyRedeemState = RedeemState(TaskIds(emptyList()), TaskIds(emptyList()))
+    val emptyRedeemState = RedeemState(TaskIds(emptyList()), TaskIds(emptyList()), emptyList())
 }

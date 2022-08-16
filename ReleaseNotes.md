@@ -1,3 +1,27 @@
+# Release 1.4.2
+### Added
+- Authentication using health insurance apps (FastTrack)
+- Multiple profiles in app
+- Choose you own PIN for health card
+- Unlock locked health card
+- Use your own pictures in profiles (i can haz cats)
+- Mini-cardwall for relogin
+- Show prescription types
+- Status handling for prescriptions
+- Show medication dispenses
+- Show guide for NFC antenna position
+
+### Changed
+- Reworked mainscreen
+- Reworked onboarding
+- Reworked cardwall
+- Switched from Room to Realm as DB
+- Addressed and commented on reported issue in biometric authentication
+
+### Removed
+- Demo Mode
+
+
 # Release 1.2.4
 ### Added
 

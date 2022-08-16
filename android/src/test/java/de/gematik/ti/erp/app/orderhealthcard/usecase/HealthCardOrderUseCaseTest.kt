@@ -36,14 +36,14 @@ private val contacts = """
        },
        {
           "name":"Kasse 2",
-          "healthCardAndPinPhone":"",
-          "healthCardAndPinMail":"",
-          "healthCardAndPinUrl":"",
-          "pinUrl":"",
-          "subjectCardAndPinMail":"",
-          "bodyCardAndPinMail":"",
-          "subjectPinMail":"",
-          "bodyPinMail":""
+          "healthCardAndPinPhone":null,
+          "healthCardAndPinMail":null,
+          "healthCardAndPinUrl":null,
+          "pinUrl":null,
+          "subjectCardAndPinMail":null,
+          "bodyCardAndPinMail":null,
+          "subjectPinMail":null,
+          "bodyPinMail":null
        }
     ]
 """.trimIndent()

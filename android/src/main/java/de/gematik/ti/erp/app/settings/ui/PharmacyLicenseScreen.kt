@@ -22,8 +22,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -33,22 +31,22 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.provideLinkForString
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
-
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
-import de.gematik.ti.erp.app.utils.compose.Spacer16
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 
 @Composable
 fun PharmacyLicenseScreen(onClose: () -> Unit) {
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Close,
-                title = stringResource(R.string.settings_licence_pharmacy_search),
-            ) { onClose() }
-        }
+    val scrollState = rememberScrollState()
+
+    AnimatedElevationScaffold(
+        topBarTitle = stringResource(R.string.settings_licence_pharmacy_search),
+        navigationMode = NavigationBarMode.Close,
+        onBack = onClose,
+        elevated = scrollState.value > 0,
+        actions = {}
     ) {
         Column(
             modifier = Modifier
@@ -58,15 +56,15 @@ fun PharmacyLicenseScreen(onClose: () -> Unit) {
                     top = PaddingDefaults.Medium,
                     bottom = (PaddingDefaults.XLarge * 2)
                 )
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
         ) {
             Text(
                 stringResource(R.string.license_pharmacy_search_description),
-                style = MaterialTheme.typography.body1,
-                color = AppTheme.colors.neutral999,
+                style = AppTheme.typography.body1,
+                color = AppTheme.colors.neutral999
             )
 
-            Spacer16()
+            SpacerMedium()
 
             val link =
                 provideLinkForString(
@@ -80,7 +78,7 @@ fun PharmacyLicenseScreen(onClose: () -> Unit) {
 
             ClickableTaggedText(
                 annotatedStringResource(R.string.license_pharmacy_search_web_link_info, link),
-                style = MaterialTheme.typography.body1,
+                style = AppTheme.typography.body1,
                 onClick = { range ->
                     uriHandler.openUri(range.item)
                 }

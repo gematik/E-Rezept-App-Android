@@ -23,48 +23,49 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.db.entities.ShippingContactEntity
+import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
+import de.gematik.ti.erp.app.fhir.model.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
+import de.gematik.ti.erp.app.pharmacy.model.shippingContact
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayload
-import de.gematik.ti.erp.app.pharmacy.repository.model.Pharmacy
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.detail.ui.model.mapToUIPrescriptionOrder
-import de.gematik.ti.erp.app.prescription.repository.Mapper
 import de.gematik.ti.erp.app.prescription.repository.PROFILE
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
-import de.gematik.ti.erp.app.prescription.repository.extractMedication
-import de.gematik.ti.erp.app.prescription.repository.extractMedicationRequest
-import de.gematik.ti.erp.app.prescription.repository.extractShippingContact
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
-import javax.inject.Inject
 import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
-import okhttp3.ResponseBody
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import org.hl7.fhir.r4.model.Communication
 import org.hl7.fhir.r4.model.Identifier
 import org.hl7.fhir.r4.model.Meta
 import org.hl7.fhir.r4.model.Reference
 import org.hl7.fhir.r4.model.StringType
+import java.util.UUID
 
-private const val initialResultsPerPage = 80
+// can't be modified; the backend will always return 80 entries on the first page
+private const val InitialResultsPerPage = 80
+private const val NextResultsPerPage = 10
 
-class PharmacySearchUseCase @Inject constructor(
+private val json = Json { encodeDefaults = true }
+
+class PharmacySearchUseCase(
     private val repository: PharmacyRepository,
     private val shippingContactRepository: ShippingContactRepository,
     private val prescriptionRepository: PrescriptionRepository,
     private val settingsUseCase: SettingsUseCase,
-    private val mapper: Mapper,
-    private val moshi: Moshi,
-    private val dispatchProvider: DispatchProvider,
+    private val dispatchers: DispatchProvider
 ) {
     data class PharmacyPagingKey(val bundleId: String, val offset: Int)
 
@@ -99,7 +100,7 @@ class PharmacySearchUseCase @Inject constructor(
                         .map {
                             LoadResult.Page(
                                 data = mapPharmacies(it.pharmacies),
-                                nextKey = if (it.bundleResultCount == initialResultsPerPage) {
+                                nextKey = if (it.bundleResultCount == InitialResultsPerPage) {
                                     PharmacyPagingKey(
                                         it.bundleId,
                                         it.bundleResultCount
@@ -130,7 +131,7 @@ class PharmacySearchUseCase @Inject constructor(
                             nextKey = nextKey,
                             prevKey = prevKey,
                             itemsBefore = if (prevKey != null) count else 0,
-                            itemsAfter = if (nextKey != null) count else 0,
+                            itemsAfter = if (nextKey != null) count else 0
                         )
                     }.getOrElse { LoadResult.Error(it) }
                 }
@@ -138,147 +139,145 @@ class PharmacySearchUseCase @Inject constructor(
         }
     }
 
-    private val comAdapter by lazy {
-        moshi.adapter(CommunicationPayload::class.java)
-    }
-
-    val previousSearch: Flow<PharmacyUseCaseData.SearchData> =
-        settingsUseCase.pharmacySearch.map { pharmacySearchModel ->
-            pharmacySearchModel.let {
-                PharmacyUseCaseData.SearchData(
-                    name = it.name,
-                    filter = PharmacyUseCaseData.Filter(
-                        ready = it.filterReady,
-                        openNow = it.filterOpenNow,
-                        deliveryService = it.filterDeliveryService,
-                        onlineService = it.filterOnlineService,
-                    ),
-                    locationMode = if (it.locationEnabled) PharmacyUseCaseData.LocationMode.EnabledWithoutPosition else PharmacyUseCaseData.LocationMode.Disabled
-                )
-            }
-        }.flowOn(dispatchProvider.io())
-
     suspend fun searchPharmacies(
         searchData: PharmacyUseCaseData.SearchData
     ): Flow<PagingData<PharmacyUseCaseData.Pharmacy>> {
         settingsUseCase.savePharmacySearch(
-            name = searchData.name,
-            locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,
-            filterReady = searchData.filter.ready,
-            filterDeliveryService = searchData.filter.deliveryService,
-            filterOnlineService = searchData.filter.onlineService,
-            filterOpenNow = searchData.filter.openNow
+            SettingsData.PharmacySearch(
+                name = searchData.name,
+                locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,
+                ready = searchData.filter.ready,
+                deliveryService = searchData.filter.deliveryService,
+                onlineService = searchData.filter.onlineService,
+                openNow = searchData.filter.openNow
+            )
         )
 
         return Pager(
             PagingConfig(
-                pageSize = 10,
-                initialLoadSize = initialResultsPerPage,
-                maxSize = initialResultsPerPage * 2
+                pageSize = NextResultsPerPage,
+                initialLoadSize = InitialResultsPerPage,
+                maxSize = InitialResultsPerPage * 2
             ),
             pagingSourceFactory = { PharmacyPagingSource(searchData) }
-        ).flow
+        ).flow.flowOn(dispatchers.IO)
     }
 
-    private suspend fun mapPharmacies(pharmacies: List<Pharmacy>): List<PharmacyUseCaseData.Pharmacy> =
-        withContext(dispatchProvider.unconfined()) {
-            pharmacies.map { pharmacy ->
-                PharmacyUseCaseData.Pharmacy(
-                    name = pharmacy.name,
-                    address = pharmacy.address.let {
-                        "${it.lines.joinToString()}\n${it.postalCode} ${it.city}"
-                    },
-                    location = pharmacy.location,
-                    distance = null,
-                    contacts = pharmacy.contacts,
-                    provides = pharmacy.provides,
-                    openingHours = pharmacy.provides.first().openingHours,
-                    telematikId = pharmacy.telematikId,
-                    roleCode = pharmacy.roleCode,
-                    ready = pharmacy.ready
-                )
+    fun hasRedeemableTasks(
+        profileId: ProfileIdentifier
+    ): Flow<Boolean> =
+        combine(
+            prescriptionRepository.syncedTasks(profileId).map { tasks ->
+                tasks.filter {
+                    it.redeemState().isRedeemable()
+                }
+            },
+            prescriptionRepository.scannedTasks(profileId).map { tasks ->
+                tasks.filter {
+                    it.isRedeemable()
+                }
             }
+        ) { syncedTasks, scannedTasks ->
+            syncedTasks.isNotEmpty() || scannedTasks.isNotEmpty()
         }
 
     fun prescriptionDetailsForOrdering(
-        taskIds: List<String>
-    ): Flow<PharmacyUseCaseData.OrderState> {
-        return combine(
+        profileId: ProfileIdentifier
+    ): Flow<PharmacyUseCaseData.OrderState> =
+        combine(
             shippingContactRepository.shippingContact(),
-            prescriptionRepository.loadTasksForTaskId(*taskIds.toTypedArray()).map { tasks ->
+            prescriptionRepository.syncedTasks(profileId).map { tasks ->
                 tasks.filter {
-                    // filter prescriptions already assigned to a pharmacy
-                    it.accessCode != null
+                    it.redeemState().isRedeemable()
+                }
+            },
+            prescriptionRepository.scannedTasks(profileId).map { tasks ->
+                tasks.filter {
+                    it.isRedeemable()
                 }
             }
-        ) { shippingContacts, tasks ->
-            if (tasks.isNotEmpty()) {
-                val shippingContact = (
-                    shippingContacts.firstOrNull() ?: run {
-                        val bundle = mapper.parseKBVBundle(requireNotNull(tasks.first().rawKBVBundle))
-                        // initialize shipping contact with patient information from bundle
-                        requireNotNull(bundle.extractShippingContact()).also {
-                            shippingContactRepository.insertShippingContact(it)
-                        }
-                    }
-                    ).let {
-                    PharmacyUseCaseData.ShippingContact(
-                        name = it.name,
-                        line1 = it.line1,
-                        line2 = it.line2,
-                        postalCodeAndCity = it.postalCodeAndCity,
-                        telephoneNumber = it.telephoneNumber,
-                        mail = it.mail,
-                        deliveryInformation = it.deliveryInformation
-                    )
-                }
 
-                PharmacyUseCaseData.OrderState(
-                    tasks.map { task ->
-                        val bundle = mapper.parseKBVBundle(requireNotNull(task.rawKBVBundle))
-                        mapToUIPrescriptionOrder(
-                            task,
-                            requireNotNull(bundle.extractMedication()),
-                            requireNotNull(bundle.extractMedicationRequest())
-                        )
-                    },
-                    shippingContact
-                )
+        ) { shippingContacts, syncedTasks, scannedTasks ->
+
+            val shippingContact = if (syncedTasks.isNotEmpty()) {
+                shippingContacts ?: run {
+                    syncedTasks.first().shippingContact().also {
+                        shippingContactRepository.saveShippingContact(it)
+                    }
+                }
             } else {
-                PharmacyUseCaseData.OrderState(
-                    emptyList(), null
+                shippingContacts
+            }
+
+            val tasks = scannedTasks.map { task ->
+                PharmacyUseCaseData.PrescriptionOrder(
+                    taskId = task.taskId,
+                    accessCode = task.accessCode,
+                    title = "",
+                    scannedOn = task.scannedOn,
+                    substitutionsAllowed = false
+                )
+            } + syncedTasks.map { task ->
+                PharmacyUseCaseData.PrescriptionOrder(
+                    taskId = task.taskId,
+                    accessCode = task.accessCode!!,
+                    title = task.medicationRequestMedicationName() ?: "",
+                    substitutionsAllowed = false
                 )
             }
+
+            PharmacyUseCaseData.OrderState(
+                tasks,
+                PharmacyUseCaseData.ShippingContact(
+                    name = shippingContact?.name ?: "",
+                    line1 = shippingContact?.line1 ?: "",
+                    line2 = shippingContact?.line2 ?: "",
+                    postalCodeAndCity = shippingContact?.postalCodeAndCity ?: "",
+                    telephoneNumber = shippingContact?.telephoneNumber ?: "",
+                    mail = shippingContact?.mail ?: "",
+                    deliveryInformation = shippingContact?.deliveryInformation ?: ""
+                )
+            )
         }.flowOn(Dispatchers.Default)
-    }
 
     suspend fun saveShippingContact(contact: PharmacyUseCaseData.ShippingContact) {
-        shippingContactRepository.insertShippingContact(
+        shippingContactRepository.saveShippingContact(
             mapShippingContact(contact)
         )
     }
 
     suspend fun redeemPrescription(
-        profileName: String,
+        profileId: ProfileIdentifier,
         redeemOption: RemoteRedeemOption,
+        orderId: UUID,
         order: PharmacyUseCaseData.PrescriptionOrder,
         contact: PharmacyUseCaseData.ShippingContact,
         pharmacyTelematikId: String
-    ): Result<ResponseBody> {
-        val payload = generatePayLoad(
-            redeemOption,
-            contact.name,
-            listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
-            phone = contact.telephoneNumber
+    ): Result<Unit> {
+        val accessCode = if (order.scannedOn != null) {
+            order.accessCode
+        } else {
+            null
+        }
+
+        val payload = generatePayload(
+            redeemOption = redeemOption,
+            patientName = contact.name,
+            address = listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
+            phone = contact.telephoneNumber,
+            hint = contact.deliveryInformation
         )
-        val reference = assembleReference(order.taskId, order.accessCode)
-        val communication = generateFhirObject(reference, pharmacyTelematikId, payload)
-        return prescriptionRepository.redeemPrescription(profileName, communication)
+        val communication = generateFhirObject(
+            orderId = orderId.toString(),
+            reference = assembleTaskReference(order.taskId, order.accessCode),
+            telematicsId = pharmacyTelematikId,
+            payload = payload
+        )
+        return prescriptionRepository.redeemPrescription(profileId, communication, accessCode = accessCode)
     }
 
     private fun mapShippingContact(contact: PharmacyUseCaseData.ShippingContact) =
-        ShippingContactEntity(
-            id = 0,
+        PharmacyData.ShippingContact(
             name = contact.name.trim(),
             line1 = contact.line1.trim(),
             line2 = contact.line2.trim(),
@@ -288,24 +287,37 @@ class PharmacySearchUseCase @Inject constructor(
             deliveryInformation = contact.deliveryInformation.trim()
         )
 
-    private fun generatePayLoad(
+    private fun generatePayload(
         redeemOption: RemoteRedeemOption,
         patientName: String,
         address: List<String>,
-        phone: String
+        phone: String,
+        hint: String
     ): String {
         val com = CommunicationPayload(
             version = "1",
             supplyOptionsType = redeemOption.type,
             name = patientName,
             address = address,
-            phone = phone
+            phone = phone,
+            hint = hint
         )
-        return comAdapter.toJson(com)
+        return json.encodeToString(com)
     }
 
-    private fun generateFhirObject(reference: String, telematicsId: String, payload: String) =
+    private fun generateFhirObject(
+        orderId: String,
+        reference: String,
+        telematicsId: String,
+        payload: String
+    ) =
         Communication().apply {
+            val orderIdentifier = Identifier().apply {
+                system = "https://gematik.de/fhir/NamingSystem/OrderID"
+                value = orderId
+            }
+            identifier = listOf(orderIdentifier)
+
             meta = Meta().addProfile(PROFILE)
             addBasedOn(Reference(reference))
             addPayload(
@@ -324,7 +336,24 @@ class PharmacySearchUseCase @Inject constructor(
         return identifier
     }
 
-    private fun assembleReference(taskId: String, accessCode: String): String {
+    private fun assembleTaskReference(taskId: String, accessCode: String): String {
         return "Task/$taskId\$accept?ac=$accessCode"
     }
 }
+
+fun mapPharmacies(pharmacies: List<Pharmacy>): List<PharmacyUseCaseData.Pharmacy> =
+    pharmacies.map { pharmacy ->
+        PharmacyUseCaseData.Pharmacy(
+            name = pharmacy.name,
+            address = pharmacy.address.let {
+                "${it.lines.joinToString()}\n${it.postalCode} ${it.city}"
+            },
+            location = pharmacy.location,
+            distance = null,
+            contacts = pharmacy.contacts,
+            provides = pharmacy.provides,
+            openingHours = (pharmacy.provides.find { it is LocalPharmacyService } as LocalPharmacyService).openingHours,
+            telematikId = pharmacy.telematikId,
+            ready = pharmacy.ready
+        )
+    }

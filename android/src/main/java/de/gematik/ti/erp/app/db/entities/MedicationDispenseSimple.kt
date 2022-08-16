@@ -21,8 +21,8 @@ package de.gematik.ti.erp.app.db.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.OffsetDateTime
 
+@Deprecated("Remove with Realm migration")
 @Entity(tableName = "medicationDispense")
 data class MedicationDispenseSimple(
 
@@ -36,5 +36,5 @@ data class MedicationDispenseSimple(
     val type: String?,
     val dosageInstruction: String,
     val performer: String, // Telematik-ID
-    val whenHandedOver: OffsetDateTime
+    val whenHandedOver: String // OffsetDateTime
 )

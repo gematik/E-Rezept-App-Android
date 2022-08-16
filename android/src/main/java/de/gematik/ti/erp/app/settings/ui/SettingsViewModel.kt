@@ -23,124 +23,100 @@ import androidx.compose.runtime.Immutable
 import androidx.core.content.edit
 import androidx.lifecycle.viewModelScope
 import androidx.paging.PagingData
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.SCREENSHOTS_ALLOWED
-import de.gematik.ti.erp.app.core.BaseViewModel
-import de.gematik.ti.erp.app.db.entities.ProfileColorNames
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
-import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
-import de.gematik.ti.erp.app.di.ApplicationPreferences
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
+import androidx.lifecycle.ViewModel
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesWithPairedDevicesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.protocol.model.AuditEventData
+import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
-import de.gematik.ti.erp.app.tracking.Tracker
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import de.gematik.ti.erp.app.analytics.Analytics
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import java.time.LocalDate
-import javax.inject.Inject
 
 object SettingsScreen {
-    enum class AuthenticationMode {
-        EHealthCard,
-        DeviceSecurity,
-
-        @Deprecated("replaced by deviceSecurity")
-        Biometrics,
-
-        @Deprecated("replaced by deviceSecurity")
-        DeviceCredentials,
-        Password,
-
-        @Deprecated("not available anymore")
-        None,
-        Unspecified
-    }
-
     @Immutable
     data class State(
-        val demoModeActive: Boolean,
         val analyticsAllowed: Boolean,
-        val authenticationMode: AuthenticationMode,
+        val authenticationMode: SettingsData.AuthenticationMode,
         val zoomEnabled: Boolean,
-        val screenShotsAllowed: Boolean,
-        val uiProfiles: List<ProfilesUseCaseData.Profile>
+        val screenshotsAllowed: Boolean,
+        val profiles: List<ProfilesUseCaseData.Profile>
     ) {
-        fun activeProfile() = uiProfiles.find { it.active }!!
-        fun profileById(profileId: Int) = uiProfiles.find { it.id == profileId }
-        fun containsProfileWithName(name: String) = uiProfiles.any {
+        fun activeProfile() = profiles.find { it.active }!!
+        fun profileById(profileId: String) = profiles.find { it.id == profileId }
+        fun containsProfileWithName(name: String) = profiles.any {
             it.name.equals(name.trim(), true)
         }
     }
 
     val defaultState = State(
-        demoModeActive = false,
         analyticsAllowed = false,
-        authenticationMode = AuthenticationMode.Unspecified,
+        authenticationMode = SettingsData.AuthenticationMode.Unspecified,
         zoomEnabled = false,
         // `gemSpec_eRp_FdV A_20203` default settings does not allow screenshots
-        screenShotsAllowed = false,
-        uiProfiles = listOf()
+        screenshotsAllowed = false,
+        profiles = listOf()
     )
 }
 
-const val NEW_USER = "newUser"
-const val UPDATED_DATA_TERMS_ACCEPTED = "UpdatedDataTermsAccepted"
-
-@OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class SettingsViewModel @Inject constructor(
+class SettingsViewModel(
     private val settingsUseCase: SettingsUseCase,
     private val profilesUseCase: ProfilesUseCase,
-    private val demoUseCase: DemoUseCase,
-    private val tracker: Tracker,
-    @ApplicationPreferences
+    private val profilesWithPairedDevicesUseCase: ProfilesWithPairedDevicesUseCase,
+    private val analytics: Analytics,
     private val appPrefs: SharedPreferences,
-    private val toggleManager: FeatureToggleManager,
-    private val coroutineDispatchProvider: DispatchProvider
-) : BaseViewModel() {
-
-    var isNewUser by settingsUseCase::isNewUser
+    private val dispatchers: DispatchProvider
+) : ViewModel() {
 
     private var screenshotsAllowed =
         MutableStateFlow(appPrefs.getBoolean(SCREENSHOTS_ALLOWED, false))
 
     fun screenState() = combine(
-        demoUseCase.demoModeActive,
-        tracker.trackingAllowed,
-        settingsUseCase.settings,
+        analytics.trackingAllowed,
+        settingsUseCase.general,
+        settingsUseCase.authenticationMode,
         screenshotsAllowed,
-        profilesUseCase.profiles,
-    ) { demoActive, analyticsAllowed, settings, screenshotsAllowed, uiProfiles ->
+        profilesUseCase.profiles
+    ) { analyticsAllowed, settings, authenticationMode, screenshotsAllowed, profiles ->
         SettingsScreen.State(
-            demoModeActive = demoActive,
-            analyticsAllowed = analyticsAllowed,
-            authenticationMode = when (settings.authenticationMethod) {
-                SettingsAuthenticationMethod.DeviceSecurity -> SettingsScreen.AuthenticationMode.DeviceSecurity
-                SettingsAuthenticationMethod.Password -> SettingsScreen.AuthenticationMode.Password
-                else -> SettingsScreen.AuthenticationMode.Unspecified
-            },
             zoomEnabled = settings.zoomEnabled,
-            screenShotsAllowed = screenshotsAllowed,
-            uiProfiles = uiProfiles
+            analyticsAllowed = analyticsAllowed,
+            authenticationMode = authenticationMode,
+            screenshotsAllowed = screenshotsAllowed,
+            profiles = profiles
         )
-    }.flowOn(coroutineDispatchProvider.default())
+    }.flowOn(dispatchers.Default)
 
-    suspend fun onSelectDeviceSecurityAuthenticationMode() =
-        settingsUseCase.saveAuthenticationMethod(
-            SettingsAuthenticationMethod.DeviceSecurity
-        )
+    fun pairedDevices(profileId: ProfileIdentifier) =
+        profilesWithPairedDevicesUseCase.pairedDevices(profileId)
 
-    suspend fun onSelectPasswordAsAuthenticationMode(password: String) =
-        settingsUseCase.savePasswordAsAuthenticationMethod(password)
+    // tag::DeletePairedDevicesViewModel[]
+    suspend fun deletePairedDevice(profileId: ProfileIdentifier, device: ProfilesUseCaseData.PairedDevice) =
+        profilesWithPairedDevicesUseCase.deletePairedDevices(profileId, device)
+
+    // end::DeletePairedDevicesViewModel[]
+    fun decryptedAccessToken(profile: ProfilesUseCaseData.Profile) =
+        profilesUseCase.decryptedAccessToken(profile.id)
+
+    fun onSelectDeviceSecurityAuthenticationMode() =
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsUseCase.saveAuthenticationMode(
+                SettingsData.AuthenticationMode.DeviceSecurity
+            )
+        }
+
+    fun onSelectPasswordAsAuthenticationMode(password: String) =
+        viewModelScope.launch(Dispatchers.IO) {
+            settingsUseCase.saveAuthenticationMode(SettingsData.AuthenticationMode.Password(password = password))
+        }
 
     fun onSwitchAllowScreenshots(allowScreenshots: Boolean) {
         appPrefs.edit {
@@ -161,20 +137,12 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun onActivateDemoMode() {
-        demoUseCase.activateDemoMode()
-    }
-
-    fun onDeactivateDemoMode() {
-        demoUseCase.deactivateDemoMode()
-    }
-
     fun onTrackingAllowed() {
-        tracker.allowTracking()
+        analytics.allowTracking()
     }
 
     fun onTrackingDisallowed() {
-        tracker.disallowTracking()
+        analytics.disallowTracking()
     }
 
     fun logout(profile: ProfilesUseCaseData.Profile) {
@@ -189,31 +157,13 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun overwriteDefaultProfile(profileName: String) {
-        viewModelScope.launch {
-            profilesUseCase.overwriteDefaultProfileName(profileName)
-        }
-    }
-
     fun removeProfile(profile: ProfilesUseCaseData.Profile, newProfileName: String?) {
         viewModelScope.launch {
             if (newProfileName != null) {
-                profilesUseCase.removeProfile(profile, newProfileName)
+                profilesUseCase.removeAndSaveProfile(profile, newProfileName)
             } else {
                 profilesUseCase.removeProfile(profile)
             }
-        }
-    }
-
-    fun updateProfileName(profile: ProfilesUseCaseData.Profile, newName: String) {
-        viewModelScope.launch {
-            profilesUseCase.updateProfileName(profile, newName)
-        }
-    }
-
-    fun updateProfileColor(profile: ProfilesUseCaseData.Profile, color: ProfileColorNames) {
-        viewModelScope.launch {
-            profilesUseCase.updateProfileColor(profile, color)
         }
     }
 
@@ -223,21 +173,22 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun allowAddProfiles() = toggleManager.isFeatureEnabled(Features.ADD_PROFILE.featureName)
+    fun loadAuditEventsForProfile(profileId: ProfileIdentifier): Flow<PagingData<AuditEventData.AuditEvent>> =
+        profilesUseCase.auditEvents(profileId)
 
-    fun isFeatureBioLoginEnabled() = toggleManager.isFeatureEnabled(Features.BIO_LOGIN.featureName)
-
-    fun isCanAvailable(profile: ProfilesUseCaseData.Profile) =
-        runBlocking {
-            profilesUseCase.isCanAvailable(profile).first()
-        }
-
-    fun loadAuditEventsForProfile(profileName: String): Flow<PagingData<ProfilesUseCaseData.AuditEvent>> =
-        profilesUseCase.loadAuditEventsForProfile(profileName)
-
-    fun acceptUpdatedDataTerms(date: LocalDate) {
-        viewModelScope.launch {
-            settingsUseCase.updatedDataTermsAccepted(date)
+    suspend fun onboardingSucceeded(
+        authenticationMode: SettingsData.AuthenticationMode,
+        defaultProfileName: String,
+        allowTracking: Boolean
+    ) {
+        settingsUseCase.onboardingSucceeded(
+            authenticationMode = authenticationMode,
+            defaultProfileName = defaultProfileName
+        )
+        if (allowTracking) {
+            onTrackingAllowed()
+        } else {
+            onTrackingDisallowed()
         }
     }
 }

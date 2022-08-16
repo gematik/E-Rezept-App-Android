@@ -18,23 +18,27 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase.model
 
-import com.squareup.moshi.Moshi
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
+import de.gematik.ti.erp.app.prescription.repository.PROFILE
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
-import de.gematik.ti.erp.app.utils.testTasks
+import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.slot
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import okhttp3.ResponseBody.Companion.toResponseBody
+import org.hl7.fhir.r4.model.Communication
+import org.hl7.fhir.r4.model.Identifier
+import org.hl7.fhir.r4.model.Meta
+import org.hl7.fhir.r4.model.Reference
+import org.hl7.fhir.r4.model.StringType
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.util.UUID
 import kotlin.test.assertTrue
 
 @ExperimentalCoroutinesApi
@@ -44,58 +48,96 @@ class PharmacySearchUseCaseTest {
     val coroutineRule = CoroutineTestRule()
 
     private lateinit var useCase: PharmacySearchUseCase
+
+    @MockK(relaxed = true)
     private lateinit var repository: PrescriptionRepository
-    private lateinit var moshi: Moshi
-    private lateinit var profilesUseCase: ProfilesUseCase
 
     @Before
     fun setUp() {
-        repository = PrescriptionRepository(coroutineRule.testDispatchProvider, mockk(), mockk(), mockk())
-        moshi = Moshi.Builder().build()
-        profilesUseCase = mockk()
+        MockKAnnotations.init(this)
+
         useCase = PharmacySearchUseCase(
             repository = mockk(),
             shippingContactRepository = mockk(),
             prescriptionRepository = repository,
             settingsUseCase = mockk(relaxed = true),
-            mapper = mockk(),
-            moshi = moshi,
-            dispatchProvider = coroutineRule.testDispatchProvider,
+            dispatchers = coroutineRule.dispatchers
         )
-        coEvery {
-            repository.redeemPrescription(
-                any(),
-                any()
-            )
-        } answers { Result.success("".toResponseBody()) }
-        coEvery { repository.loadTasksForTaskId(any()) } answers { flow { testTasks() } }
-        coEvery { profilesUseCase.activeProfileName() } answers { flowOf("tester") }
     }
 
     @Test
-    fun `tests redeemPrescription`() = runTest {
-        val redeemOption = RemoteRedeemOption.Local
-        val telematicsId = "foo"
-        val result = useCase.redeemPrescription(
-            "Test",
-            redeemOption,
-            PharmacyUseCaseData.PrescriptionOrder(
+    fun `redeem prescription`() = runTest {
+        val communicationSlot = slot<Communication>()
+
+        coEvery { repository.redeemPrescription("1234567890", capture(communicationSlot)) } answers {
+            Result.success(
+                Unit
+            )
+        }
+
+        val orderId = UUID.randomUUID()
+        useCase.redeemPrescription(
+            profileId = "1234567890",
+            redeemOption = RemoteRedeemOption.Local,
+            orderId = orderId,
+            order = PharmacyUseCaseData.PrescriptionOrder(
                 taskId = "",
                 accessCode = "",
                 title = "",
                 substitutionsAllowed = false
             ),
-            PharmacyUseCaseData.ShippingContact(
-                name = "",
+            contact = PharmacyUseCaseData.ShippingContact(
+                name = "Test-Name",
                 line1 = "",
                 line2 = "",
-                postalCodeAndCity = "",
+                postalCodeAndCity = "123456",
                 telephoneNumber = "",
                 mail = "",
                 deliveryInformation = ""
             ),
-            telematicsId
+            pharmacyTelematikId = "TID-1234567890"
         )
-        assertTrue(result.isSuccess)
+
+        val payload = """
+            {
+                "version": "1",
+                "supplyOptionsType": "onPremise",
+                "name": "Test-Name",
+                "address": [
+                    "",
+                    "",
+                    "123456"
+                ],
+                "hint": "",
+                "phone": ""
+            }
+        """.trimIndent().replace("\\s".toRegex(), "")
+
+        val expected = Communication().apply {
+            meta = Meta().addProfile(PROFILE)
+            identifier = listOf(
+                Identifier().apply {
+                    system = "https://gematik.de/fhir/NamingSystem/OrderID"
+                    value = orderId.toString()
+                }
+            )
+            addBasedOn(Reference("Task/\$accept?ac="))
+            addPayload(
+                Communication.CommunicationPayloadComponent().apply {
+                    content = StringType(payload)
+                }
+            )
+            status = Communication.CommunicationStatus.UNKNOWN
+            addRecipient(
+                Reference().setIdentifier(
+                    Identifier().apply {
+                        system = "https://gematik.de/fhir/NamingSystem/TelematikID"
+                        value = "TID-1234567890"
+                    }
+                )
+            )
+        }
+
+        assertTrue { communicationSlot.captured.equalsDeep(expected) }
     }
 }

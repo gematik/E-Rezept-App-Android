@@ -21,20 +21,21 @@ package de.gematik.ti.erp.app.mainscreen.ui
 import android.os.Parcelable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 import de.gematik.ti.erp.app.AppNavTypes
 import de.gematik.ti.erp.app.Route
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
-@JsonClass(generateAdapter = true)
+@Serializable
 data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 
 object MainNavigationScreens {
     object Onboarding : Route("Onboarding")
-    object ProfileSetup : Route("ProfileSetup")
     object ReturningUserSecureAppOnboarding : Route("ReturningUserSecureAppOnboarding")
+    object Biometry : Route("Biometry")
     object Settings : Route(
         "Settings",
         navArgument("scrollToSection") {
@@ -49,24 +50,21 @@ object MainNavigationScreens {
     object Camera : Route("Camera")
     object Prescriptions : Route("Prescriptions")
     object PrescriptionDetail :
-        Route("PrescriptionDetail", navArgument("taskId") { type = NavType.StringType }) {
+        Route(
+            "PrescriptionDetail",
+            navArgument("taskId") { type = NavType.StringType }
+        ) {
         fun path(taskId: String) = path("taskId" to taskId)
     }
 
-    object Messages : Route("Messages")
-    object PickUpCode : Route(
-        "PickUpCode",
-        navArgument("pickUpCodeHR") {
-            type = NavType.StringType
-            nullable = true
-        },
-        navArgument("pickUpCodeDMC") {
-            type = NavType.StringType
-            nullable = true
-        }
+    object Orders : Route("Orders")
+
+    object Messages : Route(
+        "Messages",
+        navArgument("orderId") { type = NavType.StringType }
     ) {
-        fun path(pickUpCodeHR: String?, pickUpCodeDMC: String?) =
-            path("pickUpCodeHR" to pickUpCodeHR, "pickUpCodeDMC" to pickUpCodeDMC)
+        fun path(orderId: String) =
+            Messages.path("orderId" to orderId)
     }
 
     object Pharmacies : Route(
@@ -86,12 +84,9 @@ object MainNavigationScreens {
 
     object CardWall : Route(
         "CardWall",
-        navArgument("can") {
-            type = NavType.BoolType
-            defaultValue = false
-        }
+        navArgument("profileId") { type = NavType.StringType }
     ) {
-        fun path(canAvailable: Boolean) = path("can" to canAvailable)
+        fun path(profileId: ProfileIdentifier) = path("profileId" to profileId)
     }
 
     object InsecureDeviceScreen : Route("InsecureDeviceScreen")
@@ -99,14 +94,14 @@ object MainNavigationScreens {
     object DataProtection : Route("DataProtection")
     object SafetynetNotOkScreen : Route("SafetynetInfoScreen")
     object EditProfile :
-        Route("EditProfile", navArgument("profileId") { type = NavType.IntType }) {
-        fun path(profileId: Int) = path("profileId" to profileId)
+        Route("EditProfile", navArgument("profileId") { type = NavType.StringType }) {
+        fun path(profileId: String) = path("profileId" to profileId)
     }
 }
 
 val MainScreenBottomNavigationItems = listOf(
     MainNavigationScreens.Prescriptions,
-    MainNavigationScreens.Messages,
+    MainNavigationScreens.Orders,
     MainNavigationScreens.Pharmacies,
     MainNavigationScreens.Settings
 )

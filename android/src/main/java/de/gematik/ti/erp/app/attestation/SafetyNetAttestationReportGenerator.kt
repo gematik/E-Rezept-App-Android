@@ -25,11 +25,10 @@ import org.bouncycastle.asn1.x500.style.IETFUtils
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder
 import org.jose4j.jwt.consumer.JwtConsumerBuilder
 import java.security.cert.X509Certificate
-import javax.inject.Inject
 
 private const val HOSTNAME = "attest.android.com"
 
-class SafetyNetAttestationReportGenerator @Inject constructor() : AttestationReportGenerator {
+class SafetyNetAttestationReportGenerator : AttestationReportGenerator {
 
     override suspend fun convertToReport(jwt: String, nonce: ByteArray): Attestation.Report {
         val jws = JwtConsumerBuilder()

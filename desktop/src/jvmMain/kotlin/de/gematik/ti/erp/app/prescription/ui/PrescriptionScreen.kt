@@ -22,30 +22,19 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ButtonElevation
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -57,11 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerMoveFilter
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.common.App
 import de.gematik.ti.erp.app.common.Dialog
@@ -88,7 +73,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PrescriptionScreen(
     navigation: Navigation
@@ -236,7 +220,7 @@ fun expiresOrAcceptedUntil(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun Prescription(
     modifier: Modifier,
@@ -272,60 +256,5 @@ private fun Prescription(
         Text(expiresOnText, style = AppTheme.typography.body2l)
         SpacerSmall()
         Text(prescribedOnText, style = AppTheme.typography.captionl)
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
-@Composable
-fun IconHoverButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    elevation: ButtonElevation? = ButtonDefaults.elevation(),
-    content: @Composable BoxScope.() -> Unit
-) {
-    val colors = ButtonDefaults.buttonColors(
-        backgroundColor = AppTheme.colors.neutral100,
-        contentColor = AppTheme.colors.neutral400,
-    )
-    val contentColor by colors.contentColor(enabled)
-    val coScope = rememberCoroutineScope()
-    var size by remember { mutableStateOf(IntSize.Zero) }
-    val press = remember(size) {
-        PressInteraction.Press(Offset(size.width / 2f, size.height / 2f))
-    }
-    Surface(
-        modifier = modifier
-            .onSizeChanged {
-                size = it
-            }
-            .pointerMoveFilter(
-                onEnter = {
-                    coScope.launch {
-                        interactionSource.emit(press)
-                    }
-                    false
-                },
-                onExit = {
-                    coScope.launch {
-                        interactionSource.emit(PressInteraction.Release(press))
-                    }
-                    false
-                }
-            ),
-        shape = CircleShape,
-        color = colors.backgroundColor(enabled).value,
-        contentColor = contentColor.copy(alpha = 1f),
-        elevation = elevation?.elevation(enabled, interactionSource)?.value ?: 0.dp,
-        onClick = onClick,
-        enabled = enabled,
-        role = Role.Button,
-        interactionSource = interactionSource,
-        indication = rememberRipple()
-    ) {
-        Box(Modifier.padding(PaddingDefaults.Small)) {
-            content()
-        }
     }
 }

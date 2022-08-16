@@ -18,33 +18,34 @@
 
 package de.gematik.ti.erp.app.core
 
-import android.net.Uri
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
+import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import java.time.LocalDate
+import kotlinx.coroutines.runBlocking
+import io.github.aakira.napier.Napier
+import java.net.URI
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
+class MainViewModel(
     private val settingsUseCase: SettingsUseCase,
     safetynetUseCase: SafetynetUseCase,
     private val profilesUseCase: ProfilesUseCase,
-) : BaseViewModel() {
-    var externalAuthorizationUri: Uri? = null
-    val zoomEnabled by settingsUseCase::zoomEnabled
-    val authenticationMethod by settingsUseCase::authenticationMethod
-    var isNewUser by settingsUseCase::isNewUser
+    private val idpUseCase: IdpUseCase
+) : ViewModel() {
+    val zoomEnabled = settingsUseCase.general.map { it.zoomEnabled }
+    val authenticationMethod = settingsUseCase.authenticationMode
+    var showOnboarding = runBlocking { settingsUseCase.showOnboarding.first() }
 
     private var insecureDevicePromptShown = false
     val showInsecureDevicePrompt = settingsUseCase
         .showInsecureDevicePrompt
         .map {
-            if (isNewUser) {
+            if (showOnboarding) {
                 false
             } else if (!insecureDevicePromptShown) {
                 insecureDevicePromptShown = true
@@ -68,28 +69,30 @@ class MainViewModel @Inject constructor(
                 }
             }
 
-    val showProfileSetupPrompt =
-        profilesUseCase.isProfileSetupCompleted()
-            .map { ! it }
-
     fun onAcceptInsecureDevice() {
         viewModelScope.launch {
             settingsUseCase.acceptInsecureDevice()
         }
     }
 
-    fun overwriteDefaultProfile(profileName: String) {
+    fun acceptUpdatedDataTerms() {
         viewModelScope.launch {
-            profilesUseCase.overwriteDefaultProfileName(profileName)
+            settingsUseCase.acceptUpdatedDataTerms()
         }
     }
 
-    fun acceptUpdatedDataTerms(date: LocalDate) {
-        viewModelScope.launch {
-            settingsUseCase.updatedDataTermsAccepted(date)
-        }
-    }
+    fun dataProtectionVersionAcceptedOn() =
+        settingsUseCase.general.map { it.dataProtectionVersionAcceptedOn }
 
-    fun dataProtectionVersionAccepted() =
-        settingsUseCase.dataProtectionVersionAccepted()
+    val hasActiveProfileToken = profilesUseCase.activeProfile
+        .map {
+            it.ssoTokenScope != null
+        }
+
+    suspend fun onExternAppAuthorizationResult(uri: URI): Result<Unit> =
+        runCatching {
+            Napier.d("Authenticate external ...")
+            idpUseCase.authenticateWithExternalAppAuthorization(uri)
+            Napier.d("... authenticated")
+        }
 }

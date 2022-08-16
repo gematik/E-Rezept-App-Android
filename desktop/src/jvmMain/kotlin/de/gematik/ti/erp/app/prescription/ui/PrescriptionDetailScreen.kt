@@ -102,7 +102,7 @@ fun PrescriptionDetailsScreen(
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colors.background,
+        color = MaterialTheme.colors.background
     ) {
         Box {
             LazyColumn(
@@ -315,7 +315,7 @@ private fun WasSubstitutedHint() =
 
 @Composable
 private fun DosageInformation(
-    prescription: PrescriptionUseCaseData.PrescriptionDetails,
+    prescription: PrescriptionUseCaseData.PrescriptionDetails
 ) {
     val infoText = prescription.dosageInstruction() ?: App.strings.presDetailDosageDefaultInfo()
 
@@ -330,7 +330,7 @@ private fun DosageInformation(
         ),
         image = { HintSmallImage(painterResource("images/doctor_circle.webp"), innerPadding = it) },
         title = null,
-        body = { Text(infoText) },
+        body = { Text(infoText) }
     )
 }
 

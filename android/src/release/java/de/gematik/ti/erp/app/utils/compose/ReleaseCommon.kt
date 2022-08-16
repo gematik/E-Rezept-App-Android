@@ -16,10 +16,13 @@
  * 
  */
 
+@file:Suppress("UnusedPrivateMember")
+
 package de.gematik.ti.erp.app.utils.compose
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import de.gematik.ti.erp.app.MainActivity
 
 @Composable
 fun OutlinedDebugButton(
@@ -28,4 +31,12 @@ fun OutlinedDebugButton(
     modifier: Modifier = Modifier
 ) {
     error("Debug button should only be used in debug builds!")
+}
+
+fun Modifier.visualTestTag(tag: String) =
+    this
+
+@Composable
+fun DebugOverlay(elements: Map<String, MainActivity.Element>) {
+    error("Debug overlay should only be used in debug builds!")
 }

@@ -21,30 +21,30 @@ package de.gematik.ti.erp.app.pharmacy.usecase.model
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import de.gematik.ti.erp.app.pharmacy.repository.model.Location
-import de.gematik.ti.erp.app.pharmacy.repository.model.OpeningHours
-import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyContacts
-import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyService
-import de.gematik.ti.erp.app.pharmacy.repository.model.RoleCode
+import de.gematik.ti.erp.app.fhir.model.OpeningHours
+import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
+import de.gematik.ti.erp.app.fhir.model.Location
+import de.gematik.ti.erp.app.fhir.model.PharmacyService
 import kotlinx.parcelize.Parcelize
+import java.time.Instant
 
 object PharmacyUseCaseData {
     @Parcelize
     @Immutable
     data class Filter(
+        val nearBy: Boolean = false,
         val ready: Boolean = false,
         val deliveryService: Boolean = false,
         val onlineService: Boolean = false,
-        val openNow: Boolean = false,
+        val openNow: Boolean = false
     ) : Parcelable {
         fun isAnySet(): Boolean =
-            ready || deliveryService || onlineService || openNow
+            nearBy || ready || deliveryService || onlineService || openNow
     }
 
     /**
      * Represents a pharmacy.
      */
-    @Parcelize
     @Immutable
     data class Pharmacy(
         val name: String,
@@ -55,9 +55,8 @@ object PharmacyUseCaseData {
         val provides: List<PharmacyService>,
         val openingHours: OpeningHours?,
         val telematikId: String,
-        val roleCode: List<RoleCode>,
         val ready: Boolean
-    ) : Parcelable {
+    ) {
 
         @Stable
         fun removeLineBreaksFromAddress(): String {
@@ -70,15 +69,14 @@ object PharmacyUseCaseData {
         /**
          * We only store the information if gps was enabled and not the actual position.
          */
-        @Parcelize
         @Immutable
-        object EnabledWithoutPosition : LocationMode(), Parcelable
-        @Parcelize
+        object EnabledWithoutPosition : LocationMode()
+
         @Immutable
-        object Disabled : LocationMode(), Parcelable
-        @Parcelize
+        object Disabled : LocationMode()
+
         @Immutable
-        class Enabled(val location: Location) : LocationMode(), Parcelable
+        class Enabled(val location: Location) : LocationMode()
     }
 
     @Immutable
@@ -89,8 +87,7 @@ object PharmacyUseCaseData {
      */
     @Immutable
     data class State(
-        val search: SearchData,
-        val showLocationHint: Boolean
+        val search: SearchData
     )
 
     @Immutable
@@ -98,11 +95,11 @@ object PharmacyUseCaseData {
         val taskId: String,
         val accessCode: String,
         val title: String,
+        val scannedOn: Instant? = null,
         val substitutionsAllowed: Boolean
     )
 
     @Immutable
-    @Parcelize
     data class ShippingContact(
         val name: String,
         val line1: String,
@@ -111,7 +108,7 @@ object PharmacyUseCaseData {
         val telephoneNumber: String,
         val mail: String,
         val deliveryInformation: String
-    ) : Parcelable {
+    ) {
         @Stable
         fun toList() = listOf(
             name,
@@ -138,12 +135,15 @@ object PharmacyUseCaseData {
         ).filter { it.isNotBlank() }
 
         @Stable
-        fun phoneOrAddressMissing() = telephoneNumber.isBlank() || name.isBlank() || line1.isBlank() || postalCodeAndCity.isBlank()
+        fun phoneOrAddressMissing() = telephoneNumber.isBlank() || addressIsMissing()
+
+        @Stable
+        fun addressIsMissing() = name.isBlank() || line1.isBlank() || postalCodeAndCity.isBlank()
     }
 
     @Immutable
     data class OrderState(
         val prescriptions: List<PrescriptionOrder>,
-        val contact: ShippingContact?
+        val contact: ShippingContact
     )
 }

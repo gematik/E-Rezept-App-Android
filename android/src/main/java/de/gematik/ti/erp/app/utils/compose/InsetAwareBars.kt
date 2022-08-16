@@ -35,11 +35,14 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.rememberInsetsPaddingValues
-import com.google.accompanist.insets.statusBarsPadding
-import com.google.accompanist.insets.systemBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 
 @Composable
 fun TopAppBar(
@@ -49,7 +52,7 @@ fun TopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
-    elevation: Dp = AppBarDefaults.TopAppBarElevation,
+    elevation: Dp = AppBarDefaults.TopAppBarElevation
 ) {
     Surface(
         modifier = modifier,
@@ -94,7 +97,7 @@ fun TopAppBarWithContent(
                 actions,
                 backgroundColor,
                 contentColor,
-                elevation = 0.dp,
+                elevation = 0.dp
             )
             content()
         }
@@ -135,7 +138,7 @@ fun BottomNavigation(
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationDefaults.Elevation,
     extraContent: @Composable () -> Unit,
-    content: @Composable RowScope.() -> Unit,
+    content: @Composable RowScope.() -> Unit
 ) {
     Surface(
         modifier = modifier,
@@ -156,11 +159,8 @@ fun BottomNavigation(
     }
 }
 
-fun Modifier.minimalSystemBarsPadding() = Modifier.composed {
-    val navBarInsetsPadding = rememberInsetsPaddingValues(
-        insets = LocalWindowInsets.current.systemBars,
-        applyBottom = true
-    )
+fun Modifier.minimalSystemBarsPadding() = composed {
+    val navBarInsetsPadding = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues()
 
     if (navBarInsetsPadding.calculateBottomPadding() <= 16.dp) {
         statusBarsPadding()

@@ -61,7 +61,7 @@ internal data class ResPlural(
     override val name: String,
     @XmlElement(true)
     @XmlSerialName("item", "", "")
-    val items: List<ResPluralItem>,
+    val items: List<ResPluralItem>
 ) : ResTranslatable()
 
 @Serializable
@@ -191,7 +191,7 @@ open class AndroidStringResourceGeneratorTask : DefaultTask() {
         }
 
         FileSpec.builder(packagePath, "StringResource")
-            .addComment("\nDO NOT MODIFY - GENERATED ON ${LocalDateTime.now()}\n")
+            .addFileComment("\nDO NOT MODIFY - GENERATED ON ${LocalDateTime.now()}\n")
             .addAnnotation(
                 AnnotationSpec.builder(ClassName("", "Suppress"))
                     .addMember("%S", "RedundantVisibilityModifier")

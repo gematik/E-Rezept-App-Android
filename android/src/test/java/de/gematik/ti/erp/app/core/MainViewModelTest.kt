@@ -18,15 +18,17 @@
 
 package de.gematik.ti.erp.app.core
 
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
-import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.SettingsData.AppVersion
+import de.gematik.ti.erp.app.settings.model.SettingsData.AuthenticationMode
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -36,6 +38,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
@@ -48,13 +51,7 @@ class MainViewModelTest {
     private lateinit var settingsUseCase: SettingsUseCase
 
     @MockK
-    private lateinit var prescriptionUseCase: PrescriptionUseCase
-
-    @MockK
     private lateinit var profilesUseCase: ProfilesUseCase
-
-    @MockK(relaxed = true)
-    private lateinit var idpUseCase: IdpUseCase
 
     @MockK
     private lateinit var safetynetUseCase: SafetynetUseCase
@@ -63,15 +60,26 @@ class MainViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         every { safetynetUseCase.runSafetynetAttestation() } returns flow { emit(true) }
+        every { settingsUseCase.general } returns flowOf(
+            SettingsData.General(
+                latestAppVersion = AppVersion(code = 1, name = "Test"),
+                onboardingShownIn = null,
+                dataProtectionVersionAcceptedOn = Instant.now(),
+                zoomEnabled = false,
+                userHasAcceptedInsecureDevice = false,
+                authenticationFails = 0
+            )
+        )
+        every { settingsUseCase.authenticationMode } returns flowOf(AuthenticationMode.Unspecified)
+        every { profilesUseCase.activeProfile } returns flowOf(mockk())
     }
 
     @Test
     fun `test showInsecureDevicePrompt - only show once`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(true)
-        every { settingsUseCase.isNewUser } returns false
-        every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
+        every { settingsUseCase.showOnboarding } returns flowOf(false)
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
 
         assertEquals(true, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -81,10 +89,9 @@ class MainViewModelTest {
     fun `test showInsecureDevicePrompt - device is secure`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
-        every { settingsUseCase.isNewUser } returns false
-        every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
+        every { settingsUseCase.showOnboarding } returns flowOf(false)
 
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
 
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -94,10 +101,9 @@ class MainViewModelTest {
     fun `test showDataTermsUpdate - dataTerms updates should be shown`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(true)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
-        every { settingsUseCase.isNewUser } returns false
-        every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
+        every { settingsUseCase.showOnboarding } returns flowOf(false)
 
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
 
         assertEquals(true, viewModel.showDataTermsUpdate.first())
     }
@@ -106,10 +112,9 @@ class MainViewModelTest {
     fun `test showDataTermsUpdate - dataTerms updates should not be shown`() = runTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
-        every { settingsUseCase.isNewUser } returns false
-        every { profilesUseCase.isProfileSetupCompleted() } returns flowOf(true)
+        every { settingsUseCase.showOnboarding } returns flowOf(false)
 
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase)
+        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
 
         assertEquals(false, viewModel.showDataTermsUpdate.first())
     }

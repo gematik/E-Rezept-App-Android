@@ -74,7 +74,7 @@ class RemoteDataSourceTest {
         assertEquals(expected, actual.getOrThrow().entry[0].resource.resourceType.name)
     }
 
-    private fun getUnsafeOkHttpClient(): OkHttpClient? {
+    private fun getUnsafeOkHttpClient(): OkHttpClient {
         return try {
             // Create a trust manager that does not validate certificate chains
             val trustAllCerts: Array<TrustManager> = arrayOf<TrustManager>(

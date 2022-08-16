@@ -19,17 +19,20 @@
 package de.gematik.ti.erp.app.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.Colors
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
+import de.gematik.ti.erp.app.R
 
+@Suppress("LongMethod")
 @Composable
 fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     val colors = if (darkTheme) {
@@ -38,32 +41,75 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
         AppColorsThemeLight
     }
 
+    val fontFamily = remember {
+        FontFamily(
+            Font(R.font.noto_sans_bold, weight = FontWeight.Bold),
+            Font(R.font.noto_sans_medium, weight = FontWeight.Medium),
+            Font(R.font.noto_sans_regular, weight = FontWeight.Normal),
+            Font(R.font.noto_sans_semibold, weight = FontWeight.SemiBold)
+        )
+    }
+
     val typoColors = AppTypographyColors(
+        body1l = colors.neutral600,
         body2l = colors.neutral600,
         subtitle1l = colors.neutral600,
         subtitle2l = colors.neutral600,
-        captionl = colors.neutral600,
+        captionl = colors.neutral600
+    )
+
+    val materialTypo = MaterialTheme.typography.copy(
+        h1 = MaterialTheme.typography.h1.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em,
+            fontWeight = FontWeight.W700
+        ),
+        h2 = MaterialTheme.typography.h2.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em,
+            fontWeight = FontWeight.W700
+        ),
+        h3 = MaterialTheme.typography.h3.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em,
+            fontWeight = FontWeight.W700
+        ),
+        h4 = MaterialTheme.typography.h4.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em,
+            fontWeight = FontWeight.W700
+        ),
+        h5 = MaterialTheme.typography.h5.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em,
+            fontWeight = FontWeight.W700
+        ),
+        h6 = MaterialTheme.typography.h6.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em
+        ),
+        subtitle1 = MaterialTheme.typography.subtitle1.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em,
+            fontWeight = FontWeight.W500
+        ),
+        subtitle2 = MaterialTheme.typography.subtitle2.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em,
+            fontWeight = FontWeight.W500
+        ),
+        body1 = MaterialTheme.typography.body1.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em
+        ),
+        body2 = MaterialTheme.typography.body2.copy(
+            fontFamily = fontFamily,
+            lineHeight = 1.5.em
+        )
     )
 
     MaterialTheme(
-        typography = MaterialTheme.typography.copy(
-            h1 = MaterialTheme.typography.h1.copy(lineHeight = 1.5.em),
-            h2 = MaterialTheme.typography.h2.copy(lineHeight = 1.5.em),
-            h3 = MaterialTheme.typography.h3.copy(lineHeight = 1.5.em),
-            h4 = MaterialTheme.typography.h4.copy(lineHeight = 1.5.em),
-            h5 = MaterialTheme.typography.h5.copy(lineHeight = 1.5.em),
-            h6 = MaterialTheme.typography.h6.copy(lineHeight = 1.5.em),
-            subtitle1 = MaterialTheme.typography.subtitle1.copy(
-                lineHeight = 1.5.em,
-                fontWeight = FontWeight.W500
-            ),
-            subtitle2 = MaterialTheme.typography.subtitle2.copy(
-                lineHeight = 1.5.em,
-                fontWeight = FontWeight.W500
-            ),
-            body1 = MaterialTheme.typography.body1.copy(lineHeight = 1.5.em),
-            body2 = MaterialTheme.typography.body2.copy(lineHeight = 1.5.em),
-        ),
+        typography = materialTypo,
         colors = Colors(
             primary = colors.primary600,
             primaryVariant = colors.primary600,
@@ -74,8 +120,8 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
             error = colors.red500,
             onPrimary = colors.neutral000,
             onSecondary = colors.neutral000,
-            onBackground = colors.neutral999,
-            onSurface = colors.neutral999,
+            onBackground = colors.neutral900,
+            onSurface = colors.neutral900,
             onError = colors.red900,
             isLight = !darkTheme
         ),
@@ -83,25 +129,44 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
             val typo =
                 AppTypography(
                     body1l = MaterialTheme.typography.body1.copy(
-                        color = colors.neutral600,
+                        fontFamily = fontFamily,
+                        color = typoColors.body1l,
                         lineHeight = 1.5.em
                     ),
                     body2l = MaterialTheme.typography.body2.copy(
+                        fontFamily = fontFamily,
                         color = typoColors.body2l,
                         lineHeight = 1.5.em
                     ),
                     subtitle1l = MaterialTheme.typography.subtitle1.copy(
+                        fontFamily = fontFamily,
                         color = typoColors.subtitle1l,
                         lineHeight = 1.5.em
                     ),
                     subtitle2l = MaterialTheme.typography.subtitle2.copy(
+                        fontFamily = fontFamily,
                         color = typoColors.subtitle2l,
                         lineHeight = 1.5.em
                     ),
-                    captionl = MaterialTheme.typography.caption.copy(
+                    caption1l = MaterialTheme.typography.caption.copy(
+                        fontFamily = fontFamily,
                         color = typoColors.captionl,
                         lineHeight = 1.5.em
-                    )
+                    ),
+                    h1 = materialTypo.h1,
+                    h2 = materialTypo.h2,
+                    h3 = materialTypo.h3,
+                    h4 = materialTypo.h4,
+                    h5 = materialTypo.h5,
+                    h6 = materialTypo.h6,
+                    subtitle1 = materialTypo.subtitle1,
+                    subtitle2 = materialTypo.subtitle2,
+                    body1 = materialTypo.body1,
+                    body2 = materialTypo.body2,
+                    button = materialTypo.button,
+                    caption1 = materialTypo.caption,
+                    caption2 = materialTypo.caption.copy(fontWeight = FontWeight.Medium),
+                    overline = materialTypo.overline
                 )
 
             CompositionLocalProvider(
@@ -126,8 +191,6 @@ object AppTheme {
     val typography: AppTypography
         @Composable
         get() = LocalAppTypography.current
-
-    val framePadding = PaddingValues(16.dp)
 
     val DebugColor = Color(0xFFD71F5F)
 }

@@ -19,57 +19,46 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
-import de.gematik.ti.erp.app.db.entities.TaskStatus
-import de.gematik.ti.erp.app.prescription.repository.InsuranceCompanyDetail
-import de.gematik.ti.erp.app.prescription.repository.MedicationDetail
-import de.gematik.ti.erp.app.prescription.repository.MedicationRequestDetail
-import de.gematik.ti.erp.app.prescription.repository.OrganizationDetail
-import de.gematik.ti.erp.app.prescription.repository.PatientDetail
-import de.gematik.ti.erp.app.prescription.repository.PractitionerDetail
-import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
-import java.time.LocalDate
-import java.time.OffsetDateTime
-import java.time.format.DateTimeFormatter
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+
+import java.time.Instant
 
 interface UIPrescriptionDetail {
+    val profileId: ProfileIdentifier
     val taskId: String
-    val redeemedOn: OffsetDateTime?
+    val redeemedOn: Instant?
     val accessCode: String?
-    val bitmapMatrix: BitMatrixCode?
+    val matrixPayload: String?
 }
 
 @Immutable
 data class UIPrescriptionDetailScanned(
+    override val profileId: ProfileIdentifier,
     override val taskId: String,
-    override val redeemedOn: OffsetDateTime?,
+    override val redeemedOn: Instant?,
     override val accessCode: String?,
-    override val bitmapMatrix: BitMatrixCode?,
+    override val matrixPayload: String?,
     val number: Int,
-    val scannedOn: OffsetDateTime,
-    val unRedeemMorePossible: Boolean
-) : UIPrescriptionDetail {
-
-    fun formattedScannedInfo(text: String): String {
-        val formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy - HH:mm:ss")
-        return scannedOn.format(formatter).replace("-", text)
-    }
-}
+    val scannedOn: Instant
+) : UIPrescriptionDetail
 
 @Immutable
 data class UIPrescriptionDetailSynced(
+    override val profileId: ProfileIdentifier,
     override val taskId: String,
-    override val redeemedOn: OffsetDateTime?,
+    override val redeemedOn: Instant?,
     override val accessCode: String?,
-    override val bitmapMatrix: BitMatrixCode?,
-    val redeemUntil: LocalDate?,
-    val acceptUntil: LocalDate?,
-    val patient: PatientDetail,
-    val practitioner: PractitionerDetail,
-    val medication: MedicationDetail,
-    val insurance: InsuranceCompanyDetail,
-    val organization: OrganizationDetail,
-    val medicationRequest: MedicationRequestDetail,
-    val medicationDispense: MedicationDispenseSimple?,
-    val taskStatus: TaskStatus?
+    override val matrixPayload: String?,
+    val state: SyncedTaskData.SyncedTask.TaskState,
+    val isRedeemableAndValid: Boolean,
+    val expiresOn: Instant?,
+    val acceptUntil: Instant?,
+    val patient: SyncedTaskData.Patient,
+    val practitioner: SyncedTaskData.Practitioner,
+    val insurance: SyncedTaskData.InsuranceInformation,
+    val organization: SyncedTaskData.Organization,
+    val medicationRequest: SyncedTaskData.MedicationRequest,
+    val medicationDispenses: List<SyncedTaskData.MedicationDispense>,
+    val taskStatus: SyncedTaskData.TaskStatus?
 ) : UIPrescriptionDetail

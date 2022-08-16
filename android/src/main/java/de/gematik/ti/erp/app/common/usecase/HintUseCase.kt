@@ -22,16 +22,13 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.common.usecase.model.CancellableHint
 import de.gematik.ti.erp.app.common.usecase.model.Hint
-import de.gematik.ti.erp.app.di.ApplicationPreferences
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import javax.inject.Inject
 
 private val knownCancellableHints = CancellableHint::class.sealedSubclasses.mapNotNull { it.objectInstance }.toSet()
 private const val preferencePrefix = "CancellableHint_"
 
-class HintUseCase @Inject constructor(
-    @ApplicationPreferences
+class HintUseCase(
     private val preferences: SharedPreferences
 ) {
     private val _cancelledHints = MutableStateFlow(setOf<Hint>())

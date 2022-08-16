@@ -93,12 +93,12 @@ fun LoggedInScreen(
     navigation: Navigation
 ) {
     Scaffold(
-        backgroundColor = MaterialTheme.colors.surface,
+        backgroundColor = MaterialTheme.colors.surface
     ) {
         Row(Modifier.fillMaxSize()) {
             SideBar(
                 mainViewModel = mainViewModel,
-                navigation = navigation,
+                navigation = navigation
             )
             VerticalDivider()
             Column {
@@ -125,7 +125,7 @@ fun LoggedInScreen(
 @Composable
 private fun DarkModeToggle(
     toggled: Boolean,
-    onToggle: (Boolean) -> Unit,
+    onToggle: (Boolean) -> Unit
 ) {
     val handleOffset by animateDpAsState(if (toggled) 32.dp - 20.dp else 0.dp)
     Box(
@@ -189,7 +189,7 @@ private fun TopBar(
         Text(title, style = MaterialTheme.typography.h6)
         Spacer(Modifier.weight(1f))
         Logo(
-            Modifier.height(24.dp),
+            Modifier.height(24.dp)
         )
     }
 }

@@ -3879,7 +3879,7 @@ public val stringsDe: Strings = Strings(
         918 to Singular("Zahncreme"),
         919 to Singular("Zahngel"),
         920 to Singular("Zerbeißkapseln"),
-        921 to Singular("Zahnpasta"),
+        921 to Singular("Zahnpasta")
     )
 )
 
@@ -4867,7 +4867,7 @@ public val stringsEn: Strings = Strings(
         918 to stringsDe.kbvCodeDosageFormZcr,
         919 to stringsDe.kbvCodeDosageFormZge,
         920 to stringsDe.kbvCodeDosageFormZka,
-        921 to stringsDe.kbvCodeDosageFormZpa,
+        921 to stringsDe.kbvCodeDosageFormZpa
     )
 )
 
@@ -5850,7 +5850,7 @@ public val stringsTr: Strings = Strings(
         918 to stringsDe.kbvCodeDosageFormZcr,
         919 to stringsDe.kbvCodeDosageFormZge,
         920 to stringsDe.kbvCodeDosageFormZka,
-        921 to stringsDe.kbvCodeDosageFormZpa,
+        921 to stringsDe.kbvCodeDosageFormZpa
     )
 )
 

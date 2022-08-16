@@ -63,7 +63,8 @@ class LoginWithHealthCardViewModel(
 
     fun authenticate(can: String, pin: String): Flow<AuthenticationState> =
         authenticationUseCase.authenticateWithHealthCard(
-            can = can, pin = pin,
+            can = can,
+            pin = pin,
             flow {
                 var reader: CardReader?
                 do {

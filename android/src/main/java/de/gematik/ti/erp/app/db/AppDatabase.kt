@@ -21,82 +21,33 @@ package de.gematik.ti.erp.app.db
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
-import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import de.gematik.ti.erp.app.db.converter.CertificateConverter
-import de.gematik.ti.erp.app.db.converter.DateConverter
-import de.gematik.ti.erp.app.db.converter.ProfileColorsConverter
-import de.gematik.ti.erp.app.db.converter.TruststoreConverter
-import de.gematik.ti.erp.app.db.daos.ActiveProfileDao
-import de.gematik.ti.erp.app.db.daos.AttestationDao
-import de.gematik.ti.erp.app.db.daos.CommunicationDao
-import de.gematik.ti.erp.app.db.daos.IdpAuthenticationDataDao
-import de.gematik.ti.erp.app.db.daos.IdpConfigurationDao
-import de.gematik.ti.erp.app.db.daos.ProfileDao
-import de.gematik.ti.erp.app.db.daos.SettingsDao
-import de.gematik.ti.erp.app.db.daos.ShippingContactDao
-import de.gematik.ti.erp.app.db.daos.TaskDao
-import de.gematik.ti.erp.app.db.daos.TruststoreDao
-import de.gematik.ti.erp.app.db.entities.ActiveProfile
-import de.gematik.ti.erp.app.db.entities.AuditEventSimple
+import de.gematik.ti.erp.app.db.daos.MigrationDao
 import de.gematik.ti.erp.app.db.entities.Communication
-import de.gematik.ti.erp.app.db.entities.IdpAuthenticationDataEntity
-import de.gematik.ti.erp.app.db.entities.IdpConfiguration
-import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
 import de.gematik.ti.erp.app.db.entities.MedicationDispenseSimple
 import de.gematik.ti.erp.app.db.entities.ProfileColorNames
 import de.gematik.ti.erp.app.db.entities.ProfileEntity
-import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
 import de.gematik.ti.erp.app.db.entities.Settings
-import de.gematik.ti.erp.app.db.entities.ShippingContactEntity
 import de.gematik.ti.erp.app.db.entities.Task
-import de.gematik.ti.erp.app.db.entities.TaskStatus
-import de.gematik.ti.erp.app.db.entities.TruststoreEntity
 import de.gematik.ti.erp.app.settings.usecase.DEFAULT_PROFILE_NAME
-import javax.inject.Singleton
 
-const val DB_VERSION = 27
+const val DB_VERSION = 28
 
-@Singleton
 @Database(
     entities = [
         Task::class,
-        AuditEventSimple::class,
-        IdpConfiguration::class,
-        IdpAuthenticationDataEntity::class,
         ProfileEntity::class,
         Settings::class,
-        TruststoreEntity::class,
         Communication::class,
-        LowDetailEventSimple::class,
-        MedicationDispenseSimple::class,
-        SafetynetAttestationEntity::class,
-        ActiveProfile::class,
-        ShippingContactEntity::class
+        MedicationDispenseSimple::class
     ],
     version = DB_VERSION,
     exportSchema = true,
     autoMigrations = [AutoMigration(from = 26, to = 27)]
-
-)
-@TypeConverters(
-    DateConverter::class,
-    TruststoreConverter::class,
-    CertificateConverter::class,
-    ProfileColorsConverter::class
 )
 abstract class AppDatabase : RoomDatabase() {
-    abstract fun taskDao(): TaskDao
-    abstract fun idpInfoDao(): IdpConfigurationDao
-    abstract fun idpAuthDataDao(): IdpAuthenticationDataDao
-    abstract fun settingsDao(): SettingsDao
-    abstract fun profileDao(): ProfileDao
-    abstract fun truststoreDao(): TruststoreDao
-    abstract fun communicationsDao(): CommunicationDao
-    abstract fun attestationDao(): AttestationDao
-    abstract fun activeProfileDao(): ActiveProfileDao
-    abstract fun shippingContactDao(): ShippingContactDao
+    abstract fun migrationDao(): MigrationDao
 }
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -185,7 +136,7 @@ val MIGRATION_10_11 = object : Migration(10, 11) {
         )
         database.execSQL("INSERT INTO `activeProfile` (`id`, `profileName`) VALUES (0, '$DEFAULT_PROFILE_NAME')")
         database.execSQL(
-            "CREATE TABLE IF NOT EXISTS `tasks_new` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL DEFAULT '', `accessCode` TEXT NOT NULL, `lastModified` TEXT, `organization` TEXT, `medicationText` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `scanSessionName` TEXT, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)",
+            "CREATE TABLE IF NOT EXISTS `tasks_new` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL DEFAULT '', `accessCode` TEXT NOT NULL, `lastModified` TEXT, `organization` TEXT, `medicationText` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `scanSessionName` TEXT, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)"
         )
         database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_profileName` ON `tasks_new` (`profileName`)")
         database.execSQL(
@@ -288,7 +239,7 @@ val MIGRATION_14_15 = object : Migration(14, 15) {
 
 val MIGRATION_15_16 = object : Migration(15, 16) {
     override fun migrate(database: SupportSQLiteDatabase) {
-        database.execSQL("UPDATE tasks SET status='${TaskStatus.Other}' WHERE status IS NOT NULL")
+        database.execSQL("UPDATE tasks SET status='' WHERE status IS NOT NULL")
     }
 }
 
@@ -331,7 +282,7 @@ val MIGRATION_19_20 = object : Migration(19, 20) {
 val MIGRATION_20_21 = object : Migration(20, 21) {
     override fun migrate(database: SupportSQLiteDatabase) {
         database.execSQL(
-            "CREATE TABLE IF NOT EXISTS `tasks_new` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL, `accessCode` TEXT, `lastModified` TEXT, `organization` TEXT, `medicationText` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `scanSessionName` TEXT, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)",
+            "CREATE TABLE IF NOT EXISTS `tasks_new` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL, `accessCode` TEXT, `lastModified` TEXT, `organization` TEXT, `medicationText` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `scanSessionName` TEXT, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`), FOREIGN KEY(`profileName`) REFERENCES `profiles`(`name`) ON UPDATE CASCADE ON DELETE CASCADE)"
         )
         database.execSQL(
             "INSERT INTO `tasks_new` (`taskId`, `profileName`, `accessCode`, `lastModified`, `organization`, `medicationText`, `expiresOn`, `acceptUntil`, `authoredOn`, `status`, `scannedOn`, `scanSessionEnd`, `nrInScanSession`, `scanSessionName`, `redeemedOn`, `rawKBVBundle`) select `taskId`, `profileName`, `accessCode`, `lastModified`, `organization`, `medicationText`, `expiresOn`, `acceptUntil`, `authoredOn`, `status`, `scannedOn`, `scanSessionEnd`, `nrInScanSession`, `scanSessionName`, `redeemedOn`, `rawKBVBundle` FROM `tasks`"
@@ -402,5 +353,81 @@ val MIGRATION_25_26 = object : Migration(25, 26) {
             "INSERT INTO `profiles` (`id`, `name`, `insuranceIdentifier`) VALUES(0, '$DEFAULT_PROFILE_NAME', NULL)"
         )
         database.execSQL("INSERT OR REPLACE INTO `activeProfile` (`id`, `profileName`) VALUES (0, '$DEFAULT_PROFILE_NAME')")
+    }
+}
+
+val MIGRATION_27_28 = object : Migration(27, 28) {
+    override fun migrate(database: SupportSQLiteDatabase) {
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `tasks_new` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL, `accessCode` TEXT, `lastModified` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`))"
+        )
+        database.execSQL(
+            "INSERT INTO `tasks_new` (`taskId`, `profileName`, `accessCode`, `lastModified`, `expiresOn`, `acceptUntil`, `authoredOn`, `status`, `scannedOn`, `scanSessionEnd`, `nrInScanSession`, `redeemedOn`, `rawKBVBundle`) select `taskId`, `profileName`, `accessCode`, `lastModified`, `expiresOn`, `acceptUntil`, `authoredOn`, `status`, `scannedOn`, `scanSessionEnd`, `nrInScanSession`, `redeemedOn`, `rawKBVBundle` FROM `tasks`"
+        )
+        database.execSQL(
+            "DROP table tasks"
+        )
+        database.execSQL(
+            "ALTER TABLE tasks_new RENAME TO tasks"
+        )
+
+        database.execSQL("CREATE INDEX IF NOT EXISTS `index_tasks_profileName` ON `tasks` (`profileName`)")
+
+        // migration of communications
+        database.execSQL(
+            "CREATE TABLE IF NOT EXISTS `communications_new` (`communicationId` TEXT NOT NULL, `profile` TEXT NOT NULL, `profileName` TEXT NOT NULL DEFAULT '', `time` TEXT NOT NULL, `taskId` TEXT NOT NULL DEFAULT '', `telematicsId` TEXT NOT NULL, `kbvUserId` TEXT NOT NULL, `payload` TEXT, `consumed` INTEGER NOT NULL, PRIMARY KEY(`communicationId`))"
+        )
+
+        database.execSQL(
+            """
+                INSERT INTO `communications_new` (
+                    `communicationId`,
+                    `profile`,
+                    `time`,
+                    `taskId`,
+                    `telematicsId`,
+                    `kbvUserId`,
+                    `payload`,
+                    `consumed`
+                ) SELECT
+                    `communicationId`,
+                    `profile`,
+                    `time`,
+                    `taskId`,
+                    `telematicsId`,
+                    `kbvUserId`,
+                    `payload`,
+                    `consumed`
+                FROM communications WHERE taskId IN (SELECT taskId FROM tasks);
+            """.trimIndent()
+        )
+        database.execSQL(
+            "DROP TABLE communications"
+        )
+        database.execSQL(
+            "ALTER TABLE communications_new RENAME TO communications"
+        )
+
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_communications_profileName` ON `communications` (`profileName`)"
+        )
+        database.execSQL(
+            "CREATE INDEX IF NOT EXISTS `index_communications_taskId` ON `communications` (`taskId`)"
+        )
+
+        database.execSQL("DROP TABLE auditEvents")
+        database.execSQL("DROP TABLE idpConfiguration")
+        database.execSQL("DROP TABLE truststore")
+        database.execSQL("DROP TABLE shippingContact")
+        database.execSQL("DROP TABLE activeProfile")
+        database.execSQL("DROP TABLE lowDetailEvents")
+        database.execSQL("DROP TABLE safetynetattestations")
+        database.execSQL("DROP TABLE idpAuthenticationDataEntity")
+
+        database.execSQL("CREATE TABLE IF NOT EXISTS `_new_profiles` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `lastAuthenticated` TEXT, `insurantName` TEXT, `insuranceIdentifier` TEXT, `insuranceName` TEXT, `color` TEXT NOT NULL)")
+        database.execSQL("INSERT INTO `_new_profiles` (`lastAuthenticated`, `insurantName`,`color`,`name`,`insuranceName`,`id`,`insuranceIdentifier`) SELECT `lastAuthenticated`, `insurantName`,`color`,`name`,`insuranceName`,`id`,`insuranceIdentifier` FROM `profiles`")
+        database.execSQL("DROP TABLE `profiles`")
+        database.execSQL("ALTER TABLE `_new_profiles` RENAME TO `profiles`")
+        database.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_profiles_name` ON `profiles` (`name`)")
     }
 }

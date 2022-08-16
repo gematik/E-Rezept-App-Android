@@ -21,22 +21,19 @@ package de.gematik.ti.erp.app.redeem.ui
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.lifecycle.viewModelScope
-import com.google.common.math.IntMath
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.datamatrix.DataMatrixWriter
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.core.BaseViewModel
-import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
+import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
-import java.time.OffsetDateTime
-import javax.inject.Inject
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import org.json.JSONArray
 import org.json.JSONObject
@@ -47,108 +44,100 @@ data class BitMatrixCode(val matrix: BitMatrix)
 object RedeemScreen {
     @Stable
     data class SingleCode(
-        val matrixCode: BitMatrixCode,
+        val payload: String,
         val nrOfCodes: Int,
         val isScanned: Boolean
     )
 
     @Immutable
     data class State(
-        val maxTaskPerCode: Int,
         val showSingleCodes: Boolean,
         val codes: List<SingleCode>
     )
 }
 
-@HiltViewModel
-class RedeemViewModel @Inject constructor(
+class RedeemViewModel(
     private val prescriptionUseCase: PrescriptionUseCase,
-    private val dispatchProvider: DispatchProvider
-) : BaseViewModel() {
-
+    private val profilesUseCase: ProfilesUseCase,
+    private val dispatchers: DispatchProvider
+) : ViewModel() {
     private val showSingleCodes = MutableStateFlow(false)
-    private val maxTasksPerCode = MutableStateFlow(3)
 
     val defaultState = RedeemScreen.State(
-        maxTasksPerCode.value,
-        showSingleCodes.value,
-        listOf()
+        showSingleCodes = showSingleCodes.value,
+        codes = listOf()
     )
 
-    fun screenState(taskIds: List<String>): Flow<RedeemScreen.State> {
-        var codes = listOf<RedeemScreen.SingleCode>()
-        return showSingleCodes.map { showSingle ->
-            val maxTasks = if (!showSingle) {
-                if ((IntMath.mod(taskIds.size, 2) == 0)) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun screenState(taskIds: List<String>): Flow<RedeemScreen.State> =
+        showSingleCodes.flatMapLatest { showSingle ->
+            val maxTasks = if (showSingle) {
+                1
+            } else {
+                if (taskIds.size < 5) {
                     2
                 } else {
                     3
                 }
-            } else {
-                1
             }
-            if (maxTasks == 3 && taskIds.size > 5) {
-                generateRedeemCodes(taskIds.subList(0, 2), maxTasks).collect {
-                    codes = it
-                }
-                generateRedeemCodes(
-                    taskIds.subList(3, taskIds.size - 1),
-                    maxTasks,
-                ).collect {
-                    codes = codes + it
-                }
-            } else {
-                generateRedeemCodes(taskIds, maxTasks).collect {
-                    codes = it
-                }
-            }
-            RedeemScreen.State(maxTaskPerCode = maxTasks, showSingleCodes = showSingle, codes)
-        }
-    }
 
+            generateRedeemCodes(taskIds, maxTasks).map {
+                RedeemScreen.State(
+                    showSingleCodes = showSingle,
+                    codes = it
+                )
+            }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun generateRedeemCodes(
         taskIds: List<String>,
-        maxTasksPerCode: Int,
-    ): Flow<List<RedeemScreen.SingleCode>> {
-
-        return prescriptionUseCase.tasks().take(1).map {
-
-            val tasks = it
-                .asSequence()
-                .filter { task -> task.taskId in taskIds }
-                .distinctBy { task -> task.taskId }
-
-            tasks
-                .toList()
-                .map { task ->
-                    Pair(
-                        task.scannedOn != null,
-                        "Task/${task.taskId}/\$accept?ac=${task.accessCode}"
-                    )
-                }
-                .windowed(maxTasksPerCode, maxTasksPerCode, partialWindows = true)
-                .map { tasksList ->
-                    val urls = tasksList.map {
-                        it.second
+        maxTasksPerCode: Int
+    ): Flow<List<RedeemScreen.SingleCode>> =
+        profilesUseCase.activeProfile.flatMapLatest { activeProfile ->
+            combine(
+                prescriptionUseCase.syncedTasks(activeProfile.id),
+                prescriptionUseCase.scannedTasks(activeProfile.id)
+            ) { syncedTasks, scannedTasks ->
+                val synced = syncedTasks.mapNotNull {
+                    if (it.redeemState().isRedeemable() && it.taskId in taskIds) {
+                        Triple(it.taskId, it.accessCode!!, it.medicationRequestMedicationName())
+                    } else {
+                        null
                     }
-                    val json = createPayload(urls).toString().replace("\\", "")
-                    RedeemScreen.SingleCode(
-                        BitMatrixCode(createBitMatrix(json)),
-                        urls.size,
-                        tasksList.first().first
-                    )
                 }
-                .toList()
-        }
-    }
+                val scanned = scannedTasks.mapNotNull {
+                    if (it.isRedeemable() && it.taskId in taskIds) {
+                        Triple(it.taskId, it.accessCode, null)
+                    } else {
+                        null
+                    }
+                }
 
-    fun redeemPrescriptions(taskIds: List<String>, protocolText: String) {
-        viewModelScope.launch(dispatchProvider.io()) {
-            prescriptionUseCase.redeem(taskIds, true, true)
-            val now = OffsetDateTime.now()
+                (synced + scanned)
+                    .map { (id, acc, name) ->
+                        Pair(
+                            name,
+                            "Task/$id/\$accept?ac=$acc"
+                        )
+                    }
+                    .windowed(maxTasksPerCode, maxTasksPerCode, partialWindows = true)
+                    .map { tasksList ->
+                        val urls = tasksList.map { it.second }
+                        val json = createPayload(urls).toString().replace("\\", "")
+                        RedeemScreen.SingleCode(
+                            payload = json,
+                            nrOfCodes = urls.size,
+                            isScanned = tasksList.first().first == null // TODO add name handling
+                        )
+                    }
+            }
+        }
+
+    fun redeemPrescriptions(taskIds: List<String>) {
+        viewModelScope.launch(dispatchers.IO) {
             taskIds.forEach { taskId ->
-                val lowDetailEvent = LowDetailEventSimple(protocolText, now, taskId)
-                prescriptionUseCase.saveLowDetailEvent(lowDetailEvent)
+                prescriptionUseCase.redeemScannedTask(taskId, true)
             }
         }
     }
@@ -166,8 +155,8 @@ class RedeemViewModel @Inject constructor(
         rootObject.put("urls", urls)
         return rootObject
     }
-
-    private fun createBitMatrix(data: String): BitMatrix =
-        // width & height is unused in the underlying implementation
-        DataMatrixWriter().encode(data, BarcodeFormat.DATA_MATRIX, 1, 1)
 }
+
+fun createBitMatrix(data: String): BitMatrix =
+    // width & height is unused in the underlying implementation
+    DataMatrixWriter().encode(data, BarcodeFormat.DATA_MATRIX, 1, 1)

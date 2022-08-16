@@ -27,6 +27,7 @@ import java.time.format.FormatStyle
 val dateTimeShortFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
 
 fun dateTimeShortText(instant: Instant): String = LocalDateTime.ofEpochSecond(
-    instant.epochSecond, 0,
+    instant.epochSecond,
+    0,
     ZoneOffset.UTC
 ).atOffset(ZoneOffset.UTC).format(dateTimeShortFormatter)

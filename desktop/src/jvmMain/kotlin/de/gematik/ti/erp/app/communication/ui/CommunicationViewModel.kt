@@ -28,7 +28,7 @@ import kotlinx.coroutines.flow.map
 
 class CommunicationViewModel(
     private val dispatchersProvider: DispatchersProvider,
-    private val communicationUseCase: CommunicationUseCase,
+    private val communicationUseCase: CommunicationUseCase
 ) {
     val defaultState =
         CommunicationScreenData.State(emptyList())

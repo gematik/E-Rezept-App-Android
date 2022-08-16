@@ -97,6 +97,10 @@ gradle :android:assemble(Google|Huawei)Pu(External|Internal)(Debug|Release) -Pbu
 
 The resulting `.apk` can be found in e.g. `android/build/outputs/apk/googlePuExternal/debug/`.
 
+#### Visualize Test Tags
+
+See [Visualize Test Tags](documentation/test-tags.md)
+
 ### Desktop
 
 To build a fat JAR run:

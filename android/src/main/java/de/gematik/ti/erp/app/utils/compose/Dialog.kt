@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -44,34 +45,36 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.google.accompanist.flowlayout.MainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.insets.imePadding
+import com.google.accompanist.flowlayout.MainAxisAlignment
+import androidx.compose.foundation.layout.imePadding
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import java.util.UUID
 
 @Composable
 fun AlertDialog(
     onDismissRequest: () -> Unit,
-    buttons: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    buttons: @Composable () -> Unit,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
     shape: Shape = RoundedCornerShape(PaddingDefaults.Large),
@@ -113,8 +116,12 @@ fun AlertDialog(
                 elevation = 8.dp
             ) {
                 Column(Modifier.padding(PaddingDefaults.Large)) {
+                    icon?.let {
+                        Icon(icon, null, modifier = Modifier.align(Alignment.CenterHorizontally))
+                        SpacerMedium()
+                    }
                     CompositionLocalProvider(
-                        LocalTextStyle provides MaterialTheme.typography.h6
+                        LocalTextStyle provides AppTheme.typography.h6
                     ) {
                         title?.let {
                             title()
@@ -122,7 +129,7 @@ fun AlertDialog(
                         }
                     }
                     CompositionLocalProvider(
-                        LocalTextStyle provides MaterialTheme.typography.body2
+                        LocalTextStyle provides AppTheme.typography.body2
                     ) {
                         text?.let {
                             text()

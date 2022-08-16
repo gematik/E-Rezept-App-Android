@@ -18,1058 +18,515 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.foundation.text.InlineTextContent
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.appendInlineContent
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.IconToggleButton
-import androidx.compose.material.LinearProgressIndicator
-import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Scaffold
-import androidx.compose.material.SnackbarDuration
-import androidx.compose.material.SnackbarResult
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
-import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.FilterList
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.LocationDisabled
-import androidx.compose.material.icons.rounded.LocationSearching
+import androidx.compose.material.icons.outlined.LocalShipping
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Moped
+import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
-import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.Placeholder
-import androidx.compose.ui.text.PlaceholderVerticalAlign
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.em
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavController
-import androidx.paging.LoadState
-import androidx.paging.compose.collectAsLazyPagingItems
-import androidx.paging.compose.itemsIndexed
-import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.rememberInsetsPaddingValues
-import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.AcceptDialog
-import de.gematik.ti.erp.app.utils.compose.AnimatedHintCard
-import de.gematik.ti.erp.app.utils.compose.Chip
-import de.gematik.ti.erp.app.utils.compose.DynamicText
-import de.gematik.ti.erp.app.utils.compose.HintSmallImage
-import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
-import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
-import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.cardwall.ui.PrimaryButtonSmall
+import de.gematik.ti.erp.app.pharmacy.model.OftenUsedPharmacyData
+import de.gematik.ti.erp.app.pharmacy.repository.model.OftenUsedPharmaciesViewModel
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.utils.compose.AcceptDialog
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.SpacerXLarge
-import kotlinx.coroutines.FlowPreview
-import kotlinx.coroutines.flow.collect
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import java.text.DecimalFormat
-import java.time.OffsetDateTime
+import org.kodein.di.compose.rememberViewModel
 
-@OptIn(
-    ExperimentalComposeUiApi::class,
-    ExperimentalMaterialApi::class,
-    FlowPreview::class
-)
+private const val LastUsedPharmaciesListLength = 5
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun PharmacySearchScreen(
-    mainNavController: NavController,
-    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
-    viewModel: PharmacySearchViewModel = hiltViewModel()
+fun PharmacyOverviewScreen(
+    onBack: () -> Unit,
+    onStartSearch: () -> Unit,
+    filter: PharmacyUseCaseData.Filter,
+    onFilterChange: (PharmacyUseCaseData.Filter) -> Unit,
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
 ) {
-    val context = LocalContext.current
-
-    var showLocationHint by remember { mutableStateOf(false) }
-    val state by produceState<PharmacyUseCaseData.State?>(null) {
-        viewModel.screenState().collect {
-            value = it
-
-            showLocationHint = it.showLocationHint
-        }
-    }
-
-    val locationEnabled by rememberSaveable(state?.search) {
-        mutableStateOf(
-            anyLocationPermissionGranted(context) &&
-                state?.search?.let { it.locationMode is PharmacyUseCaseData.LocationMode.Enabled } ?: false
-        )
-    }
-    var searchText by rememberSaveable(state?.search) {
-        mutableStateOf(state?.search?.name ?: "")
-    }
-    val searchFilter by rememberSaveable(state?.search) {
-        mutableStateOf(state?.search?.filter ?: PharmacyUseCaseData.Filter())
-    }
-
-    val searchListState = rememberLazyListState()
-
-    val searchPagingItems = viewModel.pharmacySearchFlow.collectAsLazyPagingItems()
-
-    val scaffoldState = rememberScaffoldState()
-
-    val errorTitle = stringResource(R.string.search_pharmacy_error_title)
-    val errorSubtitle = stringResource(R.string.search_pharmacy_error_subtitle)
-    val errorAction = stringResource(R.string.search_pharmacy_error_action)
-    LaunchedEffect(searchPagingItems.loadState) {
-        searchPagingItems.loadState.let {
-            val anyErr = it.append is LoadState.Error || it.prepend is LoadState.Error || it.refresh is LoadState.Error
-            if (anyErr && searchPagingItems.itemCount > 1) {
-                val result =
-                    scaffoldState.snackbarHostState.showSnackbar(
-                        errorTitle,
-                        errorAction,
-                        duration = SnackbarDuration.Short
-                    )
-                if (result == SnackbarResult.ActionPerformed) {
-                    searchPagingItems.retry()
-                }
-            }
-        }
-    }
-
-    lateinit var _search: (searchTxt: String, locEnabled: Boolean, filter: PharmacyUseCaseData.Filter) -> Unit
-
-    fun search(
-        searchTxt: String = searchText,
-        locEnabled: Boolean = locationEnabled,
-        filter: PharmacyUseCaseData.Filter = searchFilter
-    ) = _search(searchTxt, locEnabled, filter)
-
-    val keyboardController = LocalSoftwareKeyboardController.current
-    var keyboardHideToggle by remember { mutableStateOf(false) }
-    DisposableEffect(keyboardHideToggle) {
-        keyboardController?.hide()
-        onDispose {}
-    }
-
-    var showEnableLocationDialog by remember { mutableStateOf(false) }
-
-    if (showEnableLocationDialog) {
-        EnableLocationDialog {
-            showEnableLocationDialog = false
-        }
-    }
-
+    val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val modal = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
-    val locationPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            search(locEnabled = permissions.values.any { it })
-        }
-
-    var isPreLoading by remember { mutableStateOf(false) }
-    _search = { searchTxt: String,
-        locEnabled: Boolean,
-        filter: PharmacyUseCaseData.Filter ->
-        if (locEnabled && !anyLocationPermissionGranted(context)) {
-            locationPermissionLauncher.launch(locationPermissions)
-        } else {
-            scope.launch {
-                try {
-                    isPreLoading = true
-
-                    // workaround for certain huawei devices
-                    keyboardHideToggle = !keyboardHideToggle
-
-                    showEnableLocationDialog = viewModel.searchPharmacies(
-                        searchTxt, filter,
-                        locEnabled
-                    )
-                } finally {
-                    isPreLoading = false
-                }
-            }
-        }
-    }
-
-    val loadState = searchPagingItems.loadState
-
-    val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     ModalBottomSheetLayout(
+        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
         sheetContent = {
             FilterBottomSheet(
                 modifier = Modifier.navigationBarsPadding(),
-                filter = state?.search?.filter ?: PharmacyUseCaseData.Filter(),
-                onClickChip = { search(filter = it) },
-                onClickClose = { scope.launch { modal.hide() } }
+                filter = filter,
+                onClickChip = onFilterChange,
+                onClickClose = { scope.launch { modal.hide() } },
+                extraContent = {
+                    SpacerLarge()
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        PrimaryButtonSmall(
+                            onClick = {
+                                scope.launch { modal.hide() }
+                                onStartSearch()
+                            }
+                        ) {
+                            Text(stringResource(R.string.search_pharmacies_start_search))
+                        }
+                    }
+                    SpacerLarge()
+                }
             )
         },
         sheetState = modal
     ) {
-        Scaffold(
-            scaffoldState = scaffoldState,
-            topBar = {
-                NavigationTopAppBar(
-                    NavigationBarMode.Close,
-                    title = stringResource(R.string.search_pharmacy_title),
-                    onBack = { mainNavController.popBackStack() }
-                )
-            }
+        AnimatedElevationScaffold(
+            listState = listState,
+            topBarTitle = stringResource(R.string.redeem_header),
+            onBack = onBack
         ) {
-            Box {
-                Column(modifier = Modifier.fillMaxSize()) {
-
-                    val itemPaddingModifier = Modifier
-                        .fillMaxWidth()
-                        .padding(PaddingDefaults.Medium)
-
-                    val showNothingFound =
-                        listOf(loadState.prepend, loadState.append)
-                            .all {
-                                when (it) {
-                                    is LoadState.NotLoading ->
-                                        it.endOfPaginationReached && searchPagingItems.itemCount == 1
-                                    else -> false
-                                }
-                            } && loadState.refresh is LoadState.NotLoading
-
-                    val showError = searchPagingItems.itemCount <= 1 && loadState.refresh is LoadState.Error
-
-                    Box {
-                        var heightLazyColumn by remember { mutableStateOf(1) }
-                        var heightHeader by remember { mutableStateOf(1) }
-
-                        LazyColumn(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .onSizeChanged { heightLazyColumn = it.height },
-                            state = searchListState,
-                            contentPadding = rememberInsetsPaddingValues(
-                                insets = LocalWindowInsets.current.navigationBars,
-                                applyBottom = true
-                            )
-                        ) {
-                            item {
-                                Column(modifier = Modifier.onSizeChanged { heightHeader = it.height }) {
-                                    SearchField(
-                                        searchValue = searchText,
-                                        onSearchChange = { searchText = it },
-                                        locationEnabled = locationEnabled,
-                                        onSearch = { searchTxt, locEnabled ->
-                                            search(searchTxt, locEnabled)
-                                        }
-                                    )
-
-                                    SpacerMedium()
-
-                                    FilterSection(
-                                        filter = searchFilter,
-                                        onClickChip = { search(filter = it) },
-                                        onClickFilter = { scope.launch { modal.show() } }
-                                    )
-
-                                    SpacerMedium()
-                                }
-                            }
-                            if (showNothingFound) {
-                                item {
-                                    PharmacySearchErrorHint(
-                                        title = stringResource(R.string.search_pharmacy_nothing_found_header),
-                                        subtitle = stringResource(R.string.search_pharmacy_nothing_found_info),
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillParentMaxHeight(
-                                                1f - heightHeader / heightLazyColumn.toFloat()
-                                            )
-                                    )
-                                }
-                            }
-                            if (showError) {
-                                item {
-                                    PharmacySearchErrorHint(
-                                        title = errorTitle,
-                                        subtitle = errorSubtitle,
-                                        action = errorAction,
-                                        onClickAction = { searchPagingItems.retry() },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .fillParentMaxHeight(
-                                                1f - heightHeader / heightLazyColumn.toFloat()
-                                            )
-                                    )
-                                }
-                            }
-                            if (loadState.prepend is LoadState.Error) {
-                                item {
-                                    PharmacySearchErrorHint(
-                                        title = errorTitle,
-                                        subtitle = errorSubtitle,
-                                        action = errorAction,
-                                        onClickAction = { searchPagingItems.retry() },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(PaddingDefaults.Medium)
-                                    )
-                                }
-                            }
-                            itemsIndexed(searchPagingItems) { index, item ->
-                                when (item) {
-                                    PharmacySearchUi.LocationHint -> {
-                                        // enable location information
-                                        if (showLocationHint) {
-                                            AnimatedHintCard(
-                                                modifier = Modifier
-                                                    .padding(
-                                                        start = PaddingDefaults.Medium,
-                                                        end = PaddingDefaults.Medium
-                                                    ),
-                                                image = {
-                                                    HintSmallImage(
-                                                        painterResource(R.drawable.pharmacist_hint),
-                                                        innerPadding = it
-                                                    )
-                                                },
-                                                title = { Text(stringResource(R.string.search_enable_location_hint_header)) },
-                                                body = { Text(stringResource(R.string.search_enable_location_hint_info)) },
-                                                action = {
-                                                    HintTextActionButton(stringResource(R.string.search_enable_location_hint_enable)) {
-                                                        search(searchText, true)
-                                                    }
-                                                },
-                                                onTransitionEnd = {
-                                                    if (!it) {
-                                                        viewModel.cancelLocationHint()
-                                                    }
-                                                }
-                                            )
-                                        }
-                                    }
-                                    is PharmacySearchUi.Pharmacy -> {
-                                        Column {
-                                            PharmacyResultCard(
-                                                modifier = itemPaddingModifier,
-                                                pharmacy = item.pharmacy
-                                            ) {
-                                                onSelectPharmacy(item.pharmacy)
-                                            }
-                                            if (index < searchPagingItems.itemCount - 1) {
-                                                Divider(startIndent = PaddingDefaults.Medium)
-                                            }
-                                        }
-                                    }
-                                    null -> {
-                                        if (loadState.prepend !is LoadState.Error && loadState.append !is LoadState.Error) {
-                                            Column {
-                                                PharmacyResultPlaceholder(itemPaddingModifier)
-                                                if (index < searchPagingItems.itemCount - 1) {
-                                                    Divider(startIndent = PaddingDefaults.Medium)
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                            if (loadState.append is LoadState.Error) {
-                                item {
-                                    PharmacySearchErrorHint(
-                                        title = errorTitle,
-                                        subtitle = errorSubtitle,
-                                        action = errorAction,
-                                        onClickAction = { searchPagingItems.retry() },
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .padding(PaddingDefaults.Medium)
-                                    )
-                                }
-                            }
-                        }
-
-                        // TODO needs to be fixed
-//                        val showInitialLoadingAnimation =
-//                            state == null && listOf(
-//                                loadState.prepend,
-//                                loadState.append,
-//                                loadState.refresh
-//                            )
-//                                .any {
-//                                    when (it) {
-//                                        is LoadState.NotLoading -> state?.search == null
-//                                        is LoadState.Loading -> true
-//                                        else -> false
-//                                    }
-//                                }
-//
-//                        val alpha by animateFloatAsState(if (showInitialLoadingAnimation) 1f else 0f)
-//
-//                        // initial loading animation
-//                        if (alpha > 0f) {
-//                            RepeatingColumn(
-//                                modifier = Modifier
-//                                    .alpha(alpha),
-//                                stepSize = 5
-//                            ) {
-//                                PharmacyResultPlaceholder(itemPaddingModifier)
-//                                Divider(startIndent = PaddingDefaults.Medium)
-//                            }
-//                        }
-                    }
+            val pharmacyViewModel by rememberViewModel<OftenUsedPharmaciesViewModel>()
+            OverviewContent(
+                onSelectPharmacy = onSelectPharmacy,
+                listState = listState,
+                onFilterChange = onFilterChange,
+                searchFilter = filter,
+                onStartSearch = onStartSearch,
+                pharmacyViewModel = pharmacyViewModel,
+                onShowFilter = {
+                    scope.launch { modal.show() }
                 }
-
-                val isLoading = isPreLoading || listOf(loadState.prepend, loadState.append, loadState.refresh)
-                    .any {
-                        when (it) {
-                            is LoadState.NotLoading -> state?.search == null // initial ui only loading indicator
-                            is LoadState.Loading -> true
-                            else -> false
-                        }
-                    }
-
-                val loadingAlpha by animateFloatAsState(
-                    if (isLoading) 1f else 0f,
-                    animationSpec = tween()
-                )
-
-                LinearProgressIndicator(
-                    modifier = Modifier
-                        .alpha(loadingAlpha)
-                        .fillMaxWidth()
-                )
-            }
+            )
         }
     }
 }
 
 @Composable
-private fun PharmacySearchErrorHint(
-    title: String,
-    subtitle: String,
-    action: String? = null,
-    onClickAction: (() -> Unit)? = null,
-    modifier: Modifier
+private fun OverviewContent(
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
+    listState: LazyListState,
+    searchFilter: PharmacyUseCaseData.Filter,
+    onFilterChange: (PharmacyUseCaseData.Filter) -> Unit,
+    onStartSearch: () -> Unit,
+    pharmacyViewModel: OftenUsedPharmaciesViewModel,
+    onShowFilter: () -> Unit
 ) {
-    Box(
-        modifier = modifier
+    val oftenUsedPharmacyList by produceState(initialValue = listOf<OftenUsedPharmacyData.OftenUsedPharmacy>()) {
+        pharmacyViewModel.oftenUsedPharmaciesState().collect { value = it }
+    }
+
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        state = listState,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        contentPadding = PaddingValues(vertical = PaddingDefaults.Medium)
     ) {
+        item {
+            PharmacySearchButton(
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
+            ) {
+                onFilterChange(
+                    searchFilter.copy(
+                        ready = true,
+                        onlineService = false,
+                        deliveryService = false,
+                        openNow = false
+                    )
+                )
+                onStartSearch()
+            }
+        }
+        item {
+            FilterSection(
+                filter = searchFilter,
+                onClick = onFilterChange,
+                onClickFilter = onShowFilter,
+                onStartSearch = onStartSearch
+            )
+        }
+        item {
+            OftenUsedPharmacies(
+                oftenUsedPharmacyList = oftenUsedPharmacyList,
+                onSelectPharmacy = onSelectPharmacy,
+                pharmacyViewModel = pharmacyViewModel
+            )
+        }
+    }
+}
+
+@Composable
+private fun OftenUsedPharmacies(
+    oftenUsedPharmacyList: List<OftenUsedPharmacyData.OftenUsedPharmacy>,
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
+    pharmacyViewModel: OftenUsedPharmaciesViewModel
+) {
+    if (oftenUsedPharmacyList.isNotEmpty()) {
         Column(
             modifier = Modifier
-                .align(Alignment.Center)
-                .padding(PaddingDefaults.Medium),
-            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .padding(horizontal = PaddingDefaults.Medium)
         ) {
             Text(
-                title,
-                style = MaterialTheme.typography.subtitle1,
-                textAlign = TextAlign.Center
+                stringResource(R.string.pharmacy_often_used_header),
+                style = AppTheme.typography.subtitle1,
+                modifier = Modifier.padding(top = PaddingDefaults.XXLarge, bottom = PaddingDefaults.Medium),
+                textAlign = TextAlign.Start
             )
-            Text(
-                subtitle,
-                style = AppTheme.typography.body2l,
-                textAlign = TextAlign.Center
-            )
-            if (action != null && onClickAction != null) {
-                TextButton(onClick = onClickAction) {
-                    Text(action)
+            val shortOftenUsedPharmacyList = remember { oftenUsedPharmacyList.take(LastUsedPharmaciesListLength) }
+            Column {
+                for (oftenUsedPharmacy in shortOftenUsedPharmacyList) {
+                    OftenUsedPharmacyCard(
+                        oftenUsedPharmacy = oftenUsedPharmacy,
+                        onSelectPharmacy = onSelectPharmacy,
+                        pharmacyViewModel = pharmacyViewModel
+                    )
+                    SpacerMedium()
                 }
             }
         }
     }
 }
 
-@Composable
-private fun EnableLocationDialog(
-    onClose: () -> Unit
-) {
-    AcceptDialog(
-        header = stringResource(R.string.search_pharmacies_location_na_header),
-        info = stringResource(R.string.search_pharmacies_location_na_info),
-        acceptText = stringResource(R.string.ok),
-        onClickAccept = onClose,
-    )
+@Stable
+private sealed interface RefreshState {
+    @Stable
+    object Loading : RefreshState
+
+    @Stable
+    class Success(val pharmacy: List<PharmacyUseCaseData.Pharmacy>) : RefreshState
+
+    @Stable
+    object NotFound : RefreshState
+
+    @Stable
+    object Error : RefreshState
 }
 
 @Composable
-fun RepeatingColumn(
-    modifier: Modifier = Modifier,
-    stepSize: Int = 1,
-    content: @Composable ColumnScope.(Int) -> Unit
+private fun OftenUsedPharmacyCard(
+    oftenUsedPharmacy: OftenUsedPharmacyData.OftenUsedPharmacy,
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
+    pharmacyViewModel: OftenUsedPharmaciesViewModel
 ) {
-    require(stepSize >= 1)
-    var count by remember { mutableStateOf(stepSize) }
+    var showFailedPharmacyCallDialog by remember { mutableStateOf(false) }
+    var showNoInternetConnectionDialog by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = modifier,
-        content = {
-            repeat(count) {
-                content(it)
+    val refreshFlow = remember { MutableSharedFlow<Unit>() }
+    var state by remember { mutableStateOf<RefreshState>(RefreshState.Loading) }
+    LaunchedEffect(Unit) {
+        refreshFlow
+            .onStart { emit(Unit) } // emit once to start the flow directly
+            .collectLatest {
+                state = RefreshState.Loading
+                pharmacyViewModel.findPharmacyByTelematikIdState(oftenUsedPharmacy.telematikId).first().fold(
+                    onFailure = {
+                        Napier.e("Could not find pharmacy by telematikId", it)
+                        state = RefreshState.Error
+                    },
+                    onSuccess = {
+                        state = if (it.isEmpty()) {
+                            RefreshState.NotFound
+                        } else {
+                            RefreshState.Success(it)
+                        }
+                        showNoInternetConnectionDialog = false
+                    }
+                )
             }
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .onSizeChanged { if (it.height > 0) count += stepSize }
-            ) {}
-        }
-    )
-}
+    }
 
-@Composable
-private fun PharmacyResultPlaceholder(
-    modifier: Modifier = Modifier
-) {
-    val bgModifier = Modifier
-        .background(AppTheme.colors.neutral200)
-        .testTag("pharmacy_search_screen")
+    val scope = rememberCoroutineScope()
 
-    val alphaTransition = rememberInfiniteTransition()
-    val alpha by alphaTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 0.5f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(330, easing = LinearEasing, delayMillis = (0..100).random()),
-            repeatMode = RepeatMode.Reverse
-        )
-    )
-
-    Row(
-        modifier = modifier.alpha(alpha)
-    ) {
-        val fontSize = with(LocalDensity.current) {
-            MaterialTheme.typography.subtitle1.fontSize.toDp()
-        }
-        val heightModifier = bgModifier.height(fontSize)
-        Column(modifier = Modifier.weight(1f)) {
-            Box(
-                modifier = heightModifier
-                    .fillMaxWidth(0.8f)
-            )
-            SpacerSmall()
-            Box(
-                modifier = heightModifier
-                    .fillMaxWidth(0.4f)
-            )
-            Box(
-                modifier = heightModifier
-                    .fillMaxWidth(0.25f)
-            )
-            SpacerSmall()
-            Box(
-                modifier = heightModifier
-                    .fillMaxWidth(0.6f)
-            )
-        }
-        SpacerMedium()
-        Box(
-            modifier = heightModifier
-                .width(fontSize * 2)
-                .align(Alignment.CenterVertically)
+    if (showNoInternetConnectionDialog) {
+        CommonAlertDialog(
+            header = stringResource(R.string.pharmacy_search_apovz_call_no_internet_header),
+            info = stringResource(R.string.pharmacy_search_apovz_call_no_internet_info),
+            cancelText = stringResource(R.string.pharmacy_search_apovz_call_no_internet_cancel),
+            actionText = stringResource(R.string.pharmacy_search_apovz_call_no_internet_retry),
+            onCancel = { showNoInternetConnectionDialog = false },
+            onClickAction = {
+                scope.launch {
+                    refreshFlow.onStart { emit(Unit) }.collectLatest {
+                        state = RefreshState.Loading
+                        pharmacyViewModel.findPharmacyByTelematikIdState(
+                            oftenUsedPharmacy.telematikId
+                        ).first().fold(
+                            onFailure = {
+                                Napier.e("Could not find pharmacy by telematikId", it)
+                                state = RefreshState.Error
+                            },
+                            onSuccess = {
+                                state = if (it.isEmpty()) {
+                                    RefreshState.NotFound
+                                } else {
+                                    RefreshState.Success(it)
+                                }
+                                showNoInternetConnectionDialog = false
+                            }
+                        )
+                    }
+                }
+            }
         )
     }
-}
-
-@Preview
-@Composable
-fun PharmacyResultPlaceholderPreview() {
-    AppTheme {
-        PharmacyResultPlaceholder()
+    if (showFailedPharmacyCallDialog) {
+        AcceptDialog(
+            header = stringResource(R.string.pharmacy_search_apovz_call_failed_header),
+            info = stringResource(R.string.pharmacy_search_apovz_call_failed_body),
+            onClickAccept = {
+                scope.launch { pharmacyViewModel.deleteOftenUsedPharmacy(oftenUsedPharmacy) }
+                showFailedPharmacyCallDialog = false
+            },
+            acceptText = stringResource(R.string.pharmacy_search_apovz_call_failed_accept)
+        )
     }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun SearchField(
-    searchValue: String,
-    onSearchChange: (String) -> Unit,
-    locationEnabled: Boolean,
-    onSearch: (String, Boolean) -> Unit,
-) {
-    val searchTextInputColor = if (searchValue.isEmpty()) {
-        AppTheme.colors.neutral400
-    } else {
-        AppTheme.colors.neutral900
-    }
-
-    val textStyle =
-        LocalTextStyle.current.copy(color = contentColorFor(MaterialTheme.colors.surface))
 
     Card(
-        shape = RoundedCornerShape(8.dp),
-        elevation = 2.dp,
         modifier = Modifier
-            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-            .height(48.dp)
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(role = Role.Button) {
+                when (state) {
+                    is RefreshState.Success -> onSelectPharmacy((state as RefreshState.Success).pharmacy.first())
+                    is RefreshState.Error -> showNoInternetConnectionDialog = true
+                    is RefreshState.NotFound -> showFailedPharmacyCallDialog = true
+                    else -> {}
+                }
+            },
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.dp, AppTheme.colors.neutral300),
+        elevation = 0.dp
     ) {
-        BasicTextField(
-            value = searchValue,
-            onValueChange = onSearchChange,
-            textStyle = textStyle,
-            cursorBrush = SolidColor(textStyle.color),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Search
-            ),
-            keyboardActions = KeyboardActions(
-                onSearch = {
-                    onSearch(searchValue, locationEnabled)
-                }
-            ),
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .semantics(true) {}
-        ) { textField ->
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            PharmacyImagePlaceholder(modifier = Modifier.padding(PaddingDefaults.Medium))
 
-                Icon(
-                    Icons.Rounded.Search,
-                    null,
-                    tint = AppTheme.colors.neutral600,
-                    modifier = Modifier
-                        .align(
-                            Alignment.CenterVertically
-                        )
-                        .padding(start = 16.dp)
+            Column(
+                modifier = Modifier.padding(
+                    end = PaddingDefaults.Medium,
+                    top = PaddingDefaults.Medium,
+                    bottom = PaddingDefaults.Medium
                 )
-
-                Box(
-                    modifier = Modifier
-                        .weight(1f)
-                        .align(
-                            Alignment.CenterVertically
-                        )
-                        .padding(start = 16.dp, end = 16.dp)
-                ) {
-                    if (searchValue.isEmpty()) {
-                        Text(
-                            text = stringResource(R.string.search_example_input),
-                            color = searchTextInputColor,
-                            overflow = TextOverflow.Ellipsis,
-                            maxLines = 1
-                        )
-                    }
-                    textField()
-                }
-
-                IconToggleButton(
-                    checked = locationEnabled,
-                    onCheckedChange = {
-                        onSearch(searchValue, it)
-                    },
-                ) {
-                    when (locationEnabled) {
-                        true -> Icon(
-                            Icons.Rounded.LocationSearching,
-                            null,
-                            tint = AppTheme.colors.primary600
-                        )
-
-                        false -> Icon(
-                            Icons.Rounded.LocationDisabled,
-                            null,
-                            tint = AppTheme.colors.neutral600
-                        )
-                    }
-                }
+            ) {
+                Text(
+                    oftenUsedPharmacy.pharmacyName,
+                    style = AppTheme.typography.subtitle1
+                )
+                Text(
+                    oftenUsedPharmacy.address,
+                    style = AppTheme.typography.body2,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
         }
     }
 }
 
-@Preview
 @Composable
-fun SearchFieldPreview() {
-    AppTheme {
-        SearchField(
-            "",
-            {},
-            false,
-            { _, _ -> }
-        )
-    }
-}
-
-@Composable
-fun FilterSection(
+private fun FilterSection(
     filter: PharmacyUseCaseData.Filter,
-    onClickChip: (PharmacyUseCaseData.Filter) -> Unit,
+    onClick: (PharmacyUseCaseData.Filter) -> Unit,
+    onStartSearch: () -> Unit,
     onClickFilter: () -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = PaddingDefaults.Medium),
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.Start,
+        verticalArrangement = Arrangement.Center
     ) {
-        TextButton(onClickFilter, modifier = Modifier.align(Alignment.End)) {
-            Icon(Icons.Rounded.FilterList, null)
-            Text(stringResource(R.string.search_pharmacies_filter))
-        }
-        if (filter.isAnySet()) {
-            SpacerSmall()
-            FlowRow(
-                modifier = Modifier
-                    .padding(top = ButtonDefaults.TextButtonContentPadding.calculateTopPadding()),
-                mainAxisSpacing = PaddingDefaults.Small,
-                crossAxisSpacing = PaddingDefaults.Small
-            ) {
-                if (filter.openNow) {
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_open_now),
-                        closable = true,
-                        checked = false
-                    ) {
-                        onClickChip(filter.copy(openNow = false))
-                    }
-                }
-                if (filter.ready) {
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_ready),
-                        closable = true,
-                        checked = false
-                    ) {
-                        onClickChip(filter.copy(ready = false))
-                    }
-                }
-                if (filter.deliveryService) {
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_delivery_service),
-                        closable = true,
-                        checked = false
-                    ) {
-                        onClickChip(filter.copy(deliveryService = false))
-                    }
-                }
-                if (filter.onlineService) {
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_online_service),
-                        closable = true,
-                        checked = false
-                    ) {
-                        onClickChip(filter.copy(onlineService = false))
-                    }
-                }
+        Text(
+            stringResource(R.string.search_pharmacies_filter_header),
+            style = AppTheme.typography.subtitle1,
+            modifier = Modifier
+                .padding(top = PaddingDefaults.XXLarge, bottom = PaddingDefaults.Medium)
+                .padding(horizontal = PaddingDefaults.Medium),
+            textAlign = TextAlign.Start
+        )
+        FilterButton(
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            text = stringResource(R.string.search_pharmacies_filter_open_now_and_local),
+            icon = Icons.Outlined.LocationOn,
+            onClick = {
+                onClick(
+                    filter.copy(
+                        nearBy = true,
+                        ready = true,
+                        openNow = true,
+                        deliveryService = false,
+                        onlineService = false
+                    )
+                )
+                onStartSearch()
             }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
-@Composable
-private fun FilterBottomSheet(
-    modifier: Modifier,
-    filter: PharmacyUseCaseData.Filter,
-    onClickChip: (PharmacyUseCaseData.Filter) -> Unit,
-    onClickClose: () -> Unit
-) {
-    Column(modifier) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(start = 4.dp, top = 4.dp)
-        ) {
-            IconButton(onClick = onClickClose) {
-                Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.primary700)
+        )
+        FilterButton(
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            text = stringResource(R.string.search_pharmacies_filter_delivery_service),
+            icon = Icons.Outlined.Moped,
+            onClick = {
+                onClick(
+                    filter.copy(
+                        nearBy = true,
+                        ready = true,
+                        deliveryService = true,
+                        onlineService = false,
+                        openNow = false
+                    )
+                )
+                onStartSearch()
             }
-            Spacer(modifier = Modifier.size(20.dp))
-            Text(
-                stringResource(R.string.search_pharmacies_filter_header),
-                style = MaterialTheme.typography.h6
-            )
-        }
-        SpacerLarge()
-        Column(modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)) {
-            Text(
-                stringResource(R.string.search_pharmacies_filter_section_favorites),
-                style = MaterialTheme.typography.h6
-            )
-            SpacerMedium()
-            Column(modifier = Modifier.verticalScroll(rememberScrollState(), true)) {
-                FlowRow(
-                    mainAxisSpacing = PaddingDefaults.Small,
-                    crossAxisSpacing = PaddingDefaults.Small
-                ) {
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_open_now),
-                        closable = false,
-                        checked = filter.openNow
-                    ) {
-                        onClickChip(
-                            filter.copy(
-                                openNow = it,
-                                onlineService = false
-                            )
-                        )
-                    }
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_ready),
-                        closable = false,
-                        checked = filter.ready
-                    ) {
-                        onClickChip(
-                            filter.copy(
-                                ready = it,
-                                deliveryService = if (!it) false else filter.deliveryService,
-                                onlineService = if (!it) false else filter.onlineService
-                            )
-                        )
-                    }
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_delivery_service),
-                        closable = false,
-                        checked = filter.deliveryService
-                    ) {
-                        onClickChip(
-                            filter.copy(
-                                deliveryService = it,
-                                ready = true,
-                                onlineService = false
-                            )
-                        )
-                    }
-                    Chip(
-                        stringResource(R.string.search_pharmacies_filter_online_service),
-                        closable = false,
-                        checked = filter.onlineService
-                    ) {
-                        onClickChip(
-                            filter.copy(
-                                onlineService = it,
-                                ready = true,
-                                deliveryService = false,
-                                openNow = false
-                            )
-                        )
-                    }
-                }
+        )
+        FilterButton(
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            text = stringResource(R.string.search_pharmacies_filter_online_service),
+            icon = Icons.Outlined.LocalShipping,
+            onClick = {
+                onClick(
+                    filter.copy(
+                        nearBy = false,
+                        ready = true,
+                        onlineService = true,
+                        deliveryService = false,
+                        openNow = false
+                    )
+                )
+                onStartSearch()
             }
-        }
-        SpacerXLarge()
+        )
+        FilterButton(
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            text = stringResource(R.string.search_pharmacies_filter_by),
+            icon = Icons.Outlined.Tune,
+            onClick = onClickFilter
+        )
     }
 }
 
 @Composable
-private fun PharmacyResultCard(
+private fun FilterButton(
     modifier: Modifier,
-    pharmacy: PharmacyUseCaseData.Pharmacy,
+    text: String,
+    icon: ImageVector,
     onClick: () -> Unit
 ) {
     Row(
         modifier = Modifier
-            .clickable(onClick = onClick)
-            .then(modifier)
+            .fillMaxWidth()
+            .clickable(role = Role.Button) { onClick() }
+            .then(modifier),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Start
     ) {
-        val distanceTxt = pharmacy.distance?.let { distance ->
-            formattedDistance(distance)
-        }
-
-        Column(modifier = Modifier.weight(1f)) {
-            PharmacyName(pharmacy.name, pharmacy.ready)
-
-            Text(
-                pharmacy.address ?: "",
-                style = AppTheme.typography.body2l,
-                modifier = Modifier
-
-            )
-
-            val pharmacyLocalServices = pharmacy.provides.first()
-            val now = OffsetDateTime.now()
-
-            if (pharmacyLocalServices.isOpenAt(now)) {
-                val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
-                    stringResource(R.string.search_pharmacy_continuous_open)
-                } else {
-                    stringResource(
-                        R.string.search_pharmacy_open_until,
-                        requireNotNull(pharmacyLocalServices.openUntil(now)).toString()
-                    )
-                }
-                Text(
-                    text,
-                    style = AppTheme.typography.subtitle2l,
-                    color = AppTheme.colors.green600
-                )
-            } else {
-                val text =
-                    pharmacyLocalServices.opensAt(now)?.let {
-                        stringResource(
-                            R.string.search_pharmacy_opens_at,
-                            it.toString()
-                        )
-                    }
-                if (text != null) {
-                    Text(
-                        text,
-                        style = AppTheme.typography.subtitle2l,
-                        color = AppTheme.colors.yellow600
-                    )
-                }
-            }
-        }
-
-        SpacerMedium()
-
-        if (distanceTxt != null) {
-            Text(
-                distanceTxt,
-                style = AppTheme.typography.body2l,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically),
-                textAlign = TextAlign.End
-            )
-        }
         Icon(
-            Icons.Rounded.KeyboardArrowRight, null,
-            tint = AppTheme.colors.neutral400,
-            modifier = Modifier
-                .size(24.dp)
-                .align(Alignment.CenterVertically)
+            icon,
+            null,
+            tint = AppTheme.colors.neutral600
+        )
+        SpacerMedium()
+        Text(
+            text,
+            modifier = Modifier.padding(vertical = PaddingDefaults.Medium),
+            color = AppTheme.colors.neutral900,
+            style = AppTheme.typography.body1,
+            fontWeight = FontWeight.W400
         )
     }
 }
 
-private fun formattedDistance(distanceInMeters: Double): String {
-    val f = DecimalFormat()
-    return if (distanceInMeters < 1000) {
-        f.maximumFractionDigits = 0
-        f.format(distanceInMeters).toString() + " m"
-    } else {
-        f.maximumFractionDigits = 1
-        f.format(distanceInMeters / 1000).toString() + " km"
+@Composable
+private fun PharmacySearchButton(
+    modifier: Modifier,
+    onStartSearch: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(color = AppTheme.colors.neutral050, shape = RoundedCornerShape(16.dp))
+            .clickable(role = Role.Button) { onStartSearch() }
+            .padding(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.ShortMedium)
+    ) {
+        Icon(
+            Icons.Rounded.Search,
+            tint = AppTheme.colors.neutral600,
+            contentDescription = null
+        )
+        SpacerSmall()
+        Text(
+            text = stringResource(R.string.pharmacy_start_search_text),
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .weight(1f),
+            style = AppTheme.typography.body1,
+            color = AppTheme.colors.neutral600
+        )
     }
 }
 
 @Composable
-private fun PharmacyName(name: String, showReadyFlag: Boolean) {
-    val txt = buildAnnotatedString {
-        append(name)
-        if (showReadyFlag) {
-            append(" ")
-            appendInlineContent("ready", "ready")
-        }
-    }
-    val c = mapOf(
-        "ready" to InlineTextContent(
-            Placeholder(
-                width = 0.em,
-                height = 0.em,
-                placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
-            )
-        ) {
-            ReadyFlag()
-        }
+fun PharmacyImagePlaceholder(modifier: Modifier) {
+    Image(
+        painterResource(R.drawable.ic_green_cross),
+        null,
+        modifier = modifier
+            .clip(RoundedCornerShape(4.dp))
+            .size(64.dp)
     )
-    DynamicText(
-        txt,
-        style = MaterialTheme.typography.subtitle1,
-        inlineContent = c
-    )
-}
-
-@Preview
-@Composable
-private fun PharmacyNamePreview() {
-    AppTheme {
-        PharmacyName("Some Pharmacy Name", true)
-    }
-}
-
-@Composable
-fun ReadyFlag(modifier: Modifier = Modifier) {
-    with(LocalDensity.current) {
-        val style = MaterialTheme.typography.caption
-        val fontSize = style.fontSize.toDp()
-        val space = fontSize / 3
-
-        Row(
-            modifier = modifier
-                .background(color = AppTheme.colors.primary100, shape = RoundedCornerShape(8.dp))
-                .wrapContentSize()
-                .padding(2.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = Modifier.width(space))
-            Icon(
-                painterResource(R.drawable.ic_logo_outlined),
-                contentDescription = null,
-                tint = AppTheme.colors.primary500,
-                modifier = Modifier.size(fontSize * 1.5f)
-            )
-            Spacer(modifier = Modifier.width(space))
-            Text(
-                stringResource(R.string.search_pharmacy_ready_flag),
-                style = style,
-                color = AppTheme.colors.primary900
-            )
-            Spacer(modifier = Modifier.width(space))
-        }
-    }
 }

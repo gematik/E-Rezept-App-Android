@@ -81,3 +81,4 @@ fun sanitizeProfileName(name: String): String =
             }
         }
         .joinToString("")
+        .replaceFirstChar { it.uppercase() }

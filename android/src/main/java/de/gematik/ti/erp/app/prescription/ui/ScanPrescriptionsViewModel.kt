@@ -20,15 +20,15 @@ package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.prescription.ui.model.ScanScreenData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -38,8 +38,7 @@ import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import java.time.OffsetDateTime
-import javax.inject.Inject
+import java.time.Instant
 
 private data class ScanWorkflow(
     val info: ScanScreenData.Info? = null,
@@ -71,13 +70,13 @@ private data class ScanWorkflow(
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@HiltViewModel
-class ScanPrescriptionViewModel @Inject constructor(
+class ScanPrescriptionViewModel(
     private val prescriptionUseCase: PrescriptionUseCase,
+    private val profilesUseCase: ProfilesUseCase,
     val scanner: TwoDCodeScanner,
     val processor: TwoDCodeProcessor,
     private val validator: TwoDCodeValidator,
-    private val dispatchProvider: DispatchProvider
+    private val dispatchers: DispatchProvider
 ) : ViewModel() {
 
     private val scannedCodes = MutableStateFlow(listOf<ValidScannedCode>())
@@ -85,7 +84,7 @@ class ScanPrescriptionViewModel @Inject constructor(
         private set
 
     private val emptyScanWorkflow = ScanWorkflow(
-        code = ScannedCode("", OffsetDateTime.now()),
+        code = ScannedCode("", Instant.now()),
         coordinates = FloatArray(0),
         state = ScanScreenData.ScanState.Final
     )
@@ -95,7 +94,7 @@ class ScanPrescriptionViewModel @Inject constructor(
             validCode.urls.mapNotNull { url ->
                 TwoDCodeValidator.taskPattern.matchEntire(url)?.groupValues?.get(1)
             }
-        } + prescriptionUseCase.getAllTasksWithTaskIdOnly()
+        } + prescriptionUseCase.getAllTasksWithTaskIdOnly().first()
     }
 
     fun screenState() = scannedCodes.map { codes ->
@@ -114,7 +113,7 @@ class ScanPrescriptionViewModel @Inject constructor(
                 Pair(
                     batch.averageScanTime,
                     ScanWorkflow(
-                        code = ScannedCode(json, OffsetDateTime.now()),
+                        code = ScannedCode(json, Instant.now()),
                         coordinates = coords
                     )
                 )
@@ -181,17 +180,16 @@ class ScanPrescriptionViewModel @Inject constructor(
                 ScanScreenData.OverlayState(
                     area = if (it != emptyScanWorkflow) it.coordinates else null,
                     state = it.state ?: ScanScreenData.ScanState.Hold,
-                    info = it.info ?: ScanScreenData.Info.Focus,
+                    info = it.info ?: ScanScreenData.Info.Focus
                 )
             )
         }
-    }.flowOn(dispatchProvider.default())
+    }.flowOn(dispatchers.Default)
 
     private fun validateScannedCode(scannedCode: ScannedCode): ValidScannedCode? =
         validator.validate(scannedCode)
 
     suspend fun addScannedCode(validCode: ValidScannedCode): Boolean {
-
         val existingTaskIds = existingTaskIds.take(1).toCollection(mutableListOf()).first()
 
         val uniqueUrls = validCode.urls.filter { url ->
@@ -208,9 +206,11 @@ class ScanPrescriptionViewModel @Inject constructor(
     }
 
     fun saveToDatabase() {
-        viewModelScope.launch(dispatchProvider.io()) {
-            prescriptionUseCase.mapScannedCodeToTask(scannedCodes.value)
-            scannedCodes.value = listOf()
+        viewModelScope.launch {
+            prescriptionUseCase.saveScannedCodes(
+                profilesUseCase.activeProfile.first().id,
+                scannedCodes.value
+            )
         }
     }
 }

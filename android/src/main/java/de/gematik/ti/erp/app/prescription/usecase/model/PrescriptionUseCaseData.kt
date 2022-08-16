@@ -19,35 +19,33 @@
 package de.gematik.ti.erp.app.prescription.usecase.model
 
 import androidx.compose.runtime.Immutable
-import java.time.LocalDate
-import java.time.OffsetDateTime
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import java.time.Instant
 
 object PrescriptionUseCaseData {
     /**
      * Individual prescription backed by its original task id.
      */
+    @Immutable
     sealed class Prescription {
         abstract val taskId: String
-        abstract val redeemedOn: OffsetDateTime?
+        abstract val redeemedOn: Instant?
+
         /**
          *  Represents a single [Task] synchronized with the backend.
          */
         @Immutable
         data class Synced(
             override val taskId: String,
+            val state: SyncedTaskData.SyncedTask.TaskState,
             val name: String,
             val organization: String,
-            val authoredOn: OffsetDateTime,
-            override val redeemedOn: OffsetDateTime?,
-            val expiresOn: LocalDate?,
-            val acceptUntil: LocalDate?,
-            val status: Status,
+            val authoredOn: Instant,
+            override val redeemedOn: Instant?,
+            val expiresOn: Instant?,
+            val acceptUntil: Instant?,
             val isDirectAssignment: Boolean
-        ) : Prescription() {
-            enum class Status {
-                Ready, InProgress, Completed, Unknown
-            }
-        }
+        ) : Prescription()
 
         /**
          *  Represents a single [Task] scanned by the user.
@@ -55,8 +53,8 @@ object PrescriptionUseCaseData {
         @Immutable
         data class Scanned(
             override val taskId: String,
-            val scannedOn: OffsetDateTime,
-            override val redeemedOn: OffsetDateTime?
+            val scannedOn: Instant,
+            override val redeemedOn: Instant?
         ) : Prescription()
     }
 }

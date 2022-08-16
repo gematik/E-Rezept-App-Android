@@ -21,8 +21,11 @@ package de.gematik.ti.erp.app.userauthentication.ui
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,10 +34,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -51,28 +53,23 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
-import com.google.accompanist.insets.statusBarsPadding
-import com.google.accompanist.insets.systemBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
+import de.gematik.ti.erp.app.cardwall.ui.PrimaryButton
+import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.PasswordTextField
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -89,22 +86,16 @@ import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedLinkString
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import de.gematik.ti.erp.app.utils.compose.handleIntent
-import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
-import de.gematik.ti.erp.app.utils.compose.testId
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.kodein.di.compose.rememberViewModel
 import java.util.Locale
-
+@Suppress("LongMethod")
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun UserAuthenticationScreen(userAuthViewModel: UserAuthenticationViewModel = hiltViewModel()) {
-    val flag = painterResource(R.drawable.ic_onboarding_logo_flag)
-    val gematik = painterResource(R.drawable.ic_onboarding_logo_gematik)
-    val context = LocalContext.current
-
+fun UserAuthenticationScreen() {
+    val userAuthViewModel: UserAuthenticationViewModel by rememberViewModel()
     var showAuthPrompt by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
-
     var initiallyHandledAuthPrompt by rememberSaveable { mutableStateOf(false) }
     val state by produceState(userAuthViewModel.defaultState) {
         userAuthViewModel.screenState().collect {
@@ -115,156 +106,67 @@ fun UserAuthenticationScreen(userAuthViewModel: UserAuthenticationViewModel = hi
             initiallyHandledAuthPrompt = true
         }
     }
-
-    val navBarInsetsPadding = rememberInsetsPaddingValues(
-        insets = LocalWindowInsets.current.systemBars,
-        applyBottom = true
-    )
-
-    val paddingModifier = if (navBarInsetsPadding.calculateBottomPadding() <= 16.dp) {
+    val navBarInsetsPadding = WindowInsets.systemBars.asPaddingValues()
+    val paddingModifier = if (navBarInsetsPadding.calculateBottomPadding() <= PaddingDefaults.Medium) {
         Modifier.statusBarsPadding()
     } else {
         Modifier.systemBarsPadding()
     }
-
     // clear underlying text input focus
     val focusManager = LocalFocusManager.current
     LaunchedEffect(Unit) {
         focusManager.clearFocus(true)
     }
 
-    Scaffold { innerPadding ->
+    Scaffold {
         Column(
             modifier = Modifier
+                .padding(it)
                 .fillMaxSize()
-                .testId("auth_screen")
-                .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .then(paddingModifier)
         ) {
             Row(
                 modifier = Modifier
-                    .padding(start = 24.dp, top = 40.dp)
+                    .padding(top = PaddingDefaults.Medium)
+                    .padding(horizontal = PaddingDefaults.Medium)
                     .align(Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(flag, null, modifier = Modifier.padding(end = 10.dp))
-                Icon(gematik, null, tint = AppTheme.colors.primary900)
-            }
-
-            Column(
-                modifier = Modifier
-                    .padding(horizontal = PaddingDefaults.Large)
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                if (!showError && state.nrOfAuthFailures > 0) {
-                    HintCard(
-                        modifier = Modifier.padding(
-                            top = PaddingDefaults.Large
-                        ),
-                        properties = HintCardDefaults.flatProperties(
-                            backgroundColor = AppTheme.colors.red100
-                        ),
-                        image = {
-                            HintSmallImage(
-                                painterResource(R.drawable.oh_no_girl_hint_red),
-                                innerPadding = it
-                            )
-                        },
-                        title = { Text(stringResource(R.string.auth_error_failed_auths_headline)) },
-                        body = {
-                            Text(
-                                annotatedPluralsResource(
-                                    R.plurals.auth_error_failed_auths_info,
-                                    state.nrOfAuthFailures,
-                                    AnnotatedString(state.nrOfAuthFailures.toString())
-                                )
-                            )
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(40.dp))
-                }
-                if (!showError) {
-                    Text(
-                        stringResource(R.string.auth_headline),
-                        style = MaterialTheme.typography.h5.copy(fontWeight = FontWeight(700)),
-                        modifier = Modifier.padding(top = 80.dp)
-                    )
-                    SpacerMedium()
-                } else {
-                    Image(
-                        painterResource(R.drawable.woman_red_shirt_circle_red),
-                        null,
-                        modifier = Modifier.padding(top = 40.dp, start = 56.dp, end = 56.dp)
-                    )
-                }
-                Text(
-                    stringResource(if (showError) R.string.auth_subtitle_error else R.string.auth_subtitle),
-                    style = MaterialTheme.typography.subtitle1
+                Image(
+                    painterResource(R.drawable.ic_onboarding_logo_flag),
+                    null,
+                    modifier = Modifier.padding(end = 10.dp)
                 )
-                SpacerTiny()
-                Text(
-                    stringResource(if (showError) R.string.auth_info_error else R.string.auth_info),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.subtitle1,
-                    color = AppTheme.typographyColors.subtitle1l
+                Icon(
+                    painterResource(R.drawable.ic_onboarding_logo_gematik),
+                    null,
+                    tint = AppTheme.colors.primary900
                 )
-                SpacerLarge()
-                Button(
-                    onClick = {
-                        showAuthPrompt = true
-                    },
-                    elevation = ButtonDefaults.elevation(8.dp),
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Icon(Icons.Rounded.LockOpen, null)
-                    SpacerTiny()
-                    Text(stringResource(R.string.auth_button))
-                }
             }
-
-            Spacer(modifier = Modifier.weight(1f))
 
             if (showError) {
-                Column(
-                    modifier = Modifier
-                        .background(color = AppTheme.colors.neutral100)
-                        .padding(24.dp)
-                        .fillMaxWidth()
-                ) {
-                    val uriHandler = LocalUriHandler.current
-                    val phoneContact = stringResource(R.string.auth_hotlinephone_contact)
-                    val color = AppTheme.colors.primary600
-
-                    val link = annotatedLinkString(
-                        stringResource(R.string.auth_link_to_gematik),
-                        stringResource(R.string.auth_link_to_gematik_text)
-                    )
-                    val annotatedPhoneText =
-                        providePhoneString(phoneContact, phoneContact, "PHONE", linkColor = color)
-
-                    ClickableTaggedText(
-                        annotatedStringResource(R.string.auth_more_hotline, annotatedPhoneText),
-                        style = AppTheme.typography.subtitle2l.merge(TextStyle(textAlign = TextAlign.Center)),
-                        onClick = {
-                            context.handleIntent(providePhoneIntent(phoneContact))
-                        }
-                    )
-                    SpacerSmall()
-                    ClickableTaggedText(
-                        annotatedStringResource(R.string.auth_more_web, link),
-                        style = AppTheme.typography.subtitle2l.merge(TextStyle(textAlign = TextAlign.Center)),
-                        onClick = { range ->
-                            uriHandler.openUri(range.item)
-                        }
-                    )
-                }
+                AuthenticationScreenErrorContent(
+                    showAuthPromptOnClick = { showAuthPrompt = true }
+                )
+            } else {
+                AuthenticationScreenContent(
+                    showAuthPromptOnClick = { showAuthPrompt = true },
+                    state = state
+                )
+            }
+            Spacer(modifier = Modifier.weight(1f))
+            if (showError) {
+                AuthenticationScreenErrorBottomContent(
+                    state = state
+                )
             } else {
                 Image(
                     painterResource(R.drawable.crew),
                     null,
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PaddingDefaults.Medium),
                     contentScale = ContentScale.FillWidth
                 )
             }
@@ -273,7 +175,7 @@ fun UserAuthenticationScreen(userAuthViewModel: UserAuthenticationViewModel = hi
 
     if (showAuthPrompt) {
         when (state.authenticationMethod) {
-            SettingsAuthenticationMethod.Password ->
+            is SettingsData.AuthenticationMode.Password ->
                 PasswordPrompt(
                     userAuthViewModel,
                     onAuthenticated = {
@@ -316,6 +218,163 @@ fun UserAuthenticationScreen(userAuthViewModel: UserAuthenticationViewModel = hi
 }
 
 @Composable
+private fun AuthenticationScreenErrorContent(
+    showAuthPromptOnClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = PaddingDefaults.Medium),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Spacer(modifier = Modifier.height(80.dp))
+        Image(
+            painterResource(R.drawable.woman_red_shirt_circle_red),
+            null,
+            alignment = Alignment.Center
+        )
+        SpacerMedium()
+        Text(
+            stringResource(R.string.auth_subtitle_error),
+            style = AppTheme.typography.subtitle1,
+            textAlign = TextAlign.Center
+        )
+        SpacerSmall()
+        Text(
+            stringResource(R.string.auth_info_error),
+            textAlign = TextAlign.Center,
+            style = AppTheme.typography.body1l
+        )
+        SpacerLarge()
+        PrimaryButton(
+            onClick = showAuthPromptOnClick,
+            elevation = ButtonDefaults.elevation(8.dp),
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(
+                horizontal = PaddingDefaults.Large,
+                vertical = PaddingDefaults.ShortMedium
+            )
+        ) {
+            Icon(Icons.Rounded.LockOpen, null)
+            SpacerTiny()
+            SpacerSmall()
+            Text(stringResource(R.string.auth_button))
+        }
+    }
+}
+
+@Composable
+private fun AuthenticationScreenErrorBottomContent(state: UserAuthenticationScreenState) {
+    Column(
+        modifier = Modifier
+            .background(color = AppTheme.colors.neutral100)
+            .padding(
+                bottom = PaddingDefaults.Large,
+                start = PaddingDefaults.Medium,
+                end = PaddingDefaults.Medium,
+                top = PaddingDefaults.Medium
+            )
+            .fillMaxWidth()
+    ) {
+        val uriHandler = LocalUriHandler.current
+        val link = annotatedLinkString(
+            stringResource(R.string.auth_link_to_gematik_q_and_a),
+            stringResource(R.string.auth_link_to_gematik_helptext)
+        )
+        when (state.authenticationMethod) {
+            SettingsData.AuthenticationMode.DeviceSecurity ->
+                Text(
+                    text = stringResource(R.string.auth_failed_biometry_info),
+                    style = AppTheme.typography.body2l,
+                    textAlign = TextAlign.Center
+                )
+            else ->
+                ClickableTaggedText(
+                    annotatedStringResource(R.string.auth_failed_password_info, link),
+                    style = AppTheme.typography.body2l.merge(TextStyle(textAlign = TextAlign.Center)),
+                    onClick = { range ->
+                        uriHandler.openUri(range.item)
+                    }
+                )
+        }
+    }
+}
+
+@Composable
+private fun AuthenticationScreenContent(
+    showAuthPromptOnClick: () -> Unit,
+    state: UserAuthenticationScreenState
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = PaddingDefaults.Medium),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (state.nrOfAuthFailures > 0) {
+            HintCard(
+                modifier = Modifier.padding(vertical = PaddingDefaults.Medium),
+                properties = HintCardDefaults.flatProperties(
+                    backgroundColor = AppTheme.colors.red100
+                ),
+                image = {
+                    HintSmallImage(
+                        painterResource(R.drawable.oh_no_girl_hint_red),
+                        innerPadding = it
+                    )
+                },
+                title = { Text(stringResource(R.string.auth_error_failed_auths_headline)) },
+                body = {
+                    Text(
+                        annotatedPluralsResource(
+                            R.plurals.auth_error_failed_auths_info,
+                            state.nrOfAuthFailures,
+                            AnnotatedString(state.nrOfAuthFailures.toString())
+                        )
+                    )
+                }
+            )
+        } else {
+            Spacer(modifier = Modifier.height(80.dp))
+        }
+
+        Text(
+            stringResource(R.string.auth_headline),
+            style = AppTheme.typography.h5,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center
+        )
+        SpacerMedium()
+        Text(
+            stringResource(R.string.auth_subtitle),
+            style = AppTheme.typography.subtitle1,
+            textAlign = TextAlign.Center
+        )
+        SpacerSmall()
+        Text(
+            stringResource(R.string.auth_information),
+            textAlign = TextAlign.Center,
+            style = AppTheme.typography.body1l
+        )
+        SpacerLarge()
+        PrimaryButton(
+            onClick = showAuthPromptOnClick,
+            elevation = ButtonDefaults.elevation(8.dp),
+            shape = RoundedCornerShape(8.dp),
+            contentPadding = PaddingValues(
+                horizontal = PaddingDefaults.Large,
+                vertical = PaddingDefaults.ShortMedium
+            )
+        ) {
+            Icon(Icons.Rounded.LockOpen, null)
+            SpacerTiny()
+            SpacerSmall()
+            Text(stringResource(R.string.auth_button))
+        }
+    }
+}
+
+@Composable
 private fun PasswordPrompt(
     viewModel: UserAuthenticationViewModel,
     onAuthenticated: () -> Unit,
@@ -346,8 +405,7 @@ private fun PasswordPrompt(
                             onAuthenticationError()
                         }
                     }
-                },
-                modifier = Modifier.testId("auth/forward")
+                }
             ) {
                 Text(stringResource(R.string.auth_prompt_check_password).uppercase(Locale.getDefault()))
             }
@@ -356,7 +414,6 @@ private fun PasswordPrompt(
         text = {
             PasswordTextField(
                 modifier = Modifier
-                    .testId("auth/passwordInput")
                     .fillMaxWidth()
                     .heightIn(min = 56.dp),
                 value = password,
@@ -373,28 +430,3 @@ private fun PasswordPrompt(
         }
     )
 }
-
-fun providePhoneString(
-    text: String,
-    annotation: String = text,
-    tag: String,
-    start: Int = 0,
-    end: Int = text.length,
-    linkColor: Color
-) =
-    buildAnnotatedString {
-        append(text)
-        addStyle(
-            style = SpanStyle(
-                color = linkColor,
-                fontWeight = FontWeight.Bold
-            ),
-            start = start, end = end
-        )
-        addStringAnnotation(
-            tag = tag,
-            annotation = annotation,
-            start = start,
-            end = end
-        )
-    }

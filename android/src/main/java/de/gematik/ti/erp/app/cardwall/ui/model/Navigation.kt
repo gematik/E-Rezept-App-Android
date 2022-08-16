@@ -25,17 +25,21 @@ object CardWallNavigation {
     object TroubleshootingPageB : Route("TroubleshootingPageB")
     object TroubleshootingPageC : Route("TroubleshootingPageC")
     object TroubleshootingNoSuccessPage : Route("TroubleshootingNoSuccessPage")
-    object TroubleshootingContactUs : Route("TroubleshootingContactUs")
     object ExternalAuthenticator : Route("ExternalAuthenticatorOverview")
     object Intro : Route("CardWallIntro")
     object MissingCapabilities : Route("MissingCapabilities")
-    object CardAccessNumber : Route("CardWallCardAccessNumber")
+    object CardAccessNumber : Route(
+        "CardWallCardAccessNumber"
+    )
+
     object PersonalIdentificationNumber : Route("CardWallPersonalIdentificationNumber")
     object AuthenticationSelection : Route("CardWallAuthenticationSelection")
+    object AlternativeOption : Route("AlternativeOption")
+
     object Authentication : Route("CardWallAuthentication")
-    object Switch : Route("CardWallSwitch")
     object InsuranceApp : Route("InsuranceApp")
     object OrderHealthCard : Route("OrderHealthCard")
+    object UnlockEgk : Route("UnlockEgk")
     object NoRoute : Route("")
 }
 

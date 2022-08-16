@@ -324,7 +324,7 @@ data class MedicationDetail(
     val text: String? = null,
     val dosageCode: String? = null,
     val normSizeCode: String? = null,
-    val uniqueIdentifier: String? = null, // PZN
+    val uniqueIdentifier: String? = null // PZN
 )
 
 data class InsuranceCompanyDetail(
@@ -372,12 +372,12 @@ fun FhirMedication.mapToUi(): MedicationDetail = MedicationDetail(
     text = this.code?.text,
     dosageCode = this.form?.coding?.find { it.system == "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM" }?.code,
     normSizeCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/normgroesse")?.value as? CodeType?)?.value,
-    uniqueIdentifier = this.code?.coding?.find { it.system == "http://fhir.de/CodeSystem/ifa/pzn" }?.code,
+    uniqueIdentifier = this.code?.coding?.find { it.system == "http://fhir.de/CodeSystem/ifa/pzn" }?.code
 )
 
 fun FhirCoverage.mapToUi() = InsuranceCompanyDetail(
     name = this.payorFirstRep?.display,
-    statusCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/gkv/versichertenart")?.value as? Coding?)?.code,
+    statusCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/gkv/versichertenart")?.value as? Coding?)?.code
 )
 
 fun FhirOrganization.mapToUi() = OrganizationDetail(

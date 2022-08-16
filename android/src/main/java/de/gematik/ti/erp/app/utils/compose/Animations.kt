@@ -49,7 +49,7 @@ enum class NavigationMode {
 fun NavigationAnimation(
     modifier: Modifier = Modifier,
     mode: NavigationMode = NavigationMode.Forward,
-    content: @Composable() (AnimatedVisibilityScope.() -> Unit)
+    content: @Composable AnimatedVisibilityScope.() -> Unit
 ) {
     val transition = when (mode) {
         NavigationMode.Forward -> slideInHorizontally(initialOffsetX = { it / 2 })
@@ -66,7 +66,6 @@ fun NavigationAnimation(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavHostController.navigationModeState(
     startDestination: String,

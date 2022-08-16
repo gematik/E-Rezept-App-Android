@@ -28,7 +28,7 @@ object PrescriptionScreenData {
         val prescriptions: List<PrescriptionUseCaseData.Prescription>,
         val prescriptionsType: PrescriptionUseCase.PrescriptionType,
         val selectedPrescription: PrescriptionUseCaseData.PrescriptionDetails?,
-        val selectedPrescriptionAudits: List<PrescriptionUseCaseData.PrescriptionAudit>,
+        val selectedPrescriptionAudits: List<PrescriptionUseCaseData.PrescriptionAudit>
     )
 
     @Immutable

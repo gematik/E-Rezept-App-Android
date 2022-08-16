@@ -21,23 +21,21 @@ package de.gematik.ti.erp.app.db.entities
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import java.time.Instant
-import java.time.OffsetDateTime
 
+@Deprecated("Remove with Realm migration")
 @Entity(tableName = "profiles", indices = [Index(value = ["name"], unique = true)])
 data class ProfileEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val name: String,
+    val lastAuthenticated: String? = null, // Instant
     val insurantName: String? = null,
     val insuranceIdentifier: String? = null,
     val insuranceName: String? = null,
-    val color: ProfileColorNames = ProfileColorNames.values().random(),
-    val lastAuthenticated: Instant? = null,
-    val lastAuditEventSynced: OffsetDateTime? = null,
-    val lastTaskSynced: Instant? = null
+    val color: String = "" // ProfileColorNames
 )
 
+@Deprecated("Remove with Realm migration")
 enum class ProfileColorNames {
     SPRING_GRAY,
     SUN_DEW,

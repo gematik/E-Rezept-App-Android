@@ -61,11 +61,11 @@ class ProtocolUseCase(
                     nextKey = nextKey,
                     prevKey = prevKey,
                     itemsBefore = if (prevKey != null) count else 0,
-                    itemsAfter = if (nextKey != null) count else 0,
+                    itemsAfter = if (nextKey != null) count else 0
                 )
             }, onFailure = {
-                LoadResult.Error(it)
-            })
+                    LoadResult.Error(it)
+                })
         }
     }
 

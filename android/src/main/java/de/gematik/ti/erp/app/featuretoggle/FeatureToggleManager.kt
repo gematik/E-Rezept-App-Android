@@ -23,19 +23,15 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
 import kotlinx.coroutines.flow.map
 
 private val Context.dataStore by preferencesDataStore("featureToggles")
 
 enum class Features(val featureName: String) {
-    FAST_TRACK("FastTrack"),
-    ADD_PROFILE("AddProfiles"),
-    BIO_LOGIN("BioLogin")
+    REDEEM_WITHOUT_TI("RedeemWithoutTI")
 }
 
-class FeatureToggleManager @Inject constructor(@ApplicationContext val context: Context) {
+class FeatureToggleManager(val context: Context) {
 
     private val dataStore = context.dataStore
     val features = Features.values()

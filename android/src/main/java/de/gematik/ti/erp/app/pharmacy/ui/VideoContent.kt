@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.pharmacy.ui
 import android.media.MediaPlayer
 import android.view.SurfaceHolder
 import android.view.SurfaceView
+import androidx.annotation.RawRes
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,21 +36,31 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
 import kotlin.math.max
 
+/**
+ * [MediaPlayer] backed video composable.
+ *
+ * @param aspectRatioOverwrite Prevents the delayed aspect ratio calculation of the video source. Defaults to `null`.
+ * @param source Android resource
+ */
 @Composable
 fun VideoContent(
     modifier: Modifier = Modifier,
-    source: Int
+    aspectRatioOverwrite: Float? = null,
+    @RawRes source: Int
 ) {
     val context = LocalContext.current
-    var aspectRatio by remember { mutableStateOf(1f) }
+    var aspectRatio by remember(aspectRatioOverwrite) {
+        mutableStateOf(aspectRatioOverwrite ?: 0f)
+    }
     val player = remember(source) {
         MediaPlayer().apply {
-
             setDataSource(context.resources.openRawResourceFd(source))
             setVideoScalingMode(MediaPlayer.VIDEO_SCALING_MODE_SCALE_TO_FIT_WITH_CROPPING)
 
             setOnVideoSizeChangedListener { mp, width, height ->
-                aspectRatio = width / max(1f, height.toFloat())
+                if (aspectRatioOverwrite == null) {
+                    aspectRatio = width / max(1f, height.toFloat())
+                }
             }
 
             isLooping = true
@@ -83,7 +94,14 @@ fun VideoContent(
             view
         },
         modifier = modifier
-            .aspectRatio(aspectRatio)
+            .then(
+                // prevent irritating large surfaces on first layout calc
+                if (aspectRatio == 0f) {
+                    Modifier
+                } else {
+                    Modifier.aspectRatio(aspectRatio)
+                }
+            )
             .onSizeChanged {
                 size = it
             }

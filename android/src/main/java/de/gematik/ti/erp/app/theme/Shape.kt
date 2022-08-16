@@ -23,8 +23,10 @@ import androidx.compose.ui.unit.dp
 object PaddingDefaults {
     val Tiny = 4.dp
     val Small = 8.dp
+    val ShortMedium = 12.dp
     val Medium = 16.dp
     val Large = 24.dp
     val XLarge = 32.dp
     val XXLarge = 40.dp
+    val XXLargeMedium = 56.dp
 }

@@ -23,7 +23,8 @@ import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.Route
 
 object PharmacyNavigationScreens {
-    object SearchResults : Route("PharmacySearchResults")
+    object StartSearch : Route("StartSearch")
+    object SearchResults : Route("SearchResults")
     object PharmacyDetails : Route("PharmacyDetails")
     object OrderPrescription : Route("OrderPrescription")
     object EditShippingContact : Route("EditShippingContact")

@@ -27,12 +27,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
+import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.utils.compose.createToastShort
+
+// tag::BiometricPromptAndBestSecureOption[]
 
 @Composable
 fun BiometricPrompt(
-    authenticationMethod: SettingsAuthenticationMethod,
+    authenticationMethod: SettingsData.AuthenticationMode,
     title: String,
     description: String,
     negativeButton: String,
@@ -85,7 +87,7 @@ fun BiometricPrompt(
     val promptInfo = remember {
         val secureOption = bestSecureOption(biometricManager)
 
-        if (authenticationMethod == SettingsAuthenticationMethod.DeviceCredentials) {
+        if (authenticationMethod == SettingsData.AuthenticationMode.DeviceCredentials) {
             BiometricPrompt.PromptInfo.Builder()
                 .setTitle(title)
                 .setDescription(description)
@@ -93,7 +95,7 @@ fun BiometricPrompt(
                     BiometricManager.Authenticators.DEVICE_CREDENTIAL
                 )
                 .build()
-        } else if (authenticationMethod == SettingsAuthenticationMethod.Biometrics) {
+        } else if (authenticationMethod == SettingsData.AuthenticationMode.Biometrics) {
             BiometricPrompt.PromptInfo.Builder()
                 .setTitle(title)
                 .setDescription(description)
@@ -144,9 +146,11 @@ private fun bestSecureOption(biometricManager: BiometricManager): Int {
         BiometricManager.BIOMETRIC_SUCCESS,
         BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return BiometricManager.Authenticators.DEVICE_CREDENTIAL
     }
-    return if (android.os.Build.VERSION.SDK_INT < 30) {
+    return if (android.os.Build.VERSION.SDK_INT < android.os.Build.VERSION_CODES.R) {
         BiometricManager.Authenticators.DEVICE_CREDENTIAL or BiometricManager.Authenticators.BIOMETRIC_WEAK
     } else {
         BiometricManager.Authenticators.DEVICE_CREDENTIAL
     }
 }
+
+// end::BiometricPromptAndBestSecureOption[]

@@ -38,13 +38,13 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Map
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,42 +55,38 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.pharmacy.repository.model.DeliveryPharmacyService
-import de.gematik.ti.erp.app.pharmacy.repository.model.Location
-import de.gematik.ti.erp.app.pharmacy.repository.model.OpeningHours
-import de.gematik.ti.erp.app.pharmacy.repository.model.OpeningTime
-import de.gematik.ti.erp.app.pharmacy.repository.model.RoleCode
-import de.gematik.ti.erp.app.pharmacy.repository.model.isOpenToday
+import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
+import de.gematik.ti.erp.app.fhir.model.Location
+import de.gematik.ti.erp.app.fhir.model.OnlinePharmacyService
+import de.gematik.ti.erp.app.fhir.model.OpeningHours
+import de.gematik.ti.erp.app.fhir.model.PickUpPharmacyService
+import de.gematik.ti.erp.app.fhir.model.isOpenToday
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.HintCard
 import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
 import de.gematik.ti.erp.app.utils.compose.HintSmallImage
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.Spacer8
+import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.canHandleIntent
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
-import java.time.DayOfWeek
-import java.time.Duration
-import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
@@ -100,7 +96,6 @@ import java.util.Locale
 @Composable
 fun PharmacyDetailsScreen(
     navController: NavController,
-    showRedeemOptions: Boolean,
     viewModel: PharmacySearchViewModel
 ) {
     val context = LocalContext.current
@@ -108,38 +103,27 @@ fun PharmacyDetailsScreen(
     val state by viewModel.detailScreenState().collectAsState(null)
     val pharmacy = state?.selectedPharmacy
 
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Back,
-                title = stringResource(R.string.pharmacy_detail_title),
-                onBack = { navController.popBackStack() }
-            )
-        }
+    val scrollState = rememberScrollState()
+
+    AnimatedElevationScaffold(
+        topBarTitle = stringResource(R.string.pharmacy_detail_title),
+        elevated = scrollState.value > 0,
+        actions = {},
+        navigationMode = NavigationBarMode.Back,
+        onBack = { navController.popBackStack() }
     ) {
         Column(
             modifier = Modifier
                 .padding(horizontal = PaddingDefaults.Medium)
-                .verticalScroll(rememberScrollState())
-                .padding(
-                    rememberInsetsPaddingValues(
-                        insets = LocalWindowInsets.current.navigationBars,
-                        applyBottom = true
-                    )
-                )
+                .verticalScroll(scrollState)
+                .navigationBarsPadding()
         ) {
             if (pharmacy != null) {
-
                 SpacerMedium()
-
-                if (pharmacy.ready) {
-                    ReadyFlag()
-                    SpacerSmall()
-                }
 
                 Text(
                     text = pharmacy.name,
-                    style = MaterialTheme.typography.h5
+                    style = AppTheme.typography.h5
                 )
                 SpacerSmall()
                 Row(
@@ -149,14 +133,14 @@ fun PharmacyDetailsScreen(
                                 launchMaps(context, it, pharmacy.name)
                             }
                         },
-                    verticalAlignment = Alignment.CenterVertically,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
                         text = pharmacy.removeLineBreaksFromAddress(),
-                        style = MaterialTheme.typography.subtitle2,
-                        color = MaterialTheme.colors.secondary,
+                        style = AppTheme.typography.subtitle2,
+                        color = MaterialTheme.colors.secondary
                     )
-                    Spacer8()
+                    SpacerSmall()
                     Icon(
                         imageVector = Icons.Default.Map,
                         contentDescription = "",
@@ -164,31 +148,42 @@ fun PharmacyDetailsScreen(
                     )
                 }
 
-                Spacer24()
+                SpacerLarge()
 
                 if (pharmacy.ready) {
-                    if (showRedeemOptions) {
-                        OrderOptions(pharmacy) {
-                            viewModel.onSelectOrderOption(it)
-                            navController.navigate(PharmacyNavigationScreens.OrderPrescription.path())
-                        }
-                        Spacer16()
-                        HintCard(
-                            properties = HintCardDefaults.properties(
-                                backgroundColor = AppTheme.colors.primary100,
-                                border = BorderStroke(0.0.dp, AppTheme.colors.neutral300),
-                                elevation = 0.dp
-                            ),
-                            image = {
-                                HintSmallImage(
-                                    painterResource(R.drawable.ic_info),
-                                    innerPadding = it
-                                )
-                            },
-                            title = { Text(stringResource(R.string.pharm_detail_hint_header)) },
-                            body = { Text(stringResource(R.string.pharm_detail_hint)) }
+                    val hasRedeemableTasks by produceState(false) {
+                        viewModel.hasRedeemableTasks().collect { value = it }
+                    }
+
+                    OrderOptions(hasRedeemableTasks, pharmacy) {
+                        viewModel.onSelectOrderOption(it)
+                        navController.navigate(PharmacyNavigationScreens.OrderPrescription.path())
+                    }
+
+                    if (!hasRedeemableTasks) {
+                        Text(
+                            text = stringResource(R.string.pharmacy_detail_no_redeemable_prescription_info),
+                            style = AppTheme.typography.caption1l,
+                            modifier = Modifier.fillMaxWidth(),
+                            textAlign = TextAlign.Center
                         )
                     }
+                    SpacerMedium()
+                    HintCard(
+                        properties = HintCardDefaults.properties(
+                            backgroundColor = AppTheme.colors.primary100,
+                            border = BorderStroke(0.0.dp, AppTheme.colors.neutral300),
+                            elevation = 0.dp
+                        ),
+                        image = {
+                            HintSmallImage(
+                                painterResource(R.drawable.ic_info),
+                                innerPadding = it
+                            )
+                        },
+                        title = { Text(stringResource(R.string.pharm_detail_hint_header)) },
+                        body = { Text(stringResource(R.string.pharm_detail_hint)) }
+                    )
                 } else {
                     HintCard(
                         properties = HintCardDefaults.properties(
@@ -219,14 +214,16 @@ fun PharmacyDetailsScreen(
 
 @Composable
 private fun OrderOptions(
+    hasRedeemableTasks: Boolean,
     pharmacy: PharmacyUseCaseData.Pharmacy,
     onClickOrder: (PharmacyScreenData.OrderOption) -> Unit
 ) {
-    if (pharmacy.roleCode.any { it == RoleCode.OUT_PHARM }) {
+    if (pharmacy.provides.any { it is PickUpPharmacyService }) {
         Button(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
+            enabled = hasRedeemableTasks,
             onClick = { onClickOrder(PharmacyScreenData.OrderOption.ReserveInPharmacy) },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = MaterialTheme.colors.secondary
@@ -247,6 +244,7 @@ private fun OrderOptions(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
+            enabled = hasRedeemableTasks,
             onClick = { onClickOrder(PharmacyScreenData.OrderOption.CourierDelivery) },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppTheme.colors.neutral050,
@@ -262,12 +260,13 @@ private fun OrderOptions(
             )
         }
     }
-    if (pharmacy.roleCode.any { it == RoleCode.MOBL }) {
+    if (pharmacy.provides.any { it is OnlinePharmacyService }) {
         Button(
             shape = RoundedCornerShape(8.dp),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
+            enabled = hasRedeemableTasks,
             onClick = { onClickOrder(PharmacyScreenData.OrderOption.MailDelivery) },
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppTheme.colors.neutral050,
@@ -293,7 +292,7 @@ private fun PharmacyInfo(pharmacy: PharmacyUseCaseData.Pharmacy) {
         }
         Text(
             text = stringResource(id = R.string.legal_notice_contact_header),
-            style = MaterialTheme.typography.h6
+            style = AppTheme.typography.h6
         )
         SpacerMedium()
         val context = LocalContext.current
@@ -317,7 +316,7 @@ private fun PharmacyOpeningHours(openingHours: OpeningHours) {
     Column {
         Text(
             text = stringResource(id = R.string.pharm_detail_opening_hours),
-            style = MaterialTheme.typography.h6
+            style = AppTheme.typography.h6
         )
 
         SpacerMedium()
@@ -369,46 +368,6 @@ private fun PharmacyOpeningHours(openingHours: OpeningHours) {
             }
             Spacer16()
         }
-    }
-}
-
-@Preview
-@Composable
-private fun PharmacyOpeningHoursPreview() {
-    val now = OffsetDateTime.now()
-    AppTheme {
-        PharmacyOpeningHours(
-            OpeningHours(
-                mapOf(
-                    DayOfWeek.MONDAY to listOf(
-                        OpeningTime(
-                            LocalTime.of(12, 1),
-                            LocalTime.of(14, 1)
-                        )
-                    ),
-                    DayOfWeek.TUESDAY to listOf(
-                        OpeningTime(
-                            LocalTime.of(8, 0),
-                            LocalTime.of(18, 0)
-                        )
-                    ),
-                    DayOfWeek.WEDNESDAY to listOf(
-                        OpeningTime(LocalTime.of(8, 0), LocalTime.of(12, 0)),
-                        OpeningTime(LocalTime.of(14, 0), LocalTime.of(18, 0)),
-                    ),
-                    now.dayOfWeek to listOf(
-                        OpeningTime(
-                            now.toLocalTime() - Duration.ofHours(2),
-                            now.toLocalTime() + Duration.ofHours(2)
-                        ),
-                        OpeningTime(
-                            now.toLocalTime() + Duration.ofHours(4),
-                            now.toLocalTime() + Duration.ofHours(6)
-                        ),
-                    )
-                )
-            )
-        )
     }
 }
 
@@ -509,13 +468,13 @@ private fun Label(
     ) {
         Text(
             text = text,
-            style = MaterialTheme.typography.body1,
+            style = AppTheme.typography.body1,
             color = AppTheme.colors.primary600
         )
         Spacer4()
         Text(
             text = label,
-            style = AppTheme.typography.body2l,
+            style = AppTheme.typography.body2l
         )
     }
 }

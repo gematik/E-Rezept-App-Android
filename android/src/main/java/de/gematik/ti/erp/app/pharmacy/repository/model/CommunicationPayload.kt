@@ -18,9 +18,9 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.model
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class CommunicationPayload(
     val version: String = "1",
     val supplyOptionsType: String,

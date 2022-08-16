@@ -18,76 +18,194 @@
 
 package de.gematik.ti.erp.app
 
+import android.content.Intent
 import android.content.SharedPreferences
+import android.net.Uri
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.annotation.VisibleForTesting
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.core.content.edit
+import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import dagger.hilt.android.AndroidEntryPoint
+import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgkViewModel
+import de.gematik.ti.erp.app.cardwall.mini.ui.ExternalAuthPrompt
+import de.gematik.ti.erp.app.cardwall.mini.ui.HealthCardPrompt
+import de.gematik.ti.erp.app.cardwall.mini.ui.MiniCardWallViewModel
+import de.gematik.ti.erp.app.cardwall.mini.ui.rememberAuthenticator
+import de.gematik.ti.erp.app.cardwall.ui.CardWallNfcPositionViewModel
+import de.gematik.ti.erp.app.cardwall.ui.CardWallViewModel
+import de.gematik.ti.erp.app.cardwall.ui.ExternalAuthenticatorListViewModel
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.LocalTracker
+import de.gematik.ti.erp.app.core.LocalAuthenticator
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.MainContent
-import de.gematik.ti.erp.app.di.ApplicationPreferences
-import de.gematik.ti.erp.app.di.NavigationObservable
+import de.gematik.ti.erp.app.core.MainViewModel
+import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
-import de.gematik.ti.erp.app.tracking.Tracker
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
+import de.gematik.ti.erp.app.mainscreen.ui.RedeemStateViewModel
+import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardOrderViewModel
+import de.gematik.ti.erp.app.pharmacy.ui.PharmacySearchViewModel
+import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsViewModel
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionViewModel
+import de.gematik.ti.erp.app.prescription.ui.ScanPrescriptionViewModel
+import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
+import de.gematik.ti.erp.app.profiles.ui.ProfileViewModel
+import de.gematik.ti.erp.app.redeem.ui.RedeemViewModel
+import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
+import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.pharmacy.repository.model.OftenUsedPharmaciesViewModel
+import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
+import de.gematik.ti.erp.app.profiles.ui.rememberProfileHandler
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
+import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationViewModel
+import de.gematik.ti.erp.app.utils.compose.DebugOverlay
 import de.gematik.ti.erp.app.utils.compose.DialogHost
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChangedBy
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+import io.github.aakira.napier.Napier
+import org.kodein.di.Copy
+import org.kodein.di.DIAware
+import org.kodein.di.android.closestDI
+import org.kodein.di.android.retainedSubDI
+import org.kodein.di.bindProvider
+import org.kodein.di.bindSingleton
+import org.kodein.di.compose.rememberViewModel
+import org.kodein.di.compose.withDI
+import org.kodein.di.instance
+import java.net.URI
 
 const val SCREENSHOTS_ALLOWED = "SCREENSHOTS_ALLOWED"
 
-@AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-    @Inject
-    lateinit var auth: AuthenticationUseCase
+class NfcNotEnabledException : IllegalStateException()
 
-    @Inject
-    lateinit var navigationObservable: NavigationObservable
+class MainActivity : AppCompatActivity(), DIAware {
+    override val di by retainedSubDI(closestDI(), copy = Copy.None) {
+        if (BuildKonfig.INTERNAL) {
+            fullContainerTreeOnError = true
+        }
 
-    @Inject
-    lateinit var tracker: Tracker
+        bindProvider { UnlockEgkViewModel(instance(), instance()) }
+        bindProvider { MiniCardWallViewModel(instance(), instance(), instance(), instance()) }
+        bindProvider { CardWallNfcPositionViewModel(instance()) }
+        bindProvider { CardWallViewModel(instance(), instance(), instance()) }
+        bindProvider { ExternalAuthenticatorListViewModel(instance(), instance()) }
+        bindProvider { RedeemStateViewModel(instance(), instance()) }
+//        bindProvider { MessageViewModel(instance()) }
+        bindProvider { HealthCardOrderViewModel(instance()) }
+        bindProvider { PrescriptionDetailsViewModel(instance(), instance()) }
+        bindProvider { PrescriptionViewModel(instance(), instance(), instance()) }
+        bindProvider {
+            ScanPrescriptionViewModel(
+                prescriptionUseCase = instance(),
+                profilesUseCase = instance(),
+                scanner = instance(),
+                processor = instance(),
+                validator = instance(),
+                dispatchers = instance()
+            )
+        }
+        bindProvider { ProfileViewModel(instance()) }
+        bindProvider { ProfileSettingsViewModel(instance(), instance()) }
+        bindProvider { RedeemViewModel(instance(), instance(), instance()) }
+        bindProvider { UserAuthenticationViewModel(instance()) }
+        bindProvider { PharmacySearchViewModel(instance(), instance(), instance(), instance()) }
+        bindProvider { OftenUsedPharmaciesViewModel(instance()) }
 
-    @Inject
-    @ApplicationPreferences
-    lateinit var appPrefs: SharedPreferences
+        bindSingleton {
+            SettingsViewModel(
+                settingsUseCase = instance(),
+                profilesUseCase = instance(),
+                profilesWithPairedDevicesUseCase = instance(),
+                analytics = instance(),
+                appPrefs = instance(ApplicationPreferencesTag),
+                dispatchers = instance()
+            )
+        }
+        bindSingleton { MainViewModel(instance(), instance(), instance(), instance()) }
+        bindSingleton { MainScreenViewModel(instance(), instance()) }
+    }
+
+    private val auth: AuthenticationUseCase by instance()
+
+    private val analytics: Analytics by instance()
+
+    private val appPrefs: SharedPreferences by instance(ApplicationPreferencesTag)
+
+    private var _unvalidatedInstantUri = Channel<URI>(Channel.CONFLATED)
+    var unvalidatedInstantUri = _unvalidatedInstantUri
+        .receiveAsFlow()
+        .onEach {
+            Napier.d("Received new intent: $it")
+        }
 
     private val _nfcTag = MutableSharedFlow<Tag>()
     val nfcTagFlow: Flow<Tag>
-        get() = _nfcTag
+        get() = _nfcTag.onStart {
+            if (!NfcAdapter.getDefaultAdapter(this@MainActivity).isEnabled) {
+                throw NfcNotEnabledException()
+            }
+        }
 
-    private val authenticationModeAndMethod
+    private val authenticationModeAndMethod: Flow<AuthenticationModeAndMethod>
         get() = auth.authenticationModeAndMethod
 
-    @OptIn(ExperimentalAnimationApi::class)
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    @Stable
+    class Element(
+        val bounds: Rect,
+        val tag: String
+    )
+
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
+    val elements: SnapshotStateMap<String, Element> = mutableStateMapOf()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        lifecycleScope.launchWhenCreated {
+            intent?.data?.let {
+                Napier.d("Received intent: $it")
+                _unvalidatedInstantUri.send(URI(it.toString()))
+            }
+        }
+
+        if (!BuildConfig.DEBUG) {
+            installMessageConversionExceptionHandler()
+        }
 
         if (BuildKonfig.INTERNAL) {
             appPrefs.edit {
@@ -105,45 +223,107 @@ class MainActivity : AppCompatActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
-            CompositionLocalProvider(
-                LocalActivity provides this,
-                LocalTracker provides tracker
-            ) {
-                MainContent { mainViewModel ->
-                    val auth by authenticationModeAndMethod.collectAsState(null)
-                    val navController = rememberNavController()
-                    val noDrawModifier = Modifier.fillMaxSize().graphicsLayer(alpha = 0f)
+            val view = LocalView.current
+            LaunchedEffect(view) {
+                ViewCompat.setWindowInsetsAnimationCallback(view, null)
+            }
 
-                    mainViewModel.externalAuthorizationUri = intent.data
+            withDI(di) {
+                CompositionLocalProvider(
+                    LocalActivity provides this,
+                    LocalAnalytics provides analytics,
+                    LocalAuthenticator provides rememberAuthenticator()
+                ) {
+                    val authenticator = LocalAuthenticator.current
 
-                    Box(modifier = Modifier.fillMaxSize()) {
-                        if (auth !is AuthenticationModeAndMethod.Authenticated) {
-                            Image(
-                                painterResource(R.drawable.erp_logo),
-                                null,
-                                modifier = Modifier.align(Alignment.Center)
-                            )
-                        }
-
-                        DialogHost {
-                            Box(
-                                if (auth is AuthenticationModeAndMethod.Authenticated) Modifier else noDrawModifier
-                            ) {
-                                MainScreen(navController, mainViewModel)
+                    MainContent { mainViewModel ->
+                        val auth by produceState<AuthenticationModeAndMethod?>(null) {
+                            launch {
+                                authenticationModeAndMethod.distinctUntilChangedBy { it::class }
+                                    .collect {
+                                        if (it is AuthenticationModeAndMethod.AuthenticationRequired) {
+                                            authenticator.cancelAllAuthentications()
+                                        }
+                                    }
+                            }
+                            authenticationModeAndMethod.collect {
+                                value = it
                             }
                         }
+                        val navController = rememberNavController()
+                        val noDrawModifier = Modifier
+                            .fillMaxSize()
+                            .graphicsLayer(alpha = 0f)
 
-                        DialogHost {
-                            AnimatedVisibility(
-                                visible = auth is AuthenticationModeAndMethod.AuthenticationRequired,
-                                enter = fadeIn(),
-                                exit = fadeOut()
-                            ) {
-                                UserAuthenticationScreen()
+                        Box(modifier = Modifier.fillMaxSize()) {
+                            if (auth !is AuthenticationModeAndMethod.Authenticated) {
+                                Image(
+                                    painterResource(R.drawable.erp_logo),
+                                    null,
+                                    modifier = Modifier.align(Alignment.Center)
+                                )
+                            }
+
+                            DialogHost {
+                                Box(
+                                    if (auth is AuthenticationModeAndMethod.Authenticated) Modifier else noDrawModifier
+                                ) {
+                                    // mini card wall
+                                    HealthCardPrompt(
+                                        authenticator = authenticator.authenticatorHealthCard
+                                    )
+                                    ExternalAuthPrompt(
+                                        authenticator = authenticator.authenticatorExternal
+                                    )
+
+                                    val settingsViewModel by rememberViewModel<SettingsViewModel>()
+                                    val profileSettingsViewModel by rememberViewModel<ProfileSettingsViewModel>()
+
+                                    CompositionLocalProvider(
+                                        LocalProfileHandler provides rememberProfileHandler()
+                                    ) {
+                                        MainScreen(
+                                            navController = navController,
+                                            mainViewModel = mainViewModel,
+                                            settingsViewModel = settingsViewModel,
+                                            profileSettingsViewModel = profileSettingsViewModel
+                                        )
+                                    }
+                                }
+                            }
+
+                            DialogHost {
+                                AnimatedVisibility(
+                                    visible = auth is AuthenticationModeAndMethod.AuthenticationRequired,
+                                    enter = fadeIn(),
+                                    exit = fadeOut()
+                                ) {
+                                    UserAuthenticationScreen()
+                                }
                             }
                         }
                     }
+                    if (BuildConfig.DEBUG && BuildKonfig.DEBUG_VISUAL_TEST_TAGS) {
+                        DebugOverlay(elements)
+                    }
                 }
+            }
+        }
+    }
+
+    override fun onUserInteraction() {
+        super.onUserInteraction()
+
+        auth.resetInactivityTimer()
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        lifecycleScope.launch {
+            intent?.data?.let {
+                Napier.d("Received intent: $it")
+                _unvalidatedInstantUri.send(URI(it.toString()))
             }
         }
     }
@@ -156,7 +336,9 @@ class MainActivity : AppCompatActivity() {
                 it.enableReaderMode(
                     this,
                     ::onTagDiscovered,
-                    NfcAdapter.FLAG_READER_NFC_A or NfcAdapter.FLAG_READER_NFC_B or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+                    NfcAdapter.FLAG_READER_NFC_A
+                        or NfcAdapter.FLAG_READER_NFC_B
+                        or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
                     Bundle()
                 )
             }
@@ -169,11 +351,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override fun onPause() {
         super.onPause()
 
         NfcAdapter.getDefaultAdapter(applicationContext)?.disableReaderMode(this)
+    }
+
+    fun startFastTrackApp(redirect: URI) {
+        _unvalidatedInstantUri.tryReceive() // clear possible cached values
+        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(redirect.toString())))
     }
 
     private fun switchScreenshotMode() {

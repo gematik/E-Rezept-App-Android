@@ -19,19 +19,15 @@
 package de.gematik.ti.erp.app.orderhealthcard.usecase
 
 import android.content.Context
-import com.squareup.moshi.FromJson
-import com.squareup.moshi.JsonReader
-import com.squareup.moshi.Moshi
-import com.squareup.moshi.Types
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.io.InputStream
-import javax.inject.Inject
 
-class HealthCardOrderUseCase @Inject constructor(
-    @ApplicationContext private val context: Context,
+class HealthCardOrderUseCase(
+    private val context: Context
 ) {
     private val companies: List<HealthCardOrderUseCaseData.HealthInsuranceCompany> by lazy {
         loadHealthInsuranceContactsFromJSON(
@@ -44,31 +40,5 @@ class HealthCardOrderUseCase @Inject constructor(
     }
 }
 
-fun loadHealthInsuranceContactsFromJSON(jsonInput: InputStream): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> {
-    val type = Types.newParameterizedType(
-        List::class.java,
-        HealthCardOrderUseCaseData.HealthInsuranceCompany::class.java
-    )
-    val moshiAdapter = Moshi.Builder().add(EmptyStringToNullAdapter).build().adapter<List<HealthCardOrderUseCaseData.HealthInsuranceCompany>>(type)
-    return moshiAdapter.fromJson(jsonInput.bufferedReader().readText()) as List<HealthCardOrderUseCaseData.HealthInsuranceCompany>
-}
-
-object EmptyStringToNullAdapter {
-    @FromJson
-    fun fromJson(reader: JsonReader): String? {
-        return when (reader.peek()) {
-            JsonReader.Token.STRING -> {
-                val nextString = reader.nextString()
-                if (nextString.equals("")) {
-                    null
-                } else {
-                    nextString
-                }
-            }
-            JsonReader.Token.NUMBER -> {
-                error("${reader.nextLong()} was not a string")
-            }
-            else -> null
-        }
-    }
-}
+fun loadHealthInsuranceContactsFromJSON(jsonInput: InputStream): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> =
+    Json.decodeFromString(jsonInput.bufferedReader().readText())

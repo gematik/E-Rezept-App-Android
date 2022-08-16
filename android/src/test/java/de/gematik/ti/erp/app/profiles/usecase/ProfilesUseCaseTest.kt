@@ -18,96 +18,81 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
-import de.gematik.ti.erp.app.db.entities.ActiveProfile
-import de.gematik.ti.erp.app.db.entities.ProfileColorNames
-import de.gematik.ti.erp.app.db.entities.ProfileEntity
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.every
+import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
-import junit.framework.Assert.assertEquals
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
+import kotlin.test.assertFails
 
 @ExperimentalCoroutinesApi
 class ProfilesUseCaseTest {
-
-    private val expectedProfiles = listOf(
-        ProfileEntity(name = "Tester", color = ProfileColorNames.TREE),
-        ProfileEntity(name = "Tester1", color = ProfileColorNames.PINK),
-        ProfileEntity(name = "Tester2", color = ProfileColorNames.SPRING_GRAY),
-        ProfileEntity(name = "Tester3", color = ProfileColorNames.SUN_DEW)
-    )
-    private val expectedProfile = ProfileEntity(id = 2, name = "Tester2", color = ProfileColorNames.SPRING_GRAY)
-    private val expectedActiveProfile = ActiveProfile(profileName = "Tester2")
-
     private lateinit var profilesUseCase: ProfilesUseCase
 
-    @MockK
+    @MockK(relaxed = true)
     lateinit var profilesRepository: ProfilesRepository
 
     @MockK
     lateinit var idpRepository: IdpRepository
 
+    @MockK
+    lateinit var auditEventsRepository: AuditEventsRepository
+
     @get:Rule
     val coroutineRule = CoroutineTestRule()
+
+    val profile = ProfilesUseCaseData.Profile(
+        id = "1234567890",
+        name = "Test",
+        insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+        active = false,
+        color = ProfilesData.ProfileColorNames.PINK,
+        lastAuthenticated = null,
+        ssoTokenScope = null,
+        personalizedImage = null,
+        avatarFigure = ProfilesData.AvatarFigure.Initials
+    )
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
 
-        val ssoToken = mockk<SingleSignOnToken>()
-        every { ssoToken.isValid(any()) } returns true
-        every { ssoToken.validOn } returns Instant.now().plusSeconds(1000)
-
-        every { profilesRepository.profiles() } returns flowOf(expectedProfiles)
-        every { profilesRepository.activeProfile() } returns flowOf(expectedActiveProfile)
-        every { profilesRepository.getProfileById(2) } returns flowOf(expectedProfile)
-        coEvery { profilesRepository.updateLastAuthenticated(any(), any()) } answers {}
-        coEvery { idpRepository.getSingleSignOnToken(any()) } returns flowOf(ssoToken)
-        coEvery { idpRepository.decryptedAccessToken(any()) } returns flowOf("")
-
-        profilesUseCase = ProfilesUseCase(profilesRepository, idpRepository, coroutineRule.testDispatchProvider)
+        profilesUseCase = ProfilesUseCase(
+            profilesRepository = profilesRepository,
+            idpRepository = idpRepository,
+            auditRepository = auditEventsRepository
+        )
     }
 
     @Test
-    fun `profiles - should return list of four profiles`() = runTest {
-        profilesUseCase.profiles.first().let {
-            assertEquals(expectedProfiles.size, it.size)
-        }
+    fun `update profile name - should sanitize new name`() = runTest {
+        profilesUseCase.updateProfileName(profile, "    T es t  ")
+
+        coVerify(exactly = 1) { profilesRepository.updateProfileName(profile.id, "T es t") }
     }
 
     @Test
-    fun `active profile name - should return tester 2`() = runTest {
-        profilesUseCase.activeProfileName().first().let {
-            assertEquals(expectedActiveProfile.profileName, it)
+    fun `update profile with empty name - should not update name`() = runTest {
+        assertFails {
+            profilesUseCase.updateProfileName(profile, "")
         }
+
+        coVerify(exactly = 0) { profilesRepository.updateProfileName(any(), any()) }
     }
 
     @Test
-    fun `active profile - should return expected active profile`() =
-        runTest {
-            profilesUseCase.activeProfile().first().let {
-                assertEquals(expectedActiveProfile, it)
-            }
+    fun `replace last profile`() = runTest {
+        assertFails {
+            profilesUseCase.removeAndSaveProfile(profile, "")
         }
-
-    @Test
-    fun `get profile by id (2) - should return expected profile (2)`() =
-        runTest {
-            profilesUseCase.getProfileById(2).first().let {
-                assertEquals(expectedProfile, it)
-            }
-        }
+    }
 }

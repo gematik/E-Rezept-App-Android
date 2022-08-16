@@ -21,8 +21,8 @@ package de.gematik.ti.erp.app.db.entities
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.LocalDate
 
+@Deprecated("Remove with Realm migration")
 enum class SettingsAuthenticationMethod {
     HealthCard,
     DeviceSecurity,
@@ -39,28 +39,11 @@ enum class SettingsAuthenticationMethod {
     Unspecified
 }
 
+@Deprecated("Remove with Realm migration")
 data class PasswordEntity(
     val salt: ByteArray,
     val hash: ByteArray
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as PasswordEntity
-
-        if (!salt.contentEquals(other.salt)) return false
-        if (!hash.contentEquals(other.hash)) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = salt.contentHashCode()
-        result = 31 * result + hash.contentHashCode()
-        return result
-    }
-}
+)
 
 data class PharmacySearch(
     val name: String,
@@ -71,6 +54,7 @@ data class PharmacySearch(
     val filterOpenNow: Boolean
 )
 
+@Deprecated("Remove with Realm migration")
 @Entity(tableName = "settings")
 data class Settings(
     val authenticationMethod: SettingsAuthenticationMethod,
@@ -88,7 +72,7 @@ data class Settings(
         filterOpenNow = false
     ),
     val userHasAcceptedInsecureDevice: Boolean = false,
-    val dataProtectionVersionAccepted: LocalDate = LocalDate.of(2021, 10, 15)
+    val dataProtectionVersionAccepted: String // LocalDate.of(2021, 10, 15)
 ) {
     @PrimaryKey
     var id: Long = 0

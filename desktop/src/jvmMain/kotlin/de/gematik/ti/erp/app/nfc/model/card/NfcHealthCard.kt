@@ -18,18 +18,18 @@
 
 package de.gematik.ti.erp.app.nfc.model.card
 
-import de.gematik.ti.erp.app.nfc.model.command.CommandApdu
-import de.gematik.ti.erp.app.nfc.model.command.ResponseApdu
+import de.gematik.ti.erp.app.card.model.card.IHealthCard
+import de.gematik.ti.erp.app.card.model.command.CommandApdu
+import de.gematik.ti.erp.app.card.model.command.ResponseApdu
 import de.gematik.ti.erp.app.smartcard.Card
 import de.gematik.ti.erp.app.smartcard.CardReader
 import java.nio.ByteBuffer
 
-class NfcHealthCard private constructor(val card: Card) {
+class NfcHealthCard private constructor(val card: Card) : IHealthCard {
     private val buffer = ByteBuffer.allocate(1024)
 
-    fun transmit(apduCommand: CommandApdu): ResponseApdu {
+    override fun transmit(apduCommand: CommandApdu): ResponseApdu {
         buffer.clear()
-
         val n = card.transmit(ByteBuffer.wrap(apduCommand.bytes), buffer)
         return ResponseApdu(buffer.array().copyOfRange(0, n))
     }

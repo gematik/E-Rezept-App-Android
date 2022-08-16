@@ -28,51 +28,69 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.firstCharOfForeNameSurName
 
 @Composable
 fun Avatar(
     modifier: Modifier,
-    name: String,
-    profileColor: ProfileColor,
+    profile: ProfilesUseCaseData.Profile,
     ssoStatusColor: Color?,
     active: Boolean = false,
-    textStyle: TextStyle = MaterialTheme.typography.body2
+    textStyle: TextStyle = AppTheme.typography.body2
 ) {
-    val text = remember(name) { firstCharOfForeNameSurName(name) }
-    Box(modifier = modifier.fillMaxSize().aspectRatio(1f), contentAlignment = Alignment.Center) {
-        CircleBox(
-            profileColor.backGroundColor,
-            border = if (active) BorderStroke(2.dp, profileColor.borderColor) else null,
-            modifier = Modifier.fillMaxSize()
-        )
-        Text(
-            text = text,
-            fontWeight = FontWeight.Bold,
-            style = textStyle,
-            color = profileColor.textColor,
-            textAlign = TextAlign.Center,
-        )
+    val currentSelectedColors = profileColor(profileColorNames = profile.color)
+
+    val initials = remember(profile.name) { firstCharOfForeNameSurName(profile.name) }
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .aspectRatio(1f),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxSize(),
+            shape = CircleShape,
+            color = currentSelectedColors.backGroundColor,
+            border = if (active) BorderStroke(2.dp, currentSelectedColors.borderColor) else null
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ChooseAvatar(
+                    profile,
+                    modifier = Modifier.fillMaxSize(),
+                    figure = profile.avatarFigure,
+                    initials = initials,
+                    currentSelectedColors = currentSelectedColors,
+                    textStyle = textStyle
+                )
+            }
+        }
         if (ssoStatusColor != null) {
             CircleBox(
                 backgroundColor = ssoStatusColor,
                 border = BorderStroke(2.dp, MaterialTheme.colors.background),
-                modifier = Modifier.size(16.dp).align(Alignment.BottomEnd).offset(4.dp, 4.dp)
+                modifier = Modifier
+                    .size(PaddingDefaults.Medium)
+                    .align(Alignment.BottomEnd)
+                    .offset(PaddingDefaults.Tiny, PaddingDefaults.Tiny)
             )
         }
     }
@@ -100,14 +118,21 @@ private fun CircleBox(
 private fun AvatarPreview() {
     AppTheme {
         Avatar(
-            modifier = Modifier.size(36.dp), name = "Ina Müller",
-            profileColor = ProfileColor(
-                textColor = AppTheme.colors.red700,
-                colorName = stringResource(R.string.profile_color_name_pink),
-                backGroundColor = AppTheme.colors.red200,
-                borderColor = AppTheme.colors.red400
+            modifier = Modifier.size(36.dp),
+            profile = ProfilesUseCaseData.Profile(
+                id = "",
+                name = "",
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+                active = false,
+                color = ProfilesData.ProfileColorNames.SUN_DEW,
+                avatarFigure = ProfilesData.AvatarFigure.Initials,
+                personalizedImage = null,
+                lastAuthenticated = null,
+                ssoTokenScope = null
             ),
-            ssoStatusColor = null, active = false
+            ssoStatusColor = null,
+            active = false,
+            textStyle = AppTheme.typography.body2
         )
     }
 }
@@ -117,14 +142,20 @@ private fun AvatarPreview() {
 private fun AvatarWithSSOPreview() {
     AppTheme {
         Avatar(
-            modifier = Modifier.size(36.dp), name = "Ina Müller",
-            profileColor = ProfileColor(
-                textColor = AppTheme.colors.red700,
-                colorName = stringResource(R.string.profile_color_name_pink),
-                backGroundColor = AppTheme.colors.red200,
-                borderColor = AppTheme.colors.red400
+            modifier = Modifier.size(36.dp),
+            profile = ProfilesUseCaseData.Profile(
+                id = "",
+                name = "",
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+                active = false,
+                color = ProfilesData.ProfileColorNames.SUN_DEW,
+                avatarFigure = ProfilesData.AvatarFigure.Initials,
+                personalizedImage = null,
+                lastAuthenticated = null,
+                ssoTokenScope = null
             ),
-            ssoStatusColor = Color.Green, active = false
+            ssoStatusColor = Color.Green,
+            active = false
         )
     }
 }

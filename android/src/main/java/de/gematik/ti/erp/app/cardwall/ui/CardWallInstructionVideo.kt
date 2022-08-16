@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.IconToggleButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -55,6 +54,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.Spacer16
 
 private val captionLanguageMapping = listOf(
@@ -159,7 +159,7 @@ fun InstructionVideo() {
                         .wrapContentHeight()
                         .fillMaxWidth()
                 ) {
-                    Text(caption, style = MaterialTheme.typography.subtitle1, textAlign = TextAlign.Center)
+                    Text(caption, style = AppTheme.typography.subtitle1, textAlign = TextAlign.Center)
                 }
             }
         }

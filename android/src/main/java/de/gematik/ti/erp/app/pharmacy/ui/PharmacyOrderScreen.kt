@@ -34,9 +34,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
@@ -54,9 +52,9 @@ import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -73,14 +71,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.google.accompanist.insets.navigationBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.ui.PrimaryButton
-import de.gematik.ti.erp.app.db.entities.ProfileColorNames
+import de.gematik.ti.erp.app.cardwall.ui.SecondaryButton
 import de.gematik.ti.erp.app.mainscreen.ui.ssoStatusColor
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.ui.Avatar
 import de.gematik.ti.erp.app.profiles.ui.profileColor
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -92,33 +91,35 @@ import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.dateTimeShortText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Suppress("LongMethod")
 @Composable
 fun PharmacyOrderScreen(
     navController: NavController,
-    taskIds: List<String>,
     viewModel: PharmacySearchViewModel,
     onSuccessfullyOrdered: (PharmacyScreenData.OrderOption) -> Unit
 ) {
     val listState = rememberLazyListState()
     val scaffoldState = rememberScaffoldState()
 
-    val state by viewModel.orderScreenState(taskIds).collectAsState(PharmacyScreenData.defaultOrderState)
+    val state by produceState(PharmacyScreenData.defaultOrderState) {
+        viewModel.orderScreenState().collect {
+            value = it
+        }
+    }
 
     val shippingContactCompleted = remember(state) {
-        state.prescriptions.isNotEmpty() && state.contact != null && !state.contact!!.phoneOrAddressMissing()
+        state.prescriptions.isNotEmpty() && !state.contact.phoneOrAddressMissing()
     }
 
     val reserveTitle = stringResource(R.string.pharmacy_order_top_bar_title_order)
     val orderTitle = stringResource(R.string.pharmacy_order_top_bar_title_order)
-
-    val reserveButtonText = if (viewModel.isDemoMode()) stringResource(R.string.pharmacy_order_button_text_reserve_demo_mode)
-    else stringResource(R.string.pharmacy_order_button_text_reserve)
-
+    val reserveButtonText = stringResource(R.string.pharmacy_order_button_text_reserve)
     val orderButtonText = stringResource(R.string.pharmacy_order_button_text_order)
 
     val topBarTitle = remember(state) {
@@ -155,8 +156,8 @@ fun PharmacyOrderScreen(
                     Text(
                         stringResource(R.string.pharmacy_order_bottom_information),
                         textAlign = TextAlign.Center,
-                        style = AppTheme.typography.captionl,
-                        modifier = Modifier.fillMaxWidth(),
+                        style = AppTheme.typography.caption1l,
+                        modifier = Modifier.fillMaxWidth()
                     )
                     SpacerSmall()
                     PrimaryButton(
@@ -172,7 +173,8 @@ fun PharmacyOrderScreen(
                                             withContext(Dispatchers.Main) {
                                                 onSuccessfullyOrdered(state.orderOption)
                                             }
-                                        }, onFailure = { scaffoldState.snackbarHostState.showSnackbar(uploadErrorText) }
+                                        },
+                                        onFailure = { scaffoldState.snackbarHostState.showSnackbar(uploadErrorText) }
                                     )
                                 } finally {
                                     uploadInProgress = false
@@ -201,7 +203,7 @@ fun PharmacyOrderScreen(
                 top = PaddingDefaults.Medium + it.calculateTopPadding(),
                 bottom = PaddingDefaults.Medium + it.calculateBottomPadding(),
                 start = PaddingDefaults.Medium,
-                end = PaddingDefaults.Medium,
+                end = PaddingDefaults.Medium
             )
         ) {
             item {
@@ -211,13 +213,13 @@ fun PharmacyOrderScreen(
             item {
                 Text(
                     stringResource(R.string.pharmacy_order_contact_and_delivery_address),
-                    style = MaterialTheme.typography.h6
+                    style = AppTheme.typography.h6
                 )
             }
             item {
                 if (state.prescriptions.isNotEmpty()) {
                     Contact(state.activeProfile, state.contact, shippingContactCompleted, onClickEdit = {
-                        if (!viewModel.isDemoMode()) navController.navigate(PharmacyNavigationScreens.EditShippingContact.path())
+                        navController.navigate(PharmacyNavigationScreens.EditShippingContact.path())
                     })
                 } else {
                     Box(Modifier.fillMaxWidth().height(160.dp)) {
@@ -227,20 +229,22 @@ fun PharmacyOrderScreen(
                 SpacerLarge()
             }
             item {
-                Text(stringResource(R.string.pharmacy_order_title_prescriptions), style = MaterialTheme.typography.h6)
+                Text(stringResource(R.string.pharmacy_order_title_prescriptions), style = AppTheme.typography.h6)
             }
-            items(state.prescriptions) { (prescription, selected) ->
-                Prescription(
-                    prescription = prescription,
-                    selected = selected,
-                    onSelect = { select ->
-                        if (select) {
-                            viewModel.onSelectOrder(prescription)
-                        } else {
-                            viewModel.onDeselectOrder(prescription)
+            state.prescriptions.forEach { (prescription, selected) ->
+                item {
+                    Prescription(
+                        prescription = prescription,
+                        selected = selected,
+                        onSelect = { select ->
+                            if (select) {
+                                viewModel.onSelectOrder(prescription)
+                            } else {
+                                viewModel.onDeselectOrder(prescription)
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
         }
         AnimatedVisibility(
@@ -265,7 +269,7 @@ fun PharmacyOrderScreen(
 @Composable
 private fun Contact(
     activeProfile: ProfilesUseCaseData.Profile,
-    contact: PharmacyUseCaseData.ShippingContact?,
+    contact: PharmacyUseCaseData.ShippingContact,
     shippingContactCompleted: Boolean,
     onClickEdit: () -> Unit
 ) {
@@ -275,21 +279,22 @@ private fun Contact(
         elevation = 0.dp,
         onClick = onClickEdit
     ) {
-        if (contact == null) {
+        if (contact.addressIsMissing()) {
             Column(Modifier.padding(PaddingDefaults.Medium)) {
                 Row {
                     val colors = profileColor(profileColorNames = activeProfile.color)
-                    val ssoStatusColor = ssoStatusColor(activeProfile, activeProfile.ssoToken)
+                    val ssoStatusColor = ssoStatusColor(activeProfile, activeProfile.ssoTokenScope)
 
-                    Avatar(Modifier.size(40.dp), activeProfile.name, colors, ssoStatusColor)
+                    Avatar(Modifier.size(40.dp), activeProfile, ssoStatusColor)
                     SpacerMedium()
                     Text(
                         stringResource(R.string.pharmacy_order_contact_required),
-                        style = MaterialTheme.typography.body1
+                        style = AppTheme.typography.body1
                     )
                 }
                 SpacerMedium()
-                PrimaryButton(
+                SecondaryButton(
+                    modifier = Modifier.fillMaxWidth().padding(PaddingDefaults.Medium),
                     onClick = { onClickEdit() }
                 ) {
                     Text(stringResource(R.string.pharmacy_order_edit_contact))
@@ -298,26 +303,28 @@ private fun Contact(
         } else {
             Row(Modifier.padding(PaddingDefaults.Medium)) {
                 val colors = profileColor(profileColorNames = activeProfile.color)
-                val ssoStatusColor = ssoStatusColor(activeProfile, activeProfile.ssoToken)
+                val ssoStatusColor = ssoStatusColor(activeProfile, activeProfile.ssoTokenScope)
 
-                Avatar(Modifier.size(40.dp), activeProfile.name, colors, ssoStatusColor)
+                Avatar(Modifier.size(40.dp), activeProfile, ssoStatusColor)
                 SpacerMedium()
                 Column(Modifier.weight(1f)) {
                     Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         Column {
                             if (contact.name.isNotBlank()) {
-                                Text(contact.name, style = MaterialTheme.typography.subtitle1)
+                                Text(contact.name, style = AppTheme.typography.subtitle1)
                             }
                             contact.address().forEach {
-                                Text(it, style = MaterialTheme.typography.body1)
+                                Text(it, style = AppTheme.typography.body1)
                             }
                         }
                         if (contact.other().isNotEmpty()) {
                             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                if (contact.telephoneNumber.isNotBlank())
+                                if (contact.telephoneNumber.isNotBlank()) {
                                     SmallChip(Icons.Outlined.Phone, contact.telephoneNumber)
-                                if (contact.mail.isNotBlank())
+                                }
+                                if (contact.mail.isNotBlank()) {
                                     SmallChip(Icons.Outlined.Mail, contact.mail)
+                                }
                             }
                         }
                         if (contact.deliveryInformation.isNotBlank()) {
@@ -330,7 +337,7 @@ private fun Contact(
                             Text(
                                 stringResource(R.string.pharmacy_order_further_contact_information_required),
                                 color = AppTheme.colors.red900,
-                                style = MaterialTheme.typography.subtitle2,
+                                style = AppTheme.typography.subtitle2,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
                             )
                         }
@@ -357,7 +364,7 @@ private fun SmallChip(
             SpacerSmall()
             Text(
                 text,
-                style = MaterialTheme.typography.body1
+                style = AppTheme.typography.body1
             )
         }
     }
@@ -377,18 +384,14 @@ private fun ContactPreview() {
     AppTheme {
         Contact(
             activeProfile = ProfilesUseCaseData.Profile(
-                id = 0,
+                id = "0",
                 name = "Irina Muster",
-                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
-                    insurantName = null,
-                    insuranceIdentifier = null,
-                    insuranceName = null
-                ),
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
                 active = false,
-                color = ProfileColorNames.SPRING_GRAY,
+                color = ProfilesData.ProfileColorNames.SPRING_GRAY,
                 lastAuthenticated = null,
-                ssoToken = null,
-                accessToken = null
+                ssoTokenScope = null,
+                avatarFigure = ProfilesData.AvatarFigure.Initials
             ),
             contact = PharmacyUseCaseData.ShippingContact(
                 name = "Beate Muster",
@@ -419,13 +422,6 @@ private fun Prescription(
         onClick = { onSelect(!selected) }
     ) {
         Row(Modifier.padding(PaddingDefaults.Medium)) {
-            Box(
-                Modifier.background(AppTheme.colors.neutral200, CircleShape).size(40.dp),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("\uD83D\uDC8A")
-            }
-            SpacerMedium()
             Column(
                 Modifier
                     .weight(1f)
@@ -434,7 +430,22 @@ private fun Prescription(
                         else Modifier.align(Alignment.CenterVertically)
                     )
             ) {
-                Text(prescription.title, style = MaterialTheme.typography.subtitle1)
+                val prescriptionTitle = if (prescription.scannedOn != null) {
+                    stringResource(R.string.order_scanned_prescription_header)
+                } else {
+                    prescription.title
+                }
+                Text(prescriptionTitle, style = AppTheme.typography.subtitle1)
+                if (prescription.scannedOn != null) {
+                    dateTimeShortText(prescription.scannedOn)
+                    Text(
+                        text = stringResource(
+                            R.string.order_scanned_on_info,
+                            dateTimeShortText(prescription.scannedOn)
+                        ),
+                        style = AppTheme.typography.body2l
+                    )
+                }
                 if (prescription.substitutionsAllowed) {
                     SpacerSmall()
                     Text(
@@ -462,7 +473,7 @@ private fun SelectedPrescriptionPreview() {
                 taskId = "",
                 title = "Ivermectin",
                 substitutionsAllowed = false,
-                accessCode = "",
+                accessCode = ""
             ),
             selected = true,
             onSelect = {}
@@ -479,7 +490,7 @@ private fun UnselectedPrescriptionPreview() {
                 taskId = "",
                 title = "Ivermectin",
                 substitutionsAllowed = true,
-                accessCode = "",
+                accessCode = ""
             ),
             selected = false,
             onSelect = {}
@@ -495,7 +506,7 @@ private fun DescriptionHeader(pharmacyName: String) {
         text = annotatedStringResource(
             id = R.string.pharm_reserve_subheader,
             buildAnnotatedString {
-                withStyle(MaterialTheme.typography.subtitle2.toSpanStyle()) {
+                withStyle(AppTheme.typography.subtitle2.toSpanStyle()) {
                     append(pharmacyName)
                 }
             }

@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.mainscreen.ui
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +36,7 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -50,16 +51,19 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.google.accompanist.insets.systemBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.pharmacy.ui.VideoContent
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData.OrderOption.CourierDelivery
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData.OrderOption.MailDelivery
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData.OrderOption.ReserveInPharmacy
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+
+const val OrderSuccessVideoAspectRatio = 1.69f
 
 @Composable
 fun OrderSuccessDialog(
@@ -88,10 +92,14 @@ fun OrderSuccessDialog(
                     ),
                 contentAlignment = Alignment.BottomCenter
             ) {
+                var delayedVisibility by remember { mutableStateOf(false) }
+                LaunchedEffect(showDialog) {
+                    delayedVisibility = showDialog
+                }
                 AnimatedVisibility(
-                    showDialog,
-                    enter = EnterTransition.None,
-                    exit = slideOutVertically(targetOffsetY = { it })
+                    delayedVisibility,
+                    enter = slideInVertically { it },
+                    exit = slideOutVertically { it }
                 ) {
                     Surface(
                         modifier = Modifier
@@ -105,13 +113,13 @@ fun OrderSuccessDialog(
                     ) {
                         Column {
                             VideoContent(
-                                Modifier
-                                    .fillMaxWidth(),
+                                Modifier.fillMaxWidth(),
                                 source = when (action.successfullyOrdered) {
                                     ReserveInPharmacy -> R.raw.animation_local
                                     CourierDelivery -> R.raw.animation_courier
                                     MailDelivery -> R.raw.animation_mail
-                                }
+                                },
+                                aspectRatioOverwrite = OrderSuccessVideoAspectRatio
                             )
                             SpacerMedium()
                             Column(
@@ -121,13 +129,13 @@ fun OrderSuccessDialog(
                                 Text(
                                     stringResource(R.string.main_order_success_title),
                                     textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.h6
+                                    style = AppTheme.typography.h6
                                 )
                                 SpacerSmall()
                                 Text(
                                     stringResource(R.string.main_order_success_subtitle),
                                     textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.body1
+                                    style = AppTheme.typography.body1
                                 )
                                 TextButton(
                                     onClick = { showDialog = false },

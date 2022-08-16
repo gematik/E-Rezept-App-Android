@@ -19,24 +19,21 @@
 package de.gematik.ti.erp.app.userauthentication.ui
 
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
-import de.gematik.ti.erp.app.core.BaseViewModel
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
+import androidx.lifecycle.ViewModel
+import de.gematik.ti.erp.app.settings.model.SettingsData
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 data class UserAuthenticationScreenState(
-    val authenticationMethod: SettingsAuthenticationMethod,
+    val authenticationMethod: SettingsData.AuthenticationMode,
     val nrOfAuthFailures: Int
 )
 
-@HiltViewModel
-class UserAuthenticationViewModel @Inject constructor(
+class UserAuthenticationViewModel(
     private val authUseCase: AuthenticationUseCase
-) : BaseViewModel() {
+) : ViewModel() {
     var defaultState = UserAuthenticationScreenState(
-        authenticationMethod = SettingsAuthenticationMethod.Unspecified,
+        authenticationMethod = SettingsData.AuthenticationMode.Unspecified,
         nrOfAuthFailures = 0
     )
 
@@ -45,7 +42,7 @@ class UserAuthenticationViewModel @Inject constructor(
             when (it) {
                 AuthenticationModeAndMethod.None,
                 AuthenticationModeAndMethod.Authenticated -> UserAuthenticationScreenState(
-                    SettingsAuthenticationMethod.Unspecified,
+                    SettingsData.AuthenticationMode.Unspecified,
                     0
                 )
                 is AuthenticationModeAndMethod.AuthenticationRequired -> UserAuthenticationScreenState(

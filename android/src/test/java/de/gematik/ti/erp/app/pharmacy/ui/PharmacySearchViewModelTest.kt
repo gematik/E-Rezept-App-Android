@@ -18,22 +18,20 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
-import androidx.lifecycle.SavedStateHandle
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.common.usecase.HintUseCase
-import de.gematik.ti.erp.app.db.entities.ProfileColorNames
-import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyContacts
+import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.usecase.OftenUsedPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -49,35 +47,40 @@ class PharmacySearchViewModelTest {
 
     private lateinit var viewModel: PharmacySearchViewModel
     private lateinit var useCase: PharmacySearchUseCase
+    private lateinit var oftenUseCase: OftenUsedPharmaciesUseCase
     private lateinit var hintUseCase: HintUseCase
     private lateinit var profileUseCase: ProfilesUseCase
-    private lateinit var savedStateHandle: SavedStateHandle
 
     private val profile = ProfilesUseCaseData.Profile(
-        id = 0,
+        id = "",
         name = "",
-        insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
-            insurantName = null,
-            insuranceIdentifier = null,
-            insuranceName = null
-        ),
+        insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
         active = true,
-        color = ProfileColorNames.SPRING_GRAY,
+        color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+        avatarFigure = ProfilesData.AvatarFigure.Initials,
         lastAuthenticated = null,
-        ssoToken = null,
-        accessToken = null
+        ssoTokenScope = null
     )
 
-    private val tasks = listOf("A", "B", "C")
+    // private val tasks = listOf("A", "B", "C")
     private val prescriptions = listOf(
         PharmacyUseCaseData.PrescriptionOrder(
-            taskId = "A", accessCode = "1234", title = "Test", substitutionsAllowed = false
+            taskId = "A",
+            accessCode = "1234",
+            title = "Test",
+            substitutionsAllowed = false
         ),
         PharmacyUseCaseData.PrescriptionOrder(
-            taskId = "B", accessCode = "1234", title = "Test", substitutionsAllowed = false
+            taskId = "B",
+            accessCode = "1234",
+            title = "Test",
+            substitutionsAllowed = false
         ),
         PharmacyUseCaseData.PrescriptionOrder(
-            taskId = "C", accessCode = "1234", title = "Test", substitutionsAllowed = false
+            taskId = "C",
+            accessCode = "1234",
+            title = "Test",
+            substitutionsAllowed = false
         )
     )
 
@@ -90,7 +93,6 @@ class PharmacySearchViewModelTest {
         provides = listOf(),
         openingHours = null,
         telematikId = "",
-        roleCode = listOf(),
         ready = false
     )
 
@@ -111,23 +113,18 @@ class PharmacySearchViewModelTest {
         useCase = mockk()
         hintUseCase = mockk()
         profileUseCase = mockk()
-        savedStateHandle = mockk(relaxed = true)
-        every { savedStateHandle.get<Unit?>(any()) } returns null
-        every { useCase.previousSearch } returns channelFlow { } // suspends
+        oftenUseCase = mockk()
         viewModel = PharmacySearchViewModel(
-            mockk(),
-            useCase,
-            profileUseCase,
-            hintUseCase,
-            coroutineRule.testDispatchProvider,
-            savedStateHandle,
-            mockk(relaxed = true)
+            useCase = useCase,
+            oftenUseCase = oftenUseCase,
+            profilesUseCase = profileUseCase,
+            dispatchers = coroutineRule.dispatchers
         )
         coEvery { profileUseCase.profiles } returns flowOf(listOf(profile))
-        coEvery { useCase.prescriptionDetailsForOrdering(tasks) } returns flowOf(
+        coEvery { useCase.prescriptionDetailsForOrdering("") } returns flowOf(
             PharmacyUseCaseData.OrderState(
                 prescriptions = prescriptions,
-                contact = null
+                contact = contacts
             )
         )
         viewModel.onSelectPharmacy(pharmacy)
@@ -136,10 +133,10 @@ class PharmacySearchViewModelTest {
 
     @Test
     fun `order screen state - default`() = runTest {
-        val state = viewModel.orderScreenState(tasks).first()
+        val state = viewModel.orderScreenState().first()
 
         assertEquals(profile, state.activeProfile)
-        assertEquals(null, state.contact)
+        assertEquals(contacts, state.contact)
         assertEquals(pharmacy, state.selectedPharmacy)
         assertEquals(orderOption, state.orderOption)
         assertEquals(prescriptions.map { Pair(it, true) }, state.prescriptions)
@@ -153,10 +150,10 @@ class PharmacySearchViewModelTest {
 
         viewModel.onDeselectOrder(prescriptions[0])
 
-        val state = viewModel.orderScreenState(tasks).first()
+        val state = viewModel.orderScreenState().first()
 
         assertEquals(profile, state.activeProfile)
-        assertEquals(null, state.contact)
+        assertEquals(contacts, state.contact)
         assertEquals(pharmacy, state.selectedPharmacy)
         assertEquals(orderOption, state.orderOption)
         assertEquals(
@@ -168,7 +165,7 @@ class PharmacySearchViewModelTest {
     @Test
     fun `order screen state - set contacts`() = runTest {
         coEvery { useCase.saveShippingContact(any()) } answers {}
-        coEvery { useCase.prescriptionDetailsForOrdering(tasks) } returns flowOf(
+        coEvery { useCase.prescriptionDetailsForOrdering("") } returns flowOf(
             PharmacyUseCaseData.OrderState(
                 prescriptions = prescriptions,
                 contact = contacts
@@ -180,7 +177,7 @@ class PharmacySearchViewModelTest {
         coroutineRule.testDispatcher.scheduler.runCurrent()
         coVerify(exactly = 1) { useCase.saveShippingContact(contacts) }
 
-        val state = viewModel.orderScreenState(tasks).first()
+        val state = viewModel.orderScreenState().first()
 
         assertEquals(profile, state.activeProfile)
         assertEquals(contacts, state.contact)

@@ -67,7 +67,7 @@ interface IdpService {
     @FormUrlEncoded
     @POST
     @Headers(
-        "Accept: application/json",
+        "Accept: application/json"
     )
     suspend fun authorization(
         @Url url: String,
@@ -77,7 +77,7 @@ interface IdpService {
     @FormUrlEncoded
     @POST
     @Headers(
-        "Accept: application/json",
+        "Accept: application/json"
     )
     suspend fun token(
         @Url url: String,
@@ -85,18 +85,18 @@ interface IdpService {
         @Field("code") code: String,
         @Field("grant_type") grantType: String = "authorization_code",
         @Field("redirect_uri") redirectUri: String = REDIRECT_URI,
-        @Field("client_id") clientId: String = CLIENT_ID,
+        @Field("client_id") clientId: String = CLIENT_ID
     ): Response<TokenResponse>
 
     @FormUrlEncoded
     @POST
     @Headers(
-        "Accept: application/json",
+        "Accept: application/json"
     )
     suspend fun ssoToken(
         @Url url: String,
         @Field("ssotoken") ssoToken: String,
-        @Field("unsigned_challenge") unsignedChallenge: String,
+        @Field("unsigned_challenge") unsignedChallenge: String
     ): Response<ResponseBody>
 
     companion object {

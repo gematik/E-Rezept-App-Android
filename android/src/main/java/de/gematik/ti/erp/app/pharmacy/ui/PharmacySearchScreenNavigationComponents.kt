@@ -18,55 +18,150 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
+import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.with
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.mainscreen.ui.ActionEvent
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
-import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import kotlinx.coroutines.launch
+import org.kodein.di.compose.rememberViewModel
 
+private const val AnimationOffset = 9
+
+@Suppress("LongMethod")
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun PharmacySearchScreenWithNavigation(
-    taskIds: List<String>,
+fun PharmacyNavigation(
     mainNavController: NavController,
-    viewModel: PharmacySearchViewModel = hiltViewModel(),
-    mainScreenVM: MainScreenViewModel = hiltViewModel(LocalActivity.current)
+    mainScreenVM: MainScreenViewModel
 ) {
+    val viewModel by rememberViewModel<PharmacySearchViewModel>()
+    val scope = rememberCoroutineScope()
+    val pharmacySearchController = rememberPharmacySearchController()
+    var searchFilter by remember { mutableStateOf(PharmacyUseCaseData.Filter()) }
+    var showPharmacySearchResult by remember { mutableStateOf(false) }
+
+    val locationPermissionLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+            scope.launch {
+                pharmacySearchController.search(
+                    name = "",
+                    filter = searchFilter.copy(nearBy = permissions.values.any { it })
+                )
+                showPharmacySearchResult = true
+            }
+        }
+
+    var showEnableLocationDialog by remember { mutableStateOf(false) }
+    if (showEnableLocationDialog) {
+        EnableLocationDialog(
+            onCancel = {
+                searchFilter = searchFilter.copy(nearBy = false)
+                showEnableLocationDialog = false
+            },
+            onAccept = {
+                locationPermissionLauncher.launch(locationPermissions)
+                showEnableLocationDialog = false
+            }
+        )
+    }
+
     val navController = rememberNavController()
     val navigationMode by navController.navigationModeState(PharmacyNavigationScreens.SearchResults.route)
+    val startDestination = PharmacyNavigationScreens.StartSearch.route
 
     TrackNavigationChanges(navController)
 
     NavHost(
         navController,
-        startDestination = PharmacyNavigationScreens.SearchResults.route
+        startDestination = startDestination
     ) {
-        composable(PharmacyNavigationScreens.SearchResults.route) {
+        composable(PharmacyNavigationScreens.StartSearch.route) {
             NavigationAnimation(mode = navigationMode) {
-                PharmacySearchScreen(
-                    mainNavController = mainNavController,
-                    onSelectPharmacy = {
-                        viewModel.onSelectPharmacy(it)
-                        navController.navigate(PharmacyNavigationScreens.PharmacyDetails.path())
-                    },
-                    viewModel,
-                )
+                AnimatedContent(
+                    targetState = showPharmacySearchResult,
+                    transitionSpec = {
+                        if (showPharmacySearchResult) {
+                            slideInVertically(initialOffsetY = { it / AnimationOffset }) + fadeIn() with
+                                fadeOut()
+                        } else {
+                            fadeIn(tween(durationMillis = 550)) with fadeOut(tween(durationMillis = 550))
+                        }
+                    }
+                ) {
+                    if (!it) {
+                        PharmacyOverviewScreen(
+                            onBack = { mainNavController.popBackStack() },
+                            onFilterChange = { searchFilter = it },
+                            filter = searchFilter,
+                            onStartSearch = {
+                                scope.launch {
+                                    when (pharmacySearchController.search(name = "", filter = searchFilter)) {
+                                        PharmacySearchController.SearchQueryResult.Send -> {
+                                            showPharmacySearchResult = true
+                                        }
+                                        PharmacySearchController.SearchQueryResult.NoLocationPermission -> {
+                                            showEnableLocationDialog = true
+                                        }
+                                        PharmacySearchController.SearchQueryResult.NoLocationFound -> {
+                                            pharmacySearchController.search(
+                                                name = "",
+                                                filter = searchFilter.copy(nearBy = false)
+                                            )
+                                            showPharmacySearchResult = true
+                                        }
+                                    }
+                                }
+                            },
+                            onSelectPharmacy = {
+                                viewModel.onSelectPharmacy(it)
+                                navController.navigate(PharmacyNavigationScreens.PharmacyDetails.path())
+                            }
+                        )
+                    } else {
+                        PharmacySearchResultScreen(
+                            pharmacySearchController = pharmacySearchController,
+                            onBack = { showPharmacySearchResult = false },
+                            onSelectPharmacy = {
+                                viewModel.onSelectPharmacy(it)
+                                navController.navigate(PharmacyNavigationScreens.PharmacyDetails.path())
+                            }
+                        )
+
+                        BackHandler {
+                            showPharmacySearchResult = false
+                        }
+                    }
+                }
             }
         }
         composable(PharmacyNavigationScreens.PharmacyDetails.route) {
             NavigationAnimation(mode = navigationMode) {
                 PharmacyDetailsScreen(
                     navController,
-                    showRedeemOptions = taskIds.isNotEmpty(),
                     viewModel
                 )
             }
@@ -75,7 +170,6 @@ fun PharmacySearchScreenWithNavigation(
             NavigationAnimation(mode = navigationMode) {
                 PharmacyOrderScreen(
                     navController,
-                    taskIds,
                     viewModel,
                     onSuccessfullyOrdered = {
                         mainScreenVM.onAction(ActionEvent.ReturnFromPharmacyOrder(it))
@@ -88,7 +182,6 @@ fun PharmacySearchScreenWithNavigation(
             NavigationAnimation(mode = navigationMode) {
                 EditShippingContactScreen(
                     navController,
-                    taskIds,
                     viewModel
                 )
             }

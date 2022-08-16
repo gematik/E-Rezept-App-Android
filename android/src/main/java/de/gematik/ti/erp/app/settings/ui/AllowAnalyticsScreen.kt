@@ -18,36 +18,42 @@
 
 package de.gematik.ti.erp.app.settings.ui
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import de.gematik.ti.erp.app.utils.compose.BottomAppBar
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AppBarDefaults
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
-import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.Spacer24
-import de.gematik.ti.erp.app.utils.compose.Spacer8
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.createToastShort
-import java.util.Locale
 
 @Composable
-fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit) {
+fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
     val allowStars = stringResource(R.string.settings_tracking_allow_emoji)
     val allowText = annotatedStringResource(
@@ -55,72 +61,93 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit) {
         annotatedStringBold(allowStars)
     ).toString()
     val disAllowToast = stringResource(R.string.settings_tracking_disallow_info)
+    val lazyListState = rememberLazyListState()
 
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Close,
-                title = stringResource(R.string.settings_tracking_allow_title),
-            ) { onAllowAnalytics(false) }
+    AnimatedElevationScaffold(
+        navigationMode = NavigationBarMode.Back,
+        topBarTitle = stringResource(R.string.settings_tracking_allow_title),
+        onBack = {
+            onAllowAnalytics(false)
+            createToastShort(context, disAllowToast)
+            onBack()
         },
+        listState = lazyListState,
         bottomBar = {
-            BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
-                Spacer24()
-                TextButton(
-                    onClick = {
-                        onAllowAnalytics(false)
-                        createToastShort(context, disAllowToast)
-                    }
+            Surface(
+                Modifier.fillMaxWidth().wrapContentHeight(),
+                color = MaterialTheme.colors.surface,
+                elevation = AppBarDefaults.BottomAppBarElevation
+            ) {
+                Row(
+                    Modifier.fillMaxWidth().wrapContentHeight(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(stringResource(R.string.settings_tracking_not_allow).uppercase(Locale.getDefault()))
-                }
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(
-                    onClick = {
-                        onAllowAnalytics(true)
-                        createToastShort(context, allowText)
+                    Button(
+                        modifier = Modifier.padding(12.dp),
+                        shape = RoundedCornerShape(8.dp),
+                        enabled = true,
+                        colors = ButtonDefaults.buttonColors(),
+                        contentPadding = PaddingValues(
+                            horizontal = PaddingDefaults.XXLarge + PaddingDefaults.Small,
+                            vertical = PaddingDefaults.ShortMedium
+                        ),
+                        onClick = {
+                            onAllowAnalytics(true)
+                            createToastShort(context, allowText)
+                            onBack()
+                        }
+                    ) {
+                        Text(stringResource(R.string.settings_tracking_allow_button))
                     }
-                ) {
-                    Text(stringResource(R.string.settings_tracking_allow).uppercase(Locale.getDefault()))
                 }
-                Spacer24()
             }
         }
     ) {
-        Column(
+        LazyColumn(
+            state = lazyListState,
             modifier = Modifier
+                .wrapContentSize()
                 .padding(
-                    start = PaddingDefaults.Medium,
-                    end = PaddingDefaults.Medium,
-                    top = PaddingDefaults.Medium,
-                    bottom = (PaddingDefaults.XLarge * 2)
+                    horizontal = PaddingDefaults.Medium
                 )
-                .verticalScroll(rememberScrollState())
+                .padding(bottom = it.calculateBottomPadding())
         ) {
-            Text(
-                stringResource(R.string.settings_tracking_dialog_title),
-                style = MaterialTheme.typography.h6,
-                color = AppTheme.colors.neutral999,
-            )
-            Spacer8()
-            Text(
-                stringResource(R.string.settings_tracking_dialog_text_1),
-                style = MaterialTheme.typography.body1,
-                color = AppTheme.colors.neutral999,
-            )
-            Spacer8()
-            Text(
-                stringResource(R.string.settings_tracking_dialog_text_2),
-                style = MaterialTheme.typography.body1,
-                color = AppTheme.colors.neutral999
-            )
-            Spacer8()
-            Text(
-                stringResource(R.string.settings_tracking_dialog_text_3),
-                style = MaterialTheme.typography.body1,
-                color = AppTheme.colors.neutral999,
-            )
-            Spacer16()
+            item {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .semantics(mergeDescendants = true) {}
+                ) {
+                    Text(
+                        stringResource(R.string.settings_tracking_dialog_title),
+                        style = AppTheme.typography.h6,
+                        modifier = Modifier.padding(
+                            top = PaddingDefaults.Medium,
+                            bottom = PaddingDefaults.Large
+                        )
+                    )
+
+                    Text(
+                        stringResource(R.string.settings_tracking_dialog_text_1),
+                        style = AppTheme.typography.body1,
+                        modifier = Modifier.padding(bottom = PaddingDefaults.Small)
+                    )
+
+                    Text(
+                        stringResource(R.string.settings_tracking_dialog_text_2),
+                        style = AppTheme.typography.body1,
+                        modifier = Modifier.padding(bottom = PaddingDefaults.Small)
+                    )
+
+                    Text(
+                        stringResource(R.string.settings_tracking_dialog_text_3),
+                        style = AppTheme.typography.body1,
+                        modifier = Modifier.padding(bottom = PaddingDefaults.Medium)
+                    )
+                }
+            }
         }
     }
 }

@@ -23,7 +23,6 @@ import androidx.annotation.FloatRange
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.Image
@@ -43,12 +42,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FloatingActionButton
@@ -65,6 +64,9 @@ import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.LiveHelp
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import androidx.compose.material.icons.rounded.ReceiptLong
+import androidx.compose.material.icons.rounded.SaveAlt
+import androidx.compose.material.icons.rounded.Send
 import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.runtime.Composable
@@ -86,6 +88,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -99,12 +102,12 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.insets.statusBarsPadding
+import androidx.compose.foundation.layout.statusBarsPadding
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerDefaults
@@ -113,33 +116,35 @@ import com.google.accompanist.pager.rememberPagerState
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Route
-import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
+import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
+import de.gematik.ti.erp.app.settings.ui.AllowBiometryScreen
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
-import de.gematik.ti.erp.app.settings.usecase.DEFAULT_PROFILE_NAME
-import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
-import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
-import de.gematik.ti.erp.app.webview.WebViewScreen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
-import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer4
-import de.gematik.ti.erp.app.utils.compose.Spacer40
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.minimalSystemBarsPadding
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
-import de.gematik.ti.erp.app.utils.compose.testId
+import de.gematik.ti.erp.app.utils.compose.visualTestTag
+import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
+import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
+import de.gematik.ti.erp.app.webview.WebViewScreen
 import dev.chrisbanes.snapper.ExperimentalSnapperApi
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.time.LocalDate
 import java.util.Locale
 import kotlin.math.max
 import kotlin.math.roundToInt
@@ -149,26 +154,29 @@ object OnboardingNavigationScreens {
     object Analytics : Route("Analytics")
     object TermsOfUse : Route("TermsOfUse")
     object DataProtection : Route("DataProtection")
+    object Biometry : Route("Biometry")
 }
 
-private const val MAX_PAGES = 6
+private const val MAX_PAGES = 5
 private const val WELCOME_PAGE = 0
 private const val FEATURE_PAGE = 1
+private const val SECURE_APP_PAGE = 2
+private const val ANALYTICS_PAGE = 3
+private const val TOS_AND_DATA_PAGE = 4
+private const val DELAY = 100L
 
-private const val PROFILE_PAGE = 2
-private const val SECURE_APP_PAGE = 3
-private const val ANALYTICS_PAGE = 4
-private const val TOS_AND_DATA_PAGE = 5
+val OnboardingFabPadding = 128.dp
 
 @Composable
 fun ReturningUserSecureAppOnboardingScreen(
     mainNavController: NavController,
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    settingsViewModel: SettingsViewModel,
+    secureMethod: OnboardingSecureAppMethod,
+    onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit
 ) {
-    var secureMethod by rememberSaveable { mutableStateOf<OnboardingSecureAppMethod>(OnboardingSecureAppMethod.None) }
-    val enabled = when {
-        secureMethod is OnboardingSecureAppMethod.DeviceSecurity -> true
-        secureMethod is OnboardingSecureAppMethod.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.let {
+    val enabled = when (secureMethod) {
+        is OnboardingSecureAppMethod.DeviceSecurity -> true
+        is OnboardingSecureAppMethod.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.let {
             it.checkedPassword != null
         } ?: false
         else -> false
@@ -212,27 +220,37 @@ fun ReturningUserSecureAppOnboardingScreen(
         OnboardingSecureApp(
             Modifier.padding(innerPadding),
             secureMethod = secureMethod,
-            isReturningUser = true,
-            onSecureMethodChange = {
-                secureMethod = it
-            },
-            onNext = {}
+            onSecureMethodChange = onSecureMethodChange,
+            onNext = {},
+            onOpenBiometricScreen = { mainNavController.navigate(MainNavigationScreens.Biometry.path()) }
         )
     }
 }
 
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun OnboardingScreen(
     mainNavController: NavController,
-    settingsViewModel: SettingsViewModel = hiltViewModel(
-        LocalActivity.current
-    )
+    settingsViewModel: SettingsViewModel
 ) {
+    val state = rememberPagerState(initialPage = 0)
+    val scope = rememberCoroutineScope()
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
     var allowTracking by rememberSaveable { mutableStateOf(false) }
-
+    var secureMethod by rememberSaveable { mutableStateOf<OnboardingSecureAppMethod>(OnboardingSecureAppMethod.None) }
     val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
+
+    val maxPages = remember(secureMethod) {
+        when (secureMethod) {
+            is OnboardingSecureAppMethod.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.let {
+                if (it.checkedPassword != null) MAX_PAGES else SECURE_APP_PAGE + 1
+            } ?: (SECURE_APP_PAGE + 1)
+            is OnboardingSecureAppMethod.DeviceSecurity -> MAX_PAGES
+            else -> SECURE_APP_PAGE + 1
+        }
+    }
+
     NavHost(
         navController,
         startDestination = OnboardingNavigationScreens.Onboarding.route
@@ -241,31 +259,32 @@ fun OnboardingScreen(
             NavigationAnimation(mode = navigationMode) {
                 OnboardingScreenWithScaffold(
                     navController,
+                    secureMethod = secureMethod,
+                    onSecureMethodChange = {
+                        secureMethod = it
+                    },
+                    state = state,
+                    maxPages = maxPages,
                     allowTracking = allowTracking,
                     onAllowTracking = {
                         allowTracking = it
                     },
-                    onSaveNewUser = { allowTracking, secureMethod, profileName ->
-                        coroutineScope.launch {
-                            when (secureMethod) {
-                                is OnboardingSecureAppMethod.DeviceSecurity ->
-                                    settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
-                                is OnboardingSecureAppMethod.Password ->
-                                    settingsViewModel.onSelectPasswordAsAuthenticationMode(
-                                        requireNotNull(secureMethod.checkedPassword)
-                                    )
-                                else -> error("Illegal state. Authentication must be set")
-                            }
+                    onSaveNewUser = { allowTracking, defaultProfileName, secureMethod ->
+                        coroutineScope.launch(Dispatchers.Main) {
+                            settingsViewModel.onboardingSucceeded(
+                                authenticationMode = when (secureMethod) {
+                                    is OnboardingSecureAppMethod.DeviceSecurity ->
+                                        SettingsData.AuthenticationMode.DeviceSecurity
+                                    is OnboardingSecureAppMethod.Password ->
+                                        SettingsData.AuthenticationMode.Password(
+                                            password = requireNotNull(secureMethod.checkedPassword)
+                                        )
+                                    else -> error("Illegal state. Authentication must be set")
+                                },
+                                defaultProfileName = defaultProfileName,
+                                allowTracking = allowTracking
+                            )
 
-                            settingsViewModel.isNewUser = false
-                            settingsViewModel.overwriteDefaultProfile(profileName)
-                            settingsViewModel.acceptUpdatedDataTerms(LocalDate.now())
-
-                            if (allowTracking) {
-                                settingsViewModel.onTrackingAllowed()
-                            } else {
-                                settingsViewModel.onTrackingDisallowed()
-                            }
                             mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
                                 launchSingleTop = true
                                 popUpTo(MainNavigationScreens.Onboarding.path()) {
@@ -279,15 +298,33 @@ fun OnboardingScreen(
         }
         composable(OnboardingNavigationScreens.Analytics.route) {
             NavigationAnimation(mode = navigationMode) {
-                AllowAnalyticsScreen {
-                    allowTracking = it
-                    navController.popBackStack()
-                }
+                AllowAnalyticsScreen(
+                    onBack = { navController.popBackStack() },
+                    onAllowAnalytics = { allowTracking = it }
+                )
+            }
+        }
+        composable(OnboardingNavigationScreens.Biometry.route) {
+            NavigationAnimation(mode = navigationMode) {
+                AllowBiometryScreen(
+                    onBack = { navController.popBackStack() },
+                    onNext = {
+                        navController.popBackStack()
+                        if (state.currentPage == SECURE_APP_PAGE) {
+                            scope.launch {
+                                delay(DELAY) // composable needs time to recalculate maxPages
+                                state.animateScrollToPage(state.currentPage + 1)
+                            }
+                        }
+                    },
+                    onSecureMethodChange = { secureMethod = it }
+                )
             }
         }
         composable(OnboardingNavigationScreens.TermsOfUse.route) {
             NavigationAnimation(mode = navigationMode) {
                 WebViewScreen(
+                    modifier = Modifier.testTag(TestTag.Onboarding.TermsOfUseScreen),
                     title = stringResource(R.string.onb_terms_of_use),
                     onBack = { navController.popBackStack() },
                     url = URI_TERMS_OF_USE
@@ -297,6 +334,7 @@ fun OnboardingScreen(
         composable(OnboardingNavigationScreens.DataProtection.route) {
             NavigationAnimation(mode = navigationMode) {
                 WebViewScreen(
+                    modifier = Modifier.testTag(TestTag.Onboarding.DataProtectionScreen),
                     title = stringResource(R.string.onb_data_consent),
                     onBack = { navController.popBackStack() },
                     url = URI_DATA_TERMS
@@ -306,33 +344,25 @@ fun OnboardingScreen(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class, ExperimentalSnapperApi::class)
+@Suppress("LongMethod")
+@OptIn(ExperimentalPagerApi::class, ExperimentalSnapperApi::class, ExperimentalMaterialApi::class)
 @Composable
 private fun OnboardingScreenWithScaffold(
     navController: NavController,
+    secureMethod: OnboardingSecureAppMethod,
+    onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit,
     allowTracking: Boolean,
+    maxPages: Int,
+    state: PagerState,
     onAllowTracking: (Boolean) -> Unit,
-    onSaveNewUser: (allowTracking: Boolean, secureAppMethod: OnboardingSecureAppMethod, profileName: String) -> Unit
+    onSaveNewUser: (
+        allowTracking: Boolean,
+        defaultProfileName: String,
+        secureAppMethod: OnboardingSecureAppMethod
+    ) -> Unit
 ) {
     val context = LocalContext.current
-
     var tosAndDataToggled by remember { mutableStateOf(false) }
-    var secureMethod by rememberSaveable { mutableStateOf<OnboardingSecureAppMethod>(OnboardingSecureAppMethod.None) }
-    var profileName by rememberSaveable { mutableStateOf("") }
-
-    val state = rememberPagerState(initialPage = 0)
-
-    val maxPages = if (profileName.isBlank()) {
-        PROFILE_PAGE + 1
-    } else
-        when (secureMethod) {
-            is OnboardingSecureAppMethod.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.let {
-                if (it.checkedPassword != null) MAX_PAGES else SECURE_APP_PAGE + 1
-            } ?: (SECURE_APP_PAGE + 1)
-            is OnboardingSecureAppMethod.DeviceSecurity -> MAX_PAGES
-            else -> SECURE_APP_PAGE + 1
-        }
-
     val scope = rememberCoroutineScope()
     BackHandler(enabled = state.currentPage > 0) {
         scope.launch {
@@ -340,15 +370,31 @@ private fun OnboardingScreenWithScaffold(
         }
     }
 
+    val doNextPage = remember { Channel<Unit>(Channel.CONFLATED) }
+
+    LaunchedEffect(state.pageCount) {
+        for (ignored in doNextPage) {
+            if (state.currentPage + 1 < state.pageCount) {
+                state.animateScrollToPage(state.currentPage + 1)
+            }
+        }
+    }
+
+    val focusManager = LocalFocusManager.current
+    LaunchedEffect(state.currentPage) {
+        focusManager.clearFocus()
+    }
+
     Scaffold(
         modifier = Modifier
-            .testTag("screen_onboarding")
+            .visualTestTag("screen_onboarding")
             .minimalSystemBarsPadding()
     ) {
         Box {
             HorizontalPager(
                 count = maxPages,
                 modifier = Modifier
+                    .testTag(TestTag.Onboarding.Pager)
                     .fillMaxSize(),
                 state = state,
                 flingBehavior = PagerDefaults.flingBehavior(
@@ -373,31 +419,17 @@ private fun OnboardingScreenWithScaffold(
                             }
                         )
                     }
-                    PROFILE_PAGE -> {
-                        OnboardingProfile(
-                            modifier = Modifier.semantics {
-                                focused = state.currentPage == PROFILE_PAGE
-                            },
-                            profileName = profileName,
-                            onProfileNameChange = { profileName = it },
-                            onNext = {
-                                scope.launch {
-                                    state.animateScrollToPage(state.currentPage + 1)
-                                }
-                            }
-                        )
-                    }
+
                     SECURE_APP_PAGE -> {
                         OnboardingSecureApp(
                             Modifier.semantics { focused = state.currentPage == SECURE_APP_PAGE },
                             secureMethod = secureMethod,
-                            onSecureMethodChange = {
-                                secureMethod = it
+                            onSecureMethodChange = onSecureMethodChange,
+                            onOpenBiometricScreen = {
+                                navController.navigate(OnboardingNavigationScreens.Biometry.path())
                             },
                             onNext = {
-                                scope.launch {
-                                    state.animateScrollToPage(state.currentPage + 1)
-                                }
+                                scope.launch { doNextPage.send(Unit) }
                             }
                         )
                     }
@@ -419,53 +451,62 @@ private fun OnboardingScreenWithScaffold(
                     TOS_AND_DATA_PAGE -> {
                         OnboardingPageTerms(
                             Modifier.semantics { focused = state.currentPage == TOS_AND_DATA_PAGE },
-                            navController,
+                            navController
                         ) {
                             tosAndDataToggled = it
                         }
                     }
                 }
             }
-
             BottomPageIndicator(state)
-
-            OnboardingNextButton(
-                Modifier.testId("onb_btn_next"),
-                profileName,
-                secureMethod,
-                tosAndDataToggled,
-                currentPage = state.currentPage,
-                onNextPage = {
-                    scope.launch {
-                        state.animateScrollToPage(state.currentPage + 1)
+            val currentPageIsSecureApp = state.currentPage == SECURE_APP_PAGE
+            val secureMethodIsEmpty = secureMethod is OnboardingSecureAppMethod.None ||
+                (secureMethod is OnboardingSecureAppMethod.Password && secureMethod.checkedPassword == null)
+            val defaultProfileName = stringResource(R.string.onboarding_default_profile_name)
+            if (!(currentPageIsSecureApp && secureMethodIsEmpty)) {
+                OnboardingNextButton(
+                    secureMethod = secureMethod,
+                    tosAndDataToggled = tosAndDataToggled,
+                    currentPage = state.currentPage,
+                    onNextPage = {
+                        scope.launch { doNextPage.send(Unit) }
+                    },
+                    onSaveNewUser = {
+                        onSaveNewUser(allowTracking, defaultProfileName, secureMethod)
                     }
-                },
-                onSaveNewUser = {
-                    onSaveNewUser(allowTracking, secureMethod, profileName)
-                }
-            )
+                )
+            }
 
             if (BuildKonfig.INTERNAL) {
-                OutlinedDebugButton(
-                    "SKIP",
-                    onClick = {
-                        onSaveNewUser(false, OnboardingSecureAppMethod.Password("a", "a", 9), DEFAULT_PROFILE_NAME)
-                    },
+                Row(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(PaddingDefaults.Medium)
-                )
+                ) {
+                    OutlinedDebugButton(
+                        "SKIP",
+                        onClick = {
+                            onSaveNewUser(false, defaultProfileName, OnboardingSecureAppMethod.Password("a", "a", 9))
+                        }
+                    )
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun BoxScope.BottomPageIndicator(pagerState: PagerState) {
+    val pagerAccessibilityDescription = annotatedStringResource(
+        R.string.on_boarding_pager_acc_description,
+        (pagerState.currentPage + 1).toString(),
+        MAX_PAGES.toString()
+    ).toString()
     Box(
         modifier = Modifier
             .padding(bottom = 24.dp)
+            .semantics { contentDescription = pagerAccessibilityDescription }
             .clip(CircleShape)
             .background(AppTheme.colors.neutral100.copy(alpha = 0.5f))
             .align(Alignment.BottomCenter)
@@ -499,26 +540,23 @@ private fun Dot(modifier: Modifier = Modifier, color: Color) {
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 private fun BoxScope.OnboardingNextButton(
     modifier: Modifier = Modifier,
-    profileName: String,
-    secureMethod: OnboardingSecureAppMethod,
     tosAndDataToggled: Boolean,
+    secureMethod: OnboardingSecureAppMethod,
     currentPage: Int,
     onNextPage: () -> Unit,
     onSaveNewUser: () -> Unit
 ) {
     val enabled = when {
         currentPage == WELCOME_PAGE || currentPage == FEATURE_PAGE || currentPage == ANALYTICS_PAGE -> true
-        currentPage == PROFILE_PAGE && profileName.isNotEmpty() -> true
         currentPage == SECURE_APP_PAGE && secureMethod is OnboardingSecureAppMethod.DeviceSecurity -> true
         currentPage == SECURE_APP_PAGE && secureMethod is OnboardingSecureAppMethod.Password -> secureMethod.checkedPassword != null
         tosAndDataToggled && currentPage == TOS_AND_DATA_PAGE -> true
         else -> false
     }
-
+    val onBoardingNextButton = stringResource(R.string.on_boarding_cdn_btn_next)
     NextButton(
         onNext = {
             when {
@@ -529,7 +567,15 @@ private fun BoxScope.OnboardingNextButton(
             }
         },
         enabled = enabled,
-        modifier = modifier.align(Alignment.BottomEnd)
+        modifier = modifier
+            .align(Alignment.BottomEnd)
+            .semantics {
+                contentDescription = if (currentPage != TOS_AND_DATA_PAGE) {
+                    onBoardingNextButton
+                } else {
+                    ""
+                }
+            }
     ) {
         Crossfade(targetState = currentPage == TOS_AND_DATA_PAGE) {
             when (it) {
@@ -543,16 +589,13 @@ private fun BoxScope.OnboardingNextButton(
             Row {
                 Spacer4()
                 Text(
-                    stringResource(R.string.on_boarding_page_4_next).uppercase(
-                        Locale.getDefault()
-                    )
+                    stringResource(R.string.on_boarding_page_4_next)
                 )
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 private fun NextButton(
     modifier: Modifier = Modifier,
@@ -562,7 +605,7 @@ private fun NextButton(
 ) {
     val backgroundColor =
         if (enabled) {
-            MaterialTheme.colors.secondary
+            AppTheme.colors.primary600
         } else {
             AppTheme.colors.neutral300
         }
@@ -570,7 +613,7 @@ private fun NextButton(
     val contentColor = if (enabled) {
         contentColorFor(backgroundColor)
     } else {
-        AppTheme.colors.neutral500
+        AppTheme.colors.neutral600
     }
 
     FloatingActionButton(
@@ -579,16 +622,20 @@ private fun NextButton(
                 onNext()
             }
         },
+        shape = RoundedCornerShape(PaddingDefaults.Medium),
         backgroundColor = backgroundColor,
         contentColor = contentColor,
         modifier = modifier
-            .testTag("onboarding/next")
-            .padding(bottom = 64.dp, end = 24.dp)
+            .padding(
+                bottom = 64.dp,
+                end = PaddingDefaults.Medium
+            )
             .semantics {
                 if (!enabled) {
                     disabled()
                 }
             }
+            .visualTestTag(TestTag.Onboarding.NextButton)
     ) {
         Row(
             modifier = Modifier.padding(PaddingDefaults.Medium),
@@ -619,65 +666,77 @@ private fun PeopleLayer(
     ) {
         Image(
             painterResource(R.drawable.onboarding_boygrannygranpa),
-            stringResource(R.string.on_boarding_page_1_acc_image),
+            null,
             alignment = Alignment.BottomStart,
             modifier = Modifier.fillMaxSize()
         )
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 private fun OnboardingWelcome(modifier: Modifier, pagerState: PagerState) {
-    val flag = painterResource(R.drawable.ic_onboarding_logo_flag)
-    val gematik = painterResource(R.drawable.ic_onboarding_logo_gematik)
-    val eRpLogo = painterResource(R.drawable.erp_logo)
-    val header = stringResource(R.string.app_name)
-    val body = stringResource(R.string.on_boarding_page_1_headline)
-
     Column(
-        modifier = modifier.testTag("onboarding/welcome")
+        modifier = modifier
+            .visualTestTag(TestTag.Onboarding.WelcomeScreen)
+            .padding(horizontal = PaddingDefaults.Medium)
     ) {
         Row(
             modifier = Modifier
-                .padding(start = 24.dp, top = 40.dp)
+                .padding(
+                    top = PaddingDefaults.Medium
+                )
                 .align(Alignment.Start),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Image(flag, null, modifier = Modifier.padding(end = 10.dp))
-            Icon(gematik, null, tint = AppTheme.colors.primary900)
+            Image(
+                painterResource(R.drawable.ic_onboarding_logo_flag),
+                null,
+                modifier = Modifier.padding(end = 10.dp)
+            )
+            Icon(
+                painterResource(R.drawable.ic_onboarding_logo_gematik),
+                null,
+                tint = AppTheme.colors.primary900
+            )
         }
-
-        Image(
-            eRpLogo, null,
+        Column(
             modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = PaddingDefaults.XLarge)
-                .testId("onb_img_erp_logo")
-        )
+                .fillMaxWidth()
+                .wrapContentHeight()
+                .semantics(mergeDescendants = true) {}
+        ) {
+            Image(
+                painterResource(R.drawable.erp_logo),
+                null,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = PaddingDefaults.Large)
+            )
 
-        Text(
-            text = header,
-            style = MaterialTheme.typography.h4,
-            color = AppTheme.colors.primary900,
-            fontWeight = FontWeight.W700,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = PaddingDefaults.Small)
-                .testId("onb_txt_start_title")
-        )
-        Text(
-            text = body,
-            style = MaterialTheme.typography.subtitle1,
-            color = AppTheme.colors.neutral600,
-            fontWeight = FontWeight.W500,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 56.dp)
-        )
-
+            Text(
+                text = stringResource(R.string.app_name),
+                style = AppTheme.typography.h4,
+                fontWeight = FontWeight.W700,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(
+                        top = PaddingDefaults.Medium,
+                        bottom = PaddingDefaults.Small
+                    )
+            )
+            Text(
+                text = stringResource(R.string.on_boarding_page_1_header),
+                style = AppTheme.typography.subtitle1l,
+                textAlign = TextAlign.Center,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(
+                        bottom = PaddingDefaults.XXLarge
+                    )
+            )
+        }
         val offset by derivedStateOf {
             if (pagerState.currentPage == WELCOME_PAGE) pagerState.currentPageOffset else 0f
         }
@@ -689,54 +748,78 @@ private fun OnboardingWelcome(modifier: Modifier, pagerState: PagerState) {
 }
 
 @Composable
-private fun OnboardingAppFeatures(modifier: Modifier) {
-    val image = painterResource(R.drawable.woman_red_shirt_circle_blue)
-    val header = stringResource(R.string.on_boarding_page_3_header)
-
-    val imageAcc = stringResource(R.string.on_boarding_page_3_acc_image)
-    Column(
+private fun OnboardingAppFeatures(
+    modifier: Modifier
+) {
+    OnboardingLazyColumn(
+        state = rememberLazyListState(),
         modifier = modifier
-            .testTag("onboarding/features")
+            .visualTestTag(TestTag.Onboarding.FeatureScreen)
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
     ) {
-        Image(
-            image,
-            imageAcc,
-            alignment = Alignment.Center,
-            modifier = Modifier
-                .padding(top = 40.dp)
-                .fillMaxWidth()
-                .align(Alignment.CenterHorizontally)
-        )
-
-        Text(
-            text = header,
-            style = MaterialTheme.typography.h6,
-            color = AppTheme.colors.primary900,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(start = 24.dp, end = 24.dp)
-                .testId("onb_txt_features_title")
-        )
-        Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.padding(top = 8.dp, start = 24.dp, end = 24.dp, bottom = 136.dp)
-        ) {
-            OnboardingCheck(stringResource(R.string.on_boarding_page_3_info_check_1))
-            OnboardingCheck(stringResource(R.string.on_boarding_page_3_info_check_2))
-            OnboardingCheck(stringResource(R.string.on_boarding_page_3_info_check_3))
+        item {
+            Image(
+                painter = painterResource(R.drawable.woman_red_shirt_overlapping),
+                null,
+                alignment = Alignment.CenterStart,
+                modifier = Modifier
+                    .padding(
+                        top = PaddingDefaults.XXLarge,
+                        bottom = PaddingDefaults.XXLarge
+                    )
+                    .fillMaxWidth()
+            )
+        }
+        item {
+            Column(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .semantics(mergeDescendants = true) {}
+            ) {
+                Text(
+                    text = stringResource(R.string.onb_page_3_header),
+                    style = AppTheme.typography.h4,
+                    fontWeight = FontWeight.W700,
+                    textAlign = TextAlign.Start
+                )
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
+                    modifier = Modifier.padding(
+                        top = PaddingDefaults.Medium
+                    )
+                ) {
+                    OnboardingFeatureItem(
+                        icon = Icons.Rounded.Send,
+                        text = stringResource(R.string.onb_page_3_info_check_1)
+                    )
+                    OnboardingFeatureItem(
+                        icon = Icons.Rounded.ReceiptLong,
+                        text = stringResource(R.string.on_boarding_page_3_info_check_2)
+                    )
+                    OnboardingFeatureItem(
+                        icon = Icons.Rounded.SaveAlt,
+                        text = stringResource(R.string.on_boarding_page_3_info_check_3)
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun OnboardingCheck(text: String) {
+private fun OnboardingFeatureItem(icon: ImageVector, text: String) {
     Row {
-        Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green600)
-        Spacer16()
-        Text(text, style = MaterialTheme.typography.body1)
+        Icon(
+            icon,
+            null,
+            tint = AppTheme.colors.primary600
+        )
+        SpacerMedium()
+        Text(
+            text,
+            style = AppTheme.typography.body1,
+            textAlign = TextAlign.Start
+        )
     }
 }
 
@@ -746,64 +829,68 @@ private fun OnboardingPageAnalytics(
     allowTracking: Boolean,
     onAllowTracking: (Boolean) -> Unit
 ) {
-    val header = stringResource(R.string.on_boarding_page_5_header)
-    val subHeader = stringResource(R.string.on_boarding_page_5_sub_header)
-
-    Column(
+    OnboardingLazyColumn(
+        state = rememberLazyListState(),
         modifier = modifier
-            .testTag("onboarding/analytics")
+            .visualTestTag(TestTag.Onboarding.AnalyticsScreen)
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = header,
-            style = MaterialTheme.typography.h6,
-            color = AppTheme.colors.primary900,
-            modifier = Modifier
-                .padding(top = 40.dp, start = 24.dp, end = 24.dp, bottom = PaddingDefaults.Small)
-                .testId("onb_txt_tracking_headline")
-        )
-        Text(
-            text = subHeader,
-            style = MaterialTheme.typography.subtitle1,
-            color = AppTheme.colors.neutral999,
-            modifier = Modifier
-                .padding(
-                    top = PaddingDefaults.Medium,
-                    start = 24.dp,
-                    end = 24.dp,
-                    bottom = PaddingDefaults.Small
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .semantics(mergeDescendants = true) {}
+            ) {
+                Text(
+                    text = stringResource(R.string.onb_page_5_header),
+                    style = AppTheme.typography.h4,
+                    fontWeight = FontWeight.W700,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier
+                        .padding(
+                            top = PaddingDefaults.XXLarge,
+                            bottom = PaddingDefaults.Large
+                        )
                 )
-        )
 
-        val stringBold = stringResource(R.string.on_boarding_page_5_anonym)
-        AnalyticsInfo(
-            icon = Icons.Rounded.Timeline,
-            id = R.string.on_boarding_page_5_info_1,
-            stringBold = stringBold
-        )
-        Spacer16()
-        AnalyticsInfo(
-            icon = Icons.Rounded.BugReport,
-            id = R.string.on_boarding_page_5_info_2,
-            stringBold = stringBold
-        )
-        Spacer16()
-        AnalyticsInfo(
-            icon = Icons.Rounded.LiveHelp,
-            id = R.string.on_boarding_page_5_info_3,
-            stringBold = ""
-        )
-        Spacer40()
-        AnalyticsToggle(allowTracking, onAllowTracking)
-        SpacerSmall()
-        Text(
-            stringResource(R.string.on_boarding_page_5_label_info),
-            style = AppTheme.typography.body2l,
-            color = AppTheme.colors.neutral600,
-            textAlign = TextAlign.Center,
-            modifier = Modifier.padding(horizontal = PaddingDefaults.Large)
-        )
+                val stringBold = stringResource(R.string.on_boarding_page_5_anonym)
+                AnalyticsInfo(
+                    icon = Icons.Rounded.Timeline,
+                    id = R.string.on_boarding_page_5_info_1,
+                    stringBold = stringBold
+                )
+                SpacerMedium()
+                AnalyticsInfo(
+                    icon = Icons.Rounded.BugReport,
+                    id = R.string.on_boarding_page_5_info_2,
+                    stringBold = stringBold
+                )
+                SpacerMedium()
+                AnalyticsInfo(
+                    icon = Icons.Rounded.LiveHelp,
+                    id = R.string.on_boarding_page_5_info_3,
+                    stringBold = ""
+                )
+            }
+        }
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .semantics(mergeDescendants = true) {}
+            ) {
+                SpacerXXLarge()
+                AnalyticsToggle(allowTracking, onAllowTracking)
+                SpacerSmall()
+                Text(
+                    stringResource(R.string.on_boarding_page_5_label_info),
+                    style = AppTheme.typography.body2l,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
     }
 }
 
@@ -811,57 +898,64 @@ private fun OnboardingPageAnalytics(
 private fun OnboardingPageTerms(
     modifier: Modifier,
     navController: NavController,
-    onBothToggled: (Boolean) -> Unit,
+    onBothToggled: (Boolean) -> Unit
 ) {
-    val header = stringResource(R.string.on_boarding_page_4_header)
-    val info = stringResource(R.string.on_boarding_page_4_info)
-
-    Column(
+    OnboardingLazyColumn(
+        state = rememberLazyListState(),
         modifier = modifier
-            .testTag("onboarding/terms")
+            .visualTestTag(TestTag.Onboarding.DataTermsScreen)
             .fillMaxSize()
-            .verticalScroll(rememberScrollState())
     ) {
-        Text(
-            text = header,
-            style = MaterialTheme.typography.h6,
-            color = AppTheme.colors.primary900,
-            modifier = Modifier
-                .padding(top = 40.dp, start = 24.dp, end = 24.dp, bottom = 8.dp)
-                .testId("onb_txt_legal_info_title")
-        )
-        Text(
-            text = info,
-            style = MaterialTheme.typography.body1,
-            modifier = Modifier
-                .padding(start = 24.dp, end = 24.dp)
-        )
-
-        var checkedDataProtection by rememberSaveable { mutableStateOf(false) }
-        var checkedTos by rememberSaveable { mutableStateOf(false) }
-
-        DisposableEffect(checkedDataProtection, checkedTos) {
-            if (checkedDataProtection && checkedTos) {
-                onBothToggled(true)
-            } else {
-                onBothToggled(false)
-            }
-            onDispose { }
-        }
-
-        Spacer24()
-
-        Column(
-            modifier = Modifier.padding(
-                start = 24.dp,
-                end = 24.dp,
-                bottom = 136.dp
+        item {
+            Image(
+                painter = painterResource(R.drawable.paragraph),
+                contentDescription = null,
+                alignment = Alignment.CenterStart,
+                modifier = Modifier
+                    .padding(
+                        top = PaddingDefaults.XXLarge
+                    )
+                    .fillMaxWidth()
             )
-        ) {
+        }
+        item {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .semantics(mergeDescendants = true) {}
+            ) {
+                Text(
+                    text = stringResource(R.string.onb_page_4_header),
+                    style = AppTheme.typography.h4,
+                    fontWeight = FontWeight.W700,
+                    textAlign = TextAlign.Start,
+                    modifier = Modifier.padding(bottom = PaddingDefaults.Medium, top = PaddingDefaults.XXLarge)
+                )
+                Text(
+                    text = stringResource(R.string.on_boarding_page_4_info),
+                    style = AppTheme.typography.body1,
+                    modifier = Modifier
+                        .padding(bottom = PaddingDefaults.XXLarge)
+                )
+            }
+            var checkedDataProtection by rememberSaveable { mutableStateOf(false) }
+            var checkedTos by rememberSaveable { mutableStateOf(false) }
+
+            DisposableEffect(checkedDataProtection, checkedTos) {
+                if (checkedDataProtection && checkedTos) {
+                    onBothToggled(true)
+                } else {
+                    onBothToggled(false)
+                }
+                onDispose { }
+            }
+
             OnboardingToggle(
                 stringResource(R.string.on_boarding_page_4_info_dataprotection),
                 stringResource(R.string.onb_accept_data),
-                toggleTestId = "onb_btn_accept_privacy",
+                toggleTestTag = TestTag.Onboarding.DataTerms.DataProtectionSwitch,
+                clickTestTag = TestTag.Onboarding.DataTerms.OpenDataProtectionButton,
                 checked = checkedDataProtection,
                 onCheckedChange = {
                     checkedDataProtection = it
@@ -870,10 +964,12 @@ private fun OnboardingPageTerms(
                     navController.navigate(OnboardingNavigationScreens.DataProtection.path())
                 }
             )
+
             OnboardingToggle(
                 stringResource(R.string.on_boarding_page_4_info_tos),
                 stringResource(R.string.onb_accept_tos),
-                toggleTestId = "onb_btn_accept_terms_of_use",
+                toggleTestTag = TestTag.Onboarding.DataTerms.TermsOfUseSwitch,
+                clickTestTag = TestTag.Onboarding.DataTerms.OpenTermsOfUseButton,
                 checked = checkedTos,
                 onCheckedChange = {
                     checkedTos = it
@@ -889,17 +985,16 @@ private fun OnboardingPageTerms(
 @Composable
 private fun AnalyticsInfo(icon: ImageVector, @StringRes id: Int, stringBold: String) {
     Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.padding(horizontal = PaddingDefaults.Large)
+        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
     ) {
-        Icon(icon, null, tint = AppTheme.colors.primary500)
+        Icon(icon, null, tint = AppTheme.colors.primary600)
         Column(modifier = Modifier.weight(1.0f)) {
             Text(
                 text = annotatedStringResource(
                     id,
                     annotatedStringBold(stringBold)
                 ),
-                style = MaterialTheme.typography.body1
+                style = AppTheme.typography.body1
             )
         }
     }
@@ -910,13 +1005,10 @@ private fun AnalyticsToggle(
     analyticsAllowed: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
-    val labelText = stringResource(R.string.on_boarding_page_5_label)
-
     Row(
         modifier = Modifier
-            .padding(horizontal = PaddingDefaults.Large)
-            .clip(RoundedCornerShape(16.dp))
-            .background(AppTheme.colors.neutral100, shape = RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(PaddingDefaults.Medium))
+            .background(AppTheme.colors.neutral100, shape = RoundedCornerShape(PaddingDefaults.Medium))
             .fillMaxWidth()
             .toggleable(
                 value = analyticsAllowed,
@@ -926,20 +1018,19 @@ private fun AnalyticsToggle(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = LocalIndication.current
             )
-            .padding(PaddingDefaults.Medium)
-            .semantics(true) {},
+            .padding(PaddingDefaults.Medium),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
     ) {
         Text(
-            labelText,
-            style = MaterialTheme.typography.subtitle1,
+            text = stringResource(R.string.on_boarding_page_5_label),
+            style = AppTheme.typography.subtitle2,
             modifier = Modifier.weight(1f)
         )
         SpacerSmall()
         Switch(
             checked = analyticsAllowed,
-            onCheckedChange = null,
+            onCheckedChange = null
         )
     }
 }
@@ -948,7 +1039,8 @@ private fun AnalyticsToggle(
 private fun OnboardingToggle(
     which: String,
     toggleContentDescription: String,
-    toggleTestId: String,
+    toggleTestTag: String,
+    clickTestTag: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     onClickInfo: () -> Unit
@@ -956,15 +1048,16 @@ private fun OnboardingToggle(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 24.dp),
+            .semantics(mergeDescendants = true) {}
+            .padding(bottom = PaddingDefaults.Large),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         val info = annotatedStringResource(
             R.string.on_boarding_page_4_info_accept_info,
             buildAnnotatedString {
                 pushStringAnnotation("CLICKABLE", "")
-                pushStyle(SpanStyle(color = AppTheme.colors.primary500))
+                pushStyle(SpanStyle(color = AppTheme.colors.primary600))
                 append(which)
                 pop()
                 pop()
@@ -983,7 +1076,7 @@ private fun OnboardingToggle(
 
         Text(
             text = info,
-            style = MaterialTheme.typography.body1,
+            style = AppTheme.typography.body1,
             modifier = Modifier
                 .weight(1f)
                 .clickable(
@@ -992,6 +1085,7 @@ private fun OnboardingToggle(
                     interactionSource = remember { MutableInteractionSource() },
                     onClick = onClickInfo
                 )
+                .visualTestTag(clickTestTag)
         )
 
         Box(
@@ -1005,22 +1099,23 @@ private fun OnboardingToggle(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = rememberRipple(
                         bounded = false,
-                        radius = 24.dp
+                        radius = PaddingDefaults.Large
                     )
                 )
-                .testTag(toggleTestId)
-                .testId(toggleTestId)
+                .visualTestTag(toggleTestTag)
                 .semantics {
                     contentDescription = toggleContentDescription
                 },
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                Icons.Rounded.RadioButtonUnchecked, null,
-                tint = AppTheme.colors.neutral400
+                Icons.Rounded.RadioButtonUnchecked,
+                null,
+                tint = AppTheme.colors.neutral300
             )
             Icon(
-                Icons.Rounded.CheckCircle, null,
+                Icons.Rounded.CheckCircle,
+                null,
                 tint = AppTheme.colors.primary600,
                 modifier = Modifier.alpha(alpha.value)
             )

@@ -67,7 +67,7 @@ fun DesktopAppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Compos
                 fontWeight = FontWeight.W500
             ),
             body1 = MaterialTheme.typography.body1.copy(fontFamily = fontFamily, lineHeight = 1.5.em),
-            body2 = MaterialTheme.typography.body2.copy(fontFamily = fontFamily, lineHeight = 1.5.em),
+            body2 = MaterialTheme.typography.body2.copy(fontFamily = fontFamily, lineHeight = 1.5.em)
         ),
         colors = Colors(
             primary = colors.primary600,

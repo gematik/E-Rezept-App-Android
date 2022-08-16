@@ -21,11 +21,11 @@ package de.gematik.ti.erp.app.profiles.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import de.gematik.ti.erp.app.idp.model.IdpData
 
 @Composable
 fun connectionText(
-    ssoToken: SingleSignOnToken?,
+    ssoToken: IdpData.SingleSignOnToken?,
     lastAuthenticatedDate: String?
 ) = when {
     ssoToken != null && ssoToken.isValid() -> {

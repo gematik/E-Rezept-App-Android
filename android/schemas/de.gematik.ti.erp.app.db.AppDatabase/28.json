@@ -1,0 +1,435 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 28,
+    "identityHash": "69aa2e73e6873cbabeb005dcc45fc7e7",
+    "entities": [
+      {
+        "tableName": "tasks",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`taskId` TEXT NOT NULL, `profileName` TEXT NOT NULL, `accessCode` TEXT, `lastModified` TEXT, `expiresOn` TEXT, `acceptUntil` TEXT, `authoredOn` TEXT, `status` TEXT, `scannedOn` TEXT, `scanSessionEnd` TEXT, `nrInScanSession` INTEGER, `redeemedOn` TEXT, `rawKBVBundle` BLOB, PRIMARY KEY(`taskId`))",
+        "fields": [
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profileName",
+            "columnName": "profileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "accessCode",
+            "columnName": "accessCode",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "lastModified",
+            "columnName": "lastModified",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "expiresOn",
+            "columnName": "expiresOn",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "acceptUntil",
+            "columnName": "acceptUntil",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "authoredOn",
+            "columnName": "authoredOn",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "status",
+            "columnName": "status",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scannedOn",
+            "columnName": "scannedOn",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "scanSessionEnd",
+            "columnName": "scanSessionEnd",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "nrInScanSession",
+            "columnName": "nrInScanSession",
+            "affinity": "INTEGER",
+            "notNull": false
+          },
+          {
+            "fieldPath": "redeemedOn",
+            "columnName": "redeemedOn",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "rawKBVBundle",
+            "columnName": "rawKBVBundle",
+            "affinity": "BLOB",
+            "notNull": false
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "taskId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_tasks_profileName",
+            "unique": false,
+            "columnNames": [
+              "profileName"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_tasks_profileName` ON `${TABLE_NAME}` (`profileName`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "profiles",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `name` TEXT NOT NULL, `lastAuthenticated` TEXT, `insurantName` TEXT, `insuranceIdentifier` TEXT, `insuranceName` TEXT, `color` TEXT NOT NULL)",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "name",
+            "columnName": "name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastAuthenticated",
+            "columnName": "lastAuthenticated",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "insurantName",
+            "columnName": "insurantName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "insuranceIdentifier",
+            "columnName": "insuranceIdentifier",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "insuranceName",
+            "columnName": "insuranceName",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "color",
+            "columnName": "color",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": true
+        },
+        "indices": [
+          {
+            "name": "index_profiles_name",
+            "unique": true,
+            "columnNames": [
+              "name"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_profiles_name` ON `${TABLE_NAME}` (`name`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "settings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`authenticationMethod` TEXT NOT NULL, `authenticationFails` INTEGER NOT NULL, `zoomEnabled` INTEGER NOT NULL, `userHasAcceptedInsecureDevice` INTEGER NOT NULL, `dataProtectionVersionAccepted` TEXT NOT NULL, `id` INTEGER NOT NULL, `password_salt` BLOB, `password_hash` BLOB, `pharmacySearch_name` TEXT NOT NULL, `pharmacySearch_locationEnabled` INTEGER NOT NULL, `pharmacySearch_filterReady` INTEGER NOT NULL, `pharmacySearch_filterDeliveryService` INTEGER NOT NULL, `pharmacySearch_filterOnlineService` INTEGER NOT NULL, `pharmacySearch_filterOpenNow` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "authenticationMethod",
+            "columnName": "authenticationMethod",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "authenticationFails",
+            "columnName": "authenticationFails",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "zoomEnabled",
+            "columnName": "zoomEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userHasAcceptedInsecureDevice",
+            "columnName": "userHasAcceptedInsecureDevice",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dataProtectionVersionAccepted",
+            "columnName": "dataProtectionVersionAccepted",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "password.salt",
+            "columnName": "password_salt",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "password.hash",
+            "columnName": "password_hash",
+            "affinity": "BLOB",
+            "notNull": false
+          },
+          {
+            "fieldPath": "pharmacySearch.name",
+            "columnName": "pharmacySearch_name",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pharmacySearch.locationEnabled",
+            "columnName": "pharmacySearch_locationEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pharmacySearch.filterReady",
+            "columnName": "pharmacySearch_filterReady",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pharmacySearch.filterDeliveryService",
+            "columnName": "pharmacySearch_filterDeliveryService",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pharmacySearch.filterOnlineService",
+            "columnName": "pharmacySearch_filterOnlineService",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "pharmacySearch.filterOpenNow",
+            "columnName": "pharmacySearch_filterOpenNow",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "id"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "communications",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`communicationId` TEXT NOT NULL, `profile` TEXT NOT NULL, `profileName` TEXT NOT NULL, `time` TEXT NOT NULL, `taskId` TEXT NOT NULL, `telematicsId` TEXT NOT NULL, `kbvUserId` TEXT NOT NULL, `payload` TEXT, `consumed` INTEGER NOT NULL, PRIMARY KEY(`communicationId`))",
+        "fields": [
+          {
+            "fieldPath": "communicationId",
+            "columnName": "communicationId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profile",
+            "columnName": "profile",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "profileName",
+            "columnName": "profileName",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "time",
+            "columnName": "time",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "telematicsId",
+            "columnName": "telematicsId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "kbvUserId",
+            "columnName": "kbvUserId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "payload",
+            "columnName": "payload",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "consumed",
+            "columnName": "consumed",
+            "affinity": "INTEGER",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "communicationId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [
+          {
+            "name": "index_communications_profileName",
+            "unique": false,
+            "columnNames": [
+              "profileName"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_communications_profileName` ON `${TABLE_NAME}` (`profileName`)"
+          },
+          {
+            "name": "index_communications_taskId",
+            "unique": false,
+            "columnNames": [
+              "taskId"
+            ],
+            "orders": [],
+            "createSql": "CREATE INDEX IF NOT EXISTS `index_communications_taskId` ON `${TABLE_NAME}` (`taskId`)"
+          }
+        ],
+        "foreignKeys": []
+      },
+      {
+        "tableName": "medicationDispense",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`taskId` TEXT NOT NULL, `patientIdentifier` TEXT NOT NULL, `uniqueIdentifier` TEXT NOT NULL, `wasSubstituted` INTEGER NOT NULL, `text` TEXT, `type` TEXT, `dosageInstruction` TEXT NOT NULL, `performer` TEXT NOT NULL, `whenHandedOver` TEXT NOT NULL, PRIMARY KEY(`taskId`))",
+        "fields": [
+          {
+            "fieldPath": "taskId",
+            "columnName": "taskId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "patientIdentifier",
+            "columnName": "patientIdentifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "uniqueIdentifier",
+            "columnName": "uniqueIdentifier",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "wasSubstituted",
+            "columnName": "wasSubstituted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "text",
+            "columnName": "text",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "type",
+            "columnName": "type",
+            "affinity": "TEXT",
+            "notNull": false
+          },
+          {
+            "fieldPath": "dosageInstruction",
+            "columnName": "dosageInstruction",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "performer",
+            "columnName": "performer",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "whenHandedOver",
+            "columnName": "whenHandedOver",
+            "affinity": "TEXT",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "columnNames": [
+            "taskId"
+          ],
+          "autoGenerate": false
+        },
+        "indices": [],
+        "foreignKeys": []
+      }
+    ],
+    "views": [],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '69aa2e73e6873cbabeb005dcc45fc7e7')"
+    ]
+  }
+}

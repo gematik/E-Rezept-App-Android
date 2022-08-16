@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app
 
 import android.content.Context
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -28,8 +29,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
@@ -50,32 +49,34 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.canHandleIntent
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
+import java.util.*
 
 @Composable
 fun LegalNoticeWithScaffold(navigation: NavHostController) {
     val header = stringResource(id = R.string.legal_notice_menu)
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Back,
-                title = header,
-                onBack = { navigation.popBackStack() }
-            )
-        }
+
+    val scrollState = rememberScrollState()
+
+    AnimatedElevationScaffold(
+        elevated = scrollState.value > 0,
+        navigationMode = NavigationBarMode.Back,
+        actions = {},
+        topBarTitle = header,
+        onBack = { navigation.popBackStack() }
     ) { innerPadding ->
-        LegalNoticeScreen(Modifier.padding(innerPadding))
+        LegalNoticeScreen(Modifier.padding(innerPadding), scrollState)
     }
 }
 
 @Composable
-fun LegalNoticeScreen(modifier: Modifier) {
+fun LegalNoticeScreen(modifier: Modifier, scrollState: ScrollState) {
     val issuer = stringResource(id = R.string.legal_notice_issuer)
     val address = stringResource(id = R.string.legal_notice_address)
     val info = stringResource(id = R.string.legal_notice_info)
@@ -91,13 +92,13 @@ fun LegalNoticeScreen(modifier: Modifier) {
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
             .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
-            .verticalScroll(rememberScrollState())
+            .verticalScroll(scrollState)
     ) {
         Text(
             text = issuer,
             modifier = modifier
                 .padding(top = 24.dp),
-            style = MaterialTheme.typography.h6
+            style = AppTheme.typography.h6
         )
         Text(text = address, modifier = modifier)
         Text(text = info, modifier = modifier)
@@ -105,7 +106,7 @@ fun LegalNoticeScreen(modifier: Modifier) {
         Text(
             text = responsibleForHeader,
             modifier = modifier.padding(top = 24.dp),
-            style = MaterialTheme.typography.h6
+            style = AppTheme.typography.h6
         )
         Text(text = responsibleForName, modifier = modifier)
 
@@ -114,12 +115,13 @@ fun LegalNoticeScreen(modifier: Modifier) {
         Text(
             text = hintHeader,
             modifier = modifier.padding(top = 24.dp),
-            style = MaterialTheme.typography.h6
+            style = AppTheme.typography.h6
         )
         Text(text = hint, modifier = modifier)
 
         Image(
-            logo, null,
+            logo,
+            null,
             modifier = Modifier
                 .padding(top = 32.dp)
                 .align(Alignment.CenterHorizontally)
@@ -127,7 +129,7 @@ fun LegalNoticeScreen(modifier: Modifier) {
         Text(
             text = logoText,
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            style = MaterialTheme.typography.body2
+            style = AppTheme.typography.body2
         )
     }
 }
@@ -139,7 +141,7 @@ fun Contact(modifier: Modifier) {
     Text(
         text = contactHeader,
         modifier = modifier.padding(top = 24.dp),
-        style = MaterialTheme.typography.h6
+        style = AppTheme.typography.h6
     )
     LinkToWeb(
         linkInfo = stringResource(id = R.string.menu_legal_notice_url_info),
@@ -258,7 +260,8 @@ fun provideLinkForString(
                 color = linkColor,
                 textDecoration = TextDecoration.Underline
             ),
-            start = start, end = end
+            start = start,
+            end = end
         )
         addStringAnnotation(
             tag = tag,

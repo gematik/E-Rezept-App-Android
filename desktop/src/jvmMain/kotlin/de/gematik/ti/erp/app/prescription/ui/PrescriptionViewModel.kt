@@ -40,7 +40,7 @@ import org.kodein.di.bindings.ScopeCloseable
 
 class PrescriptionViewModel(
     private val dispatchersProvider: DispatchersProvider,
-    private val prescriptionUseCase: PrescriptionUseCase,
+    private val prescriptionUseCase: PrescriptionUseCase
 ) : ScopeCloseable {
     private val deleteScope = CoroutineScope(dispatchersProvider.io())
     private val deleteResult = MutableSharedFlow<Result<Unit>>()
@@ -63,7 +63,7 @@ class PrescriptionViewModel(
                                 prescriptions = prescriptions,
                                 prescriptionsType = type,
                                 selectedPrescription = null,
-                                selectedPrescriptionAudits = emptyList(),
+                                selectedPrescriptionAudits = emptyList()
                             )
                         )
                     } else {
@@ -76,7 +76,7 @@ class PrescriptionViewModel(
                                     prescriptions = prescriptions,
                                     prescriptionsType = type,
                                     selectedPrescription = details,
-                                    selectedPrescriptionAudits = audits,
+                                    selectedPrescriptionAudits = audits
                                 )
                             }
                         )

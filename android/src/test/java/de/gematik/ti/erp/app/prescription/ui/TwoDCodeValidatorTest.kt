@@ -19,13 +19,12 @@
 package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import de.gematik.ti.erp.app.di.ApplicationModule
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
+import de.gematik.ti.erp.app.CoroutineTestRule
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.OffsetDateTime
+import java.time.Instant
 
 class TwoDCodeValidatorTest {
     @get:Rule
@@ -42,7 +41,7 @@ class TwoDCodeValidatorTest {
             "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\"\n" +
             "  ]\n" +
             "}",
-        OffsetDateTime.now()
+        Instant.now()
     )
 
     private val scannedTask3 = ScannedCode(
@@ -53,7 +52,7 @@ class TwoDCodeValidatorTest {
             "    \"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5\"\n" +
             "  ]\n" +
             "}",
-        OffsetDateTime.now()
+        Instant.now()
     )
 
     private val scannedTask4 = ScannedCode(
@@ -65,7 +64,7 @@ class TwoDCodeValidatorTest {
             "    \"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5\"\n" +
             "  ]\n" +
             "}",
-        OffsetDateTime.now()
+        Instant.now()
     )
 
     private val notWellFormatted = ScannedCode(
@@ -75,7 +74,7 @@ class TwoDCodeValidatorTest {
             "    \"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5\",\n" +
             "  ]\n" +
             "}",
-        OffsetDateTime.now()
+        Instant.now()
     )
 
     private val emptyUrls = ScannedCode(
@@ -83,7 +82,7 @@ class TwoDCodeValidatorTest {
             "  \"urls\": [\n" +
             "  ]\n" +
             "}",
-        OffsetDateTime.now()
+        Instant.now()
     )
 
     private val checkedTask1 = ValidScannedCode(
@@ -93,10 +92,10 @@ class TwoDCodeValidatorTest {
                 "    \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\"\n" +
                 "  ]\n" +
                 "}",
-            OffsetDateTime.now()
+            Instant.now()
         ),
         mutableListOf(
-            "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
+            "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"
         )
     )
 
@@ -109,7 +108,7 @@ class TwoDCodeValidatorTest {
                 "    \"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5\"\n" +
                 "  ]\n" +
                 "}",
-            OffsetDateTime.now()
+            Instant.now()
         ),
         mutableListOf(
             "Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea",
@@ -120,7 +119,7 @@ class TwoDCodeValidatorTest {
 
     @Before
     fun setup() {
-        validator = TwoDCodeValidator(ApplicationModule.providesMoshi())
+        validator = TwoDCodeValidator()
     }
 
     @Test

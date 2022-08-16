@@ -37,6 +37,7 @@ import androidx.compose.material.TabPosition
 import androidx.compose.material.TabRow
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -56,6 +58,7 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 
 // If updated: also add corresponding string to the tabNames-List below
+@Stable
 enum class PrescriptionTabs(val index: Int) {
     Redeemable(0), Archive(1);
 
@@ -67,7 +70,7 @@ enum class PrescriptionTabs(val index: Int) {
 @Composable
 fun RedeemAndArchiveTabs(
     selectedTab: PrescriptionTabs,
-    onSelectedTab: (PrescriptionTabs) -> Unit,
+    onSelectedTab: (PrescriptionTabs) -> Unit
 ) {
     val tabNames = listOf(stringResource(string.mainscreen_tab_redeemable), stringResource(string.mainscreen_tab_archive))
 
@@ -87,6 +90,7 @@ fun TextTabRow(
     onClick: (index: Int) -> Unit,
     backGroundColor: Color,
     tabs: List<String>,
+    testTags: (List<String>)? = null
 ) {
     var contentWidth by remember { mutableStateOf(0) }
 
@@ -97,18 +101,19 @@ fun TextTabRow(
         indicator = { tabPositions ->
             TabIndicator(tabPositions, selectedTabIndex, with(LocalDensity.current) { contentWidth.toDp() })
         },
-        divider = {},
+        divider = {}
     ) {
         tabs.forEachIndexed { tabIndex: Int, tabText: String ->
             Tab(
+                modifier = testTags?.let { Modifier.testTag(testTags[tabIndex]) } ?: Modifier,
                 selected = tabIndex == selectedTabIndex,
                 onClick = { onClick(tabIndex) },
                 selectedContentColor = AppTheme.colors.primary700,
-                unselectedContentColor = AppTheme.colors.neutral500,
+                unselectedContentColor = AppTheme.colors.neutral500
             ) {
                 Text(
                     text = tabText,
-                    style = MaterialTheme.typography.subtitle2,
+                    style = AppTheme.typography.subtitle2,
                     modifier = Modifier
                         .padding(top = PaddingDefaults.Small)
                         .padding(bottom = PaddingDefaults.Small + 2.dp)
@@ -131,7 +136,6 @@ private fun RedeemAndArchiveTabsPreview() {
 
 @Composable
 private fun TabIndicator(tabPositions: List<TabPosition>, selectedTab: Int, contentWidth: Dp) {
-
     val currentContentWidth by animateDpAsState(
         targetValue = contentWidth,
         animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)

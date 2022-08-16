@@ -139,7 +139,7 @@ fun MainScreen(
 private fun DataMatrixCode(
     navigation: Navigation,
     taskId: String,
-    accessCode: String,
+    accessCode: String
 ) {
     ClosablePopupScaffold(onClose = { navigation.back() }) {
         Box(Modifier.fillMaxSize()) {
@@ -270,7 +270,7 @@ fun InitialWelcomeScreen(
     ) {
         Column(Modifier.fillMaxSize()) {
             Logo(
-                Modifier.padding(top = 48.dp, start = 96.dp).height(32.dp),
+                Modifier.padding(top = 48.dp, start = 96.dp).height(32.dp)
             )
             Spacer(Modifier.weight(1f))
             Column(Modifier.align(Alignment.CenterHorizontally), horizontalAlignment = Alignment.CenterHorizontally) {
@@ -292,7 +292,8 @@ fun InitialWelcomeScreen(
             }
             Spacer(Modifier.weight(1f))
             Image(
-                painterResource("images/crew.webp"), null,
+                painterResource("images/crew.webp"),
+                null,
                 alignment = Alignment.BottomCenter,
                 modifier = Modifier
                     .fillMaxWidth()

@@ -35,7 +35,7 @@ tasks.withType<AndroidStringResourceGeneratorTask> {
         stringResPath("values/strings_desktop.xml") to Locale.GERMAN,
         stringResPath("values/strings_kbv_codes.xml") to Locale.GERMAN,
         stringResPath("values-en/strings.xml") to Locale.ENGLISH,
-        stringResPath("values-tr/strings.xml") to Locale.forLanguageTag("tr"),
+        stringResPath("values-tr/strings.xml") to Locale.forLanguageTag("tr")
     )
     outputPath = file(project.projectDir.path + "/src/jvmMain/kotlin")
     packagePath = "de.gematik.ti.erp.app.common.strings"
@@ -61,35 +61,27 @@ kotlin {
             kotlinOptions.jvmTarget = "15"
             kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
+        withJava()
     }
     sourceSets {
         val jvmMain by getting {
             dependencies {
                 implementation(project(":common"))
-                implementation(kotlin("stdlib"))
 
                 // TODO move to multiplatform lib for nfc
                 implementation("de.gematik.ti.erp.app:smartcard-wrapper:1.0")
 
-                implementation("androidx.paging:paging-common:3.1.0")
-                implementation("androidx.paging:paging-common-ktx:3.1.0")
-
                 implementation(compose.desktop.currentOs)
                 implementation(compose.desktop.common)
-                implementation(compose.runtime)
+
                 implementation(compose.materialIconsExtended)
 
                 app {
                     androidX {
-                        implementation(paging("common"))
-                        implementation(paging("common-ktx"))
-                    }
-                    kotlinX {
-                        implementation(coroutines("core"))
+                        compileOnly(paging("common-ktx"))
                     }
                     dependencyInjection {
-                        implementation(kodein("di"))
-                        implementation(kodein("di-framework-compose"))
+                        compileOnly(kodein("di-framework-compose"))
                     }
                     dataMatrix {
                         implementation(zxing)

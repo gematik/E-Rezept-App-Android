@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.cardwall.ui.model
 
 import androidx.compose.runtime.Immutable
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 
 object CardWallData {
     enum class AuthenticationMethod {
@@ -29,13 +30,12 @@ object CardWallData {
 
     @Immutable
     data class State(
+        val activeProfileId: ProfileIdentifier,
+
         val hardwareRequirementsFulfilled: Boolean,
-        val isIntroSeenByUser: Boolean,
 
         val cardAccessNumber: String,
         val personalIdentificationNumber: String,
-        val selectedAuthenticationMethod: AuthenticationMethod,
-
-        val demoMode: Boolean
+        val selectedAuthenticationMethod: AuthenticationMethod
     )
 }

@@ -51,45 +51,46 @@ import androidx.compose.ui.input.pointer.util.VelocityTracker
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.unit.toSize
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.insets.ProvideWindowInsets
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
+import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.tracking.Tracker
+import de.gematik.ti.erp.app.analytics.Analytics
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.kodein.di.compose.rememberViewModel
 import kotlin.math.max
 import kotlin.math.min
+
+val LocalAuthenticator =
+    staticCompositionLocalOf<Authenticator> { error("No authenticator provided!") }
 
 val LocalActivity =
     staticCompositionLocalOf<ComponentActivity> { error("No activity provided!") }
 
-val LocalTracker =
-    staticCompositionLocalOf<Tracker> { error("No tracker provided!") }
+val LocalAnalytics =
+    staticCompositionLocalOf<Analytics> { error("No analytics provided!") }
 
 @Composable
 fun MainContent(
-    mainViewModel: MainViewModel = hiltViewModel(),
     content: @Composable (mainViewModel: MainViewModel) -> Unit
 ) {
+    val mainViewModel by rememberViewModel<MainViewModel>()
     val zoomEnabled by mainViewModel.zoomEnabled.collectAsState(false)
 
-    ProvideWindowInsets(windowInsetsAnimationsEnabled = false) {
-        AppTheme {
-            val systemUiController = rememberSystemUiController()
-            val useDarkIcons = MaterialTheme.colors.isLight
-            SideEffect {
-                systemUiController.setSystemBarsColor(Color.Transparent, darkIcons = useDarkIcons)
-            }
+    AppTheme {
+        val systemUiController = rememberSystemUiController()
+        val useDarkIcons = MaterialTheme.colors.isLight
+        SideEffect {
+            systemUiController.setSystemBarsColor(Color.Transparent, darkIcons = useDarkIcons)
+        }
 
-            Box(
-                modifier = Modifier.zoomable(enabled = zoomEnabled)
-            ) {
-                content(mainViewModel)
-            }
+        Box(
+            modifier = Modifier.zoomable(enabled = zoomEnabled)
+        ) {
+            content(mainViewModel)
         }
     }
 }
@@ -125,7 +126,7 @@ fun Modifier.zoomable(
             scaleX = scale.value,
             scaleY = scale.value,
             translationX = offset.value.x,
-            translationY = offset.value.y,
+            translationY = offset.value.y
         )
         .pointerInput(enabled) {
             if (!enabled) {

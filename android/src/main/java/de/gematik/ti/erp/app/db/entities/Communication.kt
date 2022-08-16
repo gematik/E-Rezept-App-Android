@@ -20,31 +20,13 @@ package de.gematik.ti.erp.app.db.entities
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity
-import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
 const val COMMUNICATION_TYPE_DISP_REQ = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
 const val COMMUNICATION_TYPE_REPLY = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply"
 
-@Entity(
-    foreignKeys = [
-        ForeignKey(
-            entity = Task::class,
-            parentColumns = arrayOf("taskId"),
-            childColumns = arrayOf("taskId"),
-            onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.NO_ACTION
-        ),
-        ForeignKey(
-            entity = ProfileEntity::class,
-            parentColumns = arrayOf("name"),
-            childColumns = arrayOf("profileName"),
-            onDelete = ForeignKey.CASCADE,
-            onUpdate = ForeignKey.CASCADE
-        )
-    ],
-    tableName = "communications"
-)
+@Deprecated("Remove with Realm migration")
+@Entity(tableName = "communications")
 data class Communication(
     @PrimaryKey
     val communicationId: String,
@@ -60,6 +42,7 @@ data class Communication(
     val consumed: Boolean = false
 )
 
+@Deprecated("Remove with Realm migration")
 enum class CommunicationProfile {
     ErxCommunicationDispReq, ErxCommunicationReply
 }

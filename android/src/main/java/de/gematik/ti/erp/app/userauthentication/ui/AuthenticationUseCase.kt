@@ -18,55 +18,86 @@
 
 package de.gematik.ti.erp.app.userauthentication.ui
 
-import androidx.lifecycle.LifecycleObserver
-import androidx.lifecycle.OnLifecycleEvent
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
+import androidx.compose.runtime.Stable
+import androidx.lifecycle.Lifecycle.Event
+import androidx.lifecycle.Lifecycle.Event.ON_START
+import androidx.lifecycle.Lifecycle.Event.ON_STOP
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.LifecycleOwner
+import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.SettingsData.AuthenticationMode.Password
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.channels.trySendBlocking
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.combineTransform
 import kotlinx.coroutines.flow.distinctUntilChanged
-import javax.inject.Inject
-import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.launch
+import java.time.Duration
 
+@Stable
 sealed class AuthenticationModeAndMethod {
     object None : AuthenticationModeAndMethod()
     object Authenticated : AuthenticationModeAndMethod()
-    data class AuthenticationRequired(val method: SettingsAuthenticationMethod, val nrOfFailedAuthentications: Int) :
+    data class AuthenticationRequired(val method: SettingsData.AuthenticationMode, val nrOfFailedAuthentications: Int) :
         AuthenticationModeAndMethod()
 }
 
-@Singleton
-class AuthenticationUseCase @Inject constructor(
-    private val settingsUseCase: SettingsUseCase
-) : LifecycleObserver {
+private val InactivityTimeout = Duration.ofMinutes(10)
+
+// tag::AuthenticationUseCase[]
+class AuthenticationUseCase(
+    private val settingsUseCase: SettingsUseCase,
+    private val dispatchers: DispatchProvider
+) : LifecycleEventObserver {
     private enum class Lifecycle {
         Started, Running, Stopped
     }
 
+    private val scope = CoroutineScope(dispatchers.Default)
+
     private val authRequired = MutableStateFlow(false)
     private val lifecycle = MutableStateFlow(Lifecycle.Started)
+    private val timerResetChannel = Channel<Unit>(Channel.CONFLATED)
 
-    val authenticationModeAndMethod =
-        combineTransform(lifecycle, authRequired, settingsUseCase.settings) { lifecycle, authRequired, settings ->
+    private fun authenticationFlow() =
+        combineTransform(
+            lifecycle,
+            authRequired,
+            settingsUseCase.authenticationMode,
+            settingsUseCase.general
+        ) { lifecycle, authRequired, authenticationMode, settings ->
             @Suppress("deprecation")
             when (lifecycle) {
                 Lifecycle.Started -> {
-                    this@AuthenticationUseCase.authRequired.value = when (settings.authenticationMethod) {
-                        SettingsAuthenticationMethod.None,
-                        SettingsAuthenticationMethod.Unspecified -> false
+                    this@AuthenticationUseCase.authRequired.value = when (authenticationMode) {
+                        SettingsData.AuthenticationMode.None,
+                        SettingsData.AuthenticationMode.Unspecified -> false
                         else -> true
                     }
                     this@AuthenticationUseCase.lifecycle.value = Lifecycle.Running
                 }
                 Lifecycle.Running -> {
-                    when (settings.authenticationMethod) {
-                        SettingsAuthenticationMethod.None,
-                        SettingsAuthenticationMethod.Unspecified ->
+                    when (authenticationMode) {
+                        SettingsData.AuthenticationMode.None,
+                        SettingsData.AuthenticationMode.Unspecified ->
                             emit(AuthenticationModeAndMethod.Authenticated)
                         else -> if (authRequired) {
                             emit(
                                 AuthenticationModeAndMethod.AuthenticationRequired(
-                                    settings.authenticationMethod,
+                                    authenticationMode,
                                     settings.authenticationFails
                                 )
                             )
@@ -79,15 +110,53 @@ class AuthenticationUseCase @Inject constructor(
             }
         }.distinctUntilChanged()
 
-    suspend fun isPasswordValid(password: String): Boolean =
-        settingsUseCase.isPasswordValid(password)
+    val authenticationModeAndMethod: Flow<AuthenticationModeAndMethod> =
+        channelFlow {
+            val timer = suspend {
+                Napier.d { "Restarted inactivity timer for $InactivityTimeout" }
+                delay(InactivityTimeout.toMillis())
+                requireAuthentication()
+            }
 
-    fun requireAuthentication() {
-        authRequired.value = true
+            launch {
+                var timerJob: Job? = null
+                for (ignored in timerResetChannel) {
+                    timerJob?.cancel()
+                    timerJob = launch { timer() }
+                }
+            }
+
+            Napier.d { "Started authentication flow" }
+
+            authenticationFlow()
+                .collect {
+                    if (it == AuthenticationModeAndMethod.Authenticated) {
+                        timerResetChannel.send(Unit)
+                    }
+
+                    Napier.d { "Current authentication mode $it" }
+
+                    send(it)
+                }
+        }.flowOn(dispatchers.Default)
+            .shareIn(scope = scope, started = SharingStarted.Lazily, replay = 1)
+    // end::AuthenticationUseCase[]
+
+    suspend fun isPasswordValid(password: String): Boolean =
+        settingsUseCase.authenticationMode.map {
+            (it as? Password)?.isValid(password) ?: false
+        }.first()
+
+    fun resetInactivityTimer() {
+        timerResetChannel.trySendBlocking(Unit)
     }
 
     fun authenticated() {
         authRequired.value = false
+    }
+
+    private fun requireAuthentication() {
+        authRequired.value = true
     }
 
     suspend fun incrementNumberOfAuthenticationFailures() =
@@ -96,13 +165,11 @@ class AuthenticationUseCase @Inject constructor(
     suspend fun resetNumberOfAuthenticationFailures() =
         settingsUseCase.resetNumberOfAuthenticationFailures()
 
-    @OnLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_START)
-    fun onStartApp() {
-        lifecycle.value = Lifecycle.Started
-    }
-
-    @OnLifecycleEvent(androidx.lifecycle.Lifecycle.Event.ON_STOP)
-    fun onStopApp() {
-        lifecycle.value = Lifecycle.Stopped
+    override fun onStateChanged(source: LifecycleOwner, event: Event) {
+        when (event) {
+            ON_START -> lifecycle.value = Lifecycle.Started
+            ON_STOP -> lifecycle.value = Lifecycle.Stopped
+            else -> {}
+        }
     }
 }

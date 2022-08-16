@@ -2,12 +2,13 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
-    kotlin("plugin.serialization") version "1.5.31"
+    kotlin("jvm") version "1.7.0"
+    kotlin("plugin.serialization") version "1.7.0"
     `java-gradle-plugin`
 }
 
 tasks.withType<KotlinCompile>() {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = "15"
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
 }
 
@@ -19,7 +20,7 @@ gradlePlugin {
 }
 
 dependencies {
-    implementation("com.squareup:kotlinpoet:1.10.1")
+    implementation("com.squareup:kotlinpoet:1.11.0")
     implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.83.0")
     implementation("io.github.pdvrieze.xmlutil:core-jvm:0.83.0")
 }

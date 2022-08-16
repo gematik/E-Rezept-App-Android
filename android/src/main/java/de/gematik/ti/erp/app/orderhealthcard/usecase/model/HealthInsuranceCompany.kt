@@ -19,11 +19,11 @@
 package de.gematik.ti.erp.app.orderhealthcard.usecase.model
 
 import androidx.compose.runtime.Immutable
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
 object HealthCardOrderUseCaseData {
     @Immutable
-    @JsonClass(generateAdapter = true)
+    @Serializable
     data class HealthInsuranceCompany(
         val name: String,
         val healthCardAndPinPhone: String?,
@@ -33,7 +33,7 @@ object HealthCardOrderUseCaseData {
         val subjectCardAndPinMail: String?,
         val bodyCardAndPinMail: String?,
         val subjectPinMail: String?,
-        val bodyPinMail: String?,
+        val bodyPinMail: String?
     ) {
         fun noContactInformation() =
             healthCardAndPinPhone.isNullOrEmpty() &&
@@ -42,7 +42,7 @@ object HealthCardOrderUseCaseData {
                 pinUrl.isNullOrEmpty()
 
         fun hasContactInfoForPin() =
-            !pinUrl.isNullOrEmpty()
+            !pinUrl.isNullOrEmpty() || (!bodyPinMail.isNullOrEmpty() && !subjectPinMail.isNullOrEmpty())
 
         fun hasContactInfoForHealthCardAndPin() =
             !healthCardAndPinPhone.isNullOrEmpty() || !healthCardAndPinMail.isNullOrEmpty() || !healthCardAndPinUrl.isNullOrEmpty()

@@ -40,27 +40,27 @@ class LazyFhirParser : IParser {
     }
 
     override fun getEncodeForceResourceId(): IIdType {
-        return fhirParser.getEncodeForceResourceId()
+        return fhirParser.encodeForceResourceId
     }
 
     override fun getEncoding(): EncodingEnum {
-        return fhirParser.getEncoding()
+        return fhirParser.encoding
     }
 
     override fun getPreferTypes(): MutableList<Class<out IBaseResource>> {
-        return fhirParser.getPreferTypes()
+        return fhirParser.preferTypes
     }
 
     override fun isOmitResourceId(): Boolean {
-        return fhirParser.isOmitResourceId()
+        return fhirParser.isOmitResourceId
     }
 
     override fun getStripVersionsFromReferences(): Boolean {
-        return fhirParser.getStripVersionsFromReferences()
+        return fhirParser.stripVersionsFromReferences
     }
 
     override fun isSummaryMode(): Boolean {
-        return fhirParser.isSummaryMode()
+        return fhirParser.isSummaryMode
     }
 
     override fun <T : IBaseResource?> parseResource(theResourceType: Class<T>?, theReader: Reader?): T {
@@ -100,7 +100,7 @@ class LazyFhirParser : IParser {
     }
 
     override fun isEncodeElementsAppliesToChildResourcesOnly(): Boolean {
-        return fhirParser.isEncodeElementsAppliesToChildResourcesOnly()
+        return fhirParser.isEncodeElementsAppliesToChildResourcesOnly
     }
 
     override fun setEncodeForceResourceId(theForceResourceId: IIdType?): IParser {
@@ -152,6 +152,6 @@ class LazyFhirParser : IParser {
     }
 
     override fun getDontStripVersionsFromReferencesAtPaths(): MutableSet<String> {
-        return fhirParser.getDontStripVersionsFromReferencesAtPaths()
+        return fhirParser.dontStripVersionsFromReferencesAtPaths
     }
 }

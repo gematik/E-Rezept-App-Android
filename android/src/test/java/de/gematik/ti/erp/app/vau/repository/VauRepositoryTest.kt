@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.vau.repository
 
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.TestCertificates
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -50,7 +50,7 @@ class VauRepositoryTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        repo = VauRepository(localDataSource, remoteDataSource, coroutineRule.testDispatchProvider)
+        repo = VauRepository(localDataSource, remoteDataSource, coroutineRule.dispatchers)
     }
 
     @Test
@@ -59,11 +59,11 @@ class VauRepositoryTest {
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
         coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.success(TestCertificates.Vau.CertList) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSPList.OCSPList) }
+        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSP.OCSPList) }
 
         repo.withUntrusted { certs, ocsp ->
             assertEquals(TestCertificates.Vau.CertList, certs)
-            assertEquals(TestCertificates.OCSPList.OCSPList, ocsp)
+            assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
         }
 
         coVerify(exactly = 1) { remoteDataSource.loadCertificates() }
@@ -78,7 +78,7 @@ class VauRepositoryTest {
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
         coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.failure(IOException()) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSPList.OCSPList) }
+        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSP.OCSPList) }
 
         val r = try {
             repo.withUntrusted { certs, ocsp ->
@@ -101,7 +101,7 @@ class VauRepositoryTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers {
             Pair(
                 TestCertificates.Vau.CertList,
-                TestCertificates.OCSPList.OCSPList
+                TestCertificates.OCSP.OCSPList
             )
         }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
@@ -109,7 +109,7 @@ class VauRepositoryTest {
 
         repo.withUntrusted { certs, ocsp ->
             assertEquals(TestCertificates.Vau.CertList, certs)
-            assertEquals(TestCertificates.OCSPList.OCSPList, ocsp)
+            assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
         }
 
         coVerify(exactly = 0) { remoteDataSource.loadCertificates() }
@@ -124,7 +124,7 @@ class VauRepositoryTest {
             coEvery { localDataSource.loadUntrusted() } coAnswers {
                 Pair(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
@@ -134,7 +134,7 @@ class VauRepositoryTest {
             val r = try {
                 repo.withUntrusted { certs, ocsp ->
                     assertEquals(TestCertificates.Vau.CertList, certs)
-                    assertEquals(TestCertificates.OCSPList.OCSPList, ocsp)
+                    assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
 
                     error("fail")
                 }

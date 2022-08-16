@@ -11,6 +11,8 @@
     <string name="kbv_norm_size_nb">Nicht betroffen</string>
     <string name="kbv_norm_size_sonstiges">Sonstiges</string>
     <string name="kbv_code_dosage_form_aeo">Ätherisches Öl</string>
+    <string name="kbv_code_dosage_form_nothing">keine Darreichungsform</string>
+    <string name="kbv_code_dosage_form_dig">Digitale Gesundheitsanwendungen</string>
     <string name="kbv_code_dosage_form_amp">Ampullen</string>
     <string name="kbv_code_dosage_form_apa">Ampullenpaare</string>
     <string name="kbv_code_dosage_form_asn">Augen- und Nasensalbe</string>

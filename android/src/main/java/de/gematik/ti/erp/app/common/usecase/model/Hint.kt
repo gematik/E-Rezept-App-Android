@@ -24,12 +24,4 @@ sealed class CancellableHint(
     val id: String
 ) : Hint()
 
-// TODO: starting with Kotlin 1.5 subclasses of sealed classes are only restricted to its package
-// TODO: move hints to separate files
-
-object PrescriptionScreenHintDemoModeActivated : CancellableHint(id = "PrescriptionScreenHintDemoModeActivated")
-object PrescriptionScreenHintTryDemoMode : CancellableHint(id = "PrescriptionScreenHintTryDemoMode")
-object PrescriptionScreenHintDefineSecurity : Hint()
-data class PrescriptionScreenHintNewPrescriptions(val count: Int) : Hint()
-
 object PharmacyScreenHintEnableLocation : CancellableHint(id = "PharmacyScreenHintEnableLocation")

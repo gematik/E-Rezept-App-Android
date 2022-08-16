@@ -49,7 +49,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -87,25 +86,24 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.google.accompanist.insets.systemBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.LocalTracker
+import de.gematik.ti.erp.app.core.LocalAnalytics
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.tracking.Tracker
-import de.gematik.ti.erp.app.tracking.Tracker.AuthenticationProblem
+import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.analytics.Analytics.AuthenticationProblem
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
-import java.util.Locale
-import java.util.concurrent.atomic.AtomicBoolean
-import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -117,7 +115,10 @@ import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import io.github.aakira.napier.Napier
+import java.util.Locale
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.cancellation.CancellationException
 
 private enum class HealthCardAnimationState {
     START,
@@ -142,7 +143,6 @@ fun rememberCardWallAuthenticationDialogState(): CardWallAuthenticationDialogSta
 }
 
 @OptIn(
-    ExperimentalMaterialApi::class,
     ExperimentalAnimationApi::class,
     ExperimentalCoroutinesApi::class
 )
@@ -151,6 +151,7 @@ fun CardWallAuthenticationDialog(
     dialogState: CardWallAuthenticationDialogState = rememberCardWallAuthenticationDialogState(),
     viewModel: CardWallViewModel,
     authenticationMethod: CardWallData.AuthenticationMethod,
+    profileId: ProfileIdentifier,
     cardAccessNumber: String,
     personalIdentificationNumber: String,
     troubleShootingEnabled: Boolean = false,
@@ -158,6 +159,7 @@ fun CardWallAuthenticationDialog(
     onFinal: () -> Unit,
     onRetryCan: () -> Unit,
     onRetryPin: () -> Unit,
+    onUnlockEgk: () -> Unit,
     onClickTroubleshooting: (() -> Unit)? = null,
     onStateChange: ((AuthenticationState) -> Unit)? = null
 ) {
@@ -166,10 +168,10 @@ fun CardWallAuthenticationDialog(
     val toggleAuth = dialogState.toggleAuth
 
     // TODO: `viewModel.isNFCEnabled()` is not a proper key. Maybe find a better way to re-trigger this
-    var showEnableNfcDialog by remember(viewModel.isNFCEnabled()) { mutableStateOf(!viewModel.isNFCEnabled()) }
+    var showEnableNfcDialog by remember { mutableStateOf(!viewModel.isNFCEnabled()) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
 
-    val tracker = LocalTracker.current
+    val tracker = LocalAnalytics.current
 
     val state by produceState<AuthenticationState>(initialValue = AuthenticationState.None) {
         toggleAuth.transformLatest {
@@ -182,6 +184,7 @@ fun CardWallAuthenticationDialog(
                     } else if (it.value) {
                         emitAll(
                             viewModel.doAuthentication(
+                                profileId = profileId,
                                 can = cardAccessNumber,
                                 pin = personalIdentificationNumber,
                                 method = authenticationMethod,
@@ -194,7 +197,7 @@ fun CardWallAuthenticationDialog(
                 }
                 is ToggleAuth.ToggleByHealthCard -> {
                     val collectedOnce = AtomicBoolean(false)
-                    val f = flow {
+                    val tagFlow = flow {
                         if (collectedOnce.get()) {
                             activity.nfcTagFlow.collect {
                                 emit(it)
@@ -206,16 +209,17 @@ fun CardWallAuthenticationDialog(
                     }
                     emitAll(
                         viewModel.doAuthentication(
+                            profileId = profileId,
                             can = cardAccessNumber,
                             pin = personalIdentificationNumber,
                             method = authenticationMethod,
-                            f
+                            tagFlow
                         )
                     )
                 }
             }
         }.catch {
-            Timber.e(it, "Something unforeseen happened")
+            Napier.e("Something unforeseen happened", it)
             // if this happens we can't recover from here
             emit(AuthenticationState.HealthCardCommunicationInterrupted)
             delay(1000)
@@ -274,6 +278,7 @@ fun CardWallAuthenticationDialog(
         AuthenticationState.HealthCardCardAccessNumberWrong -> stringResource(R.string.cdw_auth_retry_pin_can)
         AuthenticationState.HealthCardPin2RetriesLeft,
         AuthenticationState.HealthCardPin1RetryLeft -> stringResource(R.string.cdw_auth_retry_pin_can)
+        AuthenticationState.HealthCardBlocked -> stringResource(R.string.cdw_auth_retry_unlock_egk)
         else -> stringResource(R.string.cdw_auth_retry)
     }
 
@@ -303,8 +308,8 @@ fun CardWallAuthenticationDialog(
             pinRetriesLeft(1)
         )
         AuthenticationState.HealthCardBlocked -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_card_blocked).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_intro_step2_info_on_card_blocked).toAnnotatedString()
+            stringResource(R.string.cdw_header_on_card_blocked).toAnnotatedString(),
+            stringResource(R.string.cdw_info_on_card_blocked).toAnnotatedString()
         )
         is AuthenticationState.InsuranceIdentifierAlreadyExists -> {
             Pair(
@@ -320,21 +325,9 @@ fun CardWallAuthenticationDialog(
     }
 
     if (showEnableNfcDialog) {
-        val header = stringResource(R.string.cdw_enable_nfc_header)
-        val info = stringResource(R.string.cdw_enable_nfc_info)
-        val enableNfcButtonText = stringResource(R.string.cdw_enable_nfc_btn_text)
-        val cancelText = stringResource(R.string.cancel)
-
-        CommonAlertDialog(
-            header = header,
-            info = info,
-            cancelText = cancelText,
-            actionText = enableNfcButtonText,
-            onCancel = { showEnableNfcDialog = false },
-            onClickAction = {
-                activity.startActivity(Intent("android.settings.NFC_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-            }
-        )
+        EnableNfcDialog(activity) {
+            showEnableNfcDialog = false
+        }
     }
 
     retryText?.let {
@@ -350,6 +343,7 @@ fun CardWallAuthenticationDialog(
                     AuthenticationState.HealthCardCardAccessNumberWrong -> onRetryCan()
                     AuthenticationState.HealthCardPin2RetriesLeft,
                     AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
+                    AuthenticationState.HealthCardBlocked -> onUnlockEgk()
                     else -> if (viewModel.isNFCEnabled()) {
                         coroutineScope.launch {
                             toggleAuth.emit(ToggleAuth.ToggleByUser(true))
@@ -362,12 +356,31 @@ fun CardWallAuthenticationDialog(
 }
 
 @Composable
-private fun ErrorDialog(
+fun EnableNfcDialog(activity: MainActivity, onCancel: () -> Unit) {
+    val header = stringResource(R.string.cdw_enable_nfc_header)
+    val info = stringResource(R.string.cdw_enable_nfc_info)
+    val enableNfcButtonText = stringResource(R.string.cdw_enable_nfc_btn_text)
+    val cancelText = stringResource(R.string.cancel)
+
+    CommonAlertDialog(
+        header = header,
+        info = info,
+        cancelText = cancelText,
+        actionText = enableNfcButtonText,
+        onCancel = onCancel,
+        onClickAction = {
+            activity.startActivity(Intent("android.settings.NFC_SETTINGS").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+        }
+    )
+}
+
+@Composable
+fun ErrorDialog(
     header: AnnotatedString,
     info: AnnotatedString,
     retryButtonText: String,
     onCancel: () -> Unit,
-    onRetry: () -> Unit,
+    onRetry: () -> Unit
 ) =
     CommonAlertDialog(
         header = header,
@@ -378,11 +391,11 @@ private fun ErrorDialog(
         actionText = retryButtonText
     )
 
-private fun String.toAnnotatedString() =
+fun String.toAnnotatedString() =
     buildAnnotatedString { append(this@toAnnotatedString) }
 
 @Composable
-private fun pinRetriesLeft(count: Int) =
+fun pinRetriesLeft(count: Int) =
     annotatedPluralsResource(
         R.plurals.cdw_nfc_intro_step2_info_on_pin_error,
         count,
@@ -403,6 +416,7 @@ private fun AuthenticationDialog(
     ) {
         Box(
             Modifier
+                .testTag(TestTag.CardWall.Nfc.CardReadingDialog)
                 .semantics(false) { }
                 .fillMaxSize()
                 .background(SolidColor(Color.Black), alpha = 0.5f)
@@ -442,34 +456,10 @@ private fun AuthenticationDialog(
                     TextButton(onClick = onCancel) {
                         Text(stringResource(R.string.cdw_nfc_dlg_cancel).uppercase(Locale.getDefault()))
                     }
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .defaultMinSize(minHeight = 150.dp)
-                            .fillMaxWidth()
-                    ) {
-                        when (screen) {
-                            0 -> SearchingCardAnimation()
-                            1 -> ReadingCardAnimation()
-                            2 -> TagLostCard()
-                        }
-                    }
+                    CardAnimationBox(screen)
 
                     // how to hold your card
-                    val rotatingScanCardAssistance = listOf(
-                        Pair(
-                            stringResource(R.string.cdw_nfc_search1_headline),
-                            stringResource(R.string.cdw_nfc_search1_info)
-                        ),
-                        Pair(
-                            stringResource(R.string.cdw_nfc_search2_headline),
-                            stringResource(R.string.cdw_nfc_search2_info)
-                        ),
-                        Pair(
-                            stringResource(R.string.cdw_nfc_search3_headline),
-                            stringResource(R.string.cdw_nfc_search3_info)
-                        ),
-                    )
+                    val rotatingScanCardAssistance = rotatingScanCardAssistance()
 
                     var info by remember { mutableStateOf(rotatingScanCardAssistance.first()) }
 
@@ -525,13 +515,13 @@ private fun AuthenticationDialog(
                     } else {
                         Text(
                             info.first,
-                            style = MaterialTheme.typography.subtitle1,
+                            style = AppTheme.typography.subtitle1,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Text(
                             info.second,
-                            style = MaterialTheme.typography.body2,
+                            style = AppTheme.typography.body2,
                             textAlign = TextAlign.Center,
                             modifier = Modifier.fillMaxWidth()
                         )
@@ -543,19 +533,19 @@ private fun AuthenticationDialog(
 }
 
 @Composable
-private fun Troubleshooting(
+fun Troubleshooting(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
     Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
-            "Brauchen Sie Hilfe?",
-            style = MaterialTheme.typography.subtitle1,
+            stringResource(R.string.cdw_enter_troubleshooting_title),
+            style = AppTheme.typography.subtitle1,
             textAlign = TextAlign.Center
         )
         Text(
-            "Wir haben für Sie einige Tipps zusammengestellt, um die häufigsten Probleme zu lösen.",
-            style = MaterialTheme.typography.body2,
+            stringResource(R.string.cdw_enter_troubleshooting_subtitle),
+            style = AppTheme.typography.body2,
             textAlign = TextAlign.Center
         )
         SpacerMedium()
@@ -567,17 +557,16 @@ private fun Troubleshooting(
         ) {
             Icon(Icons.Outlined.Lightbulb, null)
             SpacerTiny()
-            Text("Verbindungs-Tipps starten")
+            Text(stringResource(R.string.cdw_enter_troubleshooting_action))
         }
     }
 }
 
 private data class Wobble(val radius: Dp, val color: Color, val delay: Int)
 
-@ExperimentalAnimationApi
+@Suppress("LongMethod")
 @Composable
-private fun SearchingCardAnimation() {
-
+fun SearchingCardAnimation() {
     val wobbleColorL = Wobble(72.dp, AppTheme.colors.primary100.copy(alpha = 0.7f), 600)
     val wobbleColorM = Wobble(56.dp, AppTheme.colors.primary200.copy(alpha = 0.3f), 300)
     val wobbleColorS = Wobble(40.dp, AppTheme.colors.primary300.copy(alpha = 0.2f), 0)
@@ -602,10 +591,11 @@ private fun SearchingCardAnimation() {
         DpOffset.VectorConverter,
         transitionSpec = {
             tween(
-                healthCardOffsetDuration,
+                healthCardOffsetDuration - 10,
                 0
             )
-        }
+        },
+        label = "healthCardOffset"
     ) { state ->
         when (state) {
             HealthCardAnimationState.START -> DpOffset(0.dp, 0.dp)
@@ -622,7 +612,8 @@ private fun SearchingCardAnimation() {
                 1000,
                 0
             )
-        }
+        },
+        label = "healthCardScale"
     ) { state ->
         when (state) {
             HealthCardAnimationState.START -> 1.0f
@@ -635,7 +626,8 @@ private fun SearchingCardAnimation() {
                 1300,
                 1500
             )
-        }
+        },
+        label = "smartPhoneAlpha"
     ) { state ->
         when (state) {
             true -> 1.0f
@@ -649,7 +641,8 @@ private fun SearchingCardAnimation() {
                 1300,
                 1500
             )
-        }
+        },
+        label = "smartPhoneOffset"
     ) { state ->
         when (state) {
             true -> 0.dp
@@ -679,7 +672,8 @@ private fun SearchingCardAnimation() {
             Triple(
                 it,
                 wobbleTransition.animateFloat(
-                    1.0f, 1.1f,
+                    1.0f,
+                    1.1f,
                     animationSpec = infiniteRepeatable(
                         animation = keyframes {
                             durationMillis = 2500
@@ -692,7 +686,8 @@ private fun SearchingCardAnimation() {
                     )
                 ),
                 wobbleTransition.animateFloat(
-                    1.0f, 0.7f,
+                    1.0f,
+                    0.7f,
                     animationSpec = infiniteRepeatable(
                         animation = tween(
                             durationMillis = 1000,
@@ -732,7 +727,9 @@ private fun SearchingCardAnimation() {
             )
 
             Image(
-                smartPhone, null, alpha = smartPhoneAlpha,
+                smartPhone,
+                null,
+                alpha = smartPhoneAlpha,
                 modifier = Modifier
                     .size(80.dp)
                     .align(
@@ -745,7 +742,7 @@ private fun SearchingCardAnimation() {
 }
 
 @Composable
-private fun ReadingCardAnimation() {
+fun ReadingCardAnimation() {
     Box {
         Image(
             painterResource(R.drawable.ic_healthcard_spinner),
@@ -767,14 +764,14 @@ private fun ReadingCardAnimation() {
 }
 
 @Composable
-private fun TagLostCard() {
+fun TagLostCard() {
     Image(
         painterResource(R.drawable.ic_healthcard_tag_lost),
-        null,
+        null
     )
 }
 
-private fun Tracker.trackAuth(state: AuthenticationState) {
+private fun Analytics.trackAuth(state: AuthenticationState) {
     if (trackingAllowed.value) {
         when (state) {
             AuthenticationState.HealthCardBlocked ->
@@ -794,7 +791,41 @@ private fun Tracker.trackAuth(state: AuthenticationState) {
                 trackAuthenticationProblem(AuthenticationProblem.IDPCommunicationInvalidOCSPOfCard)
             AuthenticationState.SecureElementCryptographyFailed ->
                 trackAuthenticationProblem(AuthenticationProblem.SecureElementCryptographyFailed)
+            AuthenticationState.UserNotAuthenticated ->
+                trackAuthenticationProblem(AuthenticationProblem.UserNotAuthenticated)
             else -> {}
         }
     }
 }
+
+@Composable
+fun CardAnimationBox(screen: Int) {
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .defaultMinSize(minHeight = 150.dp)
+            .fillMaxWidth()
+    ) {
+        when (screen) {
+            0 -> SearchingCardAnimation()
+            1 -> ReadingCardAnimation()
+            2 -> TagLostCard()
+        }
+    }
+}
+
+@Composable
+fun rotatingScanCardAssistance() = listOf(
+    Pair(
+        stringResource(R.string.cdw_nfc_search1_headline),
+        stringResource(R.string.cdw_nfc_search1_info)
+    ),
+    Pair(
+        stringResource(R.string.cdw_nfc_search2_headline),
+        stringResource(R.string.cdw_nfc_search2_info)
+    ),
+    Pair(
+        stringResource(R.string.cdw_nfc_search3_headline),
+        stringResource(R.string.cdw_nfc_search3_info)
+    )
+)

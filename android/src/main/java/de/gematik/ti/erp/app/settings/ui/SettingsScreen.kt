@@ -18,39 +18,37 @@
 
 package de.gematik.ti.erp.app.settings.ui
 
-import androidx.biometric.BiometricManager
+import android.content.Context
+import android.os.Build
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.animateColor
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.repeatable
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.background
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
@@ -58,6 +56,7 @@ import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Fingerprint
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.outlined.PrivacyTip
@@ -87,65 +86,63 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
 import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.profiles.ui.Avatar
+import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
 import de.gematik.ti.erp.app.profiles.ui.connectionText
 import de.gematik.ti.erp.app.profiles.ui.connectionTextColor
-import de.gematik.ti.erp.app.profiles.ui.profileColor
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.userauthentication.ui.BiometricPrompt
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
-import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer4
+import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
 import de.gematik.ti.erp.app.utils.compose.provideWebIntent
-import java.util.Locale
 import de.gematik.ti.erp.app.utils.dateTimeShortText
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import java.util.Locale
 
 @Composable
 fun SettingsScreen(
     scrollTo: SettingsScrollTo,
     mainNavController: NavController,
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel
 ) {
     val settingsNavController = rememberNavController()
 
@@ -165,7 +162,8 @@ fun SettingsScreen(
         navigationMode,
         scrollTo,
         mainNavController,
-        settingsViewModel
+        settingsViewModel,
+        profileSettingsViewModel
     )
 }
 
@@ -181,16 +179,14 @@ fun SettingsScreenWithScaffold(
             value = it
         }
     }
-
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Close,
-                stringResource(R.string.settings_headline)
-            ) { mainNavController.popBackStack() }
-        }
+    val listState = rememberLazyListState()
+    AnimatedElevationScaffold(
+        modifier = Modifier.testTag(TestTag.Settings.SettingsScreen),
+        navigationMode = NavigationBarMode.Close,
+        topBarTitle = stringResource(R.string.settings_headline),
+        onBack = { mainNavController.popBackStack() },
+        listState = listState
     ) {
-        val listState = rememberLazyListState()
         var showAllowScreenShotsAlert by remember { mutableStateOf(false) }
 
         LaunchedEffect(Unit) {
@@ -200,18 +196,15 @@ fun SettingsScreenWithScaffold(
                 SettingsScrollTo.None -> {
                     /* noop */
                 }
-                SettingsScrollTo.Authentication -> listState.animateScrollToItem(5)
-                SettingsScrollTo.DemoMode -> listState.animateScrollToItem(3)
-                SettingsScrollTo.Profiles -> listState.animateScrollToItem(2)
+                SettingsScrollTo.Authentication -> listState.animateScrollToItem(4)
+                SettingsScrollTo.Profiles -> listState.animateScrollToItem(1)
+                else -> {}
             }
         }
 
         LazyColumn(
             modifier = Modifier.testTag("settings_screen"),
-            contentPadding = rememberInsetsPaddingValues(
-                insets = LocalWindowInsets.current.navigationBars,
-                applyBottom = true
-            ),
+            contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
             state = listState
         ) {
             item {
@@ -221,29 +214,18 @@ fun SettingsScreenWithScaffold(
                 }
             }
             item {
-                OrderHealthCardHint(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = {
-                        navController.navigate(SettingsNavigationScreens.OrderHealthCard.path())
-                    }
-                )
-                SettingsDivider()
-            }
-            item {
                 ProfileSection(state, settingsViewModel, navController)
                 SettingsDivider()
             }
             item {
-                DemoSection(
-                    state.demoModeActive,
-                    highlighted = scrollTo == SettingsScrollTo.DemoMode,
-                ) {
-                    if (it) {
-                        settingsViewModel.onActivateDemoMode()
-                    } else {
-                        settingsViewModel.onDeactivateDemoMode()
+                HealthCardSection(
+                    onClickUnlockEgk = { changeSecret ->
+                        navController.navigate(SettingsNavigationScreens.UnlockEgk.path(changeSecret = changeSecret))
+                    },
+                    onClickOrderHealthCard = {
+                        navController.navigate(SettingsNavigationScreens.OrderHealthCard.path())
                     }
-                }
+                )
                 SettingsDivider()
             }
             item {
@@ -259,7 +241,7 @@ fun SettingsScreenWithScaffold(
                 val coroutineScope = rememberCoroutineScope()
                 AuthenticationSection(state.authenticationMode) {
                     when (it) {
-                        SettingsScreen.AuthenticationMode.Password -> navController.navigate("Password")
+                        is SettingsData.AuthenticationMode.Password -> navController.navigate("Password")
                         else -> coroutineScope.launch { settingsViewModel.onSelectDeviceSecurityAuthenticationMode() }
                     }
                 }
@@ -283,7 +265,7 @@ fun SettingsScreenWithScaffold(
 
             item {
                 AllowScreenShotsSection(
-                    state.screenShotsAllowed
+                    state.screenshotsAllowed
                 ) {
                     settingsViewModel.onSwitchAllowScreenshots(it)
                     showAllowScreenShotsAlert = true
@@ -292,7 +274,7 @@ fun SettingsScreenWithScaffold(
             }
 
             item {
-                ContactSection(onClickFeedback = { navController.navigate(SettingsNavigationScreens.FeedbackForm.path()) })
+                ContactSection()
                 SettingsDivider()
             }
             item {
@@ -321,21 +303,16 @@ private fun SettingsDivider() =
 private fun ProfileSection(
     state: SettingsScreen.State,
     viewModel: SettingsViewModel,
-    navController: NavController,
+    navController: NavController
 ) {
-    val profiles = state.uiProfiles
+    val profiles = state.profiles
 
     var showAddProfileDialog by remember { mutableStateOf(false) }
-    val allowAddProfiles by produceState(initialValue = false) {
-        viewModel.allowAddProfiles().collect {
-            value = it
-        }
-    }
 
     Column {
         Text(
             text = stringResource(R.string.settings_profiles_headline),
-            style = MaterialTheme.typography.h6,
+            style = AppTheme.typography.h6,
             modifier = Modifier
                 .padding(
                     start = PaddingDefaults.Medium,
@@ -348,7 +325,6 @@ private fun ProfileSection(
 
         profiles.forEach { profile ->
             ProfileCard(
-                demoModeActive = state.demoModeActive,
                 profile = profile,
                 onSwitchProfile = { viewModel.switchProfile(profile) },
                 onClickEdit = { navController.navigate(SettingsNavigationScreens.EditProfile.path(profileId = profile.id)) }
@@ -364,38 +340,23 @@ private fun ProfileSection(
         )
     }
 
-    val context = LocalContext.current
-    val demoToastText = stringResource(R.string.function_not_availlable_on_demo_mode)
-    val addProfilesNotAllowedText = stringResource(R.string.settings_add_profile_not_allowed)
-
-    AddProfile(onClick = {
-        if (!state.demoModeActive && allowAddProfiles)
-            showAddProfileDialog = true
-        else {
-            if (!allowAddProfiles) createToastShort(context, addProfilesNotAllowedText)
-            else createToastShort(context, demoToastText)
-        }
-    })
-    Spacer24()
+    AddProfile(onClick = { showAddProfileDialog = true })
+    SpacerLarge()
 }
 
 @Composable
 private fun ProfileCard(
-    demoModeActive: Boolean,
     profile: ProfilesUseCaseData.Profile,
     onSwitchProfile: () -> Unit,
-    onClickEdit: () -> Unit,
+    onClickEdit: () -> Unit
 ) {
-    val colors = profileColor(profileColorNames = profile.color)
-    val profileSsoToken = profile.ssoToken
+    val profileSsoToken = profile.ssoTokenScope?.token
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clickable {
-                if (!demoModeActive) {
-                    onSwitchProfile()
-                }
+                onSwitchProfile()
             },
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -405,13 +366,14 @@ private fun ProfileCard(
                 .weight(1f)
                 .padding(PaddingDefaults.Medium)
         ) {
-            Avatar(Modifier.size(36.dp), profile.name, colors, null, active = profile.active)
+            Avatar(Modifier.size(36.dp), profile, null, active = profile.active)
 
             SpacerSmall()
 
             Column {
                 Text(
-                    profile.name, style = MaterialTheme.typography.body1,
+                    profile.name,
+                    style = AppTheme.typography.body1
                 )
 
                 val lastAuthenticatedDateText =
@@ -420,24 +382,14 @@ private fun ProfileCard(
                 val connectedColor = connectionTextColor(profileSsoToken)
 
                 Text(
-                    connectedText, style = AppTheme.typography.captionl,
-                    color = connectedColor,
+                    connectedText,
+                    style = AppTheme.typography.caption1l,
+                    color = connectedColor
                 )
             }
         }
 
-        val context = LocalContext.current
-        val demoToastText = stringResource(R.string.function_not_availlable_on_demo_mode)
-
-        IconButton(
-            onClick = {
-                if (!demoModeActive) {
-                    onClickEdit()
-                } else {
-                    createToastShort(context, demoToastText)
-                }
-            }
-        ) {
+        IconButton(onClick = onClickEdit) {
             Icon(Icons.Outlined.Edit, null, tint = AppTheme.colors.neutral400)
         }
 
@@ -450,14 +402,14 @@ private fun AddProfile(
     onClick: () -> Unit
 ) {
     TextButton(onClick = { onClick() }, contentPadding = PaddingValues(PaddingDefaults.Medium)) {
-    Icon(Icons.Rounded.Add, null)
-    SpacerSmall()
-    Text(
-        stringResource(R.string.settings_add_profile),
-        style = MaterialTheme.typography.body1,
-        modifier = Modifier.weight(1.0f)
-    )
-}
+        Icon(Icons.Rounded.Add, null)
+        SpacerSmall()
+        Text(
+            stringResource(R.string.settings_add_profile),
+            style = AppTheme.typography.body1,
+            modifier = Modifier.weight(1.0f)
+        )
+    }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
@@ -487,7 +439,7 @@ fun AddProfileDialog(
         title = {
             Text(
                 title,
-                style = MaterialTheme.typography.subtitle1,
+                style = AppTheme.typography.subtitle1
             )
         },
         properties = DialogProperties(dismissOnClickOutside = false),
@@ -496,7 +448,7 @@ fun AddProfileDialog(
             Column {
                 Text(
                     infoText,
-                    style = MaterialTheme.typography.body2
+                    style = AppTheme.typography.body2
                 )
                 Box(modifier = Modifier.padding(top = 12.dp)) {
                     OutlinedTextField(
@@ -504,7 +456,7 @@ fun AddProfileDialog(
                         singleLine = true,
                         onValueChange = {
                             textValue = it.trimStart()
-                            duplicated = state.containsProfileWithName(textValue)
+                            duplicated = state.containsProfileWithName(textValue) && !wantRemoveLastProfile
                         },
                         keyboardOptions = KeyboardOptions(
                             autoCorrect = true,
@@ -512,7 +464,7 @@ fun AddProfileDialog(
                             imeAction = ImeAction.Done
                         ),
                         keyboardActions = KeyboardActions {
-                            if (textValue.isNotEmpty()) {
+                            if (!duplicated && textValue.isNotEmpty()) {
                                 onEdit(textValue)
                             }
                         },
@@ -524,7 +476,7 @@ fun AddProfileDialog(
                     Text(
                         stringResource(R.string.edit_profile_duplicated_profile_name),
                         color = AppTheme.colors.red600,
-                        style = MaterialTheme.typography.caption,
+                        style = AppTheme.typography.caption1,
                         modifier = Modifier.padding(start = PaddingDefaults.Medium)
                     )
                 }
@@ -534,11 +486,12 @@ fun AddProfileDialog(
             TextButton(onClick = { onDismissRequest() }) {
                 Text(stringResource(R.string.cancel).uppercase(Locale.getDefault()))
             }
-            TextButton(onClick = {
-                if (!duplicated && textValue.isNotEmpty()) {
+            TextButton(
+                enabled = !duplicated && textValue.isNotEmpty(),
+                onClick = {
                     onEdit(textValue)
                 }
-            }) {
+            ) {
                 Text(stringResource(R.string.ok).uppercase(Locale.getDefault()))
             }
         }
@@ -553,58 +506,38 @@ fun AddProfileDialog(
 }
 
 @Composable
-private fun DemoSection(
-    demoChecked: Boolean,
-    modifier: Modifier = Modifier,
-    highlighted: Boolean,
-    onDemoChange: (Boolean) -> Unit,
-) {
-    var toggle by remember { mutableStateOf(false) }
-    val transition = updateTransition(targetState = toggle, label = "DemoSectionTransition")
-
-    val color by transition.animateColor(
-        transitionSpec = {
-            repeatable(
-                5,
-                tween(1000),
-                RepeatMode.Reverse
+fun HealthCardSection(onClickUnlockEgk: (changeSecret: Boolean) -> Unit, onClickOrderHealthCard: () -> Unit) {
+    Column {
+        Text(
+            text = stringResource(R.string.health_card_section_header),
+            style = AppTheme.typography.h6,
+            modifier = Modifier.padding(
+                start = PaddingDefaults.Medium,
+                end = PaddingDefaults.Medium,
+                bottom = PaddingDefaults.Medium / 2,
+                top = PaddingDefaults.Medium
             )
-        },
-        label = "DemoSectionColorAnimation"
-    ) {
-        if (it) AppTheme.colors.yellow300
-        else MaterialTheme.colors.background
-    }
+        )
 
-    LaunchedEffect(highlighted) {
-        toggle = highlighted
-    }
-
-    Column(modifier = modifier.background(color)) {
-        Column(
-            modifier = Modifier.padding(PaddingDefaults.Medium),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        LabelButton(
+            Icons.Outlined.LockOpen,
+            stringResource(R.string.health_card_section_unlock_card_no_reset)
         ) {
-            Text(
-                text = stringResource(R.string.settings_demo_headline),
-                style = MaterialTheme.typography.h6,
-                modifier = Modifier.testTag("stg_txt_header_demo_mode")
-            )
-            Text(
-                text = stringResource(R.string.settings_demo_info),
-                style = AppTheme.typography.body2l
-            )
+            onClickUnlockEgk(false)
         }
-        LabeledSwitch(
-            checked = demoChecked,
-            onCheckedChange = onDemoChange,
-            modifier = Modifier.testTag("stg_btn_demo_mode")
+
+        LabelButton(
+            painterResource(R.drawable.ic_reset_pin),
+            stringResource(R.string.health_card_section_unlock_card_reset_pin)
         ) {
-            Text(
-                modifier = Modifier.weight(1.0f),
-                text = stringResource(R.string.settings_demo_toggle),
-                style = MaterialTheme.typography.body1
-            )
+            onClickUnlockEgk(true)
+        }
+
+        LabelButton(
+            painterResource(R.drawable.ic_order_egk),
+            stringResource(R.string.health_card_section_order_card)
+        ) {
+            onClickOrderHealthCard()
         }
     }
 }
@@ -613,16 +546,16 @@ private fun DemoSection(
 private fun AccessibilitySection(
     modifier: Modifier = Modifier,
     zoomChecked: Boolean,
-    onZoomChange: (Boolean) -> Unit,
+    onZoomChange: (Boolean) -> Unit
 ) {
     Column(modifier = modifier) {
         Column(
             modifier = Modifier.padding(PaddingDefaults.Medium),
-            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
+            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
         ) {
             Text(
                 text = stringResource(R.string.settings_accessibility_headline),
-                style = MaterialTheme.typography.h6
+                style = AppTheme.typography.h6
             )
         }
         LabeledSwitch(
@@ -635,31 +568,22 @@ private fun AccessibilitySection(
     }
 }
 
-@Preview
-@Composable
-private fun DemoSectionPreview() {
-    AppTheme {
-        DemoSection(true, Modifier, false) {}
-    }
-}
-
 @Composable
 private fun AuthenticationSection(
-    authenticationMode: SettingsScreen.AuthenticationMode,
+    authenticationMode: SettingsData.AuthenticationMode,
     modifier: Modifier = Modifier,
-    onClickProtectionMode: (SettingsScreen.AuthenticationMode) -> Unit
+    onClickProtectionMode: (SettingsData.AuthenticationMode) -> Unit
 ) {
-
     var showBiometricPrompt by rememberSaveable { mutableStateOf(false) }
 
     if (showBiometricPrompt) {
         BiometricPrompt(
-            authenticationMethod = SettingsAuthenticationMethod.DeviceSecurity,
+            authenticationMethod = SettingsData.AuthenticationMode.DeviceSecurity,
             title = stringResource(R.string.auth_prompt_headline),
             description = "",
             negativeButton = stringResource(R.string.auth_prompt_cancel),
             onAuthenticated = {
-                onClickProtectionMode(SettingsScreen.AuthenticationMode.DeviceSecurity)
+                onClickProtectionMode(SettingsData.AuthenticationMode.DeviceSecurity)
                 showBiometricPrompt = false
             },
             onCancel = {
@@ -680,31 +604,32 @@ private fun AuthenticationSection(
         ) {
             Text(
                 text = stringResource(R.string.settings_appprotection_headline),
-                style = MaterialTheme.typography.h6
+                style = AppTheme.typography.h6
             )
             Text(
                 text = stringResource(R.string.settings_appprotection_info),
-                style = MaterialTheme.typography.body2
+                style = AppTheme.typography.body2
             )
         }
 
         AuthenticationModeCard(
             Icons.Outlined.Fingerprint,
-            checked = authenticationMode == SettingsScreen.AuthenticationMode.DeviceSecurity,
+            checked = authenticationMode == SettingsData.AuthenticationMode.DeviceSecurity,
             headline = stringResource(R.string.settings_appprotection_device_security_header),
             info = stringResource(R.string.settings_appprotection_device_security_info),
-            deviceSecurity = true,
+            deviceSecurity = true
         ) {
             showBiometricPrompt = true
         }
 
         AuthenticationModeCard(
             Icons.Outlined.Security,
-            checked = authenticationMode == SettingsScreen.AuthenticationMode.Password,
+            checked = authenticationMode is SettingsData.AuthenticationMode.Password,
             headline = stringResource(R.string.settings_appprotection_mode_password_headline),
             info = stringResource(R.string.settings_appprotection_mode_password_info)
         ) {
-            onClickProtectionMode(SettingsScreen.AuthenticationMode.Password)
+            // TODO; use enum
+            onClickProtectionMode(SettingsData.AuthenticationMode.Password(""))
         }
     }
 }
@@ -720,7 +645,6 @@ private fun AuthenticationModeCard(
     enabled: Boolean = true,
     onClick: () -> Unit
 ) {
-
     var showAllowDeviceSecurity by remember { mutableStateOf(false) }
 
     if (deviceSecurity && showAllowDeviceSecurity && !checked) {
@@ -766,7 +690,7 @@ private fun AuthenticationModeCard(
         Column(modifier = Modifier.weight(1.0f)) {
             Text(
                 text = headline,
-                style = MaterialTheme.typography.body1,
+                style = AppTheme.typography.body1
             )
             Text(
                 text = info,
@@ -776,11 +700,13 @@ private fun AuthenticationModeCard(
 
         Box(modifier = Modifier.align(Alignment.CenterVertically)) {
             Icon(
-                Icons.Rounded.RadioButtonUnchecked, null,
+                Icons.Rounded.RadioButtonUnchecked,
+                null,
                 tint = AppTheme.colors.neutral400
             )
             Icon(
-                Icons.Rounded.CheckCircle, null,
+                Icons.Rounded.CheckCircle,
+                null,
                 tint = AppTheme.colors.primary600,
                 modifier = Modifier.alpha(alpha.value)
             )
@@ -801,7 +727,7 @@ private fun DebugMenuSection(navController: NavController) {
                 bottom = PaddingDefaults.Medium / 2,
                 top = PaddingDefaults.Medium
             )
-            .testTag("stg_btn_debug_menu")
+            .testTag(TestTag.Settings.DebugMenuButton)
     )
 }
 
@@ -811,7 +737,6 @@ private fun AnalyticsSection(
     modifier: Modifier = Modifier,
     onCheckedChange: (Boolean) -> Unit
 ) {
-
     Column {
         Column(
             modifier = modifier.padding(PaddingDefaults.Medium),
@@ -819,11 +744,11 @@ private fun AnalyticsSection(
         ) {
             Text(
                 text = stringResource(R.string.settings_tracking_headline),
-                style = MaterialTheme.typography.h6
+                style = AppTheme.typography.h6
             )
             Text(
                 text = stringResource(R.string.settings_tracking_info),
-                style = MaterialTheme.typography.body2
+                style = AppTheme.typography.body2
             )
         }
         LabeledSwitch(
@@ -842,7 +767,7 @@ private fun AnalyticsSection(
 private fun AllowScreenShotsSection(
     allowScreenshots: Boolean,
     modifier: Modifier = Modifier,
-    onAllowScreenshotsChange: (Boolean) -> Unit,
+    onAllowScreenshotsChange: (Boolean) -> Unit
 ) {
     LabeledSwitch(
         checked = !allowScreenshots,
@@ -876,7 +801,7 @@ private fun LegalSection(navController: NavController) {
     Column {
         Text(
             text = stringResource(R.string.settings_legal_headline),
-            style = MaterialTheme.typography.h6,
+            style = AppTheme.typography.h6,
             modifier = Modifier.padding(
                 start = PaddingDefaults.Medium,
                 end = PaddingDefaults.Medium,
@@ -938,8 +863,29 @@ private fun LabelButton(
             .padding(PaddingDefaults.Medium)
             .semantics(mergeDescendants = true) {}
     ) {
-        Icon(icon, null, tint = AppTheme.colors.primary500)
-        Text(text, style = MaterialTheme.typography.body1)
+        Icon(icon, null, tint = AppTheme.colors.primary600)
+        Text(text, style = AppTheme.typography.body1)
+    }
+}
+
+@Composable
+private fun LabelButton(
+    icon: Painter,
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(PaddingDefaults.Medium)
+            .semantics(mergeDescendants = true) {}
+    ) {
+        Image(painter = icon, contentDescription = null)
+        Text(text, style = AppTheme.typography.body1)
     }
 }
 
@@ -952,7 +898,7 @@ private fun AboutSection(modifier: Modifier) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         CompositionLocalProvider(
-            LocalTextStyle provides MaterialTheme.typography.body2,
+            LocalTextStyle provides AppTheme.typography.body2,
             LocalContentColor provides AppTheme.colors.neutral600
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -971,118 +917,81 @@ private fun AboutSection(modifier: Modifier) {
 }
 
 @Composable
-private fun LogoutButton(onClick: () -> Unit) {
-    var dialogVisible by remember { mutableStateOf(false) }
-    if (dialogVisible) {
-
-        CommonAlertDialog(
-            header = stringResource(id = R.string.logout_detail_header),
-            info = stringResource(R.string.logout_detail_message),
-            actionText = stringResource(R.string.logout_delete_yes),
-            cancelText = stringResource(R.string.logout_delete_no),
-            onCancel = { dialogVisible = false },
-            onClickAction = {
-                onClick()
-                dialogVisible = false
-            }
-        )
-    }
-
-    Button(
-        onClick = { dialogVisible = true },
-        modifier = Modifier
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 32.dp,
-                bottom = 16.dp
-            )
-            .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = AppTheme.colors.red600,
-            contentColor = AppTheme.colors.neutral000
-        )
-    ) {
-        Text(
-            stringResource(R.string.logout).uppercase(Locale.getDefault()),
-            modifier = Modifier.padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            )
-        )
-    }
-    Text(
-        stringResource(R.string.logout_description),
-        modifier = Modifier.padding(
-            start = PaddingDefaults.Medium,
-            end = PaddingDefaults.Medium,
-            bottom = PaddingDefaults.Small
-        ),
-        style = AppTheme.typography.body2l,
-        textAlign = TextAlign.Center
-    )
-}
-
-@Composable
-private fun ContactSection(onClickFeedback: () -> Unit) {
+private fun ContactSection() {
     val context = LocalContext.current
     val contactHeader = stringResource(R.string.settings_contact_headline)
 
     Column {
         val phoneNumber = stringResource(R.string.settings_contact_hotline_number)
-        val feedbackAddress = stringResource(R.string.settings_contact_feedback_adress)
+        val surveyAddress = stringResource(R.string.settings_contact_survey_address)
+        val mailAddress = stringResource(R.string.settings_contact_mail_address)
+        val subject = stringResource(R.string.settings_feedback_mail_subject)
+        val body = buildFeedbackBodyWithDeviceInfo()
+
         SpacerMedium()
         Text(
             text = contactHeader,
-            style = MaterialTheme.typography.h6,
+            style = AppTheme.typography.h6,
             modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
         )
         SpacerSmall()
+
+        LabelButton(
+            icon = Icons.Outlined.Mail,
+            text = stringResource(R.string.settings_contact_feedback_form),
+            onClick = {
+                openMailClient(context, mailAddress, body, subject)
+            }
+        )
+        LabelButton(
+            icon = Icons.Outlined.OpenInBrowser,
+            text = stringResource(R.string.settings_contact_feedback),
+            onClick = { context.handleIntent(provideWebIntent(surveyAddress)) }
+        )
         LabelButton(
             icon = Icons.Rounded.Phone,
             text = stringResource(R.string.settings_contact_hotline),
             onClick = { context.handleIntent(providePhoneIntent(phoneNumber)) }
         )
-        LabelButton(
-            icon = Icons.Outlined.Mail,
-            text = stringResource(R.string.settings_contact_feedback_form),
-            onClick = { onClickFeedback() }
-        )
-        LabelButton(
-            icon = Icons.Outlined.OpenInBrowser,
-            text = stringResource(R.string.settings_contact_feedback),
-            onClick = { context.handleIntent(provideWebIntent(feedbackAddress)) }
+        Text(
+            text = stringResource(R.string.settings_contact_technical_support_description),
+            style = AppTheme.typography.body2l,
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
         )
     }
 }
 
+fun openMailClient(
+    context: Context,
+    address: String,
+    body: String,
+    subject: String
+) = context.handleIntent(
+    provideEmailIntent(
+        address = address,
+        body = body,
+        subject = subject
+    )
+)
+
+@Suppress("MaxLineLength")
 @Composable
-fun secureOptionEnabled(): Boolean {
-    val context = LocalContext.current
-
-    return produceState(false) {
-        withContext(Dispatchers.Main) {
-            val biometricManager = BiometricManager.from(context)
-            value = secureOptionEnabled(biometricManager)
-        }
-    }.value
-}
-
-private fun secureOptionEnabled(biometricManager: BiometricManager): Boolean {
-
-    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
-        BiometricManager.BIOMETRIC_SUCCESS -> return true
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return false
-    }
-    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK)) {
-        BiometricManager.BIOMETRIC_SUCCESS -> return true
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return false
-    }
-    when (biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL)) {
-        BiometricManager.BIOMETRIC_SUCCESS -> return true
-        BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED -> return false
-    }
-    return false
-}
+fun buildFeedbackBodyWithDeviceInfo(
+    title: String = stringResource(R.string.settings_feedback_mail_title),
+    userHint: String = stringResource(R.string.seetings_feedback_form_additional_data_info),
+    darkMode: Boolean = isSystemInDarkTheme()
+): String = """$title
+      |
+      |
+      |
+      |$userHint
+      |
+      |Systeminformationen
+      |
+      |Betriebssystem: Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT}) (PATCH ${Build.VERSION.SECURITY_PATCH})
+      |Modell: ${Build.MANUFACTURER} ${Build.MODEL} (${Build.PRODUCT})
+      |App Version: ${BuildConfig.VERSION_NAME} (${BuildKonfig.GIT_HASH})
+      |DarkMode: ${if (darkMode) "an" else "aus"}
+      |Sprache: ${Locale.getDefault().displayName}
+      |
+""".trimMargin()

@@ -10,9 +10,13 @@
 .cxx
 
 Jenkinsfile
-Jenkinsfile_Archive
-Jenkinsfile_GitHubPublish
-Jenkinsfile_Desktop
-Jenkinsfile_GitHubPublishFasttrack
+Nightly.Jenkinsfile
+Archive.Jenkinsfile
+GitHubPublish.Jenkinsfile
+Desktop.Jenkinsfile
+UpdateTools.Jenkinsfile
+DependencyReport.Jenkinsfile
 ci-overrides.properties
 nexus-init.gradle.kts
+doc/security_doku
+android/src/androidTest

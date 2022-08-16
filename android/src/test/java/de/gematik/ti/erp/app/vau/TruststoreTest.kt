@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.vau
 
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.repository.VauRepository
@@ -85,11 +85,13 @@ class TruststoreTest {
 
         every { config.maxOCSPResponseAge } returns Duration.ofHours(12)
         every { config.trustAnchor } returns TestCertificates.RCA3.X509Certificate
-        every { timeSource.now() } returns ocspProducedAt + Duration.ofHours(2)
+        every { timeSource() } returns ocspProducedAt + Duration.ofHours(2)
         every { trustedTruststore.vauPublicKey } returns vauPublicKey
-        every { trustedTruststore.idpCertificates } returns listOf(TestCertificates.Idp1.X509Certificate, TestCertificates.Idp2.X509Certificate)
+        every { trustedTruststore.idpCertificates } returns
+            listOf(TestCertificates.Idp1.X509Certificate, TestCertificates.Idp2.X509Certificate)
         every { trustedTruststore.caCertificates } returns listOf(TestCertificates.CA10.X509Certificate)
-        every { trustedTruststore.ocspResponses } returns TestCertificates.OCSPList.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
+        every { trustedTruststore.ocspResponses } returns
+            TestCertificates.OCSP.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
         every { trustedTruststore.checkValidity(Duration.ofHours(12), ocspProducedAt) } coAnswers { }
         coEvery { repository.invalidate() } coAnswers { }
 
@@ -184,7 +186,7 @@ class TruststoreTest {
     @Test
     fun `create trusted truststore`() {
         val truststore = TrustedTruststore.create(
-            TestCertificates.OCSPList.OCSPList,
+            TestCertificates.OCSP.OCSPList,
             TestCertificates.Vau.CertList,
             TestCertificates.RCA3.X509Certificate,
             Duration.ofHours(12),
@@ -200,7 +202,7 @@ class TruststoreTest {
         assertTrue(
             try {
                 TrustedTruststore.create(
-                    TestCertificates.OCSPList.OCSPList,
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -222,12 +224,12 @@ class TruststoreTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -253,13 +255,13 @@ class TruststoreTest {
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -267,7 +269,7 @@ class TruststoreTest {
                 )
             } answers {
                 error("invalid ocsp")
-            } andThen {
+            } andThenAnswer {
                 trustedTruststore
             }
 
@@ -295,13 +297,13 @@ class TruststoreTest {
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -351,13 +353,13 @@ class TruststoreTest {
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -391,13 +393,13 @@ class TruststoreTest {
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -433,13 +435,13 @@ class TruststoreTest {
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -470,13 +472,13 @@ class TruststoreTest {
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -509,13 +511,13 @@ class TruststoreTest {
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),

@@ -21,13 +21,15 @@ package de.gematik.ti.erp.app.prescription.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DoneAll
+import androidx.compose.material.icons.rounded.EventBusy
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,7 +58,7 @@ fun StatusChip(
             .padding(vertical = 6.dp, horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text, style = MaterialTheme.typography.subtitle2, color = textColor)
+        Text(text, style = AppTheme.typography.subtitle2, color = textColor)
         icon?.let {
             SpacerSmall()
             it()
@@ -104,6 +106,21 @@ fun ReadyStatusChip() =
     )
 
 @Composable
+fun PendingStatusChip() =
+    StatusChip(
+        text = stringResource(R.string.prescription_status_pending),
+        icon = {
+            CircularProgressIndicator(
+                modifier = Modifier.size(16.dp),
+                color = AppTheme.colors.neutral500,
+                strokeWidth = 2.dp
+            )
+        },
+        textColor = AppTheme.colors.neutral600,
+        backgroundColor = AppTheme.colors.neutral100
+    )
+
+@Composable
 fun InProgressStatusChip() =
     StatusChip(
         text = stringResource(R.string.prescription_status_in_progress),
@@ -124,9 +141,19 @@ fun CompletedStatusChip() =
     )
 
 @Composable
+fun ExpiredStatusChip() =
+    StatusChip(
+        text = stringResource(R.string.prescription_status_expired),
+        icon = Icons.Rounded.EventBusy,
+        textColor = AppTheme.colors.neutral600,
+        backgroundColor = AppTheme.colors.neutral100,
+        iconColor = AppTheme.colors.neutral500
+    )
+
+@Composable
 fun UnknownStatusChip() =
     StatusChip(
         text = stringResource(R.string.prescription_status_unknown),
         textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral100,
+        backgroundColor = AppTheme.colors.neutral100
     )

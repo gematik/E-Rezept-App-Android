@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.settings.ui
 
-import TokenScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
@@ -33,14 +32,15 @@ import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Route
+import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
 import de.gematik.ti.erp.app.debug.ui.DebugScreenWrapper
+import de.gematik.ti.erp.app.license.ui.LicenseScreen
 import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardContactOrderScreen
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
-import de.gematik.ti.erp.app.profiles.ui.ProfileDestinations
+import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
-import de.gematik.ti.erp.app.webview.URI_LICENCES
 import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
 
@@ -52,38 +52,40 @@ object SettingsNavigationScreens {
     object OpenSourceLicences : Route("OpenSourceLicences")
     object AdditionalLicences : Route("AdditionalLicences")
     object AllowAnalytics : Route("AcceptAnalytics")
-    object FeedbackForm : Route("FeedbackForm")
     object Password : Route("Password")
     object Debug : Route("Debug")
-    object Token : Route("Token")
     object OrderHealthCard : Route("OrderHealthCard")
     object EditProfile :
-        Route("EditProfile", navArgument("profileId") { type = NavType.IntType }) {
-        fun path(profileId: Int) = path("profileId" to profileId)
+        Route("EditProfile", navArgument("profileId") { type = NavType.StringType }) {
+        fun path(profileId: String) = path("profileId" to profileId)
+    }
+    object UnlockEgk : Route("UnlockEgk", navArgument("changeSecret") { type = NavType.BoolType }) {
+        fun path(changeSecret: Boolean) = path("changeSecret" to changeSecret)
     }
 }
 
 enum class SettingsScrollTo {
     None,
     Authentication,
-    DemoMode,
-    Profiles
+    Profiles,
+    HealthCard
 }
 
+@Suppress("LongMethod")
 @Composable
 fun SettingsNavGraph(
     settingsNavController: NavHostController,
     navigationMode: NavigationMode,
     scrollTo: SettingsScrollTo,
     mainNavController: NavController,
-    settingsViewModel: SettingsViewModel
+    settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel
 ) {
     val state by produceState(SettingsScreen.defaultState) {
         settingsViewModel.screenState().collect {
             value = it
         }
     }
-
     NavHost(
         settingsNavController,
         startDestination = SettingsNavigationScreens.Settings.path()
@@ -99,9 +101,7 @@ fun SettingsNavGraph(
             }
         }
         composable(SettingsNavigationScreens.Debug.route) {
-            NavigationAnimation(mode = navigationMode) {
-                DebugScreenWrapper(settingsNavController)
-            }
+            DebugScreenWrapper(settingsNavController)
         }
         composable(SettingsNavigationScreens.Terms.route) {
             NavigationAnimation(mode = navigationMode) {
@@ -130,10 +130,8 @@ fun SettingsNavGraph(
         }
         composable(SettingsNavigationScreens.OpenSourceLicences.route) {
             NavigationAnimation(mode = navigationMode) {
-                WebViewScreen(
-                    title = stringResource(R.string.settings_legal_licences),
-                    onBack = { settingsNavController.popBackStack() },
-                    url = URI_LICENCES
+                LicenseScreen(
+                    onBack = { settingsNavController.popBackStack() }
                 )
             }
         }
@@ -146,20 +144,15 @@ fun SettingsNavGraph(
         }
         composable(SettingsNavigationScreens.AllowAnalytics.route) {
             NavigationAnimation(mode = navigationMode) {
-                AllowAnalyticsScreen {
-                    if (it) {
-                        settingsViewModel.onTrackingAllowed()
-                    } else {
-                        settingsViewModel.onTrackingDisallowed()
+                AllowAnalyticsScreen(
+                    onBack = { settingsNavController.popBackStack() },
+                    onAllowAnalytics = {
+                        if (it) {
+                            settingsViewModel.onTrackingAllowed()
+                        } else {
+                            settingsViewModel.onTrackingDisallowed()
+                        }
                     }
-                    settingsNavController.popBackStack()
-                }
-            }
-        }
-        composable(SettingsNavigationScreens.FeedbackForm.route) {
-            NavigationAnimation(mode = navigationMode) {
-                FeedbackForm(
-                    settingsNavController
                 )
             }
         }
@@ -174,34 +167,44 @@ fun SettingsNavGraph(
         composable(SettingsNavigationScreens.OrderHealthCard.route) {
             HealthCardContactOrderScreen(onBack = { settingsNavController.popBackStack() })
         }
-        composable(ProfileDestinations.Token.route) {
-            val activeProfile = state.activeProfile()
-            NavigationAnimation(mode = NavigationMode.Closed) {
-                TokenScreen(
-                    onBack = { settingsNavController.popBackStack() },
-                    ssoToken = activeProfile.ssoToken?.tokenOrNull(),
-                    accessToken = activeProfile.accessToken,
-                )
-            }
-        }
         composable(
             SettingsNavigationScreens.EditProfile.route,
-            SettingsNavigationScreens.EditProfile.arguments,
+            SettingsNavigationScreens.EditProfile.arguments
         ) {
-            val profileId =
-                remember { settingsNavController.currentBackStackEntry!!.arguments!!.getInt("profileId") }
+            val profileId = remember { it.arguments!!.getString("profileId")!! }
 
             state.profileById(profileId)?.let { profile ->
                 EditProfileScreen(
                     state,
                     profile,
                     settingsViewModel,
+                    profileSettingsViewModel,
                     onRemoveProfile = {
                         settingsViewModel.removeProfile(profile, it)
                         settingsNavController.popBackStack()
                     },
                     onBack = { settingsNavController.popBackStack() },
                     mainNavController = mainNavController
+                )
+            }
+        }
+        composable(
+            SettingsNavigationScreens.UnlockEgk.route,
+            SettingsNavigationScreens.UnlockEgk.arguments
+        ) {
+            val changeSecret = remember {
+                it.arguments!!.getBoolean("changeSecret")
+            }
+
+            NavigationAnimation(mode = navigationMode) {
+                UnlockEgKScreen(
+                    changeSecret = changeSecret,
+                    navController = settingsNavController,
+                    onClickLearnMore = {
+                        settingsNavController.navigate(
+                            SettingsNavigationScreens.OrderHealthCard.path()
+                        )
+                    }
                 )
             }
         }

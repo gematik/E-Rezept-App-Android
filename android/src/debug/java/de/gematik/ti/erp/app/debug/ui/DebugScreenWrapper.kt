@@ -19,9 +19,8 @@
 package de.gematik.ti.erp.app.debug.ui
 
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 
 @Composable
-fun DebugScreenWrapper(navigation: NavController, viewModel: DebugSettingsViewModel = hiltViewModel()) =
-    DebugScreen(navigation = navigation, viewModel = viewModel)
+fun DebugScreenWrapper(navigation: NavController) =
+    DebugScreen(settingsNavController = navigation)
