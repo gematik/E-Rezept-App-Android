@@ -522,6 +522,7 @@
     <string name="edit_shipping_contact_top_bar_title">Kontaktdaten und Adresse</string>
     <string name="edit_shipping_contact_title_contact">Kontakt</string>
     <string name="edit_shipping_contact_phone">Telefonnummer</string>
+    <string name="edit_shipping_contact_phone_optional">Telefonnummer (optional)</string>
     <string name="edit_shipping_contact_error_phone">Bitte geben Sie für die Kontaktaufnahme eine Telefonnummer an.</string>
     <string name="edit_shipping_contact_mail">Mailadresse (optional)</string>
     <string name="edit_shipping_contact_title_address">Lieferadresse</string>
@@ -817,4 +818,7 @@
     <string name="onboarding_default_profile_name">Profil 1</string>
     <string name="search_pharmacies_filter_nearby">In meiner Nähe</string>
     <string name="pharmacy_detail_no_redeemable_prescription_info">Sie haben keine einlösbaren Rezepte</string>
+    <string name="share_import_prescription_added">Rezept hinzugefügt</string>
+    <string name="share_import_prescription_exists">Rezept bereits vorhanden</string>
+    <string name="share_import_error">Ein Fehler beim Importieren ist aufgetreten</string>
 </resources>

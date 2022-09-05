@@ -465,7 +465,9 @@ fun MainScreenWithScaffold(
             }
         }
 
-        ExternalAuthenticationDialog(mainViewModel)
+        // TODO: move to general place?
+        ExternalAuthenticationDialog()
+
         val listState = rememberLazyListState()
         Scaffold(
             modifier = Modifier.testTag(TestTag.Main.MainScreen),

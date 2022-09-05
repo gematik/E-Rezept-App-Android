@@ -72,6 +72,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.runtime.derivedStateOf
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.ui.PrimaryButton
 import de.gematik.ti.erp.app.cardwall.ui.SecondaryButton
@@ -113,8 +114,13 @@ fun PharmacyOrderScreen(
         }
     }
 
-    val shippingContactCompleted = remember(state) {
-        state.prescriptions.isNotEmpty() && !state.contact.phoneOrAddressMissing()
+    val shippingContactCompleted by derivedStateOf {
+        state.prescriptions.isNotEmpty() &&
+            if (state.orderOption == PharmacyScreenData.OrderOption.ReserveInPharmacy) {
+                !state.contact.addressIsMissing()
+            } else {
+                !state.contact.phoneOrAddressMissing()
+            }
     }
 
     val reserveTitle = stringResource(R.string.pharmacy_order_top_bar_title_order)
@@ -222,8 +228,16 @@ fun PharmacyOrderScreen(
                         navController.navigate(PharmacyNavigationScreens.EditShippingContact.path())
                     })
                 } else {
-                    Box(Modifier.fillMaxWidth().height(160.dp)) {
-                        CircularProgressIndicator(Modifier.size(120.dp).align(Alignment.Center))
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(160.dp)
+                    ) {
+                        CircularProgressIndicator(
+                            Modifier
+                                .size(120.dp)
+                                .align(Alignment.Center)
+                        )
                     }
                 }
                 SpacerLarge()
@@ -294,7 +308,9 @@ private fun Contact(
                 }
                 SpacerMedium()
                 SecondaryButton(
-                    modifier = Modifier.fillMaxWidth().padding(PaddingDefaults.Medium),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(PaddingDefaults.Medium),
                     onClick = { onClickEdit() }
                 ) {
                     Text(stringResource(R.string.pharmacy_order_edit_contact))

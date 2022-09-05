@@ -39,7 +39,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
-import kotlinx.coroutines.withContext
 import org.json.JSONArray
 import org.json.JSONObject
 import io.github.aakira.napier.Napier
@@ -141,9 +140,7 @@ class PrescriptionUseCase(
         }
 
     suspend fun saveScannedTasks(profileId: ProfileIdentifier, tasks: List<ScannedTaskData.ScannedTask>) =
-        withContext(dispatchers.IO) {
-            repository.saveScannedTasks(profileId, tasks)
-        }
+        repository.saveScannedTasks(profileId, tasks)
 
     suspend fun saveScannedCodes(profileId: ProfileIdentifier, scannedCodes: List<ValidScannedCode>) {
         val tasks = scannedCodes.flatMap { code ->
@@ -233,7 +230,7 @@ class PrescriptionUseCase(
         repository.updateRedeemedOn(taskId, if (redeem) Instant.now() else null)
     }
 
-    suspend fun getAllTasksWithTaskIdOnly(): Flow<List<String>> =
+    fun getAllTasksWithTaskIdOnly(): Flow<List<String>> =
         repository.loadTaskIds()
 }
 

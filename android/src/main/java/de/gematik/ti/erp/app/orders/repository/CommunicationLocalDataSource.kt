@@ -22,12 +22,15 @@ package de.gematik.ti.erp.app.orders.repository
 
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
+import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.toCommunication
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.Sort
+import io.realm.kotlin.query.max
+import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -123,4 +126,12 @@ class CommunicationLocalDataSource(
             }
         }
     }
+
+    fun latestCommunicationTimestamp(profileId: ProfileIdentifier) =
+        realm.query<CommunicationEntityV1>("parent.parent.id = $0", profileId)
+            .max<RealmInstant>("sentOn")
+            .asFlow()
+            .map {
+                it?.toInstant()
+            }
 }

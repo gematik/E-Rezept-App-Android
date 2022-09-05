@@ -16,6 +16,10 @@ GitHubPublish.Jenkinsfile
 Desktop.Jenkinsfile
 UpdateTools.Jenkinsfile
 DependencyReport.Jenkinsfile
+EspressoTest.Jenkinsfile
+Release.Jenkinsfile
+Multibranch.Jenkinsfile
+ci
 ci-overrides.properties
 nexus-init.gradle.kts
 doc/security_doku

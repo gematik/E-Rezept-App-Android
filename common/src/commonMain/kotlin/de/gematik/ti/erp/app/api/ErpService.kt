@@ -72,7 +72,13 @@ interface ErpService {
     ): Response<ResponseBody>
 
     @GET("Communication")
-    suspend fun communication(@Tag profileId: ProfileIdentifier): Response<Bundle>
+    suspend fun getCommunications(
+        @Tag profileId: ProfileIdentifier,
+        @Query("sent") lastKnownDate: String?,
+        @Query("_sort") sort: String = "+sent",
+        @Query("_count") count: Int? = null,
+        @Query("__offset") offset: Int? = null
+    ): Response<Bundle>
 
     @GET("MedicationDispense")
     suspend fun bundleOfMedicationDispenses(

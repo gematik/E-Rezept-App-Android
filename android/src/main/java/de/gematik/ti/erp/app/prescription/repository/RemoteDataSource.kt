@@ -46,10 +46,18 @@ class RemoteDataSource(
             service.allTasks(profileId, dateTimeString)
         }
 
-    suspend fun fetchCommunications(profileId: ProfileIdentifier): Result<Bundle> = safeApiCall(
+    suspend fun fetchCommunications(
+        profileId: ProfileIdentifier,
+        count: Int?,
+        lastKnownUpdate: String?
+    ): Result<Bundle> = safeApiCall(
         errorMessage = "error getting communications"
     ) {
-        service.communication(profileId)
+        service.getCommunications(
+            profileId = profileId,
+            count = count,
+            lastKnownDate = lastKnownUpdate
+        )
     }
 
     suspend fun taskWithKBVBundle(profileId: ProfileIdentifier, taskID: String) = safeApiCall(

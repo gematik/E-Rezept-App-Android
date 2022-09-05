@@ -71,16 +71,6 @@ class PrescriptionRepository(
     }
 
     /**
-     * Communications will be downloaded and persisted local
-     */
-    suspend fun downloadCommunications(profileIdentifier: ProfileIdentifier): Result<Unit> =
-        remoteDataSource.fetchCommunications(profileIdentifier).map { bundle ->
-            withContext(dispatchers.IO) {
-                localDataSource.saveCommunications(bundle)
-            }
-        }
-
-    /**
      * Downloads all tasks and each referenced bundle. Each bundle is persisted locally.
      */
     suspend fun downloadTasks(profileId: ProfileIdentifier): Result<Int> =
@@ -145,8 +135,14 @@ class PrescriptionRepository(
         profileId: ProfileIdentifier,
         taskId: String
     ): Result<Unit> = withContext(dispatchers.IO) {
-        remoteDataSource.deleteTask(profileId, taskId).map {
+        // check if task is local only
+        if (localDataSource.loadScannedTaskByTaskId(taskId).first() != null) {
             localDataSource.deleteTask(taskId)
+            Result.success(Unit)
+        } else {
+            remoteDataSource.deleteTask(profileId, taskId).map {
+                localDataSource.deleteTask(taskId)
+            }
         }
     }
 

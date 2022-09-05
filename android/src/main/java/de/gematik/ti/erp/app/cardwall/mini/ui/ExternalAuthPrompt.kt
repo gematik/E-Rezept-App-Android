@@ -39,16 +39,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
-import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.ui.PrimaryButtonSmall
+import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -62,12 +61,14 @@ import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.net.URI
 
 @Stable
 class ExternalPromptAuthenticator(
-    private val activity: MainActivity,
+    private val intentHandler: IntentHandler,
     private val bridge: AuthenticationBridge
 ) : PromptAuthenticator {
     private sealed interface Request {
@@ -85,6 +86,9 @@ class ExternalPromptAuthenticator(
 
     internal var state by mutableStateOf<State>(State.None)
 
+    var isInProgress: Boolean = false
+        private set
+
     override fun authenticate(
         profileId: ProfileIdentifier,
         scope: PromptAuthenticator.AuthScope
@@ -99,6 +103,7 @@ class ExternalPromptAuthenticator(
                             send(PromptAuthenticator.AuthResult.Cancelled)
                             cancel()
                         }
+
                         is Request.InsuranceSelected -> {
                             Napier.d("doExternalAuthentication for $authFor")
 
@@ -108,7 +113,7 @@ class ExternalPromptAuthenticator(
                                 authenticatorId = authFor.authenticatorId,
                                 authenticatorName = authFor.authenticatorName
                             ).onSuccess { redirect ->
-                                activity.startFastTrackApp(redirect)
+                                intentHandler.startFastTrackApp(redirect)
                             }.onFailure {
                                 Napier.e("doExternalAuthentication failed", it)
                                 // TODO error handling
@@ -118,11 +123,11 @@ class ExternalPromptAuthenticator(
 
                             Napier.d("wait for instant of $authFor")
 
-                            val uri = activity.unvalidatedInstantUri.first()
+                            val uri = intentHandler.extAuthIntent.first()
 
                             Napier.d("doExternalAuthorization for $uri")
 
-                            bridge.doExternalAuthorization(uri)
+                            bridge.doExternalAuthorization(URI(uri))
                                 .onSuccess {
                                     send(PromptAuthenticator.AuthResult.Authenticated)
                                     cancel()
@@ -137,11 +142,15 @@ class ExternalPromptAuthenticator(
                     }
                 }
             }
+
             else -> {
                 send(PromptAuthenticator.AuthResult.Cancelled)
             }
         }
+    }.onStart {
+        isInProgress = true
     }.onCompletion {
+        isInProgress = false
         state = State.None
     }
 
@@ -226,10 +235,10 @@ fun ExternalAuthPrompt(
 
 @Composable
 fun rememberExternalPromptAuthenticator(
-    bridge: AuthenticationBridge
+    bridge: AuthenticationBridge,
+    intentHandler: IntentHandler
 ): ExternalPromptAuthenticator {
-    val activity = LocalContext.current as MainActivity
     return remember {
-        ExternalPromptAuthenticator(activity, bridge)
+        ExternalPromptAuthenticator(intentHandler, bridge)
     }
 }

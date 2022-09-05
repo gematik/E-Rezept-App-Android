@@ -70,6 +70,10 @@ class TwoDCodeValidator {
         const val MIN_PRESCRIPTIONS = 1
 
         // see gemSpec_FD_eRp A_19019 & A_19021
+
+        val taskIdPattern = "([A-Za-z0-9\\-.]{1,64})".toRegex()
+        val accessCodePattern = "([0-9a-f]{64})".toRegex()
+
         val taskPattern = (
             "Task/([A-Za-z0-9\\-\\.]{1,64})/\\\$accept\\?ac=([0-9a-f]{64})"
             ).toRegex()

@@ -19,7 +19,9 @@
 package de.gematik.ti.erp.app.orders.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
+import de.gematik.ti.erp.app.prescription.repository.FhirCommunication
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -29,16 +31,23 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import de.gematik.ti.erp.app.prescription.repository.LocalDataSource
+import de.gematik.ti.erp.app.prescription.repository.RemoteDataSource
+import de.gematik.ti.erp.app.prescription.repository.extractResources
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import java.time.Instant
+
+private const val CommunicationsMaxPageSize = 50
 
 class CommunicationRepository(
     private val taskLocalDataSource: LocalDataSource,
+    private val taskRemoteDataSource: RemoteDataSource,
     private val communicationLocalDataSource: CommunicationLocalDataSource,
     private val cacheLocalDataSource: PharmacyCacheLocalDataSource,
     private val cacheRemoteDataSource: PharmacyCacheRemoteDataSource,
     private val dispatchers: DispatchProvider
-) {
+) : ResourcePaging(dispatchers, CommunicationsMaxPageSize) {
     private val scope = CoroutineScope(dispatchers.IO)
     private val queue = Channel<String>(capacity = Channel.BUFFERED)
 
@@ -62,6 +71,23 @@ class CommunicationRepository(
             }
         }
     }
+
+    suspend fun downloadCommunications(profileId: ProfileIdentifier) = downloadPaged(profileId)
+
+    override suspend fun downloadResource(profileId: ProfileIdentifier, timestamp: String?, count: Int?): Result<Int> =
+        taskRemoteDataSource.fetchCommunications(
+            profileId = profileId,
+            count = count,
+            lastKnownUpdate = timestamp
+        ).mapCatching { bundle ->
+            val communications = bundle.extractResources<FhirCommunication>()
+            taskLocalDataSource.saveCommunications(communications)
+
+            communications.size
+        }
+
+    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
+        communicationLocalDataSource.latestCommunicationTimestamp(profileId).first()
 
     fun loadPharmacies(): Flow<List<CachedPharmacy>> =
         cacheLocalDataSource.loadPharmacies().flowOn(dispatchers.IO)

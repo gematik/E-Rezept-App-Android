@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
+import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -195,11 +196,11 @@ fun PromptScaffold(
 }
 
 @Composable
-fun rememberAuthenticator(): Authenticator {
+fun rememberAuthenticator(intentHandler: IntentHandler): Authenticator {
     val bridge by rememberViewModel<MiniCardWallViewModel>()
     val promptSE = rememberSecureHardwarePromptAuthenticator(bridge)
     val promptHC = rememberHealthCardPromptAuthenticator(bridge)
-    val promptEX = rememberExternalPromptAuthenticator(bridge)
+    val promptEX = rememberExternalPromptAuthenticator(bridge, intentHandler)
     return remember {
         Authenticator(
             authenticatorSecureElement = promptSE,

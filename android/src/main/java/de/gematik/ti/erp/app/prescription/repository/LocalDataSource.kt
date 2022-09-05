@@ -196,8 +196,7 @@ class LocalDataSource(
                 scannedTask.obj?.toScannedTask()
             }
 
-    suspend fun saveCommunications(bundle: Bundle) {
-        val communications = bundle.extractResources<FhirCommunication>()
+    suspend fun saveCommunications(communications: List<FhirCommunication>) {
         realm.tryWrite<Unit> {
             communications.forEach { communication ->
                 val taskId = communication.basedOn[0].reference.split("/")[1]

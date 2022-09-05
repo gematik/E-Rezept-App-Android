@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app
 
 import android.content.Intent
 import android.content.SharedPreferences
-import android.net.Uri
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
@@ -40,6 +39,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -79,7 +79,10 @@ import de.gematik.ti.erp.app.profiles.ui.ProfileViewModel
 import de.gematik.ti.erp.app.redeem.ui.RedeemViewModel
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.core.IntentHandler
+import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.pharmacy.repository.model.OftenUsedPharmaciesViewModel
+import de.gematik.ti.erp.app.prescription.detail.ui.SharePrescriptionHandler
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.rememberProfileHandler
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
@@ -88,15 +91,11 @@ import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
 import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationViewModel
 import de.gematik.ti.erp.app.utils.compose.DebugOverlay
 import de.gematik.ti.erp.app.utils.compose.DialogHost
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.distinctUntilChangedBy
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import io.github.aakira.napier.Napier
 import org.kodein.di.Copy
 import org.kodein.di.DIAware
 import org.kodein.di.android.closestDI
@@ -106,7 +105,6 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
-import java.net.URI
 
 const val SCREENSHOTS_ALLOWED = "SCREENSHOTS_ALLOWED"
 
@@ -124,7 +122,6 @@ class MainActivity : AppCompatActivity(), DIAware {
         bindProvider { CardWallViewModel(instance(), instance(), instance()) }
         bindProvider { ExternalAuthenticatorListViewModel(instance(), instance()) }
         bindProvider { RedeemStateViewModel(instance(), instance()) }
-//        bindProvider { MessageViewModel(instance()) }
         bindProvider { HealthCardOrderViewModel(instance()) }
         bindProvider { PrescriptionDetailsViewModel(instance(), instance()) }
         bindProvider { PrescriptionViewModel(instance(), instance(), instance()) }
@@ -155,7 +152,7 @@ class MainActivity : AppCompatActivity(), DIAware {
                 dispatchers = instance()
             )
         }
-        bindSingleton { MainViewModel(instance(), instance(), instance(), instance()) }
+        bindSingleton { MainViewModel(instance(), instance()) }
         bindSingleton { MainScreenViewModel(instance(), instance()) }
     }
 
@@ -165,12 +162,7 @@ class MainActivity : AppCompatActivity(), DIAware {
 
     private val appPrefs: SharedPreferences by instance(ApplicationPreferencesTag)
 
-    private var _unvalidatedInstantUri = Channel<URI>(Channel.CONFLATED)
-    var unvalidatedInstantUri = _unvalidatedInstantUri
-        .receiveAsFlow()
-        .onEach {
-            Napier.d("Received new intent: $it")
-        }
+    private val intentHandler = IntentHandler(this)
 
     private val _nfcTag = MutableSharedFlow<Tag>()
     val nfcTagFlow: Flow<Tag>
@@ -197,9 +189,8 @@ class MainActivity : AppCompatActivity(), DIAware {
         super.onCreate(savedInstanceState)
 
         lifecycleScope.launchWhenCreated {
-            intent?.data?.let {
-                Napier.d("Received intent: $it")
-                _unvalidatedInstantUri.send(URI(it.toString()))
+            intent?.let {
+                intentHandler.propagateIntent(it)
             }
         }
 
@@ -232,7 +223,8 @@ class MainActivity : AppCompatActivity(), DIAware {
                 CompositionLocalProvider(
                     LocalActivity provides this,
                     LocalAnalytics provides analytics,
-                    LocalAuthenticator provides rememberAuthenticator()
+                    LocalIntentHandler provides intentHandler,
+                    LocalAuthenticator provides rememberAuthenticator(intentHandler)
                 ) {
                     val authenticator = LocalAuthenticator.current
 
@@ -288,6 +280,8 @@ class MainActivity : AppCompatActivity(), DIAware {
                                             settingsViewModel = settingsViewModel,
                                             profileSettingsViewModel = profileSettingsViewModel
                                         )
+
+                                        SharePrescriptionHandler(authenticationModeAndMethod)
                                     }
                                 }
                             }
@@ -321,9 +315,8 @@ class MainActivity : AppCompatActivity(), DIAware {
         super.onNewIntent(intent)
 
         lifecycleScope.launch {
-            intent?.data?.let {
-                Napier.d("Received intent: $it")
-                _unvalidatedInstantUri.send(URI(it.toString()))
+            intent?.let {
+                intentHandler.propagateIntent(it)
             }
         }
     }
@@ -355,11 +348,6 @@ class MainActivity : AppCompatActivity(), DIAware {
         super.onPause()
 
         NfcAdapter.getDefaultAdapter(applicationContext)?.disableReaderMode(this)
-    }
-
-    fun startFastTrackApp(redirect: URI) {
-        _unvalidatedInstantUri.tryReceive() // clear possible cached values
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(redirect.toString())))
     }
 
     private fun switchScreenshotMode() {

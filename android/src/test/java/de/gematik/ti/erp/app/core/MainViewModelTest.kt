@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.core
 
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.model.SettingsData.AppVersion
 import de.gematik.ti.erp.app.settings.model.SettingsData.AuthenticationMode
@@ -28,7 +27,6 @@ import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -51,9 +49,6 @@ class MainViewModelTest {
     private lateinit var settingsUseCase: SettingsUseCase
 
     @MockK
-    private lateinit var profilesUseCase: ProfilesUseCase
-
-    @MockK
     private lateinit var safetynetUseCase: SafetynetUseCase
 
     @Before
@@ -71,7 +66,6 @@ class MainViewModelTest {
             )
         )
         every { settingsUseCase.authenticationMode } returns flowOf(AuthenticationMode.Unspecified)
-        every { profilesUseCase.activeProfile } returns flowOf(mockk())
     }
 
     @Test
@@ -79,7 +73,7 @@ class MainViewModelTest {
         every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(true)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
+        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
 
         assertEquals(true, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -91,7 +85,7 @@ class MainViewModelTest {
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
 
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
+        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
 
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -103,7 +97,7 @@ class MainViewModelTest {
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
 
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
+        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
 
         assertEquals(true, viewModel.showDataTermsUpdate.first())
     }
@@ -114,7 +108,7 @@ class MainViewModelTest {
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
 
-        viewModel = MainViewModel(settingsUseCase, safetynetUseCase, profilesUseCase, mockk())
+        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
 
         assertEquals(false, viewModel.showDataTermsUpdate.first())
     }

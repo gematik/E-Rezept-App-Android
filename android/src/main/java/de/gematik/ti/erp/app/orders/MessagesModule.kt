@@ -31,6 +31,6 @@ val messagesModule = DI.Module("messagesModule") {
     bindProvider { PharmacyCacheLocalDataSource(instance()) }
     bindProvider { PharmacyCacheRemoteDataSource(instance()) }
     bindProvider { CommunicationLocalDataSource(instance()) }
-    bindProvider { CommunicationRepository(instance(), instance(), instance(), instance(), instance()) }
+    bindProvider { CommunicationRepository(instance(), instance(), instance(), instance(), instance(), instance()) }
     bindProvider { OrderUseCase(instance(), instance()) }
 }

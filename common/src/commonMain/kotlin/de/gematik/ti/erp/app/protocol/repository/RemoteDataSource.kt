@@ -21,32 +21,21 @@ package de.gematik.ti.erp.app.protocol.repository
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import java.time.Instant
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 class AuditEventRemoteDataSource(
     private val service: ErpService
 ) {
     suspend fun getAuditEvents(
         profileId: ProfileIdentifier,
-        lastKnownUpdate: Instant?,
+        lastKnownUpdate: String?,
         count: Int? = null,
         offset: Int? = null
     ) = safeApiCall(
         errorMessage = "Error getting all audit events"
     ) {
-        val dateTimeString: String? =
-            lastKnownUpdate?.let {
-                "gt${
-                it.atOffset(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS)
-                    .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-                }"
-            }
         service.getAuditEvents(
             profileId = profileId,
-            lastKnownDate = dateTimeString,
+            lastKnownDate = lastKnownUpdate,
             count = count,
             offset = offset
         )

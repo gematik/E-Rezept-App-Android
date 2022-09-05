@@ -63,9 +63,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -174,7 +173,7 @@ fun AuthenticatorList(
         keywords = search
     )
 
-    val activity = LocalActivity.current as MainActivity
+    val intentHandler = LocalIntentHandler.current
 
     Column(Modifier.fillMaxSize()) {
         Column(Modifier.padding(PaddingDefaults.Medium)) {
@@ -234,7 +233,7 @@ fun AuthenticatorList(
                                             auth = it
                                         )
 
-                                    activity.startFastTrackApp(redirectUri)
+                                    intentHandler.startFastTrackApp(redirectUri)
 
                                     onNext()
                                 }

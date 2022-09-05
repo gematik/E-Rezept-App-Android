@@ -85,6 +85,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.only
+import androidx.compose.material.IconButton
+import androidx.compose.material.icons.rounded.Share
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
@@ -157,6 +159,7 @@ private fun PrescriptionDetailsWithScaffold(
 
     val scaffoldState = rememberScaffoldState()
     val listState = rememberLazyListState()
+    val shareHandler = rememberSharePrescriptionController()
 
     AnimatedElevationScaffold(
         scaffoldState = scaffoldState,
@@ -164,7 +167,18 @@ private fun PrescriptionDetailsWithScaffold(
         onBack = onCancel,
         topBarTitle = stringResource(R.string.prescription_details),
         navigationMode = NavigationBarMode.Close,
-        snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) }
+        snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) },
+        actions = {
+            state?.let {
+                if (it.accessCode != null) {
+                    IconButton(onClick = {
+                        shareHandler.share(taskId = it.taskId, it.accessCode!!)
+                    }) {
+                        Icon(Icons.Rounded.Share, null, tint = AppTheme.colors.primary700)
+                    }
+                }
+            }
+        }
     ) { innerPadding ->
         state?.let {
             PrescriptionDetails(
@@ -214,6 +228,7 @@ private fun PrescriptionDetails(
                 is UIPrescriptionDetailScanned -> MedicationDetailScanned(state) { redeem ->
                     viewModel.redeemScannedTask(state.taskId, redeem)
                 }
+
                 is UIPrescriptionDetailSynced -> MedicationDetailSynced(state)
             }
         }
@@ -294,6 +309,7 @@ private fun PrescriptionDetails(
                                         }
                                     }
                                 }
+
                                 is DeletePrescriptions.State.Deleted -> onCancel()
                             }
                         }
@@ -371,6 +387,7 @@ private fun PrescriptionStatusChip(
                     else -> UnknownStatusChip()
                 }
             }
+
             is SyncedTaskData.SyncedTask.Pending -> PendingStatusChip()
             is SyncedTaskData.SyncedTask.Ready -> ReadyStatusChip()
             else -> {}

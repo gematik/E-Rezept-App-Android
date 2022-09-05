@@ -1,6 +1,5 @@
 import de.gematik.ti.erp.app
 import de.gematik.ti.erp.overriding
-import org.jetbrains.compose.compose
 import org.owasp.dependencycheck.reporting.ReportGenerator.Format
 import java.util.Properties
 

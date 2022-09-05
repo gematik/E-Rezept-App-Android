@@ -25,6 +25,7 @@ import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
+import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -72,18 +73,21 @@ fun AnimatedElevationScaffold(
 @Composable
 fun AnimatedElevationScaffold(
     modifier: Modifier = Modifier,
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
     topBarColor: Color = MaterialTheme.colors.surface,
     navigationMode: NavigationBarMode? = NavigationBarMode.Close,
     bottomBar: @Composable () -> Unit = {},
     topBarTitle: String,
     listState: LazyListState,
     onBack: () -> Unit,
+    snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
     actions: @Composable RowScope.() -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
     val elevated by derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
     Scaffold(
         modifier = modifier,
+        scaffoldState = scaffoldState,
         topBar = {
             NavigationTopAppBar(
                 navigationMode = navigationMode,
@@ -98,6 +102,7 @@ fun AnimatedElevationScaffold(
                 actions = actions
             )
         },
+        snackbarHost = snackbarHost,
         bottomBar = bottomBar,
         content = content
     )

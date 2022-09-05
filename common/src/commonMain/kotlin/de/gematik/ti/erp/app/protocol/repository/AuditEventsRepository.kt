@@ -19,41 +19,34 @@
 package de.gematik.ti.erp.app.protocol.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.prescription.repository.extractResources
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.withContext
 import org.hl7.fhir.r4.model.AuditEvent
+import java.time.Instant
 
-private const val AUDIT_EVENT_PAGE_SIZE = 50
+private const val AuditEventsMaxPageSize = 50
 
 class AuditEventsRepository(
     private val remoteDataSource: AuditEventRemoteDataSource,
     private val localDataSource: AuditEventLocalDataSource,
     private val dispatchers: DispatchProvider
-) {
-    suspend fun downloadAuditEvents(profileId: ProfileIdentifier): Result<Unit> = withContext(dispatchers.IO) {
-        while (true) {
-            val result = downloadAuditEvents(
-                profileId = profileId,
-                count = AUDIT_EVENT_PAGE_SIZE
-            )
-            if (result.isFailure || (result.getOrNull()!! != AUDIT_EVENT_PAGE_SIZE)) {
-                break
-            }
-        }
-        Result.success(Unit)
-    }
+) : ResourcePaging(dispatchers, AuditEventsMaxPageSize) {
 
-    private suspend fun downloadAuditEvents(
+    suspend fun downloadAuditEvents(profileId: ProfileIdentifier) = downloadPaged(profileId)
+
+    fun auditEvents(profileId: ProfileIdentifier) = localDataSource.auditEvents(profileId).flowOn(dispatchers.IO)
+
+    override suspend fun downloadResource(
         profileId: ProfileIdentifier,
-        count: Int? = null
-    ): Result<Int> {
-        val syncedUpTo = localDataSource.latestAuditEventTimestamp(profileId).first()
-        return remoteDataSource.getAuditEvents(
+        timestamp: String?,
+        count: Int?
+    ): Result<Int> =
+        remoteDataSource.getAuditEvents(
             profileId = profileId,
-            lastKnownUpdate = syncedUpTo,
+            lastKnownUpdate = timestamp,
             count = count
         ).mapCatching { fhirBundle ->
             val events = fhirBundle.extractResources<AuditEvent>()
@@ -61,7 +54,7 @@ class AuditEventsRepository(
 
             events.size
         }
-    }
 
-    fun auditEvents(profileId: ProfileIdentifier) = localDataSource.auditEvents(profileId).flowOn(dispatchers.IO)
+    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
+        localDataSource.latestAuditEventTimestamp(profileId).first()
 }

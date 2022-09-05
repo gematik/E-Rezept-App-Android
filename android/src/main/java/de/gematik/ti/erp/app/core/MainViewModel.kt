@@ -21,21 +21,15 @@ package de.gematik.ti.erp.app.core
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
-import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import io.github.aakira.napier.Napier
-import java.net.URI
 
 class MainViewModel(
-    private val settingsUseCase: SettingsUseCase,
     safetynetUseCase: SafetynetUseCase,
-    private val profilesUseCase: ProfilesUseCase,
-    private val idpUseCase: IdpUseCase
+    private val settingsUseCase: SettingsUseCase
 ) : ViewModel() {
     val zoomEnabled = settingsUseCase.general.map { it.zoomEnabled }
     val authenticationMethod = settingsUseCase.authenticationMode
@@ -83,16 +77,4 @@ class MainViewModel(
 
     fun dataProtectionVersionAcceptedOn() =
         settingsUseCase.general.map { it.dataProtectionVersionAcceptedOn }
-
-    val hasActiveProfileToken = profilesUseCase.activeProfile
-        .map {
-            it.ssoTokenScope != null
-        }
-
-    suspend fun onExternAppAuthorizationResult(uri: URI): Result<Unit> =
-        runCatching {
-            Napier.d("Authenticate external ...")
-            idpUseCase.authenticateWithExternalAppAuthorization(uri)
-            Napier.d("... authenticated")
-        }
 }

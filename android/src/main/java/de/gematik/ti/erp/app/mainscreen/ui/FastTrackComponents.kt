@@ -20,32 +20,57 @@ package de.gematik.ti.erp.app.mainscreen.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.MainViewModel
+import de.gematik.ti.erp.app.core.LocalAuthenticator
+import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
+import io.github.aakira.napier.Napier
+import org.kodein.di.LazyDelegate
+import org.kodein.di.compose.rememberInstance
+import java.net.URI
+
+@Stable
+class FastTrackHandler(
+    idpUseCase: LazyDelegate<IdpUseCase>
+) {
+    private val idpUseCase by idpUseCase
+
+    /**
+     * Handles an incoming intent. Returns `true` if the intent could be handled.
+     */
+    @Suppress("TooGenericExceptionCaught")
+    suspend fun handle(value: String): Boolean =
+        try {
+            Napier.d("Authenticate external ...")
+            idpUseCase.authenticateWithExternalAppAuthorization(URI(value))
+            Napier.d("... authenticated")
+            true
+        } catch (e: Exception) {
+            Napier.e(e) { "Couldn't authenticate" }
+            false
+        }
+}
 
 @Composable
-fun ExternalAuthenticationDialog(
-    mainViewModel: MainViewModel
-) {
+fun ExternalAuthenticationDialog() {
     var showAuthenticationError by remember { mutableStateOf(false) }
 
-    val activity = LocalActivity.current
+    val intentHandler = LocalIntentHandler.current
+    val authenticator = LocalAuthenticator.current
+    val idpUseCase = rememberInstance<IdpUseCase>()
+    val fastTrackHandler = remember { FastTrackHandler(idpUseCase) }
+
     LaunchedEffect(Unit) {
-        // This ensures that we only trigger the authorization if we are returning from the main card wall
-        mainViewModel.hasActiveProfileToken.collect {
-            if (!it) {
-                (activity as MainActivity).unvalidatedInstantUri.collect { uri ->
-                    mainViewModel.onExternAppAuthorizationResult(uri)
-                        .onFailure { showAuthenticationError = true }
-                }
+        intentHandler.extAuthIntent.collect {
+            if (!authenticator.authenticatorExternal.isInProgress && !fastTrackHandler.handle(it)) {
+                showAuthenticationError = true
             }
         }
     }

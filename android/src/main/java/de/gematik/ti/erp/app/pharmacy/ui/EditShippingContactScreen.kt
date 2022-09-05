@@ -42,6 +42,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -84,11 +85,14 @@ fun EditShippingContactScreen(
 
     var showBackAlert by remember { mutableStateOf(false) }
 
-    val telephoneError = remember(contact.telephoneNumber) { !isPhoneValid(contact.telephoneNumber) }
-    val nameError = remember(contact.name) { contact.name.isBlank() }
-    val line1Error = remember(contact.line1) { contact.line1.isBlank() }
-    val codeAndCityError = remember(contact.postalCodeAndCity) { contact.postalCodeAndCity.isBlank() }
-    val mailError = remember(contact.mail) { !isMailValid(contact.mail) }
+    val telephoneOptional by derivedStateOf {
+        state.orderOption == PharmacyScreenData.OrderOption.ReserveInPharmacy
+    }
+    val telephoneError by derivedStateOf { !isPhoneValid(contact.telephoneNumber, telephoneOptional) }
+    val nameError by derivedStateOf { contact.name.isBlank() }
+    val line1Error by derivedStateOf { contact.line1.isBlank() }
+    val codeAndCityError by derivedStateOf { contact.postalCodeAndCity.isBlank() }
+    val mailError by derivedStateOf { !isMailValid(contact.mail) }
 
     if (showBackAlert) {
         CommonAlertDialog(
@@ -159,9 +163,17 @@ fun EditShippingContactScreen(
                         .scrollOnFocus(1, listState)
                         .fillParentMaxWidth(),
                     value = contact.telephoneNumber,
-                    onValueChange = { phone -> contact = contact.copy(telephoneNumber = phone) },
+                    onValueChange = { phone -> contact = contact.copy(telephoneNumber = phone.trim()) },
                     onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                    label = { Text(stringResource(R.string.edit_shipping_contact_phone)) },
+                    label = {
+                        Text(
+                            if (telephoneOptional) {
+                                stringResource(R.string.edit_shipping_contact_phone_optional)
+                            } else {
+                                stringResource(R.string.edit_shipping_contact_phone)
+                            }
+                        )
+                    },
                     isError = telephoneError,
                     errorText = { Text(stringResource(R.string.edit_shipping_contact_error_phone)) },
                     keyBoardType = KeyboardType.Phone
@@ -262,8 +274,9 @@ fun isMailValid(mail: String?): Boolean {
     return mail.isNullOrEmpty() || Patterns.EMAIL_ADDRESS.matcher(mail).matches()
 }
 
-fun isPhoneValid(telephoneNumber: String?): Boolean {
-    return telephoneNumber != null && telephoneNumber.length >= 4
+fun isPhoneValid(telephoneNumber: String?, optional: Boolean): Boolean {
+    return telephoneNumber != null &&
+        if (optional) true else telephoneNumber.length >= 4
 }
 
 private const val LayoutDelay = 330L
@@ -320,8 +333,6 @@ fun Modifier.scrollOnFocus() = composed {
 
     bringIntoViewRequester(bringIntoViewRequester)
         .onFocusChanged {
-            println("asdfadsfgsdgsdf 2")
-
             if (it.hasFocus) {
                 hasFocus = true
                 coroutineScope.launch {

@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.orders.repository.CommunicationRepository
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
@@ -36,6 +37,7 @@ import kotlinx.coroutines.withContext
 
 class RefreshPrescriptionUseCase(
     private val repository: PrescriptionRepository,
+    private val communicationRepository: CommunicationRepository,
     private val auditRepository: AuditEventsRepository,
     dispatchers: DispatchProvider
 ) {
@@ -63,7 +65,7 @@ class RefreshPrescriptionUseCase(
 
                 val result = runCatching {
                     val nrOfNewPrescriptions = repository.downloadTasks(profileId).getOrThrow()
-                    repository.downloadCommunications(profileId).getOrThrow()
+                    communicationRepository.downloadCommunications(profileId).getOrThrow()
                     nrOfNewPrescriptions
                 }
 
