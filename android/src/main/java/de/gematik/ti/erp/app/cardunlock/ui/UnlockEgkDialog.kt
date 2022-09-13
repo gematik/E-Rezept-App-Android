@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.cardunlock.ui
 
-import android.nfc.NfcAdapter
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,7 +45,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
@@ -59,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.MainActivity
+import de.gematik.ti.erp.app.NfcNotEnabledException
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardunlock.usecase.UnlockEgkState
 import de.gematik.ti.erp.app.cardwall.ui.CardAnimationBox
@@ -82,10 +81,10 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.retryWhen
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -103,7 +102,8 @@ fun rememberUnlockEgkDialogState(): UnlockEgkDialogState {
     return remember { UnlockEgkDialogState() }
 }
 
-@ExperimentalCoroutinesApi
+@OptIn(ExperimentalCoroutinesApi::class)
+@Suppress("LongMethod")
 @Composable
 fun UnlockEgkDialog(
     changeSecret: Boolean = false,
@@ -120,25 +120,18 @@ fun UnlockEgkDialog(
 ) {
     val activity = LocalActivity.current as MainActivity
     val coroutineScope = rememberCoroutineScope()
-    val context = LocalContext.current
     val toggleUnlock = dialogState.toggleUnlock
-    val nfcEnabled by produceState(initialValue = false) {
-        value = NfcAdapter.getDefaultAdapter(context).isEnabled
-    }
 
-    var showEnableNfcDialog by remember(nfcEnabled) { mutableStateOf(!nfcEnabled) }
+    var showEnableNfcDialog by remember { mutableStateOf(false) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
     var showCardCommunicationDialog by remember { mutableStateOf(false) }
 
-    val state by produceState<UnlockEgkState>(initialValue = UnlockEgkState.None) {
+    val state by produceState(initialValue = UnlockEgkState.None) {
         toggleUnlock.transformLatest {
             emit(UnlockEgkState.None)
             when (it) {
                 is ToggleUnlock.ToggleByUser -> {
-                    if (it.value && !nfcEnabled) {
-                        showEnableNfcDialog = true
-                        value = UnlockEgkState.None
-                    } else if (it.value) {
+                    if (it.value) {
                         showCardCommunicationDialog = true
                         emitAll(
                             viewModel.unlockEgk(
@@ -146,7 +139,13 @@ fun UnlockEgkDialog(
                                 can = cardAccessNumber,
                                 puk = personalUnblockingKey,
                                 newSecret = newSecret,
-                                tag = activity.nfcTagFlow
+                                tag = activity
+                                    .nfcTagFlow
+                                    .catch {
+                                        if (it is NfcNotEnabledException) {
+                                            showEnableNfcDialog = true
+                                        }
+                                    }
                             )
                         )
                     } else {
@@ -191,7 +190,15 @@ fun UnlockEgkDialog(
     }
 
     LaunchedEffect(Unit) {
-        activity.nfcTagFlow.retry()
+        activity.nfcTagFlow
+            .retryWhen { cause, _ ->
+                cause !is NfcNotEnabledException
+            }
+            .catch { cause ->
+                if (cause is NfcNotEnabledException) {
+                    showEnableNfcDialog = true
+                }
+            }
             .filter {
                 !(state.isFailure() && state != UnlockEgkState.HealthCardCommunicationInterrupted)
             }

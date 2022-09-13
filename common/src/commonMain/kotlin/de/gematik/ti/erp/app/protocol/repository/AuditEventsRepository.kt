@@ -20,11 +20,10 @@ package de.gematik.ti.erp.app.protocol.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.prescription.repository.extractResources
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import org.hl7.fhir.r4.model.AuditEvent
+import kotlinx.coroutines.withContext
 import java.time.Instant
 
 private const val AuditEventsMaxPageSize = 50
@@ -49,10 +48,9 @@ class AuditEventsRepository(
             lastKnownUpdate = timestamp,
             count = count
         ).mapCatching { fhirBundle ->
-            val events = fhirBundle.extractResources<AuditEvent>()
-            localDataSource.saveAuditEvents(profileId, events)
-
-            events.size
+            withContext(dispatchers.IO) {
+                localDataSource.saveAuditEvents(profileId, fhirBundle)
+            }
         }
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =

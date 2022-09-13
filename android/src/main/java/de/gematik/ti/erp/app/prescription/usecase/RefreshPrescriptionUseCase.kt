@@ -82,7 +82,11 @@ class RefreshPrescriptionUseCase(
         val resultChannel = Channel<Result<Int>>()
         try {
             requestChannel.send(Request(resultChannel = resultChannel, forProfileId = profileId))
-            scope.launch { auditRepository.downloadAuditEvents(profileId) }
+            scope.launch {
+                auditRepository.downloadAuditEvents(profileId).onFailure {
+                    Napier.e(it) { "Failed to download audit events" }
+                }
+            }
 
             return resultChannel.receive()
         } catch (cancellation: CancellationException) {

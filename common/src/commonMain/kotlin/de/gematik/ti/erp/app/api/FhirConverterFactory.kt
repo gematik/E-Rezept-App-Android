@@ -38,18 +38,24 @@ class FhirConverterFactory(private val parser: IParser) : Converter.Factory() {
         type: Type,
         annotations: Array<Annotation>,
         retrofit: Retrofit
-    ): Converter<ResponseBody, *> {
-        return FhirBundleConverter(parser)
-    }
+    ): Converter<ResponseBody, *>? =
+        if (annotations.any { it.annotationClass == UseJsonElementConverter::class }) {
+            null
+        } else {
+            FhirBundleConverter(parser)
+        }
 
     override fun requestBodyConverter(
         type: Type,
         parameterAnnotations: Array<out Annotation>,
         methodAnnotations: Array<out Annotation>,
         retrofit: Retrofit
-    ): Converter<Resource, RequestBody> {
-        return FhirResourceConverter(parser)
-    }
+    ): Converter<Resource, RequestBody>? =
+        if (methodAnnotations.any { it.annotationClass == UseJsonElementConverter::class }) {
+            null
+        } else {
+            FhirResourceConverter(parser)
+        }
 
     class FhirBundleConverter(private val parser: IParser) : Converter<ResponseBody, Any> {
 

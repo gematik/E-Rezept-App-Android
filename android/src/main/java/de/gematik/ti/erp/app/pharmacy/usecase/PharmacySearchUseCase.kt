@@ -24,15 +24,15 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.fhir.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
 import de.gematik.ti.erp.app.fhir.model.Pharmacy
+import de.gematik.ti.erp.app.fhir.model.createCommunicationDispenseRequest
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.model.shippingContact
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayload
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.repository.PROFILE
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -45,20 +45,11 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import org.hl7.fhir.r4.model.Communication
-import org.hl7.fhir.r4.model.Identifier
-import org.hl7.fhir.r4.model.Meta
-import org.hl7.fhir.r4.model.Reference
-import org.hl7.fhir.r4.model.StringType
 import java.util.UUID
 
 // can't be modified; the backend will always return 80 entries on the first page
 private const val InitialResultsPerPage = 80
 private const val NextResultsPerPage = 10
-
-private val json = Json { encodeDefaults = true }
 
 class PharmacySearchUseCase(
     private val repository: PharmacyRepository,
@@ -260,20 +251,22 @@ class PharmacySearchUseCase(
             null
         }
 
-        val payload = generatePayload(
-            redeemOption = redeemOption,
-            patientName = contact.name,
-            address = listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
-            phone = contact.telephoneNumber,
-            hint = contact.deliveryInformation
-        )
-        val communication = generateFhirObject(
+        val comDisp = createCommunicationDispenseRequest(
             orderId = orderId.toString(),
-            reference = assembleTaskReference(order.taskId, order.accessCode),
-            telematicsId = pharmacyTelematikId,
-            payload = payload
+            taskId = order.taskId,
+            accessCode = order.accessCode,
+            recipientTID = pharmacyTelematikId,
+            payload = CommunicationPayload(
+                version = "1",
+                supplyOptionsType = redeemOption.type,
+                name = contact.name,
+                address = listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
+                phone = contact.telephoneNumber,
+                hint = contact.deliveryInformation
+            )
         )
-        return prescriptionRepository.redeemPrescription(profileId, communication, accessCode = accessCode)
+
+        return prescriptionRepository.redeemPrescription(profileId, comDisp, accessCode = accessCode)
     }
 
     private fun mapShippingContact(contact: PharmacyUseCaseData.ShippingContact) =
@@ -286,59 +279,6 @@ class PharmacySearchUseCase(
             mail = contact.mail.trim(),
             deliveryInformation = contact.deliveryInformation.trim()
         )
-
-    private fun generatePayload(
-        redeemOption: RemoteRedeemOption,
-        patientName: String,
-        address: List<String>,
-        phone: String,
-        hint: String
-    ): String {
-        val com = CommunicationPayload(
-            version = "1",
-            supplyOptionsType = redeemOption.type,
-            name = patientName,
-            address = address,
-            phone = phone,
-            hint = hint
-        )
-        return json.encodeToString(com)
-    }
-
-    private fun generateFhirObject(
-        orderId: String,
-        reference: String,
-        telematicsId: String,
-        payload: String
-    ) =
-        Communication().apply {
-            val orderIdentifier = Identifier().apply {
-                system = "https://gematik.de/fhir/NamingSystem/OrderID"
-                value = orderId
-            }
-            identifier = listOf(orderIdentifier)
-
-            meta = Meta().addProfile(PROFILE)
-            addBasedOn(Reference(reference))
-            addPayload(
-                Communication.CommunicationPayloadComponent().apply {
-                    content = StringType(payload)
-                }
-            )
-            status = Communication.CommunicationStatus.UNKNOWN
-            addRecipient(Reference().setIdentifier(createIdentifier(telematicsId)))
-        }
-
-    private fun createIdentifier(pharmacyTelematikId: String): Identifier {
-        val identifier = Identifier()
-        identifier.system = "https://gematik.de/fhir/NamingSystem/TelematikID"
-        identifier.value = pharmacyTelematikId
-        return identifier
-    }
-
-    private fun assembleTaskReference(taskId: String, accessCode: String): String {
-        return "Task/$taskId\$accept?ac=$accessCode"
-    }
 }
 
 fun mapPharmacies(pharmacies: List<Pharmacy>): List<PharmacyUseCaseData.Pharmacy> =

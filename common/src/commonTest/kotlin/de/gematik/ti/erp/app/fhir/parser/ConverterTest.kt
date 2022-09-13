@@ -36,7 +36,8 @@ class ConverterTest {
     private val fhirInstant = listOf(
         "2015-02-07T13:28:17+02:00",
         "2015-02-07T13:28:17+00:00",
-        "2015-02-07T13:28:17.243+00:00"
+        "2015-02-07T13:28:17.243+00:00",
+        "2022-01-13T15:44:15.816+00:00"
     )
 
     private val fhirLocalDate = listOf(

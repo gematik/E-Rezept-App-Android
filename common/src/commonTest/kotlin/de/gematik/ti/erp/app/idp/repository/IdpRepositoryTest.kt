@@ -38,6 +38,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OftenUsedPharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
@@ -150,7 +151,8 @@ class CommonIdpRepositoryTest : TestDB() {
                     PasswordEntityV1::class,
                     ShippingContactEntityV1::class,
                     PharmacySearchEntityV1::class,
-                    OftenUsedPharmacyEntityV1::class
+                    OftenUsedPharmacyEntityV1::class,
+                    MultiplePrescriptionInfoEntityV1::class
                 )
             )
                 .schemaVersion(ACTUAL_SCHEMA_VERSION)

@@ -23,15 +23,34 @@ import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
 
-class MedicationRequestEntityV1 : RealmObject, Cascading {
-    var medication: MedicationEntityV1? = null
-    var dateOfAccident: RealmInstant? = null // unfalltag
-    var location: String? = null // unfallbetrieb
-    var emergencyFee: Boolean? = null // emergency service fee = notfallgebuehr
-    var substitutionAllowed: Boolean = false
-    var dosageInstruction: String? = null
+@Suppress("LongParameterList")
+class MedicationRequestEntityV1(
+    var medication: MedicationEntityV1?,
+    var dateOfAccident: RealmInstant?, // unfalltag
+    var location: String?, // unfallbetrieb
+    var emergencyFee: Boolean?, // emergency service fee = notfallgebuehr
+    var substitutionAllowed: Boolean,
+    var dosageInstruction: String?,
+    var note: String?,
+    var multiplePrescriptionInfo: MultiplePrescriptionInfoEntityV1?,
+    var bvg: Boolean,
+    var additionalFee: String?
+) : RealmObject, Cascading {
+    constructor() : this(
+        medication = null,
+        dateOfAccident = null,
+        location = null,
+        emergencyFee = null,
+        substitutionAllowed = false,
+        dosageInstruction = null,
+        note = null,
+        multiplePrescriptionInfo = null,
+        bvg = false,
+        additionalFee = null
+    )
 
     override fun objectsToFollow(): Iterator<Deleteable> = iterator {
         medication?.let { yield(it) }
+        multiplePrescriptionInfo?.let { yield(it) }
     }
 }

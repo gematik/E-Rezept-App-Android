@@ -96,6 +96,9 @@ import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.LocalContentColor
+import androidx.compose.ui.graphics.SolidColor
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.TestTag.Profile.OpenTokensScreenButton
@@ -220,7 +223,9 @@ fun EditProfileScreenContent(
     }
 
     AnimatedElevationScaffold(
-        modifier = Modifier.imePadding().visualTestTag(ProfileScreen),
+        modifier = Modifier
+            .imePadding()
+            .visualTestTag(ProfileScreen),
         topBarTitle = stringResource(R.string.edit_profile_title),
         navigationMode = NavigationBarMode.Back,
         listState = listState,
@@ -346,6 +351,7 @@ fun SecurityAuditEventsSubSection(onClickAuditEvents: () -> Unit) {
                     onClickAuditEvents()
                 }
             )
+            .testTag(TestTag.Profile.OpenAuditEventsScreenButton)
             .padding(PaddingDefaults.Medium)
             .semantics(mergeDescendants = true) {}
     ) {
@@ -414,7 +420,9 @@ private fun ColumnScope.LoginButton(
     buttonText: String
 ) {
     PrimaryButtonSmall(
-        modifier = Modifier.align(Alignment.CenterHorizontally).testTag(TestTag.Profile.LoginButton),
+        modifier = Modifier
+            .align(Alignment.CenterHorizontally)
+            .testTag(TestTag.Profile.LoginButton),
         onClick = onClick
     ) {
         Text(buttonText)
@@ -532,6 +540,9 @@ private fun ProfileEditBasicTextField(
         )
     }
 
+    val color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    val mergedTextStyle = AppTheme.typography.h5.merge(TextStyle(color = color))
+
     BasicTextField(
         value = profileNameState,
         onValueChange = {
@@ -549,8 +560,9 @@ private fun ProfileEditBasicTextField(
         },
         enabled = enabled,
         singleLine = false,
-        textStyle = AppTheme.typography.h5,
+        textStyle = mergedTextStyle,
         modifier = modifier,
+        cursorBrush = SolidColor(color),
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
             capitalization = KeyboardCapitalization.None,

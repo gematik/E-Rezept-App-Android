@@ -20,6 +20,9 @@ package de.gematik.ti.erp.app.api
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.time.Instant
 import java.time.ZoneOffset
@@ -30,22 +33,27 @@ abstract class ResourcePaging(
     private val dispatchers: DispatchProvider,
     private val maxPageSize: Int
 ) {
-    protected suspend fun downloadPaged(profileId: ProfileIdentifier): Result<Unit> =
+    private val lock = Mutex()
+
+    protected suspend fun downloadPaged(profileId: ProfileIdentifier): Result<Unit> = lock.withLock {
         withContext(dispatchers.IO) {
             downloadAll(profileId)
         }
+    }
 
     private suspend fun downloadAll(profileId: ProfileIdentifier): Result<Unit> {
         while (true) {
-            val result = downloadResource(
+            downloadResource(
                 profileId = profileId,
                 timestamp = toTimestampString(syncedUpTo(profileId)),
                 count = maxPageSize
-            )
-            if (result.isFailure) {
-                return result.map { }
-            } else if (result.getOrNull()!! != maxPageSize) {
-                return Result.success(Unit)
+            ).onFailure {
+                return@downloadAll Result.failure(it)
+            }.onSuccess {
+                Napier.d { "Received $it entries" }
+                if (it != maxPageSize) {
+                    return@downloadAll Result.success(Unit)
+                }
             }
         }
     }

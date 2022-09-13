@@ -18,23 +18,11 @@
 
 package de.gematik.ti.erp.app.utils
 
-import ca.uhn.fhir.context.FhirContext
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.usecase.createMatrixCode
-import de.gematik.ti.erp.app.redeem.ui.BitMatrixCode
-import org.hl7.fhir.r4.model.Bundle
-import java.io.File
-import java.io.IOException
 import java.time.Duration
 import java.time.Instant
 import java.util.UUID
-
-const val ASSET_BASE_PATH = "src/test/assets/"
-
-private val fhirContext by lazy {
-    FhirContext.forR4()
-}
 
 fun syncedTask(
     taskId: String = "Task/" + UUID.randomUUID().toString(),
@@ -94,15 +82,17 @@ fun syncedTask(
                     numerator = SyncedTaskData.Quantity(
                         value = "",
                         unit = ""
-                    )
+                    ),
+                    denominator = null
                 )
-
             ),
             dateOfAccident = null,
             location = null,
             emergencyFee = null,
             substitutionAllowed = false,
-            dosageInstruction = null
+            dosageInstruction = null,
+            note = "",
+            multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo()
         ),
         medicationDispenses = if (medicationDispenseWhenHandedOver != null) {
             listOf(
@@ -140,7 +130,7 @@ val testSyncedTasks =
             lastModified = Instant.parse("2020-12-05T14:49:46Z"),
             organizationName = null,
             practitionerName = "Praxis Glücklicher gehts nicht",
-            expiresOn = Instant.parse("2020-12-02T14:49:46Z") + Duration.ofDays(3 * 28),
+            expiresOn = Instant.parse("2020-12-02T22:49:46Z") + Duration.ofDays(3 * 28),
             acceptUntil = Instant.parse("2020-12-02T14:49:46Z") + Duration.ofDays(28),
             authoredOn = Instant.parse("2020-12-02T14:49:46Z"),
             status = SyncedTaskData.TaskStatus.Completed,
@@ -227,9 +217,9 @@ val testScannedTasks =
 // keep in sync with `testSyncedTasks`
 val testSyncedTasksOrdered =
     listOf(
-        testSyncedTasks[3],
+        testSyncedTasks[2],
         testSyncedTasks[4],
-        testSyncedTasks[2]
+        testSyncedTasks[3]
     )
 
 // keep in sync with `testScannedTasks`
@@ -258,16 +248,3 @@ val testRedeemedTaskIdsOrdered
                 else -> error("wrong type")
             }
         }
-
-fun testMatrix() = BitMatrixCode(createMatrixCode("Task/$4711/\$accept?ac=accessCode"))
-
-fun testPharmacySearchBundle(): Bundle {
-    val parser = fhirContext.newJsonParser()
-    val jsonAsString = readJsonFile("pharmacy_result_bundle.json")
-    return parser.parseResource(jsonAsString) as Bundle
-}
-
-@Throws(IOException::class)
-fun readJsonFile(filename: String): String {
-    return File(ASSET_BASE_PATH + filename).readText(Charsets.UTF_8)
-}

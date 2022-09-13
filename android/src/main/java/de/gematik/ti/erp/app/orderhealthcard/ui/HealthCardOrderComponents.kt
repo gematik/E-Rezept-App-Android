@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -121,6 +122,7 @@ fun HealthCardContactOrderScreen(
 
             NavigationAnimation(mode = navigationMode) {
                 AnimatedElevationScaffold(
+                    modifier = Modifier.systemBarsPadding(),
                     topBarTitle = title,
                     elevated = listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0,
                     navigationMode = NavigationBarMode.Close,
@@ -141,6 +143,7 @@ fun HealthCardContactOrderScreen(
 
             NavigationAnimation(mode = navigationMode) {
                 AnimatedElevationScaffold(
+                    modifier = Modifier.systemBarsPadding(),
                     navigationMode = NavigationBarMode.Back,
                     topBarTitle = title,
                     elevated = listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0,

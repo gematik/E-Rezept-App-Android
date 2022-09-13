@@ -74,6 +74,11 @@ fun JsonPrimitive.asLocalTime(): LocalTime? =
         FormatterTime.parse(it, LocalTime::from)
     }
 
+fun JsonPrimitive.asInstant(): Instant? =
+    this.contentOrNull?.let {
+        Formatter.parse(it, Instant::from)
+    }
+
 /**
  * Returns the first element in the JSON structure. For arrays this is the first element.
  *

@@ -29,6 +29,8 @@ import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
 import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
+import de.gematik.ti.erp.app.db.tryWrite
+import de.gematik.ti.erp.app.fhir.model.extractAuditEvents
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import io.realm.kotlin.Realm
@@ -37,17 +39,18 @@ import io.realm.kotlin.query.max
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.hl7.fhir.r4.model.AuditEvent
+import kotlinx.serialization.json.JsonElement
 import kotlin.math.max
 import kotlin.math.min
 
-private const val AUDIT_EVENT_PAGE_SIZE = 25
+// max page size within ui
+private const val AuditEventsMaxPageSize = 25
 
 class AuditEventLocalDataSource(
     private val realm: Realm
 ) {
-    suspend fun saveAuditEvents(profileId: ProfileIdentifier, events: List<AuditEvent>) {
-        realm.write {
+    suspend fun saveAuditEvents(profileId: ProfileIdentifier, events: JsonElement): Int =
+        realm.tryWrite {
             val profile = requireNotNull(
                 queryFirst<ProfileEntityV1>(
                     "id = $0",
@@ -55,19 +58,22 @@ class AuditEventLocalDataSource(
                 )
             ) { "No profile with id = $profileId found!" }
 
-            events
-                .sortedBy { it.recorded.toInstant() } // store from old to new
-                .forEach { event ->
-                    val entity = copyToRealm(
-                        event.toAuditEntityV1().apply {
-                            this.profile = profile
-                        }
-                    )
+            val totalAuditEventsInBundle = extractAuditEvents(events) { id, taskId, description, timestamp ->
+                val entity = copyToRealm(
+                    AuditEventEntityV1().apply {
+                        this.id = id
+                        this.text = description
+                        this.timestamp = timestamp.toRealmInstant()
+                        this.taskId = taskId
+                        this.profile = profile
+                    }
+                )
 
-                    profile.auditEvents += entity
-                }
+                profile.auditEvents += entity
+            }
+
+            totalAuditEventsInBundle
         }
-    }
 
     fun latestAuditEventTimestamp(profileId: ProfileIdentifier) =
         realm.query<AuditEventEntityV1>("profile.id = $0", profileId)
@@ -132,18 +138,10 @@ class AuditEventLocalDataSource(
     fun auditEvents(profileId: ProfileIdentifier): Flow<PagingData<AuditEventData.AuditEvent>> =
         Pager(
             PagingConfig(
-                pageSize = AUDIT_EVENT_PAGE_SIZE,
-                initialLoadSize = AUDIT_EVENT_PAGE_SIZE * 2,
-                maxSize = AUDIT_EVENT_PAGE_SIZE * 3
+                pageSize = AuditEventsMaxPageSize,
+                initialLoadSize = AuditEventsMaxPageSize * 2,
+                maxSize = AuditEventsMaxPageSize * 3
             ),
             pagingSourceFactory = { AuditPagingSource(profileId) }
         ).flow
 }
-
-fun AuditEvent.toAuditEntityV1() =
-    AuditEventEntityV1().apply {
-        id = this@toAuditEntityV1.idElement.idPart
-        text = this@toAuditEntityV1.text.div.allText()
-        timestamp = this@toAuditEntityV1.recorded.toInstant().toRealmInstant()
-        taskId = this@toAuditEntityV1.entity[0].what.referenceElement.idPart
-    }

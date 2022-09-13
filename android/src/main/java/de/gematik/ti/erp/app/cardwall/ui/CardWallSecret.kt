@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.cardwall.ui
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -81,7 +82,8 @@ fun CardWallSecretScreen(
 ) {
     val lazyListState = rememberLazyListState()
     CardHandlingScaffold(
-        modifier = Modifier.testTag("cardWall/secretScreen"),
+        modifier = Modifier.testTag("cardWall/secretScreen")
+            .systemBarsPadding(),
         backMode = when (navMode) {
             NavigationMode.Forward,
             NavigationMode.Back,

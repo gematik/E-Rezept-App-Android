@@ -52,7 +52,7 @@ fun SecondaryButton(
     ),
     contentPadding: PaddingValues = PaddingValues(
         horizontal = PaddingDefaults.Medium,
-        vertical = 12.dp
+        vertical = 13.dp
     ),
     content: @Composable RowScope.() -> Unit
 ) =

@@ -259,7 +259,8 @@ fun NavigationClose(modifier: Modifier = Modifier, onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .semantics { contentDescription = acc }.testTag(TestTag.TopNavigation.CloseButton)
+            .semantics { contentDescription = acc }
+            .testTag(TestTag.TopNavigation.CloseButton)
     ) {
         Icon(
             Icons.Rounded.Close,
@@ -328,7 +329,9 @@ fun NavigationBack(modifier: Modifier = Modifier, onClick: () -> Unit) {
 
     IconButton(
         onClick = onClick,
-        modifier = modifier.semantics { contentDescription = acc }.testTag(TestTag.TopNavigation.BackButton)
+        modifier = modifier
+            .semantics { contentDescription = acc }
+            .testTag(TestTag.TopNavigation.BackButton)
     ) {
         Icon(
             Icons.Rounded.ArrowBack,
@@ -392,6 +395,7 @@ fun LabeledSwitch(
             modifier = Modifier.weight(1.0f)
         ) {
             Icon(icon, null, tint = iconColorTint)
+            SpacerSmall()
             Column(
                 modifier = Modifier
                     .weight(1.0f)
@@ -723,7 +727,9 @@ fun DynamicText(
 @Composable
 fun SimpleCheck(text: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = PaddingDefaults.Medium),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = PaddingDefaults.Medium),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green500)
@@ -830,13 +836,13 @@ fun timeString(date: LocalDateTime): String {
  * Combines the two args to something like "created at Jan 12, 1952"
  */
 @Composable
-fun dateWithIntroductionString(stringId: Int, instant: Instant): String {
+fun dateWithIntroductionString(@StringRes id: Int, instant: Instant): String {
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
     val date = remember {
         instant.atZone(ZoneId.systemDefault())
             .toLocalDate().format(dateFormatter)
     }
-    val combinedString = annotatedStringResource(stringId, date).toString()
+    val combinedString = annotatedStringResource(id, date).toString()
     return remember { combinedString }
 }
 

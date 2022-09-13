@@ -30,8 +30,23 @@ import org.kodein.di.DIAware
 import org.kodein.di.android.x.androidXModule
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
+import java.io.IOException
+import java.net.URL
+import java.net.URLConnection
+import java.net.URLStreamHandler
 
 class App : Application(), DIAware {
+    init {
+        // disallow all unknown connections
+        URL.setURLStreamHandlerFactory {
+            object : URLStreamHandler() {
+                override fun openConnection(p0: URL?): URLConnection {
+                    throw IOException()
+                }
+            }
+        }
+    }
+
     override val di by DI.lazy {
         import(androidXModule(this@App))
         importAll(allModules)

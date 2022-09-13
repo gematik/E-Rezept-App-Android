@@ -34,11 +34,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -66,6 +68,7 @@ fun AuditEventsScreen(
     val listState = rememberLazyListState()
 
     AnimatedElevationScaffold(
+        modifier = Modifier.testTag(TestTag.Profile.AuditEvents.AuditEventsScreen),
         listState = listState,
         topBarTitle = header,
         onBack = onBack,
@@ -90,12 +93,14 @@ fun AuditEventsScreen(
                 item {
                     Text(
                         stringResource(R.string.no_audit_events_header),
+                        modifier = Modifier.testTag(TestTag.Profile.AuditEvents.NoAuditEventHeader),
                         style = AppTheme.typography.subtitle1
                     )
                     SpacerSmall()
                     Text(
                         infoText,
                         style = AppTheme.typography.body2l,
+                        modifier = Modifier.testTag(TestTag.Profile.AuditEvents.NoAuditEventInfo),
                         textAlign = TextAlign.Center
                     )
                 }
@@ -137,7 +142,10 @@ fun AuditEventsScreen(
 
                 itemsIndexed(pagingItems) { _, auditEvent ->
                     auditEvent?.let {
-                        Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
+                        Column(
+                            modifier = Modifier.padding(PaddingDefaults.Medium)
+                                .testTag(TestTag.Profile.AuditEvents.AuditEvent)
+                        ) {
                             auditEvent.medicationText?.let {
                                 Text(
                                     it,

@@ -20,14 +20,20 @@ package de.gematik.ti.erp.app.utils
 
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneOffset
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 val dateTimeShortFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
 
-fun dateTimeShortText(instant: Instant): String = LocalDateTime.ofEpochSecond(
-    instant.epochSecond,
-    0,
-    ZoneOffset.UTC
-).atOffset(ZoneOffset.UTC).format(dateTimeShortFormatter)
+fun dateTimeShortText(instant: Instant): String =
+    LocalDateTime
+        .ofInstant(instant, ZoneId.systemDefault())
+        .format(dateTimeShortFormatter)
+
+val dateTimeMediumFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+
+fun dateTimeMediumText(instant: Instant): String =
+    LocalDateTime
+        .ofInstant(instant, ZoneId.systemDefault())
+        .format(dateTimeMediumFormatter)

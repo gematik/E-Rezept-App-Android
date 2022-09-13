@@ -98,6 +98,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
 import androidx.compose.foundation.layout.systemBarsPadding
 import com.google.mlkit.common.sdkinternal.MlKitContext
+import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.TestTag.Main.Profile.OpenProfileListButton
@@ -127,14 +128,20 @@ import de.gematik.ti.erp.app.redeem.ui.RedeemScreen
 import de.gematik.ti.erp.app.settings.ui.AllowBiometryScreen
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
+import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
+import de.gematik.ti.erp.app.debug.ui.DebugScreenWrapper
+import de.gematik.ti.erp.app.license.ui.LicenseScreen
+import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardContactOrderScreen
 import de.gematik.ti.erp.app.orders.ui.MessageScreen
 import de.gematik.ti.erp.app.orders.ui.OrderScreen
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
+import de.gematik.ti.erp.app.settings.ui.PharmacyLicenseScreen
+import de.gematik.ti.erp.app.settings.ui.SecureAppWithPassword
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Dialog
@@ -148,9 +155,9 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.visualTestTag
 import de.gematik.ti.erp.app.utils.dateTimeShortText
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
+import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -246,11 +253,8 @@ fun MainScreen(
             MainNavigationScreens.Settings.route,
             MainNavigationScreens.Settings.arguments
         ) {
-            val scrollTo = remember { it.arguments?.get("scrollToSection") as SettingsScrollTo }
             SettingsScreen(
-                scrollTo = scrollTo,
                 mainNavController = navController,
-                profileSettingsViewModel = profileSettingsViewModel,
                 settingsViewModel = settingsViewModel
             )
         }
@@ -265,7 +269,8 @@ fun MainScreen(
                 selectedTab = selectedPrescriptionScreenTab,
                 onSelectedTab = { selectedPrescriptionScreenTab = it },
                 mainViewModel = mainViewModel,
-                mainScreenViewModel = mainScreenVM
+                mainScreenViewModel = mainScreenVM,
+                settingsViewModel = settingsViewModel
             )
         }
 
@@ -367,6 +372,118 @@ fun MainScreen(
                 mainNavController = navController
             )
         }
+        composable(MainNavigationScreens.Debug.route) {
+            DebugScreenWrapper(navController)
+        }
+        composable(MainNavigationScreens.Terms.route) {
+            NavigationAnimation(mode = navigationMode) {
+                WebViewScreen(
+                    title = stringResource(R.string.onb_terms_of_use),
+                    onBack = { navController.popBackStack() },
+                    url = URI_TERMS_OF_USE
+                )
+            }
+        }
+        composable(MainNavigationScreens.Imprint.route) {
+            NavigationAnimation(mode = navigationMode) {
+                LegalNoticeWithScaffold(
+                    navController
+                )
+            }
+        }
+        composable(MainNavigationScreens.DataProtection.route) {
+            NavigationAnimation(mode = navigationMode) {
+                WebViewScreen(
+                    title = stringResource(R.string.onb_data_consent),
+                    onBack = { navController.popBackStack() },
+                    url = URI_DATA_TERMS
+                )
+            }
+        }
+        composable(MainNavigationScreens.OpenSourceLicences.route) {
+            NavigationAnimation(mode = navigationMode) {
+                LicenseScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(MainNavigationScreens.AdditionalLicences.route) {
+            NavigationAnimation(mode = navigationMode) {
+                PharmacyLicenseScreen {
+                    navController.popBackStack()
+                }
+            }
+        }
+        composable(MainNavigationScreens.AllowAnalytics.route) {
+            NavigationAnimation(mode = navigationMode) {
+                AllowAnalyticsScreen(
+                    onBack = { navController.popBackStack() },
+                    onAllowAnalytics = {
+                        if (it) {
+                            settingsViewModel.onTrackingAllowed()
+                        } else {
+                            settingsViewModel.onTrackingDisallowed()
+                        }
+                    }
+                )
+            }
+        }
+        composable(MainNavigationScreens.Password.route) {
+            NavigationAnimation(mode = navigationMode) {
+                SecureAppWithPassword(
+                    navController,
+                    settingsViewModel
+                )
+            }
+        }
+        composable(MainNavigationScreens.OrderHealthCard.route) {
+            HealthCardContactOrderScreen(onBack = { navController.popBackStack() })
+        }
+        composable(
+            MainNavigationScreens.EditProfile.route,
+            MainNavigationScreens.EditProfile.arguments
+        ) {
+            val profileId = remember { it.arguments!!.getString("profileId")!! }
+
+            val state by produceState(SettingsScreen.defaultState) {
+                settingsViewModel.screenState().collect {
+                    value = it
+                }
+            }
+
+            state.profileById(profileId)?.let { profile ->
+                EditProfileScreen(
+                    state,
+                    profile,
+                    settingsViewModel,
+                    profileSettingsViewModel,
+                    onRemoveProfile = {
+                        settingsViewModel.removeProfile(profile, it)
+                        navController.popBackStack()
+                    },
+                    onBack = { navController.popBackStack() },
+                    mainNavController = navController
+                )
+            }
+        }
+        composable(
+            MainNavigationScreens.UnlockEgk.route,
+            MainNavigationScreens.UnlockEgk.arguments
+        ) {
+            val changeSecret = remember { it.arguments!!.getBoolean("changeSecret") }
+
+            NavigationAnimation(mode = navigationMode) {
+                UnlockEgKScreen(
+                    changeSecret = changeSecret,
+                    navController = navController,
+                    onClickLearnMore = {
+                        navController.navigate(
+                            MainNavigationScreens.OrderHealthCard.path()
+                        )
+                    }
+                )
+            }
+        }
     }
 }
 
@@ -378,7 +495,8 @@ fun MainScreenWithScaffold(
     selectedTab: PrescriptionTabs,
     onSelectedTab: (PrescriptionTabs) -> Unit,
     mainViewModel: MainViewModel,
-    mainScreenViewModel: MainScreenViewModel
+    mainScreenViewModel: MainScreenViewModel,
+    settingsViewModel: SettingsViewModel
 ) {
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Main) {
@@ -468,33 +586,36 @@ fun MainScreenWithScaffold(
         // TODO: move to general place?
         ExternalAuthenticationDialog()
 
-        val listState = rememberLazyListState()
+        var topBarElevated by remember { mutableStateOf(true) }
         Scaffold(
             modifier = Modifier.testTag(TestTag.Main.MainScreen),
             topBar = {
-                val isInPrescriptionSreen by derivedStateOf {
+                val isInPrescriptionScreen by derivedStateOf {
                     currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
                 }
 
-                MultiProfileTopAppBar(
-                    navController = mainNavController,
-                    title = when (currentBottomNavigationRoute?.destination?.route) {
-                        MainNavigationScreens.Prescriptions.route ->
-                            stringResource(R.string.pres_bottombar_prescriptions)
-                        MainNavigationScreens.Orders.route ->
-                            stringResource(R.string.pres_bottombar_orders)
-                        else -> ""
-                    },
-                    elevated = listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0,
-                    tabBar = {
-                        RedeemAndArchiveTabs(
-                            selectedTab = selectedTab,
-                            onSelectedTab = onSelectedTab
-                        )
-                    },
-                    scanButtonVisible = isInPrescriptionSreen,
-                    tabBarVisible = isInPrescriptionSreen
-                )
+                if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
+                    MultiProfileTopAppBar(
+                        navController = mainNavController,
+                        bottomNavController = bottomNavController,
+                        title = when (currentBottomNavigationRoute?.destination?.route) {
+                            MainNavigationScreens.Prescriptions.route ->
+                                stringResource(R.string.pres_bottombar_prescriptions)
+                            MainNavigationScreens.Orders.route ->
+                                stringResource(R.string.pres_bottombar_orders)
+                            else -> ""
+                        },
+                        elevated = topBarElevated,
+                        tabBar = {
+                            RedeemAndArchiveTabs(
+                                selectedTab = selectedTab,
+                                onSelectedTab = onSelectedTab
+                            )
+                        },
+                        scanButtonVisible = isInPrescriptionScreen,
+                        tabBarVisible = isInPrescriptionScreen
+                    )
+                }
             },
             bottomBar = {
                 MainScreenBottomNavigation(
@@ -549,13 +670,29 @@ fun MainScreenWithScaffold(
                         PrescriptionScreen(
                             navController = mainNavController,
                             selectedTab = selectedTab,
-                            listState = listState,
                             onEmptyScreenChange = { emptyScreenState = it },
-                            prescriptionViewModel = prescriptionViewModel
+                            prescriptionViewModel = prescriptionViewModel,
+                            onElevateTopBar = {
+                                topBarElevated = it
+                            }
                         )
                     }
                     composable(MainNavigationScreens.Orders.route) {
-                        OrderScreen(mainNavController = mainNavController)
+                        OrderScreen(
+                            mainNavController = mainNavController,
+                            onElevateTopBar = {
+                                topBarElevated = it
+                            }
+                        )
+                    }
+                    composable(
+                        MainNavigationScreens.Settings.route,
+                        MainNavigationScreens.Settings.arguments
+                    ) {
+                        SettingsScreen(
+                            mainNavController = mainNavController,
+                            settingsViewModel = settingsViewModel
+                        )
                     }
                 }
             }
@@ -607,14 +744,17 @@ fun MainScreenBottomNavigation(
                             null,
                             modifier = Modifier.size(24.dp)
                         )
+
                         MainNavigationScreens.Orders -> Icon(
                             if (unreadMessagesAvailable) Icons.Outlined.MarkChatUnread else Icons.Outlined.MarkChatRead,
                             null
                         )
+
                         MainNavigationScreens.Pharmacies -> Icon(
                             Icons.Outlined.Search,
                             contentDescription = null
                         )
+
                         MainNavigationScreens.Settings -> Icon(
                             Icons.Outlined.Settings,
                             contentDescription = null
@@ -641,7 +781,6 @@ fun MainScreenBottomNavigation(
                 onClick = {
                     if (currentRoute != screen.route) {
                         when (screen.route) {
-                            MainNavigationScreens.Settings.route,
                             MainNavigationScreens.Pharmacies.route ->
                                 navController.navigate(screen.path())
                             else ->
@@ -892,6 +1031,7 @@ fun ProfileCard(
 @Composable
 fun MultiProfileTopAppBar(
     navController: NavController,
+    bottomNavController: NavController,
     tabBar: @Composable () -> Unit,
     title: String,
     elevated: Boolean,
@@ -905,10 +1045,8 @@ fun MultiProfileTopAppBar(
             TopAppBarMultiUserTitle(
                 title = title,
                 onClickEditProfiles = {
-                    navController.navigate(
-                        MainNavigationScreens.Settings.path(
-                            SettingsScrollTo.Profiles
-                        )
+                    bottomNavController.navigate(
+                        MainNavigationScreens.Settings.path()
                     )
                 },
                 onClickEdit = {

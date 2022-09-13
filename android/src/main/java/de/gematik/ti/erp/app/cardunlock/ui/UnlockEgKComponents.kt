@@ -34,6 +34,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -65,7 +66,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.di.compose.rememberViewModel
 
 const val SECRET_MIN_LENGTH = 6
@@ -87,9 +87,9 @@ fun UnlockEgKScreen(
     val viewModel by rememberViewModel<UnlockEgkViewModel>()
 
     val unlockNavController = rememberNavController()
-    var cardAccessNumber by remember { mutableStateOf("") }
-    var personalUnblockingKey by remember { mutableStateOf("") }
-    var newSecret by remember { mutableStateOf("") }
+    var cardAccessNumber by rememberSaveable { mutableStateOf("") }
+    var personalUnblockingKey by rememberSaveable { mutableStateOf("") }
+    var newSecret by rememberSaveable { mutableStateOf("") }
 
     val onRetryCan = {
         unlockNavController.navigate(UnlockEgkNavigation.CardAccessNumber.path()) {
@@ -496,7 +496,6 @@ fun NewSecretScreen(
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 @Composable
 fun UnlockScreen(
     changeSecret: Boolean,

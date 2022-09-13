@@ -1,0 +1,3689 @@
+{
+  "id": "bca172dc-495c-4e19-9c7b-7977739d9ce1",
+  "type": "searchset",
+  "timestamp": "2022-08-17T12:59:27.432+00:00",
+  "resourceType": "Bundle",
+  "total": 516,
+  "entry": [
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-6820-a140-abdb-34aa9f2ab6ea",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-6820-a140-abdb-34aa9f2ab6ea",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:44:15.816+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X764228532",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-6baa-c200-977d-c37f5d60444b",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-6baa-c200-977d-c37f5d60444b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:45:15.200+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X764228532",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-75dc-6850-9729-d94c0839ab3b",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-75dc-6850-9729-d94c0839ab3b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Praxis Rainer Graf d' AgóstinoTEST-ONLY hat das Rezept mit der ID 169.000.000.000.026.84 eingestellt.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "update"
+          }
+        ],
+        "action": "U",
+        "recorded": "2022-01-13T15:48:06.226+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Praxis Rainer Graf d' AgóstinoTEST-ONLY",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+                "value": "1-SMC-B-Testkarte-883110000129077"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84/$activate",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-75de-1600-57ea-ac5e4352cffd",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-75de-1600-57ea-ac5e4352cffd",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:48:06.336+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X764228532",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-75fb-e2e8-e1d6-d0922b423e52",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-75fb-e2e8-e1d6-d0922b423e52",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Apotheke am SportzentrumTEST-ONLY hat das Rezept mit der ID 169.000.000.000.026.84 angenommen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "update"
+          }
+        ],
+        "action": "U",
+        "recorded": "2022-01-13T15:48:08.289+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Apotheke am SportzentrumTEST-ONLY",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+                "value": "3-SMC-B-Testkarte-883110000129068"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84/$accept",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-79a7-dbb8-8760-bc38d61fe8b3",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-79a7-dbb8-8760-bc38d61fe8b3",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:49:09.891+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-79b3-bac8-b87e-55f4c1c3ef64",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-79b3-bac8-b87e-55f4c1c3ef64",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:49:10.669+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X764228532",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-862a-e830-e470-120f0137c54e",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-862a-e830-e470-120f0137c54e",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:52:39.806+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-8638-d2b0-de8e-3d7b8d0ea121",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-8638-d2b0-de8e-3d7b8d0ea121",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:52:40.718+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X764228532",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-89fe-8188-bc8d-a0ec199fcc22",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-89fe-8188-bc8d-a0ec199fcc22",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:53:44.005+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-8a08-ca58-67ee-803b22237b89",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-8a08-ca58-67ee-803b22237b89",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T15:53:44.679+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X764228532",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-a2a3-38c8-84a0-c9aa7b803dad",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-a2a3-38c8-84a0-c9aa7b803dad",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Praxis Rainer Graf d' AgóstinoTEST-ONLY hat das Rezept mit der ID 160.000.000.024.934.42 eingestellt.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "update"
+          }
+        ],
+        "action": "U",
+        "recorded": "2022-01-13T16:00:37.453+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Praxis Rainer Graf d' AgóstinoTEST-ONLY",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+                "value": "1-SMC-B-Testkarte-883110000129077"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42/$activate",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-a2d5-31c0-2e27-099ee03caf03",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-a2d5-31c0-2e27-099ee03caf03",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Apotheke am SportzentrumTEST-ONLY hat das Rezept mit der ID 160.000.000.024.934.42 angenommen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "update"
+          }
+        ],
+        "action": "U",
+        "recorded": "2022-01-13T16:00:40.728+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Apotheke am SportzentrumTEST-ONLY",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+                "value": "3-SMC-B-Testkarte-883110000129068"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42/$accept",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-a678-6090-f86e-c018030bb52b",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-a678-6090-f86e-c018030bb52b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T16:01:41.754+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-a67a-6c00-17f8-200346c3973f",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-a67a-6c00-17f8-200346c3973f",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T16:01:41.888+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-a71f-4ef0-1741-3027c8c7a8c5",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-a71f-4ef0-1741-3027c8c7a8c5",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T16:01:52.694+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f56-aae3-ec58-dccd-224d94efbd90",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f56-aae3-ec58-dccd-224d94efbd90",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-13T16:02:55.911+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f6c-d5d5-e360-4300-38f5ae1d86c0",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f6c-d5d5-e360-4300-38f5ae1d86c0",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-14T18:29:45.692+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb7f6c-dadb-da68-267e-7dbd9af054c6",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7f6c-dadb-da68-267e-7dbd9af054c6",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-14T18:31:09.969+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb806e-25ea-aa50-dc33-69ee2b772837",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb806e-25ea-aa50-dc33-69ee2b772837",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-27T13:28:55.826+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb806e-25ec-fff8-6ef7-6eb09e0f8616",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb806e-25ec-fff8-6ef7-6eb09e0f8616",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-27T13:28:55.979+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bc-b302-e350-c0f6-04896f9af888",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bc-b302-e350-c0f6-04896f9af888",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T11:11:50.450+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bc-b303-9ae8-7e6d-cf503ab1af02",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bc-b303-9ae8-7e6d-cf503ab1af02",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T11:11:50.497+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bc-b50a-b588-c468-aaab730ad331",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bc-b50a-b588-c468-aaab730ad331",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T11:12:24.517+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bc-b553-43c0-0672-adced6d59184",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bc-b553-43c0-0672-adced6d59184",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T11:12:29.272+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bc-bd84-4b98-37ab-a8623275b11e",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bc-bd84-4b98-37ab-a8623275b11e",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T11:14:46.703+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80be-26d0-0280-9b6b-cf6f5bf5fb98",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80be-26d0-0280-9b6b-cf6f5bf5fb98",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T12:55:48.240+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80be-26d0-fc80-0c9b-e1a0a5fb405c",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80be-26d0-fc80-0c9b-e1a0a5fb405c",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T12:55:48.304+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bf-d1b6-ff40-af0a-d2cd73e0b0fd",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bf-d1b6-ff40-af0a-d2cd73e0b0fd",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T14:55:10.472+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bf-d1c0-2700-f26f-b3b294a832fd",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bf-d1c0-2700-f26f-b3b294a832fd",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T14:55:11.072+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80bf-d3ca-8590-7c96-fea24a5572cb",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80bf-d3ca-8590-7c96-fea24a5572cb",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T14:55:45.306+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80c1-1cf5-cf58-9c4e-55cf5ea1c737",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80c1-1cf5-cf58-9c4e-55cf5ea1c737",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T16:27:47.847+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80c3-7998-8d98-ccbc-bf89af705bcd",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80c3-7998-8d98-ccbc-bf89af705bcd",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T19:16:51.951+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80c3-79fc-96f8-07f1-fc38f81d8fce",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80c3-79fc-96f8-07f1-fc38f81d8fce",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T19:16:58.507+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80c3-83dc-0e38-60aa-079dcc91e494",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80c3-83dc-0e38-60aa-079dcc91e494",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T19:19:44.147+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80c3-85b6-2180-a5e6-d00ad6c31fdd",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80c3-85b6-2180-a5e6-d00ad6c31fdd",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-31T19:20:15.216+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80e8-820a-5ba8-4465-448092e4815b",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80e8-820a-5ba8-4465-448092e4815b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-02T15:27:47.417+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb80e8-820b-4608-0673-1e2211550779",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb80e8-820b-4608-0673-1e2211550779",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-02T15:27:47.477+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb810e-788a-d5f0-0e41-9df6e81e1cf0",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb810e-788a-d5f0-0e41-9df6e81e1cf0",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T12:45:16.822+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb810e-788b-33b0-6bda-1781f57edcea",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb810e-788b-33b0-6bda-1781f57edcea",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T12:45:16.846+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb810e-a8b1-c928-1b47-b6623ddcf079",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb810e-a8b1-c928-1b47-b6623ddcf079",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T12:58:44.681+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb810e-a8b3-8e48-ae46-6f0e2f07e6ec",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb810e-a8b3-8e48-ae46-6f0e2f07e6ec",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T12:58:44.797+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8110-3094-6ed0-5f5a-6e9dcf22ec13",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8110-3094-6ed0-5f5a-6e9dcf22ec13",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T14:48:19.426+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8110-30ca-9a00-1ea6-b57251e60ff4",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8110-30ca-9a00-1ea6-b57251e60ff4",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T14:48:22.976+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8110-3201-8b90-1c3c-b66992c3102b",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8110-3201-8b90-1c3c-b66992c3102b",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T14:48:43.354+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8110-480e-a418-7ece-6dba2c004941",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8110-480e-a418-7ece-6dba2c004941",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T14:54:53.311+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8110-4938-7a30-7a21-664d1d720498",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8110-4938-7a30-7a21-664d1d720498",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T14:55:12.830+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8110-4948-7408-6610-779c2c53061e",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8110-4948-7408-6610-779c2c53061e",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-04T14:55:13.877+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8162-b73c-3330-7870-5579b9c2801e",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8162-b73c-3330-7870-5579b9c2801e",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 169.000.000.000.026.84 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-08T17:15:45.886+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/169.000.000.000.026.84",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "169.000.000.000.026.84"
+              }
+            },
+            "name": "X764228532",
+            "description": "169.000.000.000.026.84"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://example.com/AuditEvent/01eb8162-b73d-63e0-1936-feaf74abdb35",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb8162-b73d-63e0-1936-feaf74abdb35",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Zacharias Zebra hat das Rezept mit der ID 160.000.000.024.934.42 heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-02-08T17:15:45.964+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Zacharias Zebra",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X764228532"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task/160.000.000.024.934.42",
+              "identifier": {
+                "use": "official",
+                "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+                "value": "160.000.000.024.934.42"
+              }
+            },
+            "name": "X764228532",
+            "description": "160.000.000.024.934.42"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ],
+  "link": [
+    {
+      "relation": "next",
+      "url": "https://example.com/AuditEvent?_count=50&__offset=50"
+    },
+    {
+      "relation": "self",
+      "url": "https://example.com/AuditEvent"
+    }
+  ]
+}

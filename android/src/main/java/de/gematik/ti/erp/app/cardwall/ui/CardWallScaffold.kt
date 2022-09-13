@@ -24,6 +24,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -72,7 +73,8 @@ fun CardWallIntroScaffold(
     val scrollState = rememberScrollState()
 
     AnimatedElevationScaffold(
-        modifier = Modifier.testTag(TestTag.CardWall.Login.LoginScreen),
+        modifier = Modifier.testTag(TestTag.CardWall.Login.LoginScreen)
+            .systemBarsPadding(),
         topBarTitle = "",
         elevated = scrollState.value > 0,
         navigationMode = null,
@@ -107,7 +109,7 @@ fun CardWallInfoScaffold(
     val scrollState = rememberScrollState()
 
     AnimatedElevationScaffold(
-        modifier = Modifier,
+        modifier = Modifier.systemBarsPadding(),
         topBarTitle = stringResource(R.string.cdw_info_title),
         topBarColor = topColor,
         elevated = scrollState.value > 0,
@@ -135,7 +137,8 @@ fun CardWallMissingCapabilities() {
     val scrollState = rememberScrollState()
 
     AnimatedElevationScaffold(
-        modifier = Modifier.testTag("cardWall/intro"),
+        modifier = Modifier.testTag("cardWall/intro")
+            .systemBarsPadding(),
         topBarTitle = "",
         elevated = scrollState.value > 0,
         actions = @Composable {

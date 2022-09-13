@@ -31,6 +31,7 @@ typealias FhirCommunication = org.hl7.fhir.r4.model.Communication
 typealias FhirPractitioner = org.hl7.fhir.r4.model.Practitioner
 typealias FhirMedication = org.hl7.fhir.r4.model.Medication
 typealias FhirRatio = org.hl7.fhir.r4.model.Ratio
+typealias FhirPeriod = org.hl7.fhir.r4.model.Period
 typealias FhirQuantity = org.hl7.fhir.r4.model.Quantity
 typealias FhirMedicationRequest = MedicationRequest
 typealias FhirMedicationDispense = org.hl7.fhir.r4.model.MedicationDispense

@@ -32,7 +32,6 @@ import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.VisibleDebugTree
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
-import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.debug.data.DebugSettingsData
 import de.gematik.ti.erp.app.debug.data.Environment
 import de.gematik.ti.erp.app.di.EndpointHelper
@@ -64,16 +63,14 @@ import java.security.Signature
 import java.time.Instant
 import java.time.temporal.ChronoUnit
 
-private val healthCardCert = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
-private val healthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
+private val HealthCardCert = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
+private val HealthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
 
-const val RESTART_DELAY = 1000L
-
+@Suppress("LongParameterList")
 class DebugSettingsViewModel(
     visibleDebugTree: VisibleDebugTree,
     private val endpointHelper: EndpointHelper,
     private val cardWallUseCase: CardWallUseCase,
-    private val hintUseCase: HintUseCase,
     private val prescriptionUseCase: PrescriptionUseCase,
     private val vauRepository: VauRepository,
     private val idpRepository: IdpRepository,
@@ -101,8 +98,8 @@ class DebugSettingsViewModel(
         cardAccessNumberIsSet = false,
         multiProfile = false,
         activeProfileId = "",
-        virtualHealthCardCert = healthCardCert,
-        virtualHealthCardPrivateKey = healthCardCertPrivateKey
+        virtualHealthCardCert = HealthCardCert,
+        virtualHealthCardPrivateKey = HealthCardCertPrivateKey
     )
 
     suspend fun state() {
@@ -245,10 +242,6 @@ class DebugSettingsViewModel(
 
     fun getCurrentEnvironment() = endpointHelper.getCurrentEnvironment()
 
-    fun resetHints() {
-        hintUseCase.resetAllHints()
-    }
-
     fun allowNfc(value: Boolean) {
         cardWallUseCase.deviceHasNFCAndAndroidMOrHigher = value
         updateState(debugSettingsData.copy(fakeNFCCapabilities = value))
@@ -285,8 +278,8 @@ class DebugSettingsViewModel(
     fun onResetVirtualHealthCard() {
         updateState(
             debugSettingsData.copy(
-                virtualHealthCardCert = healthCardCert,
-                virtualHealthCardPrivateKey = healthCardCertPrivateKey
+                virtualHealthCardCert = HealthCardCert,
+                virtualHealthCardPrivateKey = HealthCardCertPrivateKey
             )
         )
     }

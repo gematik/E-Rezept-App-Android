@@ -27,7 +27,7 @@ import kotlin.test.assertEquals
 
 const val ResourceBasePath = "src/commonTest/resources/"
 
-val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }
+private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }
 
 class PharmacyMapperTest {
     private val openingTimeA = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))

@@ -37,6 +37,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OftenUsedPharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
@@ -47,7 +48,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 
-const val ACTUAL_SCHEMA_VERSION = 4L
+const val ACTUAL_SCHEMA_VERSION = 6L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -78,7 +79,8 @@ val appSchemas = setOf(
             QuantityEntityV1::class,
             RatioEntityV1::class,
             PharmacyCacheEntityV1::class,
-            OftenUsedPharmacyEntityV1::class
+            OftenUsedPharmacyEntityV1::class,
+            MultiplePrescriptionInfoEntityV1::class
         ),
         migrateOrInitialize = { migrationStartedFrom ->
             queryFirst<SettingsEntityV1>() ?: run {

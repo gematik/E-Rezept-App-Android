@@ -1,3 +1,21 @@
+# Release 1.4.4
+### Added
+
+- New Onboarding
+- Removed HAPI-parser for communications and audit events
+
+### Changed
+
+- Refactored settings and prescription details
+
+### Fixed
+
+- Several bugfixes
+
+### Internal
+
+- Small refactorings
+
 # Release 1.4.3
 ### Added
 - Authentication using health insurance apps (FastTrack)

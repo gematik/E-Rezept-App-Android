@@ -22,8 +22,8 @@ import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.api.safeApiCallNullable
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import kotlinx.serialization.json.JsonElement
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Communication
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
@@ -50,7 +50,7 @@ class RemoteDataSource(
         profileId: ProfileIdentifier,
         count: Int?,
         lastKnownUpdate: String?
-    ): Result<Bundle> = safeApiCall(
+    ): Result<JsonElement> = safeApiCall(
         errorMessage = "error getting communications"
     ) {
         service.getCommunications(
@@ -77,9 +77,8 @@ class RemoteDataSource(
         service.deleteTask(profileId, id = taskId)
     }
 
-    suspend fun communicate(profileId: ProfileIdentifier, com: Communication, accessCode: String? = null) = safeApiCall(
-        errorMessage = "error while posting communication"
-    ) {
-        service.communication(profileId, communication = com, accessCode = accessCode)
-    }
+    suspend fun communicate(profileId: ProfileIdentifier, communication: JsonElement, accessCode: String? = null) =
+        safeApiCall(errorMessage = "error while posting communication") {
+            service.postCommunication(profileId = profileId, communication = communication, accessCode = accessCode)
+        }
 }

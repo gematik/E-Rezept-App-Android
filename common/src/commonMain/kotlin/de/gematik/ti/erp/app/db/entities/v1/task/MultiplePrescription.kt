@@ -16,12 +16,21 @@
  * 
  */
 
-package de.gematik.ti.erp.app.common.usecase.model
+package de.gematik.ti.erp.app.db.entities.v1.task
 
-sealed class Hint
+import de.gematik.ti.erp.app.db.entities.Cascading
+import io.realm.kotlin.Deleteable
+import io.realm.kotlin.types.RealmInstant
+import io.realm.kotlin.types.RealmObject
 
-sealed class CancellableHint(
-    val id: String
-) : Hint()
+class MultiplePrescriptionInfoEntityV1(
+    var indicator: Boolean,
+    var numbering: RatioEntityV1?,
+    var start: RealmInstant?
+) : RealmObject, Cascading {
+    constructor() : this(indicator = false, numbering = null, start = RealmInstant.MIN)
 
-object PharmacyScreenHintEnableLocation : CancellableHint(id = "PharmacyScreenHintEnableLocation")
+    override fun objectsToFollow(): Iterator<Deleteable> = iterator {
+        numbering?.let { yield(it) }
+    }
+}

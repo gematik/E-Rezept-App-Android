@@ -29,26 +29,15 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.with
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.ContentAlpha
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
@@ -64,10 +53,8 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.max
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.ui.TextTabRow
@@ -79,9 +66,7 @@ import de.gematik.ti.erp.app.settings.ui.checkPassword
 import de.gematik.ti.erp.app.settings.ui.checkPasswordScore
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.LargeButton
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.visualTestTag
 import kotlinx.parcelize.Parcelize
@@ -116,44 +101,46 @@ private enum class AuthTab(val index: Int) {
     Password(1), Biometric(0)
 }
 
-@Composable
-fun OnboardingLazyColumn(
-    modifier: Modifier = Modifier,
-    state: LazyListState,
-    content: LazyListScope.() -> Unit
-) {
-    val imePadding = WindowInsets.ime.asPaddingValues()
-
-    LazyColumn(
-        state = state,
-        modifier = modifier,
-        contentPadding = PaddingValues(
-            top = PaddingDefaults.Medium,
-            bottom = PaddingDefaults.Medium + max(OnboardingFabPadding, imePadding.calculateBottomPadding()),
-            start = PaddingDefaults.Medium,
-            end = PaddingDefaults.Medium
-        ),
-        content = content
-    )
-}
-
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun OnboardingSecureApp(
-    modifier: Modifier,
     secureMethod: OnboardingSecureAppMethod,
     onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit,
-    onNext: () -> Unit,
+    onNextPage: () -> Unit,
     onOpenBiometricScreen: () -> Unit
 ) {
     val lazyListState = rememberLazyListState()
     var selectedTab by remember { mutableStateOf(AuthTab.Biometric) }
 
-    OnboardingLazyColumn(
+    OnboardingScaffold(
+        modifier = Modifier
+            .testTag(TestTag.Onboarding.CredentialsScreen)
+            .fillMaxSize(),
         state = lazyListState,
-        modifier = modifier
-            .visualTestTag(TestTag.Onboarding.CredentialsScreen)
-            .fillMaxSize()
+        bottomBar = {
+            OnboardingBottomBar(
+                info = when (selectedTab) {
+                    AuthTab.Password -> null
+                    AuthTab.Biometric -> stringResource(R.string.onboarding_auth_biometric_info)
+                },
+                buttonText = when (selectedTab) {
+                    AuthTab.Password -> stringResource(R.string.onboarding_bottom_button_save)
+                    AuthTab.Biometric -> stringResource(R.string.onboarding_bottom_button_choose)
+                },
+                buttonEnabled = when (selectedTab) {
+                    AuthTab.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.checkedPassword != null
+                    AuthTab.Biometric -> true
+                },
+                onButtonClick = {
+                    when (selectedTab) {
+                        AuthTab.Password ->
+                            onNextPage()
+                        AuthTab.Biometric ->
+                            onOpenBiometricScreen()
+                    }
+                }
+            )
+        }
     ) {
         item {
             Image(
@@ -228,17 +215,14 @@ fun OnboardingSecureApp(
                             secureMethod = secureMethod,
                             lazyListState = lazyListState,
                             onSecureMethodChange = onSecureMethodChange,
-                            onNext = onNext
+                            onNext = onNextPage
                         )
                     }
                     AuthTab.Biometric -> {
-                        BiometricAuthentication(
-                            secureMethod = secureMethod,
-                            openBiometryScreen = onOpenBiometricScreen
-                        )
                     }
                 }
             }
+            SpacerMedium()
         }
     }
 }
@@ -350,42 +334,5 @@ private fun PasswordAuthentication(
                 )
             )
         }
-    }
-}
-
-@Composable
-private fun BiometricAuthentication(
-    secureMethod: OnboardingSecureAppMethod,
-    openBiometryScreen: () -> Unit
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .semantics(mergeDescendants = true) {}
-    ) {
-        LargeButton(
-            enabled = secureMethod != OnboardingSecureAppMethod.DeviceSecurity,
-            onClick = {
-                openBiometryScreen()
-            },
-            colors = ButtonDefaults.buttonColors()
-        ) {
-            if (secureMethod == OnboardingSecureAppMethod.DeviceSecurity) {
-                Icon(Icons.Rounded.Check, null)
-                SpacerSmall()
-                Text(
-                    stringResource(R.string.onboarding_secure_app_button_method_chosen)
-                )
-            } else {
-                Text(stringResource(R.string.onboarding_secure_app_button_choose_method))
-            }
-        }
-        SpacerSmall()
-        Text(
-            stringResource(R.string.onboarding_secure_app_button_best_info),
-            style = AppTheme.typography.body2l
-        )
-        SpacerMedium()
     }
 }

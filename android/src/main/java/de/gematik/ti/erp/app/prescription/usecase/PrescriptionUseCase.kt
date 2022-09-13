@@ -18,13 +18,8 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.common.BitMatrix
-import com.google.zxing.datamatrix.DataMatrixWriter
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailScanned
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetailSynced
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
@@ -39,13 +34,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
-import org.json.JSONArray
-import org.json.JSONObject
 import io.github.aakira.napier.Napier
 import java.time.Instant
-
-// gemSpec_FD_eRp: A_21267 Prozessparameter - Berechtigungen für Nutzer
-const val DIRECT_ASSIGNMENT_INDICATOR = "169" // direct assignment taskID starts with 169
 
 class PrescriptionUseCase(
     private val repository: PrescriptionRepository,
@@ -58,7 +48,7 @@ class PrescriptionUseCase(
     ): Flow<List<PrescriptionUseCaseData.Prescription.Synced>> =
         syncedTasks(profileId).map { tasks ->
             tasks.filter { it.isActive(now) }
-                .sortedByDescending { it.authoredOn }
+                .sortedBy { it.expiresOn }
                 .groupBy { it.practitioner.name ?: it.organization.name }
                 .flatMap { (_, tasks) ->
                     tasks.map {
@@ -71,7 +61,16 @@ class PrescriptionUseCase(
                             expiresOn = it.expiresOn,
                             acceptUntil = it.acceptUntil,
                             state = it.state(now = now),
-                            isDirectAssignment = it.taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR)
+                            isDirectAssignment = it.isDirectAssignment(),
+                            multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
+                                isPartOfMultiplePrescription = it.medicationRequest
+                                    .multiplePrescriptionInfo.indicator,
+                                numerator = it.medicationRequest
+                                    .multiplePrescriptionInfo.numbering?.numerator?.value,
+                                denominator = it.medicationRequest
+                                    .multiplePrescriptionInfo.numbering?.denominator?.value,
+                                start = it.medicationRequest.multiplePrescriptionInfo.start
+                            )
                         )
                     }
                 }
@@ -114,7 +113,13 @@ class PrescriptionUseCase(
                         expiresOn = it.expiresOn,
                         acceptUntil = it.acceptUntil,
                         state = it.state(now),
-                        isDirectAssignment = it.taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR)
+                        isDirectAssignment = it.isDirectAssignment(),
+                        multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
+                            isPartOfMultiplePrescription = it.medicationRequest.multiplePrescriptionInfo.indicator,
+                            numerator = it.medicationRequest.multiplePrescriptionInfo.numbering?.numerator?.value,
+                            denominator = it.medicationRequest.multiplePrescriptionInfo.numbering?.denominator?.value,
+                            start = it.medicationRequest.multiplePrescriptionInfo.start
+                        )
                     )
                 }
 
@@ -174,51 +179,18 @@ class PrescriptionUseCase(
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun generatePrescriptionDetails(
         taskId: String
-    ): Flow<UIPrescriptionDetail> =
+    ): Flow<PrescriptionData.Prescription> =
         repository.loadSyncedTaskByTaskId(taskId).transformLatest { task ->
             if (task == null) {
                 repository.loadScannedTaskByTaskId(taskId).collectLatest { scannedTask ->
                     if (scannedTask == null) {
                         Napier.w("No task `$taskId` found!")
                     } else {
-                        val payload = createDataMatrixPayload(scannedTask.taskId, scannedTask.accessCode)
-
-                        emit(
-                            UIPrescriptionDetailScanned(
-                                profileId = scannedTask.profileId,
-                                taskId = scannedTask.taskId,
-                                redeemedOn = scannedTask.redeemedOn,
-                                accessCode = scannedTask.accessCode,
-                                matrixPayload = payload,
-                                number = 1,
-                                scannedOn = scannedTask.scannedOn
-                            )
-                        )
+                        emit(PrescriptionData.Scanned(task = scannedTask))
                     }
                 }
             } else {
-                val payload = task.accessCode?.let { createDataMatrixPayload(task.taskId, it) }
-
-                emit(
-                    UIPrescriptionDetailSynced(
-                        profileId = task.profileId,
-                        taskId = task.taskId,
-                        redeemedOn = task.redeemedOn(),
-                        accessCode = task.accessCode,
-                        matrixPayload = payload,
-                        expiresOn = task.expiresOn,
-                        acceptUntil = task.acceptUntil,
-                        patient = task.patient,
-                        practitioner = task.practitioner,
-                        insurance = task.insuranceInformation,
-                        organization = task.organization,
-                        medicationRequest = task.medicationRequest,
-                        medicationDispenses = task.medicationDispenses,
-                        taskStatus = task.status,
-                        isRedeemableAndValid = task.redeemState().isRedeemable(),
-                        state = task.state() // TODO pass now from calling function
-                    )
-                )
+                emit(PrescriptionData.Synced(task = task))
             }
         }.flowOn(dispatchers.IO)
 
@@ -232,17 +204,4 @@ class PrescriptionUseCase(
 
     fun getAllTasksWithTaskIdOnly(): Flow<List<String>> =
         repository.loadTaskIds()
-}
-
-fun createMatrixCode(payload: String): BitMatrix {
-    return DataMatrixWriter().encode(payload, BarcodeFormat.DATA_MATRIX, 1, 1)
-}
-
-fun createDataMatrixPayload(taskId: String, code: String): String {
-    val value = "Task/$taskId/\$accept?ac=$code"
-    val rootObject = JSONObject()
-    val urls = JSONArray()
-    urls.put(value)
-    rootObject.put("urls", urls)
-    return rootObject.toString().replace("\\", "")
 }

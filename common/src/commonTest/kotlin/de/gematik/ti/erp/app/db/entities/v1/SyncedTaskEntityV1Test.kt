@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OftenUsedPharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
@@ -74,7 +75,8 @@ class SyncedTaskEntityV1Test : TestDB() {
                     IngredientEntityV1::class,
                     QuantityEntityV1::class,
                     RatioEntityV1::class,
-                    OftenUsedPharmacyEntityV1::class
+                    OftenUsedPharmacyEntityV1::class,
+                    MultiplePrescriptionInfoEntityV1::class
                 )
             )
                 .schemaVersion(0)
@@ -126,6 +128,14 @@ class SyncedTaskEntityV1Test : TestDB() {
                                     }
                                 )
                             }
+                            this.multiplePrescriptionInfo = MultiplePrescriptionInfoEntityV1().apply {
+                                this.indicator = true
+                                this.numbering = RatioEntityV1().apply {
+                                    this.denominator = QuantityEntityV1().apply {
+                                        this.value = "1"
+                                    }
+                                }
+                            }
                         }
                         this.medicationDispenses = realmListOf(
                             MedicationDispenseEntityV1().apply {
@@ -175,12 +185,13 @@ class SyncedTaskEntityV1Test : TestDB() {
             assertEquals(2, realm.query<AddressEntityV1>().count().find())
             assertEquals(2, realm.query<MedicationEntityV1>().count().find())
             assertEquals(2, realm.query<IngredientEntityV1>().count().find())
-            assertEquals(4, realm.query<RatioEntityV1>().count().find())
-            assertEquals(8, realm.query<QuantityEntityV1>().count().find())
+            assertEquals(1, realm.query<MultiplePrescriptionInfoEntityV1>().count().find())
+            assertEquals(5, realm.query<RatioEntityV1>().count().find())
+            assertEquals(9, realm.query<QuantityEntityV1>().count().find())
 
             realm.writeBlocking {
-                val settings = queryFirst<SyncedTaskEntityV1>()!!
-                deleteAll(settings)
+                val syncedTasks = queryFirst<SyncedTaskEntityV1>()!!
+                deleteAll(syncedTasks)
             }
 
             assertEquals(0, realm.query<SyncedTaskEntityV1>().count().find())
@@ -196,6 +207,7 @@ class SyncedTaskEntityV1Test : TestDB() {
             assertEquals(0, realm.query<IngredientEntityV1>().count().find())
             assertEquals(0, realm.query<RatioEntityV1>().count().find())
             assertEquals(0, realm.query<QuantityEntityV1>().count().find())
+            assertEquals(0, realm.query<MultiplePrescriptionInfoEntityV1>().count().find())
         }
     }
 }

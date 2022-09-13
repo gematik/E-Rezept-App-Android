@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import org.hl7.fhir.r4.model.Communication
+import kotlinx.serialization.json.JsonElement
 import org.hl7.fhir.r4.model.MedicationDispense
 import java.time.Instant
 
@@ -64,7 +64,7 @@ class PrescriptionRepository(
 
     suspend fun redeemPrescription(
         profileId: ProfileIdentifier,
-        communication: Communication,
+        communication: JsonElement,
         accessCode: String? = null
     ): Result<Unit> = withContext(dispatchers.IO) {
         remoteDataSource.communicate(profileId, communication, accessCode).map { }

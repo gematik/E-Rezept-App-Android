@@ -308,7 +308,7 @@ class IdpUseCase(
             url = initialData.config.externalAuthorizationIDsEndpoint ?: error("Fasttrack is not available"),
             idpPukSigKey = initialData.config.certificate.extractECPublicKey()
         ).sortedBy {
-            it.name
+            it.name.lowercase()
         }
     }
 

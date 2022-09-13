@@ -21,7 +21,6 @@ package de.gematik.ti.erp.app.orders.repository
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
-import de.gematik.ti.erp.app.prescription.repository.FhirCommunication
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
@@ -32,7 +31,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import de.gematik.ti.erp.app.prescription.repository.LocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.RemoteDataSource
-import de.gematik.ti.erp.app.prescription.repository.extractResources
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -79,11 +77,8 @@ class CommunicationRepository(
             profileId = profileId,
             count = count,
             lastKnownUpdate = timestamp
-        ).mapCatching { bundle ->
-            val communications = bundle.extractResources<FhirCommunication>()
+        ).mapCatching { communications ->
             taskLocalDataSource.saveCommunications(communications)
-
-            communications.size
         }
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
@@ -110,8 +105,8 @@ class CommunicationRepository(
     fun loadRepliedCommunications(taskIds: List<String>) =
         communicationLocalDataSource.loadRepliedCommunications(taskIds = taskIds).flowOn(dispatchers.IO)
 
-    fun hasUnreadMessages(taskIds: List<String>) =
-        communicationLocalDataSource.hasUnreadMessages(taskIds).flowOn(dispatchers.IO)
+    fun hasUnreadMessages(taskIds: List<String>, orderId: String) =
+        communicationLocalDataSource.hasUnreadMessages(taskIds, orderId).flowOn(dispatchers.IO)
 
     fun hasUnreadMessages(profileId: ProfileIdentifier) =
         communicationLocalDataSource.hasUnreadMessages(profileId).flowOn(dispatchers.IO)

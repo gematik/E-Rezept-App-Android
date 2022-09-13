@@ -52,6 +52,13 @@ object TestTag {
     object Settings {
         val SettingsScreen by tagName()
         val DebugMenuButton by tagName()
+        val ProfileButton by tagName()
+        val AddProfileButton by tagName()
+
+        object AddProfileDialog {
+            val ProfileNameTextField by tagName()
+            val ConfirmButton by tagName()
+        }
     }
 
     object DebugMenu {
@@ -71,7 +78,7 @@ object TestTag {
 
     object Onboarding {
         val Pager by tagName()
-
+        val SkipOnboardingButton by tagName()
         val NextButton by tagName()
 
         val WelcomeScreen by tagName()
@@ -123,12 +130,19 @@ object TestTag {
         val ThreeDotMenuButton by tagName()
         val LogoutButton by tagName()
         val DeleteProfileButton by tagName()
+        val OpenAuditEventsScreenButton by tagName()
         object TokenList {
             val TokenScreen by tagName()
             val AccessToken by tagName()
             val SSOToken by tagName()
             val NoTokenHeader by tagName()
             val NoTokenInfo by tagName()
+        }
+        object AuditEvents {
+            val AuditEventsScreen by tagName()
+            val NoAuditEventHeader by tagName()
+            val NoAuditEventInfo by tagName()
+            val AuditEvent by tagName()
         }
     }
 

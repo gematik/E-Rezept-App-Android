@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
 import de.gematik.ti.erp.app.MainActivity
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import java.util.UUID
@@ -66,7 +67,7 @@ fun OutlinedDebugButton(
         border = ButtonDefaults.outlinedBorder.copy(brush = SolidColor(AppTheme.DebugColor)),
         colors = ButtonDefaults.textButtonColors(contentColor = AppTheme.DebugColor),
         contentPadding = PaddingValues(horizontal = PaddingDefaults.Small, vertical = PaddingDefaults.Tiny),
-        modifier = modifier
+        modifier = modifier.testTag(TestTag.Onboarding.SkipOnboardingButton)
     ) {
         Icon(Icons.Outlined.BugReport, null)
         SpacerSmall()

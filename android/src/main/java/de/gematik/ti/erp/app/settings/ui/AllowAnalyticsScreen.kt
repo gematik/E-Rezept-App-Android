@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -64,6 +65,7 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit
     val lazyListState = rememberLazyListState()
 
     AnimatedElevationScaffold(
+        modifier = Modifier.navigationBarsPadding(),
         navigationMode = NavigationBarMode.Back,
         topBarTitle = stringResource(R.string.settings_tracking_allow_title),
         onBack = {
@@ -74,12 +76,12 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit
         listState = lazyListState,
         bottomBar = {
             Surface(
-                Modifier.fillMaxWidth().wrapContentHeight(),
+                Modifier.fillMaxWidth(),
                 color = MaterialTheme.colors.surface,
                 elevation = AppBarDefaults.BottomAppBarElevation
             ) {
                 Row(
-                    Modifier.fillMaxWidth().wrapContentHeight(),
+                    Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.Center
                 ) {

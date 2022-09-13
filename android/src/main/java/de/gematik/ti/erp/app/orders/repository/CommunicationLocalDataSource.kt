@@ -87,12 +87,12 @@ class CommunicationLocalDataSource(
                 }
             }
 
-    fun hasUnreadMessages(taskIds: List<String>): Flow<Boolean> =
+    fun hasUnreadMessages(taskIds: List<String>, orderId: String): Flow<Boolean> =
         realm.query<CommunicationEntityV1>(
             orQuerySubstring("parent.taskId", taskIds.size),
             *taskIds.toTypedArray()
         )
-            .query("consumed = false")
+            .query("consumed = false && orderId = $0", orderId)
             .count()
             .asFlow()
             .map { it > 0 }
@@ -121,8 +121,8 @@ class CommunicationLocalDataSource(
 
     suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean) {
         realm.write<Unit> {
-            queryFirst<CommunicationEntityV1>("communicationId = $0", communicationId)?.let {
-                it.consumed = consumed
+            queryFirst<CommunicationEntityV1>("communicationId = $0", communicationId)?.apply {
+                this.consumed = consumed
             }
         }
     }

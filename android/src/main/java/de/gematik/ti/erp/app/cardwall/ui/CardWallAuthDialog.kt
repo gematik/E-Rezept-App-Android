@@ -88,6 +88,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.MainActivity
+import de.gematik.ti.erp.app.NfcNotEnabledException
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
@@ -112,10 +113,10 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.retry
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.retryWhen
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
@@ -167,8 +168,7 @@ fun CardWallAuthenticationDialog(
     val coroutineScope = rememberCoroutineScope()
     val toggleAuth = dialogState.toggleAuth
 
-    // TODO: `viewModel.isNFCEnabled()` is not a proper key. Maybe find a better way to re-trigger this
-    var showEnableNfcDialog by remember { mutableStateOf(!viewModel.isNFCEnabled()) }
+    var showEnableNfcDialog by remember { mutableStateOf(false) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
 
     val tracker = LocalAnalytics.current
@@ -178,17 +178,20 @@ fun CardWallAuthenticationDialog(
             emit(AuthenticationState.None)
             when (it) {
                 is ToggleAuth.ToggleByUser -> {
-                    if (it.value && !viewModel.isNFCEnabled()) {
-                        showEnableNfcDialog = true
-                        value = AuthenticationState.None
-                    } else if (it.value) {
+                    if (it.value) {
                         emitAll(
                             viewModel.doAuthentication(
                                 profileId = profileId,
                                 can = cardAccessNumber,
                                 pin = personalIdentificationNumber,
                                 method = authenticationMethod,
-                                activity.nfcTagFlow
+                                activity
+                                    .nfcTagFlow
+                                    .catch {
+                                        if (it is NfcNotEnabledException) {
+                                            showEnableNfcDialog = true
+                                        }
+                                    }
                             )
                         )
                     } else {
@@ -236,7 +239,15 @@ fun CardWallAuthenticationDialog(
     }
 
     LaunchedEffect(Unit) {
-        activity.nfcTagFlow.retry()
+        activity.nfcTagFlow
+            .retryWhen { cause, _ ->
+                cause !is NfcNotEnabledException
+            }
+            .catch { cause ->
+                if (cause is NfcNotEnabledException) {
+                    showEnableNfcDialog = true
+                }
+            }
             .filter {
                 // only let interrupted communications through
                 !(state.isFailure() && state != AuthenticationState.HealthCardCommunicationInterrupted)

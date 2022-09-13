@@ -68,6 +68,7 @@ class NapierLogger(tagSuffix: String? = null) : HttpLoggingInterceptor.Logger {
 
 const val PrefixedLoggerTag = "PrefixedLogger"
 const val JsonConverterFactoryTag = "JsonConverterFactory"
+const val JsonFhirConverterFactoryTag = "JsonFhirConverterFactoryTag"
 
 @OptIn(ExperimentalSerializationApi::class)
 val networkModule = DI.Module("Network Module") {
@@ -78,6 +79,9 @@ val networkModule = DI.Module("Network Module") {
         }
     }
     bindSingleton(JsonConverterFactoryTag) { instance<Json>().asConverterFactory("application/json".toMediaType()) }
+    bindSingleton(JsonFhirConverterFactoryTag) {
+        instance<Json>().asConverterFactory("application/json+fhir".toMediaType())
+    }
     bindSingleton {
         OkHttpClient.Builder()
             .connectTimeout(
@@ -165,6 +169,7 @@ val networkModule = DI.Module("Network Module") {
             .client(clientBuilder.build())
             .baseUrl(endpointHelper.eRezeptServiceUri)
             .addConverterFactory(FhirConverterFactory.create(fhirParser))
+            .addConverterFactory(instance(JsonFhirConverterFactoryTag))
             .addConverterFactory(instance(JsonConverterFactoryTag))
             .build()
             .create(ErpService::class.java)

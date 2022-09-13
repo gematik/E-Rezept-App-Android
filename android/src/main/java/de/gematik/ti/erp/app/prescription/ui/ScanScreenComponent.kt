@@ -132,7 +132,6 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -152,32 +151,18 @@ fun ScanScreen(
 ) {
     val context = LocalContext.current
 
-    var shouldShowEduDialog by rememberSaveable { mutableStateOf(false) }
-    var eduDialogAccepted by rememberSaveable { mutableStateOf(false) }
     var camPermissionGranted by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        shouldShowEduDialog =
-            context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-        if (!shouldShowEduDialog) {
-            eduDialogAccepted = true
-        }
-    }
 
     val camPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             camPermissionGranted = it
         }
 
-    if (shouldShowEduDialog && !eduDialogAccepted) {
-        EducationalDialog {
-            eduDialogAccepted = true
-        }
-    }
-
-    LaunchedEffect(eduDialogAccepted) {
-        if (eduDialogAccepted) {
+    LaunchedEffect(Unit) {
+        if (context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             camPermissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            camPermissionGranted = true
         }
     }
 
@@ -371,24 +356,6 @@ private fun HapticAndAudibleFeedback(scanVM: ScanPrescriptionViewModel = viewMod
     }
     DisposableEffect(Unit) {
         onDispose { toneGenerator.release() }
-    }
-}
-
-@Composable
-private fun EducationalDialog(
-    onContinue: () -> Unit
-) {
-    var dialogOpen by remember { mutableStateOf(true) }
-
-    if (dialogOpen) {
-        CommonAlertDialog(
-            header = stringResource(R.string.cam_edu_headline),
-            info = stringResource(R.string.cam_edu_description),
-            cancelText = stringResource(R.string.cancel),
-            actionText = stringResource(R.string.cam_edu_accept),
-            onCancel = { dialogOpen = false },
-            onClickAction = onContinue
-        )
     }
 }
 

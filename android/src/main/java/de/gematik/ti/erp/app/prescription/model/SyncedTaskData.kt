@@ -24,6 +24,9 @@ import java.time.Instant
 
 val CommunicationWaitStateDelta: Duration = Duration.ofMinutes(10)
 
+// gemSpec_FD_eRp: A_21267 Prozessparameter - Berechtigungen für Nutzer
+const val DIRECT_ASSIGNMENT_INDICATOR = "169" // direct assignment taskID starts with 169
+
 object SyncedTaskData {
     enum class TaskStatus {
         Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed;
@@ -35,6 +38,7 @@ object SyncedTaskData {
         fun toEntityValue() = when (this) {
             CommunicationProfile.ErxCommunicationDispReq ->
                 CommunicationProfileV1.ErxCommunicationDispReq
+
             CommunicationProfile.ErxCommunicationReply ->
                 CommunicationProfileV1.ErxCommunicationReply
         }.name
@@ -60,26 +64,45 @@ object SyncedTaskData {
         sealed interface TaskState
 
         data class Ready(val expiresOn: Instant, val acceptUntil: Instant) : TaskState
-        data class Pending(val sentOn: Instant) : TaskState
+        data class LaterRedeemable(val redeemableOn: Instant) : TaskState
+
+        data class Pending(val sentOn: Instant, val toTelematikId: String) : TaskState
         data class InProgress(val lastModified: Instant) : TaskState
         data class Expired(val expiredOn: Instant) : TaskState
 
-        data class Other(val state: TaskStatus) : TaskState
+        data class Other(val state: TaskStatus, val lastModified: Instant) : TaskState
 
         fun state(now: Instant = Instant.now(), delta: Duration = CommunicationWaitStateDelta): TaskState =
             when {
+                medicationRequest.multiplePrescriptionInfo.indicator &&
+                    medicationRequest.multiplePrescriptionInfo.start?.let { start ->
+                    start > now
+                } == true -> {
+                    LaterRedeemable(medicationRequest.multiplePrescriptionInfo.start)
+                }
+
                 expiresOn != null && expiresOn < now -> Expired(expiresOn)
                 status == TaskStatus.Ready &&
                     accessCode != null &&
                     communications.any { it.profile == CommunicationProfile.ErxCommunicationDispReq } &&
-                    redeemState(now, delta) == RedeemState.NotRedeemable ->
-                    Pending(sentOn = this.communications.maxOf { it.sentOn })
+                    redeemState(now, delta) == RedeemState.NotRedeemable -> {
+                    val comm = this.communications
+                        .filter { it.profile == CommunicationProfile.ErxCommunicationDispReq }
+                        .maxBy { it.sentOn }
+
+                    Pending(
+                        sentOn = comm.sentOn,
+                        toTelematikId = comm.recipient
+                    )
+                }
+
                 status == TaskStatus.Ready -> Ready(
                     expiresOn = requireNotNull(expiresOn),
                     acceptUntil = requireNotNull(acceptUntil)
                 )
+
                 status == TaskStatus.InProgress -> InProgress(lastModified = this.lastModified)
-                else -> Other(this.status)
+                else -> Other(this.status, this.lastModified)
             }
 
         enum class RedeemState {
@@ -102,7 +125,11 @@ object SyncedTaskData {
          * See [isActive] for a decision it this prescription should be shown in the "Active" or "Archive" tab.
          */
         fun redeemState(now: Instant = Instant.now(), delta: Duration = Duration.ofMinutes(10)): RedeemState {
-            val notExpired = (expiresOn != null && now <= expiresOn) || expiresOn == null
+            val expired = (expiresOn != null && expiresOn <= now)
+            val redeemableLater = medicationRequest.multiplePrescriptionInfo.indicator &&
+                medicationRequest.multiplePrescriptionInfo.start?.let {
+                it > now
+            } == true
             val ready = status == TaskStatus.Ready
             val valid = accessCode != null
             val latestDispenseReqCommunication = communications
@@ -111,7 +138,7 @@ object SyncedTaskData {
             val isDeltaLocked = latestDispenseReqCommunication?.let { (it + delta) > now }
 
             return when {
-                !notExpired -> RedeemState.NotRedeemable
+                redeemableLater || expired -> RedeemState.NotRedeemable
                 ready && valid && latestDispenseReqCommunication == null -> RedeemState.RedeemableAndValid
                 ready && valid && isDeltaLocked == false -> RedeemState.RedeemableAfterDelta
                 ready && valid && isDeltaLocked == true -> RedeemState.NotRedeemable
@@ -124,6 +151,15 @@ object SyncedTaskData {
             val allowedStatus = status == TaskStatus.Ready || status == TaskStatus.InProgress
             return notExpired && allowedStatus
         }
+
+        fun isDirectAssignment() =
+            taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR)
+
+        fun isDeletable() =
+            when {
+                isDirectAssignment() -> status == TaskStatus.Completed
+                else -> true
+            }
 
         fun medicationRequestMedicationName() =
             when (medicationRequest.medication) {
@@ -180,13 +216,37 @@ object SyncedTaskData {
         val status: String? = null
     )
 
+    enum class AdditionalFee(val value: String?) {
+        None(null),
+        NotExempt("0"),
+        Exempt("1"),
+        ArtificialFertilization("2");
+
+        companion object {
+            fun valueOf(v: String?) =
+                values().find {
+                    it.value == v
+                } ?: None
+        }
+    }
+
     data class MedicationRequest(
         val medication: Medication? = null,
         val dateOfAccident: Instant? = null,
         val location: String? = null,
         val emergencyFee: Boolean? = null,
         val substitutionAllowed: Boolean,
-        val dosageInstruction: String? = null
+        val dosageInstruction: String? = null,
+        val multiplePrescriptionInfo: MultiplePrescriptionInfo,
+        val note: String?,
+        val bvg: Boolean? = null,
+        val additionalFee: AdditionalFee = AdditionalFee.valueOf(null)
+    )
+
+    data class MultiplePrescriptionInfo(
+        val indicator: Boolean = false,
+        val numbering: Ratio? = null,
+        val start: Instant? = null
     )
 
     data class MedicationDispense(
@@ -211,7 +271,8 @@ object SyncedTaskData {
     )
 
     data class Ratio(
-        val numerator: Quantity?
+        val numerator: Quantity?,
+        val denominator: Quantity?
     )
 
     data class Ingredient(
@@ -249,6 +310,7 @@ object SyncedTaskData {
         val normSizeCode: String?,
         val amount: Ratio?,
         val ingredients: List<Ingredient>
+
     ) : Medication
 
     data class MedicationCompounding(
@@ -262,6 +324,7 @@ object SyncedTaskData {
         val packaging: String?,
         val amount: Ratio?,
         val ingredients: List<Ingredient>
+
     ) : Medication
 
     data class MedicationPZN(

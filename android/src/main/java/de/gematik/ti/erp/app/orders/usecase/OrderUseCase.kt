@@ -78,7 +78,7 @@ class OrderUseCase(
         pharmacyName: String?
     ): OrderUseCaseData.Order {
         val taskIds = repository.taskIdsByOrder(communication.orderId).first()
-        val hasUnreadMessages = repository.hasUnreadMessages(taskIds).first()
+        val hasUnreadMessages = repository.hasUnreadMessages(taskIds, communication.orderId).first()
         val medicationNames = if (withMedicationNames) {
             taskIds.map {
                 repository.loadPrescriptionName(it).first() ?: ""

@@ -19,9 +19,8 @@
 package de.gematik.ti.erp.app.api
 
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import okhttp3.ResponseBody
+import kotlinx.serialization.json.JsonElement
 import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Communication
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -30,6 +29,8 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Tag
+
+annotation class UseJsonElementConverter
 
 interface ErpService {
 
@@ -55,6 +56,7 @@ interface ErpService {
      * @param lastKnownDate expects format like that ge2021-01-31T10:00 where ge stays for Greater or Equal. Null value will remove this query parameter
      * @param sort refers to the date attribute ASC
      */
+    @UseJsonElementConverter
     @GET("AuditEvent")
     suspend fun getAuditEvents(
         @Tag profileId: ProfileIdentifier,
@@ -62,15 +64,17 @@ interface ErpService {
         @Query("_sort") sort: String = "+date",
         @Query("_count") count: Int? = null,
         @Query("__offset") offset: Int? = null
-    ): Response<Bundle>
+    ): Response<JsonElement>
 
+    @UseJsonElementConverter
     @POST("Communication")
-    suspend fun communication(
+    suspend fun postCommunication(
         @Tag profileId: ProfileIdentifier,
-        @Body communication: Communication,
+        @Body communication: JsonElement,
         @Header("X-AccessCode") accessCode: String? = null
-    ): Response<ResponseBody>
+    ): Response<JsonElement>
 
+    @UseJsonElementConverter
     @GET("Communication")
     suspend fun getCommunications(
         @Tag profileId: ProfileIdentifier,
@@ -78,7 +82,7 @@ interface ErpService {
         @Query("_sort") sort: String = "+sent",
         @Query("_count") count: Int? = null,
         @Query("__offset") offset: Int? = null
-    ): Response<Bundle>
+    ): Response<JsonElement>
 
     @GET("MedicationDispense")
     suspend fun bundleOfMedicationDispenses(

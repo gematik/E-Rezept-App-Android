@@ -18,49 +18,32 @@
 
 package de.gematik.ti.erp.app.cardwall.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.focus.onFocusChanged
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.clearAndSetSemantics
-import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.VerbatimTtsAnnotation
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
@@ -87,7 +70,8 @@ fun CardAccessNumber(
 ) {
     val lazyListState = rememberLazyListState()
     CardHandlingScaffold(
-        modifier = Modifier.testTag("cardWall/cardAccessNumber"),
+        modifier = Modifier.testTag("cardWall/cardAccessNumber")
+            .systemBarsPadding(),
         backMode = NavigationBarMode.Back,
         title = screenTitle,
         nextEnabled = can.length == EXPECTED_CAN_LENGTH,
@@ -112,6 +96,7 @@ fun CardAccessNumber(
             item {
                 CanDescription(onClickLearnMore)
                 SpacerXXLarge()
+
                 CanInputField(
                     modifier = Modifier
                         .scrollOnFocus(),
@@ -173,83 +158,32 @@ fun CanInputField(
     onCanChange: (String) -> Unit,
     next: () -> Unit
 ) {
-    Column(modifier) {
-        val textValue = TextFieldValue(
-            annotatedString = buildAnnotatedString {
-                pushTtsAnnotation(VerbatimTtsAnnotation(can))
-                append(can)
-                pop()
-            },
-            selection = TextRange(can.length)
-        )
+    val canRegex = """^\d{0,6}$""".toRegex()
 
-        var isFocussed by remember { mutableStateOf(false) }
-        val canRegex = """^\d{0,6}$""".toRegex()
-
-        BasicTextField(
-            value = textValue,
-            onValueChange = {
-                if (it.text.matches(canRegex)) {
-                    onCanChange(it.text)
-                }
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.NumberPassword,
-                imeAction = ImeAction.Next
-            ),
-            keyboardActions = KeyboardActions(
-                onNext = {
-                    if (can.length == EXPECTED_CAN_LENGTH) {
-                        next()
-                    }
-                }
-            ),
-            singleLine = true,
-            modifier = Modifier
-                .testTag(TestTag.CardWall.CAN.CANField)
-                .fillMaxWidth()
-                .padding(start = PaddingDefaults.Large, bottom = PaddingDefaults.Small, end = PaddingDefaults.Large)
-                .onFocusChanged {
-                    isFocussed = it.isFocused
-                }
-        ) {
-            Box(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.align(Alignment.Center)
-                ) {
-                    val shape = RoundedCornerShape(8.dp)
-                    val backgroundColor = AppTheme.colors.neutral200
-                    val borderModifier = Modifier.border(
-                        BorderStroke(1.dp, color = AppTheme.colors.primary700),
-                        shape
-                    )
-
-                    repeat(EXPECTED_CAN_LENGTH) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp, 48.dp)
-                                .shadow(1.dp, shape)
-                                .then(if (can.length == it && isFocussed) borderModifier else Modifier)
-                                .background(
-                                    color = backgroundColor,
-                                    shape
-                                )
-                                .graphicsLayer {
-                                    clip = false
-                                }
-                        ) {
-                            Text(
-                                text = can.getOrNull(it)?.toString() ?: " ",
-                                style = AppTheme.typography.h6,
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .clearAndSetSemantics { }
-                            )
-                        }
-                    }
-                }
+    OutlinedTextField(
+        modifier = modifier.testTag(TestTag.CardWall.CAN.CANField).fillMaxWidth(),
+        value = can,
+        onValueChange = {
+            if (it.matches(canRegex)) {
+                onCanChange(it)
+            }
+        },
+        label = { Text(stringResource(R.string.can_input_field_label)) },
+        keyboardOptions = KeyboardOptions(
+            autoCorrect = false,
+            keyboardType = KeyboardType.NumberPassword,
+            imeAction = ImeAction.Next
+        ),
+        shape = RoundedCornerShape(8.dp),
+        colors = TextFieldDefaults.outlinedTextFieldColors(
+            unfocusedLabelColor = AppTheme.colors.neutral400,
+            placeholderColor = AppTheme.colors.neutral400,
+            trailingIconColor = AppTheme.colors.neutral400
+        ),
+        keyboardActions = KeyboardActions {
+            if (can.length == EXPECTED_CAN_LENGTH) {
+                next()
             }
         }
-    }
+    )
 }

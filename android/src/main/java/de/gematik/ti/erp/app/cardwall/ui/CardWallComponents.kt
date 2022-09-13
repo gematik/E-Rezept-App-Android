@@ -78,6 +78,7 @@ import androidx.navigation.navOptions
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
@@ -451,7 +452,8 @@ private fun AuthenticationSelection(
 
     val lazyListState = rememberLazyListState()
     CardHandlingScaffold(
-        modifier = Modifier.testTag("cardWall/authenticationSelection"),
+        modifier = Modifier.testTag("cardWall/authenticationSelection")
+            .systemBarsPadding(),
         title = stringResource(R.string.cdw_top_bar_title),
         nextEnabled = selectedAuthMode != CardWallData.AuthenticationMethod.None,
         onNext = onNext,

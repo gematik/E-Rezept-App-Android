@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.pharmacy.ui
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.OftenUsedPharmaciesUseCase
@@ -48,7 +47,6 @@ class PharmacySearchViewModelTest {
     private lateinit var viewModel: PharmacySearchViewModel
     private lateinit var useCase: PharmacySearchUseCase
     private lateinit var oftenUseCase: OftenUsedPharmaciesUseCase
-    private lateinit var hintUseCase: HintUseCase
     private lateinit var profileUseCase: ProfilesUseCase
 
     private val profile = ProfilesUseCaseData.Profile(
@@ -111,7 +109,6 @@ class PharmacySearchViewModelTest {
     @Before
     fun setUp() {
         useCase = mockk()
-        hintUseCase = mockk()
         profileUseCase = mockk()
         oftenUseCase = mockk()
         viewModel = PharmacySearchViewModel(

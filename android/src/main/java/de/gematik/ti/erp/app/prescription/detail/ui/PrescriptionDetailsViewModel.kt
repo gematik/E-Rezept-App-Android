@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.prescription.detail.ui
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
@@ -32,7 +32,7 @@ class PrescriptionDetailsViewModel(
     private val dispatchers: DispatchProvider
 ) : ViewModel(), DeletePrescriptionsBridge {
 
-    suspend fun screenState(taskId: String): Flow<UIPrescriptionDetail> =
+    suspend fun screenState(taskId: String): Flow<PrescriptionData.Prescription> =
         prescriptionUseCase.generatePrescriptionDetails(taskId)
 
     fun redeemScannedTask(taskId: String, redeem: Boolean) {

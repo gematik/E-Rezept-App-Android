@@ -63,7 +63,6 @@ import com.airbnb.lottie.compose.LottieCompositionSpec
 import com.airbnb.lottie.compose.LottieConstants
 import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
-import androidx.compose.foundation.layout.systemBarsPadding
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.R
@@ -169,8 +168,8 @@ fun NFCInstructionScreen(
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier
+                    .padding(it)
                     .fillMaxSize()
-                    .systemBarsPadding()
                     .semantics(mergeDescendants = true) {},
                 verticalArrangement = Arrangement.SpaceBetween
             ) {

@@ -32,7 +32,7 @@ object PrescriptionUseCaseData {
         abstract val redeemedOn: Instant?
 
         /**
-         *  Represents a single [Task] synchronized with the backend.
+         * Represents a single [Task] synchronized with the backend.
          */
         @Immutable
         data class Synced(
@@ -44,8 +44,16 @@ object PrescriptionUseCaseData {
             override val redeemedOn: Instant?,
             val expiresOn: Instant?,
             val acceptUntil: Instant?,
-            val isDirectAssignment: Boolean
+            val isDirectAssignment: Boolean,
+            val multiplePrescriptionState: MultiplePrescriptionState
         ) : Prescription()
+
+        data class MultiplePrescriptionState(
+            val isPartOfMultiplePrescription: Boolean = false,
+            val numerator: String? = null,
+            val denominator: String? = null,
+            val start: Instant? = null
+        )
 
         /**
          *  Represents a single [Task] scanned by the user.
@@ -56,5 +64,11 @@ object PrescriptionUseCaseData {
             val scannedOn: Instant,
             override val redeemedOn: Instant?
         ) : Prescription()
+
+        fun redeemedOrExpiredOn(): Instant =
+            when (this) {
+                is Scanned -> requireNotNull(redeemedOn) { "Scanned prescriptions require a redeemed timestamp" }
+                is Synced -> redeemedOn ?: expiresOn ?: authoredOn
+            }
     }
 }

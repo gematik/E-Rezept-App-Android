@@ -1,0 +1,870 @@
+{
+  "id": "7ee957aa-34d3-4013-9804-bd5634580da5",
+  "type": "searchset",
+  "timestamp": "2022-08-19T11:32:23.113+00:00",
+  "resourceType": "Bundle",
+  "total": 15,
+  "entry": [
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d02-199b-3080-fe9e-ef29caeda984",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.926.11"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"shipment\" , \"info_text\":\"11 Info\\/Para + HRcode\\/Para + DMC\\/noPara + URL\\/noPara\" , \"pickUpCodeHR\":\"T11__R03\" , \"pickUpCodeDMC\":\"\" , \"url\":\"\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T15:02:03.984+00:00",
+        "id": "01eb8d02-199b-3080-fe9e-ef29caeda984",
+        "received": "2022-07-06T15:03:39.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d02-0bba-b300-06b8-92fefaa88ee4",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.926.11"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\": \"1\", \"supplyOptionsType\": \"onPremise\", \"info_text\": \"\", \"pickUpCodeHR\": \"\" , \"url\": \"\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:58:11.168+00:00",
+        "id": "01eb8d02-0bba-b300-06b8-92fefaa88ee4",
+        "received": "2022-07-06T14:59:42.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-cbca-fe30-1686-c48e4e4c37d3",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.945.51"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"info_text\":\"\" , \"pickUpCodeHR\" : \"\" , \"pickUpCodeDMC\" : \"\" , \"url\": \"\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:40:18.494+00:00",
+        "id": "01eb8d01-cbca-fe30-1686-c48e4e4c37d3",
+        "received": "2022-07-06T14:40:39.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-9a8d-99b8-9277-24b66fb07635",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.926.11/$accept?ac=84520a0508b8ed6a07c86f71d9e4f24da2c1c314c69ce0e642cb7fe49c37842e"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+              "value": "3-TEST-TID"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "contentString": "{\"version\":\"1\",\"supplyOptionsType\":\"shipment\",\"name\":\"Prinzessin Lars Graf Freiherr von Schinder\",\"address\":[\"Siegburger Str. 155\",\"\",\"51105 Köln\"],\"hint\":\"\",\"phone\":\"01711111111\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "X110535768",
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10"
+          }
+        },
+        "sent": "2022-07-06T14:26:32.387+00:00",
+        "id": "01eb8d01-9a8d-99b8-9277-24b66fb07635"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-e974-77e0-4b92-36e9573c0ce9",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.933.87"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"info_text\":\"\" , \"pickUpCodeDMC\":\"Test_06___Rezept_02___abcdefg12345\" , \"url\":\"\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:48:36.140+00:00",
+        "id": "01eb8d01-e974-77e0-4b92-36e9573c0ce9",
+        "received": "2022-07-06T14:50:26.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-9741-2220-90e3-6ea2e74c9f84",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.945.51/$accept?ac=6f52c7ff158128b640249409585f1ef0476f46b0c8f72b564ebba4f2cadd3757"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+              "value": "3-TEST-TID"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "contentString": "{\"version\":\"1\",\"supplyOptionsType\":\"onPremise\",\"name\":\"Prinzessin Lars Graf Freiherr von Schinder\",\"address\":[\"Siegburger Str. 155\",\"\",\"51105 Köln\"],\"hint\":\"\",\"phone\":\"01711111111\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "X110535768",
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10"
+          }
+        },
+        "sent": "2022-07-06T14:25:37.044+00:00",
+        "id": "01eb8d01-9741-2220-90e3-6ea2e74c9f84"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d02-1e3c-08d0-04b7-50d050640566",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.926.11"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"shipment\" , \"info_text\":\"12 Info\\/Para + HRcode\\/noPara + noDMC\\/noPara + noURL\\/noPara\" , \"pickUpCodeHR\":\"\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T15:03:21.634+00:00",
+        "id": "01eb8d02-1e3c-08d0-04b7-50d050640566",
+        "received": "2022-07-06T15:03:39.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-fa80-fc48-c50a-391c122d6a64",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.933.87"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"pickUpCodeDMC\":\"Test_07___Rezept_02___abcdefg12345\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:53:22.173+00:00",
+        "id": "01eb8d01-fa80-fc48-c50a-391c122d6a64",
+        "received": "2022-07-06T14:56:23.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-ff62-b210-7825-a0abdd07fda3",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.933.87"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"info_text\":\"08 Info\\/Para + HRcode\\/noPara + DMC\\/noPara + noURL\\/noPara\" , \"pickUpCodeHR\":\"\" , \"pickUpCodeDMC\":\"\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:54:44.074+00:00",
+        "id": "01eb8d01-ff62-b210-7825-a0abdd07fda3",
+        "received": "2022-07-06T14:56:23.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-d0b9-69e0-a243-05f8969f051e",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.945.51"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"pickUpCodeHR\":\"T03__R01\" , \"pickUpCodeDMC\":\"Test_03___Rezept_01___abcdefg12345\" , \"url\":\"https:\\/\\/www.example.com\\/forest\\/33\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:41:41.228+00:00",
+        "id": "01eb8d01-d0b9-69e0-a243-05f8969f051e",
+        "received": "2022-07-06T14:43:01.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-e34a-a600-c001-ad607345bb8c",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.933.87"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"info_text\":\"05 Info\\/Para + HRcode\\/noPara + DMC\\/Para + URL\\/Para\",\"pickUpCodeHR\":\"\" , \"pickUpCodeDMC\":\"Test_05___Rezept_02___abcdefg12345\" , \"url\": \"https:\\/\\/www.example.com\\/forest\\/33\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:46:52.736+00:00",
+        "id": "01eb8d01-e34a-a600-c001-ad607345bb8c",
+        "received": "2022-07-06T14:47:19.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-98c7-1640-86b4-f6fc95dc6967",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.933.87/$accept?ac=a187c87b31facfcab692b459a89d13e0f6f646b41a11f945ac36439a6cdbe4f5"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+              "value": "3-TEST-TID"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "contentString": "{\"version\":\"1\",\"supplyOptionsType\":\"delivery\",\"name\":\"Prinzessin Lars Graf Freiherr von Schinder\",\"address\":[\"Siegburger Str. 155\",\"\",\"51105 Köln\"],\"hint\":\"\",\"phone\":\"01711111111\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "X110535768",
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10"
+          }
+        },
+        "sent": "2022-07-06T14:26:02.600+00:00",
+        "id": "01eb8d01-98c7-1640-86b4-f6fc95dc6967"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-de72-5a60-919a-0044a88ab115",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.945.51"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"info_text\":\"04 Info_Para + HRcode_Para + DMC_noPara + URL_Para\" , \"pickUpCodeHR\":\"T04__R01\" , \"pickUpCodeDMC\":\"\" , \"url\": \"https:\\/\\/www.example.com\\/forest\\/33\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:45:31.452+00:00",
+        "id": "01eb8d01-de72-5a60-919a-0044a88ab115",
+        "received": "2022-07-06T14:45:47.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d02-11dc-6aa8-07aa-e59288b6a24f",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.926.11"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"shipment\" , \"info_text\":\"10 Info\\/Para + HRcode\\/Para + DMC\\/Para + URL\\/Para\" , \"pickUpCodeHR\":\"T10__R03\" , \"pickUpCodeDMC\":\"Test_10___Rezept_03___abcdefg12345\" , \"url\":\"https:\\/\\/www.example.com\\/forest\\/33\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:59:54.041+00:00",
+        "id": "01eb8d02-11dc-6aa8-07aa-e59288b6a24f",
+        "received": "2022-07-06T15:00:15.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://www.example.com/Communication/01eb8d01-c585-3040-c1f1-d749d8e62add",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply|1.1.1"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.000.030.945.51"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+              "value": "X110535768"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/StructureDefinition/SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": true
+                  }
+                ]
+              }
+            ],
+            "contentString": "{\"version\":\"1\" , \"supplyOptionsType\":\"onPremise\" , \"info_text\":\"01 Info\\/Para + HRcode\\/Para + DMC\\/Para + URL\\/Para\" , \"pickUpCodeHR\":\"T01__R01\" , \"pickUpCodeDMC\":\"Test_01___Rezept_01___abcdefg12345\" , \"url\":\"https:\\/\\/www.example.com\\/forest\\/33\"}"
+          }
+        ],
+        "sender": {
+          "identifier": {
+            "value": "3-TEST-TID",
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID"
+          }
+        },
+        "sent": "2022-07-06T14:38:33.256+00:00",
+        "id": "01eb8d01-c585-3040-c1f1-d749d8e62add",
+        "received": "2022-07-06T14:40:39.000+00:00"
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ],
+  "link": [
+    {
+      "relation": "self",
+      "url": "https://www.example.com/Communication"
+    }
+  ]
+}

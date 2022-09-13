@@ -259,7 +259,6 @@ fun DebugScreen(
                 visibleDebugTree = instance(),
                 endpointHelper = instance(),
                 cardWallUseCase = instance(),
-                hintUseCase = instance(),
                 prescriptionUseCase = instance(),
                 vauRepository = instance(),
                 idpRepository = instance(),
@@ -491,11 +490,6 @@ fun DebugScreenMain(
                         ) {
                             Text(text = "Trigger Prescription Refresh")
                         }
-                        TextWithResetButtonComponent(
-                            label = "UI Hints",
-                            onClick = { viewModel.resetHints() },
-                            active = false
-                        )
                     }
                 }
                 item {

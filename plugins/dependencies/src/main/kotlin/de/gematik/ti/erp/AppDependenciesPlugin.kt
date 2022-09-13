@@ -166,7 +166,7 @@ class AppDependenciesPlugin : Plugin<Project> {
         object Database {
             const val sqlCipher = "net.zetetic:android-database-sqlcipher:4.5.0"
             fun room(target: String) = "androidx.room:room-$target:2.4.1"
-            const val realm = "io.realm.kotlin:library-base:1.0.1"
+            const val realm = "io.realm.kotlin:library-base:1.0.2"
             object Test {
                 val roomTesting = room("testing")
             }

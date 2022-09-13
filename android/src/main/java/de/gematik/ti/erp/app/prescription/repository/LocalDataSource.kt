@@ -30,6 +30,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationCategoryV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationProfileV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
@@ -42,6 +43,8 @@ import de.gematik.ti.erp.app.db.queryFirst
 import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.tryWrite
+import de.gematik.ti.erp.app.fhir.model.CommunicationProfile
+import de.gematik.ti.erp.app.fhir.model.extractCommunications
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -50,11 +53,13 @@ import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.ext.toRealmList
+import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.json.JsonElement
 import org.hl7.fhir.r4.model.Address
 import org.hl7.fhir.r4.model.BooleanType
 import org.hl7.fhir.r4.model.Bundle
@@ -103,7 +108,7 @@ class LocalDataSource(
         val lastModified: Instant
     )
 
-    val mutex = Mutex()
+    private val mutex = Mutex()
 
     suspend fun saveTask(profileId: ProfileIdentifier, bundle: Bundle): SaveTaskResult? = mutex.withLock {
         val task = bundle.extractResources<FhirTask>().first()
@@ -196,22 +201,37 @@ class LocalDataSource(
                 scannedTask.obj?.toScannedTask()
             }
 
-    suspend fun saveCommunications(communications: List<FhirCommunication>) {
-        realm.tryWrite<Unit> {
-            communications.forEach { communication ->
-                val taskId = communication.basedOn[0].reference.split("/")[1]
-                val communicationAlreadyExists =
-                    query<CommunicationEntityV1>("communicationId = $0", communication.idElement.idPart).count()
-                        .find() > 0
-                if (!communicationAlreadyExists) {
+    suspend fun saveCommunications(communications: JsonElement): Int =
+        realm.tryWrite {
+            val totalCommunicationsInBundle =
+                extractCommunications(communications) {
+                        taskId, communicationId, orderId, profile, sentOn, sender, recipient, payload ->
+
+                    val entity = CommunicationEntityV1().apply {
+                        this.profile = when (profile) {
+                            CommunicationProfile.ErxCommunicationDispReq ->
+                                CommunicationProfileV1.ErxCommunicationDispReq
+                            CommunicationProfile.ErxCommunicationReply ->
+                                CommunicationProfileV1.ErxCommunicationReply
+                        }
+                        this.taskId = taskId
+                        this.communicationId = communicationId
+                        this.orderId = orderId ?: ""
+                        this.sentOn = sentOn.toRealmInstant()
+                        this.sender = sender
+                        this.recipient = recipient
+                        this.payload = payload
+                        this.consumed = false
+                    }
+
                     queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)?.let { syncedTask ->
-                        syncedTask.communications +=
-                            copyToRealm(communication.toCommunicationEntityV1(syncedTask))
+                        entity.parent = syncedTask
+                        syncedTask.communications += copyToRealm(entity)
                     }
                 }
-            }
+
+            totalCommunicationsInBundle
         }
-    }
 
     suspend fun saveMedicationDispense(taskId: String, bundle: MedicationDispense) {
         realm.tryWrite<Unit> {
@@ -347,7 +367,6 @@ fun FhirRatio.toRatioEntityV1() =
         this.numerator = this@toRatioEntityV1.numerator?.toQuantityEntityV1()
         this.denominator = this@toRatioEntityV1.denominator?.toQuantityEntityV1()
     }
-
 fun FhirQuantity.toQuantityEntityV1() =
     QuantityEntityV1().apply {
         this.value = this@toQuantityEntityV1.value?.toString() ?: ""
@@ -361,6 +380,7 @@ fun FhirMedication.toMedicationEntityV1() =
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN" -> MedicationProfileV1.PZN
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding" ->
                 MedicationProfileV1.COMPOUNDING
+
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient" -> MedicationProfileV1.INGREDIENT
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText" -> MedicationProfileV1.FREETEXT
             else -> error("empty medication profile")
@@ -444,6 +464,16 @@ fun FhirMedicationRequest.toMedicationRequestEntityV1(medication: MedicationEnti
         this.substitutionAllowed =
             this@toMedicationRequestEntityV1.substitution.allowedBooleanType.booleanValue()
         this.dosageInstruction = this@toMedicationRequestEntityV1.extractDosageInstructions()
+        this.note = this@toMedicationRequestEntityV1.note.firstOrNull()?.text
+        this.multiplePrescriptionInfo = this@toMedicationRequestEntityV1.extractMultiplePrescriptionInfo()
+        this.bvg = this@toMedicationRequestEntityV1
+            .getValueExtensionByUrl<BooleanType, Boolean>(
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG"
+            ) ?: false
+        this.additionalFee =
+            this@toMedicationRequestEntityV1.getCodeValueExtensionByUrl(
+                "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment"
+            )
     }
 
 fun FhirCommunication.toCommunicationEntityV1(parent: SyncedTaskEntityV1) =
@@ -453,10 +483,12 @@ fun FhirCommunication.toCommunicationEntityV1(parent: SyncedTaskEntityV1) =
                 "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
             ) ->
                 CommunicationProfileV1.ErxCommunicationDispReq
+
             this@toCommunicationEntityV1.isProfile(
                 "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply"
             ) ->
                 CommunicationProfileV1.ErxCommunicationReply
+
             else -> CommunicationProfileV1.Unknown // we can't handle other profiles currently
         }
         this.taskId = this@toCommunicationEntityV1.basedOn[0].reference.split("/")[1]
@@ -489,6 +521,35 @@ fun MedicationRequest.extractDosageInstructions(): String? {
         return this.dosageInstruction?.first()?.text ?: ""
     }
     return null
+}
+
+fun MedicationRequest.extractMultiplePrescriptionInfo(): MultiplePrescriptionInfoEntityV1 {
+    val multiplePrescriptionInfo =
+        getExtensionByUrl(
+            "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"
+        )
+
+    val indicator = multiplePrescriptionInfo
+        .getValueExtensionByUrl<BooleanType, Boolean>("Kennzeichen") ?: false
+
+    return if (indicator) {
+        val numbering = multiplePrescriptionInfo?.getExtensionByUrl("Nummerierung")?.value
+        require(numbering is FhirRatio)
+        val period = multiplePrescriptionInfo.getExtensionByUrl("Zeitraum")?.value
+        require(period is FhirPeriod)
+
+        MultiplePrescriptionInfoEntityV1(
+            indicator = indicator,
+            numbering = numbering.toRatioEntityV1(),
+            start = period.start?.toInstant()?.toRealmInstant()
+        )
+    } else {
+        MultiplePrescriptionInfoEntityV1(
+            indicator = indicator,
+            numbering = null,
+            start = null
+        )
+    }
 }
 
 inline fun <reified T : PrimitiveType<R>, R> FhirElement.getValueExtensionByUrl(url: String): R? =
@@ -579,7 +640,29 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
             location = this.medicationRequest?.location,
             emergencyFee = this.medicationRequest?.emergencyFee,
             substitutionAllowed = this.medicationRequest?.substitutionAllowed ?: false,
-            dosageInstruction = this.medicationRequest?.dosageInstruction
+            dosageInstruction = this.medicationRequest?.dosageInstruction,
+            multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(
+                indicator = this.medicationRequest?.multiplePrescriptionInfo?.indicator ?: false,
+                numbering = SyncedTaskData.Ratio(
+                    numerator = SyncedTaskData.Quantity(
+                        value = this.medicationRequest?.multiplePrescriptionInfo?.numbering?.numerator?.value ?: "",
+                        unit = ""
+                    ),
+                    denominator = SyncedTaskData.Quantity(
+                        value = this.medicationRequest?.multiplePrescriptionInfo?.numbering?.denominator?.value ?: "",
+                        unit = ""
+                    )
+                ),
+                start = this.medicationRequest?.multiplePrescriptionInfo?.start?.toInstant()
+            ),
+            additionalFee = when (this.medicationRequest?.additionalFee) {
+                "0" -> SyncedTaskData.AdditionalFee.NotExempt
+                "1" -> SyncedTaskData.AdditionalFee.Exempt
+                "2" -> SyncedTaskData.AdditionalFee.ArtificialFertilization
+                else -> SyncedTaskData.AdditionalFee.None
+            },
+            note = this.medicationRequest?.note,
+            bvg = this.medicationRequest?.bvg
         ),
         medicationDispenses = this.medicationDispenses.map { medicationDispense ->
             SyncedTaskData.MedicationDispense(
@@ -635,6 +718,7 @@ private fun MedicationEntityV1?.toMedication(): SyncedTaskData.Medication? =
             amount = this.amount.toRatio(),
             ingredients = this.ingredients.toIngredients()
         )
+
         MedicationProfileV1.FREETEXT -> SyncedTaskData.MedicationFreeText(
             category = this.medicationCategory.toMedicationCategory(),
             vaccine = this.vaccine,
@@ -643,12 +727,19 @@ private fun MedicationEntityV1?.toMedication(): SyncedTaskData.Medication? =
             lotNumber = this.lotNumber,
             expirationDate = this.expirationDate?.toInstant()
         )
+
         else -> null
     }
 
 private fun RatioEntityV1?.toRatio(): SyncedTaskData.Ratio? = this?.let {
     SyncedTaskData.Ratio(
         numerator = it.numerator?.let { quantity ->
+            SyncedTaskData.Quantity(
+                value = quantity.value,
+                unit = quantity.unit
+            )
+        },
+        denominator = it.denominator?.let { quantity ->
             SyncedTaskData.Quantity(
                 value = quantity.value,
                 unit = quantity.unit
@@ -686,8 +777,10 @@ fun CommunicationEntityV1.toCommunication() =
             profile = when (this.profile) {
                 CommunicationProfileV1.ErxCommunicationDispReq ->
                     SyncedTaskData.CommunicationProfile.ErxCommunicationDispReq
+
                 CommunicationProfileV1.ErxCommunicationReply ->
                     SyncedTaskData.CommunicationProfile.ErxCommunicationReply
+
                 else -> error("should not happen")
             },
             sentOn = this.sentOn.toInstant(),

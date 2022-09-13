@@ -55,6 +55,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -62,6 +63,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -113,7 +115,8 @@ import java.time.format.FormatStyle
 
 @Composable
 fun OrderScreen(
-    mainNavController: NavController
+    mainNavController: NavController,
+    onElevateTopBar: (Boolean) -> Unit
 ) {
     val profileHandler = LocalProfileHandler.current
 
@@ -145,7 +148,8 @@ fun OrderScreen(
             },
             onClickRefresh = {
                 onRefresh(true, MutatePriority.UserInput)
-            }
+            },
+            onElevateTopBar = onElevateTopBar
         )
     }
 }
@@ -331,13 +335,26 @@ fun rememberOrderState(
 private fun Orders(
     profileHandler: ProfileHandler,
     onClickOrder: (orderId: String) -> Unit,
-    onClickRefresh: () -> Unit
+    onClickRefresh: () -> Unit,
+    onElevateTopBar: (Boolean) -> Unit
 ) {
+    val listState = rememberLazyListState()
     val activeProfile = profileHandler.activeProfile
     val orderState = rememberOrderState(activeProfile.id)
     val orders by orderState.orders
 
-    LazyColumn(Modifier.fillMaxSize()) {
+    LaunchedEffect(Unit) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        }.collect {
+            onElevateTopBar(it)
+        }
+    }
+
+    LazyColumn(
+        modifier = Modifier.fillMaxSize(),
+        state = listState
+    ) {
         when (orderState.state) {
             OrderState.States.LoadingOrders -> {
                 // keep empty

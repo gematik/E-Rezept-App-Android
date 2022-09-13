@@ -26,7 +26,6 @@ import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.attestation.attestationModule
 import de.gematik.ti.erp.app.cardunlock.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
-import de.gematik.ti.erp.app.common.usecase.HintUseCase
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.orders.messagesModule
@@ -78,7 +77,6 @@ val allModules = DI.Module("allModules") {
 
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }
 
-    bindSingleton { HintUseCase(instance(ApplicationPreferencesTag)) }
     bindSingleton { FeatureToggleManager(instance()) }
 
     bindSingleton { Analytics(instance()) }

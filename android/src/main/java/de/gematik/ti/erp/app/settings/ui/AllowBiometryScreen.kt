@@ -48,7 +48,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -64,7 +64,7 @@ fun AllowBiometryScreen(
     val lazyListState = rememberLazyListState()
 
     AnimatedElevationScaffold(
-        modifier = Modifier.imePadding(),
+        modifier = Modifier.navigationBarsPadding(),
         navigationMode = NavigationBarMode.Close,
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {

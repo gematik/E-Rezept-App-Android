@@ -25,7 +25,6 @@ import kotlinx.serialization.Serializable
 import de.gematik.ti.erp.app.AppNavTypes
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -36,17 +35,7 @@ object MainNavigationScreens {
     object Onboarding : Route("Onboarding")
     object ReturningUserSecureAppOnboarding : Route("ReturningUserSecureAppOnboarding")
     object Biometry : Route("Biometry")
-    object Settings : Route(
-        "Settings",
-        navArgument("scrollToSection") {
-            type = NavType.EnumType(SettingsScrollTo::class.java)
-            defaultValue = SettingsScrollTo.None
-        }
-    ) {
-        fun path(scrollToSection: SettingsScrollTo = SettingsScrollTo.None) =
-            path("scrollToSection" to scrollToSection)
-    }
-
+    object Settings : Route("Settings")
     object Camera : Route("Camera")
     object Prescriptions : Route("Prescriptions")
     object PrescriptionDetail :
@@ -96,6 +85,18 @@ object MainNavigationScreens {
     object EditProfile :
         Route("EditProfile", navArgument("profileId") { type = NavType.StringType }) {
         fun path(profileId: String) = path("profileId" to profileId)
+    }
+    object Terms : Route("Terms")
+    object Imprint : Route("Imprint")
+    object OpenSourceLicences : Route("OpenSourceLicences")
+    object AdditionalLicences : Route("AdditionalLicences")
+    object AllowAnalytics : Route("AcceptAnalytics")
+    object Password : Route("Password")
+    object Debug : Route("Debug")
+    object OrderHealthCard : Route("OrderHealthCard")
+
+    object UnlockEgk : Route("UnlockEgk", navArgument("changeSecret") { type = NavType.BoolType }) {
+        fun path(changeSecret: Boolean) = path("changeSecret" to changeSecret)
     }
 }
 
