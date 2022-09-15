@@ -1,0 +1,3469 @@
+{
+  "id": "a5d77962-f2c7-4635-8283-b6723af94aab",
+  "type": "searchset",
+  "timestamp": "2022-01-24T18:49:04.350+00:00",
+  "resourceType": "Bundle",
+  "total": 50,
+  "entry": [
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb71e5-9c65-d160-8da8-96280c2965ec",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb71e5-9c65-d160-8da8-96280c2965ec",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-07-26T14:42:30.300+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb71e5-79ec-7850-ebc4-dcd6e9537a24",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb71e5-79ec-7850-ebc4-dcd6e9537a24",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-07-26T14:32:51.922+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb71e4-4ece-09a0-2915-6b4f9dce6eba",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb71e4-4ece-09a0-2915-6b4f9dce6eba",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-07-26T13:09:13.540+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb71e4-2c27-9d80-c5f2-19adc084d3f7",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb71e4-2c27-9d80-c5f2-19adc084d3f7",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-07-26T12:59:32.208+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7339-2832-3040-7d2d-fd6cd3fa9543",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7339-2832-3040-7d2d-fd6cd3fa9543",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-08-12T11:48:09.640+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb733b-3143-77f0-4c55-1b7ff24201f9",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb733b-3143-77f0-4c55-1b7ff24201f9",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-08-12T14:13:51.702+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb733b-3af4-d668-d75b-e5af253e8b71",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb733b-3af4-d668-d75b-e5af253e8b71",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-08-12T14:16:34.321+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb733b-3c24-6170-3b74-44a128ee1091",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb733b-3c24-6170-3b74-44a128ee1091",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-08-12T14:16:54.214+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb733b-3d72-b360-00ab-dcf5b015ed49",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb733b-3d72-b360-00ab-dcf5b015ed49",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-08-12T14:17:16.124+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb733b-50c6-2640-7480-0f609be12a4e",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb733b-50c6-2640-7480-0f609be12a4e",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-08-12T14:22:40.360+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-60c1-6de8-0b88-137548766d22",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-60c1-6de8-0b88-137548766d22",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T17:38:10.241+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-79ee-c5b8-4f12-35fc71da0d59",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-79ee-c5b8-4f12-35fc71da0d59",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T17:45:12.643+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-7b65-b230-93bc-b8bce91b9d15",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-7b65-b230-93bc-b8bce91b9d15",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T17:45:37.214+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-7b65-7b80-6aac-60a1f276b0dc",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-7b65-7b80-6aac-60a1f276b0dc",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T17:45:37.200+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-8311-1ee8-340a-0f85bfb320e0",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-8311-1ee8-340a-0f85bfb320e0",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T17:47:45.889+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-9da1-b038-56b7-29256cd08de7",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-9da1-b038-56b7-29256cd08de7",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T17:55:11.571+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-f52d-dfc0-2d7c-0437ed846050",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-f52d-dfc0-2d7c-0437ed846050",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T18:19:40.376+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74d0-f52e-c250-6ccf-f366fdec8c92",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74d0-f52e-c250-6ccf-f366fdec8c92",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-01T18:19:40.434+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7702-e9b7-7758-161e-156ec97f4c8c",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7702-e9b7-7758-161e-156ec97f4c8c",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-29T16:45:59.687+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7702-e9b8-d6e8-71fe-ee93f0493f0d",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7702-e9b8-d6e8-71fe-ee93f0493f0d",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-29T16:45:59.777+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74df-6d1f-02d0-f386-fbd9277f61b6",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74df-6d1f-02d0-f386-fbd9277f61b6",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T11:35:22.210+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e2-f1f6-46a0-602b-d4671b49a7c5",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e2-f1f6-46a0-602b-d4671b49a7c5",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T15:47:15.812+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e2-f856-62f0-a28d-360f8309d724",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e2-f856-62f0-a28d-360f8309d724",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T15:49:02.774+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e3-013f-1e20-b262-c8c6b8361230",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e3-013f-1e20-b262-c8c6b8361230",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T15:51:32.244+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e3-85fb-fbb0-fe39-df0226aaf74d",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e3-85fb-fbb0-fe39-df0226aaf74d",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T16:28:39.214+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e3-95f5-3770-3239-aacbe81a6ef5",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e3-95f5-3770-3239-aacbe81a6ef5",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T16:33:07.206+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e3-98a1-7f38-760e-be25c1879dd7",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e3-98a1-7f38-760e-be25c1879dd7",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T16:33:52.051+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e3-b164-70c0-06d0-903eb6be9bfd",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e3-b164-70c0-06d0-903eb6be9bfd",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T16:40:47.480+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb74e3-bbbb-98a0-0784-9ae97d8437f6",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb74e3-bbbb-98a0-0784-9ae97d8437f6",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-09-02T16:43:40.964+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78ce-8acd-f2a8-da68-a66fe32d9280",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78ce-8acd-f2a8-da68-a66fe32d9280",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T13:07:32.281+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78cf-25e7-a6d0-6872-f8a2b4761159",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78cf-25e7-a6d0-6872-f8a2b4761159",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine ListeI/okhttp.OkHttpClient:  von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T13:50:54.434+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78cf-2bfb-1e08-e1a0-cb27e95d7db5",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78cf-2bfb-1e08-e1a0-cb27e95d7db5",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T13:52:36.373+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78cf-2d5a-67b8-6a78-260a784c2192",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78cf-2d5a-67b8-6a78-260a784c2192",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T13:52:59.395+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78cf-f3bd-3d68-8283-d296cc9b28f6",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78cf-f3bd-3d68-8283-d296cc9b28f6",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T14:48:27.761+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78cf-f46f-fb38-143f-b79508b807d3",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78cf-f46f-fb38-143f-b79508b807d3",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T14:48:39.475+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78cf-f781-7158-8226-827328013360",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78cf-f781-7158-8226-827328013360",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T14:49:30.951+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb78d0-1b36-9628-78c6-9eee1cfe91b2",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb78d0-1b36-9628-78c6-9eee1cfe91b2",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-22T14:59:30.025+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb790b-289f-78a8-a946-f094b429c61e",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb790b-289f-78a8-a946-f094b429c61e",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-25T13:26:38.073+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb790b-2d2c-b188-b921-b13f8e11cc92",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb790b-2d2c-b188-b921-b13f8e11cc92",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-25T13:27:54.437+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb790b-2d2f-d638-3287-395ede077750",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb790b-2d2f-d638-3287-395ede077750",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-25T13:27:54.643+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb790b-2d30-62d8-2719-1f5de567c477",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb790b-2d30-62d8-2719-1f5de567c477",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-10-25T13:27:54.679+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7a28-2d91-a3e0-6d95-a3dbab59fc9c",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7a28-2d91-a3e0-6d95-a3dbab59fc9c",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-11-08T17:29:06.732+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7a28-2da0-6538-feef-b8b644ac31e9",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7a28-2da0-6538-feef-b8b644ac31e9",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-11-08T17:29:07.699+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7b7d-a162-4ad0-afa8-c06c84b217fd",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7b7d-a162-4ad0-afa8-c06c84b217fd",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-11-25T16:51:13.634+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7b7d-a162-cfa0-5627-0e5092fa0e30",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7b7d-a162-cfa0-5627-0e5092fa0e30",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-11-25T16:51:13.668+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7be0-57ef-b4b0-143c-4e1c79c01f31",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7be0-57ef-b4b0-143c-4e1c79c01f31",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-11-30T14:37:23.150+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7be0-57fe-6668-232e-f9153eb00a49",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7be0-57fe-6668-232e-f9153eb00a49",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-11-30T14:37:24.113+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7bfa-f883-a2c8-61cc-df047eb8fe5a",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7bfa-f883-a2c8-61cc-df047eb8fe5a",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-12-01T22:23:26.349+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7bfa-f882-5e90-ff48-fefce40fd953",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7bfa-f882-5e90-ff48-fefce40fd953",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste von E-Rezepten heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2021-12-01T22:23:26.266+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "Task"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://erp.example/AuditEvent/01eb7ecc-9fd8-f0b8-7951-749954de2165",
+      "resource": {
+        "resourceType": "AuditEvent",
+        "id": "01eb7ecc-9fd8-f0b8-7951-749954de2165",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent|1.1.1"
+          ]
+        },
+        "text": {
+          "status": "generated",
+          "div": "<div xmlns=\"http://www.w3.org/1999/xhtml\">Annika Maria Tanja Schölz hat eine Liste mit Medikament-Informationen heruntergeladen.</div>"
+        },
+        "language": "de",
+        "type": {
+          "system": "http://terminology.hl7.org/CodeSystem/audit-event-type",
+          "code": "rest"
+        },
+        "subtype": [
+          {
+            "system": "http://hl7.org/fhir/restful-interaction",
+            "code": "read"
+          }
+        ],
+        "action": "R",
+        "recorded": "2022-01-06T19:21:25.155+00:00",
+        "outcome": "0",
+        "agent": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/extra-security-role-type",
+                  "code": "humanuser",
+                  "display": "Human User"
+                }
+              ]
+            },
+            "name": "Annika Maria Tanja Schölz",
+            "requestor": false,
+            "who": {
+              "identifier": {
+                "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+                "value": "X110498793"
+              }
+            }
+          }
+        ],
+        "source": {
+          "site": "E-Rezept Fachdienst",
+          "observer": {
+            "reference": "Device/1"
+          }
+        },
+        "entity": [
+          {
+            "what": {
+              "reference": "MedicationDispense"
+            },
+            "name": "X110498793",
+            "description": "+"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ],
+  "link": [
+    {
+      "relation": "next",
+      "url": "https://erp.example/AuditEvent?date=gt1970-01-01T00:00:00+00:00&_count=50&__offset=50"
+    },
+    {
+      "relation": "self",
+      "url": "https://erp.example/AuditEvent?date=gt1970-01-01T00:00:00+00:00"
+    }
+  ]
+}

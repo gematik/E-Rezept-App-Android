@@ -1,0 +1,104 @@
+{
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/StructureDefinition/ErxMedicationDispense"
+          ]
+        },
+        "contained": [
+          {
+            "resourceType": "Medication",
+            "id": "med0314",
+            "meta": {
+              "profile": [
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.1"
+              ]
+            },
+            "extension": [
+              {
+                "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+                "valueCoding": {
+                  "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+                  "code": "00"
+                }
+              },
+              {
+                "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+                "valueBoolean": false
+              },
+              {
+                "url": "http://fhir.de/StructureDefinition/normgroesse",
+                "valueCode": "N1"
+              }
+            ],
+            "code": {
+              "coding": [
+                {
+                  "system": "http://fhir.de/CodeSystem/ifa/pzn",
+                  "code": "06313728"
+                }
+              ],
+              "text": "Sumatriptan-1a Pharma 100 mg Tabletten"
+            },
+            "form": {
+              "coding": [
+                {
+                  "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+                  "code": "TAB"
+                }
+              ]
+            },
+            "amount": {
+              "numerator": {
+                "value": 12,
+                "unit": "{tbl}",
+                "system": "http://unitsofmeasure.org"
+              },
+              "denominator": {
+                "value": 1
+              }
+            }
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+            "value": "12345678"
+          }
+        ],
+        "status": "completed",
+        "medicationReference": {
+          "reference": "#med0314",
+          "display": "Sumatriptan-1a Pharma 100 mg Tabletten"
+        },
+        "subject": {
+          "identifier": {
+            "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+            "value": "X234567890"
+          }
+        },
+        "performer": [
+          {
+            "actor": {
+              "identifier": {
+                "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+                "value": "606358757"
+              }
+            }
+          }
+        ],
+        "whenHandedOver": "2020-03-20T07:13:00+05:00",
+        "dosageInstruction": [
+          {
+            "text": "1-0-1-0"
+          }
+        ]
+      }
+    }
+  ]
+}
