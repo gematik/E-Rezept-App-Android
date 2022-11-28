@@ -20,35 +20,32 @@ package de.gematik.ti.erp.app.settings.usecase
 
 import android.app.KeyguardManager
 import android.content.Context
-import android.content.SharedPreferences
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
-import de.gematik.ti.erp.app.di.ApplicationPreferences
+import de.gematik.ti.erp.app.profiles.usecase.sanitizedProfileName
+import de.gematik.ti.erp.app.settings.GeneralSettings
+import de.gematik.ti.erp.app.settings.PharmacySettings
+import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.model.SettingsData.General
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
-import de.gematik.ti.erp.app.settings.ui.NEW_USER
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.LocalDate
-import javax.inject.Inject
 
 const val DEFAULT_PROFILE_NAME = ""
-val DATA_PROTECTION_LAST_UPDATED: LocalDate = LocalDate.parse(BuildKonfig.DATA_PROTECTION_LAST_UPDATED)
+val DATA_PROTECTION_LAST_UPDATED: Instant =
+    LocalDate.parse(BuildKonfig.DATA_PROTECTION_LAST_UPDATED).atStartOfDay().toInstant(ZoneOffset.UTC)
 
-class SettingsUseCase @Inject constructor(
-    @ApplicationContext
+class SettingsUseCase(
     private val context: Context,
-    private val settingsRepository: SettingsRepository,
-    @ApplicationPreferences
-    private val appPrefs: SharedPreferences,
-) {
-    val settings = settingsRepository.settings()
+    private val settingsRepository: SettingsRepository
+) : GeneralSettings by settingsRepository,
+    PharmacySettings by settingsRepository {
 
-    val zoomEnabled =
-        settings.map { it.zoomEnabled }
-
+    // tag::ShowInsecureDevicePrompt[]
     val showInsecureDevicePrompt =
-        settings.map {
+        settingsRepository.general.map {
             val deviceSecured =
                 (context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager).isDeviceSecure
 
@@ -58,75 +55,27 @@ class SettingsUseCase @Inject constructor(
                 false
             }
         }
+    // end::ShowInsecureDevicePrompt[]
 
-    val authenticationMethod =
-        settings.map { it.authenticationMethod }
-
-    // TODO move to database
-    var isNewUser: Boolean
-        get() = appPrefs.getBoolean(NEW_USER, true)
-        set(v) {
-            appPrefs.edit().putBoolean(NEW_USER, v).apply()
-        }
+    val showOnboarding = settingsRepository.general.map { it.onboardingShownIn == null }
+    val showWelcomeDrawer = settingsRepository.general.map { !it.welcomeDrawerShown }
 
     var showDataTermsUpdate: Flow<Boolean> =
-        settings.map {
-            it.dataProtectionVersionAccepted < DATA_PROTECTION_LAST_UPDATED
-        }
+        settingsRepository.general.map { it.dataProtectionVersionAcceptedOn < DATA_PROTECTION_LAST_UPDATED }
 
-    val pharmacySearch =
-        settings.map { it.pharmacySearch }
+    suspend fun welcomeDrawerShown() {
+        settingsRepository.saveWelcomeDrawerShown()
+    }
+    override val general: Flow<General>
+        get() = settingsRepository.general
 
-    suspend fun savePharmacySearch(
-        name: String,
-        locationEnabled: Boolean,
-        filterReady: Boolean,
-        filterDeliveryService: Boolean,
-        filterOnlineService: Boolean,
-        filterOpenNow: Boolean
+    suspend fun onboardingSucceeded(
+        authenticationMode: SettingsData.AuthenticationMode,
+        defaultProfileName: String,
+        now: Instant = Instant.now()
     ) {
-        settingsRepository.savePharmacySearch(
-            name = name,
-            locationEnabled = locationEnabled,
-            filterReady = filterReady,
-            filterDeliveryService = filterDeliveryService,
-            filterOnlineService = filterOnlineService,
-            filterOpenNow = filterOpenNow
-        )
-    }
-
-    suspend fun saveAuthenticationMethod(authenticationMethod: SettingsAuthenticationMethod) {
-        settingsRepository.saveAuthenticationMethod(authenticationMethod)
-    }
-
-    suspend fun savePasswordAsAuthenticationMethod(password: String) {
-        settingsRepository.savePasswordAsAuthenticationMethod(password)
-    }
-
-    suspend fun saveZoomPreference(enabled: Boolean) {
-        settingsRepository.saveZoomPreference(enabled)
-    }
-
-    suspend fun incrementNumberOfAuthenticationFailures() =
-        settingsRepository.incrementNumberOfAuthenticationFailures()
-
-    suspend fun resetNumberOfAuthenticationFailures() =
-        settingsRepository.resetNumberOfAuthenticationFailures()
-
-    suspend fun acceptInsecureDevice() =
-        settingsRepository.acceptInsecureDevice()
-
-    suspend fun isPasswordValid(password: String): Boolean {
-        return settingsRepository.loadPassword()?.let {
-            settingsRepository.hashPasswordWithSalt(password, it.salt).contentEquals(it.hash)
-        } ?: false
-    }
-
-    suspend fun updatedDataTermsAccepted(date: LocalDate) {
-        settingsRepository.updatedDataTermsAccepted(date)
-    }
-
-    fun dataProtectionVersionAccepted(): Flow<LocalDate> = settings.map {
-        it.dataProtectionVersionAccepted
+        sanitizedProfileName(defaultProfileName)?.also { name ->
+            settingsRepository.saveOnboardingSucceededData(authenticationMode, name, now)
+        }
     }
 }

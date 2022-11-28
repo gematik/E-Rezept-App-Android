@@ -31,17 +31,15 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
+import androidx.compose.foundation.layout.statusBarsPadding
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.settings.usecase.DATA_PROTECTION_LAST_UPDATED
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.Spacer16
@@ -49,17 +47,18 @@ import de.gematik.ti.erp.app.utils.compose.Spacer24
 import de.gematik.ti.erp.app.utils.compose.Spacer48
 import de.gematik.ti.erp.app.utils.compose.Spacer8
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import java.time.LocalDate
+import java.time.Instant
+import java.time.OffsetDateTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
 @Composable
 fun DataTermsUpdateScreen(
-    dataProtectionVersionAccepted: LocalDate,
+    dataProtectionVersionAcceptedOn: Instant,
     onClickDataTerms: () -> Unit,
     onAcceptTermsOfUseUpdate: () -> Unit
 ) {
-
     Scaffold(
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
@@ -79,12 +78,7 @@ fun DataTermsUpdateScreen(
         Column(
             modifier = Modifier.padding(innerPadding)
                 .verticalScroll(rememberScrollState())
-                .padding(
-                    rememberInsetsPaddingValues(
-                        insets = LocalWindowInsets.current.statusBars,
-                        applyTop = true
-                    )
-                )
+                .statusBarsPadding()
         ) {
             Column(
                 modifier = Modifier
@@ -92,14 +86,14 @@ fun DataTermsUpdateScreen(
             ) {
                 Text(
                     stringResource(R.string.data_terms_update_header),
-                    style = MaterialTheme.typography.h5,
+                    style = AppTheme.typography.h5,
                     textAlign = TextAlign.Center
                 )
 
                 Spacer24()
                 Text(
                     stringResource(R.string.data_terms_update_info),
-                    style = MaterialTheme.typography.body1
+                    style = AppTheme.typography.body1
                 )
 
                 Spacer8()
@@ -109,13 +103,15 @@ fun DataTermsUpdateScreen(
                 ) {
                     Text(
                         stringResource(R.string.data_terms_update_open_data_terms),
-                        style = MaterialTheme.typography.caption
+                        style = AppTheme.typography.caption1
                     )
                 }
 
                 val dtFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
-                val date = remember(dataProtectionVersionAccepted) {
-                    dataProtectionVersionAccepted.format(dtFormatter)
+                val date = remember(dataProtectionVersionAcceptedOn) {
+                    OffsetDateTime.ofInstant(dataProtectionVersionAcceptedOn, ZoneId.systemDefault())
+                        .toLocalDate()
+                        .format(dtFormatter)
                 }
 
                 val updateInfo = annotatedStringResource(
@@ -125,12 +121,12 @@ fun DataTermsUpdateScreen(
                 Spacer48()
                 Text(
                     updateInfo,
-                    style = MaterialTheme.typography.subtitle1
+                    style = AppTheme.typography.subtitle1
                 )
                 Spacer16()
             }
             Column(modifier = Modifier.fillMaxWidth()) {
-                if (dataProtectionVersionAccepted < DATA_PROTECTION_LAST_UPDATED) {
+                if (dataProtectionVersionAcceptedOn < DATA_PROTECTION_LAST_UPDATED) {
                     DPDifferences30112021()
                 }
             }

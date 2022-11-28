@@ -18,19 +18,31 @@
 
 package de.gematik.ti.erp.app.attestation.repository
 
-import de.gematik.ti.erp.app.db.AppDatabase
-import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
+import de.gematik.ti.erp.app.attestation.model.AttestationData
+import de.gematik.ti.erp.app.db.entities.v1.SafetynetAttestationEntityV1
+import de.gematik.ti.erp.app.db.writeOrCopyToRealm
+import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
+import kotlinx.coroutines.flow.map
 
-class AttestationLocalDataSource @Inject constructor(
-    private val db: AppDatabase
+class AttestationLocalDataSource(
+    private val realm: Realm
 ) {
-    suspend fun persistReport(attestationEntity: SafetynetAttestationEntity) {
-        db.attestationDao().insertAttestation(attestationEntity)
+    suspend fun persistReport(attestation: AttestationData.SafetynetAttestation) {
+        realm.writeOrCopyToRealm(::SafetynetAttestationEntityV1) {
+            it.jws = attestation.jws
+            it.ourNonce = attestation.ourNonce
+        }
     }
 
-    fun fetchAttestations(): Flow<List<SafetynetAttestationEntity>> {
-        return db.attestationDao().getAllAttestations()
-    }
+    fun fetchAttestations(): Flow<AttestationData.SafetynetAttestation?> =
+        realm.query<SafetynetAttestationEntityV1>().first().asFlow().map {
+            it.obj?.let {
+                AttestationData.SafetynetAttestation(
+                    jws = it.jws,
+                    ourNonce = it.ourNonce
+                )
+            }
+        }
 }

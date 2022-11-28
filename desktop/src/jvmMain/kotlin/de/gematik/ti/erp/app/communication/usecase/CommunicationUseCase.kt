@@ -31,7 +31,7 @@ import kotlinx.coroutines.flow.map
 
 class CommunicationUseCase(
     private val communicationRepository: CommunicationRepository,
-    private val prescriptionRepository: PrescriptionRepository,
+    private val prescriptionRepository: PrescriptionRepository
 ) {
     fun pharmacyCommunications(): Flow<List<CommunicationUseCaseData.Communication>> =
         communicationRepository.communications().map {

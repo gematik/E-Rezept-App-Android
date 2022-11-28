@@ -22,71 +22,142 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
+import androidx.compose.material.Surface
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.gematik.ti.erp.app.utils.firstCharOfForeNameSurName
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
 
 @Composable
 fun Avatar(
-    name: String,
-    profileColor: ProfileColor,
+    avatarModifier: Modifier,
+    emptyIcon: ImageVector,
+    profile: ProfilesUseCaseData.Profile,
     ssoStatusColor: Color?,
-    active: Boolean = false
+    active: Boolean = false,
+    iconModifier: Modifier
 ) {
-    Box {
-        val text = remember(name) { firstCharOfForeNameSurName(name) }
-        Box(modifier = Modifier.align(Alignment.Center), contentAlignment = Alignment.Center) {
-            CircleBox(
-                36.dp,
-                profileColor.backGroundColor,
-                border = if (active) BorderStroke(2.dp, profileColor.borderColor) else null
-            )
-            Text(
-                text = text,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.body2,
-                color = profileColor.textColor,
-                textAlign = TextAlign.Center
-            )
+    val currentSelectedColors = profileColor(profileColorNames = profile.color)
+
+    Box(
+        modifier = avatarModifier
+            .fillMaxSize()
+            .aspectRatio(1f),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            modifier = Modifier
+                .fillMaxSize(),
+            shape = CircleShape,
+            color = currentSelectedColors.backGroundColor,
+            border = if (active) BorderStroke(2.dp, currentSelectedColors.borderColor) else null
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                ChooseAvatar(
+                    profile = profile,
+                    emptyIcon = emptyIcon,
+                    iconModifier = iconModifier,
+                    figure = profile.avatarFigure
+                )
+            }
         }
         if (ssoStatusColor != null) {
             CircleBox(
-                size = 16.dp,
                 backgroundColor = ssoStatusColor,
                 border = BorderStroke(2.dp, MaterialTheme.colors.background),
-                modifier = Modifier.align(Alignment.BottomEnd).offset(4.dp, 4.dp)
+                modifier = Modifier
+                    .size(PaddingDefaults.Medium)
+                    .align(Alignment.BottomEnd)
+                    .offset(PaddingDefaults.Tiny, PaddingDefaults.Tiny)
             )
         }
     }
 }
 
 @Composable
-private fun CircleBox(
-    size: Dp,
+fun CircleBox(
     backgroundColor: Color,
-    modifier: Modifier = Modifier,
+    modifier: Modifier,
     border: BorderStroke? = null
 ) {
     Box(
         modifier = modifier
-            .size(size)
             .clip(CircleShape)
+            .aspectRatio(1f)
             .background(backgroundColor)
             .then(
                 border?.let { Modifier.border(border, CircleShape) } ?: Modifier
             )
     )
+}
+
+@Preview
+@Composable
+private fun AvatarPreview() {
+    AppTheme {
+        Avatar(
+            avatarModifier = Modifier.size(36.dp),
+            profile = ProfilesUseCaseData.Profile(
+                id = "",
+                name = "",
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+                active = false,
+                color = ProfilesData.ProfileColorNames.SUN_DEW,
+                avatarFigure = ProfilesData.AvatarFigure.PersonalizedImage,
+                personalizedImage = null,
+                lastAuthenticated = null,
+                ssoTokenScope = null
+            ),
+            ssoStatusColor = null,
+            active = false,
+            iconModifier = Modifier.size(20.dp),
+            emptyIcon = Icons.Rounded.AddAPhoto
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun AvatarWithSSOPreview() {
+    AppTheme {
+        Avatar(
+            avatarModifier = Modifier.size(36.dp),
+            profile = ProfilesUseCaseData.Profile(
+                id = "",
+                name = "",
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+                active = false,
+
+                color = ProfilesData.ProfileColorNames.SUN_DEW,
+                avatarFigure = ProfilesData.AvatarFigure.PersonalizedImage,
+                personalizedImage = null,
+                lastAuthenticated = null,
+                ssoTokenScope = null
+            ),
+            ssoStatusColor = Color.Green,
+            active = false,
+            iconModifier = Modifier.size(20.dp),
+            emptyIcon = Icons.Rounded.AddAPhoto
+        )
+    }
 }

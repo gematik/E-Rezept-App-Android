@@ -18,8 +18,16 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
-sealed class PrescriptionDetailsNavigationScreens(
-    val route: String
-) {
-    object PrescriptionDetails : PrescriptionDetailsNavigationScreens("PrescriptionDetails")
+import de.gematik.ti.erp.app.Route
+
+object PrescriptionDetailsNavigationScreens {
+    object Overview : Route("overview")
+    object MedicationOverview : Route("medicationOverview")
+    object Medication : Route("medication")
+    object Patient : Route("patient")
+    object Prescriber : Route("prescriber")
+    object Organization : Route("organization")
+    object Accident : Route("accident")
+    object TechnicalInformation : Route("technicalInformation")
+    object Ingredient : Route("ingredient")
 }

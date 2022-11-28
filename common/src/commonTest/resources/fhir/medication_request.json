@@ -1,0 +1,118 @@
+{
+  "resourceType": "MedicationRequest",
+  "id": "aadf0a82-e6e0-414d-b2b6-e46c60be2adb",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.0.2"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
+      "valueBoolean": true
+    },
+    {
+      "url":"https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Accident",
+      "extension":[
+        {
+          "url":"unfallkennzeichen","valueCoding":{
+          "system":"https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type","code":"2"
+        }
+        },{
+          "url":"unfallbetrieb","valueString":"Dummy-Betrieb"
+        },
+        {
+          "url":"unfalltag","valueDate":"2022-06-29"
+        }
+      ]
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+      "valueBoolean": false
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+      "extension": [
+        {
+          "url": "Kennzeichen",
+          "valueBoolean": true
+        },
+        {
+          "url": "Nummerierung",
+          "valueRatio": {
+            "numerator": {
+              "value": 1
+            },
+            "denominator": {
+              "value": 4
+            }
+          }
+        },
+        {
+          "url": "Zeitraum",
+          "valuePeriod": {
+            "start": "2022-08-17",
+            "end": "2022-11-25"
+          }
+        },
+        {
+          "url": "ID",
+          "valueIdentifier": {
+            "system": "urn:ietf:rfc:3986",
+            "value": "urn:uuid:24e2e10d-e962-4d1c-be4f-8760e690a5f0"
+          }
+        }
+      ]
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_StatusCoPayment",
+        "code": "2"
+      }
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "medicationReference": {
+    "reference": "Medication/367b56f2-b71a-454e-80d0-0788f4a852e0"
+  },
+  "subject": {
+    "reference": "Patient/312824b6-a91f-4dd1-98fb-e44cde3a2d68"
+  },
+  "authoredOn": "2022-08-17",
+  "requester": {
+    "reference": "Practitioner/70a72d72-3168-4700-8b6f-97c7da4b8d65"
+  },
+  "insurance": [
+    {
+      "reference": "Coverage/e272419e-cf6e-46d2-9299-e35a7ad2000d"
+    }
+  ],
+  "dosageInstruction": [
+    {
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag",
+          "valueBoolean": true
+        }
+      ],
+      "text": "1-2-1-2-0"
+    }
+  ],
+  "note": [
+    {
+      "text": "Bitte laengliche Tabletten."
+    }
+  ],
+  "dispenseRequest": {
+    "quantity": {
+      "value": 12,
+      "system": "http://unitsofmeasure.org",
+      "code": "{Package}"
+    }
+  },
+  "substitution": {
+    "allowedBoolean": true
+  }
+}

@@ -74,7 +74,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.IconToggleButton
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Surface
@@ -122,26 +121,23 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.systemBarsPadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.prescription.ui.model.ScanScreenData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Spacer4
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
-import de.gematik.ti.erp.app.utils.compose.testId
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -151,36 +147,22 @@ import java.util.concurrent.Executors
 @Composable
 fun ScanScreen(
     mainNavController: NavController,
-    scanViewModel: ScanPrescriptionViewModel = hiltViewModel()
+    scanViewModel: ScanPrescriptionViewModel
 ) {
     val context = LocalContext.current
 
-    var shouldShowEduDialog by rememberSaveable { mutableStateOf(false) }
-    var eduDialogAccepted by rememberSaveable { mutableStateOf(false) }
     var camPermissionGranted by rememberSaveable { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        shouldShowEduDialog =
-            context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-        if (!shouldShowEduDialog) {
-            eduDialogAccepted = true
-        }
-    }
 
     val camPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             camPermissionGranted = it
         }
 
-    if (shouldShowEduDialog && !eduDialogAccepted) {
-        EducationalDialog {
-            eduDialogAccepted = true
-        }
-    }
-
-    LaunchedEffect(eduDialogAccepted) {
-        if (eduDialogAccepted) {
+    LaunchedEffect(Unit) {
+        if (context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             camPermissionLauncher.launch(Manifest.permission.CAMERA)
+        } else {
+            camPermissionGranted = true
         }
     }
 
@@ -205,12 +187,14 @@ fun ScanScreen(
         )
     }
 
+    val tracker = LocalAnalytics.current
     ModalBottomSheetLayout(
         sheetState = sheetState,
         sheetContent = {
             SheetContent(
                 onClickSave = {
                     scanViewModel.saveToDatabase()
+                    tracker.trackSaveScannedPrescriptions()
                     mainNavController.popBackStack()
                 }
             )
@@ -310,7 +294,7 @@ private fun AccessDenied() {
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding()
-                .testTag("camera/disallowed"),
+                .testTag("camera/disallowed")
         ) {
             TopBar(
                 flashEnabled = false,
@@ -323,18 +307,19 @@ private fun AccessDenied() {
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Icon(
-                    Icons.Rounded.ErrorOutline, null,
+                    Icons.Rounded.ErrorOutline,
+                    null,
                     modifier = Modifier.size(48.dp)
                 )
                 Text(
                     stringResource(R.string.cam_access_denied_headline),
-                    style = MaterialTheme.typography.h6,
+                    style = AppTheme.typography.h6,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
                 Text(
                     stringResource(R.string.cam_access_denied_description),
-                    style = MaterialTheme.typography.subtitle1,
+                    style = AppTheme.typography.subtitle1,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -375,24 +360,6 @@ private fun HapticAndAudibleFeedback(scanVM: ScanPrescriptionViewModel = viewMod
 }
 
 @Composable
-private fun EducationalDialog(
-    onContinue: () -> Unit,
-) {
-    var dialogOpen by remember { mutableStateOf(true) }
-
-    if (dialogOpen) {
-        CommonAlertDialog(
-            header = stringResource(R.string.cam_edu_headline),
-            info = stringResource(R.string.cam_edu_description),
-            cancelText = stringResource(R.string.cancel),
-            actionText = stringResource(R.string.cam_edu_accept),
-            onCancel = { dialogOpen = false },
-            onClickAction = onContinue
-        )
-    }
-}
-
-@Composable
 private fun SaveDialog(
     onDismissRequest: () -> Unit,
     onCancel: () -> Unit
@@ -407,13 +374,13 @@ private fun SaveDialog(
         buttons = {
             TextButton(
                 onClick = { onDismissRequest() },
-                modifier = Modifier.testId("camera/saveDialog/dismissDialogButton")
+                modifier = Modifier.testTag("camera/saveDialog/dismissDialogButton")
             ) {
                 Text(stringResource(R.string.cam_cancel_resume).uppercase(Locale.getDefault()))
             }
-            TextButton(onClick = { onCancel() }, modifier = Modifier.testId("camera/saveDialog/saveButton")) {
-            Text(stringResource(R.string.cam_cancel_ok).uppercase(Locale.getDefault()))
-        }
+            TextButton(onClick = { onCancel() }, modifier = Modifier.testTag("camera/saveDialog/saveButton")) {
+                Text(stringResource(R.string.cam_cancel_ok).uppercase(Locale.getDefault()))
+            }
         }
     )
 
@@ -428,6 +395,7 @@ private fun beep(toneGenerator: ToneGenerator, pattern: ScanScreenData.Vibration
             ToneGenerator.TONE_PROP_NACK,
             1000
         )
+        else -> {}
     }
 }
 
@@ -495,7 +463,7 @@ private fun ActionBarButton(
             annotatedPluralsResource(
                 R.plurals.cam_next_with,
                 data.totalNrOfPrescriptions,
-                AnnotatedString(data.totalNrOfPrescriptions.toString()),
+                AnnotatedString(data.totalNrOfPrescriptions.toString())
             )
         )
     }
@@ -503,7 +471,7 @@ private fun ActionBarButton(
 @Composable
 private fun InfoCard(
     info: ScanScreenData.Info,
-    modifier: Modifier,
+    modifier: Modifier
 ) =
     Card(
         backgroundColor = Color.Black.copy(alpha = 0.6f),
@@ -534,14 +502,14 @@ private fun InfoCard(
                 ScanScreenData.Info.Focus -> Text(
                     scanning,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.subtitle1
+                    style = AppTheme.typography.subtitle1
                 )
                 ScanScreenData.Info.ErrorNotValid -> InfoError(invalid)
                 ScanScreenData.Info.ErrorDuplicated -> InfoError(duplicated)
                 is ScanScreenData.Info.Scanned -> Text(
                     detected,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.subtitle1
+                    style = AppTheme.typography.subtitle1
                 )
             }
 
@@ -568,7 +536,7 @@ private fun InfoError(text: String) {
         Text(
             text,
             textAlign = TextAlign.Center,
-            style = MaterialTheme.typography.subtitle1
+            style = AppTheme.typography.subtitle1
         )
     }
 }
@@ -627,7 +595,10 @@ private fun CameraView(
 
                 cameraProvider.unbindAll()
                 camera = cameraProvider.bindToLifecycle(
-                    lifecycleOwner, cameraSelector, preview, imageAnalysis
+                    lifecycleOwner,
+                    cameraSelector,
+                    preview,
+                    imageAnalysis
                 )
             },
             ContextCompat.getMainExecutor(context)
@@ -674,7 +645,7 @@ private fun CameraView(
 @Composable
 private fun TopBar(
     flashEnabled: Boolean,
-    onFlashClick: (Boolean) -> Unit,
+    onFlashClick: (Boolean) -> Unit
 ) {
     val backPressDispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
 
@@ -690,7 +661,7 @@ private fun TopBar(
             IconButton(
                 onClick = { backPressDispatcher.onBackPressed() },
                 modifier = Modifier
-                    .testId("camera/closeButton")
+                    .testTag("camera/closeButton")
                     .semantics { contentDescription = accCancel }
             ) {
                 Icon(Icons.Rounded.Close, null, modifier = Modifier.size(24.dp))
@@ -702,7 +673,7 @@ private fun TopBar(
                 checked = flashEnabled,
                 onCheckedChange = onFlashClick,
                 modifier = Modifier
-                    .testId("camera/flashToggle")
+                    .testTag("camera/flashToggle")
                     .semantics { contentDescription = accTorch }
             ) {
                 val ic = if (flashEnabled) {
@@ -722,7 +693,7 @@ private fun ScanOverlay(
     flashEnabled: Boolean,
     onFlashClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    scanVM: ScanPrescriptionViewModel = viewModel(),
+    scanVM: ScanPrescriptionViewModel = viewModel()
 ) {
     var points by remember { mutableStateOf(FloatArray(8)) }
 
@@ -780,7 +751,7 @@ private fun ScanOverlay(
                     style = Stroke(
                         width = 4.dp.toPx(),
                         pathEffect = PathEffect.cornerPathEffect(4.dp.toPx())
-                    ),
+                    )
                 )
             }
         }

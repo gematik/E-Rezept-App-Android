@@ -19,77 +19,65 @@
 package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.api.ErpService
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.safeApiCall
-import de.gematik.ti.erp.app.db.converter.DateConverter
-import java.time.OffsetDateTime
-import javax.inject.Inject
-import org.hl7.fhir.r4.model.Bundle
-import org.hl7.fhir.r4.model.Communication
+import de.gematik.ti.erp.app.api.safeApiCallNullable
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import kotlinx.serialization.json.JsonElement
 import java.time.Instant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
 
-class RemoteDataSource @Inject constructor(
+class RemoteDataSource(
     private val service: ErpService
 ) {
 
     // greater _than_, otherwise we query the same resource again
     private fun gtString(timestamp: Instant) =
-        "gt${timestamp.atOffset(ZoneOffset.UTC).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}"
+        "gt${timestamp.atOffset(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}"
 
-    suspend fun fetchTasks(lastKnownUpdate: Instant?, profileName: String): Result<Bundle> =
+    suspend fun fetchTasks(lastKnownUpdate: Instant?, profileId: ProfileIdentifier): Result<JsonElement> =
         safeApiCall(
             "error while loading tasks"
         ) {
             val dateTimeString =
                 lastKnownUpdate?.let { gtString(it) }
-            service.allTasks(profileName, dateTimeString)
+            service.allTasks(profileId, dateTimeString)
         }
 
-    suspend fun fetchCommunications(profileName: String): Result<Bundle> = safeApiCall(
+    suspend fun fetchCommunications(
+        profileId: ProfileIdentifier,
+        count: Int?,
+        lastKnownUpdate: String?
+    ): Result<JsonElement> = safeApiCall(
         errorMessage = "error getting communications"
     ) {
-        service.communication(profileName)
-    }
-
-    suspend fun taskWithKBVBundle(profileName: String, taskID: String) = safeApiCall(
-        errorMessage = "error while downloading KBV Bundle $taskID"
-    ) { service.taskWithKBVBundle(profileName = profileName, id = taskID) }
-
-    suspend fun allAuditEvents(
-        profileName: String,
-        lastKnownUpdate: OffsetDateTime?,
-        count: Int? = null,
-        offset: Int? = null
-    ) = safeApiCall(
-        errorMessage = "Error getting all Audit Events"
-    ) {
-        val dateTimeString: String? =
-            lastKnownUpdate?.let { "gt${DateConverter().fromOffsetDateTime(it)}" }
-        service.allAuditEvents(
-            profileName = profileName,
-            lastKnownDate = dateTimeString,
+        service.getCommunications(
+            profileId = profileId,
             count = count,
-            offset = offset
+            lastKnownDate = lastKnownUpdate
         )
     }
 
-    suspend fun medicationDispense(profileName: String, taskId: String) = safeApiCall(
+    suspend fun taskWithKBVBundle(profileId: ProfileIdentifier, taskID: String) = safeApiCall(
+        errorMessage = "error while downloading KBV Bundle $taskID"
+    ) { service.taskWithKBVBundle(profileId = profileId, id = taskID) }
+
+    suspend fun loadBundleOfMedicationDispenses(profileId: ProfileIdentifier, taskId: String) = safeApiCall(
         errorMessage = "Error getting medication dispenses"
     ) {
-        service.medicationDispense(profileName, id = taskId)
+        val id = "https://gematik.de/fhir/NamingSystem/PrescriptionID|$taskId"
+        service.bundleOfMedicationDispenses(profileId, id = id)
     }
 
-    suspend fun deleteTask(profileName: String, taskId: String) = safeApiCall(
+    suspend fun deleteTask(profileId: ProfileIdentifier, taskId: String) = safeApiCallNullable(
         "error deleting task $taskId"
     ) {
-        service.deleteTask(profileName, id = taskId)
+        service.deleteTask(profileId, id = taskId)
     }
 
-    suspend fun communicate(profileName: String, com: Communication) = safeApiCall(
-        errorMessage = "error while posting communication"
-    ) {
-        service.communication(profileName, communication = com)
-    }
+    suspend fun communicate(profileId: ProfileIdentifier, communication: JsonElement, accessCode: String? = null) =
+        safeApiCall(errorMessage = "error while posting communication") {
+            service.postCommunication(profileId = profileId, communication = communication, accessCode = accessCode)
+        }
 }

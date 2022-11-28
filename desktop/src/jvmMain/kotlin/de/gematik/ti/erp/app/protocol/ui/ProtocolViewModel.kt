@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.protocol.ui
 import de.gematik.ti.erp.app.protocol.usecase.ProtocolUseCase
 
 class ProtocolViewModel(
-    protocolUseCase: ProtocolUseCase,
+    protocolUseCase: ProtocolUseCase
 ) {
     val protocolSearchFlow = protocolUseCase.loadProtocol()
 }

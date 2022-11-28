@@ -69,7 +69,7 @@ enum class IdpScope {
 
 data class IdpChallengeFlowResult(
     val scope: IdpScope,
-    val challenge: IdpUnsignedChallenge,
+    val challenge: IdpUnsignedChallenge
 )
 
 data class IdpAuthFlowResult(
@@ -89,7 +89,7 @@ data class IdpInitialData(
     val state: IdpState,
     val nonce: IdpNonce,
     val codeVerifier: String,
-    val codeChallenge: String,
+    val codeChallenge: String
 )
 
 data class IdpUnsignedChallenge(
@@ -230,7 +230,7 @@ class IdpBasicUseCase(
 
     suspend fun challengeFlow(
         initialData: IdpInitialData,
-        scope: IdpScope,
+        scope: IdpScope
     ): IdpChallengeFlowResult {
         val (config, pukSigKey, _, state, nonce) = initialData
         val codeChallenge = initialData.codeChallenge
@@ -345,7 +345,7 @@ class IdpBasicUseCase(
     suspend fun postSignedChallengeAndGetRedirect(
         url: String,
         codeChallenge: JsonWebEncryption,
-        state: IdpState,
+        state: IdpState
     ): URI {
         val redirect =
             URI(repository.postSignedChallenge(url, codeChallenge.compactSerialization).getOrThrow())
@@ -360,7 +360,7 @@ class IdpBasicUseCase(
         url: String,
         unsignedCodeChallenge: String,
         ssoToken: String,
-        state: IdpState,
+        state: IdpState
     ): URI {
         val redirect =
             URI(repository.postUnsignedChallengeWithSso(url, ssoToken, unsignedCodeChallenge).getOrThrow())

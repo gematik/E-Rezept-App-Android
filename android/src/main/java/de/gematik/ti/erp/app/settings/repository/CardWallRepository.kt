@@ -21,17 +21,11 @@ package de.gematik.ti.erp.app.settings.repository
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.di.ApplicationPreferences
-import javax.inject.Inject
-
-// TODO
-// private const val AUTHENTICATION_METHOD = "authenticationMethod"
 
 private const val FAKE_NFC_CAPABILITIES = "fake_nfc_capabilities"
-private const val CDW_INTRO_ACCEPTED = "cdwIntroAccepted"
 
-class CardWallRepository @Inject constructor(
-    @ApplicationPreferences private val prefs: SharedPreferences
+class CardWallRepository(
+    private val prefs: SharedPreferences
 ) {
     var hasFakeNFCEnabled: Boolean
         get() =
@@ -41,8 +35,4 @@ class CardWallRepository @Inject constructor(
                 false
             }
         set(value) = prefs.edit { putBoolean(FAKE_NFC_CAPABILITIES, value) }
-
-    var introAccepted: Boolean
-        get() = prefs.getBoolean(CDW_INTRO_ACCEPTED, false)
-        set(value) = prefs.edit { putBoolean(CDW_INTRO_ACCEPTED, value) }
 }

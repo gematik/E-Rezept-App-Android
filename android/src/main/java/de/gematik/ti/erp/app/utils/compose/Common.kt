@@ -33,6 +33,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -54,17 +55,15 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.ButtonElevation
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalAbsoluteElevation
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Switch
-import androidx.compose.material.SwitchColors
-import androidx.compose.material.SwitchDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.TextFieldColors
@@ -90,6 +89,7 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -115,17 +115,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.sanitizeProfileName
-import timber.log.Timber
+import io.github.aakira.napier.Napier
+import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
-import java.util.Locale
 
 @Composable
 fun SpacerMaxWidth() =
@@ -174,6 +174,14 @@ fun SpacerXXLarge() =
 @Composable
 fun SpacerMedium() =
     Spacer(modifier = Modifier.size(PaddingDefaults.Medium))
+
+@Composable
+fun SpacerShortMedium() =
+    Spacer(modifier = Modifier.size(PaddingDefaults.ShortMedium))
+
+@Composable
+fun SpacerXXLargeMedium() =
+    Spacer(modifier = Modifier.size(PaddingDefaults.XXLargeMedium))
 
 @Composable
 fun SpacerSmall() =
@@ -251,11 +259,12 @@ fun NavigationClose(modifier: Modifier = Modifier, onClick: () -> Unit) {
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .testId("nav_btn_back")
             .semantics { contentDescription = acc }
+            .testTag(TestTag.TopNavigation.CloseButton)
     ) {
         Icon(
-            Icons.Rounded.Close, null,
+            Icons.Rounded.Close,
+            null,
             tint = MaterialTheme.colors.primary,
             modifier = Modifier.size(24.dp)
         )
@@ -266,8 +275,10 @@ fun NavigationClose(modifier: Modifier = Modifier, onClick: () -> Unit) {
 fun annotatedLinkString(uri: String, text: String, tag: String = "URL"): AnnotatedString =
     buildAnnotatedString {
         pushStringAnnotation(tag, uri)
-        pushStyle(SpanStyle(color = AppTheme.colors.primary600, fontWeight = FontWeight.Bold))
+        pushStyle(AppTheme.typography.subtitle2.toSpanStyle())
+        pushStyle(SpanStyle(color = AppTheme.colors.primary600))
         append(text)
+        pop()
         pop()
         pop()
     }
@@ -318,10 +329,13 @@ fun NavigationBack(modifier: Modifier = Modifier, onClick: () -> Unit) {
 
     IconButton(
         onClick = onClick,
-        modifier = modifier.semantics { contentDescription = acc }
+        modifier = modifier
+            .semantics { contentDescription = acc }
+            .testTag(TestTag.TopNavigation.BackButton)
     ) {
         Icon(
-            Icons.Rounded.ArrowBack, null,
+            Icons.Rounded.ArrowBack,
+            null,
             tint = MaterialTheme.colors.primary,
             modifier = Modifier.size(24.dp)
         )
@@ -335,26 +349,28 @@ enum class NavigationBarMode {
 
 @Composable
 fun NavigationTopAppBar(
-    navigationMode: NavigationBarMode,
+    navigationMode: NavigationBarMode?,
     title: String,
     backgroundColor: Color = MaterialTheme.colors.surface,
     elevation: Dp = AppBarDefaults.TopAppBarElevation,
+    actions: @Composable RowScope.() -> Unit = {},
     onBack: () -> Unit
 ) = TopAppBar(
     title = {
-        Text(title)
+        Text(title, overflow = TextOverflow.Ellipsis)
     },
     backgroundColor = backgroundColor,
     navigationIcon = {
         when (navigationMode) {
             NavigationBarMode.Back -> NavigationBack { onBack() }
             NavigationBarMode.Close -> NavigationClose { onBack() }
+            else -> {}
         }
     },
-    elevation = elevation
+    elevation = elevation,
+    actions = actions
 )
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LabeledSwitch(
     checked: Boolean,
@@ -363,7 +379,7 @@ fun LabeledSwitch(
     enabled: Boolean = true,
     icon: ImageVector,
     header: String,
-    description: String
+    description: String?
 ) {
     LabeledSwitch(
         checked = checked,
@@ -371,10 +387,15 @@ fun LabeledSwitch(
         modifier = modifier,
         enabled = enabled
     ) {
+        val iconColorTint = if (enabled) AppTheme.colors.primary600 else AppTheme.colors.primary300
+        val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral600
+        val descriptionColor = if (enabled) AppTheme.colors.neutral600 else AppTheme.colors.neutral400
+
         Row(
             modifier = Modifier.weight(1.0f)
         ) {
-            Icon(icon, null, tint = AppTheme.colors.primary500)
+            Icon(icon, null, tint = iconColorTint)
+            SpacerSmall()
             Column(
                 modifier = Modifier
                     .weight(1.0f)
@@ -382,25 +403,27 @@ fun LabeledSwitch(
             ) {
                 Text(
                     text = header,
-                    style = MaterialTheme.typography.body1,
+                    style = AppTheme.typography.body1,
+                    color = textColor
                 )
-                Text(
-                    text = description,
-                    style = AppTheme.typography.body2l
-                )
+                if (description != null) {
+                    Text(
+                        text = description,
+                        style = AppTheme.typography.body2l,
+                        color = descriptionColor
+                    )
+                }
             }
         }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LabeledSwitch(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    colors: SwitchColors = SwitchDefaults.colors(),
     label: @Composable RowScope.() -> Unit
 ) {
     Row(
@@ -419,15 +442,16 @@ fun LabeledSwitch(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-
         label()
 
-        Switch(
-            checked = checked,
-            onCheckedChange = null,
-            enabled = enabled,
-            colors = colors
-        )
+        // for better visibility in dark mode
+        CompositionLocalProvider(LocalAbsoluteElevation provides 8.dp) {
+            Switch(
+                checked = checked,
+                onCheckedChange = null,
+                enabled = enabled
+            )
+        }
     }
 }
 
@@ -439,22 +463,7 @@ fun annotatedStringResource(@StringRes id: Int, vararg args: Any): AnnotatedStri
 fun annotatedStringResource(@StringRes id: Int, vararg args: AnnotatedString): AnnotatedString =
     buildAnnotatedString {
         val res = stringResource(id)
-        val argIt = args.iterator()
-        var i = 0
-        while (i <= res.length) {
-            val j = res.indexOf("%s", i)
-
-            if (j != -1) {
-                append(res.substring(i, j))
-                append(argIt.next())
-
-                i = j + 2
-            } else {
-                append(res.substring(i, res.length))
-
-                break
-            }
-        }
+        appendSubStrings(args, res)
     }
 
 @Composable
@@ -477,23 +486,31 @@ fun annotatedPluralsResource(
 ): AnnotatedString =
     buildAnnotatedString {
         val res = resources().getQuantityString(id, quantity)
-        val argIt = args.iterator()
-        var i = 0
-        while (i <= res.length) {
-            val j = res.indexOf("%s", i)
 
-            if (j != -1) {
-                append(res.substring(i, j))
-                append(argIt.next())
+        appendSubStrings(args, res)
+    }
 
-                i = j + 2
-            } else {
-                append(res.substring(i, res.length))
+private fun AnnotatedString.Builder.appendSubStrings(
+    args: Array<out AnnotatedString>,
+    res: String
+) {
+    val argIt = args.iterator()
+    var i = 0
+    while (i <= res.length) {
+        val j = res.indexOf("%s", i)
 
-                break
-            }
+        if (j != -1) {
+            append(res.substring(i, j))
+            append(argIt.next())
+
+            i = j + 2
+        } else {
+            append(res.substring(i, res.length))
+
+            break
         }
     }
+}
 
 @Composable
 fun annotatedStringBold(text: String) =
@@ -505,56 +522,70 @@ fun annotatedStringBold(text: String) =
 
 @Composable
 fun CommonAlertDialog(
+    icon: ImageVector? = null,
     header: String?,
     info: String,
     cancelText: String,
     actionText: String,
+    enabled: Boolean = true,
     onCancel: () -> Unit,
-    onClickAction: () -> Unit,
+    onClickAction: () -> Unit
 ) =
     AlertDialog(
+        modifier = Modifier.testTag(TestTag.AlertDialog.Modal),
         title = header?.let { { Text(header) } },
         onDismissRequest = onCancel,
         text = { Text(info) },
+        icon = icon,
         buttons = {
-            TextButton(onClick = onCancel) {
-                Text(cancelText.uppercase(Locale.getDefault()))
+            TextButton(
+                modifier = Modifier.testTag(TestTag.AlertDialog.CancelButton),
+                onClick = onCancel,
+                enabled = enabled
+            ) {
+                Text(cancelText)
             }
-            TextButton(onClick = onClickAction) {
-                Text(actionText.uppercase(Locale.getDefault()))
+            TextButton(
+                modifier = Modifier.testTag(TestTag.AlertDialog.ConfirmButton),
+                onClick = onClickAction,
+                enabled = enabled
+            ) {
+                Text(actionText)
             }
         }
     )
 
 @Composable
 fun CommonAlertDialog(
+    icon: ImageVector? = null,
     header: AnnotatedString?,
     info: AnnotatedString,
     cancelText: String,
     actionText: String,
     onCancel: () -> Unit,
-    onClickAction: () -> Unit,
+    onClickAction: () -> Unit
 ) =
     AlertDialog(
+        icon = icon,
         title = header?.let { { Text(header) } },
         onDismissRequest = onCancel,
         text = { Text(info) },
         buttons = {
             TextButton(onClick = onCancel) {
-                Text(cancelText.uppercase(Locale.getDefault()))
+                Text(cancelText)
             }
             TextButton(onClick = onClickAction) {
-                Text(actionText.uppercase(Locale.getDefault()))
+                Text(actionText)
             }
-        },
+        }
     )
 
 @Composable
 fun AcceptDialog(
-    header: String,
-    info: String,
+    header: AnnotatedString,
+    info: AnnotatedString,
     acceptText: String,
-    onClickAccept: () -> Unit,
+    onClickAccept: () -> Unit
 ) =
     AlertDialog(
         title = { Text(header) },
@@ -562,7 +593,26 @@ fun AcceptDialog(
         text = { Text(info) },
         buttons = {
             TextButton(onClick = onClickAccept) {
-                Text(acceptText.uppercase(Locale.getDefault()))
+                Text(acceptText)
+            }
+        },
+        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+    )
+
+@Composable
+fun AcceptDialog(
+    header: String,
+    info: String,
+    acceptText: String,
+    onClickAccept: () -> Unit
+) =
+    AlertDialog(
+        title = { Text(header) },
+        onDismissRequest = {},
+        text = { Text(info) },
+        buttons = {
+            TextButton(onClick = onClickAccept) {
+                Text(acceptText)
             }
         },
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
@@ -599,7 +649,7 @@ fun Context.handleIntent(
     try {
         startActivity(intent)
     } catch (e: ActivityNotFoundException) {
-        Timber.e(e)
+        Napier.e("Couldn't start intent", e)
         onCouldNotHandleIntent?.let { it() }
     }
 }
@@ -627,7 +677,7 @@ fun DynamicText(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current
 ) {
-    CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.subtitle1) {
+    CompositionLocalProvider(LocalTextStyle provides AppTheme.typography.subtitle1) {
         SubcomposeLayout(modifier = Modifier.wrapContentSize()) { constraints ->
             val contentPlaceables = inlineContent.mapValues { (key, content) ->
                 val maxSize = subcompose(key, content = { content.children(key) }).map {
@@ -685,58 +735,83 @@ fun DynamicText(
 
 @Composable
 fun SimpleCheck(text: String) {
-    Row {
-        Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green600)
-        Spacer16()
-        Text(text, style = MaterialTheme.typography.body1)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = PaddingDefaults.Medium),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green500)
+        SpacerMedium()
+        Text(text, style = AppTheme.typography.body1, modifier = Modifier.weight(1f))
     }
 }
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun ProfileNameInputField(
+fun InputField(
     modifier: Modifier,
     value: String,
     onValueChange: (String) -> Unit,
-    onSubmit: (profileName: String) -> Unit,
+    onSubmit: (value: String) -> Unit,
     label: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
-    isError: Boolean = false
+    isError: Boolean = false,
+    errorText: @Composable (() -> Unit)? = null,
+    keyBoardType: KeyboardType? = null
 ) {
-    val initialProfileName = rememberSaveable { value }
-
-    OutlinedTextField(
-        value = value,
-        onValueChange = {
-            onValueChange(sanitizeProfileName(it))
-        },
-        modifier = modifier
-            .heightIn(min = 56.dp),
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(
-            autoCorrect = true,
-            keyboardType = KeyboardType.Text,
-            imeAction = ImeAction.Done
-        ),
-        keyboardActions = KeyboardActions {
-            if (value.isNotEmpty()) {
-                onSubmit(value)
+    val initialValue = rememberSaveable { value }
+    val undoDescription = stringResource(R.string.onb_undo_description)
+    Column {
+        OutlinedTextField(
+            value = value,
+            onValueChange = {
+                onValueChange(it)
+            },
+            modifier = modifier
+                .heightIn(min = 56.dp),
+            singleLine = true,
+            keyboardOptions = KeyboardOptions(
+                autoCorrect = true,
+                keyboardType = keyBoardType ?: KeyboardType.Text,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions {
+                if (value.isNotEmpty()) {
+                    onSubmit(value)
+                }
+            },
+            label = label,
+            shape = RoundedCornerShape(8.dp),
+            colors = colors,
+            isError = isError,
+            trailingIcon = if (initialValue != value) {
+                {
+                    IconButton(
+                        modifier = Modifier
+                            .semantics { contentDescription = undoDescription },
+                        onClick = { onValueChange(initialValue) }
+                    ) {
+                        Icon(Icons.Rounded.Undo, null)
+                    }
+                }
+            } else {
+                null
             }
-        },
-        label = label,
-        shape = RoundedCornerShape(8.dp),
-        colors = colors,
-        isError = isError,
-        trailingIcon = if (initialProfileName != value) {
-            {
-                IconButton(onClick = { onValueChange(initialProfileName) }) {
-                    Icon(Icons.Rounded.Undo, null)
+        )
+        if (isError) {
+            errorText?.let {
+                CompositionLocalProvider(
+                    LocalTextStyle provides AppTheme.typography.caption1,
+                    LocalContentColor provides AppTheme.colors.red600
+                ) {
+                    Box(Modifier.padding(start = PaddingDefaults.Medium, top = PaddingDefaults.Small)) {
+                        errorText()
+                    }
                 }
             }
-        } else {
-            null
         }
-    )
+    }
 }
 
 @Composable
@@ -754,4 +829,49 @@ fun phrasedDateString(date: LocalDateTime): String {
     // val clock = stringResource(R.string.descriptive_date_appendix)
 
     return "${date.format(dateFormatter)} $at ${timeFormatter.format(timeOfDate)}"
+}
+
+fun dateString(date: LocalDateTime): String {
+    val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+    return date.format(dateFormatter)
+}
+
+fun timeString(date: LocalDateTime): String {
+    val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+    return date.format(timeFormatter)
+}
+
+/**
+ * Combines the two args to something like "created at Jan 12, 1952"
+ */
+@Composable
+fun dateWithIntroductionString(@StringRes id: Int, instant: Instant): String {
+    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
+    val date = remember {
+        instant.atZone(ZoneId.systemDefault())
+            .toLocalDate().format(dateFormatter)
+    }
+    val combinedString = annotatedStringResource(id, date).toString()
+    return remember { combinedString }
+}
+
+/**
+ * Shows the given content if != null labeled with a description as described in Figma for ProfileScreen.
+ */
+@Composable
+fun LabeledText(description: String, content: String?) {
+    if (content != null) {
+        Text(content, style = AppTheme.typography.body1)
+        Text(description, style = AppTheme.typography.body2l)
+        SpacerMedium()
+    }
+}
+
+/**
+ * Same as [LabeledText] but uses the given resource for the description tag.
+ *
+ */
+@Composable
+fun LabeledText(descriptionResource: Int, content: String?) {
+    LabeledText(stringResource(descriptionResource), content)
 }

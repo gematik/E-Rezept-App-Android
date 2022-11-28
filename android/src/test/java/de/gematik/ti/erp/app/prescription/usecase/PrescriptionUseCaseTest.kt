@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
-import de.gematik.ti.erp.app.utils.testRedeemedTasksOrdered
+import de.gematik.ti.erp.app.CoroutineTestRule
+import de.gematik.ti.erp.app.utils.testRedeemedTaskIdsOrdered
 import de.gematik.ti.erp.app.utils.testScannedTasks
 import de.gematik.ti.erp.app.utils.testScannedTasksOrdered
 import de.gematik.ti.erp.app.utils.testSyncedTasks
@@ -30,50 +30,65 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.LocalDate
+import java.time.ZoneOffset
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class PrescriptionUseCaseTest {
-    // necessary for mockk
-    abstract class TestPrescriptionUseCase : PrescriptionUseCase
 
     @get:Rule
     val coroutineRule = CoroutineTestRule()
 
     @MockK(relaxed = true)
-    lateinit var useCase: TestPrescriptionUseCase
+    lateinit var useCase: PrescriptionUseCase
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
 
-        every { useCase.syncedTasks() } answers { flowOf(testSyncedTasks) }
-        every { useCase.scannedTasks() } answers { flowOf(testScannedTasks) }
+        every { useCase.syncedTasks("") } answers { flowOf(testSyncedTasks) }
+        every { useCase.scannedTasks("") } answers { flowOf(testScannedTasks) }
 
-        every { useCase.syncedRecipes() } answers { callOriginal() }
-        every { useCase.scannedRecipes() } answers { callOriginal() }
-        every { useCase.redeemedPrescriptions() } answers { callOriginal() }
+        every { useCase.syncedActiveRecipes("", any()) } answers { callOriginal() }
+        every { useCase.scannedActiveRecipes("") } answers { callOriginal() }
+        every { useCase.redeemedPrescriptions("", any()) } answers { callOriginal() }
     }
 
     @Test
     fun `syncedRecipes - should return synchronized tasks in form of recipes sorted by authoredOn and grouped by organization`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            assertEquals(testSyncedTasksOrdered.map { it.taskId }, useCase.syncedRecipes().first().map { it.taskId })
+        runTest {
+            assertEquals(
+                testSyncedTasksOrdered.map { it.taskId },
+                useCase.syncedActiveRecipes(
+                    profileId = "",
+                    now = LocalDate.parse("2021-02-01").atStartOfDay().toInstant(ZoneOffset.UTC)
+                ).first().map { it.taskId }
+            )
         }
 
     @Test
     fun `scannedRecipes - should return scanned tasks in form of recipes sorted by scanSessionEnd`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            assertEquals(testScannedTasksOrdered.map { it.taskId }, useCase.scannedRecipes().first().map { it.taskId })
+        runTest {
+            assertEquals(
+                testScannedTasksOrdered.map { it.taskId },
+                useCase.scannedActiveRecipes("").first().map { it.taskId }
+            )
         }
 
     @Test
     fun `redeemed recipes - should return redeemed tasks ordered by redeemedOn`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            assertEquals(testRedeemedTasksOrdered.map { it.taskId }, useCase.redeemedPrescriptions().first().map { it.taskId })
+        runTest {
+            assertEquals(
+                testRedeemedTaskIdsOrdered,
+                useCase.redeemedPrescriptions(
+                    profileId = "",
+                    now = LocalDate.parse("2021-02-01").atStartOfDay().toInstant(ZoneOffset.UTC)
+                ).first().map { it.taskId }
+            )
         }
 }

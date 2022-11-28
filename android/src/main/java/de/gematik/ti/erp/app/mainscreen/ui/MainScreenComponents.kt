@@ -18,36 +18,32 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.MutableTransitionState
-import androidx.compose.animation.expandVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AppBarDefaults
 import androidx.compose.material.BottomNavigationItem
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -56,43 +52,40 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CloudOff
 import androidx.compose.material.icons.outlined.MarkChatRead
 import androidx.compose.material.icons.outlined.MarkChatUnread
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material.icons.rounded.ArrowDropDown
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.QrCode
-import androidx.compose.material.icons.rounded.ShoppingBag
-import androidx.compose.material.icons.rounded.Upload
+import androidx.compose.material.icons.rounded.AddCircle
+import androidx.compose.material.icons.rounded.CloudDone
+import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -100,72 +93,88 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.google.accompanist.insets.navigationBarsHeight
-import com.google.accompanist.insets.systemBarsPadding
 import com.google.mlkit.common.sdkinternal.MlKitContext
+import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
+import de.gematik.ti.erp.app.card.model.command.UnlockMethod
+import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
 import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
-import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.MainViewModel
-import de.gematik.ti.erp.app.db.entities.ProfileColorNames
-import de.gematik.ti.erp.app.db.entities.SettingsAuthenticationMethod
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
-import de.gematik.ti.erp.app.mainscreen.ui.model.MainScreenData
-import de.gematik.ti.erp.app.messages.ui.DisplayPickupScreen
-import de.gematik.ti.erp.app.messages.ui.MessageScreen
-import de.gematik.ti.erp.app.messages.ui.MessageViewModel
+import de.gematik.ti.erp.app.debug.ui.DebugScreenWrapper
+import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.license.ui.LicenseScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingNavigationScreens
-import de.gematik.ti.erp.app.onboarding.ui.OnboardingProfile
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingScreen
+import de.gematik.ti.erp.app.onboarding.ui.OnboardingSecureAppMethod
 import de.gematik.ti.erp.app.onboarding.ui.ReturningUserSecureAppOnboardingScreen
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacySearchScreenWithNavigation
+import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardContactOrderScreen
+import de.gematik.ti.erp.app.orders.ui.MessageScreen
+import de.gematik.ti.erp.app.orders.ui.OrderScreen
+import de.gematik.ti.erp.app.pharmacy.ui.PharmacyNavigation
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsScreen
+import de.gematik.ti.erp.app.prescription.ui.ArchiveScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionViewModel
+import de.gematik.ti.erp.app.prescription.ui.ScanPrescriptionViewModel
 import de.gematik.ti.erp.app.prescription.ui.ScanScreen
-import de.gematik.ti.erp.app.profiles.ui.Avatar
+import de.gematik.ti.erp.app.prescription.ui.rememberRefreshPrescriptionsController
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.ui.DefaultProfile
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
-import de.gematik.ti.erp.app.profiles.ui.connectionText
-import de.gematik.ti.erp.app.profiles.ui.connectionTextColor
-import de.gematik.ti.erp.app.profiles.ui.profileColor
+import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
+import de.gematik.ti.erp.app.profiles.ui.ProfileImageCropper
+import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.redeem.ui.RedeemScreen
+import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
+import de.gematik.ti.erp.app.settings.ui.AllowBiometryScreen
+import de.gematik.ti.erp.app.settings.ui.PharmacyLicenseScreen
+import de.gematik.ti.erp.app.settings.ui.SecureAppWithPassword
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.tracking.TrackNavigationChanges
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
-import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
-import de.gematik.ti.erp.app.utils.compose.Dialog
-import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.SpacerTiny
-import de.gematik.ti.erp.app.utils.compose.TopAppBar
-import de.gematik.ti.erp.app.utils.compose.createToastShort
-import de.gematik.ti.erp.app.utils.compose.minimalSystemBarsPadding
-import de.gematik.ti.erp.app.utils.compose.testId
+import de.gematik.ti.erp.app.utils.compose.TopAppBarWithContent
+import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
+import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
-import de.gematik.ti.erp.app.utils.dateTimeShortText
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.time.LocalDate
+import kotlinx.coroutines.withContext
+import org.kodein.di.compose.rememberViewModel
+import java.time.Instant
 
-@OptIn(ExperimentalMaterialApi::class)
+const val Third = 1 / 3f
+const val StateVisibilityTime = 4000L
+const val TweenDuration = 2000
+const val VisibleProfileNameLength = 10
+
+@Suppress("LongMethod")
 @Composable
 fun MainScreen(
     navController: NavHostController,
     mainViewModel: MainViewModel,
-    settingsViewModel: SettingsViewModel = hiltViewModel()
+    mainScreenViewModel: MainScreenViewModel,
+    settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel
 ) {
-
     LaunchedEffect(Unit) {
         mainViewModel.authenticationMethod.collect {
-            if (!mainViewModel.isNewUser && !(it == SettingsAuthenticationMethod.Password || it == SettingsAuthenticationMethod.DeviceSecurity)) {
+            if (!mainViewModel.showOnboarding && !(it is SettingsData.AuthenticationMode.Password || it == SettingsData.AuthenticationMode.DeviceSecurity)) {
                 navController.navigate(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
                     launchSingleTop = true
                     popUpTo(MainNavigationScreens.Prescriptions.path()) {
@@ -178,9 +187,10 @@ fun MainScreen(
 
     val startDestination =
         when {
-            mainViewModel.isNewUser -> {
+            mainViewModel.showOnboarding -> {
                 MainNavigationScreens.Onboarding.route
             }
+
             else -> {
                 MainNavigationScreens.Prescriptions.route
             }
@@ -188,27 +198,47 @@ fun MainScreen(
 
     TrackNavigationChanges(navController)
     val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
-
+    var secureMethod by rememberSaveable { mutableStateOf<OnboardingSecureAppMethod>(OnboardingSecureAppMethod.None) }
     NavHost(
         navController,
         startDestination = startDestination
     ) {
         composable(MainNavigationScreens.Onboarding.route) {
-            OnboardingScreen(navController)
+            OnboardingScreen(
+                mainNavController = navController,
+                settingsViewModel = settingsViewModel
+            )
         }
         composable(MainNavigationScreens.ReturningUserSecureAppOnboarding.route) {
-            ReturningUserSecureAppOnboardingScreen(navController)
+            ReturningUserSecureAppOnboardingScreen(
+                navController,
+                secureMethod = secureMethod,
+                onSecureMethodChange = { secureMethod = it },
+                settingsViewModel = settingsViewModel
+            )
+        }
+        composable(OnboardingNavigationScreens.Biometry.route) {
+            NavigationAnimation(mode = navigationMode) {
+                AllowBiometryScreen(
+                    onBack = { navController.popBackStack() },
+                    onNext = { navController.popBackStack() },
+                    onSecureMethodChange = { secureMethod = it }
+                )
+            }
         }
         composable(MainNavigationScreens.DataTermsUpdateScreen.route) {
-            val dataProtectionVersionAccepted by mainViewModel.dataProtectionVersionAccepted().collectAsState(
-                initial = LocalDate.MIN
-            )
-            DataTermsUpdateScreen(
-                dataProtectionVersionAccepted,
-                onClickDataTerms = { navController.navigate(MainNavigationScreens.DataProtection.route) }
-            ) {
-                mainViewModel.acceptUpdatedDataTerms(LocalDate.now())
-                navController.navigate(MainNavigationScreens.Prescriptions.route)
+            val dataProtectionVersionAccepted: Instant? by mainViewModel
+                .dataProtectionVersionAcceptedOn()
+                .collectAsState(initial = null)
+
+            dataProtectionVersionAccepted?.let { acceptedOn ->
+                DataTermsUpdateScreen(
+                    acceptedOn,
+                    onClickDataTerms = { navController.navigate(MainNavigationScreens.DataProtection.route) }
+                ) {
+                    mainViewModel.acceptUpdatedDataTerms()
+                    navController.navigate(MainNavigationScreens.Prescriptions.route)
+                }
             }
         }
         composable(MainNavigationScreens.DataProtection.route) {
@@ -224,42 +254,40 @@ fun MainScreen(
             MainNavigationScreens.Settings.route,
             MainNavigationScreens.Settings.arguments
         ) {
-            val scrollTo = remember { it.arguments?.get("scrollToSection") as SettingsScrollTo }
-            SettingsScreen(scrollTo = scrollTo, navController)
+            SettingsScreen(
+                mainNavController = navController,
+                settingsViewModel = settingsViewModel
+            )
         }
         composable(MainNavigationScreens.Camera.route) {
-            ScanScreen(navController)
+            val scanViewModel by rememberViewModel<ScanPrescriptionViewModel>()
+            ScanScreen(mainNavController = navController, scanViewModel = scanViewModel)
         }
         composable(MainNavigationScreens.Prescriptions.route) {
-            MainScreenWithScaffold(navController, mainViewModel)
+            MainScreenWithScaffold(
+                mainNavController = navController,
+                mainViewModel = mainViewModel,
+                mainScreenViewModel = mainScreenViewModel,
+                settingsViewModel = settingsViewModel,
+                profileSettingsViewModel = profileSettingsViewModel
+            )
         }
-        composable(MainNavigationScreens.ProfileSetup.route) {
-            var profileName by remember { mutableStateOf("") }
 
-            OnboardingProfile(
-                modifier = Modifier.minimalSystemBarsPadding(),
-                isReturningUser = true,
-                profileName = profileName,
-                onProfileNameChange = { profileName = it }
-            ) {
-                mainViewModel.overwriteDefaultProfile(profileName)
-                navController.popBackStack()
-            }
-        }
         composable(
             MainNavigationScreens.PrescriptionDetail.route,
-            MainNavigationScreens.PrescriptionDetail.arguments,
+            MainNavigationScreens.PrescriptionDetail.arguments
         ) {
             val taskId = remember { requireNotNull(it.arguments?.getString("taskId")) }
-            PrescriptionDetailsScreen(taskId, navController)
+            PrescriptionDetailsScreen(taskId = taskId, mainNavController = navController)
         }
         composable(
             MainNavigationScreens.Pharmacies.route,
-            MainNavigationScreens.Pharmacies.arguments,
+            MainNavigationScreens.Pharmacies.arguments
         ) {
-            val taskIds =
-                remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
-            PharmacySearchScreenWithNavigation(taskIds, navController)
+            PharmacyNavigation(
+                mainNavController = navController,
+                mainScreenVM = mainScreenViewModel
+            )
         }
         composable(MainNavigationScreens.InsecureDeviceScreen.route) {
             InsecureDeviceScreen(
@@ -291,163 +319,381 @@ fun MainScreen(
             val taskIds =
                 remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
             RedeemScreen(
-                taskIds,
-                navController
+                taskIds = taskIds,
+                navController = navController
             )
         }
         composable(
-            MainNavigationScreens.PickUpCode.route,
-            MainNavigationScreens.PickUpCode.arguments
+            MainNavigationScreens.Messages.route,
+            MainNavigationScreens.Messages.arguments
         ) {
-            val pickUpCodeHR =
-                remember { navController.currentBackStackEntry?.arguments?.getString("pickUpCodeHR") }
-            val pickUpCodeDMC =
-                remember { navController.currentBackStackEntry?.arguments?.getString("pickUpCodeDMC") }
-            DisplayPickupScreen(
-                navController,
-                pickupCodeHR = pickUpCodeHR,
-                pickupCodeDMC = pickUpCodeDMC
+            val orderId =
+                remember { it.arguments?.getString("orderId")!! }
+
+            MessageScreen(
+                orderId = orderId,
+                mainNavController = navController
             )
         }
         composable(
             MainNavigationScreens.CardWall.route,
-            MainNavigationScreens.CardWall.arguments,
+            MainNavigationScreens.CardWall.arguments
         ) {
-            val canAvailable = remember {
-                navController.currentBackStackEntry?.arguments?.getBoolean("can") ?: false
-            }
-            CardWallScreen(onFinishedCardWall = {
-                navController.navigate(
-                    MainNavigationScreens.Prescriptions.path(),
-                    navOptions {
-                        popUpTo(MainNavigationScreens.Prescriptions.route) {
-                            inclusive = true
+            val profileId =
+                remember { it.arguments?.getString("profileId")!! }
+            CardWallScreen(
+                navController,
+                onResumeCardWall = {
+                    navController.navigate(
+                        MainNavigationScreens.Prescriptions.path(),
+                        navOptions {
+                            popUpTo(MainNavigationScreens.Prescriptions.route) {
+                                inclusive = true
+                            }
                         }
-                    }
-                )
-            }, canAvailable)
+                    )
+                },
+                profileId = profileId
+            )
         }
         composable(
             MainNavigationScreens.EditProfile.route,
-            MainNavigationScreens.EditProfile.arguments,
+            MainNavigationScreens.EditProfile.arguments
         ) {
             val profileId =
-                remember { navController.currentBackStackEntry?.arguments?.getInt("profileId")!! }
+                remember { navController.currentBackStackEntry?.arguments?.getString("profileId")!! }
             EditProfileScreen(
                 profileId,
                 settingsViewModel,
+                profileSettingsViewModel,
                 onBack = { navController.popBackStack() },
                 mainNavController = navController
             )
         }
+        composable(MainNavigationScreens.Debug.route) {
+            DebugScreenWrapper(navController)
+        }
+        composable(MainNavigationScreens.Terms.route) {
+            NavigationAnimation(mode = navigationMode) {
+                WebViewScreen(
+                    title = stringResource(R.string.onb_terms_of_use),
+                    onBack = { navController.popBackStack() },
+                    url = URI_TERMS_OF_USE
+                )
+            }
+        }
+        composable(MainNavigationScreens.Imprint.route) {
+            NavigationAnimation(mode = navigationMode) {
+                LegalNoticeWithScaffold(
+                    navController
+                )
+            }
+        }
+        composable(MainNavigationScreens.DataProtection.route) {
+            NavigationAnimation(mode = navigationMode) {
+                WebViewScreen(
+                    title = stringResource(R.string.onb_data_consent),
+                    onBack = { navController.popBackStack() },
+                    url = URI_DATA_TERMS
+                )
+            }
+        }
+        composable(MainNavigationScreens.OpenSourceLicences.route) {
+            NavigationAnimation(mode = navigationMode) {
+                LicenseScreen(
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(MainNavigationScreens.AdditionalLicences.route) {
+            NavigationAnimation(mode = navigationMode) {
+                PharmacyLicenseScreen {
+                    navController.popBackStack()
+                }
+            }
+        }
+        composable(MainNavigationScreens.AllowAnalytics.route) {
+            NavigationAnimation(mode = navigationMode) {
+                AllowAnalyticsScreen(
+                    onBack = { navController.popBackStack() },
+                    onAllowAnalytics = {
+                        if (it) {
+                            settingsViewModel.onTrackingAllowed()
+                        } else {
+                            settingsViewModel.onTrackingDisallowed()
+                        }
+                    }
+                )
+            }
+        }
+        composable(MainNavigationScreens.Password.route) {
+            NavigationAnimation(mode = navigationMode) {
+                SecureAppWithPassword(
+                    navController,
+                    settingsViewModel
+                )
+            }
+        }
+        composable(MainNavigationScreens.OrderHealthCard.route) {
+            HealthCardContactOrderScreen(onBack = { navController.popBackStack() })
+        }
+        composable(
+            MainNavigationScreens.EditProfile.route,
+            MainNavigationScreens.EditProfile.arguments
+        ) {
+            val profileId = remember { it.arguments!!.getString("profileId")!! }
+
+            val state by produceState(SettingsScreen.defaultState) {
+                settingsViewModel.screenState().collect {
+                    value = it
+                }
+            }
+
+            state.profileById(profileId)?.let { profile ->
+                EditProfileScreen(
+                    state,
+                    profile,
+                    settingsViewModel,
+                    profileSettingsViewModel,
+                    onRemoveProfile = {
+                        settingsViewModel.removeProfile(profile, it)
+                        navController.popBackStack()
+                    },
+                    onBack = { navController.popBackStack() },
+                    mainNavController = navController
+                )
+            }
+        }
+
+        composable(
+            MainNavigationScreens.ProfileImageCropper.route,
+            MainNavigationScreens.ProfileImageCropper.arguments
+        ) {
+            val profileId = remember { it.arguments!!.getString("profileId")!! }
+
+            ProfileImageCropper(
+                onSaveCroppedImage = {
+                    profileSettingsViewModel.savePersonalizedProfileImage(profileId, it)
+                    navController.popBackStack()
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(
+            MainNavigationScreens.UnlockEgk.route,
+            MainNavigationScreens.UnlockEgk.arguments
+        ) {
+            val unlockMethod = remember { it.arguments!!.getString("unlockMethod") }
+
+            NavigationAnimation(mode = navigationMode) {
+                UnlockEgKScreen(
+                    unlockMethod = when (unlockMethod) {
+                        UnlockMethod.ChangeReferenceData.name -> UnlockMethod.ChangeReferenceData
+                        UnlockMethod.ResetRetryCounter.name -> UnlockMethod.ResetRetryCounter
+                        UnlockMethod.ResetRetryCounterWithNewSecret.name -> UnlockMethod.ResetRetryCounterWithNewSecret
+                        else -> UnlockMethod.None
+                    },
+                    navController = navController,
+                    onClickLearnMore = {
+                        navController.navigate(
+                            MainNavigationScreens.OrderHealthCard.path()
+                        )
+                    }
+                )
+            }
+        }
+
+        composable(
+            MainNavigationScreens.Archive.route
+        ) {
+            val prescriptionViewModel by rememberViewModel<PrescriptionViewModel>()
+
+            NavigationAnimation(mode = navigationMode) {
+                ArchiveScreen(prescriptionViewModel = prescriptionViewModel, navController = navController) {
+                    navController.popBackStack()
+                }
+            }
+        }
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@Suppress("LongMethod")
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreenWithScaffold(
     mainNavController: NavController,
-    mainViewModel: MainViewModel = hiltViewModel(LocalActivity.current),
-    mainScreenVM: MainScreenViewModel = hiltViewModel(LocalActivity.current),
-    messageVM: MessageViewModel = hiltViewModel()
+    mainViewModel: MainViewModel,
+    mainScreenViewModel: MainScreenViewModel,
+    settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel
 ) {
+    val profileHandler = LocalProfileHandler.current
+    val redeemState = rememberRedeemState(profileHandler.activeProfile)
 
     LaunchedEffect(Unit) {
-        if (mainViewModel.showDataTermsUpdate.first()) {
-            mainNavController.navigate(MainNavigationScreens.DataTermsUpdateScreen.path())
-        } else if (mainViewModel.showInsecureDevicePrompt.first()) {
-            mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.path())
-        } else if (mainViewModel.showProfileSetupPrompt.first()) {
-            mainNavController.navigate(MainNavigationScreens.ProfileSetup.path())
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        mainViewModel.showSafetynetPrompt.collect {
-            if (!it) {
-                mainNavController.navigate(MainNavigationScreens.SafetynetNotOkScreen.route)
+        withContext(Dispatchers.Main) {
+            if (mainViewModel.showDataTermsUpdate.first()) {
+                mainNavController.navigate(
+                    MainNavigationScreens.DataTermsUpdateScreen.path(),
+                    navOptions {
+                        launchSingleTop = true
+                        popUpTo(MainNavigationScreens.Prescriptions.path()) {
+                            inclusive = true
+                        }
+                    }
+                )
+            } else if (mainViewModel.showInsecureDevicePrompt.first()) {
+                mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.path())
             }
         }
     }
 
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-
-    val redeemState by produceState(MainScreenData.emptyRedeemState) {
-        mainScreenVM.redeemState().collect {
-            value = it
-        }
-    }
-
     LaunchedEffect(Unit) {
-        sheetState.snapTo(ModalBottomSheetValue.Hidden)
+        if (BuildKonfig.INTERNAL) {
+            return@LaunchedEffect
+        }
+
+        mainViewModel.showSafetynetPrompt.collect {
+            if (!it) {
+                withContext(Dispatchers.Main) {
+                    mainNavController.navigate(MainNavigationScreens.SafetynetNotOkScreen.route)
+                }
+            }
+        }
     }
 
     val scaffoldState = rememberScaffoldState()
 
     MainScreenSnackbar(
-        mainScreenViewModel = mainScreenVM,
-        scaffoldState = scaffoldState,
+        mainScreenViewModel = mainScreenViewModel,
+        scaffoldState = scaffoldState
     )
+
+    OrderSuccessDialog(mainScreenViewModel)
 
     val coroutineScope = rememberCoroutineScope()
 
+    var mainScreenBottomSheetContentState: MainScreenBottomSheetContentState? by remember { mutableStateOf(null) }
+
+    val sheetState = rememberModalBottomSheetState(
+        ModalBottomSheetValue.Hidden,
+        confirmStateChange = {
+            it != ModalBottomSheetValue.HalfExpanded
+        }
+    )
+    LaunchedEffect(Unit) {
+        sheetState.snapTo(ModalBottomSheetValue.Hidden)
+    }
+
+    LaunchedEffect(mainScreenBottomSheetContentState) {
+        if (mainScreenBottomSheetContentState != null) {
+            sheetState.show()
+        } else {
+            sheetState.hide()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (mainViewModel.showWelcomeDrawer.first()) {
+            mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Connect
+            mainViewModel.welcomeDrawerShown()
+        }
+    }
+
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.targetValue == ModalBottomSheetValue.Hidden) {
+            mainScreenBottomSheetContentState = null
+        }
+    }
+
+    var profileToRename by remember {
+        mutableStateOf(DefaultProfile)
+    }
+
+    BackHandler(enabled = sheetState.isVisible) {
+        coroutineScope.launch {
+            sheetState.hide()
+        }
+    }
+
     ModalBottomSheetLayout(
         sheetState = sheetState,
+        modifier = Modifier.imePadding(),
+        sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) },
         sheetContent = {
-            BottomSheetAction(
-                icon = Icons.Rounded.QrCode,
-                title = stringResource(R.string.dialog_redeem_headline),
-                info = stringResource(R.string.dialog_redeem_info),
-                modifier = Modifier.testTag("main/redeemInLocalPharmacyButton")
-            ) {
-                mainNavController.navigate(
-                    MainNavigationScreens.RedeemLocally.path(
-                        TaskIds(redeemState.scannedTaskIds + redeemState.syncedTaskIds)
-                    )
-                )
-            }
-
-            BottomSheetAction(
-                enabled = redeemState.syncedTaskIds.isNotEmpty(),
-                icon = Icons.Rounded.ShoppingBag,
-                title = stringResource(R.string.dialog_order_headline),
-                info = stringResource(R.string.dialog_order_info),
-                modifier = Modifier.testTag("main/redeemRemoteButton")
-            ) {
-                mainNavController.navigate(
-                    MainNavigationScreens.Pharmacies.path(
-                        TaskIds(redeemState.syncedTaskIds)
-                    )
-                )
-            }
-
-            Box(Modifier.navigationBarsHeight())
+            MainScreenBottomSheetContentState(
+                settingsViewModel = settingsViewModel,
+                profileSettingsViewModel = profileSettingsViewModel,
+                infoContentState = mainScreenBottomSheetContentState,
+                redeemState = redeemState,
+                mainNavController = mainNavController,
+                profileToRename = profileToRename,
+                onCancel = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                }
+            )
         }
     ) {
         val bottomNavController = rememberNavController()
 
-        val showFab by produceState(false) {
-            bottomNavController.currentBackStackEntryFlow.collect {
-                value = it.destination.route == MainNavigationScreens.Prescriptions.route
-            }
-        }
+        val currentBottomNavigationRoute by bottomNavController
+            .currentBackStackEntryFlow
+            .collectAsState(null)
+
+        // TODO: move to general place?
+        ExternalAuthenticationDialog()
+
+        var topBarElevated by remember { mutableStateOf(true) }
 
         Scaffold(
-            topBar = { MultiProfileTopAppBar(mainNavController, mainScreenVM) },
-            bottomBar = { MainScreenBottomNavigation(mainNavController, bottomNavController) },
-            floatingActionButton = {
-                AnimatedVisibility(
-                    visible = redeemState.hasRedeemableTasks() && showFab,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    ExtendedFloatingActionButton(
-                        modifier = Modifier.heightIn(min = 56.dp),
-                        text = { Text(stringResource(R.string.main_redeem_button)) },
-                        icon = { Icon(Icons.Rounded.Upload, null) },
-                        onClick = { coroutineScope.launch { sheetState.show() } }
+            modifier = Modifier.testTag(TestTag.Main.MainScreen),
+            topBar = {
+                val isInPrescriptionScreen by derivedStateOf {
+                    currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
+                }
+
+                if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
+                    MultiProfileTopAppBar(
+                        navController = mainNavController,
+                        elevated = topBarElevated,
+                        mainScreenViewModel = mainScreenViewModel,
+                        isInPrescriptionScreen = isInPrescriptionScreen,
+                        onClickAddProfile = {
+                            mainScreenBottomSheetContentState =
+                                MainScreenBottomSheetContentState.EditOrAddProfileName(addProfile = true)
+                        },
+                        onClickChangeProfileName = { profile ->
+                            profileToRename = profile
+                            mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditOrAddProfileName()
+                        }
                     )
                 }
+            },
+            bottomBar = {
+                MainScreenBottomNavigation(
+                    navController = mainNavController,
+                    viewModel = mainScreenViewModel,
+                    bottomNavController = bottomNavController,
+                    profileId = profileHandler.activeProfile.id
+                )
+            },
+            floatingActionButton = {
+                val showRedeemFab by derivedStateOf {
+                    redeemState.hasRedeemableTasks &&
+                        currentBottomNavigationRoute?.destination?.route ==
+                        MainNavigationScreens.Prescriptions.route
+                }
+                RedeemFloatingActionButton(
+                    visible = showRedeemFab,
+                    onClick = {
+                        mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Redeem
+                    }
+                )
             },
             scaffoldState = scaffoldState
         ) { innerPadding ->
@@ -461,10 +707,37 @@ fun MainScreenWithScaffold(
                     startDestination = MainNavigationScreens.Prescriptions.path()
                 ) {
                     composable(MainNavigationScreens.Prescriptions.route) {
-                        PrescriptionScreen(mainNavController, uri = mainViewModel.externalAuthorizationUri)
+                        val prescriptionViewModel by rememberViewModel<PrescriptionViewModel>()
+                        PrescriptionScreen(
+                            navController = mainNavController,
+                            onClickAvatar = {
+                                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditProfile
+                            },
+                            prescriptionViewModel = prescriptionViewModel,
+                            mainScreenViewModel = mainScreenViewModel,
+                            onElevateTopBar = {
+                                topBarElevated = it
+                            },
+                            onClickArchive = { mainNavController.navigate(MainNavigationScreens.Archive.path()) }
+                        )
                     }
-                    composable(MainNavigationScreens.Messages.route) {
-                        MessageScreen(mainNavController, messageVM)
+                    composable(MainNavigationScreens.Orders.route) {
+                        OrderScreen(
+                            mainNavController = mainNavController,
+                            mainScreenViewModel = mainScreenViewModel,
+                            onElevateTopBar = {
+                                topBarElevated = it
+                            }
+                        )
+                    }
+                    composable(
+                        MainNavigationScreens.Settings.route,
+                        MainNavigationScreens.Settings.arguments
+                    ) {
+                        SettingsScreen(
+                            mainNavController = mainNavController,
+                            settingsViewModel = settingsViewModel
+                        )
                     }
                 }
             }
@@ -473,26 +746,30 @@ fun MainScreenWithScaffold(
 }
 
 @Composable
-private fun MainScreenBottomNavigation(
+fun MainScreenBottomNavigation(
     navController: NavController,
     bottomNavController: NavController,
-    viewModel: MainScreenViewModel = hiltViewModel(LocalActivity.current)
+    viewModel: MainScreenViewModel,
+    profileId: ProfileIdentifier
 ) {
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    val unreadMessagesAvailable by viewModel.unreadMessagesAvailable()
+    val unreadMessagesAvailable by viewModel.unreadMessagesAvailable(profileId)
         .collectAsState(initial = false)
 
-    BottomNavigation(backgroundColor = MaterialTheme.colors.surface) {
+    BottomNavigation(
+        backgroundColor = MaterialTheme.colors.surface,
+        extraContent = {}
+    ) {
         MainScreenBottomNavigationItems.forEach { screen ->
             BottomNavigationItem(
                 modifier = Modifier.testTag(
                     when (screen) {
-                        MainNavigationScreens.Prescriptions -> "erx_btn_prescriptions"
-                        MainNavigationScreens.Messages -> "erx_btn_messages"
-                        MainNavigationScreens.Pharmacies -> "erx_btn_search_pharmacies"
-                        MainNavigationScreens.Settings -> "erx_btn_settings"
+                        MainNavigationScreens.Prescriptions -> TestTag.BottomNavigation.PrescriptionButton
+                        MainNavigationScreens.Orders -> TestTag.BottomNavigation.OrdersButton
+                        MainNavigationScreens.Pharmacies -> TestTag.BottomNavigation.PharmaciesButton
+                        MainNavigationScreens.Settings -> TestTag.BottomNavigation.SettingsButton
                         else -> ""
                     }
                 ),
@@ -505,15 +782,20 @@ private fun MainScreenBottomNavigation(
                             null,
                             modifier = Modifier.size(24.dp)
                         )
-                        MainNavigationScreens.Messages -> Icon(
+
+                        MainNavigationScreens.Orders -> Icon(
                             if (unreadMessagesAvailable) Icons.Outlined.MarkChatUnread else Icons.Outlined.MarkChatRead,
                             null
                         )
+
                         MainNavigationScreens.Pharmacies -> Icon(
-                            Icons.Outlined.Search, contentDescription = null
+                            Icons.Outlined.Search,
+                            contentDescription = null
                         )
+
                         MainNavigationScreens.Settings -> Icon(
-                            Icons.Outlined.Settings, contentDescription = null
+                            Icons.Outlined.Settings,
+                            contentDescription = null
                         )
                     }
                 },
@@ -522,7 +804,7 @@ private fun MainScreenBottomNavigation(
                         stringResource(
                             when (screen) {
                                 MainNavigationScreens.Prescriptions -> R.string.pres_bottombar_prescriptions
-                                MainNavigationScreens.Messages -> R.string.pres_bottombar_messages
+                                MainNavigationScreens.Orders -> R.string.pres_bottombar_orders
                                 MainNavigationScreens.Pharmacies -> R.string.pres_bottombar_pharmacies
                                 MainNavigationScreens.Settings -> R.string.main_settings_acc
                                 else -> R.string.pres_bottombar_prescriptions
@@ -536,12 +818,12 @@ private fun MainScreenBottomNavigation(
                 alwaysShowLabel = true,
                 onClick = {
                     if (currentRoute != screen.route) {
-                        if (screen.route == MainNavigationScreens.Pharmacies.route ||
-                            screen.route == MainNavigationScreens.Settings.route
-                        ) {
-                            navController.navigate(screen.path())
-                        } else {
-                            bottomNavController.navigate(screen.path())
+                        when (screen.route) {
+                            MainNavigationScreens.Pharmacies.route ->
+                                navController.navigate(screen.path())
+
+                            else ->
+                                bottomNavController.navigate(screen.path())
                         }
                     }
                 }
@@ -550,289 +832,237 @@ private fun MainScreenBottomNavigation(
     }
 }
 
-@Preview(showBackground = true)
 @Composable
-fun TopAppBarMultiUserPreview() {
-    AppTheme {
-        TopAppBarMultiUser(mainScreenViewModel = hiltViewModel(LocalActivity.current), {}, {})
+fun MainScreenTopBarTitle(isInPrescriptionScreen: Boolean) {
+    val text = if (isInPrescriptionScreen) {
+        stringResource(R.string.pres_bottombar_prescriptions)
+    } else {
+        stringResource(R.string.orders_title)
     }
+    Text(
+        text = text,
+        style = AppTheme.typography.h5,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
-fun TopAppBarMultiUser(
+fun ProfilesChipBar(
     mainScreenViewModel: MainScreenViewModel,
-    onClickEdit: (Int) -> Unit,
-    onClickEditProfiles: () -> Unit
+    onClickAddProfile: () -> Unit,
+    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit
 ) {
+    val profileHandler = LocalProfileHandler.current
+    val profiles = profileHandler.profiles.value
+    val scope = rememberCoroutineScope()
+    val rowState = rememberLazyListState()
 
-    val profileList by produceState(
-        initialValue = listOf(
-            ProfilesUseCaseData.Profile(
-                id = 0,
-                name = "",
-                active = true,
-                color = ProfileColorNames.SPRING_GRAY,
-                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation()
-            )
-        )
-    ) {
-        mainScreenViewModel.profileUiState().collect { value = it }
+    var indexOfActiveProfile by remember { mutableStateOf(0) }
+
+    LaunchedEffect(indexOfActiveProfile) {
+        delay(timeMillis = 300L)
+        rowState.animateScrollToItem(indexOfActiveProfile)
     }
 
-    val activeProfile = profileList.find {
-        it.active
-    }!!
-
-    val lastAuthenticatedDate = remember(activeProfile) {
-        activeProfile.lastAuthenticated?.let {
-            dateTimeShortText(it)
-        }
-    }
-
-    val activeProfileName = activeProfile.name
-    val activeProfileColor = profileColor(activeProfile.color)
-    val ssoToken = activeProfile.ssoToken
-    val ssoText = connectionText(ssoToken, lastAuthenticatedDate)
-    val ssoTextColor = connectionTextColor(profileSsoToken = ssoToken)
-    val ssoStatusColor = ssoStatusColor(activeProfile, ssoToken)
-
-    var expanded by remember { mutableStateOf(false) }
-
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Start,
+    LazyRow(
+        state = rowState,
+        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small),
         modifier = Modifier
-            .wrapContentWidth()
-            .clip(CircleShape)
-            .clickable { expanded = !expanded }
-            .padding(PaddingDefaults.Tiny)
-    ) {
-        Avatar(activeProfileName, activeProfileColor, ssoStatusColor)
-        Column(
-            Modifier.padding(
-                start = PaddingDefaults.Small + PaddingDefaults.Tiny,
-                end = PaddingDefaults.Medium
-            )
-        ) {
-
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = activeProfileName,
-                    style = MaterialTheme.typography.subtitle1,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Icon(
-                    imageVector = Icons.Rounded.ArrowDropDown,
-                    contentDescription = null,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-
-            Text(
-                text = ssoText,
-                color = ssoTextColor,
-                style = AppTheme.typography.captionl
-            )
-
-            if (expanded) {
-                ProfileSelector(
-                    onClickEdit = onClickEdit,
-                    onClickEditProfiles = onClickEditProfiles,
-                    onClickProfile = { mainScreenViewModel.saveActiveProfile(it) },
-                    userList = profileList,
-                    onDismiss = { expanded = false },
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoToken: SingleSignOnToken?) =
-    when {
-        ssoToken?.isValid() == true -> AppTheme.colors.green400
-        profile.lastAuthenticated != null -> AppTheme.colors.red400
-        else -> null
-    }
-
-@Composable
-private fun ProfileSelector(
-    onClickEdit: (Int) -> Unit,
-    onClickEditProfiles: () -> Unit,
-    onClickProfile: (ProfilesUseCaseData.Profile) -> Unit,
-    userList: List<ProfilesUseCaseData.Profile>,
-    onDismiss: () -> Unit
-) {
-
-    val dismissModifier =
-        Modifier.clickable(
-            onClick = onDismiss,
-            indication = null,
-            interactionSource = remember { MutableInteractionSource() }
-        )
-
-    Dialog(
-        onDismissRequest = onDismiss,
-    ) {
-        Box(
-            Modifier
-                .semantics(false) { }
-                .fillMaxSize()
-                .then(dismissModifier)
-                .background(SolidColor(Color.Black), alpha = 0.5f)
-                .systemBarsPadding(),
-            contentAlignment = Alignment.TopCenter
-        ) {
-            Surface(
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .padding(PaddingDefaults.Medium),
-                color = MaterialTheme.colors.surface,
-                shape = RoundedCornerShape(28.dp),
-                elevation = 8.dp
-            ) {
-
-                AnimatedVisibility(
-                    visibleState = remember { MutableTransitionState(false) }.apply {
-                        targetState = true
-                    },
-                    enter = expandVertically() + fadeIn(),
-                    exit = ExitTransition.None
-
-                ) {
-                    Box() {
-                        Column(modifier = Modifier.padding(bottom = 56.dp)) {
-                            Row(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    text = stringResource(R.string.select_profile),
-                                    style = MaterialTheme.typography.body2,
-                                    color = AppTheme.colors.neutral600,
-                                    modifier = Modifier
-                                        .padding(
-                                            start = PaddingDefaults.Medium,
-                                            end = PaddingDefaults.Medium,
-                                            top = PaddingDefaults.Medium,
-                                            bottom = PaddingDefaults.Medium / 2
-                                        )
-                                        .weight(1f)
-                                        .testTag("ProfileSelector")
-                                )
-                                IconButton(onClick = { onDismiss() }) {
-                                    Icon(
-                                        imageVector = Icons.Rounded.Close,
-                                        tint = AppTheme.colors.primary600,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(24.dp)
-                                    )
-                                }
-                            }
-
-                            val listState = rememberLazyListState()
-
-                            LazyColumn(
-                                modifier = Modifier.testTag("profileList"),
-                                state = listState
-                            ) {
-                                userList.forEach {
-                                    item {
-                                        ProfileCard(
-                                            profile = it,
-                                            onClickEdit = onClickEdit,
-                                            onClickProfile = onClickProfile,
-                                            onDismiss = onDismiss
-                                        )
-                                    }
-                                }
-                            }
-                        }
-
-                        Column(modifier = Modifier.align(Alignment.BottomCenter)) {
-                            Divider(color = AppTheme.colors.neutral300)
-                            TextButton(
-                                onClick = { onClickEditProfiles() },
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(56.dp)
-                            ) {
-                                Text(text = stringResource(R.string.edit_profiles))
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun ProfileCard(
-    profile: ProfilesUseCaseData.Profile,
-    onClickEdit: (Int) -> Unit,
-    onClickProfile: (profile: ProfilesUseCaseData.Profile) -> Unit,
-    onDismiss: () -> Unit
-) {
-    val colors = profileColor(profileColorNames = profile.color)
-    val profileSsoToken = profile.ssoToken
-
-    Row(
-        modifier = Modifier
-            .wrapContentHeight()
             .fillMaxWidth()
-            .clickable {
-                onClickProfile(profile)
-                onDismiss()
-            },
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+            .padding(top = PaddingDefaults.Medium, bottom = PaddingDefaults.Small),
         verticalAlignment = Alignment.CenterVertically
+    ) {
+        item {
+            SpacerSmall()
+        }
+        profiles.forEachIndexed { index, profile ->
+            if (profile.id == profileHandler.activeProfile.id) {
+                indexOfActiveProfile = index + 1
+            }
+
+            item {
+                ProfileChip(
+                    profile = profile,
+                    mainScreenViewModel = mainScreenViewModel,
+                    selected = profile.id == profileHandler.activeProfile.id,
+                    onClickChip = { scope.launch { profileHandler.switchActiveProfile(profile) } },
+                    onClickChangeProfileName = onClickChangeProfileName
+                )
+                SpacerSmall()
+            }
+        }
+        item {
+            AddProfileChip {
+                onClickAddProfile()
+            }
+            SpacerMedium()
+        }
+    }
+}
+
+@Composable
+fun AddProfileChip(onClickAddProfile: () -> Unit) {
+    val shape = RoundedCornerShape(8.dp)
+
+    Surface(
+        modifier = Modifier
+            .clip(shape)
+            .clickable {
+                onClickAddProfile()
+            }
+            .height(IntrinsicSize.Max),
+        shape = shape,
+        border = BorderStroke(1.dp, AppTheme.colors.neutral300)
+    ) {
+        Row(
+            modifier = Modifier.padding(vertical = 6.dp, horizontal = PaddingDefaults.Medium),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                Icons.Rounded.PersonAdd,
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+                tint = AppTheme.colors.primary600
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun ProfileChip(
+    profile: ProfilesUseCaseData.Profile,
+    selected: Boolean,
+    mainScreenViewModel: MainScreenViewModel,
+    onClickChip: (ProfileIdentifier) -> Unit,
+    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit
+) {
+    val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenViewModel)
+
+    val isRefreshing by refreshPrescriptionsController.isRefreshing
+    var refreshEvent by remember { mutableStateOf<PrescriptionServiceState?>(null) }
+
+    LaunchedEffect(Unit) {
+        mainScreenViewModel.onRefreshEvent.collect {
+            refreshEvent = it
+        }
+    }
+
+    var iconVisible by remember { mutableStateOf(false) }
+
+    val coroutineScope = rememberCoroutineScope()
+
+    val ssoTokenScope = profile.ssoTokenScope
+
+    LaunchedEffect(Unit) {
+        ssoTokenScope?.token?.let {
+            if (!it.isValid()) {
+                iconVisible = true
+                delay(StateVisibilityTime)
+                iconVisible = false
+            }
+        }
+    }
+
+    LaunchedEffect(key1 = refreshEvent, key2 = isRefreshing) {
+        iconVisible = true
+        delay(StateVisibilityTime)
+        iconVisible = false
+    }
+
+    val icon = when {
+        ssoTokenScope?.token?.isValid() == true -> Icons.Rounded.CloudDone
+        else -> Icons.Outlined.CloudOff
+    }
+
+    val color = if (refreshEvent is PrescriptionServiceErrorState) {
+        AppTheme.colors.neutral600
+    } else {
+        ssoStatusColor(profile, ssoTokenScope) ?: AppTheme.colors.neutral400
+    }
+
+    val configuration = LocalConfiguration.current
+    val maxChipWidth = (configuration.screenWidthDp.dp) * Third
+
+    val shape = RoundedCornerShape(8.dp)
+
+    val backgroundColor = if (selected) {
+        AppTheme.colors.neutral100
+    } else {
+        AppTheme.colors.neutral025
+    }
+    val textColor = if (selected) {
+        AppTheme.colors.neutral900
+    } else {
+        AppTheme.colors.neutral600
+    }
+    val borderColor = if (selected) {
+        AppTheme.colors.neutral300
+    } else {
+        AppTheme.colors.neutral200
+    }
+
+    val description = stringResource(R.string.mainscreen_profile_chip_content_description)
+
+    Surface(
+        modifier = Modifier
+            .clip(shape)
+            .combinedClickable(
+                onClick = { onClickChip(profile.id) },
+                onLongClick = { onClickChangeProfileName(profile) },
+                role = Role.Button
+            )
+            .widthIn(max = maxChipWidth)
+            .width(IntrinsicSize.Max)
+            .semantics {
+                contentDescription = description
+            },
+        shape = shape,
+        border = BorderStroke(1.dp, borderColor),
+        color = backgroundColor
     ) {
         Row(
             modifier = Modifier
-                .weight(1f)
-                .padding(PaddingDefaults.Medium)
+                .padding(vertical = 8.dp, horizontal = PaddingDefaults.ShortMedium),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Avatar(profile.name, colors, null, active = profile.active)
+            Text(
+                text = profile.name,
+                style = AppTheme.typography.subtitle2,
+                color = textColor,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
 
-            SpacerSmall()
-
-            Column {
-                Text(
-                    profile.name, style = MaterialTheme.typography.body1,
-                )
-
-                val lastAuthenticatedDateText =
-                    remember(profile.lastAuthenticated) {
-                        profile.lastAuthenticated?.let {
-                            dateTimeShortText(
-                                it
-                            )
-                        }
-                    }
-                val connectedText = connectionText(profileSsoToken, lastAuthenticatedDateText)
-                val connectedColor = connectionTextColor(profileSsoToken)
-
-                Text(
-                    connectedText, style = AppTheme.typography.captionl,
-                    color = connectedColor,
-                )
+            if (profile.lastAuthenticated != null && selected) {
+                AnimatedVisibility(
+                    visible = iconVisible,
+                    enter = fadeIn(animationSpec = tween(TweenDuration)),
+                    exit = fadeOut(animationSpec = tween(TweenDuration))
+                ) {
+                    Icon(
+                        imageVector = icon,
+                        modifier = Modifier
+                            .size(16.dp),
+                        contentDescription = null,
+                        tint = color
+                    )
+                }
             }
         }
-
-        TextButton(
-            onClick = {
-                onClickEdit(profile.id)
-            }
-        ) {
-            Text(text = "Details")
-        }
-
-        SpacerTiny()
     }
 }
+
+@Composable
+fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoTokenScope: IdpData.SingleSignOnTokenScope?) =
+    when {
+        ssoTokenScope?.token?.isValid() == true -> AppTheme.colors.green400
+        profile.lastAuthenticated != null -> AppTheme.colors.neutral400
+        else -> null
+    }
 
 /**
  * The top appbar of the actual main screen.
@@ -840,34 +1070,20 @@ fun ProfileCard(
 @Composable
 fun MultiProfileTopAppBar(
     navController: NavController,
-    mainScreenVieModel: MainScreenViewModel
+    mainScreenViewModel: MainScreenViewModel,
+    isInPrescriptionScreen: Boolean,
+    elevated: Boolean,
+    onClickAddProfile: () -> Unit,
+    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit
 ) {
     val accScan = stringResource(R.string.main_scan_acc)
-    val context = LocalContext.current
-    val demoToastText = stringResource(R.string.function_not_availlable_on_demo_mode)
-
-    TopAppBar(
+    val elevation = remember(elevated) { if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp }
+    TopAppBarWithContent(
         title = {
-            TopAppBarMultiUser(
-                mainScreenVieModel,
-                onClickEditProfiles = {
-                    navController.navigate(
-                        MainNavigationScreens.Settings.path(
-                            SettingsScrollTo.Profiles
-                        )
-                    )
-                },
-                onClickEdit = {
-                    if (mainScreenVieModel.isDemoActive()) {
-                        createToastShort(context, demoToastText)
-                    } else {
-                        navController.navigate(MainNavigationScreens.EditProfile.path(it))
-                    }
-                }
-            )
+            MainScreenTopBarTitle(isInPrescriptionScreen)
         },
-        elevation = 8.dp,
-        backgroundColor = MaterialTheme.colors.surface,
+        elevation = elevation,
+        backgroundColor = AppTheme.colors.neutral025,
         actions = @Composable {
             var showMlKitPermissionDialog by remember { mutableStateOf(false) }
 
@@ -883,30 +1099,40 @@ fun MultiProfileTopAppBar(
                 )
             }
 
-            // data matrix code scanner
-            IconButton(
-                onClick = {
-                    if (!isMlKitInitialized()) {
-                        showMlKitPermissionDialog = true
-                    } else {
-                        navController.navigate(MainNavigationScreens.Camera.path())
-                    }
-                },
-                modifier = Modifier
-                    .testId("erx_btn_scn_prescription")
-                    .semantics { contentDescription = accScan }
-            ) {
-                Icon(
-                    Icons.Rounded.QrCode, null,
-                    tint = AppTheme.colors.primary700,
-                    modifier = Modifier.size(24.dp)
-                )
+            if (isInPrescriptionScreen) {
+                // data matrix code scanner
+                IconButton(
+                    onClick = {
+                        if (!isMlKitInitialized()) {
+                            showMlKitPermissionDialog = true
+                        } else {
+                            navController.navigate(MainNavigationScreens.Camera.path())
+                        }
+                    },
+                    modifier = Modifier
+                        .testTag("erx_btn_scn_prescription")
+                        .semantics { contentDescription = accScan }
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.AddCircle,
+                        contentDescription = null,
+                        tint = AppTheme.colors.primary700,
+                        modifier = Modifier.size(24.dp)
+                    )
+                }
             }
+        },
+        content = {
+            ProfilesChipBar(
+                mainScreenViewModel = mainScreenViewModel,
+                onClickAddProfile = onClickAddProfile,
+                onClickChangeProfileName = onClickChangeProfileName
+            )
         }
     )
 }
 
-private fun isMlKitInitialized() =
+fun isMlKitInitialized() =
     try {
         MlKitContext.getInstance()
         true
@@ -915,7 +1141,7 @@ private fun isMlKitInitialized() =
     }
 
 @Composable
-private fun MlKitPermissionDialog(
+fun MlKitPermissionDialog(
     onAccept: () -> Unit,
     onDecline: () -> Unit
 ) {

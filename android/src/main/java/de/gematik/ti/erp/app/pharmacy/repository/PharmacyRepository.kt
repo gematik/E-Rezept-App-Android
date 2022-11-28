@@ -18,37 +18,117 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.api.map
-import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacySearchResult
+import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import kotlinx.coroutines.flow.flowOn
+import de.gematik.ti.erp.app.fhir.model.PharmacyServices
+import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
+import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import io.github.aakira.napier.Napier
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class PharmacyRepository @Inject constructor(
-    private val remoteDataSource: PharmacyRemoteDataSource
+    private val remoteDataSource: PharmacyRemoteDataSource,
+    private val localDataSource: PharmacyLocalDataSource,
+    private val dispatchProvider: DispatchProvider
 ) {
 
     suspend fun searchPharmacies(
         names: List<String>,
         filter: Map<String, String>
-    ): Result<PharmacySearchResult> =
-        remoteDataSource.searchPharmacies(names, filter).map {
-            Result.Success(
-                PharmacyMapper.extractLocalPharmacyServices(it),
-            )
-        }
+    ): Result<PharmacyServices> =
+        remoteDataSource.searchPharmacies(names, filter)
+            .map {
+                extractPharmacyServices(
+                    bundle = it,
+                    onError = { element, cause ->
+                        Napier.e(cause) {
+                            element.toString()
+                        }
+                    }
+                )
+            }
 
     suspend fun searchPharmaciesByBundle(
         bundleId: String,
         offset: Int,
         count: Int
-    ): Result<PharmacySearchResult> =
+    ): Result<PharmacyServices> =
         remoteDataSource.searchPharmaciesContinued(
             bundleId = bundleId,
             offset = offset,
             count = count
         ).map {
-            Result.Success(
-                PharmacyMapper.extractLocalPharmacyServices(it),
+            extractPharmacyServices(
+                bundle = it,
+                onError = { element, cause ->
+                    Napier.e(cause) {
+                        element.toString()
+                    }
+                }
             )
         }
+
+    suspend fun redeemPrescription(
+        url: String,
+        message: ByteArray,
+        pharmacyTelematikId: String,
+        transactionId: String
+    ): Result<Unit> =
+        remoteDataSource.redeemPrescription(
+            url = url,
+            message = message,
+            pharmacyTelematikId = pharmacyTelematikId,
+            transactionId = transactionId
+        )
+
+    fun loadOftenUsedPharmacies() =
+        localDataSource.loadOftenUsedPharmacies().flowOn(dispatchProvider.IO)
+
+    fun loadFavoritePharmacies() =
+        localDataSource.loadFavoritePharmacies().flowOn(dispatchProvider.IO)
+
+    suspend fun saveOrUpdateOftenUsedPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
+        withContext(dispatchProvider.IO) {
+            localDataSource.saveOrUpdateOftenUsedPharmacy(pharmacy)
+        }
+    }
+
+    suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
+        withContext(dispatchProvider.IO) {
+            localDataSource.deleteOverviewPharmacy(overviewPharmacy)
+        }
+    }
+
+    suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
+        withContext(dispatchProvider.IO) {
+            localDataSource.saveOrUpdateFavoritePharmacy(pharmacy)
+        }
+    }
+
+    suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) {
+        withContext(dispatchProvider.IO) {
+            localDataSource.deleteFavoritePharmacy(favoritePharmacy)
+        }
+    }
+
+    suspend fun searchPharmacyByTelematikId(
+        telematikId: String
+    ): Result<PharmacyServices> =
+        withContext(dispatchProvider.IO) {
+            remoteDataSource.searchPharmacyByTelematikId(telematikId)
+                .map {
+                    extractPharmacyServices(
+                        bundle = it,
+                        onError = { element, cause ->
+                            Napier.e(element.toString(), cause)
+                        }
+                    )
+                }
+        }
+
+    suspend fun isPharmacyInFavorites(telematikId: String): Boolean = withContext(dispatchProvider.IO) {
+        localDataSource.isPharmacyInFavorites(telematikId)
+    }
 }

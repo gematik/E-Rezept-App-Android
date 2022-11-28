@@ -19,50 +19,6 @@
 package de.gematik.ti.erp.app.utils
 
 import kotlin.streams.asSequence
-import kotlin.streams.toList
-
-fun firstCharOfForeNameSurName(name: String): String {
-    val names = name.split(" ", "-").filter {
-        it.isNotBlank()
-    }
-    return when {
-        names.size > 1 -> {
-            val letterFirst = names.first().codePointAt(0)
-            val letterLast = names.last().codePointAt(0)
-            if (letterFirst.isEmoticon()) {
-                joinCombinedEmoji(names.first())
-            } else {
-                (Character.toChars(letterFirst) + Character.toChars(letterLast)).concatToString().uppercase()
-            }
-        }
-        names.size == 1 -> {
-            val letter = names.first().codePointAt(0)
-            if (letter.isEmoticon()) {
-                joinCombinedEmoji(names.first())
-            } else {
-                Character.toChars(letter).concatToString().uppercase()
-            }
-        }
-        else -> ""
-    }
-}
-
-// Combined emojis use https://en.wikipedia.org/wiki/Zero-width_joiner
-private fun joinCombinedEmoji(value: String): String {
-    var lastLetter = 0
-    var outString = ""
-    for (letter in value.codePoints().toList()) {
-        outString += when {
-            (lastLetter == 0 || lastLetter == 0x200d) && letter.isEmoticon() ->
-                Character.toChars(letter).concatToString()
-            letter == 0x200d ->
-                Character.toChars(letter).concatToString()
-            else -> break
-        }
-        lastLetter = letter
-    }
-    return outString
-}
 
 // see https://unicode.org/emoji/charts/full-emoji-list.html
 private fun Int.isEmoticon() = this in 0x1F600..0xE007F
@@ -81,3 +37,4 @@ fun sanitizeProfileName(name: String): String =
             }
         }
         .joinToString("")
+        .replaceFirstChar { it.uppercase() }

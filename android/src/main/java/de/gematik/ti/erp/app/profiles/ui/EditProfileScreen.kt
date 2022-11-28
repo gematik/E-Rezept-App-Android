@@ -18,14 +18,16 @@
 
 package de.gematik.ti.erp.app.profiles.ui
 
-import android.widget.Toast
-import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
+import android.graphics.BitmapFactory
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -33,83 +35,103 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Card
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.appendInlineContent
+import androidx.compose.material.Divider
+import androidx.compose.material.DropdownMenu
+import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
+import androidx.compose.material.IconButton
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CloudQueue
 import androidx.compose.material.icons.outlined.Done
+import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.VpnKey
+import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
-
-import androidx.compose.ui.text.font.FontWeight
-
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.em
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.rememberInsetsPaddingValues
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.LocalContentColor
+import androidx.compose.material.icons.rounded.AddAPhoto
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.db.entities.ProfileColorNames
+import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.TestTag.Profile.OpenTokensScreenButton
+import de.gematik.ti.erp.app.TestTag.Profile.ProfileScreen
+import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.ui.AddProfileDialog
+import de.gematik.ti.erp.app.settings.ui.ProfileNameDialog
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
-import de.gematik.ti.erp.app.utils.compose.HintCard
-import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
-import de.gematik.ti.erp.app.utils.compose.HintSmallImage
-import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
-import de.gematik.ti.erp.app.utils.compose.ProfileNameInputField
-import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.Spacer24
-import de.gematik.ti.erp.app.utils.compose.Spacer4
-import de.gematik.ti.erp.app.utils.compose.Spacer40
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.DynamicText
+import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import de.gematik.ti.erp.app.utils.compose.SpacerLarge
+import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import de.gematik.ti.erp.app.utils.firstCharOfForeNameSurName
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.collect
-import java.util.Locale
+import de.gematik.ti.erp.app.utils.compose.visualTestTag
+import de.gematik.ti.erp.app.utils.sanitizeProfileName
+import kotlinx.coroutines.launch
+import java.time.Instant
 
 @Composable
 fun EditProfileScreen(
     state: SettingsScreen.State,
     profile: ProfilesUseCaseData.Profile,
     settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel,
     onRemoveProfile: (newProfileName: String?) -> Unit,
     onBack: () -> Unit,
-    mainNavController: NavController,
+    mainNavController: NavController
 ) {
     val navController = rememberNavController()
 
@@ -117,8 +139,9 @@ fun EditProfileScreen(
         state = state,
         navController = navController,
         onBack = onBack,
-        profile = profile,
+        selectedProfile = profile,
         settingsViewModel = settingsViewModel,
+        profileSettingsViewModel = profileSettingsViewModel,
         onRemoveProfile = onRemoveProfile,
         mainNavController = mainNavController
     )
@@ -126,10 +149,11 @@ fun EditProfileScreen(
 
 @Composable
 fun EditProfileScreen(
-    profileId: Int,
+    profileId: String,
     settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel,
     onBack: () -> Unit,
-    mainNavController: NavController,
+    mainNavController: NavController
 ) {
     val state by produceState(initialValue = SettingsScreen.defaultState) {
         settingsViewModel.screenState().collect {
@@ -138,11 +162,15 @@ fun EditProfileScreen(
     }
 
     state.profileById(profileId)?.let { profile ->
+        val selectedProfile = remember(profile) {
+            profile
+        }
         EditProfileScreen(
             state = state,
             onBack = onBack,
-            profile = profile,
+            profile = selectedProfile,
             settingsViewModel = settingsViewModel,
+            profileSettingsViewModel = profileSettingsViewModel,
             onRemoveProfile = {
                 settingsViewModel.removeProfile(profile, it)
                 onBack()
@@ -152,82 +180,98 @@ fun EditProfileScreen(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 fun EditProfileScreenContent(
     onBack: () -> Unit,
     selectedProfile: ProfilesUseCaseData.Profile,
     state: SettingsScreen.State,
     settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel,
     onRemoveProfile: (newProfileName: String?) -> Unit,
+    onClickEditAvatar: () -> Unit,
     onClickToken: () -> Unit,
-    ssoTokenValid: Boolean = false,
     onClickLogIn: () -> Unit,
-    onClickAuditEvents: () -> Unit
+    onClickLogout: () -> Unit,
+    onClickAuditEvents: () -> Unit,
+    onClickPairedDevices: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    var showAddDefaultProfileDialog by remember { mutableStateOf(false) }
+    var deleteProfileDialogVisible by remember { mutableStateOf(false) }
+
+    if (deleteProfileDialogVisible) {
+        deleteProfileDialog(
+            onCancel = { deleteProfileDialogVisible = false },
+            onClickAction = {
+                if (state.profiles.size == 1) {
+                    showAddDefaultProfileDialog = true
+                } else {
+                    onRemoveProfile(null)
+                }
+                deleteProfileDialogVisible = false
+            }
+        )
+    }
 
     AnimatedElevationScaffold(
+        modifier = Modifier
+            .imePadding()
+            .visualTestTag(ProfileScreen),
         topBarTitle = stringResource(R.string.edit_profile_title),
+        navigationMode = NavigationBarMode.Back,
         listState = listState,
-        onBack = onBack,
-    ) {
-        var showAddDefaultProfileDialog by remember { mutableStateOf(false) }
-
-        LazyColumn(
-            modifier = Modifier.testTag("edit_profile_screen"),
-            state = listState,
-            contentPadding = rememberInsetsPaddingValues(
-                insets = LocalWindowInsets.current.navigationBars,
-                applyStart = false,
-                applyTop = false,
-                applyEnd = false,
-                applyBottom = true
+        actions = {
+            ThreeDotMenu(
+                selectedProfile = selectedProfile,
+                onClickLogIn = onClickLogIn,
+                onClickLogout = onClickLogout,
+                onClickDelete = { deleteProfileDialogVisible = true }
             )
+        },
+        onBack = onBack
+    ) {
+        LazyColumn(
+            modifier = Modifier.testTag(TestTag.Profile.ProfileScreenContent),
+            state = listState,
+            contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
         ) {
-            if (!selectedProfile.connected()) {
-                item {
-                    ConnectProfileHint(onClickLogIn = onClickLogIn)
-                }
-            }
             item {
-                ColorAndProfileNameSection(
+                ProfileNameSection(
                     profile = selectedProfile,
                     state = state,
                     onChangeProfileName = {
-                        settingsViewModel.updateProfileName(selectedProfile, it)
-                    },
-                    onSelectProfileColor = {
-                        settingsViewModel.updateProfileColor(selectedProfile, it)
+                        profileSettingsViewModel.updateProfileName(selectedProfile.id, it)
                     }
                 )
             }
-            item { SecuritySection(onClickToken, onClickAuditEvents, selectedProfile.ssoToken != null) }
             item {
-                if (ssoTokenValid) {
-                    LogoutButton(onClick = {
-                        settingsViewModel.logout(selectedProfile)
-                    })
-                } else
-                    LoginButton(
-                        onClick = { onClickLogIn() }
-                    )
-            }
-            item {
-                RemoveProfileSection(
-                    onClickRemoveProfile = {
-                        if (state.uiProfiles.size == 1) {
-                            showAddDefaultProfileDialog = true
-                        } else {
-                            onRemoveProfile(null)
-                        }
-                    }
+                SpacerLarge()
+                ProfileAvatarSection(
+                    profile = selectedProfile,
+                    onClickEditAvatar = onClickEditAvatar
                 )
             }
+            item {
+                ProfileInsuranceInformation(
+                    selectedProfile.lastAuthenticated,
+                    selectedProfile.ssoTokenScope,
+                    selectedProfile.insuranceInformation,
+                    onClickLogIn
+                )
+            }
+
+            if (selectedProfile.ssoTokenScope != null) {
+                item {
+                    ProfileEditPairedDeviceSection(onShowPairedDevices = onClickPairedDevices)
+                }
+            }
+            item { SecuritySection(onClickToken, onClickAuditEvents) }
         }
 
         if (showAddDefaultProfileDialog) {
-            AddProfileDialog(
-                state = state,
+            ProfileNameDialog(
+                settingsViewModel = settingsViewModel,
                 wantRemoveLastProfile = true,
                 onEdit = { showAddDefaultProfileDialog = false; onRemoveProfile(it) },
                 onDismissRequest = { showAddDefaultProfileDialog = false }
@@ -237,40 +281,82 @@ fun EditProfileScreenContent(
 }
 
 @Composable
-fun ConnectProfileHint(onClickLogIn: () -> Unit) {
-    HintCard(
-        modifier = Modifier.padding(PaddingDefaults.Medium),
-        properties = HintCardDefaults.properties(
-            backgroundColor = AppTheme.colors.primary100,
-            border = BorderStroke(0.0.dp, AppTheme.colors.primary100),
-            elevation = 0.dp
-        ),
-        image = {
-            HintSmallImage(
-                painterResource(R.drawable.connect_profile),
-                innerPadding = it
-            )
-        },
-        title = { Text(stringResource(R.string.connect_profile_header)) },
-        body = { Text(stringResource(R.string.connect_profile_info)) },
-        action = {
-            HintTextActionButton(
-                text = stringResource(R.string.connect_profile_connect),
-                onClick = onClickLogIn,
+fun ThreeDotMenu(
+    selectedProfile: ProfilesUseCaseData.Profile,
+    onClickLogIn: () -> Unit,
+    onClickLogout: () -> Unit,
+    onClickDelete: () -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    IconButton(
+        onClick = { expanded = true },
+        modifier = Modifier.testTag(TestTag.Profile.ThreeDotMenuButton)
+    ) {
+        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
+    }
+    DropdownMenu(
+        expanded = expanded,
+        onDismissRequest = { expanded = false },
+        offset = DpOffset(24.dp, 0.dp)
+    ) {
+        DropdownMenuItem(
+            modifier = Modifier.testTag(
+                if (selectedProfile.ssoTokenScope != null) {
+                    TestTag.Profile.LogoutButton
+                } else {
+                    TestTag.Profile.LoginButton
+                }
+            ),
+            onClick = if (selectedProfile.ssoTokenScope != null) {
+                onClickLogout
+            } else {
+                onClickLogIn
+            }
+        ) {
+            Text(
+                text = if (selectedProfile.ssoTokenScope != null) {
+                    stringResource(R.string.insurance_information_logout)
+                } else {
+                    stringResource(R.string.insurance_information_login)
+                }
             )
         }
-    ) {
+
+        DropdownMenuItem(
+            modifier = Modifier.testTag(TestTag.Profile.DeleteProfileButton),
+            onClick = {
+                expanded = false
+                onClickDelete()
+            }
+        ) {
+            Text(
+                text = stringResource(R.string.remove_profile),
+                color = AppTheme.colors.red600
+            )
+        }
     }
+}
+
+@Composable
+fun deleteProfileDialog(onCancel: () -> Unit, onClickAction: () -> Unit) {
+    CommonAlertDialog(
+        header = stringResource(id = R.string.remove_profile_header),
+        info = stringResource(R.string.remove_profile_detail_message),
+        actionText = stringResource(R.string.remove_profile_yes),
+        cancelText = stringResource(R.string.remove_profile_no),
+        onCancel = onCancel,
+        onClickAction = onClickAction
+    )
 }
 
 @Composable
 fun SecuritySection(
     onClickToken: () -> Unit,
-    onClickAuditEvents: () -> Unit,
-    tokenAvailable: Boolean
+    onClickAuditEvents: () -> Unit
 ) {
-    SecurityHeadline()
-    SecurityTokenSubSection(tokenAvailable, onClickToken)
+    SettingsMenuHeadline(stringResource(R.string.settings_appprotection_headline))
+    SecurityTokenSubSection(onClickToken)
     SecurityAuditEventsSubSection(onClickAuditEvents)
 }
 
@@ -286,16 +372,17 @@ fun SecurityAuditEventsSubSection(onClickAuditEvents: () -> Unit) {
                     onClickAuditEvents()
                 }
             )
+            .testTag(TestTag.Profile.OpenAuditEventsScreenButton)
             .padding(PaddingDefaults.Medium)
-            .semantics(mergeDescendants = true) {},
+            .semantics(mergeDescendants = true) {}
     ) {
-        Icon(Icons.Outlined.CloudQueue, null, tint = AppTheme.colors.primary500)
+        Icon(Icons.Outlined.CloudQueue, null, tint = AppTheme.colors.primary600)
         Column {
             Text(
                 stringResource(
                     R.string.settings_show_audit_events
                 ),
-                style = MaterialTheme.typography.body1
+                style = AppTheme.typography.body1
             )
             Text(
                 stringResource(
@@ -308,47 +395,26 @@ fun SecurityAuditEventsSubSection(onClickAuditEvents: () -> Unit) {
 }
 
 @Composable
-fun SecurityTokenSubSection(tokenAvailable: Boolean, onClick: () -> Unit) {
-    val context = LocalContext.current
-    val noTokenAvailableText = stringResource(R.string.settings_no_active_token)
-
-    val iconColor = if (tokenAvailable) {
-        AppTheme.colors.primary500
-    } else {
-        AppTheme.colors.primary300
-    }
-
-    val textColor = if (tokenAvailable) {
-        AppTheme.colors.neutral999
-    } else {
-        AppTheme.colors.neutral600
-    }
+fun SecurityTokenSubSection(onClick: () -> Unit) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.Top,
         modifier = Modifier
             .fillMaxWidth()
             .clickable(
-                onClick = {
-                    if (tokenAvailable) {
-                        onClick()
-                    } else {
-                        Toast
-                            .makeText(context, noTokenAvailableText, Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                }
+                onClick = { onClick() }
             )
+            .visualTestTag(OpenTokensScreenButton)
             .padding(PaddingDefaults.Medium)
-            .semantics(mergeDescendants = true) {},
+            .semantics(mergeDescendants = true) {}
     ) {
-        Icon(Icons.Outlined.VpnKey, null, tint = iconColor)
+        Icon(Icons.Outlined.VpnKey, null, tint = AppTheme.colors.primary600)
         Column {
             Text(
                 stringResource(
                     R.string.settings_show_token
                 ),
-                style = MaterialTheme.typography.body1, color = textColor
+                style = AppTheme.typography.body1
             )
             Text(
                 stringResource(
@@ -361,113 +427,168 @@ fun SecurityTokenSubSection(tokenAvailable: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun SecurityHeadline() {
+fun SettingsMenuHeadline(text: String) {
+    Text(
+        text = text,
+        style = AppTheme.typography.h6,
+        modifier = Modifier.padding(PaddingDefaults.Medium)
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun ProfileNameSection(
+    profile: ProfilesUseCaseData.Profile,
+    state: SettingsScreen.State,
+    onChangeProfileName: (String) -> Unit
+) {
+    var profileName by remember(profile.name) { mutableStateOf(profile.name) }
+    var profileNameValid by remember { mutableStateOf(true) }
+    var textFieldEnabled by remember { mutableStateOf(false) }
+
+    val focusRequester = remember { FocusRequester() }
+    val scope = rememberCoroutineScope()
+
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(textFieldEnabled) {
+        if (textFieldEnabled) {
+            focusRequester.requestFocus()
+            keyboardController?.show()
+        }
+    }
+
     Column {
-        Column(
-            modifier = Modifier.padding(PaddingDefaults.Medium),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+        Row(
+            modifier = Modifier.padding(PaddingDefaults.Medium)
         ) {
+            if (!textFieldEnabled) {
+                val txt = buildAnnotatedString {
+                    append(profileName)
+                    append(" ")
+                    appendInlineContent("edit", "edit")
+                }
+                val c = mapOf(
+                    "edit" to InlineTextContent(
+                        Placeholder(
+                            width = 0.em,
+                            height = 0.em,
+                            placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+                        )
+                    ) {
+                        Icon(Icons.Outlined.Edit, null, tint = AppTheme.colors.neutral400)
+                    }
+                )
+                DynamicText(
+                    txt,
+                    style = AppTheme.typography.h5,
+                    inlineContent = c,
+                    modifier = Modifier
+                        .clickable {
+                            textFieldEnabled = true
+                        }
+                        .testTag(TestTag.Profile.EditProfileNameButton)
+                )
+            } else {
+                ProfileEditBasicTextField(
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester)
+                        .testTag(TestTag.Profile.NewProfileNameField),
+                    enabled = textFieldEnabled,
+                    initialProfileName = profile.name,
+                    onChangeProfileName = { name: String, isValid: Boolean ->
+                        profileName = name
+                        profileNameValid = isValid
+                    },
+                    state = state,
+                    onDone = {
+                        if (profileNameValid) {
+                            onChangeProfileName(profileName)
+                            textFieldEnabled = false
+                            scope.launch { keyboardController?.hide() }
+                        }
+                    }
+                )
+            }
+        }
+
+        if (!profileNameValid) {
+            SpacerTiny()
+            val errorText = if (profileName.isBlank()) {
+                stringResource(R.string.edit_profile_empty_profile_name)
+            } else {
+                stringResource(R.string.edit_profile_duplicated_profile_name)
+            }
+
             Text(
-                text = stringResource(R.string.settings_appprotection_headline),
-                style = MaterialTheme.typography.h6
+                text = errorText,
+                color = AppTheme.colors.red600,
+                style = AppTheme.typography.caption1,
+                modifier = Modifier.padding(start = PaddingDefaults.Medium)
             )
         }
     }
 }
 
 @Composable
-private fun LoginButton(onClick: () -> Unit) {
-    LoginLogoutButton(
-        onClick = onClick,
-        buttonText = R.string.login_profile,
-        buttonDescription = R.string.login_description,
-        contentColor = AppTheme.colors.primary700
-    )
-}
-
-@Composable
-private fun LogoutButton(onClick: () -> Unit) {
-    var dialogVisible by remember { mutableStateOf(false) }
-
-    if (dialogVisible) {
-        CommonAlertDialog(
-            header = stringResource(id = R.string.logout_detail_header),
-            info = stringResource(R.string.logout_detail_message),
-            actionText = stringResource(R.string.logout_delete_yes),
-            cancelText = stringResource(R.string.logout_delete_no),
-            onCancel = { dialogVisible = false },
-            onClickAction = {
-                onClick()
-                dialogVisible = false
-            }
-        )
-    }
-
-    LoginLogoutButton(
-        onClick = { dialogVisible = true },
-        buttonText = R.string.logout_profile,
-        buttonDescription = R.string.logout_description,
-        contentColor = AppTheme.colors.red700
-    )
-}
-
-@Composable
-private fun LoginLogoutButton(
-    onClick: () -> Unit,
-    @StringRes buttonText: Int,
-    @StringRes buttonDescription: Int,
-    contentColor: Color
-) {
-    Button(
-        onClick = { onClick() },
-        modifier = Modifier
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 32.dp,
-                bottom = 16.dp
-            )
-            .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = AppTheme.colors.neutral050,
-            contentColor = contentColor
-        )
-    ) {
-        Text(
-            stringResource(buttonText).uppercase(Locale.getDefault()),
-            modifier = Modifier.padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            )
-        )
-    }
-    Text(
-        stringResource(buttonDescription),
-        modifier = Modifier.padding(
-            start = PaddingDefaults.Medium,
-            end = PaddingDefaults.Medium,
-            bottom = PaddingDefaults.Small
-        ),
-        style = AppTheme.typography.body2l,
-        textAlign = TextAlign.Center
-    )
-}
-
-@OptIn(ExperimentalComposeUiApi::class)
-@Composable
-fun ColorAndProfileNameSection(
-    profile: ProfilesUseCaseData.Profile,
+fun ProfileEditBasicTextField(
+    modifier: Modifier,
+    enabled: Boolean,
+    textStyle: TextStyle = AppTheme.typography.h5,
+    initialProfileName: String,
+    onChangeProfileName: (String, Boolean) -> Unit,
     state: SettingsScreen.State,
-    onChangeProfileName: (String) -> Unit,
-    onSelectProfileColor: (ProfileColorNames) -> Unit
+    onDone: () -> Unit
+) {
+    var profileNameState by remember {
+        mutableStateOf(
+            TextFieldValue(
+                text = initialProfileName,
+                selection = TextRange(initialProfileName.length)
+            )
+        )
+    }
+
+    val color = LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    val mergedTextStyle = textStyle.merge(TextStyle(color = color))
+
+    BasicTextField(
+        value = profileNameState,
+        onValueChange = {
+            val name = sanitizeProfileName(it.text.trimStart())
+            profileNameState = TextFieldValue(
+                text = name,
+                selection = it.selection,
+                composition = it.composition
+            )
+
+            onChangeProfileName(
+                name,
+                name.trim().equals(initialProfileName, true) ||
+                    !state.containsProfileWithName(name) && name.isNotEmpty()
+            )
+        },
+        enabled = enabled,
+        singleLine = !enabled,
+        textStyle = mergedTextStyle,
+        modifier = modifier,
+        cursorBrush = SolidColor(color),
+        keyboardOptions = KeyboardOptions(
+            autoCorrect = false,
+            capitalization = KeyboardCapitalization.None,
+            imeAction = ImeAction.Done
+        ),
+        keyboardActions = KeyboardActions(onDone = { onDone() })
+    )
+}
+
+@Composable
+fun ProfileAvatarSection(
+    profile: ProfilesUseCaseData.Profile,
+    onClickEditAvatar: () -> Unit
 ) {
     val currentSelectedColors = profileColor(profileColorNames = profile.color)
-
-    var profileName by rememberSaveable(profile.name) { mutableStateOf(profile.name) }
-    var profileNameError by remember { mutableStateOf(false) }
-    val initials = remember(profile.name) { firstCharOfForeNameSurName(profile.name) }
 
     Column(
         modifier = Modifier
@@ -483,146 +604,218 @@ fun ColorAndProfileNameSection(
             color = currentSelectedColors.backGroundColor
         ) {
             Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable(onClick = onClickEditAvatar),
                 contentAlignment = Alignment.Center
             ) {
-                Text(
-                    text = initials,
-                    style = MaterialTheme.typography.body2,
-                    color = currentSelectedColors.textColor,
-                    textAlign = TextAlign.Center,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 60.sp,
+                ChooseAvatar(
+                    emptyIcon = Icons.Rounded.AddAPhoto,
+                    iconModifier = Modifier.size(24.dp),
+                    profile = profile,
+                    figure = profile.avatarFigure
                 )
             }
         }
-
-        LaunchedEffect(profileName) {
-            if (!profileNameError) {
-                delay(500)
-                onChangeProfileName(profileName)
-            }
-        }
-
-        val keyboardController = LocalSoftwareKeyboardController.current
-
-        Spacer40()
-        ProfileNameInputField(
+        SpacerSmall()
+        TextButton(
             modifier = Modifier
-                .testTag("editProfile/profile_text_input")
-                .fillMaxWidth(),
-            value = profileName,
-            onValueChange = {
-                profileName = it.trimStart()
-                profileNameError = profileName.isEmpty() ||
-                    (
-                        profileName.trim() != profile.name && state.containsProfileWithName(
-                            profileName
-                        )
-                        )
-            },
-            onSubmit = {
-                if (!profileNameError) {
-                    onChangeProfileName(profileName)
-                    keyboardController?.hide()
-                }
-            },
-            isError = profileNameError,
-        )
-
-        val errorText = if (profileName.isEmpty()) {
-            stringResource(R.string.edit_profile_empty_profile_name)
-        } else {
-            stringResource(R.string.edit_profile_duplicated_profile_name)
-        }
-
-        if (profileNameError) {
-            Spacer4()
-            Text(
-                text = errorText,
-                color = AppTheme.colors.red600,
-                style = MaterialTheme.typography.caption,
-                modifier = Modifier.padding(start = PaddingDefaults.Medium)
-            )
-        }
-        SpacerMedium()
-        ProfileConnectedCard(profile.insuranceInformation)
-        Spacer40()
-        Text(
-            stringResource(R.string.edit_profile_background_color),
-            style = MaterialTheme.typography.h6
-        )
-
-        Spacer24()
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+                .align(Alignment.CenterHorizontally)
+                .testTag(TestTag.Profile.EditProfileImageButton),
+            onClick = onClickEditAvatar
         ) {
-            ProfileColorNames.values().forEach {
-                val currentValueColors = profileColor(profileColorNames = it)
-                ColorSelector(
-                    profileColorName = it,
-                    selected = currentValueColors == currentSelectedColors,
-                    onSelectColor = onSelectProfileColor
+            Text(text = stringResource(R.string.edit_profile_avatar), textAlign = TextAlign.Center)
+        }
+    }
+}
+
+@Composable
+fun ChooseAvatar(
+    useSmallImages: Boolean? = false,
+    profile: ProfilesUseCaseData.Profile,
+    iconModifier: Modifier = Modifier,
+    emptyIcon: ImageVector,
+    showPersonalizedImage: Boolean = true,
+    figure: ProfilesData.AvatarFigure
+) {
+    val imageRessource = ExtractImageResource(useSmallImages, figure)
+
+    when (figure) {
+        ProfilesData.AvatarFigure.PersonalizedImage -> {
+            if (showPersonalizedImage) {
+                if (profile.personalizedImage != null) {
+                    BitmapImage(profile)
+                } else {
+                    Icon(
+                        emptyIcon,
+                        modifier = iconModifier,
+                        contentDescription = null,
+                        tint = AppTheme.colors.neutral600
+                    )
+                }
+            }
+        }
+
+        else -> {
+            if (imageRessource == 0) {
+                Icon(
+                    emptyIcon,
+                    modifier = iconModifier,
+                    contentDescription = null,
+                    tint = AppTheme.colors.neutral600
+                )
+            } else {
+                Image(
+                    painterResource(id = imageRessource),
+                    null,
+                    modifier = Modifier.fillMaxSize()
                 )
             }
         }
-        Spacer16()
-        Row(modifier = Modifier.align(Alignment.CenterHorizontally)) {
-            Text(
-                currentSelectedColors.colorName,
-                style = AppTheme.typography.body2l
+    }
+}
+
+@Composable
+private fun ExtractImageResource(
+    useSmallImages: Boolean? = false,
+    figure: ProfilesData.AvatarFigure
+) = if (useSmallImages == true) {
+    when (figure) {
+        ProfilesData.AvatarFigure.FemaleDoctor -> R.drawable.femal_doctor_small_portrait
+        ProfilesData.AvatarFigure.WomanWithHeadScarf -> R.drawable.woman_with_head_scarf_small_portrait
+        ProfilesData.AvatarFigure.Grandfather -> R.drawable.grand_father_small_portrait
+        ProfilesData.AvatarFigure.BoyWithHealthCard -> R.drawable.boy_with_health_card_small_portrait
+        ProfilesData.AvatarFigure.OldManOfColor -> R.drawable.old_man_of_color_small_portrait
+        ProfilesData.AvatarFigure.WomanWithPhone -> R.drawable.woman_with_phone_small_portrait
+        ProfilesData.AvatarFigure.Grandmother -> R.drawable.grand_mother_small_portrait
+        ProfilesData.AvatarFigure.ManWithPhone -> R.drawable.man_with_phone_small_portrait
+        ProfilesData.AvatarFigure.WheelchairUser -> R.drawable.wheel_chair_user_small_portrait
+        ProfilesData.AvatarFigure.Baby -> R.drawable.baby_small_portrait
+        ProfilesData.AvatarFigure.MaleDoctorWithPhone -> R.drawable.doctor_with_phone_small_portrait
+        ProfilesData.AvatarFigure.FemaleDoctorWithPhone -> R.drawable.femal_doctor_with_phone_small_portrait
+        ProfilesData.AvatarFigure.FemaleDeveloper -> R.drawable.femal_developer_small_portrait
+        else -> 0
+    }
+} else {
+    when (figure) {
+        ProfilesData.AvatarFigure.FemaleDoctor -> R.drawable.femal_doctor_portrait
+        ProfilesData.AvatarFigure.WomanWithHeadScarf -> R.drawable.woman_with_head_scarf_portrait
+        ProfilesData.AvatarFigure.Grandfather -> R.drawable.grand_father_portrait
+        ProfilesData.AvatarFigure.BoyWithHealthCard -> R.drawable.boy_with_health_card_portrait
+        ProfilesData.AvatarFigure.OldManOfColor -> R.drawable.old_man_of_color_portrait
+        ProfilesData.AvatarFigure.WomanWithPhone -> R.drawable.woman_with_phone_portrait
+        ProfilesData.AvatarFigure.Grandmother -> R.drawable.grand_mother_portrait
+        ProfilesData.AvatarFigure.ManWithPhone -> R.drawable.man_with_phone_portrait
+        ProfilesData.AvatarFigure.WheelchairUser -> R.drawable.wheel_chair_user_portrait
+        ProfilesData.AvatarFigure.Baby -> R.drawable.baby_portrait
+        ProfilesData.AvatarFigure.MaleDoctorWithPhone -> R.drawable.doctor_with_phone_portrait
+        ProfilesData.AvatarFigure.FemaleDoctorWithPhone -> R.drawable.femal_doctor_with_phone_portrait
+        ProfilesData.AvatarFigure.FemaleDeveloper -> R.drawable.femal_developer_portrait
+        else -> 0
+    }
+}
+
+@Composable
+fun BitmapImage(profile: ProfilesUseCaseData.Profile) {
+    val bitmap by produceState<ImageBitmap?>(initialValue = null, profile) {
+        value = profile.personalizedImage?.let {
+            BitmapFactory.decodeByteArray(profile.personalizedImage, 0, it.size).asImageBitmap()
+        }
+    }
+
+    bitmap?.let {
+        Image(
+            bitmap = it,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun ProfileInsuranceInformation(
+    lastAuthenticated: Instant?,
+    ssoTokenScope: IdpData.SingleSignOnTokenScope?,
+    insuranceInformation: ProfilesUseCaseData.ProfileInsuranceInformation,
+    onClickLogIn: () -> Unit
+) {
+    SpacerLarge()
+    val cardAccessNumber = if (ssoTokenScope is IdpData.TokenWithHealthCardScope) {
+        ssoTokenScope.cardAccessNumber
+    } else {
+        null
+    }
+
+    Column {
+        Text(
+            stringResource(
+                id = R.string.insurance_information_header
+            ),
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            style = AppTheme.typography.h6
+        )
+        SpacerSmall()
+
+        if (lastAuthenticated != null) {
+            LabeledText(
+                stringResource(R.string.insurance_information_insurant_name),
+                insuranceInformation.insurantName
+            )
+            LabeledText(
+                stringResource(R.string.insurance_information_insurance_name),
+                insuranceInformation.insuranceName
+            )
+            cardAccessNumber?.let {
+                LabeledText(stringResource(R.string.insurance_information_insurant_can), it)
+            }
+            LabeledText(
+                stringResource(R.string.insurance_information_insurance_identifier),
+                insuranceInformation.insuranceIdentifier,
+                Modifier.testTag(TestTag.Profile.InsuranceId)
             )
         }
-    }
-}
 
-@Composable
-fun ProfileConnectedCard(insuranceInformation: ProfilesUseCaseData.ProfileInsuranceInformation) {
+        if (ssoTokenScope != null) {
+            LabeledText(
+                stringResource(R.string.profile_insurance_information_connected_label),
+                when (ssoTokenScope) {
+                    is IdpData.DefaultToken -> stringResource(
+                        R.string.profile_insurance_information_connected_health_card
+                    )
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(8.dp),
-        backgroundColor = AppTheme.colors.neutral100,
-        contentColor = AppTheme.colors.neutral999,
-        elevation = 0.dp,
-    ) {
-        val textStyle = AppTheme.typography.body2l
-
-        if (insuranceInformation.insurantName != null && insuranceInformation.insuranceIdentifier != null && insuranceInformation.insuranceName != null) {
-            Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
-                Text(
-                    stringResource(
-                        R.string.profile_connected
-                    ),
-                    style = MaterialTheme.typography.body1
-                )
-                Text(insuranceInformation.insurantName, style = textStyle)
-                Text(insuranceInformation.insuranceIdentifier, style = textStyle)
-                Text(insuranceInformation.insuranceName, style = textStyle)
-            }
+                    is IdpData.ExternalAuthenticationToken -> ssoTokenScope.authenticatorName
+                    is IdpData.AlternateAuthenticationToken,
+                    is IdpData.AlternateAuthenticationWithoutToken -> stringResource(
+                        R.string.profile_insurance_information_connected_biometrics
+                    )
+                }
+            )
         } else {
-            Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
-                Text(
-                    stringResource(R.string.profile_not_connected),
-                    textAlign = TextAlign.Center,
-                    style = textStyle
-                )
+            ClickableLabeledTextWithIcon(
+                description = stringResource(R.string.profile_insurance_information_connected_label),
+                content = stringResource(R.string.profile_insurance_information_not_connected),
+                icon = Icons.Rounded.Refresh
+            ) {
+                onClickLogIn()
             }
         }
+        SpacerLarge()
+        Divider()
+        SpacerLarge()
     }
 }
 
 @Composable
-fun createProfileColor(colors: ProfileColorNames): ProfileColor {
+fun createProfileColor(colors: ProfilesData.ProfileColorNames): ProfileColor {
     return profileColor(profileColorNames = colors)
 }
 
 @Composable
 fun ColorSelector(
-    profileColorName: ProfileColorNames,
+    modifier: Modifier,
+    profileColorName: ProfilesData.ProfileColorNames,
     selected: Boolean,
-    onSelectColor: (ProfileColorNames) -> Unit,
+    onSelectColor: (ProfilesData.ProfileColorNames) -> Unit
 ) {
     val colors = createProfileColor(profileColorName)
     val contentDescription = annotatedStringResource(
@@ -631,13 +824,13 @@ fun ColorSelector(
     ).toString()
 
     Surface(
-        modifier = Modifier
-            .size(40.dp),
-        shape = CircleShape,
+        modifier = modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .clickable(onClick = { onSelectColor(profileColorName) }),
         color = colors.backGroundColor
     ) {
         Row(
-            modifier = Modifier.clickable(onClick = { onSelectColor(profileColorName) }),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -653,47 +846,39 @@ fun ColorSelector(
     }
 }
 
+/**
+ * Shows the given content if != null labeled with a description as described in design guide for ProfileScreen.
+ */
 @Composable
-fun RemoveProfileSection(onClickRemoveProfile: () -> Unit) {
-    var dialogVisible by remember { mutableStateOf(false) }
-    if (dialogVisible) {
-
-        CommonAlertDialog(
-            header = stringResource(id = R.string.remove_profile_header),
-            info = stringResource(R.string.remove_profile_detail_message),
-            actionText = stringResource(R.string.remove_profile_yes),
-            cancelText = stringResource(R.string.remove_profile_no),
-            onCancel = { dialogVisible = false },
-            onClickAction = {
-                onClickRemoveProfile()
-                dialogVisible = false
-            }
-        )
+fun LabeledText(description: String, content: String, modifier: Modifier = Modifier) {
+    Column(modifier.padding(PaddingDefaults.Medium)) {
+        Text(content, style = AppTheme.typography.body1)
+        Text(description, style = AppTheme.typography.body2l)
     }
+}
 
-    Button(
-        onClick = { dialogVisible = true },
-        modifier = Modifier
-            .padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 32.dp,
-                bottom = 16.dp
-            )
-            .fillMaxWidth(),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = AppTheme.colors.red600,
-            contentColor = AppTheme.colors.neutral000
-        )
+@Composable
+fun ClickableLabeledTextWithIcon(
+    description: String,
+    content: String,
+    modifier: Modifier = Modifier,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable {
+                onClick()
+            }
+            .padding(PaddingDefaults.Medium),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            stringResource(R.string.remove_profile).uppercase(Locale.getDefault()),
-            modifier = Modifier.padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 8.dp,
-                bottom = 8.dp
-            )
-        )
+        Column {
+            Text(content, style = AppTheme.typography.body1)
+            Text(description, style = AppTheme.typography.body2l)
+        }
+        Icon(icon, contentDescription = null, tint = AppTheme.colors.primary600)
     }
 }

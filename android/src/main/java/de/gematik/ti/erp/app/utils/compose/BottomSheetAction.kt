@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -46,22 +45,23 @@ fun BottomSheetAction(
     icon: ImageVector,
     title: String,
     info: String,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) =
     BottomSheetAction(
         modifier = modifier,
         enabled = enabled,
         icon = {
             Icon(
-                icon, null,
+                icon,
+                null,
                 modifier = Modifier
                     .size(24.dp)
-                    .align(Alignment.CenterVertically),
+                    .align(Alignment.CenterVertically)
             )
         },
         title = { Text(title) },
         info = { Text(info) },
-        onClick = onClick,
+        onClick = onClick
     )
 
 @Composable
@@ -71,7 +71,7 @@ fun BottomSheetAction(
     icon: @Composable RowScope.() -> Unit,
     title: @Composable ColumnScope.() -> Unit,
     info: @Composable ColumnScope.() -> Unit,
-    onClick: () -> Unit,
+    onClick: () -> Unit
 ) {
     val titleColor = if (enabled) {
         Color.Unspecified
@@ -98,13 +98,13 @@ fun BottomSheetAction(
         SpacerMedium()
         Column {
             CompositionLocalProvider(
-                LocalTextStyle provides MaterialTheme.typography.subtitle1,
+                LocalTextStyle provides AppTheme.typography.subtitle1,
                 LocalContentColor provides if (titleColor == Color.Unspecified) LocalContentColor.current else titleColor
             ) {
                 title()
             }
             CompositionLocalProvider(
-                LocalTextStyle provides MaterialTheme.typography.body2,
+                LocalTextStyle provides AppTheme.typography.body2,
                 LocalContentColor provides textColor
             ) {
                 info()

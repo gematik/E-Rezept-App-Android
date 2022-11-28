@@ -1,6 +1,5 @@
 import de.gematik.ti.erp.app
 import de.gematik.ti.erp.overriding
-import org.jetbrains.compose.compose
 import org.owasp.dependencycheck.reporting.ReportGenerator.Format
 import java.util.Properties
 
@@ -8,22 +7,21 @@ plugins {
     id("com.android.application")
     kotlin("android")
     id("org.jetbrains.compose")
-    kotlin("kapt")
+    kotlin("plugin.serialization")
+    id("io.realm.kotlin")
     id("kotlin-parcelize")
     id("org.owasp.dependencycheck")
     id("com.jaredsburrows.license")
     id("de.gematik.ti.erp.dependencies")
-    id("dagger.hilt.android.plugin")
+    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
-val USER_AGENT: String by overriding()
 val VERSION_CODE: String by overriding()
 val VERSION_NAME: String by overriding()
-val DEBUG_TEST_IDS_ENABLED: String by overriding()
-val VAU_OCSP_RESPONSE_MAX_AGE: String by overriding()
+val TEST_INSTRUMENTATION_ORCHESTRATOR: String? by project
 
 afterEvaluate {
-    val taskRegEx = """assemble(Google|Huawei)(PuDebug|PuRelease)""".toRegex()
+    val taskRegEx = """assemble(Google|Huawei)(PuExternalDebug|PuExternalRelease)""".toRegex()
     tasks.forEach { task ->
         taskRegEx.matchEntire(task.name)?.let {
             val (_, version, flavor) = it.groupValues
@@ -32,66 +30,44 @@ afterEvaluate {
     }
 }
 
+tasks.named("preBuild") {
+    dependsOn(":ktlint", ":detekt")
+}
+
 licenseReport {
     generateCsvReport = false
-    generateHtmlReport = true
-    generateJsonReport = false
-    copyHtmlReportToAssets = true
+    generateHtmlReport = false
+    generateJsonReport = true
+    copyJsonReportToAssets = true
 }
 
 android {
-    // currently not working with an app suffix
-    // namespace = "de.gematik.ti.erp.app"
+    namespace = "de.gematik.ti.erp.app"
     defaultConfig {
         applicationId = "de.gematik.ti.erp.app"
         versionCode = VERSION_CODE.toInt()
         versionName = VERSION_NAME
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testApplicationId = "de.gematik.ti.erp.app.test.test"
+        testInstrumentationRunner = TEST_INSTRUMENTATION_ORCHESTRATOR
         testInstrumentationRunnerArguments += "clearPackageData" to "true"
         testInstrumentationRunnerArguments += "useTestStorageService" to "true"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += "room.schemaLocation" to "$projectDir/schemas"
-            }
-        }
-    }
-    kapt {
-        arguments {
-            arg("room.schemaLocation", "$projectDir/schemas")
-        }
-    }
-
-    sourceSets {
-        val test by getting
-        test.apply {
-            java.srcDirs("src/sharedTest/java")
-            resources.srcDirs("src/test/res")
-        }
-        val androidTest by getting
-        androidTest.apply {
-            java.srcDirs("src/sharedTest/java")
-            resources.srcDirs("src/test/res")
-            assets.srcDirs("$projectDir/schemas")
-        }
     }
 
     androidResources {
-        noCompress("srt", "csv")
+        noCompress("srt", "csv", "json")
     }
 
     compileOptions {
         isCoreLibraryDesugaringEnabled = true
 
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
 
     kotlinOptions {
         jvmTarget = "1.8"
         freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-        freeCompilerArgs += "-Xuse-experimental=androidx.compose.animation.ExperimentalAnimationApi"
     }
 
     testOptions {
@@ -137,6 +113,7 @@ android {
     } else {
         println("No signing properties found!")
     }
+
     buildTypes {
         val release by getting {
             isMinifyEnabled = true
@@ -178,11 +155,19 @@ android {
                 signingConfig = signingConfigs.findByName("huaweiRelease")
             }
         }
-        if (flavor?.startsWith("konnektathon") == true) {
+        if (flavor?.startsWith("konnektathonRu") == true) {
             create(flavor) {
                 dimension = "version"
-                applicationIdSuffix = ".konnektathon"
-                versionNameSuffix = "-konnektathon"
+                applicationIdSuffix = ".konnektathon.ru"
+                versionNameSuffix = "-konnektathon-RU"
+                signingConfig = signingConfigs.findByName("googleRelease")
+            }
+        }
+        if (flavor?.startsWith("konnektathonDevru") == true) {
+            create(flavor) {
+                dimension = "version"
+                applicationIdSuffix = ".konnektathon.rudev"
+                versionNameSuffix = "-konnektathon-RUDEV"
                 signingConfig = signingConfigs.findByName("googleRelease")
             }
         }
@@ -200,22 +185,29 @@ android {
             pickFirsts += "win32-x86/attach_hotspot_windows.dll"
         }
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.3.0"
+    }
 }
 
-// compose {
-//    android.useAndroidX = true
-// }
+compose.android.useAndroidX = true
+compose.android.androidxVersion = app.composeVersion
 
 dependencies {
     implementation(project(":common"))
+    testImplementation(project(":common"))
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     testImplementation(kotlin("test"))
 
+    implementation("com.google.maps.android:maps-compose:2.7.2")
+    implementation("com.google.maps.android:maps-ktx:3.3.0")
+    implementation("com.google.maps.android:maps-utils-ktx:3.3.0")
+    implementation("com.google.maps.android:android-maps-utils:2.4.0")
+    implementation("com.google.android.gms:play-services-maps:18.0.2")
+
     app {
-        tracker {
-            implementation(piwik)
-        }
         dataMatrix {
             implementation(mlkitBarcodeScanner)
             implementation(zxing)
@@ -233,7 +225,7 @@ dependencies {
             implementation(datastorePreferences)
             implementation(security)
             implementation(biometric)
-
+            implementation(webkit)
             implementation(lifecycle("viewmodel-compose"))
             implementation(lifecycle("process")) {
                 // FIXME: remove if AGP > 7.2.0-alpha05 can handle cyclic dependencies (again)
@@ -241,58 +233,60 @@ dependencies {
             }
 
             implementation(composeNavigation)
-            implementation(composeHiltNavigation)
             implementation(composeActivity)
             implementation(composePaging)
-            implementation(constraintLayout)
 
             implementation(camera("camera2"))
             implementation(camera("lifecycle"))
             implementation(camera("view", cameraViewVersion))
+            implementation(imageCropper)
 
             debugImplementation(processPhoenix)
         }
         dependencyInjection {
-            implementation(hilt("android"))
-            kapt(hilt("compiler"))
+            compileOnly(kodein("di-framework-compose"))
+            androidTestImplementation(kodein("di-framework-compose"))
         }
         logging {
-            implementation(timber)
+            implementation(napier)
+        }
+        lottie {
+            implementation(lottie)
         }
         serialization {
-            implementation(moshi("moshi"))
-            kapt(moshi("moshi-kotlin-codegen"))
-
-            implementation(fhir)
+            implementation(kotlinXJson)
         }
         crypto {
             implementation(jose4j)
             implementation(bouncyCastle("bcprov"))
             implementation(bouncyCastle("bcpkix"))
+            testImplementation(bouncyCastle("bcprov", "jdk15on"))
+            testImplementation(bouncyCastle("bcpkix", "jdk15on"))
         }
         network {
             implementation(retrofit2("retrofit"))
-            implementation(retrofit2("converter-moshi"))
+            implementation(retrofit2KotlinXSerialization)
             implementation(okhttp3("okhttp"))
             implementation(okhttp3("logging-interceptor"))
+
+            androidTestImplementation(okhttp3("okhttp"))
         }
         database {
-            implementation(sqlCipher)
-            implementation(room("runtime"))
-            implementation(room("ktx"))
-            kapt(room("compiler"))
+            compileOnly(realm)
+            testCompileOnly(realm)
         }
         compose {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material)
-            implementation(compose.materialIconsExtended)
-            implementation(compose.uiTooling)
+            implementation(runtime)
+            implementation(foundation)
+            implementation(material)
+            implementation(materialIconsExtended)
+            implementation(animation)
+            implementation(uiTooling)
+            implementation(preview)
+            implementation(accompanist("swiperefresh"))
             implementation(accompanist("flowlayout"))
             implementation(accompanist("pager"))
             implementation(accompanist("pager-indicators"))
-            implementation(accompanist("insets"))
-            implementation(accompanist("insets-ui"))
             implementation(accompanist("systemuicontroller"))
         }
         passwordStrength {
@@ -301,19 +295,23 @@ dependencies {
         playServices {
             implementation(location)
             implementation(safetynet)
+            implementation(appReview)
+            implementation(appUpdate)
         }
 
         androidTest {
             testImplementation(archCore)
             androidTestImplementation(core)
+            androidTestImplementation(rules)
             androidTestImplementation(junitExt)
             androidTestImplementation(runner)
             androidTestUtil(orchestrator)
+            androidTestUtil(services)
             androidTestImplementation(navigation)
             androidTestImplementation(espresso)
         }
         kotlinXTest {
-            implementation(coroutinesTest)
+            testImplementation(coroutinesTest)
         }
         composeTest {
             androidTestImplementation(ui)
@@ -321,9 +319,6 @@ dependencies {
         }
         networkTest {
             testImplementation(mockWebServer)
-        }
-        databaseTest {
-            androidTestImplementation(roomTesting)
         }
         test {
             testImplementation(junit4)
@@ -333,4 +328,8 @@ dependencies {
             androidTestImplementation(mockk("mockk-android"))
         }
     }
+}
+
+secrets {
+    defaultPropertiesFileName = "ci-overrides.properties"
 }

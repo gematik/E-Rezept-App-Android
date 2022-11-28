@@ -1,0 +1,94 @@
+{
+  "resourceType": "MedicationDispense",
+  "id": "160.000.000.031.686.59",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/StructureDefinition/ErxMedicationDispense"
+    ]
+  },
+  "contained": [
+    {
+      "resourceType": "Medication",
+      "id": "65cab1df-2514-4395-910f-dc4e247a84ca",
+      "meta": {
+        "profile": [
+          "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.0.2"
+        ]
+      },
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+          "valueCoding": {
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+            "code": "01"
+          }
+        },
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+          "valueBoolean": false
+        },
+        {
+          "url": "http://fhir.de/StructureDefinition/normgroesse",
+          "valueCode": "Sonstiges"
+        }
+      ],
+      "code": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/ifa/pzn",
+            "code": "06491772"
+          }
+        ],
+        "text": "Defamipin"
+      },
+      "form": {
+        "coding": [
+          {
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+            "code": "FET"
+          }
+        ]
+      },
+      "amount": {
+        "numerator": {
+          "value": 18,
+          "unit": "Stk"
+        },
+        "denominator": {
+          "value": 1
+        }
+      },
+      "batch": {
+        "lotNumber": "8521037577",
+        "expirationDate": "2023-05-02T08:26:06+02:00"
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+      "value": "160.000.000.031.686.59"
+    }
+  ],
+  "status": "completed",
+  "medicationReference": {
+    "reference": "#65cab1df-2514-4395-910f-dc4e247a84ca"
+  },
+  "subject": {
+    "identifier": {
+      "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+      "value": "X110535541"
+    }
+  },
+  "performer": [
+    {
+      "actor": {
+        "identifier": {
+          "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+          "value": "3-SMC-B-Testkarte-883110000116873"
+        }
+      }
+    }
+  ],
+  "whenHandedOver": "2022-07-12"
+}

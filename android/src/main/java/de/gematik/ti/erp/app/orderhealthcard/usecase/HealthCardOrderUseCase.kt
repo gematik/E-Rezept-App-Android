@@ -19,18 +19,18 @@
 package de.gematik.ti.erp.app.orderhealthcard.usecase
 
 import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
 import kotlinx.coroutines.flow.flow
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import java.io.InputStream
-import javax.inject.Inject
 
-class HealthCardOrderUseCase @Inject constructor(
-    @ApplicationContext private val context: Context,
+class HealthCardOrderUseCase(
+    private val context: Context
 ) {
     private val companies: List<HealthCardOrderUseCaseData.HealthInsuranceCompany> by lazy {
-        loadHealthInsuranceContactsFromCSV(
+        loadHealthInsuranceContactsFromJSON(
             context.resources.openRawResourceFd(R.raw.health_insurance_contacts).createInputStream()
         ).sortedBy { it.name.lowercase() }
     }
@@ -40,30 +40,5 @@ class HealthCardOrderUseCase @Inject constructor(
     }
 }
 
-fun loadHealthInsuranceContactsFromCSV(csv: InputStream): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> {
-    return csv.bufferedReader().useLines { lines ->
-        lines.mapIndexedNotNull { index, line ->
-            if (index > 0) {
-                // ignore header
-
-                val attrs = line.split(";").map {
-                    if (it.isBlank()) {
-                        null
-                    } else {
-                        it
-                    }
-                }
-
-                HealthCardOrderUseCaseData.HealthInsuranceCompany(
-                    name = requireNotNull(attrs[0]),
-                    healthCardAndPinPhone = attrs[1],
-                    healthCardAndPinMail = attrs[2],
-                    healthCardAndPinUrl = attrs[3],
-                    pinUrl = attrs[4]
-                )
-            } else {
-                null
-            }
-        }.toList()
-    }
-}
+fun loadHealthInsuranceContactsFromJSON(jsonInput: InputStream): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> =
+    Json.decodeFromString(jsonInput.bufferedReader().readText())

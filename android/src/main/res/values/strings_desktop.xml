@@ -37,14 +37,14 @@
     <string name="desktop_login_page_connect_healthcard_error_io_subtitle">Legen Sie die Gesundheitskarte erneut auf das Lesegerät.</string>
 
     <plurals name="desktop_prescription_expires_on">
-    <item quantity="zero">Nur noch heute als Selbstzahlender einlösbar</item>
-    <item quantity="one">Noch %s Tag als Selbstzahlender einlösbar</item>
-    <item quantity="other">Noch %s Tage als Selbstzahlender einlösbar</item>
+        <item quantity="zero">Nur noch heute als Selbstzahlender einlösbar</item>
+        <item quantity="one">Noch %s Tag als Selbstzahlender einlösbar</item>
+        <item quantity="other">Noch %s Tage als Selbstzahlender einlösbar</item>
     </plurals>
     <plurals name="desktop_prescription_accept_until">
-    <item quantity="zero">Nur noch heute gültig</item>
-    <item quantity="one">Noch %s Tag gültig</item>
-    <item quantity="other">Noch %s Tage gültig</item>
+        <item quantity="zero">Nur noch heute gültig</item>
+        <item quantity="one">Noch %s Tag gültig</item>
+        <item quantity="other">Noch %s Tage gültig</item>
     </plurals>
     <string name="desktop_prescription_expired">Nicht mehr gültig</string>
     <string name="desktop_prescription_prescribed_on">Ausgestellt am %s</string>

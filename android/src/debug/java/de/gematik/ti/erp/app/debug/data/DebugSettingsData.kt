@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.debug.data
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.parcelize.Parcelize
 
 @Immutable
@@ -29,11 +30,18 @@ data class DebugSettingsData(
     val eRezeptActive: Boolean,
     val idpUrl: String,
     val idpActive: Boolean,
+    val pharmacyServiceUrl: String,
+    val pharmacyServiceActive: Boolean,
     val bearerToken: String,
     val bearerTokenIsSet: Boolean,
     val fakeNFCCapabilities: Boolean,
     val cardAccessNumberIsSet: Boolean,
-    val cardWallIntroIsAccepted: Boolean,
     val multiProfile: Boolean,
-    val activeProfileName: String
+    val activeProfileId: ProfileIdentifier,
+    val virtualHealthCardCert: String,
+    val virtualHealthCardPrivateKey: String
 ) : Parcelable
+
+enum class Environment {
+    PU, TU, RU, DEVRU, TR
+}

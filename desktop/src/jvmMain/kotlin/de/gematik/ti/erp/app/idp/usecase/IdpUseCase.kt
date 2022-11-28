@@ -51,7 +51,7 @@ class AltAuthenticationCryptoException(cause: Throwable) : IllegalStateException
 
 class IdpUseCase(
     private val repository: IdpRepository,
-    private val basicUseCase: IdpBasicUseCase,
+    private val basicUseCase: IdpBasicUseCase
 ) {
     private val lock = Mutex()
 

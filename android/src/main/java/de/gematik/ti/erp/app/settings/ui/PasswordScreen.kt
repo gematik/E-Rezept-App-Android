@@ -23,6 +23,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -34,14 +35,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.ContentAlpha
 import androidx.compose.material.Icon
-import androidx.compose.material.IconToggleButton
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextFieldColors
 import androidx.compose.material.TextFieldDefaults
@@ -49,12 +48,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillNode
@@ -67,9 +69,9 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalAutofill
 import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.ProgressBarRangeInfo
-import androidx.compose.ui.semantics.progressBarRangeInfo
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -79,14 +81,16 @@ import com.nulabinc.zxcvbn.Zxcvbn
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import kotlinx.coroutines.launch
 import java.util.Locale
 
-private const val minimalPasswordScore = 2
+private const val MinimalPasswordScore = 2
 
 @Composable
 fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewModel) {
@@ -94,21 +98,24 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
     var repeatedPassword by remember { mutableStateOf("") }
     var passwordScore by remember { mutableStateOf(0) }
     val focusRequester = FocusRequester.Default
+    val coroutineScope = rememberCoroutineScope()
+    val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Back,
-                title = stringResource(R.string.settings_password_headline),
-            ) { navController.popBackStack() }
-        },
+    AnimatedElevationScaffold(
+        topBarTitle = stringResource(R.string.settings_password_headline),
+        navigationMode = NavigationBarMode.Back,
+        onBack = { navController.popBackStack() },
+        elevated = scrollState.value > 0,
+        actions = {},
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        viewModel.onSelectPasswordAsAuthenticationMode(password)
-                        navController.popBackStack()
+                        coroutineScope.launch {
+                            viewModel.onSelectPasswordAsAuthenticationMode(password)
+                            navController.popBackStack()
+                        }
                     },
                     enabled = checkPassword(
                         password = password,
@@ -128,7 +135,7 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(PaddingDefaults.Medium)
         ) {
             PasswordTextField(
@@ -141,7 +148,7 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
                 allowAutofill = true,
                 allowVisiblePassword = true,
                 label = {
-                    Text(stringResource(R.string.settings_password_enter_password))
+                    Text(stringResource(R.string.settings_password_enter))
                 },
                 onSubmit = { focusRequester.requestFocus() }
             )
@@ -172,8 +179,10 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
                             score = passwordScore
                         )
                     ) {
-                        viewModel.onSelectPasswordAsAuthenticationMode(password)
-                        navController.popBackStack()
+                        coroutineScope.launch {
+                            viewModel.onSelectPasswordAsAuthenticationMode(password)
+                            navController.popBackStack()
+                        }
                     }
                 }
             )
@@ -218,44 +227,49 @@ fun PasswordTextField(
     } else {
         Modifier
     }
+    val passwordIsNotVisible = stringResource(R.string.password_is_not_visible)
+    val passwordIsVisible = stringResource(R.string.password_is_visible)
 
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         modifier = modifier
             .heightIn(min = 56.dp)
-            .then(autofillModifier),
+            .then(autofillModifier)
+            .semantics {
+                contentDescription = if (passwordVisible) {
+                    passwordIsVisible
+                } else {
+                    passwordIsNotVisible
+                }
+            },
         singleLine = true,
         keyboardOptions = KeyboardOptions(autoCorrect = true, keyboardType = KeyboardType.Password),
         keyboardActions = KeyboardActions {
-            if (!isError && value.isNotEmpty()) {
-                onSubmit()
-            }
+            onSubmit()
         },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
-            if (allowVisiblePassword) {
-                IconToggleButton(
-                    checked = passwordVisible,
-                    onCheckedChange = { passwordVisible = it }
+            if (isConsistent) {
+                Icon(
+                    Icons.Rounded.Check,
+                    stringResource(R.string.consistent_password)
+                )
+            } else if (allowVisiblePassword) {
+                IconButton(
+                    onClick = { passwordVisible = !passwordVisible }
                 ) {
                     when (passwordVisible) {
                         true -> Icon(
-                            Icons.Outlined.VisibilityOff,
+                            Icons.Outlined.Visibility,
                             stringResource(R.string.settings_password_acc_show_password_toggle)
                         )
                         false -> Icon(
-                            Icons.Outlined.Visibility,
+                            Icons.Outlined.VisibilityOff,
                             stringResource(R.string.settings_password_acc_show_password_toggle)
                         )
                     }
                 }
-            } else if (isConsistent) {
-                Icon(
-                    Icons.Rounded.Check,
-                    stringResource(R.string.consistent_password),
-                    tint = AppTheme.colors.green600
-                )
             }
         },
         isError = isError,
@@ -265,7 +279,6 @@ fun PasswordTextField(
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ConfirmationPasswordTextField(
     modifier: Modifier,
@@ -275,11 +288,15 @@ fun ConfirmationPasswordTextField(
     onValueChange: (String) -> Unit,
     onSubmit: () -> Unit
 ) {
-    val isError = password.isNotBlank() &&
-        value.isNotBlank() &&
-        !password.startsWith(value)
+    val isError = remember(password, value) {
+        password.isNotBlank() &&
+            value.isNotBlank() &&
+            !password.startsWith(value)
+    }
 
-    val isConsistent = password.isNotBlank() && password == value && checkPasswordScore(passwordScore)
+    val isConsistent = remember(password, value) {
+        password.isNotBlank() && password == value && checkPasswordScore(passwordScore)
+    }
 
     PasswordTextField(
         modifier = modifier,
@@ -287,9 +304,13 @@ fun ConfirmationPasswordTextField(
         onValueChange = onValueChange,
         isConsistent = isConsistent,
         isError = isError,
-        onSubmit = onSubmit,
-        allowAutofill = false,
-        allowVisiblePassword = false,
+        onSubmit = {
+            if (!isError && isConsistent) {
+                onSubmit()
+            }
+        },
+        allowAutofill = true,
+        allowVisiblePassword = true,
         label = {
             Text(stringResource(R.string.settings_password_repeat_password))
         },
@@ -304,6 +325,9 @@ fun ConfirmationPasswordTextField(
                 unfocusedBorderColor = AppTheme.colors.green600.copy(alpha = ContentAlpha.high),
                 unfocusedLabelColor = AppTheme.colors.green600.copy(
                     alpha = ContentAlpha.high
+                ),
+                trailingIconColor = AppTheme.colors.green600.copy(
+                    alpha = ContentAlpha.high
                 )
             )
         } else {
@@ -311,6 +335,8 @@ fun ConfirmationPasswordTextField(
         }
     )
 }
+
+// tag::PasswordStrength[]
 
 @Composable
 fun PasswordStrength(
@@ -339,32 +365,32 @@ fun PasswordStrength(
         }
     )
 
-    LaunchedEffect(strength) {
+    DisposableEffect(strength) {
         onScoreChange(strength.score)
+        onDispose { }
     }
 
     Column(
         modifier = modifier
             .semantics(true) {
-                progressBarRangeInfo = ProgressBarRangeInfo(
-                    current = strength.score.toFloat(),
-                    range = 0f..4f,
-                    steps = 1
-                )
+                stateDescription = if (checkPasswordScore(strength.score)) "sufficient" else "insufficient"
             }
     ) {
         val suggestions = strength.feedback.suggestions.joinToString("\n").trim()
-        Text(
-            annotatedStringResource(
-                R.string.settings_password_suggestions,
-                if (suggestions.isBlank()) {
-                    stringResource(R.string.settings_password_hint)
-                } else {
+        if (password.isBlank() || suggestions.isBlank()) {
+            Text(
+                text = stringResource(R.string.settings_password_length_hint),
+                style = AppTheme.typography.caption1l
+            )
+        } else {
+            Text(
+                text = annotatedStringResource(
+                    R.string.settings_password_suggestions,
                     suggestions
-                }
-            ),
-            style = AppTheme.typography.captionl
-        )
+                ),
+                style = AppTheme.typography.caption1l
+            )
+        }
 
         SpacerMedium()
         Box(
@@ -380,15 +406,42 @@ fun PasswordStrength(
             )
         }
         SpacerTiny()
-        Text(
-            stringResource(R.string.settings_password_strength),
-            style = AppTheme.typography.captionl
-        )
+
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            when {
+                strength.score == 4 -> {
+                    Text(
+                        stringResource(R.string.settings_password_strength_very_good),
+                        style = AppTheme.typography.body2l
+                    )
+                    SpacerTiny()
+                    Icon(Icons.Rounded.Check, null, tint = AppTheme.colors.green600)
+                }
+                strength.score > MinimalPasswordScore -> {
+                    Text(
+                        stringResource(R.string.settings_password_strength_sufficient),
+                        style = AppTheme.typography.body2l
+                    )
+                    SpacerTiny()
+                    Icon(Icons.Rounded.Check, null, tint = AppTheme.colors.green600)
+                }
+                else -> {
+                    Text(
+                        stringResource(R.string.settings_password_strength_not_sufficient),
+                        style = AppTheme.typography.body2l
+                    )
+                    SpacerTiny()
+                    Icon(Icons.Rounded.Close, null, tint = AppTheme.colors.red600)
+                }
+            }
+        }
     }
 }
 
-private fun checkPasswordScore(score: Int): Boolean =
-    score > minimalPasswordScore
+// end::PasswordStrength[]
+
+fun checkPasswordScore(score: Int): Boolean =
+    score > MinimalPasswordScore
 
 fun checkPassword(password: String, repeatedPassword: String, score: Int): Boolean =
     password.isNotBlank() && password == repeatedPassword && checkPasswordScore(score)

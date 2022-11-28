@@ -24,7 +24,6 @@ import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.di.EndpointHelper
-import de.gematik.ti.erp.app.di.NetworkSecureSharedPreferences
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.VauChannelSpec
 import de.gematik.ti.erp.app.vau.VauCryptoConfig
@@ -33,15 +32,14 @@ import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
-import timber.log.Timber
+import io.github.aakira.napier.Napier
 import java.io.IOException
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 import java.security.Provider
 import java.security.SecureRandom
-import javax.inject.Inject
 
-class DefaultCryptoConfig @Inject constructor() : VauCryptoConfig {
+class DefaultCryptoConfig : VauCryptoConfig {
     override val provider: Provider by lazy { BCProvider }
     override val random: SecureRandom
         get() = secureRandomInstance()
@@ -54,12 +52,12 @@ private const val VAU_USER_ALIAS_PREF_KEY = "VAU_USER_ALIAS"
  */
 class VauException(e: Exception) : IOException(e)
 
-class VauChannelInterceptor @Inject constructor(
+class VauChannelInterceptor(
     endpointHelper: EndpointHelper,
     private val truststore: TruststoreUseCase,
     private val cryptoConfig: VauCryptoConfig,
-    private val dispatchProvider: DispatchProvider,
-    @NetworkSecureSharedPreferences private val networkSecPrefs: SharedPreferences
+    private val dispatchers: DispatchProvider,
+    private val networkSecPrefs: SharedPreferences
 ) : Interceptor {
     // `gemSpec_Krypt A_20175`
     private var previousUserAlias = networkSecPrefs.getString(VAU_USER_ALIAS_PREF_KEY, null) ?: "0"
@@ -73,12 +71,12 @@ class VauChannelInterceptor @Inject constructor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         if (BuildKonfig.INTERNAL && !BuildKonfig.VAU_ENABLE_INTERCEPTOR) {
-            Timber.d("VAU interceptor disabled - pass requests")
+            Napier.d("VAU interceptor disabled - pass requests")
             return chain.proceed(chain.request())
         }
 
         try {
-            val encryptedRequest = runBlocking(dispatchProvider.io()) {
+            val encryptedRequest = runBlocking(dispatchers.IO) {
                 truststore.withValidVauPublicKey { publicKey ->
                     VauChannelSpec.V1.encryptHttpRequest(
                         chain.request(),

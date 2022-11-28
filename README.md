@@ -1,10 +1,4 @@
-# eRezept App
-
-**New Features in 1.1.0:**
-- Authentication without electronical health card: Fasttrack (Feature flagged)
-- Manage multiple profiles (Feature flagged)
-- Desktop Client
-
+# E-Rezept App
 ## Introduction
 
 Prescriptions for medicines that are only available in pharmacies can be issued as electronic prescriptions (e-prescriptions resp. E-Rezepte) for people with public health insurance from 1 July 2021.
@@ -102,6 +96,10 @@ gradle :android:assemble(Google|Huawei)Pu(External|Internal)(Debug|Release) -Pbu
 *Note: Currently the android build variant is derived from the `buildkonfig.flavor` property.*
 
 The resulting `.apk` can be found in e.g. `android/build/outputs/apk/googlePuExternal/debug/`.
+
+#### Visualize Test Tags
+
+See [Visualize Test Tags](documentation/test-tags.md)
 
 ### Desktop
 

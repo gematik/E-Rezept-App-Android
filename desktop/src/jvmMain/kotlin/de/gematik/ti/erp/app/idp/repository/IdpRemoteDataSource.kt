@@ -65,7 +65,9 @@ class IdpRemoteDataSource(
     suspend fun postChallenge(url: String, ssoToken: String, unsignedChallenge: String) =
         postToEndpointExpectingLocationRedirect { service.ssoToken(url, ssoToken, unsignedChallenge) }
 
-    private suspend inline fun postToEndpointExpectingLocationRedirect(crossinline call: suspend () -> Response<ResponseBody>) =
+    private suspend inline fun postToEndpointExpectingLocationRedirect(
+        crossinline call: suspend () -> Response<ResponseBody>
+    ) =
         safeApiCallRaw("error posting to redirecting endpoint") {
             val response = call()
             if (response.code() == HttpURLConnection.HTTP_MOVED_TEMP) {
@@ -83,7 +85,7 @@ class IdpRemoteDataSource(
     suspend fun postToken(
         url: String,
         keyVerifier: String,
-        code: String,
+        code: String
     ) = safeApiCall("error posting for token") {
         service.token(
             url = url,

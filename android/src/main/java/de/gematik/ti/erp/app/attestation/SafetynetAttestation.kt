@@ -23,18 +23,16 @@ import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import com.google.android.gms.safetynet.SafetyNetApi
 import com.google.android.gms.safetynet.SafetyNetClient
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.attestation.AttestationException.AttestationExceptionType
 import kotlinx.coroutines.suspendCancellableCoroutine
-import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 const val PLAY_SERVICES_VERSION = 13000000
 
-class SafetynetAttestation @Inject constructor(
-    @ApplicationContext val context: Context,
+class SafetynetAttestation(
+    val context: Context,
     private val safetyNetClient: SafetyNetClient
 ) : Attestation {
 

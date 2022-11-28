@@ -40,7 +40,6 @@ import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.calculateEndPadding
 import androidx.compose.foundation.layout.calculateStartPadding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.requiredWidth
@@ -84,6 +83,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
 import kotlinx.coroutines.delay
 import java.util.Locale
 
@@ -93,17 +93,17 @@ data class HintCardProperties(
     val backgroundColor: Color,
     val contentColor: Color?,
     val border: BorderStroke?,
-    val elevation: Dp,
+    val elevation: Dp
 )
 
 object HintCardDefaults {
     @Composable
     fun properties(
         shape: Shape = RoundedCornerShape(8.dp),
-        backgroundColor: Color = MaterialTheme.colors.surface,
+        backgroundColor: Color = AppTheme.colors.neutral050,
         contentColor: Color? = null,
-        border: BorderStroke = BorderStroke(0.5.dp, AppTheme.colors.neutral300),
-        elevation: Dp = 2.dp
+        border: BorderStroke = BorderStroke(1.dp, AppTheme.colors.neutral300),
+        elevation: Dp = 0.dp
     ) = HintCardProperties(
         shape = shape,
         backgroundColor = backgroundColor,
@@ -147,7 +147,7 @@ fun HintCard(
         backgroundColor = properties.backgroundColor,
         contentColor = properties.contentColor ?: contentColorFor(properties.backgroundColor),
         border = properties.border,
-        elevation = properties.elevation,
+        elevation = properties.elevation
     ) {
         if (properties.contentColor != null) {
             MaterialTheme(
@@ -170,7 +170,7 @@ private fun HintCardInnerLayout(
     action: (@Composable ColumnScope.() -> Unit)? = null,
     close: (@Composable (innerPadding: PaddingValues) -> Unit)? = null
 ) {
-    val padding = 16.dp
+    val padding = PaddingDefaults.Medium
     val innerPaddingLeft = PaddingValues(start = padding, top = padding, bottom = padding)
     val innerPaddingRight = PaddingValues(end = padding, top = padding, bottom = padding)
 
@@ -180,7 +180,6 @@ private fun HintCardInnerLayout(
                 clip = false
             }
     ) {
-
         image(innerPaddingLeft)
 
         Column(
@@ -205,7 +204,7 @@ private fun HintCardInnerLayout(
                             .padding(top = padding, end = padding)
                     ) {
                         CompositionLocalProvider(
-                            LocalTextStyle provides MaterialTheme.typography.subtitle1
+                            LocalTextStyle provides AppTheme.typography.subtitle1
                         ) {
                             title()
                         }
@@ -214,7 +213,7 @@ private fun HintCardInnerLayout(
                         close(innerPaddingRight)
                     }
                 }
-                Spacer4()
+                SpacerTiny()
             }
             Column(
                 modifier = Modifier
@@ -225,12 +224,12 @@ private fun HintCardInnerLayout(
                     }
             ) {
                 CompositionLocalProvider(
-                    LocalTextStyle provides MaterialTheme.typography.body2
+                    LocalTextStyle provides AppTheme.typography.body2
                 ) {
                     body()
                 }
                 if (action != null) {
-                    Spacer4()
+                    SpacerTiny()
                     action()
                 }
             }
@@ -336,7 +335,7 @@ fun HintActionButton(
     onClick: () -> Unit
 ) {
     Button(
-        modifier = Modifier.padding(top = 4.dp),
+        modifier = Modifier.padding(top = PaddingDefaults.Tiny),
         onClick = onClick,
         elevation = ButtonDefaults.elevation(
             defaultElevation = 8.dp,
@@ -370,7 +369,7 @@ fun HintTextActionButton(
         enabled = enabled,
         shape = RoundedCornerShape(8.dp)
     ) {
-        Text(text)
+        Text(text = text, style = AppTheme.typography.body2)
     }
 }
 
@@ -387,9 +386,10 @@ fun HintTextLearnMoreButton(
         onClick = { uriHandler.openUri(uri) },
         enabled = true,
         align = align,
-        text = stringResource(R.string.learn_more_btn)
+        text = stringResource(R.string.cdw_health_insurance_caption_recognize_healthcard)
     )
 }
+
 @Suppress("UNUSED_PARAMETER")
 @Composable
 fun HintCloseButton(
@@ -545,7 +545,8 @@ fun ClosableHintCardWithActionButtonAndColors() {
             ),
             image = {
                 Icon(
-                    Icons.Rounded.WarningAmber, null,
+                    Icons.Rounded.WarningAmber,
+                    null,
                     modifier = Modifier
                         .padding(it)
                         .requiredSize(40.dp)
@@ -571,7 +572,8 @@ fun ClosableHintCardWithActionButtonAndColorsAndShortTitle() {
             ),
             image = {
                 Icon(
-                    Icons.Rounded.WarningAmber, null,
+                    Icons.Rounded.WarningAmber,
+                    null,
                     modifier = Modifier
                         .padding(it)
                         .requiredSize(40.dp)
@@ -596,7 +598,8 @@ fun HintCardWithNoTitle() {
             ),
             image = {
                 Icon(
-                    Icons.Rounded.WarningAmber, null,
+                    Icons.Rounded.WarningAmber,
+                    null,
                     modifier = Modifier
                         .padding(it)
                         .requiredSize(40.dp)
@@ -619,7 +622,8 @@ fun ClosableHintCardWithNoTitle() {
             ),
             image = {
                 Icon(
-                    Icons.Rounded.WarningAmber, null,
+                    Icons.Rounded.WarningAmber,
+                    null,
                     modifier = Modifier
                         .padding(it)
                         .requiredSize(40.dp)
@@ -651,14 +655,15 @@ fun AnimatedHintCardPreview() {
                 ),
                 image = {
                     Icon(
-                        Icons.Rounded.WarningAmber, null,
+                        Icons.Rounded.WarningAmber,
+                        null,
                         modifier = Modifier
                             .padding(it)
                             .requiredSize(40.dp)
                     )
                 },
                 title = null,
-                body = { Text("Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen") },
+                body = { Text("Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen") }
             )
         }
     }

@@ -20,57 +20,27 @@ package de.gematik.ti.erp.app.prescription.detail.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.db.entities.LowDetailEventSimple
-import de.gematik.ti.erp.app.prescription.detail.ui.model.UIPrescriptionDetail
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
-import java.time.OffsetDateTime
-import javax.inject.Inject
 
-@HiltViewModel
-class PrescriptionDetailsViewModel @Inject constructor(
+class PrescriptionDetailsViewModel(
     val prescriptionUseCase: PrescriptionUseCase,
-    private val dispatchProvider: DispatchProvider
-) : ViewModel() {
-    suspend fun detailedPrescription(taskId: String): UIPrescriptionDetail =
-        withContext(dispatchProvider.unconfined()) { prescriptionUseCase.generatePrescriptionDetails(taskId) }
+    private val dispatchers: DispatchProvider
+) : ViewModel(), DeletePrescriptionsBridge {
 
-    fun deletePrescription(taskId: String, isRemoteTask: Boolean): Result<Unit> {
-        // TODO find better way than runBlocking
-        return runBlocking(dispatchProvider.io()) {
-            when (val r = prescriptionUseCase.deletePrescription(taskId, isRemoteTask)) {
-                is Result.Error -> r
-                is Result.Success -> {
-                    prescriptionUseCase.deleteLowDetailEvents(taskId)
-                    r
-                }
-            }
+    suspend fun screenState(taskId: String): Flow<PrescriptionData.Prescription> =
+        prescriptionUseCase.generatePrescriptionDetails(taskId)
+
+    fun redeemScannedTask(taskId: String, redeem: Boolean) {
+        viewModelScope.launch(dispatchers.IO) {
+            prescriptionUseCase.redeemScannedTask(taskId, redeem)
         }
     }
 
-    fun onSwitchRedeemed(taskId: String, redeem: Boolean, all: Boolean, protocolText: String) {
-        viewModelScope.launch(dispatchProvider.io()) {
-            prescriptionUseCase.redeem(listOf(taskId), redeem, all)
-
-            prescriptionUseCase.saveLowDetailEvent(
-                LowDetailEventSimple(
-                    protocolText,
-                    OffsetDateTime.now(),
-                    taskId
-                )
-            )
-        }
-    }
-
-    suspend fun loadLowDetailEvents(taskId: String): Flow<List<LowDetailEventSimple>> {
-        return prescriptionUseCase.loadLowDetailEvents(taskId)
-            .flowOn(dispatchProvider.unconfined())
-    }
+    override suspend fun deletePrescription(profileId: ProfileIdentifier, taskId: String): Result<Unit> =
+        prescriptionUseCase.deletePrescription(profileId = profileId, taskId = taskId)
 }

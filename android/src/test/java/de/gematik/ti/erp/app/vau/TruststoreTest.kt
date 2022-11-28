@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.vau
 
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.repository.VauRepository
@@ -38,8 +38,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
-import org.apache.commons.codec.binary.Base64
+import kotlinx.coroutines.test.runTest
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
 import org.bouncycastle.cert.ocsp.OCSPResp
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi
@@ -52,6 +51,7 @@ import org.junit.Rule
 import org.junit.Test
 import java.security.interfaces.ECPublicKey
 import java.time.Duration
+import java.util.Base64
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TruststoreTest {
@@ -85,11 +85,13 @@ class TruststoreTest {
 
         every { config.maxOCSPResponseAge } returns Duration.ofHours(12)
         every { config.trustAnchor } returns TestCertificates.RCA3.X509Certificate
-        every { timeSource.now() } returns ocspProducedAt + Duration.ofHours(2)
+        every { timeSource() } returns ocspProducedAt + Duration.ofHours(2)
         every { trustedTruststore.vauPublicKey } returns vauPublicKey
-        every { trustedTruststore.idpCertificates } returns listOf(TestCertificates.Idp1.X509Certificate, TestCertificates.Idp2.X509Certificate)
+        every { trustedTruststore.idpCertificates } returns
+            listOf(TestCertificates.Idp1.X509Certificate, TestCertificates.Idp2.X509Certificate)
         every { trustedTruststore.caCertificates } returns listOf(TestCertificates.CA10.X509Certificate)
-        every { trustedTruststore.ocspResponses } returns TestCertificates.OCSPList.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
+        every { trustedTruststore.ocspResponses } returns
+            TestCertificates.OCSP.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
         every { trustedTruststore.checkValidity(Duration.ofHours(12), ocspProducedAt) } coAnswers { }
         coEvery { repository.invalidate() } coAnswers { }
 
@@ -103,7 +105,9 @@ class TruststoreTest {
 
     @Test
     fun `find valid cert chain for vau cert - returns one cert chain`() {
-        val ocspResp = OCSPResp(Base64.decodeBase64(TestCertificates.OCSP3.Base64)).responseObject as BasicOCSPResp
+        val ocspResp = OCSPResp(
+            Base64.getDecoder().decode(TestCertificates.OCSP3.Base64)
+        ).responseObject as BasicOCSPResp
         val certChain = listOf(
             TestCertificates.Vau.X509Certificate,
             TestCertificates.CA10.X509Certificate,
@@ -119,8 +123,8 @@ class TruststoreTest {
     @Test
     fun `find valid cert chain for idp cert - returns one cert chain`() {
         val ocspResp = listOf(
-            OCSPResp(Base64.decodeBase64(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp,
-            OCSPResp(Base64.decodeBase64(TestCertificates.OCSP2.Base64)).responseObject as BasicOCSPResp
+            OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp,
+            OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP2.Base64)).responseObject as BasicOCSPResp
         )
         val certChains = listOf(
             listOf(
@@ -146,8 +150,8 @@ class TruststoreTest {
     @Test
     fun `find valid ocsp responses - returns two ocsp responses`() {
         val ocspResps = listOf(
-            OCSPResp(Base64.decodeBase64(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp,
-            OCSPResp(Base64.decodeBase64(TestCertificates.OCSP2.Base64)).responseObject as BasicOCSPResp
+            OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp,
+            OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP2.Base64)).responseObject as BasicOCSPResp
         )
         val certChain = listOf(TestCertificates.CA10.X509Certificate, TestCertificates.RCA3.X509Certificate)
 
@@ -165,8 +169,8 @@ class TruststoreTest {
     @Test
     fun `find valid ocsp responses with wrong ca chain - returns no responses`() {
         val ocspResps = listOf(
-            OCSPResp(Base64.decodeBase64(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp,
-            OCSPResp(Base64.decodeBase64(TestCertificates.OCSP2.Base64)).responseObject as BasicOCSPResp
+            OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp,
+            OCSPResp(Base64.getDecoder().decode(TestCertificates.OCSP2.Base64)).responseObject as BasicOCSPResp
         )
         val certChain = listOf(TestCertificates.CA11.X509Certificate, TestCertificates.RCA3.X509Certificate)
 
@@ -184,7 +188,7 @@ class TruststoreTest {
     @Test
     fun `create trusted truststore`() {
         val truststore = TrustedTruststore.create(
-            TestCertificates.OCSPList.OCSPList,
+            TestCertificates.OCSP.OCSPList,
             TestCertificates.Vau.CertList,
             TestCertificates.RCA3.X509Certificate,
             Duration.ofHours(12),
@@ -200,7 +204,7 @@ class TruststoreTest {
         assertTrue(
             try {
                 TrustedTruststore.create(
-                    TestCertificates.OCSPList.OCSPList,
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -218,16 +222,16 @@ class TruststoreTest {
 
     @Test
     fun `new instance of truststore contains no cached store - fetches and creates store from repository`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -247,19 +251,19 @@ class TruststoreTest {
 
     @Test
     fun `new instance of truststore contains no cached store - fetches and creates store with invalid ocsp from repository`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -267,7 +271,7 @@ class TruststoreTest {
                 )
             } answers {
                 error("invalid ocsp")
-            } andThen {
+            } andThenAnswer {
                 trustedTruststore
             }
 
@@ -289,19 +293,19 @@ class TruststoreTest {
 
     @Test
     fun `truststore contains cached store - cached store is invalid - fetches and creates store with invalid ocsp from repository`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -345,19 +349,19 @@ class TruststoreTest {
 
     @Test(expected = Exception::class)
     fun `truststore creation finally fails`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -385,19 +389,19 @@ class TruststoreTest {
 
     @Test(expected = Exception::class)
     fun `truststore creation succeeds - block throws exception`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -427,19 +431,19 @@ class TruststoreTest {
 
     @Test
     fun `truststore creation succeeds - idp certificate found`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -464,19 +468,19 @@ class TruststoreTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun `truststore creation succeeds - idp certificate not found`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),
@@ -503,19 +507,19 @@ class TruststoreTest {
 
     @Test(expected = Exception::class)
     fun `truststore creation succeeds - idp certificate not found - invalidate`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery {
                 repository.withUntrusted<Boolean>(any())
             } coAnswers {
                 firstArg<suspend (UntrustedCertList, UntrustedOCSPList) -> Boolean>().invoke(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
             every {
-                trustedTruststoreProvider.create(
-                    TestCertificates.OCSPList.OCSPList,
+                trustedTruststoreProvider(
+                    TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
                     Duration.ofHours(12),

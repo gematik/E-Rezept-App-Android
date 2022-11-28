@@ -29,13 +29,6 @@ object CardWallData {
 
     @Immutable
     data class State(
-        val hardwareRequirementsFulfilled: Boolean,
-        val isIntroSeenByUser: Boolean,
-
-        val cardAccessNumber: String,
-        val personalIdentificationNumber: String,
-        val selectedAuthenticationMethod: AuthenticationMethod,
-
-        val demoMode: Boolean
+        val hardwareRequirementsFulfilled: Boolean
     )
 }

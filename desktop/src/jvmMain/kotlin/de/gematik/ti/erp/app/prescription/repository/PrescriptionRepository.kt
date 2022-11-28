@@ -80,10 +80,5 @@ class PrescriptionRepository(
             val medicationDispenses = mapper.mapFhirMedicationDispenseToSimpleMedicationDispense(it)
             localDataSource.saveMedicationDispenses(medicationDispenses)
         }
-
-    suspend fun downloadCommunications(): Result<Unit> =
-        remoteDataSource.getAllCommunications().mapCatching {
-            val medicationDispenses = mapper.mapFhirMedicationDispenseToSimpleMedicationDispense(it)
-            localDataSource.saveMedicationDispenses(medicationDispenses)
-        }
+    suspend fun invalidate() = localDataSource.invalidate()
 }

@@ -71,4 +71,11 @@ class LocalDataSource {
     fun loadCommunications(): Flow<List<SimpleCommunication>> {
         return communications
     }
+
+    suspend fun invalidate() = lock.withLock {
+        auditEvents.value = emptyList()
+        medicationDispenses.value = emptyList()
+        tasks.value = emptyList()
+        communications.value = emptyList()
+    }
 }

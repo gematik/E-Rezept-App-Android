@@ -18,15 +18,14 @@
 
 package de.gematik.ti.erp.app.vau.repository
 
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.vau.TestCertificates
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
@@ -51,20 +50,20 @@ class VauRepositoryTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        repo = VauRepository(localDataSource, remoteDataSource, coroutineRule.testDispatchProvider)
+        repo = VauRepository(localDataSource, remoteDataSource, coroutineRule.dispatchers)
     }
 
     @Test
-    fun `local database is empty - load from remote`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `local database is empty - load from remote`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
-        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.Success(TestCertificates.Vau.CertList) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.Success(TestCertificates.OCSPList.OCSPList) }
+        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.success(TestCertificates.Vau.CertList) }
+        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSP.OCSPList) }
 
         repo.withUntrusted { certs, ocsp ->
             assertEquals(TestCertificates.Vau.CertList, certs)
-            assertEquals(TestCertificates.OCSPList.OCSPList, ocsp)
+            assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
         }
 
         coVerify(exactly = 1) { remoteDataSource.loadCertificates() }
@@ -74,12 +73,12 @@ class VauRepositoryTest {
     }
 
     @Test
-    fun `local database is empty - load from remote fails`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `local database is empty - load from remote fails`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
-        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.Error(IOException()) }
-        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.Success(TestCertificates.OCSPList.OCSPList) }
+        coEvery { remoteDataSource.loadCertificates() } coAnswers { Result.failure(IOException()) }
+        coEvery { remoteDataSource.loadOcspResponses() } coAnswers { Result.success(TestCertificates.OCSP.OCSPList) }
 
         val r = try {
             repo.withUntrusted { certs, ocsp ->
@@ -98,11 +97,11 @@ class VauRepositoryTest {
     }
 
     @Test
-    fun `local database is not empty`() = coroutineRule.testDispatcher.runBlockingTest {
+    fun `local database is not empty`() = runTest {
         coEvery { localDataSource.loadUntrusted() } coAnswers {
             Pair(
                 TestCertificates.Vau.CertList,
-                TestCertificates.OCSPList.OCSPList
+                TestCertificates.OCSP.OCSPList
             )
         }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
@@ -110,7 +109,7 @@ class VauRepositoryTest {
 
         repo.withUntrusted { certs, ocsp ->
             assertEquals(TestCertificates.Vau.CertList, certs)
-            assertEquals(TestCertificates.OCSPList.OCSPList, ocsp)
+            assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
         }
 
         coVerify(exactly = 0) { remoteDataSource.loadCertificates() }
@@ -121,11 +120,11 @@ class VauRepositoryTest {
 
     @Test
     fun `local database is not empty - exception thrown in block of withUntrusted`() =
-        coroutineRule.testDispatcher.runBlockingTest {
+        runTest {
             coEvery { localDataSource.loadUntrusted() } coAnswers {
                 Pair(
                     TestCertificates.Vau.CertList,
-                    TestCertificates.OCSPList.OCSPList
+                    TestCertificates.OCSP.OCSPList
                 )
             }
 
@@ -135,7 +134,7 @@ class VauRepositoryTest {
             val r = try {
                 repo.withUntrusted { certs, ocsp ->
                     assertEquals(TestCertificates.Vau.CertList, certs)
-                    assertEquals(TestCertificates.OCSPList.OCSPList, ocsp)
+                    assertEquals(TestCertificates.OCSP.OCSPList, ocsp)
 
                     error("fail")
                 }

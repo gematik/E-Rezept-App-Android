@@ -18,15 +18,15 @@
 
 package de.gematik.ti.erp.app.prescription.ui
 
-import com.squareup.moshi.JsonClass
-import com.squareup.moshi.Moshi
-import timber.log.Timber
-import java.time.OffsetDateTime
-import javax.inject.Inject
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
+import io.github.aakira.napier.Napier
+import java.time.Instant
 
 data class ScannedCode(
     val json: String,
-    val scannedOn: OffsetDateTime
+    val scannedOn: Instant
 )
 
 data class ValidScannedCode(
@@ -34,7 +34,7 @@ data class ValidScannedCode(
     val urls: List<String>
 )
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class Tasks(
     val urls: MutableList<String>
 )
@@ -43,13 +43,10 @@ data class Tasks(
  * The [TwoDCodeValidator] validates a [ScannedCode] and returns, if the containing json is valid,
  * a [ValidScannedCode] or otherwise null.
  */
-class TwoDCodeValidator @Inject constructor(
-    moshi: Moshi
-) {
-    private val adapter = moshi.adapter(Tasks::class.java)
+class TwoDCodeValidator {
     fun validate(code: ScannedCode): ValidScannedCode? {
         try {
-            adapter.fromJson(code.json)?.let { bundle ->
+            Json.decodeFromString<Tasks>(code.json).let { bundle ->
                 val urls = bundle.urls
                     .takeIf { it.size in MIN_PRESCRIPTIONS..MAX_PRESCRIPTIONS }
                     ?.takeIf {
@@ -63,7 +60,7 @@ class TwoDCodeValidator @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Timber.d(e, "Couldn't parse data matrix content")
+            Napier.d("Couldn't parse data matrix content", e)
         }
         return null
     }
@@ -73,6 +70,10 @@ class TwoDCodeValidator @Inject constructor(
         const val MIN_PRESCRIPTIONS = 1
 
         // see gemSpec_FD_eRp A_19019 & A_19021
+
+        val taskIdPattern = "([A-Za-z0-9\\-.]{1,64})".toRegex()
+        val accessCodePattern = "([0-9a-f]{64})".toRegex()
+
         val taskPattern = (
             "Task/([A-Za-z0-9\\-\\.]{1,64})/\\\$accept\\?ac=([0-9a-f]{64})"
             ).toRegex()

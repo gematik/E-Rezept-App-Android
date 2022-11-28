@@ -20,48 +20,33 @@ package de.gematik.ti.erp.app.cardwall.model.nfc.card
 
 import android.nfc.Tag
 import android.nfc.tech.IsoDep
-import de.gematik.ti.erp.app.cardwall.model.nfc.command.CommandApdu
-import de.gematik.ti.erp.app.cardwall.model.nfc.command.ResponseApdu
-import timber.log.Timber
+import de.gematik.ti.erp.app.card.model.card.IHealthCard
+import de.gematik.ti.erp.app.card.model.command.CommandApdu
+import de.gematik.ti.erp.app.card.model.command.ResponseApdu
+import io.github.aakira.napier.Napier
 
 private const val ISO_DEP_TIMEOUT = 2500
 
-class NfcHealthCard private constructor(val isoDep: IsoDep) {
+class NfcHealthCard private constructor(val isoDep: IsoDep) : IHealthCard {
 
-    fun transceive(apduCommand: CommandApdu): ResponseApdu {
-        Timber.d("transceive ----")
+    override fun transmit(apduCommand: CommandApdu): ResponseApdu {
+        Napier.d("transceive ----")
         val resp = ResponseApdu(isoDep.transceive(apduCommand.bytes))
-        Timber.d("transceived ----")
+        Napier.d("transceived ----")
         return resp
     }
-
-    /**
-     * Returns if card is present
-     *
-     * @return true if IsoDep not null and IsoDep is connected false if IsoDep is null or IsoDep is not connected
-     * @throws CardException
-     */
-    private val isCardPresent: Boolean
-        get() {
-            var result: Boolean
-            isoDep.let {
-                result = isoDep.isConnected
-                Timber.d("isCardPresent() = %s", result)
-            }
-            return result
-        }
 
     companion object {
         fun connect(tag: Tag): NfcCardChannel {
             val isoDep =
                 IsoDep.get(tag).apply {
-                    Timber.d("Try isoDep connect ...")
+                    Napier.d("Try isoDep connect ...")
                     connect()
-                    Timber.d("... isoDep connected")
-                    Timber.d("isoDep maxTransceiveLength: %s", maxTransceiveLength)
-                    Timber.d("isoDep timeout: %s", timeout)
+                    Napier.d("... isoDep connected")
+                    Napier.d("isoDep maxTransceiveLength: $maxTransceiveLength")
+                    Napier.d("isoDep timeout: $timeout")
                     timeout = ISO_DEP_TIMEOUT
-                    Timber.d("isoDep timeout set to: %s", timeout)
+                    Napier.d("isoDep timeout set to: $timeout")
                 }
 
             val healthCard = NfcHealthCard(isoDep)

@@ -48,7 +48,7 @@ class VauException(e: Exception) : IOException(e)
 class VauChannelInterceptor(
     private val truststore: TruststoreUseCase,
     private val cryptoConfig: VauCryptoConfig,
-    private val dispatchProvider: DispatchersProvider,
+    private val dispatchProvider: DispatchersProvider
 ) : Interceptor {
     // `gemSpec_Krypt A_20175`
     private var previousUserAlias = "0"

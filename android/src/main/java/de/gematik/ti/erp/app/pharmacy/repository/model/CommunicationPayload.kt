@@ -18,40 +18,14 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.model
 
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
 data class CommunicationPayload(
     val version: String = "1",
     val supplyOptionsType: String,
     val name: String,
-    val address: Array<String>,
+    val address: List<String>,
     val hint: String = "",
     val phone: String?
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (javaClass != other?.javaClass) return false
-
-        other as CommunicationPayload
-
-        if (version != other.version) return false
-        if (supplyOptionsType != other.supplyOptionsType) return false
-        if (name != other.name) return false
-        if (!address.contentEquals(other.address)) return false
-        if (hint != other.hint) return false
-        if (phone != other.phone) return false
-
-        return true
-    }
-
-    override fun hashCode(): Int {
-        var result = version.hashCode()
-        result = 31 * result + supplyOptionsType.hashCode()
-        result = 31 * result + name.hashCode()
-        result = 31 * result + address.contentHashCode()
-        result = 31 * result + hint.hashCode()
-        result = 31 * result + phone.hashCode()
-        return result
-    }
-}
+)

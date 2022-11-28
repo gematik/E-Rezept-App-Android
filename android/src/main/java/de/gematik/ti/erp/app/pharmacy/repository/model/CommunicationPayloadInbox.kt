@@ -18,15 +18,27 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository.model
 
-import com.squareup.moshi.Json
-import com.squareup.moshi.JsonClass
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 
-@JsonClass(generateAdapter = true)
+@Serializable
+enum class SupplyOptionsType {
+    @SerialName("shipment")
+    Shipment,
+
+    @SerialName("onPremise")
+    OnPremise,
+
+    @SerialName("delivery")
+    Delivery
+}
+
+@Serializable
 data class CommunicationPayloadInbox(
     val version: String = "1",
-    val supplyOptionsType: String,
-    @Json(name = "info_text") val infoText: String,
-    val url: String?,
-    val pickUpCodeHR: String?,
-    val pickUpCodeDMC: String?
+    val supplyOptionsType: SupplyOptionsType,
+    @SerialName("info_text") val infoText: String? = null,
+    val url: String? = null,
+    val pickUpCodeHR: String? = null,
+    val pickUpCodeDMC: String? = null
 )

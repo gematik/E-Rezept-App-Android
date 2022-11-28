@@ -54,7 +54,7 @@ object ScanScreenData {
     data class OverlayState(
         val area: FloatArray?,
         val state: ScanState,
-        val info: Info,
+        val info: Info
     ) {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true

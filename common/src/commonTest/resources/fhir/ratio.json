@@ -1,0 +1,11 @@
+{
+  "numerator": {
+    "value": 12,
+    "unit": "TAB",
+    "system": "http://unitsofmeasure.org",
+    "code": "{tbl}"
+  },
+  "denominator": {
+    "value": 1
+  }
+}

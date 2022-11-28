@@ -33,10 +33,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -61,8 +59,9 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import java.util.Locale
@@ -79,14 +78,11 @@ fun InsecureDeviceScreen(
     pinUseCase: Boolean = true
 ) {
     var checked by rememberSaveable { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
-    Scaffold(
-        topBar = {
-            NavigationTopAppBar(
-                NavigationBarMode.Close,
-                title = headline,
-            ) { navController.popBackStack() }
-        },
+    AnimatedElevationScaffold(
+        elevated = scrollState.value > 0,
+        navigationMode = NavigationBarMode.Close,
         bottomBar = {
             BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
                 Spacer(modifier = Modifier.weight(1f))
@@ -108,13 +104,16 @@ fun InsecureDeviceScreen(
                 }
                 SpacerMedium()
             }
-        }
+        },
+        actions = {},
+        topBarTitle = headline,
+        onBack = { navController.popBackStack() }
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(scrollState)
                 .padding(PaddingDefaults.Medium)
         ) {
             Image(
@@ -126,19 +125,19 @@ fun InsecureDeviceScreen(
             SpacerSmall()
             Text(
                 headlineBody,
-                style = MaterialTheme.typography.h6
+                style = AppTheme.typography.h6
             )
             SpacerSmall()
             Text(
                 infoText,
-                style = MaterialTheme.typography.body1
+                style = AppTheme.typography.body1
             )
             if (!pinUseCase) {
                 val uriHandler = LocalUriHandler.current
                 SpacerMedium()
                 Text(
                     stringResource(R.string.insecure_device_safetynet_more_info),
-                    style = MaterialTheme.typography.body2,
+                    style = AppTheme.typography.body2,
                     color = AppTheme.colors.neutral600
                 )
                 SpacerSmall()
@@ -149,8 +148,8 @@ fun InsecureDeviceScreen(
                 ) {
                     Text(
                         stringResource(id = R.string.insecure_device_safetynet_link_text),
-                        style = MaterialTheme.typography.body2,
-                        color = AppTheme.colors.primary600,
+                        style = AppTheme.typography.body2,
+                        color = AppTheme.colors.primary600
                     )
                 }
             }
@@ -185,17 +184,17 @@ private fun Toggle(
             .fillMaxWidth()
             .padding(PaddingDefaults.Medium)
             .semantics(true) {},
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             description,
-            style = MaterialTheme.typography.subtitle1,
+            style = AppTheme.typography.subtitle1,
             modifier = Modifier.weight(1f)
         )
         SpacerSmall()
         Switch(
             checked = checked,
-            onCheckedChange = null,
+            onCheckedChange = null
         )
     }
 }

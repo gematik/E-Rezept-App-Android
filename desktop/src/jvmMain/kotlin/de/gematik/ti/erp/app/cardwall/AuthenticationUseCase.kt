@@ -18,15 +18,15 @@
 
 package de.gematik.ti.erp.app.cardwall
 
+import de.gematik.ti.erp.app.card.model.command.ResponseException
+import de.gematik.ti.erp.app.card.model.command.ResponseStatus
+import de.gematik.ti.erp.app.card.model.exchange.retrieveCertificate
+import de.gematik.ti.erp.app.card.model.exchange.signChallenge
+import de.gematik.ti.erp.app.card.model.exchange.verifyPin
+import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.establishTrustedChannel
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.nfc.model.card.NfcCardChannel
 import de.gematik.ti.erp.app.nfc.model.card.NfcCardSecureChannel
-import de.gematik.ti.erp.app.nfc.model.command.ResponseException
-import de.gematik.ti.erp.app.nfc.model.command.ResponseStatus
-import de.gematik.ti.erp.app.nfc.model.exchange.establishTrustedChannel
-import de.gematik.ti.erp.app.nfc.model.exchange.retrieveCertificate
-import de.gematik.ti.erp.app.nfc.model.exchange.signChallenge
-import de.gematik.ti.erp.app.nfc.model.exchange.verifyPin
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -96,7 +96,7 @@ enum class AuthenticationState {
             HealthCardCommunicationTrustedChannelEstablished,
             HealthCardCommunicationCertificateLoaded,
             HealthCardCommunicationFinished,
-            IDPCommunicationFinished,
+            IDPCommunicationFinished
             -> true
             else -> false
         }

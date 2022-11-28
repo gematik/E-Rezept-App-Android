@@ -18,33 +18,29 @@
 
 package de.gematik.ti.erp.app.core
 
-import android.net.Uri
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import javax.inject.Inject
-import java.time.LocalDate
+import kotlinx.coroutines.runBlocking
 
-@HiltViewModel
-class MainViewModel @Inject constructor(
-    private val settingsUseCase: SettingsUseCase,
+class MainViewModel(
     safetynetUseCase: SafetynetUseCase,
-    private val profilesUseCase: ProfilesUseCase,
-) : BaseViewModel() {
-    var externalAuthorizationUri: Uri? = null
-    val zoomEnabled by settingsUseCase::zoomEnabled
-    val authenticationMethod by settingsUseCase::authenticationMethod
-    var isNewUser by settingsUseCase::isNewUser
+    private val settingsUseCase: SettingsUseCase
+) : ViewModel() {
+    val zoomEnabled = settingsUseCase.general.map { it.zoomEnabled }
+    val authenticationMethod = settingsUseCase.authenticationMode
+    var showOnboarding = runBlocking { settingsUseCase.showOnboarding.first() }
+    var showWelcomeDrawer = runBlocking { settingsUseCase.showWelcomeDrawer }
 
     private var insecureDevicePromptShown = false
     val showInsecureDevicePrompt = settingsUseCase
         .showInsecureDevicePrompt
         .map {
-            if (isNewUser) {
+            if (showOnboarding) {
                 false
             } else if (!insecureDevicePromptShown) {
                 insecureDevicePromptShown = true
@@ -68,28 +64,22 @@ class MainViewModel @Inject constructor(
                 }
             }
 
-    val showProfileSetupPrompt =
-        profilesUseCase.isProfileSetupCompleted()
-            .map { ! it }
-
     fun onAcceptInsecureDevice() {
         viewModelScope.launch {
             settingsUseCase.acceptInsecureDevice()
         }
     }
 
-    fun overwriteDefaultProfile(profileName: String) {
+    fun acceptUpdatedDataTerms() {
         viewModelScope.launch {
-            profilesUseCase.overwriteDefaultProfileName(profileName)
+            settingsUseCase.acceptUpdatedDataTerms()
         }
     }
 
-    fun acceptUpdatedDataTerms(date: LocalDate) {
-        viewModelScope.launch {
-            settingsUseCase.updatedDataTermsAccepted(date)
-        }
+    suspend fun welcomeDrawerShown() {
+        settingsUseCase.welcomeDrawerShown()
     }
 
-    fun dataProtectionVersionAccepted() =
-        settingsUseCase.dataProtectionVersionAccepted()
+    fun dataProtectionVersionAcceptedOn() =
+        settingsUseCase.general.map { it.dataProtectionVersionAcceptedOn }
 }

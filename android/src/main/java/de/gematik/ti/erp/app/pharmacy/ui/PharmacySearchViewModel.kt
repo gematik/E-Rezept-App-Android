@@ -19,271 +19,138 @@
 package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.paging.PagingData
-import androidx.paging.cachedIn
-import androidx.paging.filter
-import androidx.paging.insertHeaderItem
-import androidx.paging.map
-import com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-import com.google.android.gms.location.LocationServices
-import com.google.android.gms.tasks.CancellationTokenSource
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.Result
-import de.gematik.ti.erp.app.common.usecase.HintUseCase
-import de.gematik.ti.erp.app.common.usecase.model.PharmacyScreenHintEnableLocation
-import de.gematik.ti.erp.app.pharmacy.repository.model.DeliveryPharmacyService
-import de.gematik.ti.erp.app.pharmacy.repository.model.Location
-import de.gematik.ti.erp.app.pharmacy.repository.model.isOpenAt
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.UIPrescriptionOrder
-import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
+import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.profiles.usecase.activeProfile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.emitAll
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.receiveAsFlow
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.transform
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
-import java.time.OffsetDateTime
-import javax.inject.Inject
-
-private const val waitForLocationUpdate = 5000L
 
 sealed class PharmacySearchUi {
     class Pharmacy(val pharmacy: PharmacyUseCaseData.Pharmacy) : PharmacySearchUi()
-    object LocationHint : PharmacySearchUi()
 }
 
-@HiltViewModel
-class PharmacySearchViewModel @Inject constructor(
-    @ApplicationContext
-    private val context: Context,
+class PharmacySearchViewModel(
     private val useCase: PharmacySearchUseCase,
-    private val hintUseCase: HintUseCase,
-    private val dispatcher: DispatchProvider
+    private val pharmacyOverviewUseCase: PharmacyOverviewUseCase,
+    private val profilesUseCase: ProfilesUseCase,
+    private val dispatchers: DispatchProvider
 ) : ViewModel() {
-    private val searchChannel = Channel<PharmacyUseCaseData.SearchData>()
-    private var searchState = MutableStateFlow<PharmacyUseCaseData.SearchData?>(null)
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val pharmacySearchFlow: Flow<PagingData<PharmacySearchUi>> =
-        searchChannel
-            .receiveAsFlow()
-            .onEach {
-                // if we receive an empty list as the first page and the last searchPagingItems state was already populated with results,
-                // the continues loading won't work; this short timeout is an ugly workaround to this issue
-                delay(100)
-                searchState.value = it
-
-                if (it.locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
-                    cancelLocationHint()
-                }
-            }
-            .flatMapLatest { searchData ->
-                useCase.searchPharmacies(searchData)
-                    .map { pagingData ->
-                        if (searchData.locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
-                            pagingData.map {
-                                it.copy(
-                                    distance = it.location?.minus(searchData.locationMode.location)
-                                )
-                            }
-                        } else {
-                            pagingData
-                        }.filter { pharmacy ->
-                            if (searchData.filter.deliveryService) {
-                                when {
-                                    searchData.filter.deliveryService && pharmacy.provides.any { it is DeliveryPharmacyService } -> true
-                                    else -> false
-                                }
-                            } else {
-                                true
-                            }
-                        }.filter {
-                            if (searchData.filter.openNow) {
-                                when {
-                                    it.openingHours == null -> false
-                                    it.openingHours.isOpenAt(OffsetDateTime.now()) -> true
-                                    else -> false
-                                }
-                            } else {
-                                true
-                            }
-                        }.map<PharmacyUseCaseData.Pharmacy, PharmacySearchUi> {
-                            PharmacySearchUi.Pharmacy(it)
-                        }.insertHeaderItem(item = PharmacySearchUi.LocationHint)
-                    }
-                    .cachedIn(viewModelScope)
-            }.shareIn(
-                viewModelScope,
-                SharingStarted.WhileSubscribed(),
-                1
-            )
-
-    @SuppressLint("MissingPermission")
-    @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun queryLocation(): Location? = withTimeoutOrNull(waitForLocationUpdate) {
-        suspendCancellableCoroutine { continuation ->
-            val cancelTokenSource = CancellationTokenSource()
-
-            continuation.invokeOnCancellation { cancelTokenSource.cancel() }
-
-            LocationServices
-                .getFusedLocationProviderClient(context)
-                .getCurrentLocation(PRIORITY_BALANCED_POWER_ACCURACY, cancelTokenSource.token)
-                .addOnFailureListener {
-                    continuation.cancel()
-                }
-                .addOnSuccessListener {
-                    continuation.resume(Location(longitude = it.longitude, latitude = it.latitude), null)
-                }
+    fun hasRedeemableTasks(): Flow<Boolean> =
+        profilesUseCase.profiles.map { it.activeProfile() }.flatMapLatest {
+            useCase.hasRedeemableTasks(it.id)
         }
-    }
 
-    init {
-        viewModelScope.launch(dispatcher.unconfined()) {
-            val searchData = useCase.previousSearch.map {
-                it.copy(locationMode = if (anyLocationPermissionGranted(context)) it.locationMode else PharmacyUseCaseData.LocationMode.Disabled)
-            }.first()
-
-            searchPharmacies(
-                searchData.name,
-                searchData.filter,
-                searchData.locationMode is PharmacyUseCaseData.LocationMode.EnabledWithoutPosition
-            )
-        }
-    }
-
-    /**
-     * Returns `true` if a position couldn't be queried.
-     */
-    suspend fun searchPharmacies(
-        name: String,
-        filter: PharmacyUseCaseData.Filter,
-        withLocationEnabled: Boolean
-    ): Boolean = withContext(dispatcher.unconfined()) {
-        val locationMode = if (withLocationEnabled) {
-            queryLocation()
-                ?.let { PharmacyUseCaseData.LocationMode.Enabled(it) }
-                ?: PharmacyUseCaseData.LocationMode.Disabled
-        } else {
-            PharmacyUseCaseData.LocationMode.Disabled
-        }
-        searchChannel.send(PharmacyUseCaseData.SearchData(name, filter, locationMode))
-
-        withLocationEnabled && locationMode is PharmacyUseCaseData.LocationMode.Disabled
-    }
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    fun screenState(): Flow<PharmacyUseCaseData.State> = flow {
-        emitAll(
-            combine(hintUseCase.cancelledHints, searchState.filterNotNull()) { cancelledHints, search ->
-                PharmacyUseCaseData.State(
-                    search = search,
-                    PharmacyScreenHintEnableLocation !in cancelledHints
-                )
-            }
-        )
-    }
-
-    fun cancelLocationHint() {
-        hintUseCase.cancelHint(PharmacyScreenHintEnableLocation)
-    }
-
-    @Immutable
-    data class RedeemUIState(
-        val loading: Boolean = false,
-        val success: Boolean = false,
-        val error: Boolean = false,
-        val fabState: Boolean = false
+    private data class NavState(
+        // orders identified by their taskId
+        val unSelectedPrescriptions: Set<String>,
+        val selectedOrderOption: PharmacyScreenData.OrderOption?,
+        val selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+        val isMarkedAsFavorite: Boolean
     )
 
-    var uiState by mutableStateOf(RedeemUIState())
-    private val orders = mutableSetOf<UIPrescriptionOrder>()
+    private val navState = MutableStateFlow(
+        NavState(
+            unSelectedPrescriptions = setOf(),
+            selectedOrderOption = null,
+            selectedPharmacy = null,
+            isMarkedAsFavorite = false
+        )
+    )
 
-    fun fetchSelectedOrders(taskIds: List<String>): Flow<List<UIPrescriptionOrder>> {
-        return useCase.prescriptionDetailsForOrdering(*taskIds.toTypedArray())
-            .onStart { updateUIState(loading = true, fabState = false) }
-            .onCompletion { updateUIState(loading = false, fabState = orders.isNotEmpty()) }
-            .map {
-                it.map { order ->
-                    order.selected = orders.contains(order)
-                    order
-                }
-            }
-    }
-
-    fun toggleOrder(order: UIPrescriptionOrder): Boolean {
-        order.selected = !order.selected
-        if (order.selected) {
-            orders.add(order)
-        } else {
-            orders.remove(order)
+    fun detailScreenState() = navState.transform {
+        if (it.selectedPharmacy != null) {
+            emit(
+                PharmacyScreenData.DetailScreenState(
+                    it.selectedPharmacy,
+                    it.isMarkedAsFavorite
+                )
+            )
         }
-        updateUIState(fabState = orders.isNotEmpty())
-        return order.selected
     }
-
-    fun triggerOrderInPharmacy(telematikId: String, redeemOption: RemoteRedeemOption) {
-        viewModelScope.launch(dispatcher.io()) {
-            updateUIState(loading = true, fabState = false)
-            var uploadStatus = false
-            for (order in orders) {
-                val deferred = async {
-                    useCase.redeemPrescription(
-                        redeemOption,
-                        order,
-                        telematikId,
-                    )
-                }
-                uploadStatus = deferred.await() is Result.Success
-            }
-            updateUIState(loading = false, fabState = true)
-            if (uploadStatus) {
-                updateUIState(success = true, fabState = false)
-            } else {
-                updateUIState(error = true, fabState = true)
-            }
+    suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
+        viewModelScope.launch(dispatchers.IO) {
+            pharmacyOverviewUseCase.saveOrUpdateFavoritePharmacy(pharmacy)
         }
     }
 
-    private fun updateUIState(
-        loading: Boolean = false,
-        success: Boolean = false,
-        error: Boolean = false,
-        fabState: Boolean = false
-    ) {
-        uiState =
-            uiState.copy(loading = loading, success = success, error = error, fabState = fabState)
+    suspend fun deleteFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
+        viewModelScope.launch(dispatchers.IO) {
+            pharmacyOverviewUseCase.deleteFavoritePharmacy(pharmacy)
+        }
+    }
+
+    suspend fun onSelectPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
+        val isMarkedAsFavorite = pharmacyOverviewUseCase.isPharmacyInFavorites(pharmacy.telematikId)
+        navState.update {
+            it.copy(selectedPharmacy = pharmacy, isMarkedAsFavorite = isMarkedAsFavorite)
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun orderScreenState(): Flow<PharmacyScreenData.OrderScreenState> =
+        profilesUseCase.profiles.map { it.activeProfile() }.flatMapLatest { activeProfile ->
+            combine(
+                useCase.prescriptionDetailsForOrdering(activeProfile.id),
+                navState.filter { it.selectedPharmacy != null && it.selectedOrderOption != null }
+            ) { state, navState ->
+                PharmacyScreenData.OrderScreenState(
+                    activeProfile = activeProfile,
+                    contact = state.contact,
+                    prescriptions = state.prescriptions.map {
+                        Pair(it, it.taskId !in navState.unSelectedPrescriptions)
+                    },
+                    selectedPharmacy = navState.selectedPharmacy!!,
+                    orderOption = navState.selectedOrderOption!!
+                )
+            }
+        }
+
+    fun onSelectOrderOption(option: PharmacyScreenData.OrderOption) {
+        navState.update {
+            it.copy(selectedOrderOption = option)
+        }
+    }
+
+    fun onSelectOrder(order: PharmacyUseCaseData.PrescriptionOrder) {
+        navState.update {
+            it.copy(unSelectedPrescriptions = it.unSelectedPrescriptions - order.taskId)
+        }
+    }
+
+    fun onDeselectOrder(order: PharmacyUseCaseData.PrescriptionOrder) {
+        navState.update {
+            it.copy(unSelectedPrescriptions = it.unSelectedPrescriptions + order.taskId)
+        }
+    }
+
+    fun onSaveContact(contact: PharmacyUseCaseData.ShippingContact) {
+        viewModelScope.launch {
+            useCase.saveShippingContact(contact)
+        }
+    }
+
+    suspend fun isPharmacyInFavorites(telematikId: String): Boolean = withContext(dispatchers.IO) {
+        pharmacyOverviewUseCase.isPharmacyInFavorites(telematikId)
     }
 }
 

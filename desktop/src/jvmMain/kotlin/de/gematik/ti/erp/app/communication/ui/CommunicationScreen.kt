@@ -102,7 +102,7 @@ fun CommunicationScreen() {
                                 infoText = it.infoText,
                                 sender = it.sender,
                                 recipient = it.recipient,
-                                sent = it.sent?.format(dtFormatter),
+                                sent = it.sent?.format(dtFormatter)
                             )
                         }
                     }

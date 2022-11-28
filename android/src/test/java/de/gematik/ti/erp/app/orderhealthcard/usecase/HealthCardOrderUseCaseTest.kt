@@ -22,27 +22,56 @@ import org.junit.Test
 import kotlin.test.assertEquals
 
 private val contacts = """
-    Kassenname;eGK und PIN Rufnummer;eGK und PIN eMail;eGK und PIN URL;PIN URL
-    Krankenkasse A;001422345336789;kk@example.com;https://www.krankenkasse.kk/;
-    Krankenkasse B;;kk@example.com;https://www.krankenkasse.kk/;
+    [
+       {
+          "name":"Kasse 1",
+          "healthCardAndPinPhone":"+123123",
+          "healthCardAndPinMail":"TestMail@test.de",
+          "healthCardAndPinUrl":"https://www.TestURL.de/",
+          "pinUrl":"https://www.TestPinURL.de/",
+          "subjectCardAndPinMail":"testHeader",
+          "bodyCardAndPinMail":"testBody",
+          "subjectPinMail":"testHeader",
+          "bodyPinMail":"testBody"
+       },
+       {
+          "name":"Kasse 2",
+          "healthCardAndPinPhone":null,
+          "healthCardAndPinMail":null,
+          "healthCardAndPinUrl":null,
+          "pinUrl":null,
+          "subjectCardAndPinMail":null,
+          "bodyCardAndPinMail":null,
+          "subjectPinMail":null,
+          "bodyPinMail":null
+       }
+    ]
 """.trimIndent()
 
 class HealthCardOrderUseCaseTest {
 
     @Test
     fun `test loadHealthInsuranceContactsFromCSV() with expected data`() {
-        loadHealthInsuranceContactsFromCSV(contacts.byteInputStream()).let {
-            assertEquals("Krankenkasse A", it[0].name)
-            assertEquals("kk@example.com", it[0].healthCardAndPinMail)
-            assertEquals("001422345336789", it[0].healthCardAndPinPhone)
-            assertEquals("https://www.krankenkasse.kk/", it[0].healthCardAndPinUrl)
-            assertEquals(null, it[0].pinUrl)
+        loadHealthInsuranceContactsFromJSON(contacts.byteInputStream()).let {
+            assertEquals("Kasse 1", it[0].name)
+            assertEquals("TestMail@test.de", it[0].healthCardAndPinMail)
+            assertEquals("+123123", it[0].healthCardAndPinPhone)
+            assertEquals("https://www.TestURL.de/", it[0].healthCardAndPinUrl)
+            assertEquals("https://www.TestPinURL.de/", it[0].pinUrl)
+            assertEquals("testHeader", it[0].subjectCardAndPinMail)
+            assertEquals("testBody", it[0].bodyCardAndPinMail)
+            assertEquals("testHeader", it[0].subjectPinMail)
+            assertEquals("testBody", it[0].bodyPinMail)
 
-            assertEquals("Krankenkasse B", it[1].name)
-            assertEquals("kk@example.com", it[1].healthCardAndPinMail)
+            assertEquals("Kasse 2", it[1].name)
+            assertEquals(null, it[1].healthCardAndPinMail)
             assertEquals(null, it[1].healthCardAndPinPhone)
-            assertEquals("https://www.krankenkasse.kk/", it[1].healthCardAndPinUrl)
+            assertEquals(null, it[1].healthCardAndPinUrl)
             assertEquals(null, it[1].pinUrl)
+            assertEquals(null, it[1].subjectCardAndPinMail)
+            assertEquals(null, it[1].bodyCardAndPinMail)
+            assertEquals(null, it[1].subjectPinMail)
+            assertEquals(null, it[1].bodyPinMail)
         }
     }
 }

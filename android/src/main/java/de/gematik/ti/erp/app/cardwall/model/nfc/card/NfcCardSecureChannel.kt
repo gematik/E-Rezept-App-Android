@@ -18,9 +18,12 @@
 
 package de.gematik.ti.erp.app.cardwall.model.nfc.card
 
-import de.gematik.ti.erp.app.cardwall.model.nfc.command.CommandApdu
-import de.gematik.ti.erp.app.cardwall.model.nfc.command.ResponseApdu
-import timber.log.Timber
+import de.gematik.ti.erp.app.card.model.card.ICardChannel
+import de.gematik.ti.erp.app.card.model.card.PaceKey
+import de.gematik.ti.erp.app.card.model.card.SecureMessaging
+import de.gematik.ti.erp.app.card.model.command.CommandApdu
+import de.gematik.ti.erp.app.card.model.command.ResponseApdu
+import io.github.aakira.napier.Napier
 
 class NfcCardSecureChannel internal constructor(
     override val isExtendedLengthSupported: Boolean,
@@ -38,11 +41,11 @@ class NfcCardSecureChannel internal constructor(
      * Returns the responseApdu after transmitting a commandApdu
      */
     override fun transmit(command: CommandApdu): ResponseApdu {
-        Timber.d("Encrypt ----")
+        Napier.d("Encrypt ----")
         return secureMessaging.encrypt(command).let { encryptedCommand ->
-            Timber.d("encrypted ----")
-            nfcHealthCard.transceive(encryptedCommand).let { encryptedResponse ->
-                Timber.d("Decrypt ----")
+            Napier.d("encrypted ----")
+            nfcHealthCard.transmit(encryptedCommand).let { encryptedResponse ->
+                Napier.d("Decrypt ----")
                 secureMessaging.decrypt(encryptedResponse)
             }
         }

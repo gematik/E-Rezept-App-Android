@@ -25,26 +25,17 @@ object CardWallNavigation {
     object TroubleshootingPageB : Route("TroubleshootingPageB")
     object TroubleshootingPageC : Route("TroubleshootingPageC")
     object TroubleshootingNoSuccessPage : Route("TroubleshootingNoSuccessPage")
-    object TroubleshootingContactUs : Route("TroubleshootingContactUs")
     object ExternalAuthenticator : Route("ExternalAuthenticatorOverview")
     object Intro : Route("CardWallIntro")
     object MissingCapabilities : Route("MissingCapabilities")
     object CardAccessNumber : Route("CardWallCardAccessNumber")
+
     object PersonalIdentificationNumber : Route("CardWallPersonalIdentificationNumber")
     object AuthenticationSelection : Route("CardWallAuthenticationSelection")
+    object AlternativeOption : Route("AlternativeOption")
+
     object Authentication : Route("CardWallAuthentication")
-    object Switch : Route("CardWallSwitch")
     object InsuranceApp : Route("InsuranceApp")
     object OrderHealthCard : Route("OrderHealthCard")
-    object NoRoute : Route("")
-}
-
-enum class CardWallSwitchNavigation {
-    INTRO, NO_ROUTE, INSURANCE_APP
-}
-
-fun mapCardWallNavigation(nav: CardWallSwitchNavigation) = when (nav) {
-    CardWallSwitchNavigation.INTRO -> CardWallNavigation.Intro
-    CardWallSwitchNavigation.NO_ROUTE -> CardWallNavigation.NoRoute
-    CardWallSwitchNavigation.INSURANCE_APP -> CardWallNavigation.InsuranceApp
+    object UnlockEgk : Route("UnlockEgk")
 }

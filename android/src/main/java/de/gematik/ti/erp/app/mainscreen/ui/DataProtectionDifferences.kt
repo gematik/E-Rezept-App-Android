@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDropDown
@@ -56,7 +55,7 @@ fun DPDifferences30112021() {
         Text(
             stringResource(R.string.data_terms_first_update_text),
             modifier = Modifier.fillMaxWidth(),
-            style = AppTheme.typography.body2l,
+            style = AppTheme.typography.body2l
         )
     }
     Spacer32()
@@ -95,7 +94,6 @@ fun DPDifferences30112021() {
 
 @Composable
 fun DPSection(title: String, content: @Composable () -> Unit) {
-
     var sectionExpanded by remember { mutableStateOf(false) }
     val arrow = if (sectionExpanded) {
         Icons.Rounded.ArrowDropUp
@@ -113,14 +111,15 @@ fun DPSection(title: String, content: @Composable () -> Unit) {
             Text(
                 title,
                 modifier = Modifier.weight(1f),
-                style = MaterialTheme.typography.body1
+                style = AppTheme.typography.body1
             )
             Icon(
-                imageVector = arrow, contentDescription = "",
+                imageVector = arrow,
+                contentDescription = "",
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.CenterVertically),
-                tint = AppTheme.colors.primary600,
+                tint = AppTheme.colors.primary600
             )
         }
         Spacer8()

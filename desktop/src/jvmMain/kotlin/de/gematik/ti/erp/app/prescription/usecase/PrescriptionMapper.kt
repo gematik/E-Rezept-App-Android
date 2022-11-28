@@ -33,13 +33,12 @@ class PrescriptionMapper {
     fun mapSimpleTask(task: SimpleTask, redeemedOn: LocalDate?) =
         PrescriptionUseCaseData.Prescription(
             taskId = task.taskId,
-            accessCode = task.accessCode,
             name = task.medicationText,
             expiresOn = task.expiresOn,
             acceptUntil = task.acceptUntil,
             organization = task.organization,
             authoredOn = task.authoredOn,
-            redeemedOn = redeemedOn,
+            redeemedOn = redeemedOn
         )
 
     fun mapSimpleTaskDetailed(task: SimpleTask, dispenses: List<SimpleMedicationDispense>) =
@@ -51,7 +50,7 @@ class PrescriptionMapper {
             medicationDispenses = dispenses.map { mapSimpleMedicationDispense(it) },
             insurance = requireNotNull(task.rawKBVBundle.extractInsurance()),
             organization = requireNotNull(task.rawKBVBundle.extractOrganization()),
-            medicationRequest = requireNotNull(task.rawKBVBundle.extractMedicationRequest()),
+            medicationRequest = requireNotNull(task.rawKBVBundle.extractMedicationRequest())
         )
 
     fun mapSimpleMedicationDispense(dispense: SimpleMedicationDispense) =

@@ -19,41 +19,93 @@
 package de.gematik.ti.erp.app.profiles.usecase.model
 
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.db.entities.ProfileColorNames
-import de.gematik.ti.erp.app.idp.repository.SingleSignOnToken
+import androidx.compose.runtime.Stable
+import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import java.time.Instant
-import java.time.OffsetDateTime
 
 object ProfilesUseCaseData {
-
     data class ProfileInsuranceInformation(
-        val insurantName: String? = null,
-        val insuranceIdentifier: String? = null,
-        val insuranceName: String? = null,
-    )
-
-    @Immutable
-    data class Profile(
-        val id: Int,
-        val name: String,
-        val insuranceInformation: ProfileInsuranceInformation,
-        val active: Boolean,
-        val color: ProfileColorNames,
-        val lastAuthenticated: Instant? = null,
-        val ssoToken: SingleSignOnToken? = null,
-        val accessToken: String? = null
+        val insurantName: String = "",
+        val insuranceIdentifier: String = "",
+        val insuranceName: String = ""
     ) {
-        fun ssoTokenValid(now: Instant = Instant.now()) = ssoToken?.isValid(now) ?: false
-        fun connected(): Boolean =
-            insuranceInformation.insurantName != null &&
-                insuranceInformation.insuranceIdentifier != null &&
-                insuranceInformation.insuranceName != null
+        companion object {
+            fun ofNullable(
+                insurantName: String?,
+                insuranceIdentifier: String?,
+                insuranceName: String?
+            ): ProfileInsuranceInformation {
+                return ProfileInsuranceInformation(insurantName ?: "", insuranceIdentifier ?: "", insuranceName ?: "")
+            }
+        }
     }
 
     @Immutable
-    data class AuditEvent(
-        val text: String,
-        val medicationText: String?,
-        val timeStamp: OffsetDateTime,
+    data class Profile(
+        val id: ProfileIdentifier,
+        val name: String,
+        val insuranceInformation: ProfileInsuranceInformation,
+        val active: Boolean,
+        val color: ProfilesData.ProfileColorNames,
+        val avatarFigure: ProfilesData.AvatarFigure,
+        val personalizedImage: ByteArray? = null,
+        val lastAuthenticated: Instant? = null,
+        val ssoTokenScope: IdpData.SingleSignOnTokenScope?
+    ) {
+        fun ssoTokenValid(now: Instant = Instant.now()) = ssoTokenScope?.token?.isValid(now) ?: false
+        fun hasNoImageSelected() = this.avatarFigure == ProfilesData.AvatarFigure.PersonalizedImage &&
+            this.personalizedImage == null
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) return true
+            if (javaClass != other?.javaClass) return false
+
+            other as Profile
+
+            if (id != other.id) return false
+            if (name != other.name) return false
+            if (insuranceInformation != other.insuranceInformation) return false
+            if (active != other.active) return false
+            if (color != other.color) return false
+            if (avatarFigure != other.avatarFigure) return false
+            if (personalizedImage != null) {
+                if (other.personalizedImage == null) return false
+                if (!personalizedImage.contentEquals(other.personalizedImage)) return false
+            } else if (other.personalizedImage != null) return false
+            if (lastAuthenticated != other.lastAuthenticated) return false
+            if (ssoTokenScope != other.ssoTokenScope) return false
+
+            return true
+        }
+
+        override fun hashCode(): Int {
+            var result = id.hashCode()
+            result = 31 * result + name.hashCode()
+            result = 31 * result + insuranceInformation.hashCode()
+            result = 31 * result + active.hashCode()
+            result = 31 * result + color.hashCode()
+            result = 31 * result + avatarFigure.hashCode()
+            result = 31 * result + (personalizedImage?.contentHashCode() ?: 0)
+            result = 31 * result + (lastAuthenticated?.hashCode() ?: 0)
+            result = 31 * result + (ssoTokenScope?.hashCode() ?: 0)
+            return result
+        }
+    }
+
+    @Immutable
+    data class PairedDevice(
+        val name: String,
+        val alias: String,
+        val connectedOn: Instant
+    ) {
+        @Stable
+        fun isOurDevice(alias: String) = this.alias == alias
+    }
+
+    @Immutable
+    data class PairedDevices(
+        val devices: List<PairedDevice>
     )
 }

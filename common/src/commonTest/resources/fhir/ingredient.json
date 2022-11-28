@@ -1,0 +1,20 @@
+{
+  "itemCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/ask",
+        "code": "37197"
+      }
+    ],
+    "text": "Wirkstoff Paulaner Weissbier"
+  },
+  "strength": {
+    "numerator": {
+      "value": 1,
+      "unit": "Maß"
+    },
+    "denominator": {
+      "value": 1
+    }
+  }
+}

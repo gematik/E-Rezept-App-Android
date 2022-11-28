@@ -19,33 +19,40 @@
 package de.gematik.ti.erp.app.interceptor
 
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import java.net.HttpURLConnection
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
-import timber.log.Timber
+import io.github.aakira.napier.Napier
 
-class BearerHeadersInterceptor(
-    private val idpUseCase: IdpUseCase,
+private const val invalidAccessTokenHeader = "Www-Authenticate"
+private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"
+
+class BearerHeaderInterceptor(
+    private val idpUseCase: IdpUseCase
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val original: Request = chain.request()
-        val profileName = original.tag(String::class.java)
-        val response = chain.proceed(request(original, loadAccessToken(false, profileName)))
-        return if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED) {
-            Timber.d("Received 401 -> refresh access token")
-            chain.proceed(request(original, loadAccessToken(true, profileName)))
+        val profileId = original.tag(ProfileIdentifier::class.java)
+        val response = chain.proceed(request(original, loadAccessToken(false, profileId)))
+        return if (response.code == HttpURLConnection.HTTP_UNAUTHORIZED &&
+            response.header(invalidAccessTokenHeader) == invalidAccessTokenValue
+        ) {
+            Napier.d("Received 401 -> refresh access token")
+            chain.proceed(request(original, loadAccessToken(true, profileId)))
         } else {
             response
         }
     }
 
-    private fun loadAccessToken(refresh: Boolean, profileName: String?) =
+    private fun loadAccessToken(refresh: Boolean, profileId: ProfileIdentifier?) =
         runBlocking {
-            idpUseCase.loadAccessToken(refresh, profileName ?: error("no profileName given"))
+            idpUseCase.loadAccessToken(refresh, profileId ?: error("no profile id given"))
         }
 
     private fun request(original: Request, token: String) =
@@ -59,7 +66,7 @@ class BearerHeadersInterceptor(
             .build()
 }
 
-class PharmacySearchInterceptor : Interceptor {
+class PharmacySearchInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original: Request = chain.request()
         val request: Request = original.newBuilder()
@@ -68,12 +75,20 @@ class PharmacySearchInterceptor : Interceptor {
     }
 }
 
-class UserAgentHeaderInterceptor(
-    private val userAgent: String
-) : Interceptor {
+class UserAgentHeaderInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-            .header("User-Agent", userAgent)
+            .header("User-Agent", BuildKonfig.USER_AGENT)
+            .build()
+
+        return chain.proceed(request)
+    }
+}
+
+class ApiKeyHeaderInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val request = chain.request().newBuilder()
+            .header("X-Api-Key", endpointHelper.getErpApiKey())
             .build()
 
         return chain.proceed(request)

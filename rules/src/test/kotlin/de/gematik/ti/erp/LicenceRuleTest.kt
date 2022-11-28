@@ -38,7 +38,9 @@ class LicenceRuleTest {
         )
 
         val expected = LintError(
-            1, 1, "licence-header",
+            1,
+            1,
+            "licence-header",
             "Licence header missing"
         )
 
@@ -79,7 +81,9 @@ class LicenceRuleTest {
         )
 
         val expected = LintError(
-            1, 1, "licence-header",
+            1,
+            1,
+            "licence-header",
             "Licence header missing"
         )
 

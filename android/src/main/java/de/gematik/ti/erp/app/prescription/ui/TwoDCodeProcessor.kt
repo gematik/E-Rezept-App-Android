@@ -23,9 +23,8 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.util.Size
 import androidx.core.graphics.minus
-import com.google.mlkit.vision.barcode.Barcode
-import timber.log.Timber
-import javax.inject.Inject
+import com.google.mlkit.vision.barcode.common.Barcode
+import io.github.aakira.napier.Napier
 import kotlin.math.absoluteValue
 import kotlin.math.max
 import kotlin.math.min
@@ -78,7 +77,7 @@ data class Metrics(
 private class FilteredDMCode(
     var cornerPoints: Array<Point>,
     var boundingBox: Rect,
-    var value: String,
+    var value: String
 )
 
 private fun Barcode.decodeValueToString(): String? =
@@ -87,7 +86,7 @@ private fun Barcode.decodeValueToString(): String? =
             it.code in (32..126)
         }
 
-class TwoDCodeProcessor @Inject constructor() {
+class TwoDCodeProcessor {
     private fun Rect.center() = Point(this.centerX(), this.centerY())
     private fun Size.center() = Point(this.width / 2, this.height / 2)
 
@@ -165,7 +164,7 @@ class TwoDCodeProcessor @Inject constructor() {
                 gluedCodeMatch
             }
             else -> {
-                Timber.d("Moved!!")
+                Napier.d("Moved!!")
 
                 // moved; find code nearest to center
                 matrixCodes

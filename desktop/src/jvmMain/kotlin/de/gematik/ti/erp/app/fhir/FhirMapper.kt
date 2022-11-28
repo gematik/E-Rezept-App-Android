@@ -144,17 +144,6 @@ fun Bundle.extractKBVBundle(reference: String): Bundle.BundleEntryComponent? {
     return entry.find { it.resource.id.removePrefix("urn:uuid:") == cleanRefId }
 }
 
-fun FhirTask.accessCode(): String {
-    identifier.forEach {
-        if (it.hasSystem()) {
-            if (it.system == "https://gematik.de/fhir/NamingSystem/AccessCode") {
-                return it.value
-            }
-        }
-    }
-    error("Access code not found!")
-}
-
 fun FhirTask.prescriptionId(): String? {
     identifier.forEach {
         if (it.hasSystem()) {
@@ -217,7 +206,6 @@ class FhirMapper(
 
                 SimpleTask(
                     taskId = fhirTask.idElement.idPart,
-                    accessCode = fhirTask.accessCode(),
                     lastModified = fhirTask.lastModified.convertFhirDateToLocalDateTime(),
                     organization = fhirOrganization.name
                         ?: fhirPractitioner.nameFirstRep.nameAsSingleString,
@@ -336,7 +324,7 @@ data class MedicationDetail(
     val text: String? = null,
     val dosageCode: String? = null,
     val normSizeCode: String? = null,
-    val uniqueIdentifier: String? = null, // PZN
+    val uniqueIdentifier: String? = null // PZN
 )
 
 data class InsuranceCompanyDetail(
@@ -384,12 +372,12 @@ fun FhirMedication.mapToUi(): MedicationDetail = MedicationDetail(
     text = this.code?.text,
     dosageCode = this.form?.coding?.find { it.system == "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM" }?.code,
     normSizeCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/normgroesse")?.value as? CodeType?)?.value,
-    uniqueIdentifier = this.code?.coding?.find { it.system == "http://fhir.de/CodeSystem/ifa/pzn" }?.code,
+    uniqueIdentifier = this.code?.coding?.find { it.system == "http://fhir.de/CodeSystem/ifa/pzn" }?.code
 )
 
 fun FhirCoverage.mapToUi() = InsuranceCompanyDetail(
     name = this.payorFirstRep?.display,
-    statusCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/gkv/versichertenart")?.value as? Coding?)?.code,
+    statusCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/gkv/versichertenart")?.value as? Coding?)?.code
 )
 
 fun FhirOrganization.mapToUi() = OrganizationDetail(

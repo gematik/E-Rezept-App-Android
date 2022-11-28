@@ -118,7 +118,7 @@ open class AndroidNetworkConfigGeneratorTask : DefaultTask() {
         val config = xml.decodeFromString(serializer, resourceFile.readBytes().decodeToString())
 
         FileSpec.builder(packagePath, "Pinning")
-            .addComment("\nDO NOT MODIFY - GENERATED ON ${LocalDateTime.now()}\n")
+            .addFileComment("\nDO NOT MODIFY - GENERATED ON ${LocalDateTime.now()}\n")
             .addImport("okhttp3", "CertificatePinner")
             .addAnnotation(
                 AnnotationSpec.builder(ClassName("", "Suppress"))

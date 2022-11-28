@@ -18,29 +18,28 @@
 
 package de.gematik.ti.erp.app.attestation.usecase
 
+import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.attestation.AttestationException
 import de.gematik.ti.erp.app.attestation.AttestationReportGenerator
 import de.gematik.ti.erp.app.attestation.SafetynetReport
+import de.gematik.ti.erp.app.attestation.SafetynetResult
+import de.gematik.ti.erp.app.attestation.model.AttestationData
 import de.gematik.ti.erp.app.attestation.repository.SafetynetAttestationRepository
-import de.gematik.ti.erp.app.messages.listOfAttestationEntities
-import de.gematik.ti.erp.app.messages.safetynetResult
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
-import junit.framework.Assert.assertFalse
-import junit.framework.Assert.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.runBlockingTest
+import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 class SafetynetUseCaseTest {
+    private val attestation = AttestationData.SafetynetAttestation("", byteArrayOf())
 
     private lateinit var useCase: SafetynetUseCase
     private lateinit var repo: SafetynetAttestationRepository
@@ -57,27 +56,26 @@ class SafetynetUseCaseTest {
         reportGenerator = mockk()
         attestationReport = mockk()
         every { attestationReport.timestampMS } returns now
-        useCase = SafetynetUseCase(repo, reportGenerator, coroutineRule.testDispatchProvider)
+        useCase = SafetynetUseCase(repo, reportGenerator, coroutineRule.dispatchers)
     }
 
     @Test
-    fun `test running safetynet attestation - throws AttestationException`() {
-        coroutineRule.testDispatcher.runBlockingTest {
-            every { repo.fetchAttestationsLocal() } returns flowOf(listOfAttestationEntities())
+    fun `test running safetynet attestation - throws AttestationException`() =
+        runTest {
+            every { repo.fetchAttestationsLocal() } returns flowOf(attestation)
             coEvery { reportGenerator.convertToReport(any(), any()) } returns attestationReport
             every { attestationReport.attestationCheckOK(any()) } throws AttestationException(
                 AttestationException.AttestationExceptionType.ATTESTATION_FAILED,
                 message = "fail"
             )
             val result = useCase.runSafetynetAttestation().first()
-            assertFalse(result)
+            assertEquals(false, result)
         }
-    }
 
     @Test
     fun `test running safetynet attestation - throws Exception when creating report`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            every { repo.fetchAttestationsLocal() } returns flow { emit(listOfAttestationEntities()) }
+        runTest {
+            every { repo.fetchAttestationsLocal() } returns flowOf(attestation)
             coEvery { repo.fetchAttestationReportRemote(any()) } returns safetynetResult()
 
             coEvery {
@@ -91,29 +89,31 @@ class SafetynetUseCaseTest {
             )
             every { attestationReport.attestationCheckOK(any()) }
             val result = useCase.runSafetynetAttestation().first()
-            assertFalse(result)
+            assertEquals(false, result)
         }
 
     @Test
     fun `test running safetynet attestation - throws Exception when fetching safetynet from remote`() {
-        coroutineRule.testDispatcher.runBlockingTest {
-            every { repo.fetchAttestationsLocal() } returns flow { emit(listOfAttestationEntities()) }
+        runTest {
+            every { repo.fetchAttestationsLocal() } returns flowOf(attestation)
             coEvery { repo.fetchAttestationReportRemote(any()) } throws Exception("failed fetching safetynet")
 
             coEvery { reportGenerator.convertToReport(any(), any()) } returns attestationReport
             every { attestationReport.attestationCheckOK(any()) } returns Unit
             val result = useCase.runSafetynetAttestation().first()
-            assertTrue(result)
+            assertEquals(true, result)
         }
     }
 
     @Test
     fun `test running safetynet attestation - passes`() =
-        coroutineRule.testDispatcher.runBlockingTest {
-            every { repo.fetchAttestationsLocal() } returns flow { emit(listOfAttestationEntities()) }
+        runTest {
+            every { repo.fetchAttestationsLocal() } returns flowOf(attestation)
             coEvery { reportGenerator.convertToReport(any(), any()) } returns attestationReport
             every { attestationReport.attestationCheckOK(any()) } returns Unit
             val result = useCase.runSafetynetAttestation().first()
-            assertTrue(result)
+            assertEquals(true, result)
         }
 }
+
+fun safetynetResult() = SafetynetResult("")

@@ -1,7 +1,8 @@
 pluginManagement {
     repositories {
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         google()
-        jcenter()
         gradlePluginPortal()
         mavenCentral()
     }
@@ -22,9 +23,12 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        maven("https://oss.sonatype.org/content/repositories/snapshots/")
+        maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         google()
-        jcenter()
         mavenCentral()
+        maven ("https://jitpack.io")
+        jcenter()
     }
 }
 
@@ -40,8 +44,12 @@ includeBuild("smartcard-wrapper") {
     }
 }
 
-include(":android")
-include(":desktop")
-include(":common")
+//includeBuild("modules/fhir-parser") {
+//    dependencySubstitution {
+//        substitute(module("de.gematik.ti.erp.app:fhir-parser")).using(project(":"))
+//    }
+//}
+
+include(":android", ":desktop", ":common")
 
 rootProject.name = "E-Rezept"

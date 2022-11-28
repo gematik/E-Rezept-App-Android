@@ -38,5 +38,8 @@ class DownloadUseCase(
                     communicationRepository.download()
                 }
             ).find { it.isFailure } ?: Result.success(Unit)
+        }.onFailure {
+            prescriptionRepository.invalidate()
+            communicationRepository.invalidate()
         }
 }

@@ -64,7 +64,7 @@ class TruststoreUseCase(
     private val config: TruststoreConfig,
     private val repository: VauRepository,
     private val timeSourceProvider: TruststoreTimeSourceProvider,
-    private val trustedTruststoreProvider: TrustedTruststoreProvider,
+    private val trustedTruststoreProvider: TrustedTruststoreProvider
 ) {
     private val lock = Mutex()
     private var cachedTruststore: TrustedTruststore? = null

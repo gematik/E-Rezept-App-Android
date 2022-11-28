@@ -18,17 +18,13 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.model
 
-import androidx.navigation.NavType
-import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.Route
 
 object PharmacyNavigationScreens {
-    object SearchResults : Route("PharmacySearchResults")
+    object StartSearch : Route("StartSearch")
+    object SearchResults : Route("SearchResults")
+    object Maps : Route("Maps")
     object PharmacyDetails : Route("PharmacyDetails")
-    object ReserveInPharmacy : Route("ReserveInPharmacy")
-    object CourierDelivery : Route("CourierDelivery")
-    object MailDelivery : Route("MailDelivery")
-    object UploadStatus : Route("UploadStatus", navArgument("redeemOption") { type = NavType.IntType }) {
-        fun path(redeemOption: Int) = path("redeemOption" to redeemOption)
-    }
+    object OrderPrescription : Route("OrderPrescription")
+    object EditShippingContact : Route("EditShippingContact")
 }

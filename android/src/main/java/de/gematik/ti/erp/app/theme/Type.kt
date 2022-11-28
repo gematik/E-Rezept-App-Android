@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("LongParameterList")
+
 package de.gematik.ti.erp.app.theme
 
 import androidx.compose.runtime.Immutable
@@ -24,6 +26,7 @@ import androidx.compose.ui.text.TextStyle
 
 @Immutable
 data class AppTypographyColors(
+    val body1l: Color,
     val body2l: Color,
     val subtitle1l: Color,
     val subtitle2l: Color,
@@ -31,10 +34,26 @@ data class AppTypographyColors(
 )
 
 @Immutable
-data class AppTypography(
+class AppTypography(
+    // overloaded fonts with different lighter color
     val body1l: TextStyle,
     val body2l: TextStyle,
     val subtitle1l: TextStyle,
     val subtitle2l: TextStyle,
-    val captionl: TextStyle
+    val caption1l: TextStyle,
+    // material theme default fonts
+    val h1: TextStyle,
+    val h2: TextStyle,
+    val h3: TextStyle,
+    val h4: TextStyle,
+    val h5: TextStyle,
+    val h6: TextStyle,
+    val subtitle1: TextStyle,
+    val subtitle2: TextStyle,
+    val body1: TextStyle,
+    val body2: TextStyle,
+    val button: TextStyle,
+    val caption1: TextStyle,
+    val caption2: TextStyle,
+    val overline: TextStyle
 )

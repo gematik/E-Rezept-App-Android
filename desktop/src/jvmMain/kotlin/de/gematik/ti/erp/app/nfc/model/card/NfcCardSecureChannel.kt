@@ -18,8 +18,12 @@
 
 package de.gematik.ti.erp.app.nfc.model.card
 
-import de.gematik.ti.erp.app.nfc.model.command.CommandApdu
-import de.gematik.ti.erp.app.nfc.model.command.ResponseApdu
+import de.gematik.ti.erp.app.card.model.card.ICardChannel
+import de.gematik.ti.erp.app.card.model.card.IHealthCard
+import de.gematik.ti.erp.app.card.model.card.PaceKey
+import de.gematik.ti.erp.app.card.model.card.SecureMessaging
+import de.gematik.ti.erp.app.card.model.command.CommandApdu
+import de.gematik.ti.erp.app.card.model.command.ResponseApdu
 import io.github.aakira.napier.Napier
 
 class NfcCardSecureChannel internal constructor(
@@ -29,7 +33,7 @@ class NfcCardSecureChannel internal constructor(
 ) : ICardChannel {
     private var secureMessaging = SecureMessaging(paceKey)
 
-    override val card: NfcHealthCard
+    override val card: IHealthCard
         get() = nfcHealthCard
 
     override val maxTransceiveLength = 1024

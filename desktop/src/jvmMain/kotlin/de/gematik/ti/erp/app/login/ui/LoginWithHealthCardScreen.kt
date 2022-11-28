@@ -173,14 +173,14 @@ fun LoginWithHealthCard(
             val isPersonalIdentificationNumberValid = personalIdentificationNumber.matches("""^\d{6,8}$""".toRegex())
 
             val maxPages =
-                if (privacyAndTermsToggled)
-                    if (cardReaderPresent)
-                        if (isCardAccessNumberValid)
+                if (privacyAndTermsToggled) {
+                    if (cardReaderPresent) {
+                        if (isCardAccessNumberValid) {
                             if (isPersonalIdentificationNumberValid) 5
                             else 4
-                        else 3
-                    else 2
-                else 1
+                        } else 3
+                    } else 2
+                } else 1
 
             val scope = rememberCoroutineScope()
 
@@ -340,20 +340,19 @@ private fun NavigationForward(
     }
 
     val interactionSource = remember { MutableInteractionSource() }
+    rememberRipple()
     Surface(
-        modifier = modifier,
-        shape = CircleShape,
-        color = backgroundColor,
-        contentColor = contentColor,
-        elevation = if (enabled) FloatingActionButtonDefaults.elevation().elevation(interactionSource).value else 0.dp,
-        enabled = enabled,
         onClick = {
             if (enabled) {
                 onClick()
             }
         },
-        role = Role.Button,
-        indication = rememberRipple()
+        modifier = modifier,
+        enabled = enabled,
+        shape = CircleShape,
+        color = backgroundColor,
+        contentColor = contentColor,
+        elevation = if (enabled) FloatingActionButtonDefaults.elevation().elevation(interactionSource).value else 0.dp
     ) {
         CompositionLocalProvider(LocalContentAlpha provides contentColor.alpha) {
             ProvideTextStyle(MaterialTheme.typography.button) {
@@ -383,17 +382,15 @@ private fun NavigationBack(
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
-        modifier = modifier,
-        shape = CircleShape,
-        color = Color.Unspecified,
-        contentColor = AppTheme.colors.neutral600,
         onClick = {
             if (enabled) {
                 onClick()
             }
         },
-        role = Role.Button,
-        indication = rememberRipple()
+        modifier = modifier,
+        shape = CircleShape,
+        color = Color.Unspecified,
+        contentColor = AppTheme.colors.neutral600
     ) {
         ProvideTextStyle(MaterialTheme.typography.button) {
             Box(
@@ -529,7 +526,7 @@ private fun Toggle(
         modifier = Modifier
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
             text = text,
@@ -566,11 +563,13 @@ private fun Toggle(
         ) {
             when (it) {
                 false -> Icon(
-                    Icons.Rounded.RadioButtonUnchecked, null,
-                    tint = AppTheme.colors.neutral400,
+                    Icons.Rounded.RadioButtonUnchecked,
+                    null,
+                    tint = AppTheme.colors.neutral400
                 )
                 true -> Icon(
-                    Icons.Rounded.CheckCircle, null,
+                    Icons.Rounded.CheckCircle,
+                    null,
                     tint = AppTheme.colors.primary600
                 )
             }
@@ -620,7 +619,8 @@ private fun AwaitCardReader(
                     ReaderState.Found -> App.strings.desktopLoginPageReaderFoundHealthcard()
                     ReaderState.Error -> App.strings.desktopLoginPageReaderError()
                 },
-                style = MaterialTheme.typography.subtitle1, textAlign = TextAlign.Center
+                style = MaterialTheme.typography.subtitle1,
+                textAlign = TextAlign.Center
             )
         }
     }
@@ -795,7 +795,8 @@ private fun EnterCardAccessNumber(
                                     .shadow(1.dp, shape)
                                     .then(if ((can.length == it || it == 5 && can.length == 6) && isFocussed) borderModifier else Modifier)
                                     .background(
-                                        color = backgroundColor, shape,
+                                        color = backgroundColor,
+                                        shape
                                     )
                                     .graphicsLayer {
                                         clip = false

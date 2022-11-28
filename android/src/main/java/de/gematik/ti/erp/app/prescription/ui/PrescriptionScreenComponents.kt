@@ -18,15 +18,9 @@
 
 package de.gematik.ti.erp.app.prescription.ui
 
-import android.net.Uri
-import androidx.biometric.BiometricManager
-import androidx.biometric.BiometricPrompt
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.MutatePriority
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -34,580 +28,336 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.LazyListScope
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.material.Card
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.SwipeableState
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.Update
-import androidx.compose.material.rememberSwipeableState
-import androidx.compose.material.swipeable
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.nestedscroll.NestedScrollConnection
-import androidx.compose.ui.input.nestedscroll.NestedScrollSource
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.IntOffset
-import androidx.compose.ui.unit.Velocity
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.compose.ui.unit.em
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDefineSecurity
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintDemoModeActivated
-import de.gematik.ti.erp.app.common.usecase.model.PrescriptionScreenHintTryDemoMode
-import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.demo.ui.DemoBanner
+import de.gematik.ti.erp.app.TestTag
+
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
-import de.gematik.ti.erp.app.mainscreen.ui.PullRefreshState
+import de.gematik.ti.erp.app.mainscreen.ui.MlKitPermissionDialog
+import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
-import de.gematik.ti.erp.app.settings.ui.SettingsScrollTo
+import de.gematik.ti.erp.app.prescriptionId
+import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
+import de.gematik.ti.erp.app.profiles.ui.ProfileHandler
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
-import de.gematik.ti.erp.app.utils.compose.NavigationMode
+import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.DynamicText
+import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.SpacerShortMedium
+import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
+import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
+import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.compose.dateString
+import de.gematik.ti.erp.app.utils.compose.phrasedDateString
+import de.gematik.ti.erp.app.utils.compose.timeString
 import java.time.Duration
-import java.time.LocalDate
+import java.time.Instant
 import java.time.LocalDateTime
-import java.time.OffsetDateTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
-import kotlin.math.roundToInt
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.NonCancellable
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import timber.log.Timber
+import java.time.temporal.ChronoUnit
 
-@Composable
-fun SecureHardwarePrompt(
-    title: String,
-    description: String,
-    negativeButton: String,
-    onAuthenticate: () -> Unit,
-    onCancel: () -> Unit,
-) {
-    val activity = LocalActivity.current as FragmentActivity
+const val ZERO_DAYS_LEFT = 0L
+const val ONE_DAY_LEFT = 1L
+const val TWO_DAYS_LEFT = 2L
 
-    val executor = remember { ContextCompat.getMainExecutor(activity) }
-
-    val callback = remember {
-        object : BiometricPrompt.AuthenticationCallback() {
-
-            override fun onAuthenticationSucceeded(
-                result: BiometricPrompt.AuthenticationResult
-            ) {
-                super.onAuthenticationSucceeded(result)
-
-                onAuthenticate()
-            }
-
-            override fun onAuthenticationError(
-                errCode: Int,
-                errString: CharSequence
-            ) {
-                super.onAuthenticationError(errCode, errString)
-
-                Timber.e("Failed to authenticate: $errString")
-
-                onCancel()
-            }
-        }
-    }
-
-    val prompt = remember { BiometricPrompt(activity, executor, callback) }
-    val promptInfo = remember {
-        BiometricPrompt.PromptInfo.Builder()
-            .setTitle(title)
-            .setDescription(description)
-            .setNegativeButtonText(negativeButton)
-            .setAllowedAuthenticators(
-                BiometricManager.Authenticators.BIOMETRIC_STRONG
-            )
-            .build()
-    }
-
-    DisposableEffect(prompt) {
-        prompt.authenticate(promptInfo)
-
-        onDispose {
-            prompt.cancelAuthentication()
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
 @Composable
 fun PrescriptionScreen(
     navController: NavController,
-    mainViewModel: MainScreenViewModel = hiltViewModel(LocalActivity.current),
-    prescriptionViewModel: PrescriptionViewModel = hiltViewModel(),
-    uri: Uri?
+    prescriptionViewModel: PrescriptionViewModel,
+    mainScreenViewModel: MainScreenViewModel,
+    onClickAvatar: () -> Unit,
+    onClickArchive: () -> Unit,
+    onElevateTopBar: (Boolean) -> Unit
 ) {
-    val refreshState = rememberSwipeableState(false)
+    val profileHandler = LocalProfileHandler.current
+    val profileId = profileHandler.activeProfile.id
 
-    var pullRefreshState by remember { mutableStateOf(PullRefreshState.None) }
-    LaunchedEffect(Unit) {
-        // we need a short delay until layout calculations are done;
-        // otherwise we will run into the anchor null problem of the swipeable state
-        delay(100)
-        mainViewModel.refreshState().collect {
-            pullRefreshState = it
-            when (pullRefreshState) {
-                PullRefreshState.IsFirstTimeBiometricAuthentication,
-                PullRefreshState.HasFirstTimeValidToken,
-                PullRefreshState.HasValidToken -> {
-                    refreshState.animateTo(true)
-                }
-                else -> {
-                    refreshState.snapTo(false)
-                }
-            }
-        }
-    }
+    var showUserNotAuthenticatedDialog by remember { mutableStateOf(false) }
 
-    var showSecureHardwarePrompt by remember { mutableStateOf(false) }
-    if (showSecureHardwarePrompt) {
-        SecureHardwarePrompt(
-            stringResource(R.string.alternate_auth_header),
-            stringResource(R.string.alternate_auth_info),
-            stringResource(R.string.cancel),
-            onAuthenticate = {
-                prescriptionViewModel.onAlternateAuthentication()
-                showSecureHardwarePrompt = false
-            },
-            onCancel = { showSecureHardwarePrompt = false }
+    val onShowCardWall = {
+        navController.navigate(
+            MainNavigationScreens.CardWall.path(profileHandler.activeProfile.id)
         )
     }
 
-    val state by produceState(prescriptionViewModel.defaultState) {
+    if (showUserNotAuthenticatedDialog) {
+        UserNotAuthenticatedDialog(
+            onCancel = { showUserNotAuthenticatedDialog = false },
+            onShowCardWall = onShowCardWall
+        )
+    }
+
+    RefreshScaffold(
+        profileId = profileId,
+        onUserNotAuthenticated = { showUserNotAuthenticatedDialog = true },
+        mainScreenViewModel = mainScreenViewModel,
+        onShowCardWall = onShowCardWall
+    ) { onRefresh ->
+        Prescriptions(
+            prescriptionViewModel = prescriptionViewModel,
+            onClickRefresh = {
+                onRefresh(true, MutatePriority.UserInput)
+            },
+            onClickAvatar = onClickAvatar,
+            navController = navController,
+            onElevateTopBar = onElevateTopBar,
+            onClickArchive = onClickArchive
+        )
+    }
+}
+
+@Composable
+fun UserNotAuthenticatedDialog(onCancel: () -> Unit, onShowCardWall: () -> Unit) {
+    CommonAlertDialog(
+        header = stringResource(R.string.user_not_authenticated_dialog_header),
+        info = stringResource(R.string.user_not_authenticated_dialog_info),
+        cancelText = stringResource(R.string.user_not_authenticated_dialog_cancel),
+        actionText = stringResource(R.string.user_not_authenticated_dialog_connect),
+        onCancel = onCancel
+    ) {
+        onShowCardWall()
+    }
+}
+
+val CardPaddingModifier = Modifier
+    .padding(
+        bottom = PaddingDefaults.Medium,
+        start = PaddingDefaults.Medium,
+        end = PaddingDefaults.Medium
+    )
+    .fillMaxWidth()
+
+@Composable
+private fun Prescriptions(
+    prescriptionViewModel: PrescriptionViewModel,
+    navController: NavController,
+    onClickRefresh: () -> Unit,
+    onClickAvatar: () -> Unit,
+    onClickArchive: () -> Unit,
+    onElevateTopBar: (Boolean) -> Unit
+) {
+    val state by produceState<PrescriptionScreenData.State?>(null) {
         prescriptionViewModel.screenState().collect {
             value = it
         }
     }
 
-    LaunchedEffect(refreshState.currentValue) {
-        try {
-            if (refreshState.currentValue) {
-                prescriptionViewModel.refreshPrescriptions(
-                    pullRefreshState = pullRefreshState,
-                    isDemoModeActive = state.showDemoBanner,
-                    onShowSecureHardwarePrompt = {
-                        showSecureHardwarePrompt = true
-                    },
-                    onShowCardWall = { canAvailable ->
-                        withContext(Dispatchers.Main) {
-                            // TODO: find a better way
-                            pullRefreshState = PullRefreshState.None
-                            refreshState.snapTo(false)
-
-                            navController.navigate(
-                                MainNavigationScreens.CardWall.path(
-                                    canAvailable
-                                )
-                            )
-                        }
-                    },
-                    onRefresh = mainViewModel::onRefresh
-                )
-            }
-        } finally {
-            withContext(NonCancellable) {
-                pullRefreshState = PullRefreshState.None
-                refreshState.animateTo(false)
-            }
-        }
-    }
-
-    PullRefresh(refreshState) {
-        val modifier = Modifier
-        Box {
-            Column(modifier = Modifier.fillMaxSize()) {
-                if (state.showDemoBanner) {
-                    DemoBanner {
-                        mainViewModel.onDeactivateDemoMode()
-                    }
-                }
-
-                NavigationAnimation(mode = NavigationMode.Open) {
-                    val coroutineScope = rememberCoroutineScope()
-
-                    Prescriptions(
-                        onClickRefresh = {
-                            coroutineScope.launch { refreshState.animateTo(true) }
-                        },
-                        prescriptionViewModel = prescriptionViewModel,
-                        state = state,
-                        navController = navController,
-                        uri = uri
-                    )
-                }
-            }
-            // todo FastTrack: combine success/error result from FastTrack auth process with app.
-            // Processing = banner, Error = Dialog?
-            uri?.let {
-                var showBanner by remember { mutableStateOf(true) }
-                if (showBanner) Banner(modifier.align(Alignment.BottomEnd)) { showBanner = false }
-//                mainViewModel.onExternAppAuthorizationResult(it)
-            }
-        }
+    state?.let {
+        PrescriptionsContent(
+            onClickRefresh = onClickRefresh,
+            onClickAvatar = onClickAvatar,
+            state = it,
+            navController = navController,
+            onElevateTopBar = onElevateTopBar,
+            onClickArchive = onClickArchive
+        )
     }
 }
 
+private val FabPadding = 68.dp
+
 @Composable
-private fun Prescriptions(
-    prescriptionViewModel: PrescriptionViewModel,
+private fun PrescriptionsContent(
+    onClickRefresh: () -> Unit,
+    onClickAvatar: () -> Unit,
+    onClickArchive: () -> Unit,
     state: PrescriptionScreenData.State,
     navController: NavController,
-    onClickRefresh: () -> Unit,
-    uri: Uri?
+    onElevateTopBar: (Boolean) -> Unit
 ) {
-    val cardPaddingModifier = Modifier
-        .padding(
-            bottom = PaddingDefaults.Medium,
-            start = PaddingDefaults.Medium,
-            end = PaddingDefaults.Medium
+    val listState = rememberLazyListState()
+    val profileHandler = LocalProfileHandler.current
+    var showMlKitPermissionDialog by remember { mutableStateOf(false) }
+
+    if (showMlKitPermissionDialog) {
+        MlKitPermissionDialog(
+            onAccept = {
+                navController.navigate(MainNavigationScreens.Camera.path())
+                showMlKitPermissionDialog = false
+            },
+            onDecline = {
+                showMlKitPermissionDialog = false
+            }
         )
-        .fillMaxWidth()
-    val headerPaddingModifier = Modifier
-        .padding(
-            top = PaddingDefaults.XLarge,
-            bottom = PaddingDefaults.Small,
-            start = PaddingDefaults.Medium,
-            end = PaddingDefaults.Medium
-        )
-        .fillMaxWidth()
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        }.collect {
+            onElevateTopBar(it)
+        }
+    }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(bottom = 68.dp), // padding for fab
-        horizontalAlignment = Alignment.CenterHorizontally
+        modifier = Modifier.fillMaxSize().testTag(TestTag.Prescriptions.Content),
+        state = listState,
+        contentPadding = if (state.prescriptions.isNotEmpty()) {
+            PaddingValues(0.dp)
+        } else {
+            PaddingValues(bottom = FabPadding)
+        },
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top
     ) {
-        item { SpacerMedium() }
+        if (state.prescriptions.isNotEmpty()) {
+            item {
+                SpacerXXLarge()
+                ProfileConnectionSection(onClickAvatar, onClickRefresh)
+                SpacerMedium()
+            }
+            prescriptionContent(
+                state = state,
+                navController = navController
+            )
+        } else {
+            emptyContent(profileHandler, onClickRefresh, onClickAvatar)
+        }
+        if (state.redeemedPrescriptions.isNotEmpty()) {
+            item {
+                SpacerLarge()
+                TextButton(onClick = onClickArchive) {
+                    Text(stringResource(R.string.archived_prescriptions_button))
+                }
+                SpacerLarge()
+            }
+        }
+    }
+}
 
-        // TODO: remove hints
-        items(state.hints, key = { it.hashCode() }) {
-            when (it) {
-                is PrescriptionScreenHintDemoModeActivated ->
-                    PrescriptionScreenDemoModeActivatedCard(cardPaddingModifier) {
-                        prescriptionViewModel.onCloseHintCard(it)
-                    }
-                is PrescriptionScreenHintTryDemoMode ->
-                    PrescriptionScreenTryDemoModeCard(
-                        cardPaddingModifier,
-                        onClickAction = {
+fun LazyListScope.emptyContent(
+    profileHandler: ProfileHandler,
+    onClickConnect: () -> Unit,
+    onClickAvatar: () -> Unit
+) {
+    item {
+        Spacer(modifier = Modifier.size(80.dp))
+        MainScreenAvatar(onClickAvatar)
+    }
+    if (profileHandler.connectionState(profileHandler.activeProfile) !=
+        ProfileHandler.ProfileConnectionState.LoggedIn
+    ) {
+        item {
+            SpacerMedium()
+            TertiaryButton(onClickConnect) {
+                Text(stringResource(R.string.mainscreen_login))
+            }
+        }
+        item {
+            SpacerLarge()
+            Text(stringResource(R.string.mainscreen_empty_content_header), style = AppTheme.typography.subtitle1)
+        }
+        item {
+            SpacerSmall()
+            Text(
+                stringResource(R.string.mainscreen_empty_not_connected_info),
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                style = AppTheme.typography.body2,
+                textAlign = TextAlign.Center
+            )
+        }
+    } else {
+        item {
+            SpacerLarge()
+            Text(stringResource(R.string.mainscreen_empty_content_header), style = AppTheme.typography.subtitle1)
+        }
+        item {
+            SpacerMedium()
+            Text(
+                stringResource(R.string.mainscreen_empty_connected_info),
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                style = AppTheme.typography.body2,
+                textAlign = TextAlign.Center
+            )
+            SpacerMedium()
+            Icon(Icons.Rounded.ArrowDownward, null)
+        }
+    }
+}
+
+private fun LazyListScope.prescriptionContent(
+    navController: NavController,
+    state: PrescriptionScreenData.State
+) {
+    state.prescriptions.forEachIndexed { index, prescription ->
+        item(key = "prescription-${prescription.taskId}") {
+            when (prescription) {
+                is PrescriptionUseCaseData.Prescription.Synced ->
+                    FullDetailMedication(
+                        prescription,
+                        modifier = CardPaddingModifier,
+                        onClick = {
                             navController.navigate(
-                                MainNavigationScreens.Settings.path(
-                                    SettingsScrollTo.DemoMode
-                                )
-                            )
-                        },
-                        onClose = { prescriptionViewModel.onCloseHintCard(it) }
-                    )
-                is PrescriptionScreenHintDefineSecurity ->
-                    PrescriptionScreenDefineSecurityCard(
-                        cardPaddingModifier,
-                        onClickAction = {
-                            navController.navigate(
-                                MainNavigationScreens.Settings.path(
-                                    SettingsScrollTo.Authentication
+                                MainNavigationScreens.PrescriptionDetail.path(
+                                    taskId = prescription.taskId
                                 )
                             )
                         }
                     )
-            }
-        }
 
-        item {
-            RefreshDivider(
-                modifier = headerPaddingModifier,
-                onClickRefresh = onClickRefresh
-            )
-        }
-
-        if (state.prescriptions.isEmpty()) {
-            item {
-                NothingToShowNote(
-                    cardPaddingModifier.padding(
-                        top = PaddingDefaults.Small
-                    ),
-                    stringResource(R.string.prescription_overview_info_no_recipes)
-                )
-            }
-        } else {
-            itemsIndexed(state.prescriptions) { index, prescription ->
-                val isFirstSyncedPrescription =
-                    (index == 0 && prescription is PrescriptionUseCaseData.Prescription.Synced)
-                val titleChanged = (
-                    index > 0 &&
-                        (state.prescriptions[index - 1] as? PrescriptionUseCaseData.Prescription.Synced)?.organization !=
-                        (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization
-                    )
-
-                if (isFirstSyncedPrescription || titleChanged) {
-                    Text(
-                        (prescription as? PrescriptionUseCaseData.Prescription.Synced)?.organization ?: "",
-                        style = MaterialTheme.typography.h6,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(headerPaddingModifier)
-                    )
-                }
-
-                when (prescription) {
-                    is PrescriptionUseCaseData.Prescription.Synced ->
-                        FullDetailMedication(
-                            prescription,
-                            state.nowInEpochDays,
-                            modifier = cardPaddingModifier,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
-                                    )
+                is PrescriptionUseCaseData.Prescription.Scanned ->
+                    LowDetailMedication(
+                        modifier = CardPaddingModifier,
+                        prescription,
+                        onClick = {
+                            navController.navigate(
+                                MainNavigationScreens.PrescriptionDetail.path(
+                                    taskId = prescription.taskId
                                 )
-                            }
-                        )
-
-                    is PrescriptionUseCaseData.Prescription.Scanned ->
-                        LowDetailMedication(
-                            modifier = cardPaddingModifier,
-                            prescription,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
-                                    )
-                                )
-                            }
-                        )
-                }
-            }
-        }
-
-        item { RedeemedHeader(headerPaddingModifier) }
-
-        if (state.redeemedPrescriptions.isEmpty()) {
-            item {
-                NothingToShowNote(
-                    cardPaddingModifier.padding(
-                        top = PaddingDefaults.Small
-                    ),
-                    stringResource(R.string.prs_not_redeemed_note)
-                )
-            }
-        } else {
-            items(state.redeemedPrescriptions) { prescription ->
-                when (prescription) {
-                    is PrescriptionUseCaseData.Prescription.Scanned ->
-                        LowDetailMedication(
-                            modifier = cardPaddingModifier,
-                            prescription,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
-                                    )
-                                )
-                            }
-                        )
-                    is PrescriptionUseCaseData.Prescription.Synced ->
-                        FullDetailMedication(
-                            prescription,
-                            state.nowInEpochDays,
-                            modifier = cardPaddingModifier,
-                            onClick = {
-                                navController.navigate(
-                                    MainNavigationScreens.PrescriptionDetail.path(
-                                        prescription.taskId
-                                    )
-                                )
-                            }
-                        )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun Banner(modifier: Modifier, onClose: () -> Unit) {
-    Card(modifier.fillMaxWidth()) {
-        Row(Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            CircularProgressIndicator(Modifier.padding(end = 16.dp), AppTheme.colors.neutral400)
-            Text(
-                text = stringResource(R.string.main_banner_authentication_text), Modifier.weight(1f), color = AppTheme.colors.neutral700,
-                style = AppTheme.typography.body2l
-            )
-            Image(Icons.Rounded.Close, null, modifier = Modifier.padding(start = 20.dp).clickable { onClose() }, alpha = 0.3f)
-        }
-    }
-}
-
-@Composable
-private fun NothingToShowNote(
-    modifier: Modifier = Modifier,
-    text: String
-) {
-    Card(
-        modifier = modifier,
-        backgroundColor = AppTheme.colors.neutral100,
-        contentColor = AppTheme.colors.neutral600,
-        elevation = 1.dp,
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(
-            text,
-            textAlign = TextAlign.Center,
-            style = AppTheme.typography.body2l,
-            modifier = Modifier
-                .padding(16.dp)
-                .testTag("erx_txt_empty_list")
-        )
-    }
-}
-
-// TODO remove if https://issuetracker.google.com/issues/162408885 is resolved
-// Source: PreUpPostDownNestedScrollConnection is currently internal in compose but we need the same
-// behavior for our pull/swipe to refresh layout
-@OptIn(ExperimentalMaterialApi::class)
-private fun <T> SwipeableState<T>.preUpPostDownNestedScrollConnection(minBound: Float): NestedScrollConnection =
-    object : NestedScrollConnection {
-        override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
-            val delta = available.toFloat()
-            return if (delta < 0 && source == NestedScrollSource.Drag) {
-                performDrag(delta).toOffset()
-            } else {
-                Offset.Zero
-            }
-        }
-
-        override fun onPostScroll(
-            consumed: Offset,
-            available: Offset,
-            source: NestedScrollSource
-        ): Offset {
-            return if (source == NestedScrollSource.Drag) {
-                performDrag(available.toFloat()).toOffset()
-            } else {
-                Offset.Zero
-            }
-        }
-
-        override suspend fun onPreFling(available: Velocity): Velocity {
-            val toFling = Offset(available.x, available.y).toFloat()
-            return if (toFling > 0 && offset.value > minBound) {
-                performFling(velocity = toFling)
-                // since we go to the anchor with tween settling, consume all for the best UX
-                available
-            } else {
-                Velocity.Zero
-            }
-        }
-
-        override suspend fun onPostFling(consumed: Velocity, available: Velocity): Velocity {
-            performFling(velocity = Offset(available.x, available.y).toFloat())
-            return available
-        }
-
-        private fun Float.toOffset(): Offset = Offset(0f, this)
-
-        private fun Offset.toFloat(): Float = this.y
-    }
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-private fun PullRefresh(
-    state: SwipeableState<Boolean>,
-    modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
-) {
-    val refreshDistance = with(LocalDensity.current) { 80.dp.toPx() }
-
-    Box(
-        modifier = modifier
-            .testTag("pull2refresh")
-            .nestedScroll(state.preUpPostDownNestedScrollConnection(-refreshDistance))
-            .swipeable(
-                state = state,
-                anchors = mapOf(
-                    -refreshDistance to false,
-                    refreshDistance to true
-                ),
-                orientation = Orientation.Vertical,
-            )
-            .fillMaxSize()
-    ) {
-        content()
-
-        val size = 48.dp
-        val offset = if (!state.offset.value.isNaN()) state.offset.value else 0.0f
-        val progress = offset / refreshDistance
-
-        Box(
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .wrapContentSize()
-                .offset { IntOffset(y = offset.roundToInt(), x = 0) }
-                .alpha(progress)
-        ) {
-            Card(
-                shape = RoundedCornerShape(size / 2),
-                elevation = 8.dp,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(size)
-            ) {
-                if (state.currentValue || state.isAnimationRunning) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.padding(4.dp)
+                            )
+                        }
                     )
-                } else {
-                    CircularProgressIndicator(
-                        progress = progress,
-                        modifier = Modifier.padding(4.dp)
-                    )
-                }
             }
         }
     }
@@ -617,171 +367,390 @@ private fun PullRefresh(
 @Composable
 private fun FullDetailRecipeCardPreview() {
     AppTheme {
-        FullDetailMedication(
-            modifier = Modifier,
-            prescription =
-            PrescriptionUseCaseData.Prescription.Synced(
-                "",
-                organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                name = "Pantoprazol 40 mg - Medikament mit sehr vielen Namensbestandteilen",
-                authoredOn = OffsetDateTime.now(),
-                redeemedOn = null,
-                expiresOn = LocalDate.now().plusDays(21),
-                acceptUntil = LocalDate.now().plusDays(-1),
-                status = PrescriptionUseCaseData.Prescription.Synced.Status.InProgress,
-                isDirectAssignment = false,
-            ),
-            nowInEpochDays = Duration.between(
-                LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC),
-                LocalDateTime.now()
-            ).toDays(),
-            onClick = {}
-        )
+        Column {
+            FullDetailMedication(
+                modifier = Modifier,
+                prescription =
+                PrescriptionUseCaseData.Prescription.Synced(
+                    "",
+                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
+                    name = "Pantoprazol 40 mg - Medikament mit sehr vielen Namensbestandteilen",
+                    authoredOn = Instant.now(),
+                    isIncomplete = false,
+                    redeemedOn = null,
+                    expiresOn = Instant.now().plus(21, ChronoUnit.DAYS),
+                    acceptUntil = Instant.now().minus(1, ChronoUnit.DAYS),
+                    state = SyncedTaskData.SyncedTask.Other(SyncedTaskData.TaskStatus.InProgress, Instant.now()),
+                    isDirectAssignment = false,
+                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState()
+                ),
+                onClick = {}
+            )
+            SpacerMedium()
 
-        FullDetailMedication(
-            modifier = Modifier,
-            prescription =
-            PrescriptionUseCaseData.Prescription.Synced(
-                organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                taskId = "",
-                name = "Pantoprazol 40 mg",
-                authoredOn = OffsetDateTime.now(),
-                redeemedOn = null,
-                expiresOn = LocalDate.now().plusDays(20),
-                acceptUntil = LocalDate.now().plusDays(97),
-                status = PrescriptionUseCaseData.Prescription.Synced.Status.Unknown,
-                isDirectAssignment = false
-            ),
-            nowInEpochDays = Duration.between(
-                LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC),
-                LocalDateTime.now()
-            ).toDays(),
-            onClick = {}
-        )
+            FullDetailMedication(
+                modifier = Modifier,
+                prescription =
+                PrescriptionUseCaseData.Prescription.Synced(
+                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
+                    taskId = "",
+                    name = "Pantoprazol 40 mg",
+                    isIncomplete = false,
+                    authoredOn = Instant.now(),
+                    redeemedOn = null,
+                    expiresOn = Instant.now().plus(20, ChronoUnit.DAYS),
+                    acceptUntil = Instant.now().plus(97, ChronoUnit.DAYS),
+                    state = SyncedTaskData.SyncedTask.Other(SyncedTaskData.TaskStatus.Other, Instant.now()),
+                    isDirectAssignment = false,
+                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState()
+                ),
+                onClick = {}
+            )
+            SpacerMedium()
 
-        FullDetailMedication(
-            modifier = Modifier,
-            prescription =
-            PrescriptionUseCaseData.Prescription.Synced(
-                organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                taskId = "",
-                name = "Pantoprazol 40 mg",
-                authoredOn = OffsetDateTime.now(),
-                redeemedOn = null,
-                expiresOn = LocalDate.now(),
-                acceptUntil = LocalDate.now().plusDays(1),
-                status = PrescriptionUseCaseData.Prescription.Synced.Status.Completed,
-                isDirectAssignment = false
-            ),
-            nowInEpochDays = Duration.between(
-                LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC),
-                LocalDateTime.now()
-            ).toDays(),
-            onClick = {}
-        )
+            FullDetailMedication(
+                modifier = Modifier,
+                prescription =
+                PrescriptionUseCaseData.Prescription.Synced(
+                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
+                    taskId = "",
+                    name = "Pantoprazol 40 mg",
+                    isIncomplete = false,
+                    authoredOn = Instant.now(),
+                    redeemedOn = null,
+                    expiresOn = Instant.now(),
+                    acceptUntil = Instant.now().plus(1, ChronoUnit.DAYS),
+                    state = SyncedTaskData.SyncedTask.Other(SyncedTaskData.TaskStatus.Completed, Instant.now()),
+                    isDirectAssignment = false,
+                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState()
+                ),
+                onClick = {}
+            )
+            SpacerMedium()
+
+            FullDetailMedication(
+                modifier = Modifier,
+                prescription =
+                PrescriptionUseCaseData.Prescription.Synced(
+                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
+                    taskId = "12344",
+                    name = "Pantoprazol 40 mg",
+                    authoredOn = Instant.now(),
+                    isIncomplete = false,
+                    redeemedOn = null,
+                    expiresOn = Instant.now().minus(1, ChronoUnit.DAYS),
+                    acceptUntil = Instant.now().minus(1, ChronoUnit.DAYS),
+                    state = SyncedTaskData.SyncedTask.LaterRedeemable(
+                        Instant.now().minus(1, ChronoUnit.DAYS)
+                    ),
+                    isDirectAssignment = false,
+                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
+                        isPartOfMultiplePrescription = true,
+                        numerator = "1",
+                        denominator = "4",
+                        start = Instant.now()
+                    )
+                ),
+                onClick = {}
+            )
+
+            SpacerMedium()
+            FullDetailMedication(
+                modifier = Modifier,
+                prescription =
+                PrescriptionUseCaseData.Prescription.Synced(
+                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
+                    taskId = "12344",
+                    name = "Medication",
+                    authoredOn = Instant.now(),
+                    isIncomplete = true,
+                    redeemedOn = null,
+                    expiresOn = Instant.now().minus(1, ChronoUnit.DAYS),
+                    acceptUntil = Instant.now().minus(1, ChronoUnit.DAYS),
+                    state = SyncedTaskData.SyncedTask.LaterRedeemable(
+                        Instant.now().minus(1, ChronoUnit.DAYS)
+                    ),
+                    isDirectAssignment = false,
+                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
+                        isPartOfMultiplePrescription = false,
+                        numerator = null,
+                        denominator = null,
+                        start = null
+                    )
+                ),
+                onClick = {}
+            )
+        }
     }
 }
 
 @Composable
-fun expiryOrAcceptString(
-    expiryDate: LocalDate,
-    acceptDate: LocalDate,
-    nowInEpochDays: Long
-): String {
-    val expiryDaysLeft = remember { expiryDate.toEpochDay() - nowInEpochDays }
-    val acceptDaysLeft = remember { acceptDate.toEpochDay() - nowInEpochDays }
+fun readyPrescriptionStateInfo(
+    acceptDaysLeft: Long,
+    expiryDaysLeft: Long
+): AnnotatedString? = when {
+    acceptDaysLeft == ZERO_DAYS_LEFT -> buildAnnotatedString {
+        appendInlineContent(
+            id = "warningAmber",
+            alternateText = stringResource(R.string.prescription_item_warning_amber)
+        )
+        append(stringResource(R.string.prescription_item_accept_only_today))
+    }
 
-    return when {
-        acceptDaysLeft == 0L -> {
-            stringResource(id = R.string.prescription_item_accept_only_today)
+    expiryDaysLeft == ZERO_DAYS_LEFT -> buildAnnotatedString {
+        appendInlineContent(
+            id = "warningAmber",
+            alternateText = stringResource(R.string.prescription_item_warning_amber)
+        )
+        append(stringResource(R.string.prescription_item_expiration_only_today))
+    }
+
+    acceptDaysLeft in ONE_DAY_LEFT..TWO_DAYS_LEFT -> buildAnnotatedString {
+        appendInlineContent(
+            id = "warningAmber",
+            alternateText = stringResource(R.string.prescription_item_warning_amber)
+        )
+        append(
+            annotatedPluralsResource(
+                R.plurals.prescription_item_accept_days,
+                acceptDaysLeft.toInt(),
+                AnnotatedString(acceptDaysLeft.toString())
+            )
+        )
+    }
+
+    expiryDaysLeft in ONE_DAY_LEFT..TWO_DAYS_LEFT -> buildAnnotatedString {
+        appendInlineContent(
+            id = "warningAmber",
+            alternateText = stringResource(R.string.prescription_item_warning_amber)
+        )
+        append(
+            annotatedPluralsResource(
+                R.plurals.prescription_item_expiration_days_new,
+                expiryDaysLeft.toInt(),
+                AnnotatedString(expiryDaysLeft.toString())
+            )
+        )
+    }
+
+    acceptDaysLeft > TWO_DAYS_LEFT -> annotatedPluralsResource(
+        R.plurals.prescription_item_accept_days,
+        acceptDaysLeft.toInt(),
+        AnnotatedString(acceptDaysLeft.toString())
+    )
+
+    expiryDaysLeft > TWO_DAYS_LEFT -> annotatedPluralsResource(
+        R.plurals.prescription_item_expiration_days_new,
+        expiryDaysLeft.toInt(),
+        AnnotatedString(expiryDaysLeft.toString())
+    )
+
+    else -> null
+}
+
+@Composable
+fun prescriptionStateInfo(
+    state: SyncedTaskData.SyncedTask.TaskState,
+    pharmacyName: String? = null,
+    now: Instant = Instant.now()
+) {
+    val warningAmber = mapOf(
+        "warningAmber" to InlineTextContent(
+            Placeholder(
+                width = 0.em,
+                height = 0.em,
+                placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
+            )
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.WarningAmber,
+                modifier = Modifier.padding(end = PaddingDefaults.Tiny),
+                contentDescription = null,
+                tint = AppTheme.colors.red600
+            )
         }
-        expiryDaysLeft == 1L -> {
-            stringResource(id = R.string.prescription_item_expiration_only_today)
-        }
-        expiryDaysLeft <= 0L -> {
-            stringResource(id = R.string.prescription_item_expired)
+    )
+
+    when (state) {
+        is SyncedTaskData.SyncedTask.LaterRedeemable -> {
+            Text(
+                text = dateWithIntroductionString(
+                    R.string.pres_detail_medication_redeemable_on,
+                    state.redeemableOn
+                ),
+                style = AppTheme.typography.body2l
+            )
         }
 
-        else ->
-            if (acceptDaysLeft > 1L) {
-                annotatedPluralsResource(
-                    R.plurals.prescription_item_accept_days,
-                    acceptDaysLeft.toInt(),
-                    AnnotatedString(acceptDaysLeft.toString())
+        is SyncedTaskData.SyncedTask.Ready -> {
+            val expiryDaysLeft = remember { Duration.between(now, state.expiresOn).toDays() }
+            val acceptDaysLeft = remember { Duration.between(now, state.acceptUntil).toDays() }
+
+            val text = readyPrescriptionStateInfo(acceptDaysLeft, expiryDaysLeft)
+
+            when {
+                acceptDaysLeft in ZERO_DAYS_LEFT..TWO_DAYS_LEFT ||
+                    expiryDaysLeft in ZERO_DAYS_LEFT..TWO_DAYS_LEFT ->
+                    text?.let {
+                        DynamicText(
+                            it,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            style = AppTheme.typography.body2,
+                            color = AppTheme.colors.red600,
+                            inlineContent = warningAmber
+                        )
+                    }
+
+                acceptDaysLeft > TWO_DAYS_LEFT || expiryDaysLeft > TWO_DAYS_LEFT ->
+                    text?.let { Text(it, style = AppTheme.typography.body2) }
+
+                else -> {}
+            }
+        }
+
+        is SyncedTaskData.SyncedTask.InProgress -> {
+            val lastModified = remember { LocalDateTime.ofInstant(state.lastModified, ZoneId.systemDefault()) }
+            val dayDifference = remember {
+                Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toDays()
+            }
+            val minDifference = remember {
+                Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toMinutes()
+            }
+            val text = when {
+                minDifference < 5L -> stringResource(R.string.sent_now)
+                minDifference < 60L -> annotatedStringResource(
+                    R.string.sent_x_min_ago,
+                    minDifference
                 ).toString()
-            } else {
-                annotatedPluralsResource(
-                    R.plurals.prescription_item_expiration_days_new,
-                    expiryDaysLeft.toInt(),
-                    AnnotatedString(expiryDaysLeft.toString())
+
+                dayDifference < 0L -> annotatedStringResource(
+                    R.string.sent_on_day,
+                    remember { dateString(lastModified) }
+                ).toString()
+
+                else -> annotatedStringResource(
+                    R.string.sent_on_minute,
+                    remember { timeString(lastModified) }
                 ).toString()
             }
+
+            Text(text, style = AppTheme.typography.body2)
+        }
+
+        is SyncedTaskData.SyncedTask.Pending -> {
+            val sentOn = remember { LocalDateTime.ofInstant(state.sentOn, ZoneId.systemDefault()) }
+            Text(
+                annotatedStringResource(
+                    R.string.sent_on_to_pharmacy,
+                    phrasedDateString(sentOn),
+                    pharmacyName ?: stringResource(R.string.orders_generic_pharmacy_name)
+                ).toString(),
+                style = AppTheme.typography.body2
+            )
+        }
+
+        is SyncedTaskData.SyncedTask.Expired -> {
+            Text(
+                dateWithIntroductionString(R.string.pres_detail_medication_expired_on, state.expiredOn),
+                style = AppTheme.typography.body2
+            )
+        }
+
+        is SyncedTaskData.SyncedTask.Other -> {
+            if (state.state == SyncedTaskData.TaskStatus.Completed) {
+                val completedOn = remember { LocalDateTime.ofInstant(state.lastModified, ZoneId.systemDefault()) }
+                Text(
+                    text = annotatedStringResource(
+                        R.string.received_on_to_pharmacy,
+                        phrasedDateString(completedOn),
+                        pharmacyName ?: stringResource(R.string.orders_generic_pharmacy_name)
+                    ).toString(),
+                    style = AppTheme.typography.body2l
+                )
+            }
+        }
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun FullDetailMedication(
+fun FullDetailMedication(
     prescription: PrescriptionUseCaseData.Prescription.Synced,
-    nowInEpochDays: Long,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val showDirectAssignmentLabel by derivedStateOf {
+        val isCompleted =
+            (prescription.state as? SyncedTaskData.SyncedTask.Other)?.state == SyncedTaskData.TaskStatus.Completed
+
+        prescription.isDirectAssignment && !isCompleted
+    }
+
     Card(
-        modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
+        modifier = modifier.semantics {
+            prescriptionId = prescription.taskId
+        }
+            .testTag(TestTag.Prescriptions.FullDetailPrescription),
+        shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),
+        backgroundColor = AppTheme.colors.neutral050,
         elevation = 0.dp,
         onClick = onClick
     ) {
         Row(modifier = Modifier.padding(PaddingDefaults.Medium)) {
             Column(modifier = Modifier.weight(1f)) {
-                when (prescription.status) {
-                    PrescriptionUseCaseData.Prescription.Synced.Status.Ready ->
-                        ReadyStatusChip()
-                    PrescriptionUseCaseData.Prescription.Synced.Status.InProgress ->
-                        InProgressStatusChip()
-                    PrescriptionUseCaseData.Prescription.Synced.Status.Completed ->
-                        CompletedStatusChip()
-                    PrescriptionUseCaseData.Prescription.Synced.Status.Unknown ->
-                        UnknownStatusChip()
+                if (prescription.isIncomplete) {
+                    FailureStatusChip()
+                } else if (showDirectAssignmentLabel) {
+                    DirectAssignmentStatusChip()
+                } else {
+                    when (prescription.state) {
+                        is SyncedTaskData.SyncedTask.InProgress -> InProgressStatusChip()
+                        is SyncedTaskData.SyncedTask.Pending -> PendingStatusChip()
+                        is SyncedTaskData.SyncedTask.Ready -> ReadyStatusChip()
+                        is SyncedTaskData.SyncedTask.Expired -> ExpiredStatusChip()
+                        is SyncedTaskData.SyncedTask.LaterRedeemable -> LaterRedeemableStatusChip()
+
+                        is SyncedTaskData.SyncedTask.Other -> {
+                            when (prescription.state.state) {
+                                SyncedTaskData.TaskStatus.Completed -> CompletedStatusChip()
+                                else -> UnknownStatusChip()
+                            }
+                        }
+                    }
                 }
 
                 Spacer(Modifier.height(PaddingDefaults.Small + PaddingDefaults.Tiny))
 
+                val medicationName =
+                    prescription.name ?: stringResource(R.string.prescription_medication_default_name)
+
                 Text(
-                    prescription.name,
-                    style = MaterialTheme.typography.subtitle1
+                    modifier = Modifier.testTag(TestTag.Prescriptions.FullDetailPrescriptionName),
+                    text = medicationName,
+                    style = AppTheme.typography.subtitle1,
+                    maxLines = 3,
+                    overflow = TextOverflow.Ellipsis
                 )
 
-                val text = if (prescription.redeemedOn != null) {
-                    val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
-                    prescription.redeemedOn.toInstant().atZone(ZoneId.systemDefault())
-                        .toLocalDate().format(dateFormatter)
-                } else {
-                    if (prescription.isDirectAssignment) {
-                        stringResource(R.string.direct_assignment_will_be_forwardet)
-                    } else {
-                        prescription.expiresOn?.let { expiryDate ->
-                            prescription.acceptUntil?.let { acceptDate ->
-                                expiryOrAcceptString(
-                                    expiryDate = expiryDate,
-                                    acceptDate = acceptDate,
-                                    nowInEpochDays = nowInEpochDays
-                                )
-                            }
+                if (!prescription.isDirectAssignment) {
+                    prescriptionStateInfo(prescription.state)
+                }
+
+                if (prescription.multiplePrescriptionState.isPartOfMultiplePrescription) {
+                    prescription.multiplePrescriptionState.numerator?.let { numerator ->
+                        prescription.multiplePrescriptionState.denominator?.let { denominator ->
+                            SpacerShortMedium()
+                            NumeratorChip(numerator, denominator)
                         }
                     }
-                } ?: ""
-
-                Text(
-                    text,
-                    style = AppTheme.typography.body2l
-                )
+                }
             }
 
             Icon(
-                Icons.Filled.KeyboardArrowRight, null,
+                Icons.Filled.KeyboardArrowRight,
+                null,
                 tint = AppTheme.colors.neutral400,
                 modifier = Modifier
                     .size(24.dp)
@@ -799,17 +768,17 @@ private fun LowDetailRecipeCardPreview() {
             Modifier,
             prescription = PrescriptionUseCaseData.Prescription.Scanned(
                 "",
-                OffsetDateTime.now(),
-                redeemedOn = OffsetDateTime.now().plusDays(2)
+                Instant.now(),
+                redeemedOn = Instant.now().plus(2, ChronoUnit.DAYS)
             ),
-            onClick = {},
+            onClick = {}
         )
     }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-private fun LowDetailMedication(
+fun LowDetailMedication(
     modifier: Modifier = Modifier,
     prescription: PrescriptionUseCaseData.Prescription.Scanned,
     onClick: () -> Unit
@@ -817,12 +786,12 @@ private fun LowDetailMedication(
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
 
     val scannedOn = remember {
-        prescription.scannedOn.toInstant().atZone(ZoneId.systemDefault())
+        prescription.scannedOn.atZone(ZoneId.systemDefault())
             .toLocalDate().format(dateFormatter)
     }
 
     val redeemedOn = remember {
-        prescription.redeemedOn?.toInstant()?.atZone(ZoneId.systemDefault())
+        prescription.redeemedOn?.atZone(ZoneId.systemDefault())
             ?.toLocalDate()?.format(dateFormatter)
     }
 
@@ -834,9 +803,10 @@ private fun LowDetailMedication(
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(8.dp),
+        shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),
         elevation = 0.dp,
+        backgroundColor = AppTheme.colors.neutral050,
         onClick = onClick
     ) {
         Row(modifier = Modifier.padding(PaddingDefaults.Medium)) {
@@ -846,64 +816,23 @@ private fun LowDetailMedication(
             ) {
                 Text(
                     stringResource(R.string.prs_low_detail_medication),
-                    style = MaterialTheme.typography.subtitle1,
+                    style = AppTheme.typography.subtitle1
                 )
                 SpacerTiny()
                 Text(
                     dateText,
-                    style = AppTheme.typography.body2l,
+                    style = AppTheme.typography.body2l
                 )
             }
 
             Icon(
-                Icons.Filled.KeyboardArrowRight, null,
+                Icons.Filled.KeyboardArrowRight,
+                null,
                 tint = AppTheme.colors.neutral400,
                 modifier = Modifier
                     .size(24.dp)
                     .align(Alignment.CenterVertically)
             )
         }
-    }
-}
-
-/**
- * | Current        X Refresh |
- */
-@Composable
-private fun RefreshDivider(modifier: Modifier = Modifier, onClickRefresh: () -> Unit) {
-    Row(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.prs_divider_refresh_info),
-            style = MaterialTheme.typography.h6,
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-        Spacer(modifier = Modifier.weight(1.0f))
-        TextButton(
-            onClick = onClickRefresh,
-            modifier = Modifier
-                .align(Alignment.CenterVertically)
-                .testTag("erx_btn_refresh")
-        ) {
-            Icon(
-                Icons.Rounded.Update, null,
-                modifier = Modifier
-                    .size(24.dp)
-                    .padding(end = 4.dp)
-            )
-            Text(
-                stringResource(R.string.prs_divider_refresh_action),
-                style = MaterialTheme.typography.subtitle2
-            )
-        }
-    }
-}
-
-@Composable
-private fun RedeemedHeader(modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
-        Text(
-            style = MaterialTheme.typography.h6,
-            text = stringResource(R.string.prs_divider_redeemed_info),
-        )
     }
 }

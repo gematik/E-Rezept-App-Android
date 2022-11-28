@@ -43,7 +43,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import de.gematik.ti.erp.app.utils.compose.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.ArrowForward
@@ -73,29 +72,30 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+
 import androidx.navigation.NavController
 import com.google.zxing.common.BitMatrix
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.BackInterceptor
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.NavigationClose
 import de.gematik.ti.erp.app.utils.compose.Spacer8
+import de.gematik.ti.erp.app.utils.compose.TopAppBar
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import org.kodein.di.compose.rememberViewModel
 import kotlin.math.max
 import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: RedeemViewModel = hiltViewModel()) {
-    val protocolText = stringResource(R.string.redeem_protocol_text)
-
+fun RedeemScreen(taskIds: List<String>, navController: NavController) {
+    val redeemVM: RedeemViewModel by rememberViewModel()
     val state by produceState(redeemVM.defaultState) {
         redeemVM.screenState(taskIds).collect {
             value = it
@@ -161,11 +161,10 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
             )
         }
     ) {
-
         if (showRedeemScannedDialog) {
             RedeemScannedPrescriptionsDialog(
                 onClickRedeem = {
-                    redeemVM.redeemPrescriptions(taskIds, protocolText)
+                    redeemVM.redeemPrescriptions(taskIds)
                     navController.popBackStack()
                 }
             ) {
@@ -183,7 +182,7 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
             Column(verticalArrangement = Arrangement.SpaceBetween) {
                 Text(
                     stringResource(R.string.redeem_subtitle),
-                    style = MaterialTheme.typography.subtitle2,
+                    style = AppTheme.typography.subtitle2,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp)
                 )
@@ -214,7 +213,7 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
                                 Column {
                                     Box {
                                         DataMatrixCode(
-                                            matrixCode = code.matrixCode,
+                                            payload = code.payload,
                                             modifier = mod.aspectRatio(1f)
                                         )
                                     }
@@ -230,7 +229,7 @@ fun RedeemScreen(taskIds: List<String>, navController: NavController, redeemVM: 
                                                     R.string.redeem_txt_code_description,
                                                     annotatedStringBold(code.nrOfCodes.toString())
                                                 ),
-                                                style = MaterialTheme.typography.body2,
+                                                style = AppTheme.typography.body2,
                                                 textAlign = TextAlign.Center,
                                                 modifier = mod
                                             )
@@ -293,7 +292,6 @@ private fun SwitchScreenMode(
     icon: ImageVector,
     onClick: () -> Unit
 ) {
-
     Box(
         modifier = modifier.fillMaxWidth()
     ) {
@@ -306,11 +304,10 @@ private fun SwitchScreenMode(
                 .align(Alignment.Center),
             contentPadding = PaddingValues()
         ) {
-
             Text(
                 text,
                 color = MaterialTheme.colors.secondary,
-                style = MaterialTheme.typography.subtitle2,
+                style = AppTheme.typography.subtitle2
             )
             Icon(
                 icon,
@@ -339,7 +336,6 @@ private fun Counter(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-
         Box(
             modifier = Modifier.size(48.dp)
         ) {
@@ -368,9 +364,9 @@ private fun Counter(
                 annotatedStringResource(
                     R.string.redeem_counter_text,
                     annotatedStringBold((page + 1).toString()),
-                    annotatedStringBold(maxPages.toString()),
+                    annotatedStringBold(maxPages.toString())
                 ),
-                style = MaterialTheme.typography.subtitle1,
+                style = AppTheme.typography.subtitle1,
                 modifier = Modifier
                     .padding(horizontal = 12.dp, vertical = 4.dp)
                     .align(Alignment.Center)
@@ -397,19 +393,21 @@ private fun Counter(
 }
 
 @Composable
-fun DataMatrixCode(matrixCode: BitMatrixCode, modifier: Modifier) {
+fun DataMatrixCode(payload: String, modifier: Modifier) {
+    val matrix = remember(payload) { createBitMatrix(payload) }
+
     Box(
         modifier = Modifier
             .then(modifier)
             .background(Color.White)
-            .padding(16.dp)
+            .padding(PaddingDefaults.Small)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .drawWithCache {
                     val bmp = Bitmap.createScaledBitmap(
-                        matrixCode.matrix.toBitmap(),
+                        matrix.toBitmap(),
                         max(size.width.roundToInt(), 10),
                         max(size.height.roundToInt(), 10),
                         false
@@ -425,7 +423,6 @@ fun DataMatrixCode(matrixCode: BitMatrixCode, modifier: Modifier) {
 
 @Composable
 private fun RedeemScannedPrescriptionsDialog(onClickRedeem: () -> Unit, onCancel: () -> Unit) {
-
     CommonAlertDialog(
         header = stringResource(R.string.redeem_prescriptions_dialog_header),
         info = stringResource(R.string.redeem_prescriptions_dialog_info),
@@ -439,7 +436,6 @@ private fun RedeemScannedPrescriptionsDialog(onClickRedeem: () -> Unit, onCancel
 
 @Composable
 private fun RedeemSyncedPrescriptionsDialog(onClick: () -> Unit) {
-
     AcceptDialog(
         header = stringResource(R.string.redeem_synced_prescriptions_dialog_header),
         info = stringResource(R.string.redeem_synced_prescriptions_dialog_info),

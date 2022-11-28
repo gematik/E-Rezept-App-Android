@@ -21,6 +21,8 @@ package de.gematik.ti.erp.app.profiles.ui
 import AuditEventsScreen
 import TokenScreen
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -37,6 +39,9 @@ object ProfileDestinations {
     object Profile : Route("profile")
     object Token : Route("token")
     object AuditEvents : Route("auditEvents")
+    object PairedDevices : Route("pairedDevices")
+    object ProfileImagePicker : Route("profileImagePicker")
+    object ProfileImageCropper : Route("imageCropper")
 }
 
 @Composable
@@ -44,50 +49,98 @@ fun EditProfileNavGraph(
     state: SettingsScreen.State,
     navController: NavHostController,
     onBack: () -> Unit,
-    profile: ProfilesUseCaseData.Profile,
+    selectedProfile: ProfilesUseCaseData.Profile,
     settingsViewModel: SettingsViewModel,
+    profileSettingsViewModel: ProfileSettingsViewModel,
     onRemoveProfile: (newProfileName: String?) -> Unit,
-    mainNavController: NavController,
+    mainNavController: NavController
 ) {
-
     NavHost(navController = navController, startDestination = ProfileDestinations.Profile.route) {
         composable(ProfileDestinations.Profile.route) {
             EditProfileScreenContent(
                 onClickToken = { navController.navigate(ProfileDestinations.Token.path()) },
                 onClickAuditEvents = { navController.navigate(ProfileDestinations.AuditEvents.path()) },
-                ssoTokenValid = profile.ssoTokenValid(),
                 onClickLogIn = {
-                    settingsViewModel.switchProfile(profile)
+                    settingsViewModel.switchProfile(selectedProfile)
                     mainNavController.navigate(
-                        MainNavigationScreens.CardWall.path(settingsViewModel.isCanAvailable(profile))
+                        MainNavigationScreens.CardWall.path(selectedProfile.id)
                     )
                 },
+                onClickLogout = { settingsViewModel.logout(selectedProfile) },
                 onBack = onBack,
                 state = state,
                 settingsViewModel = settingsViewModel,
-                selectedProfile = profile,
-                onRemoveProfile = onRemoveProfile
+                profileSettingsViewModel = profileSettingsViewModel,
+                selectedProfile = selectedProfile,
+                onRemoveProfile = onRemoveProfile,
+                onClickEditAvatar = { navController.navigate(ProfileDestinations.ProfileImagePicker.path()) },
+                onClickPairedDevices = {
+                    navController.navigate(ProfileDestinations.PairedDevices.path())
+                }
             )
         }
+
+        composable(ProfileDestinations.ProfileImagePicker.route) {
+            ProfileColorAndImagePicker(
+                selectedProfile,
+                clearPersonalizedImage = {
+                    profileSettingsViewModel.clearPersonalizedImage(selectedProfile.id)
+                },
+                onBack = { navController.popBackStack() },
+                onPickPersonalizedImage = {
+                    navController.navigate(ProfileDestinations.ProfileImageCropper.path())
+                },
+                onSelectAvatar = { avatar ->
+                    profileSettingsViewModel.saveAvatarFigure(selectedProfile.id, avatar)
+                },
+                onSelectProfileColor = { color ->
+                    profileSettingsViewModel.updateProfileColor(selectedProfile, color)
+                }
+            )
+        }
+
+        composable(
+            ProfileDestinations.ProfileImageCropper.route
+        ) {
+            ProfileImageCropper(
+                onSaveCroppedImage = {
+                    profileSettingsViewModel.savePersonalizedProfileImage(selectedProfile.id, it)
+                    navController.popBackStack()
+                },
+                onBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
         composable(ProfileDestinations.Token.route) {
+            val accessToken by settingsViewModel.decryptedAccessToken(selectedProfile).collectAsState(null)
+
             NavigationAnimation(mode = NavigationMode.Closed) {
                 TokenScreen(
                     onBack = { navController.popBackStack() },
-                    ssoToken = profile.ssoToken?.tokenOrNull(),
-                    accessToken = profile.accessToken,
+                    ssoToken = selectedProfile.ssoTokenScope?.token?.token,
+                    accessToken = accessToken
                 )
             }
         }
-        composable(
-            ProfileDestinations.AuditEvents.route,
-        ) {
+        composable(ProfileDestinations.AuditEvents.route) {
             NavigationAnimation(mode = NavigationMode.Closed) {
                 AuditEventsScreen(
-                    profile.name,
-                    settingsViewModel,
-                    profile.lastAuthenticated,
-                    profile.ssoTokenValid(),
+                    profileId = selectedProfile.id,
+                    viewModel = settingsViewModel,
+                    lastAuthenticated = selectedProfile.lastAuthenticated,
+                    tokenValid = selectedProfile.ssoTokenValid()
                 ) { navController.popBackStack() }
+            }
+        }
+        composable(ProfileDestinations.PairedDevices.route) {
+            NavigationAnimation(mode = NavigationMode.Closed) {
+                PairedDevicesScreen(
+                    selectedProfile = selectedProfile,
+                    settingsViewModel = settingsViewModel,
+                    onBack = { navController.popBackStack() }
+                )
             }
         }
     }

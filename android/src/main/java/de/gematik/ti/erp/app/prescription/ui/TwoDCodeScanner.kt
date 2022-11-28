@@ -26,21 +26,19 @@ import androidx.camera.core.ImageProxy
 import androidx.camera.core.ExperimentalGetImage
 import com.google.mlkit.common.MlKit
 import com.google.mlkit.common.sdkinternal.MlKitContext
-import com.google.mlkit.vision.barcode.Barcode
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import timber.log.Timber
-import javax.inject.Inject
+import io.github.aakira.napier.Napier
 
 private const val DEFAULT_SCAN_TIME = 250L
 
-class TwoDCodeScanner @Inject constructor(
-    @ApplicationContext
+class TwoDCodeScanner(
+
     private val context: Context
 ) : ImageAnalysis.Analyzer {
     data class Batch(
@@ -51,7 +49,9 @@ class TwoDCodeScanner @Inject constructor(
     )
 
     var batch: MutableSharedFlow<Batch> = MutableSharedFlow(
-        replay = 0, extraBufferCapacity = 3, onBufferOverflow = BufferOverflow.DROP_OLDEST
+        replay = 0,
+        extraBufferCapacity = 3,
+        onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
         private set
 
@@ -103,7 +103,7 @@ class TwoDCodeScanner @Inject constructor(
                     }
                     .addOnCompleteListener { imageProxy.close() }
             } catch (e: Exception) {
-                Timber.d(e)
+                Napier.d("2D code processing error", e)
             }
         }
     }

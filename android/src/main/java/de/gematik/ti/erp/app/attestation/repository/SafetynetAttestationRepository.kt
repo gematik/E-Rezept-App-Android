@@ -19,17 +19,16 @@
 package de.gematik.ti.erp.app.attestation.repository
 
 import de.gematik.ti.erp.app.attestation.Attestation
-import de.gematik.ti.erp.app.db.entities.SafetynetAttestationEntity
-import javax.inject.Inject
+import de.gematik.ti.erp.app.attestation.model.AttestationData
 
-class SafetynetAttestationRepository @Inject constructor(
+class SafetynetAttestationRepository(
     private val localDataSource: AttestationLocalDataSource,
     private val remoteDataSource: AttestationRemoteDataSource
 ) {
     suspend fun fetchAttestationReportRemote(request: Attestation.Request) =
         remoteDataSource.fetchAttestationReport(request)
 
-    suspend fun persistAttestationReport(attestationEntity: SafetynetAttestationEntity) {
+    suspend fun persistAttestationReport(attestationEntity: AttestationData.SafetynetAttestation) {
         localDataSource.persistReport(attestationEntity)
     }
 

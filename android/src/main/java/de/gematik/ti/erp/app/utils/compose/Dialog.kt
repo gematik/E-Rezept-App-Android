@@ -22,6 +22,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -29,12 +30,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Icon
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
@@ -44,34 +47,36 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
-import androidx.compose.runtime.key
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
-import com.google.accompanist.flowlayout.MainAxisAlignment
 import com.google.accompanist.flowlayout.FlowRow
-import com.google.accompanist.insets.imePadding
+import com.google.accompanist.flowlayout.MainAxisAlignment
+import androidx.compose.foundation.layout.systemBarsPadding
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.filter
 import java.util.UUID
 
 @Composable
 fun AlertDialog(
     onDismissRequest: () -> Unit,
-    buttons: @Composable () -> Unit,
     modifier: Modifier = Modifier,
+    icon: ImageVector? = null,
+    buttons: @Composable () -> Unit,
     title: (@Composable () -> Unit)? = null,
     text: (@Composable () -> Unit)? = null,
     shape: Shape = RoundedCornerShape(PaddingDefaults.Large),
@@ -96,11 +101,13 @@ fun AlertDialog(
         Box(
             Modifier
                 .semantics(false) { }
+                .imePadding()
                 .fillMaxSize()
                 .then(dismissModifier)
                 .background(SolidColor(Color.Black), alpha = 0.5f)
+                .systemBarsPadding()
                 .verticalScroll(rememberScrollState())
-                .imePadding(),
+                .padding(vertical = PaddingDefaults.Medium),
             contentAlignment = Alignment.Center
         ) {
             Surface(
@@ -108,13 +115,18 @@ fun AlertDialog(
                     .wrapContentHeight()
                     .fillMaxWidth(0.78f),
                 color = backgroundColor,
+                border = BorderStroke(1.dp, AppTheme.colors.neutral300),
                 contentColor = contentColor,
                 shape = shape,
                 elevation = 8.dp
             ) {
                 Column(Modifier.padding(PaddingDefaults.Large)) {
+                    icon?.let {
+                        Icon(icon, null, modifier = Modifier.align(Alignment.CenterHorizontally))
+                        SpacerMedium()
+                    }
                     CompositionLocalProvider(
-                        LocalTextStyle provides MaterialTheme.typography.h6
+                        LocalTextStyle provides AppTheme.typography.h6
                     ) {
                         title?.let {
                             title()
@@ -122,7 +134,7 @@ fun AlertDialog(
                         }
                     }
                     CompositionLocalProvider(
-                        LocalTextStyle provides MaterialTheme.typography.body2
+                        LocalTextStyle provides AppTheme.typography.body2
                     ) {
                         text?.let {
                             text()
@@ -170,8 +182,10 @@ fun DialogHost(
     content: @Composable () -> Unit
 ) {
     Box(Modifier.fillMaxSize()) {
+        val dialogHostState = remember { DialogHostState() }
+
         CompositionLocalProvider(
-            LocalDialogHostState provides DialogHostState()
+            LocalDialogHostState provides dialogHostState
         ) {
             content()
 

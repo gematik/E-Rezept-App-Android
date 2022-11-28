@@ -36,7 +36,8 @@ val normSizeMapping = mapOf(
     "Sonstiges" to R.string.kbv_norm_size_sonstiges
 )
 
-val codeToDosageFormMapping = mapOf(
+val codeToFormMapping = mapOf(
+    "---" to R.string.kbv_code_dosage_form_nothing,
     "AEO" to R.string.kbv_code_dosage_form_aeo,
     "AMP" to R.string.kbv_code_dosage_form_amp,
     "APA" to R.string.kbv_code_dosage_form_apa,
@@ -58,6 +59,7 @@ val codeToDosageFormMapping = mapOf(
     "BRE" to R.string.kbv_code_dosage_form_bre,
     "BTA" to R.string.kbv_code_dosage_form_bta,
     "CRE" to R.string.kbv_code_dosage_form_cre,
+    "DIG" to R.string.kbv_code_dosage_form_dig,
     "DFL" to R.string.kbv_code_dosage_form_dfl,
     "DIL" to R.string.kbv_code_dosage_form_dil,
     "DIS" to R.string.kbv_code_dosage_form_dis,

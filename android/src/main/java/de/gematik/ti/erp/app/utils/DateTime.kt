@@ -19,14 +19,51 @@
 package de.gematik.ti.erp.app.utils
 
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.Year
+import java.time.YearMonth
+import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.time.temporal.TemporalAccessor
 
 val dateTimeShortFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
 
-fun dateTimeShortText(instant: Instant): String = LocalDateTime.ofEpochSecond(
-    instant.epochSecond, 0,
-    ZoneOffset.UTC
-).atOffset(ZoneOffset.UTC).format(dateTimeShortFormatter)
+fun dateTimeShortText(instant: Instant): String =
+    LocalDateTime
+        .ofInstant(instant, ZoneId.systemDefault())
+        .format(dateTimeShortFormatter)
+
+val dateTimeMediumFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
+
+fun dateTimeMediumText(instant: Instant, zoneId: ZoneId = ZoneOffset.UTC): String =
+    LocalDateTime
+        .ofInstant(instant, zoneId)
+        .format(dateTimeMediumFormatter)
+
+private val YearMonthPattern = DateTimeFormatter.ofPattern("MMMM yyyy")
+private val MonthPattern = DateTimeFormatter.ofPattern("yyyy")
+
+fun temporalText(temporalAccessor: TemporalAccessor, zoneId: ZoneId = ZoneOffset.UTC): String =
+    when (temporalAccessor) {
+        is Instant ->
+            LocalDateTime
+                .ofInstant(temporalAccessor, zoneId)
+                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM))
+        is LocalDate ->
+            temporalAccessor
+                .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+        is YearMonth ->
+            temporalAccessor
+                .format(YearMonthPattern)
+        is Year ->
+            temporalAccessor
+                .format(MonthPattern)
+        is LocalTime ->
+            temporalAccessor
+                .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM))
+        else -> "n.a."
+    }

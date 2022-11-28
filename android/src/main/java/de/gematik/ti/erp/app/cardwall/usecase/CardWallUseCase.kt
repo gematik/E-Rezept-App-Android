@@ -18,19 +18,37 @@
 
 package de.gematik.ti.erp.app.cardwall.usecase
 
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
+import android.content.Context
+import android.nfc.NfcAdapter
+import de.gematik.ti.erp.app.app
+import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.settings.repository.CardWallRepository
 import kotlinx.coroutines.flow.Flow
 
-interface CardWallUseCase {
-    var cardWallIntroIsAccepted: Boolean
-
+open class CardWallUseCase(
+    private val idpRepository: IdpRepository,
+    private val cardWallRepository: CardWallRepository
+) {
     var deviceHasNFCAndAndroidMOrHigher: Boolean
-    val deviceHasNFCEnabled: Boolean
+        get() = app().deviceHasNFC() || cardWallRepository.hasFakeNFCEnabled
+        set(value) {
+            cardWallRepository.hasFakeNFCEnabled = value
+        }
 
-    suspend fun cardAccessNumberWasSaved(): Flow<Boolean>
+    val deviceHasNFCEnabled
+        get() = app().nfcEnabled()
 
-    suspend fun getAuthenticationMethod(profileName: String): CardWallData.AuthenticationMethod
+    fun authenticationData(profileId: ProfileIdentifier): Flow<IdpData.AuthenticationData> =
+        idpRepository.authenticationData(profileId)
+}
 
-    suspend fun setCardAccessNumber(can: String?)
-    fun cardAccessNumber(): Flow<String?>
+fun Context.deviceHasNFC(): Boolean =
+    this.packageManager.hasSystemFeature("android.hardware.nfc")
+
+private fun Context.nfcEnabled(): Boolean = if (this.deviceHasNFC()) {
+    NfcAdapter.getDefaultAdapter(this).isEnabled
+} else {
+    false
 }

@@ -30,6 +30,6 @@ object HealthCardOrderViewModelData {
     )
 
     enum class ContactInsuranceOption {
-        None, WithHealthCardAndPin, PinOnly
+        WithHealthCardAndPin, PinOnly
     }
 }

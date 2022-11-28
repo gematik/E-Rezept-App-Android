@@ -18,13 +18,14 @@
 
 package de.gematik.ti.erp.app.nfc.model.card
 
-import de.gematik.ti.erp.app.nfc.model.command.CommandApdu
-import de.gematik.ti.erp.app.nfc.model.command.ResponseApdu
+import de.gematik.ti.erp.app.card.model.card.ICardChannel
+import de.gematik.ti.erp.app.card.model.command.CommandApdu
+import de.gematik.ti.erp.app.card.model.command.ResponseApdu
 import java.io.Closeable
 
 class NfcCardChannel internal constructor(
     override val isExtendedLengthSupported: Boolean,
-    private val nfcHealthCard: NfcHealthCard,
+    private val nfcHealthCard: NfcHealthCard
 ) : ICardChannel, Closeable {
     override val card: NfcHealthCard
         get() = nfcHealthCard

@@ -18,28 +18,65 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
+import de.gematik.ti.erp.app.api.PharmacyRedeemService
 import de.gematik.ti.erp.app.api.PharmacySearchService
-import de.gematik.ti.erp.app.api.Result
 import de.gematik.ti.erp.app.api.safeApiCall
-import org.hl7.fhir.r4.model.Bundle
-import javax.inject.Inject
+import kotlinx.serialization.json.JsonElement
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.toRequestBody
+import java.net.URL
 
-class PharmacyRemoteDataSource @Inject constructor(
-    private val service: PharmacySearchService,
+private const val PlaceholderTelematikId = "<ti_id>"
+private const val PlaceholderTransactionId = "<transactionID>"
+
+class PharmacyRemoteDataSource(
+    private val searchService: PharmacySearchService,
+    private val redeemService: PharmacyRedeemService
 ) {
 
     suspend fun searchPharmacies(
         names: List<String>,
         filter: Map<String, String>
-    ): Result<Bundle> = safeApiCall("error searching pharmacies") {
-        service.search(names, filter)
+    ): Result<JsonElement> = safeApiCall("error searching pharmacies") {
+        searchService.search(names, filter)
     }
 
     suspend fun searchPharmaciesContinued(
         bundleId: String,
         offset: Int,
         count: Int
-    ): Result<Bundle> = safeApiCall("error searching pharmacies") {
-        service.searchByBundle(bundleId = bundleId, offset = offset, count = count)
+    ): Result<JsonElement> = safeApiCall("error searching pharmacies") {
+        searchService.searchByBundle(bundleId = bundleId, offset = offset, count = count)
+    }
+
+    suspend fun redeemPrescription(
+        url: String,
+        message: ByteArray,
+        pharmacyTelematikId: String,
+        transactionId: String
+    ): Result<Unit> = safeApiCall("error redeeming prescription with $url") {
+        val validatedUrl = url
+            .replace(PlaceholderTelematikId, pharmacyTelematikId, ignoreCase = true)
+            .replace(PlaceholderTransactionId, transactionId, ignoreCase = true)
+            .let {
+                URL(it)
+            }
+
+        val messageBody = message.toRequestBody("application/pkcs7-mime".toMediaType())
+
+        redeemService.redeem(
+            url = validatedUrl.toString(),
+            message = messageBody
+        )
+    }
+
+    suspend fun searchPharmacyByTelematikId(
+        telematikId: String
+    ): Result<JsonElement> = safeApiCall("error searching pharmacies") {
+        if (telematikId.startsWith("3-SMC")) {
+            searchService.search(names = listOf(telematikId), emptyMap())
+        } else {
+            searchService.searchByTelematikId(telematikId = telematikId)
+        }
     }
 }

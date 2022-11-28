@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.utils.compose
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material.AppBarDefaults
@@ -34,11 +35,14 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.insets.LocalWindowInsets
-import com.google.accompanist.insets.navigationBarsPadding
-import com.google.accompanist.insets.rememberInsetsPaddingValues
-import com.google.accompanist.insets.statusBarsPadding
-import com.google.accompanist.insets.systemBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.systemBarsPadding
 
 @Composable
 fun TopAppBar(
@@ -65,6 +69,38 @@ fun TopAppBar(
             contentColor,
             elevation = 0.dp
         )
+    }
+}
+
+@Composable
+fun TopAppBarWithContent(
+    title: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
+    navigationIcon: @Composable (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
+    backgroundColor: Color = MaterialTheme.colors.primarySurface,
+    contentColor: Color = contentColorFor(backgroundColor),
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
+    content: @Composable () -> Unit
+) {
+    Surface(
+        modifier = modifier,
+        color = backgroundColor,
+        elevation = elevation,
+        shape = RectangleShape
+    ) {
+        Column {
+            androidx.compose.material.TopAppBar(
+                title,
+                Modifier.statusBarsPadding(),
+                navigationIcon,
+                actions,
+                backgroundColor,
+                contentColor,
+                elevation = 0.dp
+            )
+            content()
+        }
     }
 }
 
@@ -101,6 +137,7 @@ fun BottomNavigation(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     elevation: Dp = BottomNavigationDefaults.Elevation,
+    extraContent: @Composable () -> Unit,
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
@@ -108,21 +145,22 @@ fun BottomNavigation(
         color = backgroundColor,
         elevation = elevation
     ) {
-        androidx.compose.material.BottomNavigation(
-            Modifier.navigationBarsPadding(),
-            backgroundColor,
-            contentColor,
-            elevation = 0.dp,
-            content
-        )
+        Column {
+            extraContent()
+
+            androidx.compose.material.BottomNavigation(
+                Modifier.navigationBarsPadding(),
+                backgroundColor,
+                contentColor,
+                elevation = 0.dp,
+                content
+            )
+        }
     }
 }
 
-fun Modifier.minimalSystemBarsPadding() = Modifier.composed {
-    val navBarInsetsPadding = rememberInsetsPaddingValues(
-        insets = LocalWindowInsets.current.systemBars,
-        applyBottom = true
-    )
+fun Modifier.minimalSystemBarsPadding() = composed {
+    val navBarInsetsPadding = WindowInsets.systemBars.only(WindowInsetsSides.Bottom).asPaddingValues()
 
     if (navBarInsetsPadding.calculateBottomPadding() <= 16.dp) {
         statusBarsPadding()

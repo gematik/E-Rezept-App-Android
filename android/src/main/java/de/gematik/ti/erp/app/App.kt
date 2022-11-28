@@ -21,33 +21,38 @@ package de.gematik.ti.erp.app
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
-import dagger.hilt.android.HiltAndroidApp
-import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
+import de.gematik.ti.erp.app.di.allModules
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
-import org.bouncycastle.jce.provider.BouncyCastleProvider
-import timber.log.Timber
-import javax.inject.Inject
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
+import org.kodein.di.DI
+import org.kodein.di.DIAware
+import org.kodein.di.android.x.androidXModule
+import org.kodein.di.bindSingleton
+import org.kodein.di.instance
 
-val BCProvider = BouncyCastleProvider()
+class App : Application(), DIAware {
 
-@HiltAndroidApp
-class App : Application() {
+    override val di by DI.lazy {
+        import(androidXModule(this@App))
+        importAll(allModules)
+        bindSingleton { AuthenticationUseCase(instance(), instance()) }
+        bindSingleton { VisibleDebugTree() }
+    }
 
-    @Inject
-    lateinit var demoUseCase: DemoUseCase
+    private val authUseCase: AuthenticationUseCase by instance()
 
-    @Inject
-    lateinit var authUseCase: AuthenticationUseCase
+    private val visibleDebugTree: VisibleDebugTree by instance()
 
     override fun onCreate() {
         super.onCreate()
         appContext = this
         if (BuildKonfig.INTERNAL) {
-            Timber.plant(Timber.DebugTree())
+            Napier.base(DebugAntilog())
+            Napier.base(visibleDebugTree)
         }
 
         ProcessLifecycleOwner.get().lifecycle.apply {
-            addObserver(demoUseCase)
             addObserver(authUseCase)
         }
     }

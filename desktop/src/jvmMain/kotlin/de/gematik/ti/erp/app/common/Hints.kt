@@ -82,7 +82,7 @@ data class HintCardProperties(
     val backgroundColor: Color,
     val contentColor: Color?,
     val border: BorderStroke?,
-    val elevation: Dp,
+    val elevation: Dp
 )
 
 object HintCardDefaults {
@@ -131,7 +131,7 @@ fun HintCard(
         backgroundColor = properties.backgroundColor,
         contentColor = properties.contentColor ?: contentColorFor(properties.backgroundColor),
         border = properties.border,
-        elevation = properties.elevation,
+        elevation = properties.elevation
     ) {
         if (properties.contentColor != null) {
             MaterialTheme(
@@ -164,7 +164,6 @@ private fun HintCardInnerLayout(
                 clip = false
             }
     ) {
-
         image(innerPaddingLeft)
 
         Column(
@@ -354,7 +353,7 @@ fun HintTextActionButton(
 
 @Composable
 fun HintTextLearnMoreButton(
-    uri: String = "https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten"
+    uri: String = "https://www.das-e-rezept-fuer-deutschland.de/faq"
 ) {
     val uriHandler = LocalUriHandler.current
     val offset = ButtonDefaults.TextButtonContentPadding.calculateLeftPadding(LocalLayoutDirection.current)

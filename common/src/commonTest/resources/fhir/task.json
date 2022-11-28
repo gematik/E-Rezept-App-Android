@@ -1,0 +1,76 @@
+{
+  "resourceType": "Task",
+  "id": "160.000.000.029.982.30",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/StructureDefinition/ErxTask|1.1.1"
+    ]
+  },
+  "identifier": [
+    {
+      "use": "official",
+      "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+      "value": "160.000.000.029.982.30"
+    },
+    {
+      "use": "official",
+      "system": "https://gematik.de/fhir/NamingSystem/AccessCode",
+      "value": "dd23212d35d14ccde351f9a1077f3d9508dcb8629882627ec16a22ea86144290"
+    }
+  ],
+  "intent": "order",
+  "status": "completed",
+  "extension": [
+    {
+      "url": "https://gematik.de/fhir/StructureDefinition/PrescriptionType",
+      "valueCoding": {
+        "system": "https://gematik.de/fhir/CodeSystem/Flowtype",
+        "code": "160",
+        "display": "Muster 16 (Apothekenpflichtige Arzneimittel)"
+      }
+    },
+    {
+      "url": "https://gematik.de/fhir/StructureDefinition/ExpiryDate",
+      "valueDate": "2022-09-09"
+    },
+    {
+      "url": "https://gematik.de/fhir/StructureDefinition/AcceptDate",
+      "valueDate": "2022-07-07"
+    }
+  ],
+  "authoredOn": "2022-06-09T11:50:23.223+00:00",
+  "lastModified": "2022-06-09T11:57:37.923+00:00",
+  "performerType": [
+    {
+      "coding": [
+        {
+          "system": "urn:ietf:rfc:3986",
+          "code": "urn:oid:1.2.276.0.76.4.54",
+          "display": "Öffentliche Apotheke"
+        }
+      ],
+      "text": "Öffentliche Apotheke"
+    }
+  ],
+  "for": {
+    "identifier": {
+      "value": "X110466481",
+      "system": "http://fhir.de/NamingSystem/gkv/kvid-10"
+    }
+  },
+  "input": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "https://gematik.de/fhir/CodeSystem/Documenttype",
+            "code": "2"
+          }
+        ]
+      },
+      "valueReference": {
+        "reference": "a01e7500-0000-0000-0002-000000000000"
+      }
+    }
+  ]
+}

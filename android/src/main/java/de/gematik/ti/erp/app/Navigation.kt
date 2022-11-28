@@ -21,11 +21,13 @@ package de.gematik.ti.erp.app
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.compose.runtime.Immutable
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavType
-import com.squareup.moshi.Moshi
 import de.gematik.ti.erp.app.mainscreen.ui.TaskIds
-import javax.annotation.concurrent.Immutable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 abstract class UriNavType<T>(override val isNullableAllowed: Boolean) :
     NavType<T>(isNullableAllowed) {
@@ -34,8 +36,6 @@ abstract class UriNavType<T>(override val isNullableAllowed: Boolean) :
 
 object AppNavTypes {
     val TaskIdsType = object : UriNavType<TaskIds>(false) {
-        private val moshi = Moshi.Builder().build().adapter(TaskIds::class.java)
-
         override fun put(bundle: Bundle, key: String, value: TaskIds) {
             bundle.putParcelable(key, value)
         }
@@ -45,11 +45,11 @@ object AppNavTypes {
         }
 
         override fun parseValue(value: String): TaskIds {
-            return moshi.fromJson(value)!!
+            return Json.decodeFromString(value)
         }
 
         override fun serializeValue(value: TaskIds): String {
-            return moshi.toJson(value)!!
+            return Json.encodeToString(value)
         }
 
         override val name: String

@@ -18,30 +18,27 @@
 
 package de.gematik.ti.erp.app.orderhealthcard.ui
 
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.Route
-import de.gematik.ti.erp.app.core.BaseViewModel
+import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.orderhealthcard.ui.model.HealthCardOrderViewModelData
 import de.gematik.ti.erp.app.orderhealthcard.usecase.HealthCardOrderUseCase
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
-import javax.inject.Inject
 
 object HealthCardOrderNavigationScreens {
     object HealthCardOrder : Route("HealthCardOrder")
     object HealthCardOrderInsuranceCompanies : Route("HealthCardOrderInsuranceCompanies")
 }
 
-@HiltViewModel
-class HealthCardOrderViewModel @Inject constructor(
+class HealthCardOrderViewModel(
     private val healthCardOrderUseCase: HealthCardOrderUseCase
-) : BaseViewModel() {
+) : ViewModel() {
     val defaultState = HealthCardOrderViewModelData.State(
         companies = emptyList(),
         selectedCompany = null,
-        selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.None,
+        selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin
     )
 
     private val state = MutableStateFlow(defaultState)
@@ -54,7 +51,7 @@ class HealthCardOrderViewModel @Inject constructor(
     fun onSelectInsuranceCompany(company: HealthCardOrderUseCaseData.HealthInsuranceCompany) {
         state.value = state.value.copy(
             selectedCompany = company,
-            selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.None
+            selectedOption = HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin
         )
     }
 

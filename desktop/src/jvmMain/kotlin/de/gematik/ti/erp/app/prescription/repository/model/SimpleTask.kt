@@ -24,7 +24,6 @@ import java.time.LocalDateTime
 
 data class SimpleTask(
     val taskId: String,
-    val accessCode: String,
     val lastModified: LocalDateTime? = null,
 
     val organization: String, // an organization can contain multiple authors

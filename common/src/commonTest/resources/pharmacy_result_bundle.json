@@ -1,0 +1,890 @@
+{
+  "id": "4ee57802-8102-493a-bc85-a6be03da1731",
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "meta": {
+    "lastUpdated": "2021-04-17T03:55:31.554+00:00"
+  },
+  "total": 10,
+  "link": [
+    {
+      "relation": "self",
+      "url": "http://aro-apovzd-int.ngdalabor.de/hl7api/Location?name=apo"
+    }
+  ],
+  "entry": [
+    {
+      "resource": {
+        "id": "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
+        "resourceType": "Location",
+        "contained": [
+          {
+            "resourceType": "HealthcareService",
+            "id": "4b74c2b2-2275-4153-a94d-3ddc6bfb1362Mobile",
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/service-type",
+                    "code": "498",
+                    "display": "Mobile Services"
+                  }
+                ]
+              }
+            ],
+            "location": [
+              {
+                "reference": "Location/4b74c2b2-2275-4153-a94d-3ddc6bfb1362"
+              }
+            ],
+            "coverageArea": {
+              "extension": [
+                {
+                  "url": "https://ngda.de/fhir/extensions/ServiceCoverageRange",
+                  "valueQuantity": {
+                    "value": 12,
+                    "unit": "km"
+                  }
+                }
+              ]
+            },
+            "availableTime": [
+              {
+                "daysOfWeek": [
+                  "mon",
+                  "tue",
+                  "wed",
+                  "thu",
+                  "fri"
+                ],
+                "availableStartTime": "08:00:00",
+                "availableEndTime": "20:00:00"
+              }
+            ]
+          },
+          {
+            "resourceType": "HealthcareService",
+            "id": "4b74c2b2-2275-4153-a94d-3ddc6bfb1362Emergency",
+            "type": [
+              {
+                "coding": [
+                  {
+                    "system": "http://terminology.hl7.org/CodeSystem/service-type",
+                    "code": "117",
+                    "display": "Emergency Medical"
+                  }
+                ]
+              }
+            ],
+            "extension": [
+              {
+                "url": "http://hl7.org/fhir/StructureDefinition/resource-effectivePeriod",
+                "valuePeriod": {
+                  "start": "2021-04-17",
+                  "end": "2021-04-18"
+                }
+              }
+            ],
+            "location": [
+              {
+                "reference": "Location/4b74c2b2-2275-4153-a94d-3ddc6bfb1362"
+              }
+            ],
+            "availableTime": [
+              {
+                "daysOfWeek": [
+                  "sun"
+                ],
+                "allDay": true
+              },
+              {
+                "daysOfWeek": [
+                  "sat"
+                ],
+                "availableStartTime": "18:00:00"
+              }
+            ]
+          }
+        ],
+        "address": {
+          "city": "Bremerhaven",
+          "country": "de",
+          "line": [
+            "Langener Landstraße 266"
+          ],
+          "postalCode": "27578",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "14:00:00",
+            "closingTime": "18:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-05.2.1007600000.080"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1043553"
+          }
+        ],
+        "status": "active",
+        "name": "Heide-Apotheke",
+        "position": {
+          "latitude": 8.597412,
+          "longitude": 53.590027
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "0471/87029"
+          },
+          {
+            "system": "fax",
+            "value": "0471/87020"
+          },
+          {
+            "system": "email",
+            "value": "info@heide-apotheke-bremerhaven.de"
+          },
+          {
+            "system": "url",
+            "value": "http://www.heide-apotheke-bremerhaven.de"
+          }
+        ],
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                "code": "PHARM",
+                "display": "pharmacy"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                "code": "OUTPHARM",
+                "display": "outpatient pharmacy"
+              }
+            ]
+          },
+          {
+            "coding": [
+              {
+                "system": "http://terminology.hl7.org/CodeSystem/v3-RoleCode",
+                "code": "MOBL",
+                "display": "Mobile Services"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "db6e2b84-c948-4e3c-ab8d-b35e9f88e6a5",
+        "resourceType": "Location",
+        "address": {
+          "city": "Bad Lippspringe",
+          "country": "de",
+          "line": [
+            "Detmolder Straße 139"
+          ],
+          "postalCode": "33175",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-17.2.1013006000.448"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1087501"
+          }
+        ],
+        "status": "active",
+        "name": "Kur-Apotheke",
+        "position": {
+          "latitude": 8.816655,
+          "longitude": 51.781866
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+495252931818"
+          },
+          {
+            "system": "fax",
+            "value": "+495252931828"
+          },
+          {
+            "system": "email",
+            "value": "kurapotheke@gmx.de"
+          },
+          {
+            "system": "url",
+            "value": "https://www.kurapotheke-badlippspringe.de"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "000b95a9-617a-4721-8213-c7d6a0aaf1a4",
+        "resourceType": "Location",
+        "address": {
+          "city": "Duisburg",
+          "country": "de",
+          "line": [
+            "Bahnhofstr. 24"
+          ],
+          "postalCode": "47138",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-10.2.0110201000.579"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1060500"
+          }
+        ],
+        "status": "active",
+        "name": "Anker Apotheke",
+        "position": {
+          "latitude": 6.786679,
+          "longitude": 51.472874
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "0203/425150"
+          },
+          {
+            "system": "fax",
+            "value": "0203/412930"
+          },
+          {
+            "system": "email",
+            "value": "anker-apotheke-duisburg@t-online.de"
+          },
+          {
+            "system": "url",
+            "value": "https://www.anker-apotheke-meiderich.de"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "4c8d59fe-3872-4ec4-bc84-bb0dc8de8c1f",
+        "resourceType": "Location",
+        "address": {
+          "city": "Immenstadt",
+          "country": "de",
+          "line": [
+            "Bahnhofstraße 36"
+          ],
+          "postalCode": "87509",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-02.2.0000002545.10.327"
+          }
+        ],
+        "status": "active",
+        "name": "Alpen Apotheke",
+        "position": {
+          "latitude": 10.213959,
+          "longitude": 47.559614
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "+4983232677"
+          },
+          {
+            "system": "fax",
+            "value": "+4983237451"
+          },
+          {
+            "system": "email",
+            "value": "service@alpen-apotheke.com"
+          },
+          {
+            "system": "url",
+            "value": "http://www.alpen-apotheke.com"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "43f8fa6e-31bc-4d4e-9a58-0ceaff8a0334",
+        "resourceType": "Location",
+        "address": {
+          "city": "Delmenhorst",
+          "country": "de",
+          "line": [
+            "Brendelweg 5"
+          ],
+          "postalCode": "27755",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-09.2.1673000000.10.504"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1054235"
+          }
+        ],
+        "status": "active",
+        "name": "Moorkamp-Apotheke",
+        "position": {
+          "latitude": 8.623093,
+          "longitude": 53.032777
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "04221-25055"
+          },
+          {
+            "system": "fax",
+            "value": "04221-25056"
+          },
+          {
+            "system": "email",
+            "value": "moorkamp-apotheke@web.de"
+          },
+          {
+            "system": "url",
+            "value": "https://www.moorkamp-apotheke-delmenhorst.de/"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "fd56e85c-ce78-41fa-bb79-9deab616fc55",
+        "resourceType": "Location",
+        "address": {
+          "city": "München",
+          "country": "de",
+          "line": [
+            "Daiserstraße 27"
+          ],
+          "postalCode": "81371",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-02.2.0000000261.815"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1164711"
+          }
+        ],
+        "status": "active",
+        "name": "Oberländer Apotheke",
+        "position": {
+          "latitude": 11.54399,
+          "longitude": 48.11939
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "089/763756"
+          },
+          {
+            "system": "fax",
+            "value": "089/"
+          },
+          {
+            "system": "email",
+            "value": "info@oberlaender-apotheke.de"
+          },
+          {
+            "system": "url",
+            "value": "https://www.oberländer-apotheke.de/"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "7a20ebb1-d2cd-4fac-b66a-ce1524ad57b3",
+        "resourceType": "Location",
+        "address": {
+          "city": "Eichenbarleben",
+          "country": "de",
+          "line": [
+            "Magdeburger Straße 57"
+          ],
+          "postalCode": "39166",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-13.2.0000000168.253"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1167838"
+          }
+        ],
+        "status": "active",
+        "name": "Hirsch-Apotheke",
+        "position": {
+          "latitude": 11.40572,
+          "longitude": 52.168397
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "03920650307"
+          },
+          {
+            "system": "fax",
+            "value": "03920690266"
+          },
+          {
+            "system": "email",
+            "value": "hirsch.eichenbarleben@t-online.de"
+          },
+          {
+            "system": "url"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "1b2e9fe0-5916-4069-818c-1e7af5d1a7ea",
+        "resourceType": "Location",
+        "address": {
+          "city": "Grebenhain",
+          "country": "de",
+          "line": [
+            "Hauptstraße 37"
+          ],
+          "postalCode": "36355",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-07.2.2668290000.098"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1000064"
+          }
+        ],
+        "status": "active",
+        "name": "Apotheke in Grebenhain",
+        "position": {
+          "latitude": 9.333697,
+          "longitude": 50.488624
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "06644/286"
+          },
+          {
+            "system": "fax",
+            "value": "06644/919177"
+          },
+          {
+            "system": "email",
+            "value": "info@apotheke-grebenhain.de"
+          },
+          {
+            "system": "url",
+            "value": "https://apotheke-grebenhain.de"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "9e96a62a-004b-41da-849c-6718c8af8906",
+        "resourceType": "Location",
+        "address": {
+          "city": "Cloppenburg",
+          "country": "de",
+          "line": [
+            "Krankenhausstraße 8-12"
+          ],
+          "postalCode": "49661",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-09.2.6932000000.10.990"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1043443"
+          }
+        ],
+        "status": "active",
+        "name": "Apotheke Meis am Krankenhaus",
+        "position": {
+          "latitude": 8.039899,
+          "longitude": 52.847762
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "044718889925"
+          },
+          {
+            "system": "fax",
+            "value": "044718889926"
+          },
+          {
+            "system": "email",
+            "value": "info@apo-meis.de"
+          },
+          {
+            "system": "url",
+            "value": "http://www.apo-meis.de"
+          }
+        ]
+      }
+    },
+    {
+      "resource": {
+        "id": "ccec2e5b-8e9f-459c-abfa-1f495d381c8c",
+        "resourceType": "Location",
+        "address": {
+          "city": "Olching",
+          "country": "de",
+          "line": [
+            "Hauptstraße 30"
+          ],
+          "postalCode": "82140",
+          "text": "",
+          "type": "physical",
+          "use": "work"
+        },
+        "hoursOfOperation": [
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri",
+              "sat"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          },
+          {
+            "daysOfWeek": [
+              "mon",
+              "tue",
+              "wed",
+              "thu",
+              "fri"
+            ],
+            "openingTime": "08:00:00",
+            "closingTime": "12:00:00"
+          }
+        ],
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+            "value": "3-02.2.0000000789.290"
+          },
+          {
+            "system": "https://ngda.de/fhir/NamingSystem/NID",
+            "value": "APO1021283"
+          }
+        ],
+        "status": "active",
+        "name": "Rosen-Apotheke Olching",
+        "position": {
+          "latitude": 11.328714,
+          "longitude": 48.208105
+        },
+        "telecom": [
+          {
+            "system": "phone",
+            "value": "0814215042"
+          },
+          {
+            "system": "fax",
+            "value": "0814213453"
+          },
+          {
+            "system": "email",
+            "value": "mail@rosen-apotheke-olching.de"
+          },
+          {
+            "system": "url",
+            "value": "https://www.rosen-apotheke-olching.de"
+          }
+        ]
+      }
+    }
+  ]
+}

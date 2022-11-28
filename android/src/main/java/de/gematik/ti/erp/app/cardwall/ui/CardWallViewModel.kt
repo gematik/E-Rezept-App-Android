@@ -20,148 +20,76 @@ package de.gematik.ti.erp.app.cardwall.ui
 
 import android.nfc.Tag
 import android.os.Build
-import android.os.Parcelable
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.viewModelScope
-import dagger.hilt.android.lifecycle.HiltViewModel
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
 import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
-import de.gematik.ti.erp.app.core.BaseViewModel
-import de.gematik.ti.erp.app.demo.usecase.DemoUseCase
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import androidx.lifecycle.ViewModel
+import de.gematik.ti.erp.app.idp.api.models.IdpScope
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
-import javax.inject.Inject
 
-private const val navStateKey = "cdwNavState"
-
-@HiltViewModel
-class CardWallViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+class CardWallViewModel(
     private val cardWallUseCase: CardWallUseCase,
     private val authenticationUseCase: AuthenticationUseCase,
-    private val dispatchProvider: DispatchProvider,
-    private val demoUseCase: DemoUseCase,
-    private val profilesUseCase: ProfilesUseCase,
-    private val toggleManager: FeatureToggleManager
-) : BaseViewModel() {
-    @Parcelize
-    private data class NavState(
-        val can: String,
-        val pin: String,
-        val authMethod: CardWallData.AuthenticationMethod
-    ) : Parcelable
+    private val dispatchers: DispatchProvider
+) : ViewModel() {
 
     val defaultState = CardWallData.State(
-        hardwareRequirementsFulfilled = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher,
-        isIntroSeenByUser = cardWallUseCase.cardWallIntroIsAccepted,
-        cardAccessNumber = "",
-        selectedAuthenticationMethod = CardWallData.AuthenticationMethod.None,
-        personalIdentificationNumber = "",
-        demoMode = demoUseCase.demoModeActive.value,
+        hardwareRequirementsFulfilled = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher
     )
 
-    private val navState = MutableStateFlow(
-        savedStateHandle.get(navStateKey) ?: NavState(
-            can = defaultState.cardAccessNumber,
-            pin = defaultState.personalIdentificationNumber,
-            authMethod = defaultState.selectedAuthenticationMethod,
-        )
-    )
-
-    init {
-        viewModelScope.launch {
-            if (!savedStateHandle.contains(navStateKey)) {
-                onSelectAuthenticationMethod(
-                    cardWallUseCase.getAuthenticationMethod(
-                        profilesUseCase.activeProfileName().first()
-                    )
-                )
-            }
-            val can = cardWallUseCase.cardAccessNumber().first() ?: ""
-            onCardAccessNumberChange(can)
-            navState.collect {
-                savedStateHandle.set(navStateKey, it)
-            }
-        }
-    }
-
-    fun state(): Flow<CardWallData.State> =
-        combine(
-            navState,
-            demoUseCase.demoModeActive
-        ) { navState, demo ->
-            defaultState.copy(
-                cardAccessNumber = navState.can,
-                personalIdentificationNumber = navState.pin,
-                selectedAuthenticationMethod = navState.authMethod,
-                demoMode = demo
-            )
-        }
+    fun state(): Flow<CardWallData.State> = flowOf(defaultState)
 
     fun doAuthentication(
-        can: String,
-        pin: String,
-        method: CardWallData.AuthenticationMethod,
+        profileId: ProfileIdentifier,
+        authenticationData: CardWallAuthenticationData,
         tag: Flow<Tag>
     ): Flow<AuthenticationState> {
         val cardChannel = tag.map { NfcHealthCard.connect(it) }
 
-        return when {
-            method == CardWallData.AuthenticationMethod.None -> error("Authentication method must be set")
-            method == CardWallData.AuthenticationMethod.Alternative && Build.VERSION.SDK_INT >= Build.VERSION_CODES.P ->
-                authenticationUseCase.pairDeviceWithHealthCardAndSecureElement(
-                    can = can,
-                    pin = pin,
-                    cardChannel = cardChannel
-                )
-            else ->
+        return when (authenticationData) {
+            is CardWallAuthenticationData.AltPairingWithHealthCard ->
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                    authenticationUseCase.pairDeviceWithHealthCardAndSecureElement(
+                        profileId = profileId,
+                        can = authenticationData.cardAccessNumber,
+                        pin = authenticationData.personalIdentificationNumber,
+                        publicKeyOfSecureElementEntry = authenticationData.initialPairingData.publicKey,
+                        aliasOfSecureElementEntry = authenticationData.initialPairingData.aliasOfSecureElementEntry,
+                        cardChannel = cardChannel
+                    ).onEach {
+                        if (it.isFinal()) {
+                            // silent fail; user has the alternative on the main screen
+                            authenticationUseCase.authenticateWithSecureElement(
+                                profileId = profileId,
+                                scope = IdpScope.Default
+                            ).collect {
+                                Napier.d { "Auth after pairing: $it" }
+                            }
+                        }
+                    }
+                } else {
+                    error("Can't use biometric authentication below Android P")
+                }
+
+            is CardWallAuthenticationData.HealthCard ->
                 authenticationUseCase.authenticateWithHealthCard(
-                    can = can,
-                    pin = pin,
+                    profileId = profileId,
+                    can = authenticationData.cardAccessNumber,
+                    pin = authenticationData.personalIdentificationNumber,
                     cardChannel = cardChannel
                 )
         }
-            .onEach {
-                if (it.isFinal()) {
-                    cardWallUseCase.setCardAccessNumber(can)
-                }
-            }
-            .flowOn(dispatchProvider.io())
-    }
-
-    fun onCardAccessNumberChange(can: String) {
-        navState.value = navState.value.copy(can = can)
-    }
-
-    fun onPersonalIdentificationChange(pin: String) {
-        navState.value = navState.value.copy(pin = pin)
-    }
-
-    fun onSelectAuthenticationMethod(authMethod: CardWallData.AuthenticationMethod) {
-        navState.value = navState.value.copy(authMethod = authMethod)
-    }
-
-    fun onIntroSeenByUser() {
-        cardWallUseCase.cardWallIntroIsAccepted = true
+            .flowOn(dispatchers.IO)
     }
 
     fun isNFCEnabled() = cardWallUseCase.deviceHasNFCEnabled
-
-    fun fastTrackOn() =
-        toggleManager.isFeatureEnabled(Features.FAST_TRACK.featureName)
 }

@@ -18,33 +18,38 @@
 
 package de.gematik.ti.erp.app.vau
 
-import com.squareup.moshi.Moshi
+import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.utils.CoroutineTestRule
+import de.gematik.ti.erp.app.CoroutineTestRule
+import de.gematik.ti.erp.app.utils.addSystemProxy
 import de.gematik.ti.erp.app.vau.api.VauService
-import de.gematik.ti.erp.app.vau.api.model.OCSPAdapter
-import de.gematik.ti.erp.app.vau.api.model.X509Adapter
+import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
+import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRemoteDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
-import de.gematik.ti.erp.app.vau.usecase.TrustedTruststoreProvider
+import de.gematik.ti.erp.app.vau.usecase.TrustedTruststore
 import de.gematik.ti.erp.app.vau.usecase.TruststoreConfig
-import de.gematik.ti.erp.app.vau.usecase.TruststoreTimeSourceProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.ExperimentalSerializationApi
+import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.junit.Assume.assumeTrue
-import org.junit.Before
+import org.bouncycastle.cert.X509CertificateHolder
+import org.junit.Assume
 import org.junit.Rule
-import org.junit.Test
 import retrofit2.Retrofit
-import retrofit2.converter.moshi.MoshiConverterFactory
+import java.time.Duration
+import java.time.Instant
+import kotlin.test.BeforeTest
+import kotlin.test.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TruststoreIntegrationTest {
@@ -54,27 +59,34 @@ class TruststoreIntegrationTest {
     @MockK
     lateinit var localDataSource: VauLocalDataSource
 
-    private val moshi = Moshi.Builder().add(OCSPAdapter()).add(X509Adapter()).build()
+    @Suppress("JSON_FORMAT_REDUNDANT")
+    @OptIn(ExperimentalSerializationApi::class)
+    private val jsonConverterFactory = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }.asConverterFactory("application/json".toMediaType())
 
-    @Before
+    @BeforeTest
     fun setup() {
         MockKAnnotations.init(this)
     }
 
+    @OptIn(ExperimentalSerializationApi::class)
     @Test
-    fun `create truststore from remote source`() {
-        assumeTrue(BuildKonfig.TEST_RUN_WITH_TRUSTSTORE_INTEGRATION)
+    fun `create truststore from remote source`() = runTest {
+        Assume.assumeTrue(BuildKonfig.TEST_RUN_WITH_TRUSTSTORE_INTEGRATION)
 
         coEvery { localDataSource.loadUntrusted() } coAnswers { null }
         coEvery { localDataSource.saveLists(any(), any()) } coAnswers { }
         coEvery { localDataSource.deleteAll() } coAnswers { }
 
         val okhttp = OkHttpClient.Builder()
+            .addSystemProxy()
             .addInterceptor(
                 Interceptor { chain ->
                     chain.proceed(
                         chain.request().newBuilder()
-                            .addHeader("User-Agent", "test")
+                            .addHeader("User-Agent", BuildKonfig.USER_AGENT)
                             .addHeader("Accept", "application/json")
                             .build()
                     )
@@ -90,25 +102,31 @@ class TruststoreIntegrationTest {
         val vauService = Retrofit.Builder()
             .client(okhttp)
             .baseUrl(BuildKonfig.BASE_SERVICE_URI)
-            .addConverterFactory(
-                MoshiConverterFactory.create(
-                    moshi
-                )
-            )
+            .addConverterFactory(jsonConverterFactory)
             .build()
             .create(VauService::class.java)
 
         val useCase = TruststoreUseCase(
-            TruststoreConfig(),
-            VauRepository(localDataSource, VauRemoteDataSource(vauService), coroutineRule.testDispatchProvider),
-            TruststoreTimeSourceProvider(),
-            TrustedTruststoreProvider()
+            TruststoreConfig { return@TruststoreConfig BuildKonfig.APP_TRUST_ANCHOR_BASE64 },
+            VauRepository(localDataSource, VauRemoteDataSource(vauService), coroutineRule.dispatchers),
+            { Instant.now() },
+            { untrustedOCSPList: UntrustedOCSPList,
+                untrustedCertList: UntrustedCertList,
+                trustAnchor: X509CertificateHolder,
+                ocspResponseMaxAge: Duration,
+                timestamp: Instant ->
+                TrustedTruststore.create(
+                    untrustedOCSPList = untrustedOCSPList,
+                    untrustedCertList = untrustedCertList,
+                    trustAnchor = trustAnchor,
+                    ocspResponseMaxAge = ocspResponseMaxAge,
+                    timestamp = timestamp
+                )
+            }
         )
 
-        val pubKey = runBlocking {
-            useCase.withValidVauPublicKey {
-                it
-            }
+        val pubKey = useCase.withValidVauPublicKey {
+            it
         }
 
         println("Truststore established - received public key: ${pubKey.w.affineX} ${pubKey.w.affineY}")

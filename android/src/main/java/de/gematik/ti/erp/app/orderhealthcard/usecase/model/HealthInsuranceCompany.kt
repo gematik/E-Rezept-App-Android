@@ -19,26 +19,36 @@
 package de.gematik.ti.erp.app.orderhealthcard.usecase.model
 
 import androidx.compose.runtime.Immutable
+import kotlinx.serialization.Serializable
 
 object HealthCardOrderUseCaseData {
     @Immutable
+    @Serializable
     data class HealthInsuranceCompany(
         val name: String,
         val healthCardAndPinPhone: String?,
         val healthCardAndPinMail: String?,
         val healthCardAndPinUrl: String?,
         val pinUrl: String?,
+        val subjectCardAndPinMail: String?,
+        val bodyCardAndPinMail: String?,
+        val subjectPinMail: String?,
+        val bodyPinMail: String?
     ) {
         fun noContactInformation() =
-            healthCardAndPinPhone == null &&
-                healthCardAndPinMail == null &&
-                healthCardAndPinUrl == null &&
-                pinUrl == null
+            healthCardAndPinPhone.isNullOrEmpty() &&
+                healthCardAndPinMail.isNullOrEmpty() &&
+                healthCardAndPinUrl.isNullOrEmpty() &&
+                pinUrl.isNullOrEmpty()
 
         fun hasContactInfoForPin() =
-            pinUrl != null
+            !pinUrl.isNullOrEmpty() || (!bodyPinMail.isNullOrEmpty() && !subjectPinMail.isNullOrEmpty())
 
         fun hasContactInfoForHealthCardAndPin() =
-            healthCardAndPinPhone != null || healthCardAndPinMail != null || healthCardAndPinUrl != null
+            !healthCardAndPinPhone.isNullOrEmpty() || !healthCardAndPinMail.isNullOrEmpty() || !healthCardAndPinUrl.isNullOrEmpty()
+
+        fun hasMailContentForCardAndPin() = !subjectCardAndPinMail.isNullOrEmpty() && !bodyCardAndPinMail.isNullOrEmpty()
+
+        fun hasMailContentForPin() = !subjectPinMail.isNullOrEmpty() && !bodyPinMail.isNullOrEmpty()
     }
 }

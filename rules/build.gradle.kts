@@ -1,7 +1,7 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
-    kotlin("jvm") version "1.5.31"
+    kotlin("jvm") version "1.7.0"
 }
 
 repositories {
@@ -23,8 +23,8 @@ tasks.test {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("com.pinterest.ktlint:ktlint-core:0.43.2")
+    implementation("com.pinterest.ktlint:ktlint-core:0.45.2")
     testImplementation(kotlin("test"))
     testImplementation("junit:junit:4.13.2")
-    testImplementation("com.pinterest.ktlint:ktlint-test:0.43.2")
+    testImplementation("com.pinterest.ktlint:ktlint-test:0.45.2")
 }
