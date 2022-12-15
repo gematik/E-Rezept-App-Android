@@ -92,9 +92,17 @@ class CommandApdu(
             data: ByteArray?,
             ne: Int?
         ): CommandApdu {
-            require(!(cla < 0 || ins < 0 || p1 < 0 || p2 < 0)) { "APDU header fields must not be less than 0" }
-            require(!(cla > 0xFF || ins > 0xFF || p1 > 0xFF || p2 > 0xFF)) { "APDU header fields must not be greater than 255 (0xFF)" }
-            ne?.let { require(ne <= EXPECTED_LENGTH_WILDCARD_EXTENDED || ne >= 0) { "APDU response length is out of bounds [0, 65536]" } }
+            require(!(cla < 0 || ins < 0 || p1 < 0 || p2 < 0)) {
+                "APDU header fields must not be less than 0"
+            }
+            require(!(cla > 0xFF || ins > 0xFF || p1 > 0xFF || p2 > 0xFF)) {
+                "APDU header fields must not be greater than 255 (0xFF)"
+            }
+            ne?.let {
+                require(ne <= EXPECTED_LENGTH_WILDCARD_EXTENDED || ne >= 0) {
+                    "APDU response length is out of bounds [0, 65536]"
+                }
+            }
 
             val bytes = ByteArrayOutputStream()
             // write header |CLA|INS|P1 |P2 |

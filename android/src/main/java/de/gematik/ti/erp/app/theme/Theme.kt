@@ -184,10 +184,6 @@ object AppTheme {
         @Composable
         get() = LocalAppColors.current
 
-    val typographyColors: AppTypographyColors
-        @Composable
-        get() = LocalAppTypographyColors.current
-
     val typography: AppTypography
         @Composable
         get() = LocalAppTypography.current

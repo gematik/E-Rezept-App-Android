@@ -303,8 +303,10 @@ fun CardWallAuthenticationDialog(
             stringResource(R.string.cdw_nfc_error_body_invalid_certificate).toAnnotatedString()
         )
         AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate -> Pair(
-            stringResource(R.string.cdw_nfc_error_title_invalid_ocsp_response_of_health_card_certificate).toAnnotatedString(),
-            stringResource(R.string.cdw_nfc_error_body_invalid_ocsp_response_of_health_card_certificate).toAnnotatedString()
+            stringResource(R.string.cdw_nfc_error_title_invalid_ocsp_response_of_health_card_certificate)
+                .toAnnotatedString(),
+            stringResource(R.string.cdw_nfc_error_body_invalid_ocsp_response_of_health_card_certificate)
+                .toAnnotatedString()
         )
         AuthenticationState.HealthCardCardAccessNumberWrong -> Pair(
             stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error).toAnnotatedString(),

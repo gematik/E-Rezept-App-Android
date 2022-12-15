@@ -45,7 +45,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.ButtonDefaults
@@ -74,7 +73,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
@@ -498,16 +496,22 @@ private fun SyncedPrescriptionOverview(
 
             if (prescription.medicationRequest.emergencyFee != null) {
                 item {
+                    // false - emergencyFee fee is to be paid by the insured (default value)
+                    // true - emergencyFee fee is not to be paid by the insured but by the payer
                     val text = if (prescription.medicationRequest.emergencyFee) {
-                        stringResource(R.string.pres_detail_yes)
-                    } else {
                         stringResource(R.string.pres_detail_no)
+                    } else {
+                        stringResource(R.string.pres_detail_yes)
                     }
                     Label(
                         text = text,
                         label = stringResource(R.string.pres_details_emergency_fee),
                         onClick = {
-                            onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFee)
+                            if (prescription.medicationRequest.emergencyFee) {
+                                onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt)
+                            } else {
+                                onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFee)
+                            }
                         }
                     )
                 }
@@ -727,19 +731,22 @@ fun SyncedStatus(
 
     Row(
         modifier = modifier
-            .clip(CircleShape)
             .then(clickableModifier),
         verticalAlignment = Alignment.CenterVertically
     ) {
         if (prescription.isDirectAssignment) {
+            val text = if (prescription.isDispensed) {
+                stringResource(R.string.pres_details_direct_assignment_received_state)
+            } else {
+                stringResource(R.string.pres_details_direct_assignment_state)
+            }
             Text(
-                stringResource(R.string.pres_details_direct_assignment_state),
+                text,
                 style = AppTheme.typography.body2l,
                 textAlign = TextAlign.Center
             )
-            stringResource(R.string.pres_details_direct_assignment_state)
         } else {
-            prescriptionStateInfo(prescription.state)
+            prescriptionStateInfo(prescription.state, textAlign = TextAlign.Center)
         }
         if (onClick != null) {
             Spacer(Modifier.padding(2.dp))

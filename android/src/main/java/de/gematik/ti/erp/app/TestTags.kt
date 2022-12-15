@@ -207,10 +207,13 @@ object TestTag {
         val SettingsScreen by tagName()
         val DebugMenuButton by tagName()
         val ProfileButton by tagName()
+
+        @Deprecated("add profile removed from settings screen")
         val AddProfileButton by tagName()
 
         val OrderNewCardButton by tagName()
 
+        @Deprecated("add profile removed from settings screen")
         object AddProfileDialog {
             val Modal by tagName()
             val ProfileNameTextField by tagName()
@@ -262,11 +265,6 @@ object TestTag {
         val SettingsButton by tagName()
     }
 
-    object MainScreenBottomSheet {
-        val ConnectLaterButton by tagName()
-        val ConnectButton by tagName()
-    }
-
     object Onboarding {
         val Pager by tagName()
         val SkipOnboardingButton by tagName()
@@ -310,6 +308,16 @@ object TestTag {
         val LoginButton by tagName()
         val CenterScreenMessageField by tagName()
 
+        val AddProfileButton by tagName()
+        object MainScreenBottomSheet {
+            val Modal by tagName()
+            val ProfileNameField by tagName()
+            val ConnectLaterButton by tagName()
+            val LoginButton by tagName()
+            val SaveProfileNameButton by tagName()
+        }
+
+        @Deprecated("Profile list selector removed from Mainscreen")
         object Profile {
             val OpenProfileListButton by tagName()
             val ProfileDetailsButton by tagName()

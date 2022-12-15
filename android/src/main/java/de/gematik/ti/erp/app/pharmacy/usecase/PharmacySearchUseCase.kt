@@ -78,10 +78,13 @@ class PharmacySearchUseCase(
             filterMap
         }
 
-        override fun getRefreshKey(state: PagingState<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy>): PharmacyPagingKey? =
-            null
+        override fun getRefreshKey(
+            state: PagingState<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy>
+        ): PharmacyPagingKey? = null
 
-        override suspend fun load(params: LoadParams<PharmacyPagingKey>): LoadResult<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy> {
+        override suspend fun load(
+            params: LoadParams<PharmacyPagingKey>
+        ): LoadResult<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy> {
             val count = params.loadSize
 
             when (params) {
@@ -153,24 +156,6 @@ class PharmacySearchUseCase(
         ).flow.flowOn(dispatchers.IO)
     }
 
-    fun hasRedeemableTasks(
-        profileId: ProfileIdentifier
-    ): Flow<Boolean> =
-        combine(
-            prescriptionRepository.syncedTasks(profileId).map { tasks ->
-                tasks.filter {
-                    it.redeemState().isRedeemable()
-                }
-            },
-            prescriptionRepository.scannedTasks(profileId).map { tasks ->
-                tasks.filter {
-                    it.isRedeemable()
-                }
-            }
-        ) { syncedTasks, scannedTasks ->
-            syncedTasks.isNotEmpty() || scannedTasks.isNotEmpty()
-        }
-
     fun prescriptionDetailsForOrdering(
         profileId: ProfileIdentifier
     ): Flow<PharmacyUseCaseData.OrderState> =
@@ -186,7 +171,6 @@ class PharmacySearchUseCase(
                     it.isRedeemable()
                 }
             }
-
         ) { shippingContacts, syncedTasks, scannedTasks ->
 
             val shippingContact = if (syncedTasks.isNotEmpty()) {
@@ -203,8 +187,8 @@ class PharmacySearchUseCase(
                 PharmacyUseCaseData.PrescriptionOrder(
                     taskId = task.taskId,
                     accessCode = task.accessCode,
-                    title = "",
-                    scannedOn = task.scannedOn,
+                    title = null,
+                    timestamp = task.scannedOn,
                     substitutionsAllowed = false
                 )
             } + syncedTasks.map { task ->
@@ -212,6 +196,7 @@ class PharmacySearchUseCase(
                     taskId = task.taskId,
                     accessCode = task.accessCode!!,
                     title = task.medicationRequestMedicationName(),
+                    timestamp = task.authoredOn,
                     substitutionsAllowed = false
                 )
             }
@@ -244,12 +229,6 @@ class PharmacySearchUseCase(
         contact: PharmacyUseCaseData.ShippingContact,
         pharmacyTelematikId: String
     ): Result<Unit> {
-        val accessCode = if (order.scannedOn != null) {
-            order.accessCode
-        } else {
-            null
-        }
-
         val comDisp = createCommunicationDispenseRequest(
             orderId = orderId.toString(),
             taskId = order.taskId,
@@ -265,7 +244,7 @@ class PharmacySearchUseCase(
             )
         )
 
-        return prescriptionRepository.redeemPrescription(profileId, comDisp, accessCode = accessCode)
+        return prescriptionRepository.redeemPrescription(profileId, comDisp, accessCode = order.accessCode)
     }
 
     private fun mapShippingContact(contact: PharmacyUseCaseData.ShippingContact) =

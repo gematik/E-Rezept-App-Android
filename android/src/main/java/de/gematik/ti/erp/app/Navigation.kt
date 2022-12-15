@@ -72,7 +72,9 @@ open class Route(private val path: String, vararg arguments: NamedNavArgument) {
 
         return attributes.fold(Uri.Builder().path(path)) { uri, attr ->
             val arg =
-                requireNotNull(arguments.find { it.name == attr.first }) { "`${attr.first}` not specified within arguments." }
+                requireNotNull(arguments.find { it.name == attr.first }) {
+                    "`${attr.first}` not specified within arguments."
+                }
 
             when (val v = attr.second) {
                 null -> uri
@@ -80,7 +82,9 @@ open class Route(private val path: String, vararg arguments: NamedNavArgument) {
                     uri.appendQueryParameter(attr.first, v.toString())
                 is Parcelable -> {
                     val type =
-                        requireNotNull(arg.argument.type as? UriNavType) { "Parcelable types must be accompanied with an `UriNavType` argument." }
+                        requireNotNull(arg.argument.type as? UriNavType) {
+                            "Parcelable types must be accompanied with an `UriNavType` argument."
+                        }
                     uri.appendQueryParameter(attr.first, type.serializeValue(attr.second))
                 }
                 else -> error("Other types not implemented")

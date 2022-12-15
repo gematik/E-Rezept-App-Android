@@ -49,7 +49,8 @@ class LicenceRule : Rule("licence-header") {
             val commentChild = node.findChildByType(KtTokens.BLOCK_COMMENT)
 
             val licenceHeaderFound =
-                commentChild != null && commentChild.lineNumber() == 1 && commentChild.text.trim() == licenceHeader.trim()
+                commentChild != null && commentChild.lineNumber() == 1 &&
+                    commentChild.text.trim() == licenceHeader.trim()
 
             if (!licenceHeaderFound) {
                 emit(node.startOffset, "Licence header missing", true)

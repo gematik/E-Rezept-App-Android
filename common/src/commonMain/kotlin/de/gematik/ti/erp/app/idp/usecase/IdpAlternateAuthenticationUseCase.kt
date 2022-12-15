@@ -129,7 +129,8 @@ class IdpAlternateAuthenticationUseCase(
         return pairedDevices.entries.map {
             val pairingData = requireNotNull(
                 json.decodeFromString<PairingData>(
-                    (JsonWebStructure.fromCompactSerialization(it.signedPairingData) as JsonWebSignature).unverifiedPayload
+                    (JsonWebStructure.fromCompactSerialization(it.signedPairingData) as JsonWebSignature)
+                        .unverifiedPayload
                 )
             ) { "Couldn't parse pairing data" }
 

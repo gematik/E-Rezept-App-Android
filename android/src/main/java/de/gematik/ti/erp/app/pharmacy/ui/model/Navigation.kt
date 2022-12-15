@@ -22,9 +22,9 @@ import de.gematik.ti.erp.app.Route
 
 object PharmacyNavigationScreens {
     object StartSearch : Route("StartSearch")
-    object SearchResults : Route("SearchResults")
+    object List : Route("List")
     object Maps : Route("Maps")
-    object PharmacyDetails : Route("PharmacyDetails")
-    object OrderPrescription : Route("OrderPrescription")
+    object OrderOverview : Route("OrderOverview")
     object EditShippingContact : Route("EditShippingContact")
+    object PrescriptionSelection : Route("PrescriptionSelection")
 }

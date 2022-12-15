@@ -281,7 +281,8 @@ private fun MedicationInformation(
 
         Label(
             text = if (prescription.medication.normSizeCode != null) {
-                "${prescription.medication.normSizeCode} - ${App.strings.normSizeMapping()[prescription.medication.normSizeCode]?.invoke()}"
+                "${prescription.medication.normSizeCode} - " +
+                    "${App.strings.normSizeMapping()[prescription.medication.normSizeCode]?.invoke()}"
             } else {
                 missingValue
             },

@@ -34,7 +34,6 @@ import android.os.VibratorManager
 import android.util.Size
 import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
-import androidx.activity.compose.LocalOnBackPressedDispatcherOwner
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.Camera
@@ -127,6 +126,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalAnalytics
+import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.prescription.ui.model.ScanScreenData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -183,7 +183,7 @@ fun ScanScreen(
     if (cancelRequested && state.hasCodesToSave()) {
         SaveDialog(
             onDismissRequest = { cancelRequested = false },
-            onCancel = { mainNavController.popBackStack() }
+            onCancel = { mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) }
         )
     }
 
@@ -195,7 +195,7 @@ fun ScanScreen(
                 onClickSave = {
                     scanViewModel.saveToDatabase()
                     tracker.trackSaveScannedPrescriptions()
-                    mainNavController.popBackStack()
+                    mainNavController.navigate(MainNavigationScreens.Prescriptions.path())
                 }
             )
         }
@@ -211,14 +211,15 @@ fun ScanScreen(
                     }
                 )
             } else {
-                AccessDenied()
+                AccessDenied(mainNavController)
             }
             if (camPermissionGranted) {
                 ScanOverlay(
                     enabled = !sheetState.isVisible && !cancelRequested,
                     flashEnabled = flashEnabled,
                     onFlashClick = { flashEnabled = it },
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
+                    navController = mainNavController
                 )
 
                 if (state.snackBar.shouldShow()) {
@@ -264,7 +265,10 @@ private fun SheetContent(
                     contentColor = AppTheme.colors.primary600,
                     shape = RoundedCornerShape(8.dp)
                 ) {
-                    Text(stringResource(R.string.cam_next_sheet_available_soon), Modifier.padding(horizontal = PaddingDefaults.Small, vertical = 2.dp))
+                    Text(
+                        stringResource(R.string.cam_next_sheet_available_soon),
+                        Modifier.padding(horizontal = PaddingDefaults.Small, vertical = 2.dp)
+                    )
                 }
             }
         },
@@ -284,7 +288,7 @@ private fun SheetContent(
 }
 
 @Composable
-private fun AccessDenied() {
+private fun AccessDenied(navController: NavController) {
     Surface(
         color = Color.Black,
         contentColor = Color.White,
@@ -298,6 +302,7 @@ private fun AccessDenied() {
         ) {
             TopBar(
                 flashEnabled = false,
+                navController = navController,
                 onFlashClick = {}
             )
             Spacer(Modifier.weight(0.4f))
@@ -645,10 +650,9 @@ private fun CameraView(
 @Composable
 private fun TopBar(
     flashEnabled: Boolean,
+    navController: NavController,
     onFlashClick: (Boolean) -> Unit
 ) {
-    val backPressDispatcher = LocalOnBackPressedDispatcherOwner.current!!.onBackPressedDispatcher
-
     Surface(
         color = Color.Unspecified,
         contentColor = Color.White,
@@ -659,7 +663,7 @@ private fun TopBar(
             val accTorch = stringResource(R.string.cam_acc_torch)
 
             IconButton(
-                onClick = { backPressDispatcher.onBackPressed() },
+                onClick = { navController.navigate(MainNavigationScreens.Prescriptions.path()) },
                 modifier = Modifier
                     .testTag("camera/closeButton")
                     .semantics { contentDescription = accCancel }
@@ -693,6 +697,7 @@ private fun ScanOverlay(
     flashEnabled: Boolean,
     onFlashClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
+    navController: NavController,
     scanVM: ScanPrescriptionViewModel = viewModel()
 ) {
     var points by remember { mutableStateOf(FloatArray(8)) }
@@ -762,6 +767,7 @@ private fun ScanOverlay(
         ) {
             TopBar(
                 flashEnabled = flashEnabled,
+                navController,
                 onFlashClick = onFlashClick
             )
             Spacer(modifier = Modifier.size(24.dp))

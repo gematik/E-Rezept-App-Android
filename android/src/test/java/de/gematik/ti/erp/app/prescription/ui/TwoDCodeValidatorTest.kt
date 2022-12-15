@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length")
+
 package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule

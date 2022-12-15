@@ -23,6 +23,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -44,7 +45,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -54,7 +54,6 @@ import androidx.compose.material.icons.outlined.Moped
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.Star
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -86,10 +85,13 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyOverviewViewModel
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.ModalBottomSheet
+import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -106,66 +108,86 @@ private const val LastUsedPharmaciesListLength = 5
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PharmacyOverviewScreen(
+    isNestedNavigation: Boolean,
+    orderState: PharmacyOrderState,
     onBack: () -> Unit,
     onStartSearch: () -> Unit,
     onShowMaps: () -> Unit,
     filter: PharmacyUseCaseData.Filter,
     onFilterChange: (PharmacyUseCaseData.Filter) -> Unit,
-    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit
 ) {
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val modal = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val sheetState = rememberPharmacySheetState()
 
-    ModalBottomSheetLayout(
-        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        sheetContent = {
-            FilterSheetContent(
-                modifier = Modifier.navigationBarsPadding(),
-                filter = filter,
-                onClickChip = onFilterChange,
-                onClickClose = { scope.launch { modal.hide() } },
-                extraContent = {
-                    SpacerLarge()
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
-                        PrimaryButtonSmall(
-                            onClick = {
-                                scope.launch { modal.hide() }
-                                onStartSearch()
-                            }
-                        ) {
-                            Text(stringResource(R.string.search_pharmacies_start_search))
-                        }
-                    }
-                    SpacerLarge()
-                }
-            )
-        },
-        sheetState = modal
-    ) {
+    Box {
         AnimatedElevationScaffold(
             modifier = Modifier.testTag(TestTag.PharmacySearch.OverviewScreen),
             listState = listState,
             topBarTitle = stringResource(R.string.redeem_header),
+            navigationMode = if (isNestedNavigation) NavigationBarMode.Back else NavigationBarMode.Close,
             onBack = onBack
         ) {
             val pharmacyViewModel by rememberViewModel<PharmacyOverviewViewModel>()
             OverviewContent(
-                onSelectPharmacy = onSelectPharmacy,
+                onSelectPharmacy = {
+                    sheetState.show(PharmacySearchSheetContentState.PharmacySelected(it))
+                },
                 listState = listState,
                 onFilterChange = onFilterChange,
                 searchFilter = filter,
                 onStartSearch = onStartSearch,
                 pharmacyViewModel = pharmacyViewModel,
                 onShowFilter = {
-                    scope.launch { modal.show() }
+                    sheetState.hide()
                 },
                 onShowMaps = onShowMaps
             )
         }
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            sheetContent = {
+                when (sheetState.content) {
+                    PharmacySearchSheetContentState.FilterSelected ->
+                        FilterSheetContent(
+                            modifier = Modifier.navigationBarsPadding(),
+                            filter = filter,
+                            onClickChip = onFilterChange,
+                            onClickClose = { scope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) } },
+                            extraContent = {
+                                SpacerLarge()
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    PrimaryButtonSmall(
+                                        onClick = {
+                                            scope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) }
+                                            onStartSearch()
+                                        }
+                                    ) {
+                                        Text(stringResource(R.string.search_pharmacies_start_search))
+                                    }
+                                }
+                                SpacerLarge()
+                            }
+                        )
+
+                    is PharmacySearchSheetContentState.PharmacySelected ->
+                        PharmacyDetailsSheetContent(
+                            orderState = orderState,
+                            pharmacy = (sheetState.content as PharmacySearchSheetContentState.PharmacySelected)
+                                .pharmacy,
+                            onClickOrder = { pharmacy, orderOption ->
+                                onSelectPharmacy(pharmacy, orderOption)
+                            }
+                        )
+                }
+            },
+            sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) }
+        )
     }
 }
 
@@ -576,7 +598,7 @@ private fun PharmacySearchButton(
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(16.dp))
-            .background(color = AppTheme.colors.neutral050, shape = RoundedCornerShape(16.dp))
+            .background(color = AppTheme.colors.neutral100, shape = RoundedCornerShape(16.dp))
             .clickable(role = Role.Button) { onStartSearch() }
             .padding(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.ShortMedium)
     ) {

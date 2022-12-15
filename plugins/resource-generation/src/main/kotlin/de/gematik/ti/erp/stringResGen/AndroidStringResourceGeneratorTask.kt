@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length", "MaxLineLength")
+
 package de.gematik.ti.erp.stringResGen
 
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -143,7 +145,9 @@ open class AndroidStringResourceGeneratorTask : DefaultTask() {
             val additionalTrs = thisTrs - primaryTrs
 
             if (additionalTrs.isNotEmpty()) {
-                println("WARNING: Additional `${locale.language}` keys not found in primary language `${primaryLocale.language}`")
+                println(
+                    "WARNING: Additional `${locale.language}` keys not found in primary language `${primaryLocale.language}`"
+                )
                 println("WARNING: $additionalTrs")
                 println("WARNING: These keys will be ignored!")
                 println()

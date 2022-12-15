@@ -55,6 +55,8 @@ sealed class PrescriptionDetailBottomSheetContent {
     object SubstitutionAllowed : PrescriptionDetailBottomSheetContent()
     object DirectAssignment : PrescriptionDetailBottomSheetContent()
     object EmergencyFee : PrescriptionDetailBottomSheetContent()
+    object EmergencyFeeNotExempt : PrescriptionDetailBottomSheetContent()
+
     object AdditionalFeeNotExempt : PrescriptionDetailBottomSheetContent()
     object AdditionalFeeExempt : PrescriptionDetailBottomSheetContent()
     object Scanned : PrescriptionDetailBottomSheetContent()
@@ -73,6 +75,12 @@ fun PrescriptionDetailInfoSheetContent(
             )
 
         PrescriptionDetailBottomSheetContent.EmergencyFee ->
+            PrescriptionDetailInfoSheetContent(
+                title = stringResource(R.string.pres_details_exp_em_fee_title),
+                info = stringResource(R.string.pres_details_exp_em_fee_info)
+            )
+
+        PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_no_em_fee_title),
                 info = stringResource(R.string.pres_details_exp_no_em_fee_info)

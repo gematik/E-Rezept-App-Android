@@ -18,16 +18,16 @@
 
 package de.gematik.ti.erp.app.communication.ui
 
+import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.communication.ui.model.CommunicationScreenData
 import de.gematik.ti.erp.app.communication.usecase.CommunicationUseCase
-import de.gematik.ti.erp.app.core.DispatchersProvider
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 
 class CommunicationViewModel(
-    private val dispatchersProvider: DispatchersProvider,
+    private val dispatchProvider: DispatchProvider,
     private val communicationUseCase: CommunicationUseCase
 ) {
     val defaultState =
@@ -37,5 +37,5 @@ class CommunicationViewModel(
     fun screenState(): Flow<CommunicationScreenData.State> =
         communicationUseCase.pharmacyCommunications().map {
             CommunicationScreenData.State(it)
-        }.flowOn(dispatchersProvider.unconfined())
+        }.flowOn(dispatchProvider.Unconfined)
 }

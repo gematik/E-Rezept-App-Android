@@ -99,14 +99,17 @@ kotlin {
                     }
                     crypto {
                         implementation(jose4j)
-                        implementation(bouncyCastle("bcprov", "jdk15on"))
-                        implementation(bouncyCastle("bcpkix", "jdk15on"))
+                        implementation(bouncyCastle("bcprov"))
+                        implementation(bouncyCastle("bcpkix"))
                     }
                     network {
                         implementation(retrofit2("retrofit"))
                         implementation(retrofit2KotlinXSerialization)
                         implementation(okhttp3("okhttp"))
                         implementation(okhttp3("logging-interceptor"))
+                    }
+                    database {
+                        compileOnly(realm)
                     }
                 }
             }

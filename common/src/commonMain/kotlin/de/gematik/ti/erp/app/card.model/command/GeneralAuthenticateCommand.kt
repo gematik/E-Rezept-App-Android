@@ -65,6 +65,11 @@ fun HealthCardCommand.Companion.generalAuthenticate(
         ins = INS,
         p1 = NO_MEANING,
         p2 = NO_MEANING,
-        data = DERTaggedObject(true, BERTags.APPLICATION, 28, DERTaggedObject(false, tagNo, DEROctetString(data))).encoded,
+        data = DERTaggedObject(
+            true,
+            BERTags.APPLICATION,
+            28,
+            DERTaggedObject(false, tagNo, DEROctetString(data))
+        ).encoded,
         ne = NE_MAX_SHORT_LENGTH
     )

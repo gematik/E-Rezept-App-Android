@@ -19,72 +19,12 @@
 package de.gematik.ti.erp.app.pharmacy.ui.model
 
 import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
-import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PrescriptionOrder
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.ShippingContact
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 
 object PharmacyScreenData {
-    @Immutable
-    data class DetailScreenState(
-        val selectedPharmacy: PharmacyUseCaseData.Pharmacy,
-        val markedAsFavorite: Boolean
-    )
-
-    @Immutable
-    data class OrderScreenState(
-        val activeProfile: ProfilesUseCaseData.Profile,
-        val contact: ShippingContact,
-        val prescriptions: List<Pair<PrescriptionOrder, Boolean>>,
-        val selectedPharmacy: PharmacyUseCaseData.Pharmacy,
-        val orderOption: OrderOption
-    ) {
-        @Stable
-        fun anySelected() = prescriptions.any { it.second }
-    }
-
     @Immutable
     enum class OrderOption {
         ReserveInPharmacy,
         CourierDelivery,
         MailDelivery
     }
-
-    val defaultOrderState = OrderScreenState(
-        activeProfile = ProfilesUseCaseData.Profile(
-            id = "0",
-            name = "",
-            insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
-            active = false,
-            color = ProfilesData.ProfileColorNames.SPRING_GRAY,
-            lastAuthenticated = null,
-            ssoTokenScope = null,
-            avatarFigure = ProfilesData.AvatarFigure.PersonalizedImage
-        ),
-        contact = ShippingContact(
-            name = "",
-            line1 = "",
-            line2 = "",
-            postalCodeAndCity = "",
-            telephoneNumber = "",
-            mail = "",
-            deliveryInformation = ""
-        ),
-        prescriptions = listOf(),
-        selectedPharmacy = PharmacyUseCaseData.Pharmacy(
-            name = "",
-            address = null,
-            location = null,
-            distance = null,
-            contacts = PharmacyContacts(phone = "", mail = "", url = ""),
-            provides = listOf(),
-            openingHours = null,
-            telematikId = "",
-            ready = false
-        ),
-        orderOption = OrderOption.ReserveInPharmacy
-    )
 }

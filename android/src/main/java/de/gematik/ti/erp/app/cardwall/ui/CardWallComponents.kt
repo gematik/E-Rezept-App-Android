@@ -132,7 +132,9 @@ fun CardWallScreen(
     val navigationMode by navController.navigationModeState(
         startDestination = startDestination,
         intercept = { previousRoute: String?, currentRoute: String? ->
-            if (previousRoute == CardWallNavigation.OrderHealthCard.route && currentRoute == CardWallNavigation.Intro.route) {
+            if (previousRoute == CardWallNavigation.OrderHealthCard.route &&
+                currentRoute == CardWallNavigation.Intro.route
+            ) {
                 NavigationMode.Closed
             } else {
                 null
@@ -202,7 +204,9 @@ fun CardWallScreen(
                             Text(stringResource(R.string.cancel))
                         }
                     },
-                    onClickAlternateAuthentication = { navController.navigate(CardWallNavigation.ExternalAuthenticator.path()) },
+                    onClickAlternateAuthentication = {
+                        navController.navigate(CardWallNavigation.ExternalAuthenticator.path())
+                    },
                     onClickOrderNow = { navController.navigate(CardWallNavigation.OrderHealthCard.path()) }
                 )
             }

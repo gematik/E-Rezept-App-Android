@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.card.model
 import de.gematik.ti.erp.app.BCProvider
 import org.bouncycastle.asn1.ASN1InputStream
 import org.bouncycastle.asn1.ASN1Object
-import org.bouncycastle.asn1.DLApplicationSpecific
+import org.bouncycastle.asn1.ASN1TaggedObject
 import org.bouncycastle.math.ec.ECCurve
 import org.bouncycastle.math.ec.ECPoint
 import java.math.BigInteger
@@ -66,8 +66,8 @@ object CardUtilities {
      */
     fun extractKeyObjectEncoded(asn1Input: ByteArray): ByteArray =
         ASN1InputStream(asn1Input).use { asn1InputStream ->
-            val seq = asn1InputStream.readObject() as DLApplicationSpecific
-            val seqObj: ASN1Object = seq.getObject()
+            val seq = asn1InputStream.readObject() as ASN1TaggedObject
+            val seqObj: ASN1Object = seq.baseObject
             seqObj.encoded.copyOfRange(2, seqObj.encoded.size)
         }
 }

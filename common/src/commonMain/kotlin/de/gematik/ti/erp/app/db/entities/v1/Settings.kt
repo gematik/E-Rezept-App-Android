@@ -80,6 +80,7 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var authenticationFails: Int = 0
     var zoomEnabled: Boolean = false
     var welcomeDrawerShown: Boolean = false
+    var mainScreenTooltipsShown: Boolean = false
 
     var pharmacySearch: PharmacySearchEntityV1? = PharmacySearchEntityV1()
 
@@ -95,6 +96,7 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var onboardingLatestAppVersionCode: Int = -1
 
     var shippingContact: ShippingContactEntityV1? = null
+    var mlKitAccepted: Boolean = false
 
     override fun objectsToFollow(): Iterator<Deleteable> =
         iterator {

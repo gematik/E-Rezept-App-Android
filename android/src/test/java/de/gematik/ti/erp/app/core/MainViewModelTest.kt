@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.core
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
+import de.gematik.ti.erp.app.attestation.usecase.IntegrityUseCase
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.model.SettingsData.AppVersion
 import de.gematik.ti.erp.app.settings.model.SettingsData.AuthenticationMode
@@ -49,12 +49,12 @@ class MainViewModelTest {
     private lateinit var settingsUseCase: SettingsUseCase
 
     @MockK
-    private lateinit var safetynetUseCase: SafetynetUseCase
+    private lateinit var integrityUseCase: IntegrityUseCase
 
     @Before
     fun setup() {
         MockKAnnotations.init(this)
-        every { safetynetUseCase.runSafetynetAttestation() } returns flow { emit(true) }
+        every { integrityUseCase.runIntegrityAttestation() } returns flow { emit(true) }
         every { settingsUseCase.general } returns flowOf(
             SettingsData.General(
                 latestAppVersion = AppVersion(code = 1, name = "Test"),
@@ -63,7 +63,9 @@ class MainViewModelTest {
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,
-                welcomeDrawerShown = false
+                welcomeDrawerShown = false,
+                mainScreenTooltipsShown = false,
+                mlKitAccepted = false
             )
         )
         every { settingsUseCase.authenticationMode } returns flowOf(AuthenticationMode.Unspecified)
@@ -75,8 +77,9 @@ class MainViewModelTest {
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(true)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
         every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
+        every { settingsUseCase.showMainScreenTooltip } returns flowOf(false)
 
-        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
+        viewModel = MainViewModel(integrityUseCase, settingsUseCase)
 
         assertEquals(true, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -88,8 +91,9 @@ class MainViewModelTest {
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
         every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
+        every { settingsUseCase.showMainScreenTooltip } returns flowOf(false)
 
-        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
+        viewModel = MainViewModel(integrityUseCase, settingsUseCase)
 
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
@@ -101,8 +105,9 @@ class MainViewModelTest {
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
         every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
+        every { settingsUseCase.showMainScreenTooltip } returns flowOf(false)
 
-        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
+        viewModel = MainViewModel(integrityUseCase, settingsUseCase)
 
         assertEquals(true, viewModel.showDataTermsUpdate.first())
     }
@@ -113,8 +118,9 @@ class MainViewModelTest {
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
         every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
+        every { settingsUseCase.showMainScreenTooltip } returns flowOf(false)
 
-        viewModel = MainViewModel(safetynetUseCase, settingsUseCase)
+        viewModel = MainViewModel(integrityUseCase, settingsUseCase)
 
         assertEquals(false, viewModel.showDataTermsUpdate.first())
     }

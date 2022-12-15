@@ -19,7 +19,7 @@
 //
 // DO NOT MODIFY - GENERATED ON 2022-01-07T10:42:21.252777
 //
-@file:Suppress("RedundantVisibilityModifier")
+@file:Suppress("RedundantVisibilityModifier", "ktlint")
 
 package de.gematik.ti.erp.app.common.strings
 

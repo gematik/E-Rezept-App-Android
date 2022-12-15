@@ -41,7 +41,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -56,7 +55,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.max
-import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -77,32 +75,36 @@ const val MinPhoneLength = 4
 @Suppress("LongMethod")
 @Composable
 fun EditShippingContactScreen(
-    navController: NavController,
-    viewModel: PharmacySearchViewModel
+    orderState: PharmacyOrderState,
+    onBack: () -> Unit
 ) {
     val listState = rememberLazyListState()
 
-    val state by viewModel.orderScreenState().collectAsState(PharmacyScreenData.defaultOrderState)
+    val state by orderState.order
 
     var contact by remember(state.contact) { mutableStateOf(state.contact) }
 
     var showBackAlert by remember { mutableStateOf(false) }
 
-    val telephoneOptional by derivedStateOf {
-        state.orderOption == PharmacyScreenData.OrderOption.ReserveInPharmacy
+    val telephoneOptional by remember(orderState.selectedOrderOption) {
+        derivedStateOf {
+            orderState.selectedOrderOption == PharmacyScreenData.OrderOption.ReserveInPharmacy
+        }
     }
-    val telephoneError by derivedStateOf { !isPhoneValid(contact.telephoneNumber, telephoneOptional) }
-    val nameError by derivedStateOf { contact.name.isBlank() }
-    val line1Error by derivedStateOf { contact.line1.isBlank() }
-    val codeAndCityError by derivedStateOf { contact.postalCodeAndCity.isBlank() }
-    val mailError by derivedStateOf { !isMailValid(contact.mail) }
+    val telephoneError by remember(contact, telephoneOptional) {
+        derivedStateOf { !isPhoneValid(contact.telephoneNumber, telephoneOptional) }
+    }
+    val nameError by remember(contact) { derivedStateOf { contact.name.isBlank() } }
+    val line1Error by remember(contact) { derivedStateOf { contact.line1.isBlank() } }
+    val codeAndCityError by remember(contact) { derivedStateOf { contact.postalCodeAndCity.isBlank() } }
+    val mailError by remember(contact) { derivedStateOf { !isMailValid(contact.mail) } }
 
     if (showBackAlert) {
         CommonAlertDialog(
             header = stringResource(R.string.edit_contact_back_alert_header),
             info = stringResource(R.string.edit_contact_back_alert_information),
             onCancel = { showBackAlert = false },
-            onClickAction = { navController.popBackStack() },
+            onClickAction = onBack,
             cancelText = stringResource(R.string.edit_contact_back_alert_change),
             actionText = stringResource(R.string.edit_contact_back_alert_action)
         )
@@ -115,8 +117,8 @@ fun EditShippingContactScreen(
                 Spacer(Modifier.weight(1f))
                 Button(
                     onClick = {
-                        viewModel.onSaveContact(contact)
-                        navController.popBackStack()
+                        orderState.onSaveContact(contact)
+                        onBack()
                     },
                     enabled = !telephoneError && !mailError && !nameError && !line1Error && !codeAndCityError
                 ) {
@@ -129,8 +131,8 @@ fun EditShippingContactScreen(
         listState = listState,
         onBack = {
             if (!telephoneError && !mailError && !nameError && !line1Error && !codeAndCityError) {
-                viewModel.onSaveContact(contact)
-                navController.popBackStack()
+                orderState.onSaveContact(contact)
+                onBack()
             } else {
                 showBackAlert = true
             }

@@ -531,10 +531,6 @@
     <string name="nfc_instruction_chip_location_bot_central">in the lower central area</string>
     <string name="nfc_instruction_chip_location_bot_left">in the lower left area</string>
     <string name="nfc_instruction_help_button">Help</string>
-    <string name="sent_x_min_ago">Sent %s minutes ago</string>
-    <string name="sent_on_day">Sent on %s</string>
-    <string name="sent_now">Sent just now</string>
-    <string name="sent_on_minute">Sent at %s o\'clock</string>
     <string name="prescription_status_expired">No longer valid</string>
     <string name="cdw_fasttrack_title">Log in with app</string>
     <string name="cdw_fasttrack_choose_insurance">Select insurance company</string>
@@ -661,8 +657,6 @@
     <string name="pres_detail_dropdown_delete">Delete</string>
     <string name="prescription_detail_scanned_chip">Scanned prescription</string>
     <string name="prescription_detail_aut_idem_chip">Substitute medication possible</string>
-    <string name="sent_on_to_pharmacy" formatted="false">Sent on %s at %s</string>
-    <string name="received_on_to_pharmacy" formatted="false">Redeemed on %s at %s</string>
     <string name="health_card_section_unlock_card_forgot_pin">Forgot PIN</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
         <item quantity="one">%s Recipe</item>

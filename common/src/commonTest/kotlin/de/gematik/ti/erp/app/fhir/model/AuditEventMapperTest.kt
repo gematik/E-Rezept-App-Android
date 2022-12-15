@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length")
+
 package de.gematik.ti.erp.app.fhir.model
 
 import kotlinx.serialization.json.Json

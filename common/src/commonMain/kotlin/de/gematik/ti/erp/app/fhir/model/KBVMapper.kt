@@ -580,7 +580,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedication(
             stringValue("http://fhir.de/StructureDefinition/normgroesse")
         )
         .firstOrNull()
-        ?.containedString("valueCode")
+        ?.containedStringOrNull("valueCode")
 
     val uniqueIdentifier =
         resource.contained("code").findAll("coding")

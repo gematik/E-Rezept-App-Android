@@ -59,7 +59,7 @@ sealed class AuthenticationModeAndMethod {
 }
 
 private val InactivityTimeout = Duration.ofMinutes(10)
-private val PauseTimeout = Duration.ofSeconds(10)
+private val PauseTimeout = Duration.ofSeconds(30)
 private const val ResetTimeout = -1L
 
 // tag::AuthenticationUseCase[]

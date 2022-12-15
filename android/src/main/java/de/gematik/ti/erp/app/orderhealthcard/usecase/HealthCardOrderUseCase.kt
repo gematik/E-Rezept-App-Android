@@ -40,5 +40,7 @@ class HealthCardOrderUseCase(
     }
 }
 
-fun loadHealthInsuranceContactsFromJSON(jsonInput: InputStream): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> =
+fun loadHealthInsuranceContactsFromJSON(
+    jsonInput: InputStream
+): List<HealthCardOrderUseCaseData.HealthInsuranceCompany> =
     Json.decodeFromString(jsonInput.bufferedReader().readText())

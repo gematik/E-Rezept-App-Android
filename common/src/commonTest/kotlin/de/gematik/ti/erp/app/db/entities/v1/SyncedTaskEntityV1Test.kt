@@ -54,7 +54,6 @@ class SyncedTaskEntityV1Test : TestDB() {
                     PharmacySearchEntityV1::class,
                     PasswordEntityV1::class,
                     TruststoreEntityV1::class,
-                    SafetynetAttestationEntityV1::class,
                     IdpConfigurationEntityV1::class,
                     ProfileEntityV1::class,
                     CommunicationEntityV1::class,

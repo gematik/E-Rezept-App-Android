@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length")
+
 package de.gematik.ti.erp.app.vau
 
 import de.gematik.ti.erp.app.CoroutineTestRule

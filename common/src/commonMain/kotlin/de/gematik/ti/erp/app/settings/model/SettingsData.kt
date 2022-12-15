@@ -27,10 +27,12 @@ object SettingsData {
         val latestAppVersion: AppVersion,
         val onboardingShownIn: AppVersion?,
         val welcomeDrawerShown: Boolean,
+        val mainScreenTooltipsShown: Boolean,
         val dataProtectionVersionAcceptedOn: Instant,
         val zoomEnabled: Boolean,
         val userHasAcceptedInsecureDevice: Boolean,
-        val authenticationFails: Int
+        val authenticationFails: Int,
+        val mlKitAccepted: Boolean
     )
 
     data class AppVersion(

@@ -54,6 +54,7 @@ object ProfilesData {
         val active: Boolean = false,
         val singleSignOnTokenScope: IdpData.SingleSignOnTokenScope?
     ) {
+        @Suppress("ktlint:max-line-length")
         override fun toString(): String {
             return "Profile(id='$id', color=$color, name='$name', insurantName=$insurantName, insuranceIdentifier=$insuranceIdentifier, insuranceName=$insuranceName, lastAuthenticated=$lastAuthenticated, lastAuditEventSynced=$lastAuditEventSynced, lastTaskSynced=$lastTaskSynced, active=$active, singleSignOnTokenScope=$singleSignOnTokenScope)"
         }

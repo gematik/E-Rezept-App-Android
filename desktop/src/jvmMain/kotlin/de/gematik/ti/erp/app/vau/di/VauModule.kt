@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.vau.di
 
+import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.di.ScopedRealm
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.interceptor.DefaultCryptoConfig
@@ -26,40 +28,52 @@ import de.gematik.ti.erp.app.vau.repository.VauLocalDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRemoteDataSource
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import de.gematik.ti.erp.app.vau.usecase.TrustedTruststore
-import de.gematik.ti.erp.app.vau.usecase.TrustedTruststoreProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreTimeSourceProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
-import java.time.Duration
-import java.time.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.kodein.di.DI
+import org.kodein.di.bind
 import org.kodein.di.bindInstance
-import org.kodein.di.bindSingleton
+import org.kodein.di.bindings.Scope
 import org.kodein.di.instance
+import org.kodein.di.scoped
+import org.kodein.di.singleton
+import java.time.Duration
+import java.time.Instant
 
-val vauModule = DI.Module("VAU Module") {
-    bindInstance { TruststoreConfig() }
-    bindSingleton { VauRemoteDataSource(instance()) }
-    bindSingleton { VauLocalDataSource() }
-    bindSingleton { VauRepository(instance(), instance(), instance()) }
-    bindSingleton { DefaultCryptoConfig() }
-    bindSingleton { VauChannelInterceptor(instance(), instance(), instance()) }
-    bindSingleton<TruststoreTimeSourceProvider> { { Instant.now() } }
-    bindSingleton<TrustedTruststoreProvider> {
-        { untrustedOCSPList: UntrustedOCSPList,
-            untrustedCertList: UntrustedCertList,
-            trustAnchor: X509CertificateHolder,
-            ocspResponseMaxAge: Duration,
-            timestamp: Instant ->
-            TrustedTruststore.create(
-                untrustedOCSPList = untrustedOCSPList,
-                untrustedCertList = untrustedCertList,
-                trustAnchor = trustAnchor,
-                ocspResponseMaxAge = ocspResponseMaxAge,
-                timestamp = timestamp
-            )
+fun vauModule(scope: Scope<Any?>) = DI.Module("VAU Module") {
+    bindInstance {
+        TruststoreConfig {
+            if (BuildKonfig.INTERNAL) {
+                BuildKonfig.APP_TRUST_ANCHOR_BASE64_TU
+            } else {
+                BuildKonfig.APP_TRUST_ANCHOR_BASE64_PU
+            }
         }
     }
-    bindSingleton { TruststoreUseCase(instance(), instance(), instance(), instance()) }
+    bind { scoped(scope).singleton { VauRemoteDataSource(instance()) } }
+    bind { scoped(scope).singleton { VauLocalDataSource(instance<ScopedRealm>().realm) } }
+    bind { scoped(scope).singleton { VauRepository(instance(), instance(), instance()) } }
+    bind { scoped(scope).singleton { DefaultCryptoConfig() } }
+    bind { scoped(scope).singleton { VauChannelInterceptor(instance(), instance(), instance()) } }
+    bind { scoped(scope).singleton { TruststoreUseCase(instance(), instance(), instance(), instance()) } }
+    bind { scoped(scope).singleton<Any, TruststoreTimeSourceProvider> { { Instant.now() } } }
+    bind {
+        scoped(scope).singleton {
+            { untrustedOCSPList: UntrustedOCSPList,
+                untrustedCertList: UntrustedCertList,
+                trustAnchor: X509CertificateHolder,
+                ocspResponseMaxAge: Duration,
+                timestamp: Instant ->
+                TrustedTruststore.create(
+                    untrustedOCSPList = untrustedOCSPList,
+                    untrustedCertList = untrustedCertList,
+                    trustAnchor = trustAnchor,
+                    ocspResponseMaxAge = ocspResponseMaxAge,
+                    timestamp = timestamp
+                )
+            }
+        }
+    }
 }

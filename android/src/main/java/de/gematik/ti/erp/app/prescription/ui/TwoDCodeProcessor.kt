@@ -128,7 +128,14 @@ class TwoDCodeProcessor {
             .matrixCodes
             .mapNotNull { code ->
                 code.decodeValueToString()?.let {
-                    Pair(FilteredDMCode(value = it, boundingBox = code.boundingBox!!, cornerPoints = code.cornerPoints!!), currTime)
+                    Pair(
+                        FilteredDMCode(
+                            value = it,
+                            boundingBox = code.boundingBox!!,
+                            cornerPoints = code.cornerPoints!!
+                        ),
+                        currTime
+                    )
                 }
             }
 

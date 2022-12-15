@@ -531,10 +531,6 @@
     <string name="nfc_instruction_chip_location_bot_central">Orta alt alanda</string>
     <string name="nfc_instruction_chip_location_bot_left">Sol alt alanda</string>
     <string name="nfc_instruction_help_button">Yardım</string>
-    <string name="sent_x_min_ago">%s dakika önce gönderildi</string>
-    <string name="sent_on_day">Şu saatte gönderildi: %s</string>
-    <string name="sent_now">Şu anda gönderildi</string>
-    <string name="sent_on_minute">Şu saatte gönderildi: %s</string>
     <string name="prescription_status_expired">Artık geçerli değil</string>
     <string name="cdw_fasttrack_title">Uygulama ile oturum aç</string>
     <string name="cdw_fasttrack_choose_insurance">Sigortayı seç</string>
@@ -661,8 +657,6 @@
     <string name="pres_detail_dropdown_delete">Sil</string>
     <string name="prescription_detail_scanned_chip">Taranmış reçete</string>
     <string name="prescription_detail_aut_idem_chip">Muadil mümkün</string>
-    <string name="sent_on_to_pharmacy" formatted="false">%s tarihinde %s tarihinde gönderildi</string>
-    <string name="received_on_to_pharmacy" formatted="false">%s tarihinde %s tarihinde kullanıldı</string>
     <string name="health_card_section_unlock_card_forgot_pin">PIN\'i unuttum</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
         <item quantity="one">%s Tarif</item>

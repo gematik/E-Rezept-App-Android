@@ -18,20 +18,24 @@
 
 package de.gematik.ti.erp.app.idp.di
 
+import de.gematik.ti.erp.app.cardwall.AuthenticationUseCase
 import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpBasicUseCase
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import org.kodein.di.DI
-import org.kodein.di.bindInstance
-import org.kodein.di.bindSingleton
+import org.kodein.di.bind
+import org.kodein.di.bindings.Scope
 import org.kodein.di.instance
+import org.kodein.di.scoped
+import org.kodein.di.singleton
 
-val idpModule = DI.Module("IDP Module") {
-    bindInstance { IdpLocalDataSource() }
-    bindSingleton { IdpRemoteDataSource(instance()) }
-    bindSingleton { IdpRepository(instance(), instance(), instance()) }
-    bindSingleton { IdpBasicUseCase(instance(), instance()) }
-    bindSingleton { IdpUseCase(instance(), instance()) }
+fun idpModule(scope: Scope<Any?>) = DI.Module("IDP Module") {
+    bind { scoped(scope).singleton { IdpLocalDataSource() } }
+    bind { scoped(scope).singleton { IdpRemoteDataSource(instance()) } }
+    bind { scoped(scope).singleton { IdpRepository(instance(), instance(), instance()) } }
+    bind { scoped(scope).singleton { IdpBasicUseCase(instance(), instance()) } }
+    bind { scoped(scope).singleton { IdpUseCase(instance(), instance()) } }
+    bind { scoped(scope).singleton { AuthenticationUseCase(instance()) } }
 }

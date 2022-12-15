@@ -45,9 +45,12 @@ object HealthCardOrderUseCaseData {
             !pinUrl.isNullOrEmpty() || (!bodyPinMail.isNullOrEmpty() && !subjectPinMail.isNullOrEmpty())
 
         fun hasContactInfoForHealthCardAndPin() =
-            !healthCardAndPinPhone.isNullOrEmpty() || !healthCardAndPinMail.isNullOrEmpty() || !healthCardAndPinUrl.isNullOrEmpty()
+            !healthCardAndPinPhone.isNullOrEmpty() ||
+                !healthCardAndPinMail.isNullOrEmpty() ||
+                !healthCardAndPinUrl.isNullOrEmpty()
 
-        fun hasMailContentForCardAndPin() = !subjectCardAndPinMail.isNullOrEmpty() && !bodyCardAndPinMail.isNullOrEmpty()
+        fun hasMailContentForCardAndPin() = !subjectCardAndPinMail.isNullOrEmpty() &&
+            !bodyCardAndPinMail.isNullOrEmpty()
 
         fun hasMailContentForPin() = !subjectPinMail.isNullOrEmpty() && !bodyPinMail.isNullOrEmpty()
     }

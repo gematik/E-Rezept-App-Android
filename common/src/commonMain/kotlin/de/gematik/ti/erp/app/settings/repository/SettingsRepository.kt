@@ -37,6 +37,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withContext
 
+@Suppress("TooManyFunctions")
 class SettingsRepository constructor(
     private val dispatchers: DispatchProvider,
     private val realm: Realm
@@ -64,7 +65,9 @@ class SettingsRepository constructor(
                     dataProtectionVersionAcceptedOn = it.dataProtectionVersionAccepted.toInstant(),
                     zoomEnabled = it.zoomEnabled,
                     userHasAcceptedInsecureDevice = it.userHasAcceptedInsecureDevice,
-                    authenticationFails = it.authenticationFails
+                    authenticationFails = it.authenticationFails,
+                    mainScreenTooltipsShown = it.mainScreenTooltipsShown,
+                    mlKitAccepted = it.mlKitAccepted
                 )
             }
         }.flowOn(dispatchers.IO)
@@ -84,7 +87,8 @@ class SettingsRepository constructor(
                     }
 
                     SettingsAuthenticationMethodV1.Biometrics -> SettingsData.AuthenticationMode.Biometrics
-                    SettingsAuthenticationMethodV1.DeviceCredentials -> SettingsData.AuthenticationMode.DeviceCredentials
+                    SettingsAuthenticationMethodV1.DeviceCredentials ->
+                        SettingsData.AuthenticationMode.DeviceCredentials
                     SettingsAuthenticationMethodV1.None -> SettingsData.AuthenticationMode.None
                     else -> SettingsData.AuthenticationMode.Unspecified
                 }
@@ -182,6 +186,18 @@ class SettingsRepository constructor(
     override suspend fun saveWelcomeDrawerShown() {
         writeToRealm {
             this.welcomeDrawerShown = true
+        }
+    }
+
+    override suspend fun saveMainScreenTooltipShown() {
+        writeToRealm {
+            this.mainScreenTooltipsShown = true
+        }
+    }
+
+    override suspend fun acceptMlKit() {
+        writeToRealm {
+            this.mlKitAccepted = true
         }
     }
 

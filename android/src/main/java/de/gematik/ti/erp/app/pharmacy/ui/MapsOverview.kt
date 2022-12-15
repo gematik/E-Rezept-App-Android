@@ -19,10 +19,7 @@
 package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.content.Context
-import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Point
-import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -34,11 +31,9 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -56,22 +51,18 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.OutlinedButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.SwipeableDefaults
+import androidx.compose.material.SwipeableState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.NearMe
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.MyLocation
@@ -79,10 +70,10 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -93,9 +84,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
@@ -112,19 +101,14 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
 import de.gematik.ti.erp.app.fhir.model.Location
-import de.gematik.ti.erp.app.fhir.model.OnlinePharmacyService
-import de.gematik.ti.erp.app.fhir.model.PickUpPharmacyService
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.GenerellErrorState
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.ModalBottomSheet
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
-import de.gematik.ti.erp.app.utils.compose.SecondaryButton
-import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -179,21 +163,21 @@ fun MapsOverviewSmall(
 }
 
 @Stable
-private sealed interface SheetContentState {
+sealed interface PharmacySearchSheetContentState {
 
     @Stable
-    data class PharmacySelected(val pharmacy: PharmacyUseCaseData.Pharmacy) : SheetContentState
+    data class PharmacySelected(val pharmacy: PharmacyUseCaseData.Pharmacy) : PharmacySearchSheetContentState
 
     @Stable
-    object FilterSelected : SheetContentState
+    object FilterSelected : PharmacySearchSheetContentState
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MapsOverview(
-    pharmacySearchController: PharmacySearchController,
-    hasRedeemableTasks: Boolean,
-    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption?) -> Unit,
+    searchController: PharmacySearchController,
+    orderState: PharmacyOrderState,
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
     onBack: () -> Unit
 ) {
     val context = LocalContext.current
@@ -201,14 +185,14 @@ fun MapsOverview(
 
     val cameraPositionState = rememberCameraPositionState {
         val latLng =
-            (pharmacySearchController.searchState.locationMode as? PharmacyUseCaseData.LocationMode.Enabled)?.toLatLng()
+            (searchController.searchState.locationMode as? PharmacyUseCaseData.LocationMode.Enabled)?.toLatLng()
                 ?: Berlin
         position = CameraPosition.fromLatLngZoom(latLng, DefaultZoomLevel)
     }
 
     var pharmacies by remember { mutableStateOf<List<PharmacyUseCaseData.Pharmacy>>(emptyList()) }
     LaunchedEffect(Unit) {
-        pharmacySearchController
+        searchController
             .pharmacyMapsFlow
             .collect { result ->
                 when (result) {
@@ -226,7 +210,7 @@ fun MapsOverview(
     var showSearchButton by remember { mutableStateOf(false) }
     CameraAnimation(
         cameraPositionState = cameraPositionState,
-        pharmacySearchController = pharmacySearchController,
+        pharmacySearchController = searchController,
         pharmacies = pharmacies,
         onShowSearchButton = {
             showSearchButton = true
@@ -235,77 +219,130 @@ fun MapsOverview(
 
     val scope = rememberCoroutineScope()
 
-    val sheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+    val sheetState = rememberPharmacySheetState(
+        orderState.selectedPharmacy?.let {
+            PharmacySearchSheetContentState.PharmacySelected(it)
+        }
     )
-    var sheetContentState by remember { mutableStateOf<SheetContentState>(SheetContentState.FilterSelected) }
 
-    ModalBottomSheetLayout(
-        sheetState = sheetState,
-        sheetContent = {
-            when (sheetContentState) {
-                SheetContentState.FilterSelected ->
-                    FilterSheetContent(
-                        modifier = Modifier.navigationBarsPadding(),
-                        filter = pharmacySearchController.searchState.filter,
-                        onClickChip = { filter ->
-                            scope.launch {
-                                val l = cameraPositionState.position.target
-                                val radius = SphericalUtil.computeDistanceBetween(
-                                    cameraPositionState.projection?.visibleRegion?.latLngBounds?.northeast,
-                                    cameraPositionState.projection?.visibleRegion?.latLngBounds?.southwest
-                                ) / 2.0
-                                pharmacySearchController.search(
-                                    pharmacySearchController.searchState.name,
-                                    filter.copy(nearBy = false),
-                                    Location(latitude = l.latitude, longitude = l.longitude),
-                                    radius
-                                )
-                            }
-                        },
-                        onClickClose = { scope.launch { sheetState.hide() } },
-                        showNearByFilter = false
-                    )
-
-                is SheetContentState.PharmacySelected ->
-                    PharmacySheetContent(
-                        pharmacy = (sheetContentState as SheetContentState.PharmacySelected).pharmacy,
-                        hasRedeemableTasks = hasRedeemableTasks,
-                        onClickDetails = onSelectPharmacy
-                    )
-            }
-        },
-        sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) }
-    ) {
+    Box {
         ScaffoldWithMap(
             scaffoldState = scaffoldState,
+            orderState = orderState,
             cameraPositionState = cameraPositionState,
-            pharmacySearchController = pharmacySearchController,
+            pharmacySearchController = searchController,
             pharmacies = pharmacies,
             showSearchButton = showSearchButton,
             onShowSearchButton = {
                 showSearchButton = it
             },
             onShowBottomSheet = {
-                sheetContentState = it
-                scope.launch { sheetState.animateTo(ModalBottomSheetValue.Expanded) }
+                sheetState.show(it)
             },
             onBack = onBack
         )
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            sheetContent = {
+                when (sheetState.content) {
+                    PharmacySearchSheetContentState.FilterSelected ->
+                        FilterSheetContent(
+                            modifier = Modifier.navigationBarsPadding(),
+                            filter = searchController.searchState.filter,
+                            onClickChip = { filter ->
+                                scope.launch {
+                                    val l = cameraPositionState.position.target
+                                    val radius = SphericalUtil.computeDistanceBetween(
+                                        cameraPositionState.projection?.visibleRegion?.latLngBounds?.northeast,
+                                        cameraPositionState.projection?.visibleRegion?.latLngBounds?.southwest
+                                    ) / 2.0
+                                    searchController.search(
+                                        searchController.searchState.name,
+                                        filter.copy(nearBy = false),
+                                        Location(latitude = l.latitude, longitude = l.longitude),
+                                        radius
+                                    )
+                                }
+                            },
+                            onClickClose = { scope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) } },
+                            showNearByFilter = false
+                        )
+
+                    is PharmacySearchSheetContentState.PharmacySelected ->
+                        PharmacyDetailsSheetContent(
+                            orderState = orderState,
+                            pharmacy =
+                            (sheetState.content as PharmacySearchSheetContentState.PharmacySelected).pharmacy,
+                            onClickOrder = { pharmacy, orderOption ->
+                                onSelectPharmacy(pharmacy, orderOption)
+                            }
+                        )
+                }
+            },
+            sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) }
+        )
     }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Stable
+class PharmacySheetState(
+    private val scope: CoroutineScope
+) : SwipeableState<ModalBottomSheetValue>(
+    initialValue = ModalBottomSheetValue.Hidden,
+    animationSpec = SwipeableDefaults.AnimationSpec,
+    confirmStateChange = { true }
+) {
+    var content: PharmacySearchSheetContentState by mutableStateOf(PharmacySearchSheetContentState.FilterSelected)
+        private set
+
+    fun show(content: PharmacySearchSheetContentState, snap: Boolean = false) {
+        this.content = content
+        scope.launch {
+            val state = when (content) {
+                PharmacySearchSheetContentState.FilterSelected -> ModalBottomSheetValue.Expanded
+                is PharmacySearchSheetContentState.PharmacySelected -> ModalBottomSheetValue.HalfExpanded
+            }
+            if (snap) {
+                snapTo(state)
+            } else {
+                animateTo(state)
+            }
+        }
+    }
+
+    fun hide() {
+        scope.launch {
+            animateTo(ModalBottomSheetValue.Hidden)
+        }
+    }
+}
+
+@Composable
+fun rememberPharmacySheetState(
+    content: PharmacySearchSheetContentState? = null
+): PharmacySheetState {
+    val scope = rememberCoroutineScope()
+    val state = remember {
+        PharmacySheetState(scope)
+    }
+    LaunchedEffect(content) {
+        content?.let { state.show(content, snap = true) }
+    }
+    return state
 }
 
 @Composable
 private fun ScaffoldWithMap(
     scaffoldState: ScaffoldState,
+    orderState: PharmacyOrderState,
     cameraPositionState: CameraPositionState,
     pharmacySearchController: PharmacySearchController,
     pharmacies: List<PharmacyUseCaseData.Pharmacy>,
     showSearchButton: Boolean,
     onShowSearchButton: (Boolean) -> Unit,
-    onShowBottomSheet: (SheetContentState) -> Unit,
+    onShowBottomSheet: (PharmacySearchSheetContentState) -> Unit,
     onBack: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
@@ -358,11 +395,12 @@ private fun ScaffoldWithMap(
     ) { innerPadding ->
         Box {
             FullscreenMap(
+                orderState = orderState,
                 cameraPositionState = cameraPositionState,
                 innerPadding = innerPadding,
                 pharmacies = pharmacies,
                 onClickMarker = {
-                    onShowBottomSheet(SheetContentState.PharmacySelected(it))
+                    onShowBottomSheet(PharmacySearchSheetContentState.PharmacySelected(it))
                 }
             )
 
@@ -400,10 +438,12 @@ private fun ScaffoldWithMap(
                                     PharmacySearchController.SearchQueryResult.NoLocationPermission -> {
                                         locationPermissionLauncher.launch(locationPermissions)
                                     }
+
                                     PharmacySearchController.SearchQueryResult.NoLocationFound -> {
                                         showNoLocationDialog = true
                                         onShowSearchButton(true)
                                     }
+
                                     PharmacySearchController.SearchQueryResult.NoLocationServicesEnabled -> {
                                         showNoLocationServicesDialog = true
                                         onShowSearchButton(true)
@@ -417,7 +457,7 @@ private fun ScaffoldWithMap(
                     }
                 },
                 onClickFilter = {
-                    onShowBottomSheet(SheetContentState.FilterSelected)
+                    onShowBottomSheet(PharmacySearchSheetContentState.FilterSelected)
                 },
                 onBack = onBack
             )
@@ -481,6 +521,7 @@ private fun CameraAnimation(
 
 @Composable
 private fun FullscreenMap(
+    orderState: PharmacyOrderState,
     cameraPositionState: CameraPositionState,
     innerPadding: PaddingValues,
     pharmacies: List<PharmacyUseCaseData.Pharmacy>,
@@ -488,6 +529,10 @@ private fun FullscreenMap(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    var selectedPharmacy by remember(orderState.selectedPharmacy) {
+        mutableStateOf(orderState.selectedPharmacy)
+    }
 
     GoogleMap(
         modifier = Modifier
@@ -516,11 +561,34 @@ private fun FullscreenMap(
         },
         contentPadding = WindowInsets.Companion.systemBars.asPaddingValues(),
         content = {
-            ReusableContent(pharmacies) {
+            key(pharmacies) {
                 MapsContent(
                     pharmacyMapsResult = pharmacies,
-                    onClick = onClickMarker
+                    onClick = {
+                        selectedPharmacy = it
+                        onClickMarker(it)
+                    }
                 )
+            }
+            key(selectedPharmacy) {
+                val markerIcon = remember { BitmapDescriptorFactory.fromResource(R.drawable.maps_marker_red) }
+                selectedPharmacy?.let { pharmacy ->
+                    pharmacy.location?.let { location ->
+                        val latLng = LatLng(location.latitude, location.longitude)
+                        Marker(
+                            state = rememberMarkerState(
+                                position = latLng
+                            ),
+                            onClick = {
+                                selectedPharmacy = pharmacy
+                                onClickMarker(pharmacy)
+                                false
+                            },
+                            icon = markerIcon,
+                            zIndex = 9999f
+                        )
+                    }
+                }
             }
         }
     )
@@ -532,6 +600,7 @@ private fun MapsContent(
     onClick: (PharmacyUseCaseData.Pharmacy) -> Unit
 ) {
     val markerIcon = remember { BitmapDescriptorFactory.fromResource(R.drawable.maps_marker) }
+    val markerIconGrey = remember { BitmapDescriptorFactory.fromResource(R.drawable.maps_marker_grey) }
     pharmacyMapsResult.mapNotNull { pharmacy ->
         pharmacy.location?.let { location ->
             val latLng = LatLng(location.latitude, location.longitude)
@@ -539,7 +608,7 @@ private fun MapsContent(
                 state = rememberMarkerState(
                     position = latLng
                 ),
-                icon = markerIcon,
+                icon = if (pharmacy.ready) markerIcon else markerIconGrey,
                 onClick = {
                     onClick(pharmacy)
                     false
@@ -684,141 +753,4 @@ fun locationSourceOnce(context: Context, coroutineScope: CoroutineScope) = objec
     override fun deactivate() {
         currentListener.value = null
     }
-}
-
-@Composable
-@ExperimentalMaterialApi
-private fun rememberModalBottomSheetState(
-    initialValue: ModalBottomSheetValue,
-    animationSpec: AnimationSpec<Float> = SwipeableDefaults.AnimationSpec,
-    skipHalfExpanded: Boolean,
-    confirmStateChange: (ModalBottomSheetValue) -> Boolean = { true }
-): ModalBottomSheetState {
-    return remember(
-        initialValue,
-        animationSpec,
-        skipHalfExpanded,
-        confirmStateChange
-    ) {
-        ModalBottomSheetState(
-            initialValue = initialValue,
-            animationSpec = animationSpec,
-            isSkipHalfExpanded = skipHalfExpanded,
-            confirmStateChange = confirmStateChange
-        )
-    }
-}
-
-@Composable
-private fun PharmacySheetContent(
-    pharmacy: PharmacyUseCaseData.Pharmacy?,
-    hasRedeemableTasks: Boolean,
-    onClickDetails: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption?) -> Unit
-) {
-    val context = LocalContext.current
-    val hasGoogleMaps = remember { hasGoogleMaps(context) }
-
-    Column(
-        Modifier
-            .navigationBarsPadding()
-            .padding(PaddingDefaults.Medium)
-    ) {
-        Row(
-            Modifier
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            pharmacy?.let {
-                Column(
-                    Modifier
-                        .weight(1f)
-                        .clickable(
-                            role = Role.Button,
-                            onClick = {
-                                onClickDetails(pharmacy, null)
-                            },
-                            indication = null,
-                            interactionSource = remember { MutableInteractionSource() }
-                        )
-                ) {
-                    Text(pharmacy.name, style = AppTheme.typography.h6)
-                    Text(
-                        text = stringResource(R.string.pharmacy_maps_contacts),
-                        style = AppTheme.typography.subtitle2,
-                        color = AppTheme.colors.primary600
-                    )
-                }
-                if (hasGoogleMaps) {
-                    OutlinedButton(
-                        onClick = { pharmacy.location?.let { navigateWithGoogleMaps(context, it) } },
-                        border = BorderStroke(1.dp, AppTheme.colors.neutral300),
-                        shape = RoundedCornerShape(8.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(backgroundColor = AppTheme.colors.neutral025)
-                    ) {
-                        Icon(Icons.Outlined.NearMe, null)
-                    }
-                }
-            }
-        }
-
-        SpacerLarge()
-
-        pharmacy?.let {
-            Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)) {
-                if (remember { pharmacy.provides.any { it is PickUpPharmacyService } }) {
-                    SecondaryButton(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        onClick = { onClickDetails(pharmacy, PharmacyScreenData.OrderOption.ReserveInPharmacy) },
-                        enabled = hasRedeemableTasks
-                    ) {
-                        Text(text = stringResource(R.string.pharm_detail_preorder_prescription))
-                    }
-                }
-
-                if (remember { pharmacy.provides.any { it is DeliveryPharmacyService } }) {
-                    SecondaryButton(
-                        modifier = Modifier
-                            .fillMaxWidth(),
-                        onClick = { onClickDetails(pharmacy, PharmacyScreenData.OrderOption.CourierDelivery) },
-                        enabled = hasRedeemableTasks
-                    ) {
-                        Text(text = stringResource(R.string.pharm_detail_messanger_delivered))
-                    }
-                }
-                if (remember { pharmacy.provides.any { it is OnlinePharmacyService } }) {
-                    SecondaryButton(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag(TestTag.PharmacySearch.OrderOptions.OnlineDeliveryOptionButton),
-                        onClick = { onClickDetails(pharmacy, PharmacyScreenData.OrderOption.MailDelivery) },
-                        enabled = hasRedeemableTasks
-                    ) {
-                        Text(text = stringResource(R.string.pharm_detail_mail_delivered))
-                    }
-                }
-            }
-        }
-    }
-}
-
-private fun hasGoogleMaps(context: Context): Boolean =
-    try {
-        context
-            .packageManager
-            .getPackageInfo("com.google.android.apps.maps", PackageManager.GET_ACTIVITIES)
-        true
-    } catch (_: Exception) {
-        false
-    }
-
-private fun navigateWithGoogleMaps(
-    context: Context,
-    location: Location
-) {
-    val gmmIntentUri =
-        Uri.parse("https://www.google.com/maps/dir/?api=1&destination=${location.latitude},${location.longitude}")
-    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
-    mapIntent.setPackage("com.google.android.apps.maps")
-    context.startActivity(mapIntent)
 }

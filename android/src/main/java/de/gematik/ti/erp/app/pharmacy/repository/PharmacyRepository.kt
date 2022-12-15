@@ -25,13 +25,14 @@ import de.gematik.ti.erp.app.fhir.model.PharmacyServices
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class PharmacyRepository @Inject constructor(
     private val remoteDataSource: PharmacyRemoteDataSource,
     private val localDataSource: PharmacyLocalDataSource,
-    private val dispatchProvider: DispatchProvider
+    private val dispatchers: DispatchProvider
 ) {
 
     suspend fun searchPharmacies(
@@ -60,6 +61,7 @@ class PharmacyRepository @Inject constructor(
             offset = offset,
             count = count
         ).map {
+            dispatchers
             extractPharmacyServices(
                 bundle = it,
                 onError = { element, cause ->
@@ -84,31 +86,31 @@ class PharmacyRepository @Inject constructor(
         )
 
     fun loadOftenUsedPharmacies() =
-        localDataSource.loadOftenUsedPharmacies().flowOn(dispatchProvider.IO)
+        localDataSource.loadOftenUsedPharmacies().flowOn(dispatchers.IO)
 
     fun loadFavoritePharmacies() =
-        localDataSource.loadFavoritePharmacies().flowOn(dispatchProvider.IO)
+        localDataSource.loadFavoritePharmacies().flowOn(dispatchers.IO)
 
     suspend fun saveOrUpdateOftenUsedPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        withContext(dispatchProvider.IO) {
+        withContext(dispatchers.IO) {
             localDataSource.saveOrUpdateOftenUsedPharmacy(pharmacy)
         }
     }
 
     suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
-        withContext(dispatchProvider.IO) {
+        withContext(dispatchers.IO) {
             localDataSource.deleteOverviewPharmacy(overviewPharmacy)
         }
     }
 
     suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        withContext(dispatchProvider.IO) {
+        withContext(dispatchers.IO) {
             localDataSource.saveOrUpdateFavoritePharmacy(pharmacy)
         }
     }
 
     suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) {
-        withContext(dispatchProvider.IO) {
+        withContext(dispatchers.IO) {
             localDataSource.deleteFavoritePharmacy(favoritePharmacy)
         }
     }
@@ -116,7 +118,7 @@ class PharmacyRepository @Inject constructor(
     suspend fun searchPharmacyByTelematikId(
         telematikId: String
     ): Result<PharmacyServices> =
-        withContext(dispatchProvider.IO) {
+        withContext(dispatchers.IO) {
             remoteDataSource.searchPharmacyByTelematikId(telematikId)
                 .map {
                     extractPharmacyServices(
@@ -128,7 +130,6 @@ class PharmacyRepository @Inject constructor(
                 }
         }
 
-    suspend fun isPharmacyInFavorites(telematikId: String): Boolean = withContext(dispatchProvider.IO) {
-        localDataSource.isPharmacyInFavorites(telematikId)
-    }
+    fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
+        localDataSource.isPharmacyInFavorites(pharmacy).flowOn(dispatchers.IO)
 }

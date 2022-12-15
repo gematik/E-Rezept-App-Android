@@ -395,7 +395,9 @@ class AuthenticationUseCase(
             IDPErrorCodes.InvalidHealthCardCertificate ->
                 throw AuthenticationException(AuthenticationExceptionKind.IDPCommunicationInvalidCertificate)
             IDPErrorCodes.InvalidOCSPResponseOfHealthCardCertificate ->
-                throw AuthenticationException(AuthenticationExceptionKind.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate)
+                throw AuthenticationException(
+                    AuthenticationExceptionKind.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate
+                )
             else ->
                 throw AuthenticationException(kind)
         }

@@ -74,7 +74,9 @@ fun BasicOCSPResp.checkSignatureWith(signatureCertificate: X509CertificateHolder
         BcECContentVerifierProviderBuilder(DefaultDigestAlgorithmIdentifierFinder())
             .build(signatureCertificate)
 
-    require(this.isSignatureValid(verifier)) { "OCSP response signature couldn't be validated against its signer certificate" }
+    require(this.isSignatureValid(verifier)) {
+        "OCSP response signature couldn't be validated against its signer certificate"
+    }
 }
 
 /**

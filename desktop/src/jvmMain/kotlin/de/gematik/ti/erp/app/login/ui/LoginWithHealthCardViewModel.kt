@@ -18,10 +18,10 @@
 
 package de.gematik.ti.erp.app.login.ui
 
+import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.DownloadUseCase
 import de.gematik.ti.erp.app.cardwall.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.AuthenticationUseCase
-import de.gematik.ti.erp.app.core.DispatchersProvider
 import de.gematik.ti.erp.app.nfc.model.card.NfcHealthCard
 import de.gematik.ti.erp.app.smartcard.CardFactory
 import de.gematik.ti.erp.app.smartcard.CardReader
@@ -37,7 +37,7 @@ import org.kodein.di.bindings.ScopeCloseable
 import java.util.concurrent.Executors
 
 class LoginWithHealthCardViewModel(
-    private val dispatchersProvider: DispatchersProvider,
+    private val dispatchProvider: DispatchProvider,
     private val authenticationUseCase: AuthenticationUseCase,
     private val downloadUseCase: DownloadUseCase
 ) : ScopeCloseable {
@@ -91,7 +91,7 @@ class LoginWithHealthCardViewModel(
                     emit(state)
                 }
             }
-            .flowOn(dispatchersProvider.io())
+            .flowOn(dispatchProvider.IO)
 
     override fun close() {
         executor.shutdownNow()

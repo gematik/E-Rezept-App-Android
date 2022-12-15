@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.orders.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.PharmacyCacheEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query

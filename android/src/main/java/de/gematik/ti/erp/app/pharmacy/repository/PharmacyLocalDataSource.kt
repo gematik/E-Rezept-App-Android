@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.task.FavoritePharmacyEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.OftenUsedPharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
 import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
@@ -66,7 +66,7 @@ class PharmacyLocalDataSource @Inject constructor(
 
     fun PharmacyUseCaseData.Pharmacy.toOftenUsedPharmacyEntityV1() =
         OftenUsedPharmacyEntityV1().apply {
-            this.address = this@toOftenUsedPharmacyEntityV1.removeLineBreaksFromAddress()
+            this.address = this@toOftenUsedPharmacyEntityV1.singleLineAddress()
             this.pharmacyName = this@toOftenUsedPharmacyEntityV1.name
             this.telematikId = this@toOftenUsedPharmacyEntityV1.telematikId
         }
@@ -102,15 +102,16 @@ class PharmacyLocalDataSource @Inject constructor(
         }
     }
 
-    fun isPharmacyInFavorites(telematikId: String): Boolean {
-        realm.queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", telematikId).also {
-            return it != null
-        }
-    }
+    fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
+        realm.query<FavoritePharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)
+            .asFlow()
+            .map {
+                it.list.isNotEmpty()
+            }
 
     fun PharmacyUseCaseData.Pharmacy.toFavoritePharmacyEntityV1() =
         FavoritePharmacyEntityV1().apply {
-            this.address = this@toFavoritePharmacyEntityV1.removeLineBreaksFromAddress()
+            this.address = this@toFavoritePharmacyEntityV1.singleLineAddress()
             this.pharmacyName = this@toFavoritePharmacyEntityV1.name
             this.telematikId = this@toFavoritePharmacyEntityV1.telematikId
         }

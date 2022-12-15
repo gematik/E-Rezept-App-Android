@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.repository
 
-import de.gematik.ti.erp.app.core.DispatchersProvider
+import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.fhir.FhirMapper
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -26,7 +26,7 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 
 class PrescriptionRepository(
-    private val dispatchProvider: DispatchersProvider,
+    private val dispatchProvider: DispatchProvider,
     private val localDataSource: LocalDataSource,
     private val remoteDataSource: RemoteDataSource,
     private val mapper: FhirMapper
@@ -38,7 +38,7 @@ class PrescriptionRepository(
     suspend fun download(): Result<Unit> =
         loadTasksRemote().mapCatching { taskIds ->
             supervisorScope {
-                withContext(dispatchProvider.io()) {
+                withContext(dispatchProvider.IO) {
                     taskIds.map { taskId ->
                         async { downloadTaskWithKBVBundle(taskId) }
                     } + async {

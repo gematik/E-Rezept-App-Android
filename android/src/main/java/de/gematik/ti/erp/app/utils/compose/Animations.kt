@@ -21,7 +21,6 @@ package de.gematik.ti.erp.app.utils.compose
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.ExitTransition
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
@@ -44,7 +43,6 @@ enum class NavigationMode {
     Open
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun NavigationAnimation(
     modifier: Modifier = Modifier,
@@ -74,7 +72,7 @@ fun NavHostController.navigationModeState(
     var prevNumOfEntries by rememberSaveable(this, startDestination) { mutableStateOf(-1) }
     var prevRoute by rememberSaveable(this, startDestination) { mutableStateOf<String?>(null) }
 
-    return produceState(NavigationMode.Open) {
+    return produceState(intercept?.invoke(null, startDestination) ?: NavigationMode.Open) {
         this@navigationModeState.currentBackStackEntryFlow.collect {
             val currRoute = it.destination.route
             val interceptedMode = if (intercept != null) {

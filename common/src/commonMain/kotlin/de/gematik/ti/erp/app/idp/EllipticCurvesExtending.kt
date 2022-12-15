@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length", "ktlint:argument-list-wrapping")
+
 package de.gematik.ti.erp.app.idp
 
 import de.gematik.ti.erp.app.idp.EcdsaUsingShaAlgorithmExtending.EcdsaBP256R1UsingSha256

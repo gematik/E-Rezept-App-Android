@@ -59,6 +59,7 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.toRealmList
+import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.NonDisposableHandle.parent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -474,6 +475,7 @@ class LocalDataSource(
 
     fun loadScannedTasks(profileId: ProfileIdentifier): Flow<List<ScannedTaskData.ScannedTask>> =
         realm.query<ScannedTaskEntityV1>("parent.id = $0", profileId)
+            .sort("scannedOn", Sort.DESCENDING)
             .asFlow()
             .map { scannedTasks ->
                 scannedTasks.list.map { task ->

@@ -18,11 +18,12 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.filter
@@ -102,7 +104,7 @@ class PharmacySearchController(
         private set
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val pharmacySearchFlow: Flow<PagingData<PharmacySearchUi>> =
+    val pharmacySearchFlow: Flow<PagingData<PharmacyUseCaseData.Pharmacy>> =
         searchChannelFlow
             .filterNotNull()
             .onEach {
@@ -145,8 +147,6 @@ class PharmacySearchController(
                             } else {
                                 true
                             }
-                        }.map<PharmacyUseCaseData.Pharmacy, PharmacySearchUi> {
-                            PharmacySearchUi.Pharmacy(it)
                         }
                     }.cachedIn(coroutineScope)
             }
@@ -285,10 +285,13 @@ class PharmacySearchController(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.P)
 private fun isLocationServiceEnabled(context: Context): Boolean {
     val lm = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-    return lm.isLocationEnabled
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        lm.isLocationEnabled
+    } else {
+        true
+    }
 }
 
 suspend fun queryLocation(context: Context): Location? =
@@ -336,3 +339,16 @@ fun rememberPharmacySearchController(): PharmacySearchController {
         )
     }
 }
+
+val locationPermissions = arrayOf(
+    Manifest.permission.ACCESS_FINE_LOCATION,
+    Manifest.permission.ACCESS_COARSE_LOCATION
+)
+
+private fun anyLocationPermissionGranted(context: Context) =
+    locationPermissions.any {
+        ContextCompat.checkSelfPermission(
+            context,
+            it
+        ) == PackageManager.PERMISSION_GRANTED
+    }

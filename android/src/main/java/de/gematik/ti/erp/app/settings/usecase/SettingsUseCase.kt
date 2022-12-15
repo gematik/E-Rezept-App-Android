@@ -27,13 +27,12 @@ import de.gematik.ti.erp.app.settings.PharmacySettings
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.model.SettingsData.General
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
-const val DEFAULT_PROFILE_NAME = ""
 val DATA_PROTECTION_LAST_UPDATED: Instant =
     LocalDate.parse(BuildKonfig.DATA_PROTECTION_LAST_UPDATED).atStartOfDay().toInstant(ZoneOffset.UTC)
 
@@ -59,6 +58,8 @@ class SettingsUseCase(
 
     val showOnboarding = settingsRepository.general.map { it.onboardingShownIn == null }
     val showWelcomeDrawer = settingsRepository.general.map { !it.welcomeDrawerShown }
+    val showMainScreenTooltip: Flow<Boolean> =
+        settingsRepository.general.map { !it.mainScreenTooltipsShown }
 
     var showDataTermsUpdate: Flow<Boolean> =
         settingsRepository.general.map { it.dataProtectionVersionAcceptedOn < DATA_PROTECTION_LAST_UPDATED }
@@ -77,5 +78,9 @@ class SettingsUseCase(
         sanitizedProfileName(defaultProfileName)?.also { name ->
             settingsRepository.saveOnboardingSucceededData(authenticationMode, name, now)
         }
+    }
+
+    suspend fun mainScreenTooltipsShown() {
+        settingsRepository.saveMainScreenTooltipShown()
     }
 }

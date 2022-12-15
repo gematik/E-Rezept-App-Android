@@ -20,15 +20,16 @@ package de.gematik.ti.erp.app.core
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import de.gematik.ti.erp.app.attestation.usecase.SafetynetUseCase
+import de.gematik.ti.erp.app.attestation.usecase.IntegrityUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 
 class MainViewModel(
-    safetynetUseCase: SafetynetUseCase,
+    private val integrityUseCase: IntegrityUseCase,
     private val settingsUseCase: SettingsUseCase
 ) : ViewModel() {
     val zoomEnabled = settingsUseCase.general.map { it.zoomEnabled }
@@ -52,21 +53,25 @@ class MainViewModel(
 
     var showDataTermsUpdate = settingsUseCase.showDataTermsUpdate
 
-    private var safetynetPromptShown = false
-    val showSafetynetPrompt =
-        safetynetUseCase.runSafetynetAttestation()
-            .map {
-                if (!it && !safetynetPromptShown) {
-                    safetynetPromptShown = true
-                    false
-                } else {
-                    true
-                }
-            }
+    var integrityPromptShown = false
 
+    fun checkDeviceIntegrity() = integrityUseCase.runIntegrityAttestation().map {
+        if (!it && !integrityPromptShown) {
+            integrityPromptShown = true
+            false
+        } else {
+            true
+        }
+    }
     fun onAcceptInsecureDevice() {
         viewModelScope.launch {
             settingsUseCase.acceptInsecureDevice()
+        }
+    }
+
+    fun acceptMlKit() {
+        viewModelScope.launch {
+            settingsUseCase.acceptMlKit()
         }
     }
 
@@ -80,6 +85,16 @@ class MainViewModel(
         settingsUseCase.welcomeDrawerShown()
     }
 
+    suspend fun mainScreenTooltipsShown() {
+        settingsUseCase.mainScreenTooltipsShown()
+    }
+
+    fun showMainScreenToolTips(): Flow<Boolean> = settingsUseCase.general
+        .map { !it.mainScreenTooltipsShown && it.welcomeDrawerShown }
+
     fun dataProtectionVersionAcceptedOn() =
         settingsUseCase.general.map { it.dataProtectionVersionAcceptedOn }
+
+    fun mlKitNotAccepted() =
+        settingsUseCase.general.map { !it.mlKitAccepted }
 }

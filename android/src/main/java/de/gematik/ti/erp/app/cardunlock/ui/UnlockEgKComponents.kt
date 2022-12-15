@@ -568,6 +568,7 @@ private fun NewSecretScreen(
                         .scrollOnFocus(2, lazyListState),
                     secretRange = secretRange,
                     onSecretChange = onSecretChange,
+                    isConsistent = isConsistent,
                     secret = newSecret,
                     label = stringResource(R.string.unlock_egk_choose_new_secret_label),
                     next = onNext

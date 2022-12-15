@@ -85,7 +85,9 @@ class TruststoreUseCase(
 
         val exception = withLoadedStore(timestamp) { store ->
             try {
-                requireNotNull(store.idpCertificates.find { it == idpCertificate }) { "IDP certificate could not be validated" }
+                requireNotNull(store.idpCertificates.find { it == idpCertificate }) {
+                    "IDP certificate could not be validated"
+                }
 
                 null
             } catch (e: Exception) {

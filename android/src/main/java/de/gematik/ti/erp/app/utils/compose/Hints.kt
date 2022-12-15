@@ -630,7 +630,12 @@ fun ClosableHintCardWithNoTitle() {
                 )
             },
             title = null,
-            body = { Text("Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen") },
+            body = {
+                Text(
+                    "Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer " +
+                        "Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen"
+                )
+            },
             close = { HintCloseButton(it) { } }
         )
     }
@@ -663,7 +668,12 @@ fun AnimatedHintCardPreview() {
                     )
                 },
                 title = null,
-                body = { Text("Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen") }
+                body = {
+                    Text(
+                        "Hier tippen, um sie in einer Apotheke einzulösen, Hier tippen, um sie in einer " +
+                            "Apotheke einzulösen, Hier tippen, um sie in einer Apotheke einzulösen"
+                    )
+                }
             )
         }
     }

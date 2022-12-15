@@ -24,6 +24,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlin.test.Test
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Year
 import java.time.YearMonth
@@ -77,6 +78,19 @@ class ConverterTest {
         fhirTime.forEach {
             assertIs<LocalTime>(JsonPrimitive(it).asTemporalAccessor())
         }
+    }
+
+    @Test
+    fun `convert dates to string`() {
+        assertEquals("2022-01-13T15:44:15.816Z", Instant.parse("2022-01-13T15:44:15.816+00:00").asFormattedString())
+        assertEquals("2015-02-07T11:28:17Z", Instant.parse("2015-02-07T13:28:17+02:00").asFormattedString())
+        assertEquals("2015-02-07T11:28:17", LocalDateTime.parse("2015-02-07T11:28:17").asFormattedString())
+        assertEquals("2015-02-03", LocalDate.parse("2015-02-03").asFormattedString())
+        assertEquals("2015-02", YearMonth.parse("2015-02").asFormattedString())
+        assertEquals("2015", Year.parse("2015").asFormattedString())
+        assertEquals("13:28:00", LocalTime.parse("13:28:00").asFormattedString())
+
+        assertEquals(Instant.parse("2022-01-13T15:44:15.816+00:00"), "2022-01-13T15:44:15.816Z".asTemporalAccessor())
     }
 
     @Test

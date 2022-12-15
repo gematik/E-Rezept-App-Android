@@ -759,11 +759,11 @@
     "bodyPinMail": null
   },
   {
-    "name": "Daimler BKK",
+    "name": "Mercedes-Benz BKK",
     "healthCardAndPinPhone": null,
     "healthCardAndPinMail": null,
-    "healthCardAndPinUrl": "https://www.daimler-bkk.com/service/erezept",
-    "pinUrl": "https://www.daimler-bkk.com/service/erezept",
+    "healthCardAndPinUrl": "https://www.mercedes-benz-bkk.com/service/erezept",
+    "pinUrl": "https://www.mercedes-benz-bkk.com/service/erezept",
     "subjectCardAndPinMail": null,
     "bodyCardAndPinMail": null,
     "subjectPinMail": null,

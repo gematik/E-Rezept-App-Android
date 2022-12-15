@@ -61,10 +61,12 @@ object PharmacyUseCaseData {
     ) {
 
         @Stable
-        fun removeLineBreaksFromAddress(): String {
-            if (address.isNullOrEmpty()) return ""
-            return address.replace("\n", ", ")
-        }
+        fun singleLineAddress(): String =
+            if (address.isNullOrEmpty()) {
+                ""
+            } else {
+                address.replace("\n", ", ")
+            }
     }
 
     sealed class LocationMode {
@@ -97,7 +99,7 @@ object PharmacyUseCaseData {
         val taskId: String,
         val accessCode: String,
         val title: String?,
-        val scannedOn: Instant? = null,
+        val timestamp: Instant,
         val substitutionsAllowed: Boolean
     )
 
@@ -141,11 +143,30 @@ object PharmacyUseCaseData {
 
         @Stable
         fun addressIsMissing() = name.isBlank() || line1.isBlank() || postalCodeAndCity.isBlank()
+
+        companion object {
+            val Empty = ShippingContact(
+                name = "",
+                line1 = "",
+                line2 = "",
+                postalCodeAndCity = "",
+                telephoneNumber = "",
+                mail = "",
+                deliveryInformation = ""
+            )
+        }
     }
 
     @Immutable
     data class OrderState(
         val prescriptions: List<PrescriptionOrder>,
         val contact: ShippingContact
-    )
+    ) {
+        companion object {
+            val Empty = OrderState(
+                prescriptions = emptyList(),
+                contact = ShippingContact.Empty
+            )
+        }
+    }
 }

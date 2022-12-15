@@ -35,11 +35,11 @@ class ShippingContactRepository(
     private val realm: Realm
 ) {
     fun shippingContact(): Flow<PharmacyData.ShippingContact?> =
-        realm.query<SettingsEntityV1>()
+        realm.query<ShippingContactEntityV1>()
             .first()
             .asFlow()
             .map {
-                it.obj?.shippingContact?.toShippingContact()
+                it.obj?.toShippingContact()
             }
             .flowOn(dispatchers.IO)
 

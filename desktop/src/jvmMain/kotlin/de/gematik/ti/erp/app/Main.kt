@@ -65,12 +65,11 @@ import androidx.compose.ui.window.MenuBar
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowState
 import androidx.compose.ui.window.singleWindowApplication
-import de.gematik.ti.erp.app.cardwall.AuthenticationUseCase
 import de.gematik.ti.erp.app.common.App
 import de.gematik.ti.erp.app.common.SpacerTiny
 import de.gematik.ti.erp.app.common.theme.DesktopAppTheme
 import de.gematik.ti.erp.app.communication.di.communicationModule
-import de.gematik.ti.erp.app.core.DispatchersProvider
+import de.gematik.ti.erp.app.di.realmModule
 import de.gematik.ti.erp.app.fhir.FhirMapper
 import de.gematik.ti.erp.app.idp.di.idpModule
 import de.gematik.ti.erp.app.main.ui.MainNavigation
@@ -80,14 +79,12 @@ import de.gematik.ti.erp.app.navigation.ui.rememberNavigation
 import de.gematik.ti.erp.app.network.di.networkModule
 import de.gematik.ti.erp.app.prescription.di.prescriptionModule
 import de.gematik.ti.erp.app.protocol.di.protocolModule
+import de.gematik.ti.erp.app.utils.cleanupDbFiles
 import de.gematik.ti.erp.app.vau.di.vauModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.awt.event.MouseWheelListener
-import javax.swing.UIManager
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import org.kodein.di.DI
@@ -100,11 +97,13 @@ import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 import org.kodein.di.scoped
 import org.kodein.di.singleton
+import java.awt.event.MouseWheelListener
 import java.util.logging.ConsoleHandler
 import java.util.logging.Handler
 import java.util.logging.Level
 import java.util.logging.LogRecord
 import java.util.logging.SimpleFormatter
+import javax.swing.UIManager
 
 val BCProvider = BouncyCastleProvider()
 
@@ -148,12 +147,7 @@ class LogHandler : Handler() {
 }
 
 val di = DI {
-    import(vauModule)
-    import(idpModule)
-    import(networkModule)
-
-    bindSingleton { object : DispatchersProvider {} }
-    bindSingleton { AuthenticationUseCase(instance()) }
+    bindSingleton { object : DispatchProvider {} }
 }
 
 fun main() {
@@ -189,6 +183,8 @@ fun main() {
     ) {
         val systemScale = LocalDensity.current.density
         val zoomRange = (systemScale / 1.5f)..(systemScale * 1.5f)
+        cleanupDbFiles().start()
+        Runtime.getRuntime().addShutdownHook(cleanupDbFiles())
 
         App {
             MenuBar {
@@ -221,6 +217,8 @@ fun main() {
                 val resourceScope = rememberScope()
 
                 subDI(diBuilder = {
+                    import(vauModule(resourceScope))
+                    import(networkModule)
                     bind { scoped(resourceScope).singleton { FhirMapper(instance(), instance()) } }
                     importAll(prescriptionModule(resourceScope))
                     importAll(communicationModule(resourceScope))
@@ -233,6 +231,8 @@ fun main() {
                             defaultDarkMode = systemDarkMode
                         )
                     }
+                    import(realmModule(resourceScope))
+                    import(idpModule(resourceScope))
                 }) {
                     val navigation = rememberNavigation(MainNavigation.Welcome)
 
@@ -247,7 +247,6 @@ fun main() {
                         mainViewModel.logout.collect {
                             // close the scope manually
                             resourceScope.close()
-
                             navigation.navigate(MainNavigation.Welcome, clearBackStack = true)
                         }
                     }
@@ -274,7 +273,10 @@ fun main() {
                                         MainScreen(mainViewModel, navigation)
 
                                         var showLoggingWindow by remember { mutableStateOf(false) }
-                                        Row(modifier = Modifier.padding(8.dp).align(Alignment.BottomEnd), verticalAlignment = Alignment.CenterVertically) {
+                                        Row(
+                                            modifier = Modifier.padding(8.dp).align(Alignment.BottomEnd),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
                                             Text(BuildKonfig.BUILD_FLAVOR, style = MaterialTheme.typography.caption)
                                             SpacerTiny()
                                             IconButton(

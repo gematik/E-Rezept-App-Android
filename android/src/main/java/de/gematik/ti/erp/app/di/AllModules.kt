@@ -23,17 +23,18 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.analytics.Analytics
-import de.gematik.ti.erp.app.attestation.attestationModule
+import de.gematik.ti.erp.app.attestation.usecase.integrityModule
 import de.gematik.ti.erp.app.cardunlock.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.idp.idpModule
-import de.gematik.ti.erp.app.orders.messagesModule
 import de.gematik.ti.erp.app.orderhealthcard.orderHealthCardModule
+import de.gematik.ti.erp.app.orders.messagesModule
 import de.gematik.ti.erp.app.pharmacy.pharmacyModule
 import de.gematik.ti.erp.app.prescription.prescriptionModule
 import de.gematik.ti.erp.app.profiles.profilesModule
 import de.gematik.ti.erp.app.protocol.protocolModule
+import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.vau.vauModule
 import org.kodein.di.DI
@@ -80,14 +81,15 @@ val allModules = DI.Module("allModules") {
     bindSingleton { Analytics(instance()) }
 
     importAll(
-        attestationModule,
         cardWallModule,
+        integrityModule,
         networkModule,
         realmModule,
         idpModule,
         messagesModule,
         orderHealthCardModule,
         pharmacyModule,
+        redeemModule,
         prescriptionModule,
         profilesModule,
         protocolModule,

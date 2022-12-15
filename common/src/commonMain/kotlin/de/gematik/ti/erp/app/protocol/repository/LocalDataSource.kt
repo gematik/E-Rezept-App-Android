@@ -92,7 +92,8 @@ class AuditEventLocalDataSource(
         override fun getRefreshKey(state: PagingState<AuditPagingKey, AuditEventData.AuditEvent>): AuditPagingKey? =
             null
 
-        override suspend fun load(params: LoadParams<AuditPagingKey>): LoadResult<AuditPagingKey, AuditEventData.AuditEvent> {
+        override suspend fun load(params: LoadParams<AuditPagingKey>):
+            LoadResult<AuditPagingKey, AuditEventData.AuditEvent> {
             val count = params.loadSize
             val key = params.key ?: AuditPagingKey(0)
 

@@ -99,7 +99,11 @@ fun BottomSheetAction(
         Column {
             CompositionLocalProvider(
                 LocalTextStyle provides AppTheme.typography.subtitle1,
-                LocalContentColor provides if (titleColor == Color.Unspecified) LocalContentColor.current else titleColor
+                LocalContentColor provides if (titleColor == Color.Unspecified) {
+                    LocalContentColor.current
+                } else {
+                    titleColor
+                }
             ) {
                 title()
             }

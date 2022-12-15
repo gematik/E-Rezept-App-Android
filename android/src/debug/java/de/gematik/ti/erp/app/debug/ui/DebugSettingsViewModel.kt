@@ -151,14 +151,6 @@ class DebugSettingsViewModel(
                 pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 pharmacyServiceActive = true
             )
-            Environment.DEVRU -> debugSettingsData.copy(
-                eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_RU_DEV,
-                eRezeptActive = true,
-                idpUrl = BuildKonfig.IDP_SERVICE_URI_RU_DEV,
-                idpActive = true,
-                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
-                pharmacyServiceActive = true
-            )
             Environment.TR -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_TR,
                 eRezeptActive = true,

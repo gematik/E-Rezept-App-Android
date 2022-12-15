@@ -43,11 +43,17 @@ class EncryptedPinFormat2(pin: String) {
     init {
         val intPin = pin.map { it.code - STRING_INT_OFFSET }
 
-        require(intPin.size >= MIN_PIN_LEN) { "PIN length is too short, min length is " + MIN_PIN_LEN + ", but was " + intPin.size }
-        require(intPin.size <= MAX_PIN_LEN) { "PIN length is too long, max length is " + MAX_PIN_LEN + ", but was " + intPin.size }
+        require(intPin.size >= MIN_PIN_LEN) {
+            "PIN length is too short, min length is " + MIN_PIN_LEN + ", but was " + intPin.size
+        }
+        require(intPin.size <= MAX_PIN_LEN) {
+            "PIN length is too long, max length is " + MAX_PIN_LEN + ", but was " + intPin.size
+        }
 
         intPin.forEach {
-            require(it in MIN_DIGIT..MAX_DIGIT) { "PIN digit value is out of range of a decimal digit: ${(it + STRING_INT_OFFSET).toChar()}" }
+            require(it in MIN_DIGIT..MAX_DIGIT) {
+                "PIN digit value is out of range of a decimal digit: ${(it + STRING_INT_OFFSET).toChar()}"
+            }
         }
 
         val format2 = IntArray(FORMAT2_PIN_SIZE) // specSpec_COS#N008.100

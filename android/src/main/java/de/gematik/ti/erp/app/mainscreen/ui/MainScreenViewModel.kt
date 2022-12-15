@@ -18,42 +18,37 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
-import androidx.lifecycle.viewModelScope
-import de.gematik.ti.erp.app.DispatchProvider
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.filterNotNull
 
-/**
- * Event used to indicate an action that should be visible to the user on main screen.
- */
-sealed class ActionEvent {
-    data class ReturnFromPharmacyOrder(val successfullyOrdered: PharmacyScreenData.OrderOption) : ActionEvent()
-}
-
+// TODO: transform to controller like class
 class MainScreenViewModel(
-    private val messageUseCase: OrderUseCase,
-    private val dispatchers: DispatchProvider
+    private val messageUseCase: OrderUseCase
 ) : ViewModel() {
+
+    enum class OrderedEvent {
+        Success,
+        Error
+    }
 
     private val _onRefreshEvent = MutableSharedFlow<PrescriptionServiceState>()
     val onRefreshEvent: Flow<PrescriptionServiceState>
         get() = _onRefreshEvent
 
-    private val _onSuccessFullyOrderedEvent = MutableStateFlow<ActionEvent?>(null)
-    val successFullyOrderedEvent: Flow<ActionEvent>
-        get() = _onSuccessFullyOrderedEvent.filterNotNull()
+    var orderedEvent: OrderedEvent? by mutableStateOf(null)
+        private set
 
-    fun resetSuccessFullyOrderedEvent() {
-        _onSuccessFullyOrderedEvent.value = null
+    fun resetOrderedEvent() {
+        orderedEvent = null
     }
+
     fun unreadMessagesAvailable(profileIdentifier: ProfileIdentifier) =
         messageUseCase.unreadCommunicationsAvailable(profileIdentifier)
 
@@ -61,9 +56,7 @@ class MainScreenViewModel(
         _onRefreshEvent.emit(event)
     }
 
-    fun onSuccessfullyOrdered(event: ActionEvent) {
-        viewModelScope.launch(dispatchers.Default) {
-            _onSuccessFullyOrderedEvent.emit(event)
-        }
+    fun onOrdered(hasError: Boolean) {
+        orderedEvent = if (hasError) OrderedEvent.Error else OrderedEvent.Success
     }
 }

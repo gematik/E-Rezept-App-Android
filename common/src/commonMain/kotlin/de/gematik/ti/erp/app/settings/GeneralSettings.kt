@@ -42,4 +42,6 @@ interface GeneralSettings {
     suspend fun incrementNumberOfAuthenticationFailures()
     suspend fun resetNumberOfAuthenticationFailures()
     suspend fun saveWelcomeDrawerShown()
+    suspend fun saveMainScreenTooltipShown()
+    suspend fun acceptMlKit()
 }

@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
+import de.gematik.ti.erp.app.core.AppScopedCache
 import de.gematik.ti.erp.app.di.allModules
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import io.github.aakira.napier.DebugAntilog
@@ -59,6 +60,8 @@ class App : Application(), DIAware {
 
     companion object {
         lateinit var appContext: Context
+
+        val cache = AppScopedCache()
     }
 }
 

@@ -83,6 +83,7 @@ class SettingsRepositoryTest : TestDB() {
     fun `general settings`() = runTest {
         repo.general.first().also {
             assertEquals(false, it.zoomEnabled)
+            assertEquals(false, it.mlKitAccepted)
             assertEquals(false, it.userHasAcceptedInsecureDevice)
             assertEquals(
                 LocalDateTime.of(2021, 10, 15, 0, 0).toInstant(ZoneOffset.UTC),
@@ -99,16 +100,17 @@ class SettingsRepositoryTest : TestDB() {
         repo.incrementNumberOfAuthenticationFailures()
 
         repo.saveZoomPreference(true)
+        repo.acceptMlKit()
 
         repo.general.first().also {
             assertEquals(true, it.zoomEnabled)
+            assertEquals(true, it.mlKitAccepted)
             assertEquals(true, it.userHasAcceptedInsecureDevice)
             assertEquals(Instant.ofEpochSecond(123456), it.dataProtectionVersionAcceptedOn)
             assertEquals(2, it.authenticationFails)
         }
 
         repo.resetNumberOfAuthenticationFailures()
-
         repo.general.first().also {
             assertEquals(true, it.zoomEnabled)
             assertEquals(true, it.userHasAcceptedInsecureDevice)

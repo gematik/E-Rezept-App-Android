@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,12 +36,8 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.DragHandle
-import androidx.compose.material.icons.rounded.QrCode
-import androidx.compose.material.icons.rounded.ShoppingBag
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -54,24 +49,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.AvatarPicker
 import de.gematik.ti.erp.app.profiles.ui.ColorPicker
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
@@ -82,31 +67,15 @@ import de.gematik.ti.erp.app.settings.ui.SettingsScreen
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.sanitizeProfileName
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberViewModel
 
 @Stable
 sealed class MainScreenBottomSheetContentState {
-    @Stable
-    object Redeem : MainScreenBottomSheetContentState()
-
     @Stable
     object EditProfile : MainScreenBottomSheetContentState()
 
@@ -124,7 +93,6 @@ fun MainScreenBottomSheetContentState(
     settingsViewModel: SettingsViewModel,
     profileSettingsViewModel: ProfileSettingsViewModel,
     infoContentState: MainScreenBottomSheetContentState?,
-    redeemState: RedeemState,
     mainNavController: NavController,
     profileToRename: ProfilesUseCaseData.Profile,
     onCancel: () -> Unit
@@ -165,22 +133,6 @@ fun MainScreenBottomSheetContentState(
         ) {
             infoContentState?.let {
                 when (it) {
-                    MainScreenBottomSheetContentState.Redeem ->
-                        RedeemSheetContent(
-                            redeemState = redeemState,
-                            onClickLocalRedeem = { taskIds ->
-                                mainNavController.navigate(
-                                    MainNavigationScreens.RedeemLocally.path(
-                                        TaskIds(taskIds)
-                                    )
-                                )
-                            },
-                            onClickOnlineRedeem = {
-                                mainNavController.navigate(
-                                    MainNavigationScreens.Pharmacies.path()
-                                )
-                            }
-                        )
                     MainScreenBottomSheetContentState.EditProfile ->
                         EditProfileAvatar(
                             profile = profileHandler.activeProfile,
@@ -256,7 +208,7 @@ fun ProfileSheetContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         OutlinedTextField(
-            modifier = Modifier.testTag(TestTag.Settings.AddProfileDialog.ProfileNameTextField),
+            modifier = Modifier.testTag(TestTag.Main.MainScreenBottomSheet.ProfileNameField),
             shape = RoundedCornerShape(8.dp),
             value = textValue,
             singleLine = true,
@@ -290,7 +242,7 @@ fun ProfileSheetContent(
         }
         SpacerLarge()
         PrimaryButton(
-            modifier = Modifier.testTag(TestTag.Settings.AddProfileDialog.ConfirmButton),
+            modifier = Modifier.testTag(TestTag.Main.MainScreenBottomSheet.SaveProfileNameButton),
             enabled = !duplicated && textValue.isNotEmpty(),
             onClick = {
                 onEdit()
@@ -374,7 +326,7 @@ private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -
         PrimaryButtonLarge(
             modifier = Modifier
                 .fillMaxWidth()
-                .testTag(TestTag.MainScreenBottomSheet.ConnectButton),
+                .testTag(TestTag.Main.MainScreenBottomSheet.LoginButton),
             onClick = onClickConnect,
             colors = ButtonDefaults.buttonColors(
                 backgroundColor = AppTheme.colors.primary100,
@@ -390,7 +342,7 @@ private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -
             onClick = onCancel,
             modifier = Modifier
                 .fillMaxSize()
-                .testTag(TestTag.MainScreenBottomSheet.ConnectLaterButton),
+                .testTag(TestTag.Main.MainScreenBottomSheet.ConnectLaterButton),
             contentPadding = PaddingValues(
                 vertical = 13.dp
             )
@@ -400,194 +352,4 @@ private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -
             )
         }
     }
-}
-
-interface RedeemStateBridge {
-    fun scannedTasks(profileIdentifier: ProfileIdentifier): Flow<List<ScannedTaskData.ScannedTask>>
-    fun syncedTasks(profileIdentifier: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>>
-    fun allowRedeemWithoutTiFeatureEnabled(): Flow<Boolean>
-}
-
-class RedeemStateViewModel(
-    private val prescriptionUseCase: PrescriptionUseCase,
-    private val toggleManager: FeatureToggleManager
-) : ViewModel(), RedeemStateBridge {
-
-    override fun scannedTasks(profileIdentifier: ProfileIdentifier) =
-        prescriptionUseCase.scannedTasks(profileIdentifier)
-            .shareIn(viewModelScope, SharingStarted.Eagerly)
-
-    override fun syncedTasks(profileIdentifier: ProfileIdentifier) =
-        prescriptionUseCase.syncedTasks(profileIdentifier)
-            .shareIn(viewModelScope, SharingStarted.Eagerly)
-
-    override fun allowRedeemWithoutTiFeatureEnabled() =
-        toggleManager.isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName)
-}
-
-@Stable
-class RedeemState(
-    private val redeemStateBridge: RedeemStateBridge
-) {
-    @Stable
-    private class InternalState(
-        val onPremiseRedeemableTaskIds: List<String>,
-        val onlineRedeemableTaskIds: List<String>,
-        val redeemedMedicationNames: List<String>
-    )
-
-    private val timeTrigger = MutableSharedFlow<Unit>()
-
-    private var internalState by mutableStateOf(InternalState(emptyList(), emptyList(), emptyList()))
-
-    val localTaskIds by derivedStateOf { internalState.onPremiseRedeemableTaskIds }
-
-    val onlineTaskIds by derivedStateOf { internalState.onlineRedeemableTaskIds }
-
-    val alreadyRedeemedMedications by derivedStateOf { internalState.redeemedMedicationNames }
-
-    val hasRedeemableTasks by derivedStateOf { onlineTaskIds.isNotEmpty() || localTaskIds.isNotEmpty() }
-
-    suspend fun produceState(profileIdentifier: ProfileIdentifier) = coroutineScope {
-        launch {
-            while (true) {
-                delay(timeMillis = 60_000L)
-                timeTrigger.emit(Unit)
-            }
-        }
-        combine(
-            redeemStateBridge.allowRedeemWithoutTiFeatureEnabled(),
-            redeemStateBridge.scannedTasks(profileIdentifier),
-            redeemStateBridge.syncedTasks(profileIdentifier),
-            timeTrigger.onStart { emit(Unit) }
-        ) { allowWithout, scannedTasks, syncedTasks, _ ->
-            val redeemableSyncedTasks = syncedTasks
-                .asSequence()
-                .filter {
-                    it.redeemState().isRedeemable()
-                }
-
-            val alreadyRedeemedSyncedTasks = syncedTasks
-                .asSequence()
-                .filter {
-                    it.redeemState() == SyncedTaskData.SyncedTask.RedeemState.RedeemableAfterDelta
-                }
-                .map {
-                    it.medicationRequestMedicationName() ?: ""
-                }
-                .take(2) // we only require at least two
-
-            val allRedeemableTasks =
-                scannedTasks.filter { it.isRedeemable() }.map { it.taskId } + redeemableSyncedTasks.map { it.taskId }
-
-            InternalState(
-                onPremiseRedeemableTaskIds = allRedeemableTasks,
-                onlineRedeemableTaskIds = if (allowWithout) {
-                    allRedeemableTasks
-                } else {
-                    redeemableSyncedTasks.map { it.taskId }.toList()
-                },
-                redeemedMedicationNames = alreadyRedeemedSyncedTasks.toList()
-            )
-        }.collect {
-            internalState = it
-        }
-    }
-}
-
-@Composable
-fun rememberRedeemState(profile: ProfilesUseCaseData.Profile): RedeemState {
-    val redeemStateViewModel by rememberViewModel<RedeemStateViewModel>()
-    val state = remember { RedeemState(redeemStateViewModel) }
-    LaunchedEffect(profile.id) {
-        state.produceState(profile.id)
-    }
-    return state
-}
-
-@Composable
-private fun RedeemSheetContent(
-    redeemState: RedeemState,
-    onClickLocalRedeem: (taskIds: List<String>) -> Unit,
-    onClickOnlineRedeem: (taskIds: List<String>) -> Unit
-) {
-    val onlineRedeemButtonEnabled by derivedStateOf {
-        redeemState.onlineTaskIds.isNotEmpty()
-    }
-
-    val shouldShowAlreadySentDialog by derivedStateOf {
-        redeemState.alreadyRedeemedMedications.isNotEmpty()
-    }
-
-    var showAlreadySentDialog by remember { mutableStateOf(false) }
-
-    if (showAlreadySentDialog) {
-        SendTasksAgainDialog(
-            redeemedMedicationNames = redeemState.alreadyRedeemedMedications,
-            onSendAgain = {
-                onClickOnlineRedeem(redeemState.onlineTaskIds)
-                showAlreadySentDialog = false
-            },
-            onCancel = {
-                showAlreadySentDialog = false
-            }
-        )
-    }
-
-    Column {
-        BottomSheetAction(
-            icon = Icons.Rounded.QrCode,
-            title = stringResource(R.string.dialog_redeem_headline),
-            info = stringResource(R.string.dialog_redeem_info),
-            modifier = Modifier.testTag("main/redeemInLocalPharmacyButton")
-        ) {
-            onClickLocalRedeem(redeemState.localTaskIds)
-        }
-
-        BottomSheetAction(
-            enabled = onlineRedeemButtonEnabled,
-            icon = Icons.Rounded.ShoppingBag,
-            title = stringResource(R.string.dialog_order_headline),
-            info = stringResource(R.string.dialog_order_info),
-            modifier = Modifier.testTag("main/redeemRemoteButton")
-        ) {
-            if (shouldShowAlreadySentDialog) {
-                showAlreadySentDialog = true
-            } else {
-                onClickOnlineRedeem(redeemState.onlineTaskIds)
-            }
-        }
-
-        Box(Modifier.navigationBarsPadding())
-    }
-}
-
-@Composable
-private fun SendTasksAgainDialog(
-    redeemedMedicationNames: List<String>,
-    onSendAgain: () -> Unit,
-    onCancel: () -> Unit
-) {
-    val medication = remember(redeemedMedicationNames) { redeemedMedicationNames.first() }
-
-    val taskAlreadySentInfo = buildAnnotatedString {
-        append(
-            annotatedPluralsResource(
-                R.plurals.task_already_sent_info,
-                redeemedMedicationNames.size,
-                AnnotatedString(medication)
-            )
-        )
-        append("\n\n")
-        append(stringResource(R.string.task_already_sent_sub_info))
-    }
-
-    CommonAlertDialog(
-        header = AnnotatedString(stringResource(R.string.task_already_sent_header)),
-        info = taskAlreadySentInfo,
-        cancelText = stringResource(R.string.cancel_sent_task_again),
-        actionText = stringResource(R.string.sent_task_again),
-        onCancel = onCancel,
-        onClickAction = onSendAgain
-    )
 }

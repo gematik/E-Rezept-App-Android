@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length", "ktlint:argument-list-wrapping")
+
 package de.gematik.ti.erp.app.vau
 
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList

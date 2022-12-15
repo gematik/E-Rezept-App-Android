@@ -658,7 +658,9 @@ private fun VirtualHealthCard(modifier: Modifier = Modifier, viewModel: DebugSet
         )
 
         val subjectInfo =
-            remember(viewModel.debugSettingsData.virtualHealthCardCert) { viewModel.getVirtualHealthCardCertificateSubjectInfo() }
+            remember(viewModel.debugSettingsData.virtualHealthCardCert) {
+                viewModel.getVirtualHealthCardCertificateSubjectInfo()
+            }
         Text(subjectInfo, style = AppTheme.typography.caption1l)
 
         OutlinedTextField(

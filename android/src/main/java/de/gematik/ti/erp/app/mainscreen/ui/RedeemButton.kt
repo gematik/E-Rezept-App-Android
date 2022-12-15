@@ -18,11 +18,6 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.scaleIn
-import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExtendedFloatingActionButton
@@ -31,28 +26,47 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Upload
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.redeem.ui.rememberRedeemController
+import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun RedeemFloatingActionButton(
-    visible: Boolean,
     onClick: () -> Unit
 ) {
-    AnimatedVisibility(
-        visible = visible,
-        enter = scaleIn(),
-        exit = scaleOut(spring())
-    ) {
-        ExtendedFloatingActionButton(
-            modifier = Modifier.heightIn(min = 56.dp),
-            text = { Text(stringResource(R.string.main_redeem_button)) },
-            shape = RoundedCornerShape(16.dp),
-            icon = { Icon(Icons.Rounded.Upload, null) },
-            onClick = onClick
+    val redeemState = rememberRedeemController()
+    val hasRedeemableTasks by redeemState.hasRedeemableTasks
+
+    var showNoRedeemableDialog by remember { mutableStateOf(false) }
+    if (showNoRedeemableDialog) {
+        AcceptDialog(
+            header = stringResource(R.string.main_redeem_no_rx_title),
+            info = stringResource(R.string.main_redeem_no_rx_desc),
+            acceptText = stringResource(R.string.ok),
+            onClickAccept = {
+                showNoRedeemableDialog = false
+            }
         )
     }
+
+    ExtendedFloatingActionButton(
+        modifier = Modifier.heightIn(min = 56.dp),
+        text = { Text(stringResource(R.string.main_redeem_button)) },
+        shape = RoundedCornerShape(16.dp),
+        icon = { Icon(Icons.Rounded.Upload, null) },
+        onClick = {
+            if (hasRedeemableTasks) {
+                onClick()
+            } else {
+                showNoRedeemableDialog = true
+            }
+        }
+    )
 }

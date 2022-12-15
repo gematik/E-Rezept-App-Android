@@ -27,7 +27,9 @@ class Version2Test {
     @Test
     fun fromArray() {
         val version2: HealthCardVersion2 =
-            HealthCardVersion2.of(Hex.decode("EF2BC003020000C103040302C21045474B47322020202020202020010304C403010000C503020000C703010000"))
+            HealthCardVersion2.of(
+                Hex.decode("EF2BC003020000C103040302C21045474B47322020202020202020010304C403010000C503020000C703010000")
+            )
         Assert.assertArrayEquals(
             Hex.decode("020000"),
             version2.fillingInstructionsEfAtrVersion

@@ -72,15 +72,12 @@ import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
-import de.gematik.ti.erp.app.mainscreen.ui.RedeemStateViewModel
 import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardOrderViewModel
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacySearchViewModel
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsViewModel
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionViewModel
 import de.gematik.ti.erp.app.prescription.ui.ScanPrescriptionViewModel
 import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
 import de.gematik.ti.erp.app.profiles.ui.ProfileViewModel
-import de.gematik.ti.erp.app.redeem.ui.RedeemViewModel
 import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.apicheck.usecase.CheckVersionUseCase
@@ -127,7 +124,6 @@ class MainActivity : AppCompatActivity(), DIAware {
         bindProvider { CardWallNfcPositionViewModel(instance()) }
         bindProvider { CardWallViewModel(instance(), instance(), instance()) }
         bindProvider { ExternalAuthenticatorListViewModel(instance(), instance()) }
-        bindProvider { RedeemStateViewModel(instance(), instance()) }
         bindProvider { HealthCardOrderViewModel(instance()) }
         bindProvider { PrescriptionDetailsViewModel(instance(), instance()) }
         bindProvider { PrescriptionViewModel(instance(), instance(), instance()) }
@@ -143,9 +139,7 @@ class MainActivity : AppCompatActivity(), DIAware {
         }
         bindProvider { ProfileViewModel(instance()) }
         bindProvider { ProfileSettingsViewModel(instance(), instance()) }
-        bindProvider { RedeemViewModel(instance(), instance(), instance()) }
         bindProvider { UserAuthenticationViewModel(instance()) }
-        bindProvider { PharmacySearchViewModel(instance(), instance(), instance(), instance()) }
         bindProvider { PharmacyOverviewViewModel(instance()) }
 
         bindSingleton {
@@ -159,7 +153,7 @@ class MainActivity : AppCompatActivity(), DIAware {
             )
         }
         bindSingleton { MainViewModel(instance(), instance()) }
-        bindSingleton { MainScreenViewModel(instance(), instance()) }
+        bindSingleton { MainScreenViewModel(instance()) }
 
         bindProvider { CheckVersionUseCase(instance(), instance()) }
 

@@ -36,36 +36,41 @@ class ProtocolUseCase(
 
     inner class PharmacyPagingSource : PagingSource<AuditPagingKey, ProtocolUseCaseData.ProtocolEntry>() {
 
-        override fun getRefreshKey(state: PagingState<AuditPagingKey, ProtocolUseCaseData.ProtocolEntry>): AuditPagingKey? =
-            null
+        override fun getRefreshKey(
+            state: PagingState<AuditPagingKey, ProtocolUseCaseData.ProtocolEntry>
+        ): AuditPagingKey? = null
 
-        override suspend fun load(params: LoadParams<AuditPagingKey>): LoadResult<AuditPagingKey, ProtocolUseCaseData.ProtocolEntry> {
+        override suspend fun load(params: LoadParams<AuditPagingKey>):
+            LoadResult<AuditPagingKey, ProtocolUseCaseData.ProtocolEntry> {
             val count = params.loadSize
             val key = params.key ?: AuditPagingKey(0)
 
             val resultSearchBundle =
                 repository.downloadAuditEvents(offset = key.offset, count = count)
 
-            return resultSearchBundle.fold(onSuccess = { events ->
-                val nextKey = if (events.size == count) {
-                    AuditPagingKey(
-                        key.offset + events.size
-                    )
-                } else {
-                    null
-                }
-                val prevKey = if (key.offset == 0) null else key.copy(offset = max(0, key.offset - count))
+            return resultSearchBundle.fold(
+                onSuccess = { events ->
+                    val nextKey = if (events.size == count) {
+                        AuditPagingKey(
+                            key.offset + events.size
+                        )
+                    } else {
+                        null
+                    }
+                    val prevKey = if (key.offset == 0) null else key.copy(offset = max(0, key.offset - count))
 
-                LoadResult.Page(
-                    data = mapEvents(events),
-                    nextKey = nextKey,
-                    prevKey = prevKey,
-                    itemsBefore = if (prevKey != null) count else 0,
-                    itemsAfter = if (nextKey != null) count else 0
-                )
-            }, onFailure = {
+                    LoadResult.Page(
+                        data = mapEvents(events),
+                        nextKey = nextKey,
+                        prevKey = prevKey,
+                        itemsBefore = if (prevKey != null) count else 0,
+                        itemsAfter = if (nextKey != null) count else 0
+                    )
+                },
+                onFailure = {
                     LoadResult.Error(it)
-                })
+                }
+            )
         }
     }
 

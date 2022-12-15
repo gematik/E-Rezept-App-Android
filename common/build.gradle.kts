@@ -68,8 +68,9 @@ val ERP_API_KEY_DESKTOP_PU: String by overriding()
 val ERP_API_KEY_DESKTOP_TU: String by overriding()
 val ERP_API_KEY_DESKTOP_RU: String by overriding()
 
-val SAFETYNET_API_KEY: String by overriding()
-
+val INTEGRITY_API_KEY: String by overriding()
+val INTEGRITY_VERIFICATION_KEY: String by overriding()
+val CLOUD_PROJECT_NUMBER: String by overriding()
 val DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE: String by overriding()
 val DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY: String by overriding()
 
@@ -143,8 +144,8 @@ kotlin {
                     }
                     crypto {
                         implementation(jose4j)
-                        implementation(bouncyCastle("bcprov", "jdk15on"))
-                        implementation(bouncyCastle("bcpkix", "jdk15on"))
+                        implementation(bouncyCastle("bcprov"))
+                        implementation(bouncyCastle("bcpkix"))
                     }
                     kotlinXTest {
                         implementation(coroutinesTest)
@@ -187,8 +188,8 @@ kotlin {
             dependencies {
                 app {
                     crypto {
-                        implementation(bouncyCastle("bcprov", "jdk15on"))
-                        implementation(bouncyCastle("bcpkix", "jdk15on"))
+                        implementation(bouncyCastle("bcprov"))
+                        implementation(bouncyCastle("bcpkix"))
                     }
                 }
             }
@@ -231,7 +232,9 @@ buildkonfig {
     // default config is required
     defaultConfigs {
         buildConfigField(STRING, "GIT_HASH", getGitHash())
-        buildConfigField(STRING, "SAFETYNET_API_KEY", SAFETYNET_API_KEY)
+        buildConfigField(STRING, "INTEGRITY_API_KEY", INTEGRITY_API_KEY)
+        buildConfigField(STRING, "INTEGRITY_VERIFICATION_KEY", INTEGRITY_VERIFICATION_KEY)
+        buildConfigField(STRING, "CLOUD_PROJECT_NUMBER", CLOUD_PROJECT_NUMBER)
         buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE", DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
         buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY", DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY)
         buildConfigField(STRING, "BUILD_FLAVOR", project.property("buildkonfig.flavor") as String)

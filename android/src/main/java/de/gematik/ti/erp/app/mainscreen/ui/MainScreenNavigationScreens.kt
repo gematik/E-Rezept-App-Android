@@ -22,7 +22,6 @@ import android.os.Parcelable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import kotlinx.serialization.Serializable
-import de.gematik.ti.erp.app.AppNavTypes
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -61,10 +60,7 @@ object MainNavigationScreens {
 
     object Pharmacies : Route("Pharmacies")
 
-    object RedeemLocally :
-        Route("RedeemLocally", navArgument("taskIds") { type = AppNavTypes.TaskIdsType }) {
-        fun path(taskIds: TaskIds) = path("taskIds" to taskIds)
-    }
+    object Redeem : Route("Redeem")
 
     object ProfileImageCropper : Route("ProfileImageCropper", navArgument("profileId") { type = NavType.StringType }) {
         fun path(profileId: String) = path("profileId" to profileId)
@@ -78,9 +74,12 @@ object MainNavigationScreens {
     }
 
     object InsecureDeviceScreen : Route("InsecureDeviceScreen")
+    object MlKitIntroScreen : Route("MlKitIntroScreen")
+    object MlKitInformationScreen : Route("MlKitInformationScreen")
+
     object DataTermsUpdateScreen : Route("DataTermsUpdateScreen")
     object DataProtection : Route("DataProtection")
-    object SafetynetNotOkScreen : Route("SafetynetInfoScreen")
+    object IntegrityNotOkScreen : Route("IntegrityInfoScreen")
     object EditProfile :
         Route("EditProfile", navArgument("profileId") { type = NavType.StringType }) {
         fun path(profileId: String) = path("profileId" to profileId)

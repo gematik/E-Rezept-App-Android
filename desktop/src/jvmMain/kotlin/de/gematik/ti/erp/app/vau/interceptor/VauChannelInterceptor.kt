@@ -19,20 +19,20 @@
 package de.gematik.ti.erp.app.vau.interceptor
 
 import de.gematik.ti.erp.app.Constants
-import de.gematik.ti.erp.app.core.DispatchersProvider
+import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.vau.VauChannelSpec
 import de.gematik.ti.erp.app.vau.VauCryptoConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
-import java.io.IOException
-import java.net.HttpURLConnection.HTTP_FORBIDDEN
-import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
-import java.security.Provider
-import java.security.SecureRandom
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
 import org.bouncycastle.jce.provider.BouncyCastleProvider
+import java.io.IOException
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
+import java.security.Provider
+import java.security.SecureRandom
 
 class DefaultCryptoConfig : VauCryptoConfig {
     override val provider: Provider by lazy { BouncyCastleProvider() }
@@ -48,7 +48,7 @@ class VauException(e: Exception) : IOException(e)
 class VauChannelInterceptor(
     private val truststore: TruststoreUseCase,
     private val cryptoConfig: VauCryptoConfig,
-    private val dispatchProvider: DispatchersProvider
+    private val dispatchProvider: DispatchProvider
 ) : Interceptor {
     // `gemSpec_Krypt A_20175`
     private var previousUserAlias = "0"
@@ -56,7 +56,7 @@ class VauChannelInterceptor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         try {
-            val encryptedRequest = runBlocking(dispatchProvider.io()) {
+            val encryptedRequest = runBlocking(dispatchProvider.IO) {
                 truststore.withValidVauPublicKey { publicKey ->
                     VauChannelSpec.V1.encryptHttpRequest(
                         chain.request(),

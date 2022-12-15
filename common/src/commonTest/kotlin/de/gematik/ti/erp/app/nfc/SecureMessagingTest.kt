@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length")
+
 package de.gematik.ti.erp.app.nfc
 
 import de.gematik.ti.erp.app.card.model.card.PaceKey

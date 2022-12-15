@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length", "ktlint:argument-list-wrapping")
+
 package de.gematik.ti.erp.app.fhir
 
 import ca.uhn.fhir.parser.IParser
@@ -290,7 +292,9 @@ class FhirMapper(
         sent = fhirCommunication.sent?.convertFhirDateToLocalDateTime(),
         telematicsId = fhirCommunication.recipient.first().identifier.value,
         userId = fhirCommunication.sender.identifier.value,
-        payload = runCatching { json.decodeFromString<CommunicationPayloadInbox>(fhirCommunication.payload.first().content.toString()) }.getOrNull()
+        payload = runCatching {
+            json.decodeFromString<CommunicationPayloadInbox>(fhirCommunication.payload.first().content.toString())
+        }.getOrNull()
     )
 
     @OptIn(ExperimentalSerializationApi::class)

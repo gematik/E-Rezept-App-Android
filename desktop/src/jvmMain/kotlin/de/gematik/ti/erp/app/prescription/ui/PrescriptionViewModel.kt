@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.ui
 
-import de.gematik.ti.erp.app.core.DispatchersProvider
+import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
@@ -39,10 +39,10 @@ import kotlinx.coroutines.withContext
 import org.kodein.di.bindings.ScopeCloseable
 
 class PrescriptionViewModel(
-    private val dispatchersProvider: DispatchersProvider,
+    private val dispatchProvider: DispatchProvider,
     private val prescriptionUseCase: PrescriptionUseCase
 ) : ScopeCloseable {
-    private val deleteScope = CoroutineScope(dispatchersProvider.io())
+    private val deleteScope = CoroutineScope(dispatchProvider.IO)
     private val deleteResult = MutableSharedFlow<Result<Unit>>()
     private val selectedPrescription = MutableSharedFlow<String?>()
     private val prescriptionType = MutableStateFlow(PrescriptionUseCase.PrescriptionType.NotDispensed)
@@ -106,7 +106,7 @@ class PrescriptionViewModel(
         prescriptionType.emit(PrescriptionUseCase.PrescriptionType.NotDispensed)
     }
 
-    suspend fun update() = withContext(dispatchersProvider.io()) {
+    suspend fun update() = withContext(dispatchProvider.IO) {
         prescriptionUseCase.update()
     }
 

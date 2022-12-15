@@ -153,7 +153,9 @@ fun LoginWithHealthCard(
 
             var triggerAuth by remember { mutableStateOf(true) }
             LaunchedEffect(state.firstVisibleItemIndex == 4, triggerAuth) {
-                if (triggerAuth && state.firstVisibleItemIndex == 4 && cardAccessNumber.isNotBlank() && personalIdentificationNumber.isNotBlank()) {
+                if (triggerAuth && state.firstVisibleItemIndex == 4 &&
+                    cardAccessNumber.isNotBlank() && personalIdentificationNumber.isNotBlank()
+                ) {
                     viewModel.authenticate(can = cardAccessNumber, pin = personalIdentificationNumber)
                         .collect {
                             if (it.isFinal()) {
@@ -203,6 +205,7 @@ fun LoginWithHealthCard(
                                     }
                                 )
                             }
+
                             1 -> PageContainer(App.strings.desktopLoginPageConnectReader()) {
                                 AwaitCardReader(
                                     viewModel,
@@ -211,6 +214,7 @@ fun LoginWithHealthCard(
                                     }
                                 )
                             }
+
                             2 -> PageContainer(App.strings.desktopLoginPageEnterCan()) {
                                 EnterCardAccessNumber(
                                     can = cardAccessNumber,
@@ -222,6 +226,7 @@ fun LoginWithHealthCard(
                                     }
                                 )
                             }
+
                             3 -> PageContainer(App.strings.desktopLoginPageEnterPin()) {
                                 EnterPersonalIdentificationNumber(
                                     pin = personalIdentificationNumber,
@@ -233,6 +238,7 @@ fun LoginWithHealthCard(
                                     }
                                 )
                             }
+
                             4 -> PageContainer(App.strings.desktopLoginPageConnectHealthcard()) {
                                 ReadHealthCardAndDownloadData(
                                     authState,
@@ -567,6 +573,7 @@ private fun Toggle(
                     null,
                     tint = AppTheme.colors.neutral400
                 )
+
                 true -> Icon(
                     Icons.Rounded.CheckCircle,
                     null,
@@ -724,6 +731,7 @@ private fun EnterPersonalIdentificationNumber(
                                     null,
                                     tint = AppTheme.colors.neutral600
                                 )
+
                                 false -> Icon(
                                     Icons.Rounded.VisibilityOff,
                                     null,
@@ -793,7 +801,13 @@ private fun EnterCardAccessNumber(
                                 modifier = Modifier
                                     .size(40.dp, 48.dp)
                                     .shadow(1.dp, shape)
-                                    .then(if ((can.length == it || it == 5 && can.length == 6) && isFocussed) borderModifier else Modifier)
+                                    .then(
+                                        if ((can.length == it || it == 5 && can.length == 6) && isFocussed) {
+                                            borderModifier
+                                        } else {
+                                            Modifier
+                                        }
+                                    )
                                     .background(
                                         color = backgroundColor,
                                         shape
@@ -850,6 +864,7 @@ private fun ReadHealthCardAndDownloadData(
                         style = AppTheme.typography.body2l,
                         textAlign = TextAlign.Center
                     )
+
                 authState.isInProgress() && authState != AuthenticationState.AuthenticationFlowInitialized ->
                     Text(
                         "Gesundheitskarte wird gelesen und Rezepte werden geladen",
@@ -864,32 +879,44 @@ private fun ReadHealthCardAndDownloadData(
                 val title = when (authState) {
                     AuthenticationState.HealthCardCardAccessNumberWrong ->
                         App.strings.cdwNfcIntroStep2HeaderOnCanError()
+
                     AuthenticationState.HealthCardPin2RetriesLeft ->
                         App.strings.cdwNfcIntroStep2HeaderOnPinError(count = 2, 2)
+
                     AuthenticationState.HealthCardPin1RetryLeft ->
                         App.strings.cdwNfcIntroStep2HeaderOnPinError(count = 1, 1)
+
                     AuthenticationState.HealthCardBlocked ->
                         App.strings.cdwNfcIntroStep2HeaderOnCardBlocked()
+
                     AuthenticationState.IDPCommunicationFailed ->
                         App.strings.cdwNfcIntroStep1HeaderOnError()
+
                     AuthenticationState.HealthCardCommunicationInterrupted ->
                         App.strings.desktopLoginPageConnectHealthcardErrorIoTitle()
+
                     else ->
                         App.strings.cdwNfcIntroStep1HeaderOnError()
                 }
                 val subtitle = when (authState) {
                     AuthenticationState.HealthCardCardAccessNumberWrong ->
                         App.strings.cdwNfcIntroStep2InfoOnCanError()
+
                     AuthenticationState.HealthCardPin2RetriesLeft ->
                         App.strings.cdwNfcIntroStep2InfoOnPinError(count = 2, 2)
+
                     AuthenticationState.HealthCardPin1RetryLeft ->
                         App.strings.cdwNfcIntroStep2InfoOnPinError(count = 1, 1)
+
                     AuthenticationState.HealthCardBlocked ->
                         App.strings.cdwNfcIntroStep2InfoOnCardBlocked()
+
                     AuthenticationState.IDPCommunicationFailed ->
                         App.strings.cdwNfcIntroStep1InfoOnError()
+
                     AuthenticationState.HealthCardCommunicationInterrupted ->
                         App.strings.desktopLoginPageConnectHealthcardErrorIoSubtitle()
+
                     else ->
                         App.strings.cdwNfcIntroStep1InfoOnError()
                 }
@@ -898,6 +925,7 @@ private fun ReadHealthCardAndDownloadData(
                     AuthenticationState.HealthCardPin2RetriesLeft,
                     AuthenticationState.HealthCardPin1RetryLeft ->
                         App.strings.cdwAuthRetryPinCan()
+
                     else ->
                         App.strings.cdwAuthRetry()
                 }
@@ -910,6 +938,7 @@ private fun ReadHealthCardAndDownloadData(
                         AuthenticationState.HealthCardCardAccessNumberWrong -> onReenterCan()
                         AuthenticationState.HealthCardPin2RetriesLeft,
                         AuthenticationState.HealthCardPin1RetryLeft -> onReenterPin()
+
                         else -> onRetry()
                     }
                 }) {

@@ -24,11 +24,11 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-
 import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -71,7 +71,8 @@ val DefaultProfile = ProfilesUseCaseData.Profile(
 @Stable
 class ProfileHandler(
     private val bridge: ProfileBridge,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    activeDefaultProfile: ProfilesUseCaseData.Profile = DefaultProfile
 ) {
     enum class ProfileConnectionState {
         LoggedIn,
@@ -96,6 +97,7 @@ class ProfileHandler(
             is IdpData.AlternateAuthenticationToken,
             is IdpData.AlternateAuthenticationWithoutToken,
             is IdpData.DefaultToken -> ssoTokenScope.token == null
+
             null -> true
         }
 
@@ -110,18 +112,23 @@ class ProfileHandler(
         when {
             profile.neverConnected() ->
                 ProfileConnectionState.NeverConnected
+
             profile.ssoTokenWithoutScope() ->
                 ProfileConnectionState.LoggedOutWithoutTokenBiometrics
+
             profile.ssoTokenNotSet() ->
                 ProfileConnectionState.LoggedOutWithoutToken
+
             profile.ssoTokenSetAndConnected() ->
                 ProfileConnectionState.LoggedIn
+
             profile.ssoTokenSetAndDisconnected() ->
                 ProfileConnectionState.LoggedOut
+
             else -> null
         }
 
-    var activeProfile by mutableStateOf(DefaultProfile)
+    var activeProfile by mutableStateOf(activeDefaultProfile)
         private set
 
     private var profilesFlow =
@@ -141,11 +148,28 @@ class ProfileHandler(
     }
 }
 
+private fun profileHandlerSaver(
+    bridge: ProfileBridge,
+    scope: CoroutineScope
+): Saver<ProfileHandler, String> = Saver(
+    save = { state ->
+        state.activeProfile.id
+    },
+    restore = { savedState ->
+        ProfileHandler(bridge, scope, DefaultProfile.copy(id = savedState))
+    }
+)
+
 @Composable
 fun rememberProfileHandler(): ProfileHandler {
     val profileViewModel by rememberViewModel<ProfileViewModel>()
     val coroutineScope = rememberCoroutineScope()
-    return remember {
+    return rememberSaveable(
+        saver = profileHandlerSaver(
+            profileViewModel,
+            coroutineScope
+        )
+    ) {
         ProfileHandler(profileViewModel, coroutineScope)
     }
 }

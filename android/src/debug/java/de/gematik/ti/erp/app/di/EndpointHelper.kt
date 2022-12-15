@@ -102,11 +102,6 @@ class EndpointHelper(
                 pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
                 Environment.TR
             }
-            eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_RU_DEV &&
-                idpServiceUri == BuildKonfig.IDP_SERVICE_URI_RU_DEV &&
-                pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
-                Environment.DEVRU
-            }
             else -> {
                 return Environment.PU
             }
@@ -118,8 +113,7 @@ class EndpointHelper(
             when (getCurrentEnvironment()) {
                 Environment.PU -> BuildKonfig.ERP_API_KEY_GOOGLE_PU
                 Environment.TU -> BuildKonfig.ERP_API_KEY_GOOGLE_TU
-                Environment.RU,
-                Environment.DEVRU -> BuildKonfig.ERP_API_KEY_GOOGLE_RU
+                Environment.RU -> BuildKonfig.ERP_API_KEY_GOOGLE_RU
                 Environment.TR -> BuildKonfig.ERP_API_KEY_GOOGLE_TR
             }
         } else {

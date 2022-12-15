@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
@@ -44,6 +45,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberInstance
+import java.net.HttpURLConnection
 import java.util.UUID
 
 @Stable
@@ -54,10 +56,11 @@ class RedeemPrescriptionsController(
     private val authenticator: Authenticator
 ) {
     sealed interface State : PrescriptionServiceState {
-        class Ordered(val orderId: String) : State
+        class Ordered(val orderId: String, val results: Map<PharmacyUseCaseData.PrescriptionOrder, Error?>) : State
 
         sealed interface Error : State, PrescriptionServiceErrorState {
             object Unknown : Error
+            object TaskIdDoesNotExist : Error
         }
     }
 
@@ -88,10 +91,10 @@ class RedeemPrescriptionsController(
     ) =
         flow {
             withContext(dispatchers.IO) {
-                val result = prescriptions
+                val results = prescriptions
                     .map { prescription ->
                         async {
-                            searchUseCase.redeemPrescription(
+                            prescription to searchUseCase.redeemPrescription(
                                 orderId = orderId,
                                 profileId = profileId,
                                 redeemOption = when (redeemOption) {
@@ -106,21 +109,32 @@ class RedeemPrescriptionsController(
                         }
                     }
                     .awaitAll()
-                    .find { it.isFailure }
+                    .toMap()
+
                 overviewUseCase.saveOrUpdateUsedPharmacies(pharmacy)
-                result?.let { Result.failure(it.exceptionOrNull()!!) } ?: Result.success(Unit)
+
+                results.mapValues { (_, result) ->
+                    result.fold(
+                        onSuccess = {
+                            null
+                        },
+                        onFailure = {
+                            if (it is ApiCallException) {
+                                when (it.response.code()) {
+                                    HttpURLConnection.HTTP_BAD_REQUEST -> State.Error.TaskIdDoesNotExist
+                                    else -> throw it
+                                }
+                            } else {
+                                throw it
+                            }
+                        }
+                    )
+                }
             }.also {
                 emit(it)
             }
-        }.map { result ->
-            result.fold(
-                onSuccess = {
-                    State.Ordered(orderId.toString())
-                },
-                onFailure = {
-                    throw it
-                }
-            )
+        }.map { results ->
+            State.Ordered(orderId.toString(), results)
         }
             .retryWithAuthenticator(
                 isUserAction = true,

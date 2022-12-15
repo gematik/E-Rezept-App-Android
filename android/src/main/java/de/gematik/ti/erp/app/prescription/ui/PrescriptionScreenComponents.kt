@@ -75,7 +75,6 @@ import de.gematik.ti.erp.app.TestTag
 
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
-import de.gematik.ti.erp.app.mainscreen.ui.MlKitPermissionDialog
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
@@ -98,7 +97,6 @@ import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.dateString
-import de.gematik.ti.erp.app.utils.compose.phrasedDateString
 import de.gematik.ti.erp.app.utils.compose.timeString
 import java.time.Duration
 import java.time.Instant
@@ -218,19 +216,6 @@ private fun PrescriptionsContent(
 ) {
     val listState = rememberLazyListState()
     val profileHandler = LocalProfileHandler.current
-    var showMlKitPermissionDialog by remember { mutableStateOf(false) }
-
-    if (showMlKitPermissionDialog) {
-        MlKitPermissionDialog(
-            onAccept = {
-                navController.navigate(MainNavigationScreens.Camera.path())
-                showMlKitPermissionDialog = false
-            },
-            onDecline = {
-                showMlKitPermissionDialog = false
-            }
-        )
-    }
 
     LaunchedEffect(Unit) {
         snapshotFlow {
@@ -241,13 +226,11 @@ private fun PrescriptionsContent(
     }
 
     LazyColumn(
-        modifier = Modifier.fillMaxSize().testTag(TestTag.Prescriptions.Content),
+        modifier = Modifier
+            .fillMaxSize()
+            .testTag(TestTag.Prescriptions.Content),
         state = listState,
-        contentPadding = if (state.prescriptions.isNotEmpty()) {
-            PaddingValues(0.dp)
-        } else {
-            PaddingValues(bottom = FabPadding)
-        },
+        contentPadding = PaddingValues(bottom = FabPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
@@ -290,13 +273,17 @@ fun LazyListScope.emptyContent(
     ) {
         item {
             SpacerMedium()
-            TertiaryButton(onClickConnect) {
+            TertiaryButton(onClickConnect, modifier = Modifier.testTag(TestTag.Main.LoginButton)) {
                 Text(stringResource(R.string.mainscreen_login))
             }
         }
         item {
             SpacerLarge()
-            Text(stringResource(R.string.mainscreen_empty_content_header), style = AppTheme.typography.subtitle1)
+            Text(
+                stringResource(R.string.mainscreen_empty_content_header),
+                style = AppTheme.typography.subtitle1,
+                modifier = Modifier.testTag(TestTag.Main.CenterScreenMessageField)
+            )
         }
         item {
             SpacerSmall()
@@ -535,14 +522,14 @@ fun readyPrescriptionStateInfo(
 
     acceptDaysLeft > TWO_DAYS_LEFT -> annotatedPluralsResource(
         R.plurals.prescription_item_accept_days,
-        acceptDaysLeft.toInt(),
-        AnnotatedString(acceptDaysLeft.toString())
+        1 + acceptDaysLeft.toInt(),
+        AnnotatedString((1 + acceptDaysLeft).toString())
     )
 
     expiryDaysLeft > TWO_DAYS_LEFT -> annotatedPluralsResource(
         R.plurals.prescription_item_expiration_days_new,
-        expiryDaysLeft.toInt(),
-        AnnotatedString(expiryDaysLeft.toString())
+        1 + expiryDaysLeft.toInt(),
+        AnnotatedString((1 + expiryDaysLeft).toString())
     )
 
     else -> null
@@ -551,8 +538,8 @@ fun readyPrescriptionStateInfo(
 @Composable
 fun prescriptionStateInfo(
     state: SyncedTaskData.SyncedTask.TaskState,
-    pharmacyName: String? = null,
-    now: Instant = Instant.now()
+    now: Instant = Instant.now(),
+    textAlign: TextAlign = TextAlign.Left
 ) {
     val warningAmber = mapOf(
         "warningAmber" to InlineTextContent(
@@ -578,7 +565,8 @@ fun prescriptionStateInfo(
                     R.string.pres_detail_medication_redeemable_on,
                     state.redeemableOn
                 ),
-                style = AppTheme.typography.body2l
+                style = AppTheme.typography.body2l,
+                textAlign = textAlign
             )
         }
 
@@ -603,7 +591,7 @@ fun prescriptionStateInfo(
                     }
 
                 acceptDaysLeft > TWO_DAYS_LEFT || expiryDaysLeft > TWO_DAYS_LEFT ->
-                    text?.let { Text(it, style = AppTheme.typography.body2) }
+                    text?.let { Text(it, style = AppTheme.typography.body2, textAlign = textAlign) }
 
                 else -> {}
             }
@@ -611,66 +599,86 @@ fun prescriptionStateInfo(
 
         is SyncedTaskData.SyncedTask.InProgress -> {
             val lastModified = remember { LocalDateTime.ofInstant(state.lastModified, ZoneId.systemDefault()) }
-            val dayDifference = remember {
-                Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toDays()
-            }
-            val minDifference = remember {
-                Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toMinutes()
-            }
-            val text = when {
-                minDifference < 5L -> stringResource(R.string.sent_now)
-                minDifference < 60L -> annotatedStringResource(
-                    R.string.sent_x_min_ago,
-                    minDifference
-                ).toString()
-
-                dayDifference < 0L -> annotatedStringResource(
-                    R.string.sent_on_day,
-                    remember { dateString(lastModified) }
-                ).toString()
-
-                else -> annotatedStringResource(
-                    R.string.sent_on_minute,
-                    remember { timeString(lastModified) }
-                ).toString()
-            }
-
-            Text(text, style = AppTheme.typography.body2)
+            val text = sentOrCompletedPhrase(lastModified, now)
+            Text(text, style = AppTheme.typography.body2, textAlign = textAlign)
         }
 
         is SyncedTaskData.SyncedTask.Pending -> {
             val sentOn = remember { LocalDateTime.ofInstant(state.sentOn, ZoneId.systemDefault()) }
-            Text(
-                annotatedStringResource(
-                    R.string.sent_on_to_pharmacy,
-                    phrasedDateString(sentOn),
-                    pharmacyName ?: stringResource(R.string.orders_generic_pharmacy_name)
-                ).toString(),
-                style = AppTheme.typography.body2
-            )
+            val text = sentOrCompletedPhrase(sentOn, now)
+            Text(text, style = AppTheme.typography.body2, textAlign = textAlign)
         }
 
         is SyncedTaskData.SyncedTask.Expired -> {
             Text(
                 dateWithIntroductionString(R.string.pres_detail_medication_expired_on, state.expiredOn),
-                style = AppTheme.typography.body2
+                style = AppTheme.typography.body2,
+                textAlign = textAlign
             )
         }
 
         is SyncedTaskData.SyncedTask.Other -> {
             if (state.state == SyncedTaskData.TaskStatus.Completed) {
                 val completedOn = remember { LocalDateTime.ofInstant(state.lastModified, ZoneId.systemDefault()) }
-                Text(
-                    text = annotatedStringResource(
-                        R.string.received_on_to_pharmacy,
-                        phrasedDateString(completedOn),
-                        pharmacyName ?: stringResource(R.string.orders_generic_pharmacy_name)
-                    ).toString(),
-                    style = AppTheme.typography.body2l
-                )
+                val text = sentOrCompletedPhrase(completedOn, now, true)
+                Text(text, style = AppTheme.typography.body2, textAlign = textAlign)
             }
         }
     }
+}
+
+@Composable
+private fun sentOrCompletedPhrase(lastModified: LocalDateTime, now: Instant, completed: Boolean = false): String {
+    val dayDifference = remember {
+        Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toDays()
+    }
+    val minDifference = remember {
+        Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toMinutes()
+    }
+    val text = when {
+        minDifference < 5L -> if (completed) {
+            stringResource(R.string.received_now)
+        } else {
+            stringResource(R.string.sent_now)
+        }
+
+        minDifference < 60L -> if (completed) {
+            annotatedStringResource(
+                R.string.received_x_min_ago,
+                minDifference
+            ).toString()
+        } else {
+            annotatedStringResource(
+                R.string.sent_x_min_ago,
+                minDifference
+            ).toString()
+        }
+
+        dayDifference < 0L -> if (completed) {
+            annotatedStringResource(
+                R.string.received_on_day,
+                minDifference
+            ).toString()
+        } else {
+            annotatedStringResource(
+                R.string.sent_on_day,
+                remember { dateString(lastModified) }
+            ).toString()
+        }
+
+        else -> if (completed) {
+            annotatedStringResource(
+                R.string.received_on_minute,
+                minDifference
+            ).toString()
+        } else {
+            annotatedStringResource(
+                R.string.sent_on_minute,
+                remember { timeString(lastModified) }
+            ).toString()
+        }
+    }
+    return text
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -688,9 +696,10 @@ fun FullDetailMedication(
     }
 
     Card(
-        modifier = modifier.semantics {
-            prescriptionId = prescription.taskId
-        }
+        modifier = modifier
+            .semantics {
+                prescriptionId = prescription.taskId
+            }
             .testTag(TestTag.Prescriptions.FullDetailPrescription),
         shape = RoundedCornerShape(16.dp),
         border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),

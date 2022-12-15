@@ -238,15 +238,33 @@ fun NFCInstructionScreen(
                 }
                 item {
                     val cardPosDescr = when {
-                        nfcXPos < LowerPos && nfcYPos < LowerPos -> stringResource(R.string.nfc_instruction_chip_location_top_left)
-                        nfcXPos < LowerPos && nfcYPos in PosRange -> stringResource(R.string.nfc_instruction_chip_location_middle_left)
-                        nfcXPos < LowerPos && nfcYPos > HigherPos -> stringResource(R.string.nfc_instruction_chip_location_bot_left)
-                        nfcXPos in PosRange && nfcYPos < LowerPos -> stringResource(R.string.nfc_instruction_chip_location_top_central)
-                        nfcXPos in PosRange && nfcYPos in PosRange -> stringResource(R.string.nfc_instruction_chip_location_middle)
-                        nfcXPos in PosRange && nfcYPos > HigherPos -> stringResource(R.string.nfc_instruction_chip_location_bot_central)
-                        nfcXPos > HigherPos && nfcYPos < LowerPos -> stringResource(R.string.nfc_instruction_chip_location_top_right)
-                        nfcXPos > HigherPos && nfcYPos in PosRange -> stringResource(R.string.nfc_instruction_chip_location_middle_right)
-                        nfcXPos > HigherPos && nfcYPos > HigherPos -> stringResource(R.string.nfc_instruction_chip_location_bot_right)
+                        nfcXPos < LowerPos && nfcYPos < LowerPos -> stringResource(
+                            R.string.nfc_instruction_chip_location_top_left
+                        )
+                        nfcXPos < LowerPos && nfcYPos in PosRange -> stringResource(
+                            R.string.nfc_instruction_chip_location_middle_left
+                        )
+                        nfcXPos < LowerPos && nfcYPos > HigherPos -> stringResource(
+                            R.string.nfc_instruction_chip_location_bot_left
+                        )
+                        nfcXPos in PosRange && nfcYPos < LowerPos -> stringResource(
+                            R.string.nfc_instruction_chip_location_top_central
+                        )
+                        nfcXPos in PosRange && nfcYPos in PosRange -> stringResource(
+                            R.string.nfc_instruction_chip_location_middle
+                        )
+                        nfcXPos in PosRange && nfcYPos > HigherPos -> stringResource(
+                            R.string.nfc_instruction_chip_location_bot_central
+                        )
+                        nfcXPos > HigherPos && nfcYPos < LowerPos -> stringResource(
+                            R.string.nfc_instruction_chip_location_top_right
+                        )
+                        nfcXPos > HigherPos && nfcYPos in PosRange -> stringResource(
+                            R.string.nfc_instruction_chip_location_middle_right
+                        )
+                        nfcXPos > HigherPos && nfcYPos > HigherPos -> stringResource(
+                            R.string.nfc_instruction_chip_location_bot_right
+                        )
                         else -> ""
                     }
                     AnimatedVisibility(
@@ -320,8 +338,14 @@ private fun CardOnPhone(
         CardAndAnimation(
             modifier = Modifier.offset {
                 IntOffset(
-                    x = ((phoneImgSize.width * -cos(nfcXPos * PI) / 6) + (phoneImgSize.width * cos(nfcYPos * PI) / 3)).toInt(),
-                    y = ((phoneImgSize.height * -cos(nfcXPos * PI).toFloat() / 6) + (phoneImgSize.height * -cos(nfcYPos * PI).toFloat() / 3)).toInt()
+                    x = (
+                        (phoneImgSize.width * -cos(nfcXPos * PI) / 6) +
+                            (phoneImgSize.width * cos(nfcYPos * PI) / 3)
+                        ).toInt(),
+                    y = (
+                        (phoneImgSize.height * -cos(nfcXPos * PI).toFloat() / 6) +
+                            (phoneImgSize.height * -cos(nfcYPos * PI).toFloat() / 3)
+                        ).toInt()
                 )
             }
         )

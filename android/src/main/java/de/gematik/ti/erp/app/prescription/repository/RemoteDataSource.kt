@@ -34,7 +34,9 @@ class RemoteDataSource(
 
     // greater _than_, otherwise we query the same resource again
     private fun gtString(timestamp: Instant) =
-        "gt${timestamp.atOffset(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS).format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)}"
+        "gt${timestamp.atOffset(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS).format(
+            DateTimeFormatter.ISO_OFFSET_DATE_TIME
+        )}"
 
     suspend fun fetchTasks(lastKnownUpdate: Instant?, profileId: ProfileIdentifier): Result<JsonElement> =
         safeApiCall(

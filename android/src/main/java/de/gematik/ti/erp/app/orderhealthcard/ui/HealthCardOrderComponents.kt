@@ -133,7 +133,11 @@ fun HealthCardContactOrderScreen(
                     HealthCardOrder(
                         listState = listState,
                         state = state,
-                        onClickInsuranceSelector = { navController.navigate(HealthCardOrderNavigationScreens.HealthCardOrderInsuranceCompanies.path()) },
+                        onClickInsuranceSelector = {
+                            navController.navigate(
+                                HealthCardOrderNavigationScreens.HealthCardOrderInsuranceCompanies.path()
+                            )
+                        },
                         onSelectOption = { healthCardOrderViewModel.onSelectContactOption(it) }
                     )
                 }
@@ -487,10 +491,20 @@ private fun ContactMethodRow(
                 onClick = {
                     when {
                         option == HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin &&
-                            company.hasMailContentForCardAndPin() -> openMailClient(context = context, address = mail, subject = company.subjectCardAndPinMail!!, body = company.bodyCardAndPinMail!!)
+                            company.hasMailContentForCardAndPin() -> openMailClient(
+                            context = context,
+                            address = mail,
+                            subject = company.subjectCardAndPinMail!!,
+                            body = company.bodyCardAndPinMail!!
+                        )
 
                         option == HealthCardOrderViewModelData.ContactInsuranceOption.PinOnly &&
-                            company.hasMailContentForPin() -> openMailClient(context = context, address = mail, subject = company.subjectPinMail!!, body = company.bodyPinMail!!)
+                            company.hasMailContentForPin() -> openMailClient(
+                            context = context,
+                            address = mail,
+                            subject = company.subjectPinMail!!,
+                            body = company.bodyPinMail!!
+                        )
 
                         else -> uriHandler.openUri("mailto:$mail?subject=${Uri.encode(mailSubject)}")
                     }

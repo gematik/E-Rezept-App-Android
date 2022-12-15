@@ -95,7 +95,9 @@ class CommonIdpRepositoryTest : TestDB() {
     private val testDiscoveryDocument by lazy { File("$ResourceBasePath/idp/discovery-doc.jwt").readText() }
     private val testCertificateDocument by lazy { File("$ResourceBasePath/idp/idpCertificate.txt").readText() }
     private val ssoToken by lazy { File("$ResourceBasePath/idp/sso-token.txt").readText() }
-    private val healthCardCert = X509CertificateHolder(Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE))
+    private val healthCardCert = X509CertificateHolder(
+        Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
+    )
     // private val healthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
 
     private val x509Certificate = X509CertificateHolder(Base64.decode(testCertificateDocument))

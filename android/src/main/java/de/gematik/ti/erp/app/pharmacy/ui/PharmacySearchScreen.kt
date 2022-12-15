@@ -57,7 +57,6 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
@@ -73,7 +72,6 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.Tune
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -107,6 +105,7 @@ import com.google.accompanist.flowlayout.FlowRow
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacyId
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -114,6 +113,7 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.Chip
+import de.gematik.ti.erp.app.utils.compose.ModalBottomSheet
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import kotlinx.coroutines.delay
@@ -267,7 +267,7 @@ private fun PharmacySearchInputfield(
             textColor = AppTheme.colors.neutral900,
             leadingIconColor = AppTheme.colors.neutral600,
             trailingIconColor = AppTheme.colors.neutral600,
-            backgroundColor = AppTheme.colors.neutral050,
+            backgroundColor = AppTheme.colors.neutral100,
             focusedIndicatorColor = Color.Transparent,
             unfocusedIndicatorColor = Color.Transparent
         )
@@ -506,7 +506,7 @@ private fun PharmacyResultCard(
             )
 
             Text(
-                pharmacy.removeLineBreaksFromAddress(),
+                pharmacy.singleLineAddress(),
                 style = AppTheme.typography.body2l,
                 modifier = Modifier,
                 overflow = TextOverflow.Ellipsis,
@@ -583,7 +583,7 @@ private fun formattedDistance(distanceInMeters: Double): String {
 
 @Composable
 private fun ErrorRetryHandler(
-    searchPagingItems: LazyPagingItems<PharmacySearchUi>,
+    searchPagingItems: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
     scaffoldState: ScaffoldState
 ) {
     val errorTitle = stringResource(R.string.search_pharmacy_error_title)
@@ -613,20 +613,21 @@ private fun ErrorRetryHandler(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PharmacySearchResultScreen(
-    pharmacySearchController: PharmacySearchController,
-    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
+    orderState: PharmacyOrderState,
+    searchController: PharmacySearchController,
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
     onClickMaps: () -> Unit,
     onBack: () -> Unit
 ) {
-    val searchPagingItems = pharmacySearchController.pharmacySearchFlow.collectAsLazyPagingItems()
+    val searchPagingItems = searchController.pharmacySearchFlow.collectAsLazyPagingItems()
 
     val scaffoldState = rememberScaffoldState()
 
-    var searchName by remember(pharmacySearchController.searchState.name) {
-        mutableStateOf(pharmacySearchController.searchState.name)
+    var searchName by remember(searchController.searchState.name) {
+        mutableStateOf(searchController.searchState.name)
     }
-    var searchFilter by remember(pharmacySearchController.searchState.filter) {
-        mutableStateOf(pharmacySearchController.searchState.filter)
+    var searchFilter by remember(searchController.searchState.filter) {
+        mutableStateOf(searchController.searchState.filter)
     }
 
     ErrorRetryHandler(
@@ -639,7 +640,7 @@ fun PharmacySearchResultScreen(
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             scope.launch {
-                pharmacySearchController.search(
+                searchController.search(
                     name = searchName,
                     filter = searchFilter.copy(nearBy = permissions.values.any { it })
                 )
@@ -651,7 +652,7 @@ fun PharmacySearchResultScreen(
         NoLocationDialog(
             onAccept = {
                 scope.launch {
-                    pharmacySearchController.search(
+                    searchController.search(
                         name = searchName,
                         filter = searchFilter.copy(nearBy = false)
                     )
@@ -666,7 +667,7 @@ fun PharmacySearchResultScreen(
         NoLocationServicesDialog(
             onClose = {
                 scope.launch {
-                    pharmacySearchController.search(
+                    searchController.search(
                         name = searchName,
                         filter = searchFilter.copy(nearBy = false)
                     )
@@ -678,7 +679,7 @@ fun PharmacySearchResultScreen(
 
     val loadState = searchPagingItems.loadState
     val isLoading by derivedStateOf {
-        pharmacySearchController.isLoading || listOf(loadState.prepend, loadState.append, loadState.refresh)
+        searchController.isLoading || listOf(loadState.prepend, loadState.append, loadState.refresh)
             .any {
                 when (it) {
                     is LoadState.NotLoading -> false // initial ui only loading indicator
@@ -688,40 +689,15 @@ fun PharmacySearchResultScreen(
             }
     }
 
-    val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-
     val focusManager = LocalFocusManager.current
 
-    ModalBottomSheetLayout(
-        modifier = Modifier.fillMaxSize(),
-        sheetShape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp),
-        sheetContent = {
-            FilterSheetContent(
-                modifier = Modifier.navigationBarsPadding(),
-                filter = searchFilter,
-                onClickChip = {
-                    focusManager.clearFocus()
-                    scope.launch {
-                        when (pharmacySearchController.search(name = searchName, filter = it)) {
-                            PharmacySearchController.SearchQueryResult.Send -> {}
-                            PharmacySearchController.SearchQueryResult.NoLocationPermission -> {
-                                locationPermissionLauncher.launch(locationPermissions)
-                            }
-                            PharmacySearchController.SearchQueryResult.NoLocationServicesEnabled -> {
-                                showNoLocationServicesDialog = true
-                            }
+    val sheetState = rememberPharmacySheetState(
+        orderState.selectedPharmacy?.let {
+            PharmacySearchSheetContentState.PharmacySelected(it)
+        }
+    )
 
-                            PharmacySearchController.SearchQueryResult.NoLocationFound -> {
-                                searchFilter = searchFilter.copy(nearBy = false)
-                            }
-                        }
-                    }
-                },
-                onClickClose = { scope.launch { modal.hide() } }
-            )
-        },
-        sheetState = modal
-    ) {
+    Box {
         Scaffold(
             modifier = Modifier
                 .systemBarsPadding()
@@ -754,11 +730,12 @@ fun PharmacySearchResultScreen(
                     onSearch = {
                         focusManager.clearFocus()
                         scope.launch {
-                            when (pharmacySearchController.search(name = it, filter = searchFilter)) {
+                            when (searchController.search(name = it, filter = searchFilter)) {
                                 PharmacySearchController.SearchQueryResult.Send -> {}
                                 PharmacySearchController.SearchQueryResult.NoLocationPermission -> {
                                     showNoLocationDialog = true
                                 }
+
                                 PharmacySearchController.SearchQueryResult.NoLocationServicesEnabled -> {
                                     showNoLocationServicesDialog = true
                                 }
@@ -777,12 +754,12 @@ fun PharmacySearchResultScreen(
                     onClickChip = {
                         focusManager.clearFocus()
                         scope.launch {
-                            pharmacySearchController.search(name = searchName, filter = it)
+                            searchController.search(name = searchName, filter = it)
                         }
                     },
                     onClickFilter = {
                         focusManager.clearFocus()
-                        scope.launch { modal.show() }
+                        sheetState.show(PharmacySearchSheetContentState.FilterSelected)
                     }
                 )
 
@@ -790,16 +767,62 @@ fun PharmacySearchResultScreen(
 
                 SearchResultContent(
                     searchPagingItems = searchPagingItems,
-                    onSelectPharmacy = onSelectPharmacy
+                    onSelectPharmacy = {
+                        sheetState.show(PharmacySearchSheetContentState.PharmacySelected(it))
+                    }
                 )
             }
         }
+
+        ModalBottomSheet(
+            sheetState = sheetState,
+            sheetContent = {
+                when (sheetState.content) {
+                    PharmacySearchSheetContentState.FilterSelected ->
+                        FilterSheetContent(
+                            modifier = Modifier.navigationBarsPadding(),
+                            filter = searchFilter,
+                            onClickChip = {
+                                focusManager.clearFocus()
+                                scope.launch {
+                                    when (searchController.search(name = searchName, filter = it)) {
+                                        PharmacySearchController.SearchQueryResult.Send -> {}
+                                        PharmacySearchController.SearchQueryResult.NoLocationPermission -> {
+                                            locationPermissionLauncher.launch(locationPermissions)
+                                        }
+
+                                        PharmacySearchController.SearchQueryResult.NoLocationServicesEnabled -> {
+                                            showNoLocationServicesDialog = true
+                                        }
+
+                                        PharmacySearchController.SearchQueryResult.NoLocationFound -> {
+                                            searchFilter = searchFilter.copy(nearBy = false)
+                                        }
+                                    }
+                                }
+                            },
+                            onClickClose = { scope.launch { sheetState.animateTo(ModalBottomSheetValue.Hidden) } }
+                        )
+
+                    is PharmacySearchSheetContentState.PharmacySelected ->
+                        PharmacyDetailsSheetContent(
+                            orderState = orderState,
+                            pharmacy =
+                            (sheetState.content as PharmacySearchSheetContentState.PharmacySelected).pharmacy,
+                            onClickOrder = { pharmacy, orderOption ->
+                                onSelectPharmacy(pharmacy, orderOption)
+                            }
+                        )
+                }
+            },
+            sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) }
+        )
     }
 }
 
 @Composable
 private fun SearchResultContent(
-    searchPagingItems: LazyPagingItems<PharmacySearchUi>,
+    searchPagingItems: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
 ) {
     val errorTitle = stringResource(R.string.search_pharmacy_error_title)
@@ -870,27 +893,23 @@ private fun SearchResultContent(
                 )
             }
         }
-        itemsIndexed(searchPagingItems) { index, item ->
-            when (item) {
-                is PharmacySearchUi.Pharmacy -> {
-                    Column {
-                        PharmacyResultCard(
-                            modifier = itemPaddingModifier
-                                .semantics {
-                                    pharmacyId = item.pharmacy.telematikId
-                                }
-                                .testTag(TestTag.PharmacySearch.PharmacyListEntry),
-                            pharmacy = item.pharmacy
-                        ) {
-                            onSelectPharmacy(item.pharmacy)
-                        }
-                        if (index < searchPagingItems.itemCount - 1) {
-                            Divider(startIndent = PaddingDefaults.Medium)
-                        }
+        itemsIndexed(searchPagingItems) { index, pharmacy ->
+            if (pharmacy != null) {
+                Column {
+                    PharmacyResultCard(
+                        modifier = itemPaddingModifier
+                            .semantics {
+                                pharmacyId = pharmacy.telematikId
+                            }
+                            .testTag(TestTag.PharmacySearch.PharmacyListEntry),
+                        pharmacy = pharmacy
+                    ) {
+                        onSelectPharmacy(pharmacy)
+                    }
+                    if (index < searchPagingItems.itemCount - 1) {
+                        Divider(startIndent = PaddingDefaults.Medium)
                     }
                 }
-
-                null -> {}
             }
         }
         if (loadState.append is LoadState.Error) {

@@ -84,7 +84,9 @@ class SettingsUseCaseTest {
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,
-                welcomeDrawerShown = false
+                welcomeDrawerShown = false,
+                mainScreenTooltipsShown = true,
+                mlKitAccepted = false
             )
         )
 
@@ -103,7 +105,9 @@ class SettingsUseCaseTest {
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,
-                welcomeDrawerShown = false
+                welcomeDrawerShown = false,
+                mainScreenTooltipsShown = true,
+                mlKitAccepted = false
             )
         )
 
@@ -122,7 +126,9 @@ class SettingsUseCaseTest {
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,
-                welcomeDrawerShown = false
+                welcomeDrawerShown = false,
+                mainScreenTooltipsShown = true,
+                mlKitAccepted = false
             )
         )
         initSettings()
@@ -140,7 +146,9 @@ class SettingsUseCaseTest {
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,
-                welcomeDrawerShown = true
+                welcomeDrawerShown = true,
+                mainScreenTooltipsShown = true,
+                mlKitAccepted = false
             )
         )
         initSettings()

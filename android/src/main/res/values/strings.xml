@@ -553,6 +553,10 @@
     <string name="nfc_instruction_chip_location_bot_central">im unteren Bereich mittig</string>
     <string name="nfc_instruction_chip_location_bot_left">im unteren Bereich links</string>
     <string name="nfc_instruction_help_button">Hilfe</string>
+    <string name="received_x_min_ago">Eingelöst vor %s Minuten</string>
+    <string name="received_on_day">Eingelöst am %s</string>
+    <string name="received_now">Eingelöst gerade eben</string>
+    <string name="received_on_minute">Eingelöst um %s Uhr</string>
     <string name="sent_x_min_ago">Gesendet vor %s Minuten</string>
     <string name="sent_on_day">Gesendet am %s</string>
     <string name="sent_now">Gesendet gerade eben</string>
@@ -614,7 +618,7 @@
     <string name="token_screen_no_token_info">Sie erhalten einen Token, wenn Sie am Rezeptdienst angemeldet sind.\n    </string>
     <string name="pres_bottombar_orders">Bestellungen</string>
     <string name="orders_title">Bestellungen</string>
-    <string name="settings_contact_survey_address" translatable="false">https://t.maze.co/90489290</string>
+    <string name="settings_contact_survey_address" translatable="false">https://gematik.shortcm.li/E-Rezept-App_Feedback</string>
     <string name="health_card_section_unlock_card_reset_pin">Wunsch-PIN wählen</string>
     <string name="health_card_section_unlock_card_no_reset">Karte entsperren</string>
     <string name="unlock_egk_choose_new_secret_label">PIN wählen</string>
@@ -688,8 +692,6 @@
     <string name="pres_detail_dropdown_delete">Löschen</string>
     <string name="prescription_detail_scanned_chip">Gescanntes Rezept</string>
     <string name="prescription_detail_aut_idem_chip">Ersatzpräparat möglich</string>
-    <string name="sent_on_to_pharmacy" formatted="false">Gesendet am %s Uhr an %s</string>
-    <string name="received_on_to_pharmacy" formatted="false">Eingelöst am %s Uhr bei %s</string>
     <string name="health_card_section_unlock_card_forgot_pin">PIN vergessen</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
         <item quantity="one">%s Rezept</item>
@@ -717,6 +719,7 @@
     <string name="pres_detail_medication_label_authored_on">Ausstellungsdatum</string>
     <string name="pres_detail_medication_label_noctu">Noctu</string>
     <string name="pres_details_direct_assignment_state">Dieses Rezept wird im Rahmen einer Behandlung für Sie eingelöst.</string>
+    <string name="pres_details_direct_assignment_received_state">Dieses Rezept wurde im Rahmen einer Behandlung für Sie eingelöst.</string>
     <string name="pres_details_no_value">Keine Angabe</string>
     <string name="pres_details_no_emergency_fee">Keine Notdienstgebühr</string>
     <string name="pres_details_additional_fee">Zuzahlung</string>
@@ -737,6 +740,8 @@
     <string name="pres_details_exp_da_info">Bei einer Direktzuweisungen wird ein Rezept von einer Praxis oder einem Krankenhaus direkt bei einer Apotheke eingelöst. Versicherte müssen hierbei nicht tätig werden und können nicht in den Einlösungsprozess eingreifen.\n\nDirektzuweisungen werden in der E-Rezept App aufgeführt, um Ihre Behandlung für Sie transparenter zu machen.</string>
     <string name="pres_details_exp_no_em_fee_title">Keine Notdienstgebühr</string>
     <string name="pres_details_exp_no_em_fee_info">Hier ist Eile geboten. Dieses Rezept kann ohne die zusätzliche Zahlung einer Notdienstgebühr auch nachts in einer Apotheke eingelöst werden.</string>
+    <string name="pres_details_exp_em_fee_title">Notdienstgebühr</string>
+    <string name="pres_details_exp_em_fee_info">Dieses Rezept kann nachts in einer Apotheke nicht ohne zusätzliche Zahlung einer Notdienstgebühr eingelöst werden.</string>
     <string name="pres_details_exp_add_fee_title">Zuzahlungspflichtige Medikamente</string>
     <string name="pres_details_exp_no_add_fee_title">Von der Zuzahlung befreit</string>
     <string name="pres_details_exp_add_fee_info">Gesetzlich Versicherte müssen für verschreibungspflichtige Medikamente eine Zuzahlung von bis zu zehn Euro leisten.\n\nDie Höhe der Zuzahlung ist abhängig von dem Preis Ihres Medikaments. Medikamente, die weniger als 5€ kosten müssen Sie selbst zahlen.\nBei Medikamenten die teurer sind, müssen Sie zehn Prozent des Preises zuzahlen, mindestens aber 5€ und höchstens 10€.\n\nGrundsätzlich befreit von einer Zuzahlung sind Kinder und Jugendliche unter 18 Jahren. \n\nSollten Ihre jährlichen Kosten für Medikamente Ihre finanzielle Belastungsgrenzt überschreiten können Sie sich von der Zuzahlung befreien lassen. Sprechen Sie dazu mit Ihrer Krankenversicherung.</string>
@@ -820,5 +825,76 @@
     <string name="archive_screen_title">Eingelöste Rezepte</string>
     <string name="bottom_sheet_edit_profile_name_title">Name eingeben</string>
     <string name="profile_bottom_sheet_save">Speichern</string>
+    <string name="pharmacy_order_title">Meine Bestellung</string>
+    <string name="pharmacy_order_receiver">Empfänger:in</string>
+    <string name="pharmacy_order_prescriptions">Rezepte</string>
+    <string name="pharmacy_order_pharmacy">Apotheke</string>
+    <string name="pharmacy_order_send">Abschicken</string>
+    <string name="pharmacy_order_change_order">Ändern</string>
+    <string name="pharmacy_order_collect">Abholung in der Apotheke</string>
+    <string name="pharmacy_order_delivery">Lieferung per Bote</string>
+    <string name="pharmacy_order_mail">Lieferung per Versand</string>
+    <string name="pharmacy_order_nr_of_prescriptions">%s Rezepte</string>
+    <string name="pharmacy_order_not_possible_title">Einlösen nicht möglich</string>
+    <string name="pharmacy_order_not_possible_desc">Ein oder mehrere Rezepte konnten nicht eingelöst werden.</string>
+    <string name="pharmacy_order_no_selected_prescriptions_title">Kein Rezept gewählt</string>
+    <string name="pharmacy_order_no_selected_prescriptions_desc">Um Rezepte einzulösen, muss mindestens ein Rezept ausgewählt sein.</string>
+    <string name="pharmacy_order_add_contacts">Kontaktdaten hinzufügen</string>
+    <string name="pharmacy_order_change_contacts">Ändern</string>
+    <string name="pharmacy_order_no_prescriptions_title">Kein Rezept</string>
+    <string name="pharmacy_order_no_prescriptions_desc">Sie haben derzeit keine einlösbaren Rezepte</string>
+    <string name="pharmacy_order_opt_collect">Abholung</string>
+    <string name="pharmacy_order_opt_delivery">Bote</string>
+    <string name="pharmacy_order_opt_mail">Versand</string>
+    <string name="pharmacy_order_select_prescriptions">Rezepte wählen</string>
+    <string name="main_screen_tooltip_1_content">Hier tippen, um Rezepte einzuscannen</string>
+    <string name="main_screen_tooltip_2_content">Lange drücken, um Namen zu bearbeiten</string>
+    <string name="main_screen_tooltip_3_content">Weitere Profile hinzufügen, z.B. für Ihre Kinder oder Eltern.</string>
+    <string name="main_screen_tooltip_tap_screen">Klicken Sie auf das Display um den angezeigten Tooltip zu überspringen.</string>
+    <string name="order_onb_how_to_title">Wie einlösen?</string>
+    <string name="order_onb_how_to_desc">Wie möchten Sie Ihre Medikamente erhalten?</string>
+    <string name="order_onb_how_to_local">Direkt einlösen</string>
+    <string name="order_onb_how_to_local_desc">Medikamente vor Ort einlösen</string>
+    <string name="order_onb_how_to_online">Bestellen</string>
+    <string name="order_onb_how_to_online_desc">Reservieren oder liefern lassen</string>
+    <string name="local_redeem_done">Fertig</string>
+    <string name="local_redeem_grouped_codes">Sammelcode</string>
+    <string name="local_redeem_single_codes">Einzelcodes</string>
+    <plurals name="online_redeem_rx_desc">
+        <item quantity="one">Sie haben %s Rezept.</item>
+        <item quantity="other">Sie haben %s Rezepte.</item>
+    </plurals>
+    <string name="online_redeem_choose_rx">Auswahl treffen</string>
+    <string name="online_redeem_choose_all_rx">Alle Rezepte</string>
+    <string name="online_redeem_choose_rx_title">Welche Rezepte?</string>
+    <string name="rx_selection_next">Weiter</string>
+    <string name="mlkit_intro_accept">Weiter</string>
+    <string name="mlkit_intro_read_more">Mehr erfahren</string>
+    <string name="mlkit_intro_header">Hinweis</string>
+    <string name="mlkit_intro_info">Für das Erkennen von Codes verwendet diese App Software von Google.</string>
+    <string name="ml_information_title">Mehr erfahren</string>
+    <string name="ml_info_header">Infos zum Rezeptcode-Scanner</string>
+    <string name="ml_pararaph_1_header">Welche Daten enthält der Rezeptcode?</string>
+    <string name="ml_pararaph_1_info">Der Rezeptcode enthält nur eine Kennung des Rezeptes. Damit kann das Rezept auf dem Rezeptdienst im digitalen Gesundheitsnetz gefunden werden. Der Rezeptcode enthält keine Daten über Ihre Person oder Ihr Medikament.</string>
+    <string name="ml_pararaph_2_header">Mit dem Rezeptcode allein kann also niemand etwas anfangen?</string>
+    <string name="ml_pararaph_2_info">Richtig. Die Daten zum Rezept müssen vom Rezeptdienst heruntergeladen werden. Hierfür ist eine sichere Anmeldung erforderlich.</string>
+    <string name="ml_pararaph_3_header">Wer kann sich am Rezeptdienst anmelden?</string>
+    <string name="ml_pararaph_3_info">Die Anmeldung beim Rezeptdienst im digitalen Gesundheitsnetz ist für versicherte Personen, Apotheken sowie Praxen und Krankenhäuser möglich.</string>
+    <string name="ml_pararaph_4_header">Wieso verwendet die E-Rezept-App Funktionen von Google?</string>
+    <string name="ml_pararaph_4_info">Google bietet Funktionen an, die in Apps leicht eingebaut werden können und die von Google stets weiterentwickelt und aktualisiert werden. Dies stellt sicher, dass die Funktionen auf vielen verschiedenen Endgeräten funktionieren und sicher betrieben werden können. Die App verwendet eine Funktion zur Verbesserung der Kamera- und Scanfunktion für Android-Geräte (Google ML Kit).</string>
+    <string name="ml_pararaph_5_header">Wie funktioniert die Scan-Verbesserung mit Google ML Kit?</string>
+    <string name="ml_pararaph_5_info">Google ML Kit hilft dabei, das von einer Kamera erfasste Bild zu optimieren, damit auch bei schlechten Lichtverhältnissen oder mit älteren Kameramodellen die Rezeptcodes eingelesen werden können.</string>
+    <string name="ml_pararaph_6_header">Werden Daten zum Rezept oder meinem Medikament an Google weitergegeben?</string>
+    <string name="ml_pararaph_6_info">Nein. Der eingelesene Rezeptcode wird direkt in der App gespeichert. Er wird nicht an Google weitergegeben. Die Daten zum Rezept sind nicht im Code, sondern nur im digitalen Gesundheitsnetz gespeichert. Sie werden von dort an die App übermittelt. Google hat keinen Zugriff auf das digitale Gesundheitsnetz.</string>
+    <string name="ml_pararaph_7_header">Welche Daten verarbeitet Google bei der Nutzung von ML Kit?</string>
+    <string name="ml_pararaph_7_info">Google erhält lediglich Zugriff auf technische Angaben zum verwendeten Endgerät und der allgemeinen Nutzung der Zusatzfunktion (z.B. Fehlerquote, Kameraeinstellungen), um diese statistisch zu erfassen und damit die Zusatzfunktion zu verbessern. Beim Zugriff erfasst Google vorübergehend die IP-Adresse Ihres Endgerätes. Angaben zu Ihrer Person und Inhalte des Rezepts werden dabei nicht von Google erfasst.</string>
+    <string name="ml_pararaph_8_header">Ist der Einsatz von Google ML Kit freiwillig?</string>
+    <string name="ml_pararaph_8_info">Ja. ML Kit ist bei der Android-Version der E-Rezept-App allerdings fest in den Rezeptcode-Scanner eingebaut. Wenn Sie auf einem Android-Endgerät den Rezeptcode-Scanner verwenden wird stets auch die Funktion ML Kit genutzt. Sie können aber auf den Einsatz des Rezeptcode-Scanners verzichten. Ihre Rezepte können auch in die App geladen werden, wenn Sie sich mit der elektronischen Gesundheitskarte oder über Ihre Krankenkassen-App am digitalen Gesundheitsnetz anmelden.</string>
+    <string name="ml_pararaph_9_header">Kann ich sehen, wer meine Rezepte angesehen hat?</string>
+    <string name="ml_pararaph_9_info">Ja. Alle Zugriffe auf Ihre Daten werden im digitalen Gesundheitsnetz vollständig protokolliert. In der E-Rezept-App können Sie einsehen, wer auf Ihre Daten zugegriffen hat.</string>
+    <string name="ml_pararaph_10_header">Wohin kann ich mich wenden, wenn ich Fragen zur App oder dem E-Rezept habe?</string>
+    <string name="ml_pararaph_10_info">Ausführliche Informationen finden Sie in der Datenschutzerklärung.</string>
+    <string name="main_redeem_no_rx_title">Keine Rezepte</string>
+    <string name="main_redeem_no_rx_desc">Hierfür benötigen Sie einlösbare Rezepte.</string>
 
 </resources>

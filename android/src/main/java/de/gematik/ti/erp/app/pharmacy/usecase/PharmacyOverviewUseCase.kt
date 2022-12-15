@@ -40,16 +40,6 @@ class PharmacyOverviewUseCase(
         repository.saveOrUpdateOftenUsedPharmacy(pharmacy)
     }
 
-    suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        repository.saveOrUpdateFavoritePharmacy(pharmacy)
-    }
-
-    suspend fun deleteFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        withContext(dispatchers.IO) {
-            repository.deleteFavoritePharmacy(pharmacy)
-        }
-    }
-
     suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
         repository.deleteOverviewPharmacy(overviewPharmacy)
     }
@@ -59,9 +49,5 @@ class PharmacyOverviewUseCase(
     ): Result<List<PharmacyUseCaseData.Pharmacy>> = withContext(dispatchers.IO) {
         repository.searchPharmacyByTelematikId(telematikId)
             .map { it.pharmacies.mapToUseCasePharmacies() }
-    }
-
-    suspend fun isPharmacyInFavorites(telematikId: String): Boolean = withContext(dispatchers.IO) {
-        repository.isPharmacyInFavorites(telematikId)
     }
 }

@@ -201,12 +201,6 @@ dependencies {
     implementation(kotlin("reflect"))
     testImplementation(kotlin("test"))
 
-    implementation("com.google.maps.android:maps-compose:2.7.2")
-    implementation("com.google.maps.android:maps-ktx:3.3.0")
-    implementation("com.google.maps.android:maps-utils-ktx:3.3.0")
-    implementation("com.google.maps.android:android-maps-utils:2.4.0")
-    implementation("com.google.android.gms:play-services-maps:18.0.2")
-
     app {
         dataMatrix {
             implementation(mlkitBarcodeScanner)
@@ -215,6 +209,7 @@ dependencies {
         kotlinX {
             implementation(coroutines("core"))
             implementation(coroutines("android"))
+            implementation(coroutines("play-services"))
         }
         android {
             coreLibraryDesugaring(desugaring)
@@ -226,6 +221,12 @@ dependencies {
             implementation(security)
             implementation(biometric)
             implementation(webkit)
+
+            implementation(mapsAndroidUtils)
+            implementation(maps)
+            implementation(mapsCompose)
+            implementation(mapsUtils)
+
             implementation(lifecycle("viewmodel-compose"))
             implementation(lifecycle("process")) {
                 // FIXME: remove if AGP > 7.2.0-alpha05 can handle cyclic dependencies (again)
@@ -260,8 +261,8 @@ dependencies {
             implementation(jose4j)
             implementation(bouncyCastle("bcprov"))
             implementation(bouncyCastle("bcpkix"))
-            testImplementation(bouncyCastle("bcprov", "jdk15on"))
-            testImplementation(bouncyCastle("bcpkix", "jdk15on"))
+            testImplementation(bouncyCastle("bcprov"))
+            testImplementation(bouncyCastle("bcpkix"))
         }
         network {
             implementation(retrofit2("retrofit"))
@@ -294,9 +295,10 @@ dependencies {
         }
         playServices {
             implementation(location)
-            implementation(safetynet)
+            implementation(integrity)
             implementation(appReview)
             implementation(appUpdate)
+            implementation(maps)
         }
 
         androidTest {

@@ -549,10 +549,6 @@
     <string name="nfc_instruction_chip_location_bot_central">внизу посередине</string>
     <string name="nfc_instruction_chip_location_bot_left">внизу слева</string>
     <string name="nfc_instruction_help_button">Справка</string>
-    <string name="sent_x_min_ago">Отправлено %s минут(ы) назад</string>
-    <string name="sent_on_day">Отправлено %s</string>
-    <string name="sent_now">Отправлено только что</string>
-    <string name="sent_on_minute">Отправлено в %s</string>
     <string name="prescription_status_expired">Недействительно</string>
     <string name="cdw_fasttrack_title">Войти с помощью приложения</string>
     <string name="cdw_fasttrack_choose_insurance">Выбрать страховую организацию</string>
@@ -679,8 +675,6 @@
     <string name="pres_detail_dropdown_delete">Удалить</string>
     <string name="prescription_detail_scanned_chip">Отсканированный рецепт</string>
     <string name="prescription_detail_aut_idem_chip">Возможна замена препарата</string>
-    <string name="sent_on_to_pharmacy" formatted="false">Отправлено %s в %s</string>
-    <string name="received_on_to_pharmacy" formatted="false">Погашено %s в %s</string>
     <string name="health_card_section_unlock_card_forgot_pin">Забыли PIN-код</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
         <item quantity="one">%s рецепт</item>

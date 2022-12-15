@@ -500,7 +500,9 @@ class IdpBasicUseCase(
      */
     private fun decryptIdToken(data: TokenResponse, key: SecretKey): JsonWebSignature {
         val json = decryptJWE(data.idToken, key)
-        return JsonWebStructure.fromCompactSerialization(Json.parseToJsonElement(json).jsonObject["njwt"]!!.jsonPrimitive.content) as JsonWebSignature
+        return JsonWebStructure.fromCompactSerialization(
+            Json.parseToJsonElement(json).jsonObject["njwt"]!!.jsonPrimitive.content
+        ) as JsonWebSignature
     }
 
     /**

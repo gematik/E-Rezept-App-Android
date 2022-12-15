@@ -123,7 +123,15 @@ fun DPSection(title: String, content: @Composable () -> Unit) {
             )
         }
         Spacer8()
-        AnimatedVisibility(visible = sectionExpanded, modifier = Modifier.padding(start = PaddingDefaults.Medium, top = PaddingDefaults.Tiny, bottom = PaddingDefaults.Medium, end = 48.dp)) {
+        AnimatedVisibility(
+            visible = sectionExpanded,
+            modifier = Modifier.padding(
+                start = PaddingDefaults.Medium,
+                top = PaddingDefaults.Tiny,
+                bottom = PaddingDefaults.Medium,
+                end = 48.dp
+            )
+        ) {
             content()
         }
     }

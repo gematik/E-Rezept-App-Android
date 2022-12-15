@@ -567,10 +567,6 @@
     <string name="nfc_instruction_chip_location_bot_central">في الجزء السفلي في الوسط</string>
     <string name="nfc_instruction_chip_location_bot_left">في الجزء السفلي يسارًا</string>
     <string name="nfc_instruction_help_button">المساعدة</string>
-    <string name="sent_x_min_ago">تم الإرسال قبل %s دقيقة</string>
-    <string name="sent_on_day">تم الإرسال في %s</string>
-    <string name="sent_now">تم الإرسال للتو</string>
-    <string name="sent_on_minute">تم الإرسال الساعة %s</string>
     <string name="prescription_status_expired">لم يعد صالحًا</string>
     <string name="cdw_fasttrack_title">التسجيل بالتطبيق</string>
     <string name="cdw_fasttrack_choose_insurance">اختر التأمين الصحي</string>
@@ -697,8 +693,6 @@
     <string name="pres_detail_dropdown_delete">حذف</string>
     <string name="prescription_detail_scanned_chip">الوصفة الطبية التي تم مسحها</string>
     <string name="prescription_detail_aut_idem_chip">يمكن تلقي مستحضرًا طبيًا بديلًا</string>
-    <string name="sent_on_to_pharmacy" formatted="false">تم الإرسال في %s في %s</string>
-    <string name="received_on_to_pharmacy" formatted="false">استرداد في %s في %s</string>
     <string name="health_card_section_unlock_card_forgot_pin">نسيت رقم التعريف الشخصي</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
         <item quantity="zero"></item>

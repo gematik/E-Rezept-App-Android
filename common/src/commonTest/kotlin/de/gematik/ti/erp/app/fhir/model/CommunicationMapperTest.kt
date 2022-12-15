@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length")
+
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.fhir.parser.contained

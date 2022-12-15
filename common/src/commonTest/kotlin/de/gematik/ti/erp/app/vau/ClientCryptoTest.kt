@@ -305,7 +305,11 @@ class ClientCryptoTest {
 
         split.let {
             assertEquals(6, it.size)
-            assertTrue(it[0].matches("""1 0123456789 [a-f0-9]{32} [a-f0-9]{32} POST /Task/p\?something=123 HTTP/1.1""".toRegex()))
+            assertTrue(
+                it[0].matches(
+                    """1 0123456789 [a-f0-9]{32} [a-f0-9]{32} POST /Task/p\?something=123 HTTP/1.1""".toRegex()
+                )
+            )
             assertEquals("Host: vau.xyz", it[1])
             assertEquals("Authorization: Bearer 0123456789", it[2])
             assertEquals("Content-Length: 6", it[3])

@@ -24,22 +24,21 @@ import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.PharmacyCacheEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.SafetynetAttestationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.TruststoreEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.FavoritePharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.OftenUsedPharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
@@ -49,7 +48,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 
-const val ACTUAL_SCHEMA_VERSION = 11L
+const val ACTUAL_SCHEMA_VERSION = 14L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -59,7 +58,6 @@ val appSchemas = setOf(
             PharmacySearchEntityV1::class,
             PasswordEntityV1::class,
             TruststoreEntityV1::class,
-            SafetynetAttestationEntityV1::class,
             IdpConfigurationEntityV1::class,
             ProfileEntityV1::class,
             CommunicationEntityV1::class,
@@ -108,6 +106,13 @@ val appSchemas = setOf(
             if (migrationStartedFrom < 10L) {
                 query<ProfileEntityV1>().find().forEach {
                     it._avatarFigure = AvatarFigureV1.PersonalizedImage.toString()
+                }
+            }
+            if (migrationStartedFrom < 12L) {
+                query<MedicationEntityV1>().find().forEach {
+                    if (it._expirationDate?.isEmpty() == true) {
+                        it._expirationDate = null
+                    }
                 }
             }
         }

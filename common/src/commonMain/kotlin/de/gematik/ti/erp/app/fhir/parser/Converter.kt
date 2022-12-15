@@ -40,6 +40,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Year
 import java.time.YearMonth
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAccessor
 
@@ -54,9 +55,11 @@ import java.time.temporal.TemporalAccessor
  */
 
 private const val DtFormatterPattern = "[HH:mm:ss][yyyy[-MM[-dd]]['T'HH:mm:ss[.SSS]XXX]]"
+private const val DtFormatterPatternDateTime = "yyyy[-MM[-dd]]'T'HH:mm:ss[XXX]"
 private const val DtFormatterPatternTime = "HH:mm:ss"
 
 private val Formatter = DateTimeFormatter.ofPattern(DtFormatterPattern)
+private val FormatterDateTime = DateTimeFormatter.ofPattern(DtFormatterPatternDateTime)
 private val FormatterTime = DateTimeFormatter.ofPattern(DtFormatterPatternTime)
 
 fun String?.asTemporalAccessor(): TemporalAccessor? =
@@ -73,7 +76,12 @@ fun String?.asTemporalAccessor(): TemporalAccessor? =
     }
 
 fun TemporalAccessor?.asFormattedString(): String? =
-    this?.let { Formatter.format(it) }
+    when (this) {
+        is Instant -> this.toString()
+        is LocalDateTime -> FormatterDateTime.withZone(ZoneOffset.UTC).format(this)
+        is TemporalAccessor -> Formatter.withZone(ZoneOffset.UTC).format(this)
+        else -> null
+    }
 
 fun JsonPrimitive.asTemporalAccessor(): TemporalAccessor? =
     this.contentOrNull?.let {

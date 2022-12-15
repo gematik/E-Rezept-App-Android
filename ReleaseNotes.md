@@ -1,3 +1,20 @@
+# Release 1.6.1
+### Added
+
+- Tooltips
+- Maps in pharmacy search
+- New order onboarding and new local redeem screen
+
+### Changed
+
+- Prescription details
+- Switched from SafetyNet to Play Integrity API
+- New ML-Kit info screen
+
+### Fixed
+
+- Several bugfixes
+
 # Release 1.4.9
 ### Added
 

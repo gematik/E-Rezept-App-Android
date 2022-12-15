@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("ktlint:max-line-length", "ktlint:argument-list-wrapping")
+
 package de.gematik.ti.erp.app.nfc
 
 import de.gematik.ti.erp.app.card.model.CardUtilities

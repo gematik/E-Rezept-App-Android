@@ -65,6 +65,7 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -78,6 +79,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -93,8 +97,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import com.google.mlkit.common.sdkinternal.MlKitContext
-import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
@@ -116,6 +119,8 @@ import de.gematik.ti.erp.app.orders.ui.OrderScreen
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyNavigation
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsScreen
 import de.gematik.ti.erp.app.prescription.ui.ArchiveScreen
+import de.gematik.ti.erp.app.prescription.ui.MlKitInformationScreen
+import de.gematik.ti.erp.app.prescription.ui.MlKitIntroScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
@@ -130,7 +135,7 @@ import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileImageCropper
 import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.redeem.ui.RedeemScreen
+import de.gematik.ti.erp.app.redeem.ui.RedeemNavigation
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
 import de.gematik.ti.erp.app.settings.ui.AllowBiometryScreen
@@ -141,7 +146,6 @@ import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -161,7 +165,6 @@ import java.time.Instant
 const val Third = 1 / 3f
 const val StateVisibilityTime = 4000L
 const val TweenDuration = 2000
-const val VisibleProfileNameLength = 10
 
 @Suppress("LongMethod")
 @Composable
@@ -174,7 +177,11 @@ fun MainScreen(
 ) {
     LaunchedEffect(Unit) {
         mainViewModel.authenticationMethod.collect {
-            if (!mainViewModel.showOnboarding && !(it is SettingsData.AuthenticationMode.Password || it == SettingsData.AuthenticationMode.DeviceSecurity)) {
+            if (!mainViewModel.showOnboarding && !(
+                it is SettingsData.AuthenticationMode.Password ||
+                    it == SettingsData.AuthenticationMode.DeviceSecurity
+                )
+            ) {
                 navController.navigate(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
                     launchSingleTop = true
                     popUpTo(MainNavigationScreens.Prescriptions.path()) {
@@ -285,8 +292,13 @@ fun MainScreen(
             MainNavigationScreens.Pharmacies.arguments
         ) {
             PharmacyNavigation(
-                mainNavController = navController,
-                mainScreenVM = mainScreenViewModel
+                mainScreenViewModel = mainScreenViewModel,
+                onBack = {
+                    navController.popBackStack()
+                },
+                onFinish = {
+                    navController.popBackStack(MainNavigationScreens.Prescriptions.route, false)
+                }
             )
         }
         composable(MainNavigationScreens.InsecureDeviceScreen.route) {
@@ -300,7 +312,18 @@ fun MainScreen(
                 stringResource(id = R.string.insecure_device_accept)
             )
         }
-        composable(MainNavigationScreens.SafetynetNotOkScreen.route) {
+        composable(MainNavigationScreens.MlKitIntroScreen.route) {
+            MlKitIntroScreen(
+                navController,
+                mainViewModel
+            )
+        }
+        composable(MainNavigationScreens.MlKitInformationScreen.route) {
+            MlKitInformationScreen(
+                navController
+            )
+        }
+        composable(MainNavigationScreens.IntegrityNotOkScreen.route) {
             InsecureDeviceScreen(
                 navController,
                 mainViewModel,
@@ -313,14 +336,14 @@ fun MainScreen(
             )
         }
         composable(
-            MainNavigationScreens.RedeemLocally.route,
-            MainNavigationScreens.RedeemLocally.arguments
+            MainNavigationScreens.Redeem.route,
+            MainNavigationScreens.Redeem.arguments
         ) {
-            val taskIds =
-                remember { requireNotNull(it.arguments?.getParcelable("taskIds") as? TaskIds) }
-            RedeemScreen(
-                taskIds = taskIds,
-                navController = navController
+            RedeemNavigation(
+                mainScreenViewModel = mainScreenViewModel,
+                onFinish = {
+                    navController.popBackStack(MainNavigationScreens.Prescriptions.route, false)
+                }
             )
         }
         composable(
@@ -520,7 +543,7 @@ fun MainScreen(
     }
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "ComplexMethod")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun MainScreenWithScaffold(
@@ -531,7 +554,17 @@ fun MainScreenWithScaffold(
     profileSettingsViewModel: ProfileSettingsViewModel
 ) {
     val profileHandler = LocalProfileHandler.current
-    val redeemState = rememberRedeemState(profileHandler.activeProfile)
+    val bottomNavController = rememberNavController()
+
+    val currentBottomNavigationRoute by bottomNavController
+        .currentBackStackEntryFlow
+        .collectAsState(null)
+
+    val isInPrescriptionScreen by remember {
+        derivedStateOf {
+            currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
+        }
+    }
 
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Main) {
@@ -552,15 +585,12 @@ fun MainScreenWithScaffold(
     }
 
     LaunchedEffect(Unit) {
-        if (BuildKonfig.INTERNAL) {
+        if (BuildConfig.DEBUG) {
             return@LaunchedEffect
         }
-
-        mainViewModel.showSafetynetPrompt.collect {
-            if (!it) {
-                withContext(Dispatchers.Main) {
-                    mainNavController.navigate(MainNavigationScreens.SafetynetNotOkScreen.route)
-                }
+        if (!mainViewModel.checkDeviceIntegrity().first()) {
+            withContext(Dispatchers.Main) {
+                mainNavController.navigate(MainNavigationScreens.IntegrityNotOkScreen.route)
             }
         }
     }
@@ -572,9 +602,7 @@ fun MainScreenWithScaffold(
         scaffoldState = scaffoldState
     )
 
-    OrderSuccessDialog(mainScreenViewModel)
-
-    val coroutineScope = rememberCoroutineScope()
+    OrderSuccessHandler(mainScreenViewModel)
 
     var mainScreenBottomSheetContentState: MainScreenBottomSheetContentState? by remember { mutableStateOf(null) }
 
@@ -599,12 +627,14 @@ fun MainScreenWithScaffold(
     LaunchedEffect(Unit) {
         if (mainViewModel.showWelcomeDrawer.first()) {
             mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Connect
-            mainViewModel.welcomeDrawerShown()
         }
     }
 
     LaunchedEffect(sheetState.isVisible) {
         if (sheetState.targetValue == ModalBottomSheetValue.Hidden) {
+            if (mainScreenBottomSheetContentState == MainScreenBottomSheetContentState.Connect) {
+                mainViewModel.welcomeDrawerShown()
+            }
             mainScreenBottomSheetContentState = null
         }
     }
@@ -612,6 +642,14 @@ fun MainScreenWithScaffold(
     var profileToRename by remember {
         mutableStateOf(DefaultProfile)
     }
+
+    val toolTipBounds = remember {
+        mutableStateOf<Map<Int, Rect>>(emptyMap())
+    }
+
+    ToolTips(mainViewModel, isInPrescriptionScreen, toolTipBounds)
+
+    val coroutineScope = rememberCoroutineScope()
 
     BackHandler(enabled = sheetState.isVisible) {
         coroutineScope.launch {
@@ -621,14 +659,15 @@ fun MainScreenWithScaffold(
 
     ModalBottomSheetLayout(
         sheetState = sheetState,
-        modifier = Modifier.imePadding(),
+        modifier = Modifier
+            .imePadding()
+            .testTag(TestTag.Main.MainScreenBottomSheet.Modal),
         sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) },
         sheetContent = {
             MainScreenBottomSheetContentState(
                 settingsViewModel = settingsViewModel,
                 profileSettingsViewModel = profileSettingsViewModel,
                 infoContentState = mainScreenBottomSheetContentState,
-                redeemState = redeemState,
                 mainNavController = mainNavController,
                 profileToRename = profileToRename,
                 onCancel = {
@@ -639,12 +678,6 @@ fun MainScreenWithScaffold(
             )
         }
     ) {
-        val bottomNavController = rememberNavController()
-
-        val currentBottomNavigationRoute by bottomNavController
-            .currentBackStackEntryFlow
-            .collectAsState(null)
-
         // TODO: move to general place?
         ExternalAuthenticationDialog()
 
@@ -653,15 +686,12 @@ fun MainScreenWithScaffold(
         Scaffold(
             modifier = Modifier.testTag(TestTag.Main.MainScreen),
             topBar = {
-                val isInPrescriptionScreen by derivedStateOf {
-                    currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
-                }
-
                 if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
                     MultiProfileTopAppBar(
                         navController = mainNavController,
                         elevated = topBarElevated,
                         mainScreenViewModel = mainScreenViewModel,
+                        mainViewModel = mainViewModel,
                         isInPrescriptionScreen = isInPrescriptionScreen,
                         onClickAddProfile = {
                             mainScreenBottomSheetContentState =
@@ -670,7 +700,8 @@ fun MainScreenWithScaffold(
                         onClickChangeProfileName = { profile ->
                             profileToRename = profile
                             mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditOrAddProfileName()
-                        }
+                        },
+                        tooltipBounds = toolTipBounds
                     )
                 }
             },
@@ -683,17 +714,13 @@ fun MainScreenWithScaffold(
                 )
             },
             floatingActionButton = {
-                val showRedeemFab by derivedStateOf {
-                    redeemState.hasRedeemableTasks &&
-                        currentBottomNavigationRoute?.destination?.route ==
-                        MainNavigationScreens.Prescriptions.route
+                if (isInPrescriptionScreen) {
+                    RedeemFloatingActionButton(
+                        onClick = {
+                            mainNavController.navigate(MainNavigationScreens.Redeem.path())
+                        }
+                    )
                 }
-                RedeemFloatingActionButton(
-                    visible = showRedeemFab,
-                    onClick = {
-                        mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Redeem
-                    }
-                )
             },
             scaffoldState = scaffoldState
         ) { innerPadding ->
@@ -851,7 +878,9 @@ fun MainScreenTopBarTitle(isInPrescriptionScreen: Boolean) {
 fun ProfilesChipBar(
     mainScreenViewModel: MainScreenViewModel,
     onClickAddProfile: () -> Unit,
-    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit
+    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit,
+    tooltipBounds: MutableState<Map<Int, Rect>>,
+    toolTipBoundsRequired: Boolean
 ) {
     val profileHandler = LocalProfileHandler.current
     val profiles = profileHandler.profiles.value
@@ -887,22 +916,30 @@ fun ProfilesChipBar(
                     mainScreenViewModel = mainScreenViewModel,
                     selected = profile.id == profileHandler.activeProfile.id,
                     onClickChip = { scope.launch { profileHandler.switchActiveProfile(profile) } },
-                    onClickChangeProfileName = onClickChangeProfileName
+                    onClickChangeProfileName = onClickChangeProfileName,
+                    tooltipBounds = tooltipBounds,
+                    toolTipBoundsRequired = toolTipBoundsRequired
                 )
                 SpacerSmall()
             }
         }
         item {
-            AddProfileChip {
-                onClickAddProfile()
-            }
+            AddProfileChip(
+                onClickAddProfile = onClickAddProfile,
+                tooltipBounds = tooltipBounds,
+                toolTipBoundsRequired = toolTipBoundsRequired
+            )
             SpacerMedium()
         }
     }
 }
 
 @Composable
-fun AddProfileChip(onClickAddProfile: () -> Unit) {
+fun AddProfileChip(
+    onClickAddProfile: () -> Unit,
+    tooltipBounds: MutableState<Map<Int, Rect>>,
+    toolTipBoundsRequired: Boolean
+) {
     val shape = RoundedCornerShape(8.dp)
 
     Surface(
@@ -911,7 +948,13 @@ fun AddProfileChip(onClickAddProfile: () -> Unit) {
             .clickable {
                 onClickAddProfile()
             }
-            .height(IntrinsicSize.Max),
+            .height(IntrinsicSize.Max)
+            .onGloballyPositioned { coordinates ->
+                if (toolTipBoundsRequired) {
+                    tooltipBounds.value += Pair(2, coordinates.boundsInRoot())
+                }
+            }
+            .testTag(TestTag.Main.AddProfileButton),
         shape = shape,
         border = BorderStroke(1.dp, AppTheme.colors.neutral300)
     ) {
@@ -936,7 +979,9 @@ fun ProfileChip(
     selected: Boolean,
     mainScreenViewModel: MainScreenViewModel,
     onClickChip: (ProfileIdentifier) -> Unit,
-    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit
+    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit,
+    tooltipBounds: MutableState<Map<Int, Rect>>,
+    toolTipBoundsRequired: Boolean
 ) {
     val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenViewModel)
 
@@ -950,9 +995,6 @@ fun ProfileChip(
     }
 
     var iconVisible by remember { mutableStateOf(false) }
-
-    val coroutineScope = rememberCoroutineScope()
-
     val ssoTokenScope = profile.ssoTokenScope
 
     LaunchedEffect(Unit) {
@@ -1017,6 +1059,11 @@ fun ProfileChip(
             .width(IntrinsicSize.Max)
             .semantics {
                 contentDescription = description
+            }
+            .onGloballyPositioned { coordinates ->
+                if (profile.active && toolTipBoundsRequired) {
+                    tooltipBounds.value += Pair(1, coordinates.boundsInRoot())
+                }
             },
         shape = shape,
         border = BorderStroke(1.dp, borderColor),
@@ -1071,13 +1118,24 @@ fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoTokenScope: IdpData.
 fun MultiProfileTopAppBar(
     navController: NavController,
     mainScreenViewModel: MainScreenViewModel,
+    mainViewModel: MainViewModel,
     isInPrescriptionScreen: Boolean,
     elevated: Boolean,
     onClickAddProfile: () -> Unit,
-    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit
+    onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit,
+    tooltipBounds: MutableState<Map<Int, Rect>>
 ) {
     val accScan = stringResource(R.string.main_scan_acc)
     val elevation = remember(elevated) { if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp }
+
+    val toolTipBoundsRequired by produceState(initialValue = false) {
+        mainViewModel.showMainScreenToolTips().collect {
+            value = it
+        }
+    }
+
+    val scope = rememberCoroutineScope()
+
     TopAppBarWithContent(
         title = {
             MainScreenTopBarTitle(isInPrescriptionScreen)
@@ -1085,33 +1143,26 @@ fun MultiProfileTopAppBar(
         elevation = elevation,
         backgroundColor = AppTheme.colors.neutral025,
         actions = @Composable {
-            var showMlKitPermissionDialog by remember { mutableStateOf(false) }
-
-            if (showMlKitPermissionDialog) {
-                MlKitPermissionDialog(
-                    onAccept = {
-                        navController.navigate(MainNavigationScreens.Camera.path())
-                        showMlKitPermissionDialog = false
-                    },
-                    onDecline = {
-                        showMlKitPermissionDialog = false
-                    }
-                )
-            }
-
             if (isInPrescriptionScreen) {
                 // data matrix code scanner
                 IconButton(
                     onClick = {
-                        if (!isMlKitInitialized()) {
-                            showMlKitPermissionDialog = true
-                        } else {
-                            navController.navigate(MainNavigationScreens.Camera.path())
+                        scope.launch {
+                            if (mainViewModel.mlKitNotAccepted().first()) {
+                                navController.navigate(MainNavigationScreens.MlKitIntroScreen.path())
+                            } else {
+                                navController.navigate(MainNavigationScreens.Camera.path())
+                            }
                         }
                     },
                     modifier = Modifier
                         .testTag("erx_btn_scn_prescription")
                         .semantics { contentDescription = accScan }
+                        .onGloballyPositioned { coordinates ->
+                            if (toolTipBoundsRequired) {
+                                tooltipBounds.value += Pair(0, coordinates.boundsInRoot())
+                            }
+                        }
                 ) {
                     Icon(
                         imageVector = Icons.Rounded.AddCircle,
@@ -1126,31 +1177,10 @@ fun MultiProfileTopAppBar(
             ProfilesChipBar(
                 mainScreenViewModel = mainScreenViewModel,
                 onClickAddProfile = onClickAddProfile,
-                onClickChangeProfileName = onClickChangeProfileName
+                onClickChangeProfileName = onClickChangeProfileName,
+                tooltipBounds = tooltipBounds,
+                toolTipBoundsRequired = toolTipBoundsRequired
             )
         }
-    )
-}
-
-fun isMlKitInitialized() =
-    try {
-        MlKitContext.getInstance()
-        true
-    } catch (_: Exception) {
-        false
-    }
-
-@Composable
-fun MlKitPermissionDialog(
-    onAccept: () -> Unit,
-    onDecline: () -> Unit
-) {
-    CommonAlertDialog(
-        header = stringResource(R.string.cam_accept_mlkit_title),
-        info = stringResource(R.string.cam_accept_mlkit_body),
-        cancelText = stringResource(R.string.cam_accept_mlkit_decline),
-        actionText = stringResource(R.string.cam_accept_mlkit_accept),
-        onCancel = onDecline,
-        onClickAction = onAccept
     )
 }

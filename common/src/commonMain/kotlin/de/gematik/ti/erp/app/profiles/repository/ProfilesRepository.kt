@@ -142,7 +142,9 @@ class ProfilesRepository constructor(
 
                 queryFirst<ProfileEntityV1>("id = $0", profileId)?.let { profileToDelete ->
                     if (profileToDelete.active) {
-                        findLatest(profiles.query("id != $0", profileId).first())?.active = true
+                        profiles.query("id != $0", profileId).first().find()?.let {
+                            findLatest(it)?.active = true
+                        }
                     }
 
                     deleteAll(profileToDelete)

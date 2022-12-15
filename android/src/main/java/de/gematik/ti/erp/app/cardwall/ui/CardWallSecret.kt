@@ -160,6 +160,7 @@ fun SecretInputField(
     modifier: Modifier,
     secretRange: IntRange,
     onSecretChange: (String) -> Unit,
+    isConsistent: Boolean = true,
     secret: String,
     label: String,
     next: (String) -> Unit
@@ -193,7 +194,9 @@ fun SecretInputField(
             trailingIconColor = AppTheme.colors.neutral400
         ),
         keyboardActions = KeyboardActions {
-            next(secret)
+            if (isConsistent && secret.length in secretRange) {
+                next(secret)
+            }
         },
         trailingIcon = {
             IconToggleButton(
@@ -243,7 +246,8 @@ fun ConformationSecretInputField(
         },
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
-            keyboardType = KeyboardType.NumberPassword
+            keyboardType = KeyboardType.NumberPassword,
+            imeAction = ImeAction.Next
         ),
         shape = RoundedCornerShape(8.dp),
         colors =
@@ -261,7 +265,9 @@ fun ConformationSecretInputField(
             }
         },
         keyboardActions = KeyboardActions {
-            next(secret)
+            if (isConsistent) {
+                next(secret)
+            }
         },
         trailingIcon = {
             if (isConsistent) {

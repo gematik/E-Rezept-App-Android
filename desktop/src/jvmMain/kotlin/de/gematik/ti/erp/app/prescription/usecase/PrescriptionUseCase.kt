@@ -44,7 +44,9 @@ class PrescriptionUseCase(
 
     fun tasks(): Flow<List<SimpleTask>> = repository.tasks()
 
-    fun prescriptions(type: PrescriptionType = PrescriptionType.NotDispensed): Flow<List<PrescriptionUseCaseData.Prescription>> =
+    fun prescriptions(
+        type: PrescriptionType = PrescriptionType.NotDispensed
+    ): Flow<List<PrescriptionUseCaseData.Prescription>> =
         combine(tasks(), medicationDispenses()) { tasks, dispenses ->
             val dispenseIds = dispenses.map { it.taskId }
             tasks
