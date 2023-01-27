@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -32,7 +32,7 @@ class AuditEventsRepository(
     private val remoteDataSource: AuditEventRemoteDataSource,
     private val localDataSource: AuditEventLocalDataSource,
     private val dispatchers: DispatchProvider
-) : ResourcePaging(dispatchers, AuditEventsMaxPageSize) {
+) : ResourcePaging<Unit>(dispatchers, AuditEventsMaxPageSize) {
 
     suspend fun downloadAuditEvents(profileId: ProfileIdentifier) = downloadPaged(profileId)
 
@@ -42,14 +42,14 @@ class AuditEventsRepository(
         profileId: ProfileIdentifier,
         timestamp: String?,
         count: Int?
-    ): Result<Int> =
+    ): Result<ResourceResult<Unit>> =
         remoteDataSource.getAuditEvents(
             profileId = profileId,
             lastKnownUpdate = timestamp,
             count = count
         ).mapCatching { fhirBundle ->
             withContext(dispatchers.IO) {
-                localDataSource.saveAuditEvents(profileId, fhirBundle)
+                ResourceResult(localDataSource.saveAuditEvents(profileId, fhirBundle), Unit)
             }
         }
 

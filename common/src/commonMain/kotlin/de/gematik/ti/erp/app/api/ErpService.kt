@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -32,7 +32,7 @@ import retrofit2.http.Tag
 interface ErpService {
 
     @GET("Task/{id}")
-    suspend fun taskWithKBVBundle(
+    suspend fun getTaskWithKBVBundle(
         @Tag profileId: ProfileIdentifier,
         @Path("id") id: String
     ): Response<JsonElement>
@@ -44,9 +44,12 @@ interface ErpService {
      * @param lastUpdated expects format like that ge2021-01-31T10:00 where "ge" represents Greater or Equal
      */
     @GET("Task")
-    suspend fun allTasks(
+    suspend fun getTasks(
         @Tag profileId: ProfileIdentifier,
-        @Query("modified") lastUpdated: String?
+        @Query("modified") lastUpdated: String?,
+        @Query("_sort") sort: String = "modified",
+        @Query("_count") count: Int? = null,
+        @Query("__offset") offset: Int? = null
     ): Response<JsonElement>
 
     /**

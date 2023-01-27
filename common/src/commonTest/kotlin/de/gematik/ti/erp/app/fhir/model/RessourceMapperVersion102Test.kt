@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -28,38 +28,11 @@ enum class ReturnType {
     Medication, Ingredient, MultiplePrescriptionInfo, Quantity, Ratio, Address
 }
 
-class KBVMapperTest {
+class RessourceMapperVersion102Test {
 
     @Test
-    fun `process organization`() {
-        val organization = Json.parseToJsonElement(organizationJson)
-
-        val result = extractOrganization(
-            organization,
-            processAddress = { line, postalCode, city ->
-                assertEquals(listOf("Herbert-Lewin-Platz 2"), line)
-                assertEquals("10623", postalCode)
-                assertEquals("Berlin", city)
-
-                ReturnType.Address
-            },
-            processOrganization = { name, address, uniqueIdentifier, phone, mail ->
-                assertEquals("MVZ", name)
-                assertEquals(ReturnType.Address, address)
-                assertEquals("721111100", uniqueIdentifier)
-                assertEquals("0301234567", phone)
-                assertEquals("mvz@e-mail.de", mail)
-
-                ReturnType.Organization
-            }
-        )
-
-        assertEquals(ReturnType.Organization, result)
-    }
-
-    @Test
-    fun `process patient`() {
-        val patient = Json.parseToJsonElement(patientJson)
+    fun `process patient version 1_0_2`() {
+        val patient = Json.parseToJsonElement(patientJson_vers_1_0_2)
         val result = extractPatient(
             patient,
             processAddress = { line, postalCode, city ->
@@ -83,115 +56,9 @@ class KBVMapperTest {
     }
 
     @Test
-    fun `process practitioner`() {
-        val practitioner = Json.parseToJsonElement(practitionerJson)
-        val result = extractPractitioner(
-            practitioner,
-            processPractitioner = { name, qualification, practitionerIdentifier ->
-                assertEquals("Dr. med. Emma Schneider", name)
-                assertEquals("Fachärztin für Innere Medizin", qualification)
-                assertEquals("987654423", practitionerIdentifier)
-
-                ReturnType.Practitioner
-            }
-        )
-        assertEquals(ReturnType.Practitioner, result)
-    }
-
-    @Test
-    fun `process insuranceInformation`() {
-        val insuranceInformation = Json.parseToJsonElement(insuranceInformationJson)
-        val result = extractInsuranceInformation(
-            insuranceInformation,
-            processInsuranceInformation = { name: String?, statusCode: String? ->
-                assertEquals("HEK", name)
-                assertEquals("3", statusCode)
-
-                ReturnType.InsuranceInformation
-            }
-        )
-        assertEquals(ReturnType.InsuranceInformation, result)
-    }
-
-    @Test
-    fun `process quantity`() {
-        val quantityJson = Json.parseToJsonElement(quantityJson)
-        val result = quantityJson.extractQuantity { value, unit ->
-            assertEquals("12", value)
-            assertEquals("TAB", unit)
-            ReturnType.Quantity
-        }
-        assertEquals(ReturnType.Quantity, result)
-    }
-
-    @Test
-    fun `process ratio`() {
-        val ratioJson = Json.parseToJsonElement(ratioJson)
-        val result = ratioJson.extractRatio(
-            quantityFn = { _, _ ->
-                ReturnType.Quantity
-            },
-            ratioFn = { numerator, denominator ->
-                assertEquals(ReturnType.Quantity, numerator)
-                assertEquals(ReturnType.Quantity, denominator)
-
-                ReturnType.Ratio
-            }
-        )
-        assertEquals(ReturnType.Ratio, result)
-    }
-
-    @Test
-    fun `process ingredient`() {
-        val ingredientJson = Json.parseToJsonElement(ingredientJson)
-        val result = ingredientJson.extractIngredient(
-            quantityFn = { _, _ ->
-                ReturnType.Quantity
-            },
-            ratioFn = { numerator, denominator ->
-                assertEquals(ReturnType.Quantity, numerator)
-                assertEquals(ReturnType.Quantity, denominator)
-                ReturnType.Ratio
-            },
-            ingredientFn = { text, form, number, amount, strength ->
-                assertEquals("Wirkstoff Paulaner Weissbier", text)
-                assertEquals(null, form)
-                assertEquals("37197", number)
-                assertEquals(null, amount)
-                assertEquals(ReturnType.Ratio, strength)
-                ReturnType.Ingredient
-            }
-        )
-        assertEquals(ReturnType.Ingredient, result)
-    }
-
-    @Test
-    fun `process multi prescription info`() {
-        val multiPrescriptionInfoJson = Json.parseToJsonElement(multiPrescriptionInfoJson)
-        val result = multiPrescriptionInfoJson.extractMultiplePrescriptionInfo(
-            quantityFn = { _, _ ->
-                ReturnType.Quantity
-            },
-            ratioFn = { numerator, denominator ->
-                assertEquals(ReturnType.Quantity, numerator)
-                assertEquals(ReturnType.Quantity, denominator)
-                ReturnType.Ratio
-            },
-            processMultiplePrescriptionInfo = {
-                    indicator, numbering, start ->
-                assertEquals(true, indicator)
-                assertEquals(ReturnType.Ratio, numbering)
-                assertEquals(LocalDate.parse("2022-08-17"), start)
-                ReturnType.MultiplePrescriptionInfo
-            }
-        )
-        assertEquals(ReturnType.MultiplePrescriptionInfo, result)
-    }
-
-    @Test
-    fun `process medicationPzn`() {
-        val medicationPznJson = Json.parseToJsonElement(medicationPznJson)
-        val result = extractMedication(
+    fun `process medicationPzn version 1_0_2`() {
+        val medicationPznJson = Json.parseToJsonElement(medicationPznJson_vers_1_0_2)
+        val result = extractPZNMedication(
             medicationPznJson,
             quantityFn = { _, _ ->
                 ReturnType.Quantity
@@ -200,14 +67,6 @@ class KBVMapperTest {
                 assertEquals(ReturnType.Quantity, numerator)
                 assertEquals(ReturnType.Quantity, denominator)
                 ReturnType.Ratio
-            },
-            ingredientFn = { text, form, number, amount, strength ->
-                assertEquals("Wirkstoff Paulaner Weissbier", text)
-                assertEquals(null, form)
-                assertEquals("", number)
-                assertEquals(null, amount)
-                assertEquals(ReturnType.Ratio, strength)
-                ReturnType.Ingredient
             },
             processMedication = {
                     text, medicationProfile, medicationCategory, form, amount, vaccine,
@@ -233,9 +92,9 @@ class KBVMapperTest {
     }
 
     @Test
-    fun `process medication ingredient`() {
-        val medicationIngredientJson = Json.parseToJsonElement(medicationIngredientJson)
-        val result = extractMedication(
+    fun `process medication ingredient version 1_0_2`() {
+        val medicationIngredientJson = Json.parseToJsonElement(medicationIngredientJson_vers_1_0_2)
+        val result = extractMedicationIngredient(
             medicationIngredientJson,
             quantityFn = { _, _ ->
                 ReturnType.Quantity
@@ -278,9 +137,9 @@ class KBVMapperTest {
     }
 
     @Test
-    fun `process medication compounding`() {
-        val medicationCompoundingJson = Json.parseToJsonElement(medicationCompoundingJson)
-        val result = extractMedication(
+    fun `process medication compounding version 1_0_2`() {
+        val medicationCompoundingJson = Json.parseToJsonElement(medicationCompoundingJson_vers_1_0_2)
+        val result = extractMedicationCompounding(
             medicationCompoundingJson,
             quantityFn = { _, _ ->
                 ReturnType.Quantity
@@ -317,19 +176,15 @@ class KBVMapperTest {
     }
 
     @Test
-    fun `process medication freetext`() {
-        val medicationFreetextJson = Json.parseToJsonElement(medicationFreetextJson)
-        val result = extractMedication(
+    fun `process medication freetext version 1_0_2`() {
+        val medicationFreetextJson = Json.parseToJsonElement(medicationFreetextJson_vers_1_0_2)
+        val result = extractMedicationFreetext(
             medicationFreetextJson,
             quantityFn = { _, _ ->
                 ReturnType.Quantity
             },
             ratioFn = { _, _ ->
                 ReturnType.Ratio
-            },
-            ingredientFn = { _, _, _, _, strength ->
-                assertEquals(ReturnType.Ratio, strength)
-                ReturnType.Ingredient
             },
             processMedication = {
                     text, medicationProfile, medicationCategory, form, amount, vaccine,
@@ -356,8 +211,8 @@ class KBVMapperTest {
     }
 
     @Test
-    fun `process medicationRequest`() {
-        val medicationRequestJson = Json.parseToJsonElement(medicationRequestJson)
+    fun `process medicationRequest version 1_0_2`() {
+        val medicationRequestJson = Json.parseToJsonElement(medicationRequestJson_vers_1_0_2)
         val result = extractMedicationRequest(
             medicationRequestJson,
             quantityFn = { _, _ ->
@@ -374,13 +229,24 @@ class KBVMapperTest {
                 assertEquals(LocalDate.parse("2022-08-17"), start)
                 ReturnType.MultiplePrescriptionInfo
             },
-            processMedicationRequest = { dateOfAccident, location, emergencyFee, substitutionAllowed, dosageInstruction,
-                multiplePrescriptionInfo, note, bvg, additionalFee ->
+            processMedicationRequest = { dateOfAccident,
+                location,
+                accidentType,
+                emergencyFee,
+                substitutionAllowed,
+                dosageInstruction,
+                quantity,
+                multiplePrescriptionInfo,
+                note,
+                bvg,
+                additionalFee ->
                 assertEquals(LocalDate.parse("2022-06-29"), dateOfAccident)
                 assertEquals("Dummy-Betrieb", location)
+                assertEquals(AccidentType.Arbeitsunfall, accidentType)
                 assertEquals(false, emergencyFee)
                 assertEquals(true, substitutionAllowed)
                 assertEquals("1-2-1-2-0", dosageInstruction)
+                assertEquals(12, quantity)
                 assertEquals(ReturnType.MultiplePrescriptionInfo, multiplePrescriptionInfo)
                 assertEquals("Bitte laengliche Tabletten.", note)
                 assertEquals(true, bvg)

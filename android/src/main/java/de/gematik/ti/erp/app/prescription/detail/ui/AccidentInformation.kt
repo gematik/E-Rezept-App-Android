@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -35,6 +34,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -50,7 +50,10 @@ fun AccidentInformation(
     prescription: PrescriptionData.Synced,
     onBack: () -> Unit
 ) {
-    val isAccident by derivedStateOf { prescription.medicationRequest.dateOfAccident != null }
+    // TODO : UI for accident types
+    val isAccident = remember(prescription) {
+        prescription.medicationRequest.accidentType != SyncedTaskData.AccidentType.None
+    }
 
     val listState = rememberLazyListState()
     AnimatedElevationScaffold(

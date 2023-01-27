@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -41,7 +41,6 @@ import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.fhir.model.MedicationCategory
 import de.gematik.ti.erp.app.medicationCategory
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -129,6 +128,9 @@ fun LazyListScope.medicationRequest(medicationRequest: SyncedTaskData.Medication
         DosageInstructionLabel(medicationRequest.dosageInstruction)
     }
     item {
+        QuantityLabel(medicationRequest.quantity)
+    }
+    item {
         medicationRequest.note?.let { NoteLabel(it) }
     }
     item {
@@ -181,9 +183,12 @@ fun LazyListScope.pznMedicationInformation(medication: SyncedTaskData.Medication
         }
     }
 
-    item {
-        CategoryLabel(medication.category)
+    if (medication.category != SyncedTaskData.MedicationCategory.UNKNOWN) {
+        item {
+            CategoryLabel(medication.category)
+        }
     }
+
     item {
         VaccineLabel(medication.vaccine)
     }
@@ -379,11 +384,23 @@ fun DosageInstructionLabel(dosageInstruction: String?) {
 }
 
 @Composable
+fun QuantityLabel(quantity: Int) {
+    if (quantity > 0) {
+        Label(
+            modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Quantity),
+            text = quantity.toString(),
+            label = stringResource(R.string.pres_detail_medication_label_quantity)
+        )
+    }
+}
+
+@Composable
 fun CategoryLabel(category: SyncedTaskData.MedicationCategory) {
     val text = when (category) {
         SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL -> stringResource(R.string.medicines_bandages)
         SyncedTaskData.MedicationCategory.BTM -> stringResource(R.string.narcotics)
         SyncedTaskData.MedicationCategory.AMVV -> stringResource(R.string.amvv)
+        else -> null
     }
 
     Label(
@@ -396,6 +413,7 @@ fun CategoryLabel(category: SyncedTaskData.MedicationCategory) {
                             SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL -> "00"
                             SyncedTaskData.MedicationCategory.BTM -> "01"
                             SyncedTaskData.MedicationCategory.AMVV -> "02"
+                            else -> null
                         }
                     }
                 } else {
@@ -554,10 +572,10 @@ fun IngredientNameLabel(text: String, index: Int? = null, onClickLabel: (() -> U
 }
 
 @Composable
-fun StrengtLabel(strength: SyncedTaskData.Ratio) {
-    if (strength.numerator != null) {
+fun StrengthLabel(strength: SyncedTaskData.Ratio) {
+    strength.numerator?.let {
         Label(
-            text = strength.numerator.value + " " + strength.numerator.unit,
+            text = it.value + " " + it.unit,
             label = stringResource(id = R.string.pres_detail_medication_label_ingredient_strength_unit)
         )
     }

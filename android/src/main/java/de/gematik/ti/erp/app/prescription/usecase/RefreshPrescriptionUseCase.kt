@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.orders.repository.CommunicationRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import io.github.aakira.napier.Napier
@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class RefreshPrescriptionUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: TaskRepository,
     private val communicationRepository: CommunicationRepository,
     private val auditRepository: AuditEventsRepository,
     dispatchers: DispatchProvider

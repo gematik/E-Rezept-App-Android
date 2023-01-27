@@ -677,7 +677,7 @@
     <string name="pharmacy_detail_no_redeemable_prescription_info">Sie haben keine einlösbaren Rezepte</string>
     <string name="prescription_status_later_redeemable">Später einlösbar</string>
     <string name="pres_detail_medication_redeemable_on">Einlösbar ab %s</string>
-    <string name="multiple_prescription_numbering" formatted="false">%s / %s</string>
+    <string name="multiple_prescription_numbering" formatted="false" translatable="false">%s/%s</string>
     <string name="settings_product_improvement_headline">Produktverbesserungen</string>
     <string name="settings_allow_analytics_header">Anonyme Analyse</string>
     <string name="settings_allow_analytics_info">Helfen Sie uns, diese App besser zu machen. Alle Nutzerdaten werden anonym erhoben und dienen ausschließlich der Verbesserung des Nutzungserlebsnisses.</string>
@@ -894,7 +894,17 @@
     <string name="ml_pararaph_9_info">Ja. Alle Zugriffe auf Ihre Daten werden im digitalen Gesundheitsnetz vollständig protokolliert. In der E-Rezept-App können Sie einsehen, wer auf Ihre Daten zugegriffen hat.</string>
     <string name="ml_pararaph_10_header">Wohin kann ich mich wenden, wenn ich Fragen zur App oder dem E-Rezept habe?</string>
     <string name="ml_pararaph_10_info">Ausführliche Informationen finden Sie in der Datenschutzerklärung.</string>
+    <string name="pres_detail_medication_label_quantity">Anzahl der verordneten Packungen</string>
     <string name="main_redeem_no_rx_title">Keine Rezepte</string>
     <string name="main_redeem_no_rx_desc">Hierfür benötigen Sie einlösbare Rezepte.</string>
+    <string name="health_insurance_search_page_title">Versicherung wählen</string>
+    <string name="health_card_search_field_place_holder">Nach Versicherung suchen</string>
+    <string name="health_card_order_cancel">Abbrechen</string>
+    <string name="select_order_option_header">Was möchten Sie beantragen?</string>
+    <string name="select_order_option_info">Für diese App benötigen Sie eine Karte sowie die dazugehörige PIN.</string>
+    <string name="order_health_card_contact_header">Wie möchten Sie Ihre Versicherung kontaktieren?</string>
+    <string name="order_health_card_contact_info">Ihre Versicherung bietet folgende Kontaktmöglichkeiten</string>
+    <string name="order_health_card_contact_info_single">Ihre Versicherung bietet folgende Kontaktmöglichkeit</string>
+    <string name="health_card_order_close">Schließen</string>
 
 </resources>

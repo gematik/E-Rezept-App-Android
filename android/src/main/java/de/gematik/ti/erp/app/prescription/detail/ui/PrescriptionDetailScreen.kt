@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -396,7 +396,11 @@ private fun DeleteAction(
         ) {
             Text(
                 text = stringResource(R.string.pres_detail_dropdown_delete),
-                color = AppTheme.colors.red600
+                color = if (isDeletable) {
+                    AppTheme.colors.red600
+                } else {
+                    AppTheme.colors.neutral400
+                }
             )
         }
     }
@@ -494,11 +498,11 @@ private fun SyncedPrescriptionOverview(
                 )
             }
 
-            if (prescription.medicationRequest.emergencyFee != null) {
+            prescription.medicationRequest.emergencyFee?.let {
                 item {
                     // false - emergencyFee fee is to be paid by the insured (default value)
                     // true - emergencyFee fee is not to be paid by the insured but by the payer
-                    val text = if (prescription.medicationRequest.emergencyFee) {
+                    val text = if (it) {
                         stringResource(R.string.pres_detail_no)
                     } else {
                         stringResource(R.string.pres_detail_yes)
@@ -507,7 +511,7 @@ private fun SyncedPrescriptionOverview(
                         text = text,
                         label = stringResource(R.string.pres_details_emergency_fee),
                         onClick = {
-                            if (prescription.medicationRequest.emergencyFee) {
+                            if (it) {
                                 onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt)
                             } else {
                                 onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFee)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,37 +18,39 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
+import android.media.Image
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DragHandle
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -56,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.ui.AvatarPicker
 import de.gematik.ti.erp.app.profiles.ui.ColorPicker
@@ -68,11 +71,12 @@ import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
-import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.sanitizeProfileName
+import kotlinx.coroutines.launch
 
 @Stable
 sealed class MainScreenBottomSheetContentState {
@@ -91,6 +95,7 @@ sealed class MainScreenBottomSheetContentState {
 @Composable
 fun MainScreenBottomSheetContentState(
     settingsViewModel: SettingsViewModel,
+    mainViewModel: MainViewModel,
     profileSettingsViewModel: ProfileSettingsViewModel,
     infoContentState: MainScreenBottomSheetContentState?,
     mainNavController: NavController,
@@ -102,27 +107,23 @@ fun MainScreenBottomSheetContentState(
     val title = when (infoContentState) {
         MainScreenBottomSheetContentState.EditProfile ->
             stringResource(R.string.mainscreen_bottom_sheet_edit_profile_image)
-        MainScreenBottomSheetContentState.Connect ->
-            stringResource(R.string.mainscreen_welcome_drawer_header)
         is MainScreenBottomSheetContentState.EditOrAddProfileName ->
             stringResource(R.string.bottom_sheet_edit_profile_name_title)
         else -> null
     }
 
+    val scope = rememberCoroutineScope()
+
     Column(
         Modifier
             .fillMaxWidth()
+            .navigationBarsPadding()
             .padding(horizontal = PaddingDefaults.Medium)
             .padding(top = PaddingDefaults.Small, bottom = PaddingDefaults.XXLarge),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Icon(
-            Icons.Rounded.DragHandle,
-            null,
-            tint = AppTheme.colors.neutral600
-        )
-        SpacerMedium()
         title?.let {
+            SpacerMedium()
             Text(it, style = AppTheme.typography.subtitle1)
             SpacerMedium()
         }
@@ -164,11 +165,22 @@ fun MainScreenBottomSheetContentState(
                             onCancel = onCancel
                         )
                     MainScreenBottomSheetContentState.Connect ->
-                        ConnectBottomSheetContent(onClickConnect = {
-                            mainNavController.navigate(
-                                MainNavigationScreens.CardWall.path(profileHandler.activeProfile.id)
-                            )
-                        }, onCancel)
+                        ConnectBottomSheetContent(
+                            onClickConnect = {
+                                scope.launch {
+                                    mainViewModel.welcomeDrawerShown()
+                                }
+                                mainNavController.navigate(
+                                    MainNavigationScreens.CardWall.path(profileHandler.activeProfile.id)
+                                )
+                            },
+                            onCancel = {
+                                scope.launch {
+                                    mainViewModel.welcomeDrawerShown()
+                                }
+                                onCancel()
+                            }
+                        )
                 }
             }
         }
@@ -317,20 +329,30 @@ private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        SpacerSmall()
+        Image(
+            painterResource(R.drawable.man_phone_blue_circle),
+            null
+        )
+        Text(
+            stringResource(R.string.mainscreen_welcome_drawer_header),
+            style = AppTheme.typography.subtitle1,
+            textAlign = TextAlign.Center
+        )
+        SpacerSmall()
         Text(
             stringResource(R.string.mainscreen_welcome_drawer_info),
             style = AppTheme.typography.body2l,
             textAlign = TextAlign.Center
         )
         SpacerLarge()
-        PrimaryButtonLarge(
+        PrimaryButton(
             modifier = Modifier
-                .fillMaxWidth()
                 .testTag(TestTag.Main.MainScreenBottomSheet.LoginButton),
             onClick = onClickConnect,
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = AppTheme.colors.primary100,
-                contentColor = AppTheme.colors.primary700
+            contentPadding = PaddingValues(
+                vertical = 13.dp,
+                horizontal = 48.dp
             )
         ) {
             Text(

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -40,6 +40,8 @@ import okhttp3.TlsVersion
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import io.github.aakira.napier.Napier
+import okhttp3.Interceptor
+import okhttp3.Response
 import org.kodein.di.DI
 import org.kodein.di.bindInstance
 import org.kodein.di.bindMultiton
@@ -51,6 +53,17 @@ import java.util.concurrent.TimeUnit
 private const val HTTP_CONNECTION_TIMEOUT = 10000L
 private const val HTTP_READ_TIMEOUT = 10000L
 private const val HTTP_WRITE_TIMEOUT = 10000L
+
+class AuditEventFilteredHttpLoggingInterceptor(
+    private val loggingInterceptor: HttpLoggingInterceptor
+) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response =
+        if ("AuditEvent" in chain.request().url.encodedPath) {
+            chain.proceed(chain.request())
+        } else {
+            loggingInterceptor.intercept(chain)
+        }
+}
 
 class NapierLogger(tagSuffix: String? = null) : HttpLoggingInterceptor.Logger {
     private val tag = if (tagSuffix != null) {
@@ -107,16 +120,18 @@ val networkModule = DI.Module("Network Module") {
         }
     }
 
-    bindMultiton<Pair<String, Boolean>, HttpLoggingInterceptor>(PrefixedLoggerTag) { (tagSuffix, withBody) ->
-        HttpLoggingInterceptor(NapierLogger(tagSuffix)).also {
-            if (BuildKonfig.INTERNAL) {
-                if (withBody) {
-                    it.setLevel(HttpLoggingInterceptor.Level.BODY)
-                } else {
-                    it.setLevel(HttpLoggingInterceptor.Level.HEADERS)
+    bindMultiton<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag) { (tagSuffix, withBody) ->
+        AuditEventFilteredHttpLoggingInterceptor(
+            HttpLoggingInterceptor(NapierLogger(tagSuffix)).also {
+                if (BuildKonfig.INTERNAL) {
+                    if (withBody) {
+                        it.setLevel(HttpLoggingInterceptor.Level.BODY)
+                    } else {
+                        it.setLevel(HttpLoggingInterceptor.Level.HEADERS)
+                    }
                 }
             }
-        }
+        )
     }
 
     // IDP Service
@@ -152,9 +167,9 @@ val networkModule = DI.Module("Network Module") {
         val bearerInterceptor = instance<BearerHeaderInterceptor>()
         val endpointHelper = instance<EndpointHelper>()
         val innerLoggingInterceptor =
-            instance<Pair<String, Boolean>, HttpLoggingInterceptor>(PrefixedLoggerTag, "[inner request]" to true)
+            instance<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag, "[inner request]" to true)
         val outerLoggingInterceptor =
-            instance<Pair<String, Boolean>, HttpLoggingInterceptor>(PrefixedLoggerTag, "[outer request]" to false)
+            instance<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag, "[outer request]" to false)
 
         clientBuilder.cache(null)
 

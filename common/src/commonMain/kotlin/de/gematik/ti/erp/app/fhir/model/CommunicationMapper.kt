@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -131,7 +131,17 @@ fun extractCommunications(
             profileValue("https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq").invoke(profileString) ->
                 CommunicationProfile.ErxCommunicationDispReq
 
-            // without profile versiob
+            profileValue("https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq", "1.1.1").invoke(
+                profileString
+            ) ->
+                CommunicationProfile.ErxCommunicationDispReq
+
+            profileValue("https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq", "1.2").invoke(
+                profileString
+            ) ->
+                CommunicationProfile.ErxCommunicationDispReq
+
+            // without profile version
             profileValue(
                 "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply"
             ).invoke(profileString) ->
@@ -140,6 +150,12 @@ fun extractCommunications(
             profileValue(
                 "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply",
                 "1.1.1"
+            ).invoke(profileString) ->
+                CommunicationProfile.ErxCommunicationReply
+
+            profileValue(
+                "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply",
+                "1.2"
             ).invoke(profileString) ->
                 CommunicationProfile.ErxCommunicationReply
 

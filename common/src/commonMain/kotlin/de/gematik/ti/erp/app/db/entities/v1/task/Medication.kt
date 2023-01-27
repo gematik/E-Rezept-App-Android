@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -33,11 +33,12 @@ import java.time.temporal.TemporalAccessor
 enum class MedicationCategoryV1 {
     ARZNEI_UND_VERBAND_MITTEL,
     BTM,
-    AMVV
+    AMVV,
+    UNKNOWN
 }
 
 enum class MedicationProfileV1 {
-    PZN, COMPOUNDING, INGREDIENT, FREETEXT
+    PZN, COMPOUNDING, INGREDIENT, FREETEXT, UNKNOWN
 }
 
 class MedicationEntityV1 : RealmObject, Cascading {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -48,7 +48,11 @@ import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.prescriptionId
+import de.gematik.ti.erp.app.prescriptionIds
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
@@ -95,6 +99,7 @@ fun PrescriptionSelection(
 
     val listState = rememberLazyListState()
     AnimatedElevationScaffold(
+        modifier = Modifier.testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Screen),
         topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
         navigationMode = NavigationBarMode.Back,
         listState = listState,
@@ -102,12 +107,18 @@ fun PrescriptionSelection(
     ) {
         Column(Modifier.fillMaxSize()) {
             LazyColumn(
-                modifier = Modifier.weight(1f),
+                modifier = Modifier
+                    .weight(1f)
+                    .testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Content)
+                    .semantics {
+                        prescriptionIds = prescriptions.map { it.taskId }
+                    },
                 state = listState
             ) {
                 prescriptions.forEach { prescription ->
                     item(key = "prescription-${prescription.taskId}") {
                         PrescriptionItem(
+                            modifier = Modifier,
                             prescription = prescription,
                             checked = remember(prescription, order) { prescription in order.prescriptions },
                             onCheckedChange = {
@@ -132,6 +143,7 @@ fun PrescriptionSelection(
 
 @Composable
 private fun PrescriptionItem(
+    modifier: Modifier,
     prescription: PharmacyUseCaseData.PrescriptionOrder,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
@@ -139,13 +151,17 @@ private fun PrescriptionItem(
     val scannedRxTxt = stringResource(R.string.pres_details_scanned_prescription)
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .toggleable(
                 value = checked,
                 onValueChange = onCheckedChange,
                 role = Role.Checkbox
             )
             .padding(PaddingDefaults.Medium)
+            .semantics {
+                selected = checked
+                prescriptionId = prescription.taskId
+            }
     ) {
         val dt = remember(prescription) { dateTimeShortText(prescription.timestamp) }
         Column(Modifier.weight(1f)) {

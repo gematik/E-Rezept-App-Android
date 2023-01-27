@@ -1,0 +1,13 @@
+{
+  "itemCodeableConcept": {
+    "text": "2-propanol 70 %"
+  },
+  "strength": {
+    "extension": [
+      {
+        "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Ingredient_Amount",
+        "valueString": "Ad 100 g"
+      }
+    ]
+  }
+}

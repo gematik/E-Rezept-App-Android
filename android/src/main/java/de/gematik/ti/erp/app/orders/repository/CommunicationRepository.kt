@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -45,7 +45,7 @@ class CommunicationRepository(
     private val cacheLocalDataSource: PharmacyCacheLocalDataSource,
     private val cacheRemoteDataSource: PharmacyCacheRemoteDataSource,
     private val dispatchers: DispatchProvider
-) : ResourcePaging(dispatchers, CommunicationsMaxPageSize) {
+) : ResourcePaging<Unit>(dispatchers, CommunicationsMaxPageSize) {
     private val scope = CoroutineScope(dispatchers.IO)
     private val queue = Channel<String>(capacity = Channel.BUFFERED)
 
@@ -72,13 +72,19 @@ class CommunicationRepository(
 
     suspend fun downloadCommunications(profileId: ProfileIdentifier) = downloadPaged(profileId)
 
-    override suspend fun downloadResource(profileId: ProfileIdentifier, timestamp: String?, count: Int?): Result<Int> =
+    override suspend fun downloadResource(
+        profileId: ProfileIdentifier,
+        timestamp: String?,
+        count: Int?
+    ): Result<ResourceResult<Unit>> =
         taskRemoteDataSource.fetchCommunications(
             profileId = profileId,
             count = count,
             lastKnownUpdate = timestamp
         ).mapCatching { communications ->
             taskLocalDataSource.saveCommunications(communications)
+        }.map {
+            ResourceResult(it, Unit)
         }
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -334,7 +334,7 @@ private fun VanishingTopBar(
                 Box(
                     Modifier
                         .size(32.dp)
-                        .background(AppTheme.colors.primary100, CircleShape),
+                        .background(AppTheme.colors.neutral000, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
@@ -448,6 +448,7 @@ private fun PrescriptionSelectionButton(
     }
 
     FlatButton(
+        modifier = Modifier.testTag(TestTag.PharmacySearch.OrderSummary.PrescriptionSelectionButton),
         onClick = onClick
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {

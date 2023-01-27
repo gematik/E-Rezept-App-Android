@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -103,12 +103,19 @@ fun extractTaskAndKBVBundle(
             profileString.isProfileValue(
                 "https://gematik.de/fhir/StructureDefinition/ErxTask",
                 "1.1.1"
+            ) || profileString.isProfileValue(
+                "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
+                "1.2"
             ) -> {
                 task = resource
             }
+
             profileString.isProfileValue(
                 "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",
                 "1.0.2"
+            ) || profileString.isProfileValue(
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",
+                "1.1.0"
             ) -> {
                 kbvBundle = resource
             }
@@ -119,6 +126,40 @@ fun extractTaskAndKBVBundle(
 }
 
 fun extractTask(
+    task: JsonElement,
+    process: (
+        taskId: String,
+        accessCode: String?,
+        lastModified: Instant,
+        expiresOn: LocalDate?,
+        acceptUntil: LocalDate?,
+        authoredOn: Instant,
+        status: TaskStatus
+    ) -> Unit
+) {
+    val profileString = task
+        .contained("meta")
+        .contained("profile")
+        .contained()
+
+    when {
+        profileString.isProfileValue(
+            "https://gematik.de/fhir/StructureDefinition/ErxTask",
+            "1.1.1"
+        ) -> {
+            extractTaskVersion111(task, process)
+        }
+
+        profileString.isProfileValue(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
+            "1.2"
+        ) -> {
+            extractTaskVersion12(task, process)
+        }
+    }
+}
+
+fun extractTaskVersion111(
     task: JsonElement,
     process: (
         taskId: String,
@@ -142,20 +183,7 @@ fun extractTask(
         .firstOrNull()
         ?.containedString("value")
 
-    val status = when (task.containedString("status")) {
-        "ready" -> TaskStatus.Ready
-        "in-progress" -> TaskStatus.InProgress
-        "completed" -> TaskStatus.Completed
-        "canceled" -> TaskStatus.Canceled
-        "accepted" -> TaskStatus.Accepted
-        "draft" -> TaskStatus.Draft
-        "failed" -> TaskStatus.Failed
-        "on-hold" -> TaskStatus.OnHold
-        "requested" -> TaskStatus.Requested
-        "received" -> TaskStatus.Received
-        "rejected" -> TaskStatus.Rejected
-        else -> TaskStatus.Other
-    }
+    val status = mapTaskstatus(task.containedString("status"))
 
     val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asInstant()) {
         "Couldn't parse `authoredOn`"
@@ -187,4 +215,77 @@ fun extractTask(
         authoredOn,
         status
     )
+}
+
+fun extractTaskVersion12(
+    task: JsonElement,
+    process: (
+        taskId: String,
+        accessCode: String?,
+        lastModified: Instant,
+        expiresOn: LocalDate?,
+        acceptUntil: LocalDate?,
+        authoredOn: Instant,
+        status: TaskStatus
+    ) -> Unit
+) {
+    val taskId = task
+        .findAll("identifier")
+        .filterWith("system", stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"))
+        .first()
+        .containedString("value")
+
+    val accessCode = task
+        .findAll("identifier")
+        .filterWith("system", stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode"))
+        .firstOrNull()
+        ?.containedString("value")
+
+    val status = mapTaskstatus(task.containedString("status"))
+
+    val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asInstant()) {
+        "Couldn't parse `authoredOn`"
+    }
+    val lastModified = requireNotNull(task.contained("lastModified").jsonPrimitive.asInstant()) {
+        "Couldn't parse `lastModified`"
+    }
+
+    val expiresOn = task
+        .findAll("extension")
+        .filterWith("url", stringValue("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate"))
+        .first()
+        .contained("valueDate")
+        .jsonPrimitive.asLocalDate()
+
+    val acceptUntil = task
+        .findAll("extension")
+        .filterWith("url", stringValue("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate"))
+        .first()
+        .contained("valueDate")
+        .jsonPrimitive.asLocalDate()
+
+    process(
+        taskId,
+        accessCode,
+        lastModified,
+        expiresOn,
+        acceptUntil,
+        authoredOn,
+        status
+    )
+}
+
+private fun mapTaskstatus(status: String): TaskStatus = when (status) {
+    "ready" -> TaskStatus.Ready
+    "in-progress" -> TaskStatus.InProgress
+    "completed" -> TaskStatus.Completed
+    "canceled" -> TaskStatus.Canceled
+    "accepted" -> TaskStatus.Accepted
+    "draft" -> TaskStatus.Draft
+    "failed" -> TaskStatus.Failed
+    "on-hold" -> TaskStatus.OnHold
+    "requested" -> TaskStatus.Requested
+    "received" -> TaskStatus.Received
+    "rejected" -> TaskStatus.Rejected
+    else -> TaskStatus.Other
 }

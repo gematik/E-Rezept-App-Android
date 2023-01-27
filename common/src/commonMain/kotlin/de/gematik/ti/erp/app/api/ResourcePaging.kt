@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -29,33 +29,100 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-abstract class ResourcePaging(
+abstract class ResourcePaging<T>(
     private val dispatchers: DispatchProvider,
-    private val maxPageSize: Int
+    private val maxPageSize: Int,
+    private val maxPages: Int = Int.MAX_VALUE
 ) {
     private val lock = Mutex()
 
-    protected suspend fun downloadPaged(profileId: ProfileIdentifier): Result<Unit> = lock.withLock {
-        withContext(dispatchers.IO) {
-            downloadAll(profileId)
+    protected suspend fun downloadPaged(profileId: ProfileIdentifier): Result<Unit> =
+        lock.withLock {
+            withContext(dispatchers.IO) {
+                downloadAll(profileId)
+            }
         }
-    }
 
-    private suspend fun downloadAll(profileId: ProfileIdentifier): Result<Unit> {
-        while (true) {
-            downloadResource(
+    protected suspend fun downloadPaged(profileId: ProfileIdentifier, fold: (prev: T?, next: T) -> T): Result<T?> =
+        lock.withLock {
+            withContext(dispatchers.IO) {
+                downloadAll(profileId, fold)
+            }
+        }
+
+    private suspend fun downloadAll(
+        profileId: ProfileIdentifier
+    ): Result<Unit> {
+        var pages = 0
+        var condition = true
+        while (condition && pages < maxPages) {
+            val r = downloadResource(
                 profileId = profileId,
                 timestamp = toTimestampString(syncedUpTo(profileId)),
                 count = maxPageSize
-            ).onFailure {
-                return@downloadAll Result.failure(it)
-            }.onSuccess {
-                Napier.d { "Received $it entries" }
-                if (it != maxPageSize) {
-                    return@downloadAll Result.success(Unit)
+            ).fold(
+                onSuccess = {
+                    Napier.d { "Received ${it.count} entries" }
+                    if (it.count != maxPageSize) {
+                        condition = false
+                    }
+                    it
+                },
+                onFailure = {
+                    it
+                }
+            )
+
+            if (r is Throwable) {
+                return Result.failure(r)
+            }
+
+            pages++
+        }
+        return Result.success(Unit)
+    }
+
+    private suspend fun downloadAll(
+        profileId: ProfileIdentifier,
+        fold: (prev: T?, next: T) -> T
+    ): Result<T?> {
+        var pages = 0
+        var result: T? = null
+        var condition = true
+        while (condition && pages < maxPages) {
+            val r = downloadResource(
+                profileId = profileId,
+                timestamp = toTimestampString(syncedUpTo(profileId)),
+                count = maxPageSize
+            ).fold(
+                onSuccess = {
+                    Napier.d { "Received ${it.count} entries" }
+                    if (it.count != maxPageSize) {
+                        Napier.d { "All downloaded: ${it.count} != $maxPageSize" }
+                        condition = false
+                    }
+                    it
+                },
+                onFailure = {
+                    Napier.e(it) { "Failed to download" }
+                    it
+                }
+            )
+
+            when (r) {
+                is Throwable -> {
+                    return Result.failure(r)
+                }
+
+                is ResourceResult<*> -> {
+                    @Suppress("UNCHECKED_CAST")
+                    result = fold(result, r.data as T)
                 }
             }
+
+            pages++
         }
+        return Result.success(result)
     }
 
     private fun toTimestampString(timestamp: Instant?) =
@@ -67,6 +134,8 @@ abstract class ResourcePaging(
             "gt$tm"
         }
 
+    class ResourceResult<T>(val count: Int, val data: T)
+
     /**
      * Downloads the specific resource and returns the size of the received list.
      */
@@ -74,7 +143,7 @@ abstract class ResourcePaging(
         profileId: ProfileIdentifier,
         timestamp: String?,
         count: Int?
-    ): Result<Int>
+    ): Result<ResourceResult<T>>
 
     protected abstract suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant?
 }

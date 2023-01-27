@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.orderhealthcard.orderHealthCardModule
 import de.gematik.ti.erp.app.orders.messagesModule
 import de.gematik.ti.erp.app.pharmacy.pharmacyModule
 import de.gematik.ti.erp.app.prescription.prescriptionModule
+import de.gematik.ti.erp.app.prescription.taskModule
 import de.gematik.ti.erp.app.profiles.profilesModule
 import de.gematik.ti.erp.app.protocol.protocolModule
 import de.gematik.ti.erp.app.redeem.redeemModule
@@ -93,6 +94,7 @@ val allModules = DI.Module("allModules") {
         prescriptionModule,
         profilesModule,
         protocolModule,
+        taskModule,
         settingsModule,
         vauModule,
         cardUnlockModule

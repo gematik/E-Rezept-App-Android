@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,17 +19,12 @@
 package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.fhir.model.extractTaskIds
-import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
 import java.time.Instant
@@ -39,8 +34,6 @@ enum class RemoteRedeemOption(val type: String) {
     Shipment(type = "shipment"),
     Delivery(type = "delivery")
 }
-
-const val PROFILE = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
 
 class PrescriptionRepository(
     private val dispatchers: DispatchProvider,
@@ -69,66 +62,6 @@ class PrescriptionRepository(
         accessCode: String? = null
     ): Result<Unit> = withContext(dispatchers.IO) {
         remoteDataSource.communicate(profileId, communication, accessCode).map { }
-    }
-
-    /**
-     * Downloads all tasks and each referenced bundle. Each bundle is persisted locally.
-     */
-    suspend fun downloadTasks(profileId: ProfileIdentifier): Result<Int> =
-        remoteDataSource.fetchTasks(localDataSource.taskSyncedUpTo(profileId).first(), profileId)
-            .mapCatching { bundle ->
-                val (_, taskIds) = extractTaskIds(bundle)
-
-                supervisorScope {
-                    withContext(dispatchers.IO) {
-                        val results = taskIds.map { taskId ->
-                            async {
-                                downloadTaskWithKBVBundle(taskId = taskId, profileId = profileId).map {
-                                    if (it.isCompleted) {
-                                        downloadMedicationDispenses(
-                                            profileId,
-                                            taskId
-                                        )
-                                    }
-
-                                    requireNotNull(it.lastModified)
-                                }
-                            }
-                        }.awaitAll()
-
-                        // throw if any result is not parsed correctly
-                        results.find { it.isFailure }?.getOrThrow()
-
-                        val lastModified = results.map { it.getOrNull()!! }
-                        lastModified.maxOrNull()?.let {
-                            localDataSource.updateTaskSyncedUpTo(profileId, it)
-                        }
-
-                        // return number of bundles saved to db
-                        lastModified.size
-                    }
-                }
-            }
-
-    private suspend fun downloadTaskWithKBVBundle(
-        taskId: String,
-        profileId: ProfileIdentifier
-    ): Result<LocalDataSource.SaveTaskResult> = withContext(dispatchers.IO) {
-        remoteDataSource.taskWithKBVBundle(profileId, taskId).mapCatching { bundle ->
-            requireNotNull(localDataSource.saveTask(profileId, bundle))
-        }
-    }
-
-    private suspend fun downloadMedicationDispenses(
-        profileId: ProfileIdentifier,
-        taskId: String
-    ): Result<Unit> = withContext(dispatchers.IO) {
-        remoteDataSource.loadBundleOfMedicationDispenses(profileId, taskId).map { bundle ->
-            bundle.findAll("entry.resource")
-                .forEach { dispense ->
-                    localDataSource.saveMedicationDispense(taskId, dispense)
-                }
-        }
     }
 
     suspend fun deleteTaskByTaskId(

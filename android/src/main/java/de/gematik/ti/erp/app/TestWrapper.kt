@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,6 +22,7 @@ import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.prescription.repository.LocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.RemoteDataSource
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -54,6 +55,13 @@ class TestWrapper(
         val profileId = profilesUseCase.activeProfile.first().id
         localDataSource.loadTaskIds().first().forEach { taskId ->
             remoteDataSource.deleteTask(profileId, taskId)
+                .onSuccess {
+                    Napier.d { "Deleted $taskId" }
+                }
+                .onFailure {
+                    Napier.e { "Could not delete $taskId" }
+                }
+            localDataSource.deleteTask(taskId)
         }
     }
 

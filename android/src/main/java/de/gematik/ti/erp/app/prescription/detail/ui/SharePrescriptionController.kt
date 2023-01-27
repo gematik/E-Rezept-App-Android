@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -37,7 +37,6 @@ import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import org.kodein.di.LazyDelegate

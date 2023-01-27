@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -16,19 +16,17 @@
  * 
  */
 
-package de.gematik.ti.erp.app.prescription.model
+package de.gematik.ti.erp.app.prescription
 
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import java.time.Instant
+import de.gematik.ti.erp.app.prescription.repository.TaskLocalDataSource
+import de.gematik.ti.erp.app.prescription.repository.TaskRemoteDataSource
+import de.gematik.ti.erp.app.prescription.repository.TaskRepository
+import org.kodein.di.DI
+import org.kodein.di.bindProvider
+import org.kodein.di.instance
 
-object ScannedTaskData {
-    data class ScannedTask(
-        val profileId: ProfileIdentifier,
-        val taskId: String,
-        val accessCode: String,
-        val scannedOn: Instant,
-        val redeemedOn: Instant?
-    ) {
-        fun isRedeemable() = redeemedOn == null
-    }
+val taskModule = DI.Module("taskModule") {
+    bindProvider { TaskRepository(instance(), instance(), instance()) }
+    bindProvider { TaskRemoteDataSource(instance()) }
+    bindProvider { TaskLocalDataSource(instance()) }
 }

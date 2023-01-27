@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -39,6 +39,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
@@ -48,7 +49,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 
-const val ACTUAL_SCHEMA_VERSION = 14L
+const val ACTUAL_SCHEMA_VERSION = 15L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -113,6 +114,11 @@ val appSchemas = setOf(
                     if (it._expirationDate?.isEmpty() == true) {
                         it._expirationDate = null
                     }
+                }
+            }
+            if (migrationStartedFrom < 15L) {
+                query<MedicationRequestEntityV1>().find().forEach {
+                    it.accidentType = AccidentTypeV1.None
                 }
             }
         }

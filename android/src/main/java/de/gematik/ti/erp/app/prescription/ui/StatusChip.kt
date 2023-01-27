@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -34,6 +34,7 @@ import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.EventBusy
+import androidx.compose.material.icons.rounded.HourglassTop
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.runtime.Composable
@@ -80,7 +81,7 @@ fun StatusChip(
 @Composable
 fun StatusChip(
     text: String,
-    icon: ImageVector,
+    icon: ImageVector?,
     textColor: Color,
     backgroundColor: Color,
     iconColor: Color,
@@ -88,7 +89,9 @@ fun StatusChip(
 ) =
     StatusChip(
         text = text,
-        icon = { Icon(icon, tint = iconColor, contentDescription = null) },
+        icon = icon?.let {
+            { Icon(it, tint = iconColor, contentDescription = null) }
+        },
         textColor = textColor,
         backgroundColor = backgroundColor,
         modifier = modifier
@@ -112,10 +115,9 @@ private fun StatusChipPreview() {
 fun ReadyStatusChip() =
     StatusChip(
         text = stringResource(R.string.prescription_status_ready),
-        icon = Icons.Rounded.Check,
-        textColor = AppTheme.colors.green900,
-        backgroundColor = AppTheme.colors.green100,
-        iconColor = AppTheme.colors.green500
+        icon = null,
+        textColor = AppTheme.colors.primary900,
+        backgroundColor = AppTheme.colors.primary100
     )
 
 @Composable
@@ -130,14 +132,14 @@ fun PendingStatusChip() =
             )
         },
         textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral100
+        backgroundColor = AppTheme.colors.neutral200
     )
 
 @Composable
 fun InProgressStatusChip() =
     StatusChip(
         text = stringResource(R.string.prescription_status_in_progress),
-        icon = Icons.Rounded.Check,
+        icon = Icons.Rounded.HourglassTop,
         textColor = AppTheme.colors.yellow900,
         backgroundColor = AppTheme.colors.yellow100,
         iconColor = AppTheme.colors.yellow500
@@ -159,7 +161,7 @@ fun CompletedStatusChip() =
         text = stringResource(R.string.prescription_status_completed),
         icon = Icons.Rounded.DoneAll,
         textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral100,
+        backgroundColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
 
@@ -169,7 +171,7 @@ fun ExpiredStatusChip() =
         text = stringResource(R.string.prescription_status_expired),
         icon = Icons.Rounded.EventBusy,
         textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral100,
+        backgroundColor = AppTheme.colors.neutral200,
         iconColor = AppTheme.colors.neutral500
     )
 
@@ -178,7 +180,7 @@ fun LaterRedeemableStatusChip() =
     StatusChip(
         text = stringResource(R.string.prescription_status_later_redeemable),
         icon = Icons.Rounded.Today,
-        textColor = AppTheme.colors.yellow700,
+        textColor = AppTheme.colors.yellow900,
         backgroundColor = AppTheme.colors.yellow100,
         iconColor = AppTheme.colors.yellow500
     )
@@ -195,7 +197,7 @@ fun NumeratorChip(numerator: String, denominator: String) {
     val shape = RoundedCornerShape(8.dp)
     Row(
         modifier = Modifier
-            .background(AppTheme.colors.neutral100, shape)
+            .background(AppTheme.colors.neutral200, shape)
             .clip(shape)
             .padding(vertical = PaddingDefaults.ShortMedium / 2, horizontal = PaddingDefaults.ShortMedium),
         verticalAlignment = Alignment.CenterVertically
@@ -217,7 +219,7 @@ fun DirectAssignmentStatusChip() =
     StatusChip(
         text = stringResource(R.string.prescription_status_direct_assignment),
         textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral100
+        backgroundColor = AppTheme.colors.neutral200
     )
 
 @Composable

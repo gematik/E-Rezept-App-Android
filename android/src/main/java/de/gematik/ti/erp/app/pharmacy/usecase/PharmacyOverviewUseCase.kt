@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -46,8 +46,8 @@ class PharmacyOverviewUseCase(
 
     suspend fun searchPharmacyByTelematikId(
         telematikId: String
-    ): Result<List<PharmacyUseCaseData.Pharmacy>> = withContext(dispatchers.IO) {
+    ): Result<PharmacyUseCaseData.Pharmacy?> = withContext(dispatchers.IO) {
         repository.searchPharmacyByTelematikId(telematikId)
-            .map { it.pharmacies.mapToUseCasePharmacies() }
+            .map { it.pharmacies.mapToUseCasePharmacies().firstOrNull() }
     }
 }

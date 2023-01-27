@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -81,6 +81,13 @@ fun PatientScreen(
             }
             item {
                 Label(
+                    modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.KVNR),
+                    text = patient.insuranceIdentifier ?: noValueText,
+                    label = stringResource(R.string.pres_detail_patient_label_insurance_id)
+                )
+            }
+            item {
+                Label(
                     modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.Address),
                     text = patient.address?.joinToString()?.takeIf { it.isNotEmpty() } ?: noValueText,
                     label = stringResource(R.string.pres_detail_patient_label_address)
@@ -118,14 +125,6 @@ fun PatientScreen(
                     text = insurance.status?.let { statusMapping[it]?.let { stringResource(it) } } ?: noValueText,
                     label = stringResource(R.string.pres_detail_patient_label_member_status)
                 )
-            }
-            item {
-                Label(
-                    modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.KVNR),
-                    text = patient.insuranceIdentifier ?: noValueText,
-                    label = stringResource(R.string.pres_detail_patient_label_insurance_id)
-                )
-                SpacerMedium()
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -21,7 +21,8 @@ package de.gematik.ti.erp.app.mainscreen.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.BoxWithConstraintsScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -51,6 +52,8 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.min
+import androidx.compose.ui.unit.offset
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -96,6 +99,7 @@ fun ToolTips(
                 ),
                 content = stringResource(R.string.main_screen_tooltip_1_content)
             )
+
             1 -> ToolTip(
                 onDismissRequest = {
                     tooltipNr += 1
@@ -106,6 +110,7 @@ fun ToolTips(
                 ),
                 content = stringResource(R.string.main_screen_tooltip_2_content)
             )
+
             2 -> ToolTip(
                 onDismissRequest = {
                     coroutineScope.launch {
@@ -153,21 +158,12 @@ fun ToolTipWithArrowTop(
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                onClick = onDismissRequest,
-                role = Role.Button,
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            )
-            .semantics { contentDescription = description }
-
+    TooltipScaffold(
+        description = description,
+        onDismissRequest = onDismissRequest
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
         ) {
             Icon(
                 painterResource(R.drawable.ic_tooltip_arrow_top),
@@ -176,11 +172,12 @@ fun ToolTipWithArrowTop(
                 modifier = Modifier
                     .offset(x = offset.x, y = offset.y)
             )
+            val textAlignX = min(this@TooltipScaffold.maxWidth - 231.dp - PaddingDefaults.Large, offset.x - 16.dp)
             Text(
                 text = content,
                 modifier = Modifier
                     .width(231.dp)
-                    .offset(x = offset.x - 16.dp, y = offset.y)
+                    .offset(x = textAlignX, y = offset.y)
                     .background(
                         color = AppTheme.colors.neutral800,
                         shape = RoundedCornerShape(16.dp)
@@ -207,20 +204,12 @@ fun ToolTipWithArrowRight(
         )
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .clickable(
-                onClick = onDismissRequest,
-                role = Role.Button,
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            )
-            .semantics { contentDescription = description }
+    TooltipScaffold(
+        description = description,
+        onDismissRequest = onDismissRequest
     ) {
         Row(
-            modifier = Modifier
-                .offset(x = offset.x)
+            modifier = Modifier.offset(x = offset.x)
         ) {
             Text(
                 text = content,
@@ -246,3 +235,22 @@ fun ToolTipWithArrowRight(
         }
     }
 }
+
+@Composable
+private fun TooltipScaffold(
+    description: String,
+    onDismissRequest: () -> Unit,
+    content: @Composable BoxWithConstraintsScope.() -> Unit
+) =
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .clickable(
+                onClick = onDismissRequest,
+                role = Role.Button,
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            )
+            .semantics { contentDescription = description },
+        content = content
+    )

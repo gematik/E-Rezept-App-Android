@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -16,28 +16,45 @@
  * 
  */
 
-package de.gematik.ti.erp.app.protocol.repository
+package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 
-class AuditEventRemoteDataSource(
+class TaskRemoteDataSource(
     private val service: ErpService
 ) {
-    suspend fun getAuditEvents(
+    suspend fun getTasks(
         profileId: ProfileIdentifier,
-        lastKnownUpdate: String?,
+        lastUpdated: String?,
         count: Int? = null,
         offset: Int? = null
     ) = safeApiCall(
-        errorMessage = "Error getting all audit events"
+        errorMessage = "Error getting all tasks"
     ) {
-        service.getAuditEvents(
+        service.getTasks(
             profileId = profileId,
-            lastKnownDate = lastKnownUpdate,
+            lastUpdated = lastUpdated,
             count = count,
             offset = offset
         )
+    }
+
+    suspend fun taskWithKBVBundle(
+        profileId: ProfileIdentifier,
+        taskID: String
+    ) = safeApiCall(
+        errorMessage = "error while downloading KBV Bundle $taskID"
+    ) { service.getTaskWithKBVBundle(profileId = profileId, id = taskID) }
+
+    suspend fun loadBundleOfMedicationDispenses(
+        profileId: ProfileIdentifier,
+        taskId: String
+    ) = safeApiCall(
+        errorMessage = "Error getting medication dispenses"
+    ) {
+        val id = "https://gematik.de/fhir/NamingSystem/PrescriptionID|$taskId"
+        service.bundleOfMedicationDispenses(profileId, id = id)
     }
 }

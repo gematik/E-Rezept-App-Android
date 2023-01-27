@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -239,7 +239,7 @@ private fun OrderSelection(
             val orderModifier = Modifier.weight(weight = 0.5f).fillMaxHeight()
             if (pickUpService) {
                 OrderButton(
-                    modifier = orderModifier,
+                    modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.PickUpOptionButton),
                     onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.ReserveInPharmacy) },
                     isLarge = isLarge,
                     text = stringResource(R.string.pharmacy_order_opt_collect),
@@ -249,7 +249,7 @@ private fun OrderSelection(
 
             if (deliveryService) {
                 OrderButton(
-                    modifier = orderModifier,
+                    modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.CourierDeliveryOptionButton),
                     onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.CourierDelivery) },
                     isLarge = isLarge,
                     text = stringResource(R.string.pharmacy_order_opt_delivery),

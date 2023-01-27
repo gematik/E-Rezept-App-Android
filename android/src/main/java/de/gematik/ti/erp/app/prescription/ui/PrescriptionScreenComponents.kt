@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -78,6 +78,8 @@ import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
+import de.gematik.ti.erp.app.prescription.ui.model.SentOrCompletedPhrase
+import de.gematik.ti.erp.app.prescription.ui.model.sentOrCompleted
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
@@ -88,7 +90,6 @@ import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.DynamicText
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerShortMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
@@ -598,14 +599,12 @@ fun prescriptionStateInfo(
         }
 
         is SyncedTaskData.SyncedTask.InProgress -> {
-            val lastModified = remember { LocalDateTime.ofInstant(state.lastModified, ZoneId.systemDefault()) }
-            val text = sentOrCompletedPhrase(lastModified, now)
+            val text = sentOrCompletedPhrase(state.lastModified, now)
             Text(text, style = AppTheme.typography.body2, textAlign = textAlign)
         }
 
         is SyncedTaskData.SyncedTask.Pending -> {
-            val sentOn = remember { LocalDateTime.ofInstant(state.sentOn, ZoneId.systemDefault()) }
-            val text = sentOrCompletedPhrase(sentOn, now)
+            val text = sentOrCompletedPhrase(state.sentOn, now)
             Text(text, style = AppTheme.typography.body2, textAlign = textAlign)
         }
 
@@ -619,8 +618,7 @@ fun prescriptionStateInfo(
 
         is SyncedTaskData.SyncedTask.Other -> {
             if (state.state == SyncedTaskData.TaskStatus.Completed) {
-                val completedOn = remember { LocalDateTime.ofInstant(state.lastModified, ZoneId.systemDefault()) }
-                val text = sentOrCompletedPhrase(completedOn, now, true)
+                val text = sentOrCompletedPhrase(state.lastModified, now, true)
                 Text(text, style = AppTheme.typography.body2, textAlign = textAlign)
             }
         }
@@ -628,58 +626,47 @@ fun prescriptionStateInfo(
 }
 
 @Composable
-private fun sentOrCompletedPhrase(lastModified: LocalDateTime, now: Instant, completed: Boolean = false): String {
-    val dayDifference = remember {
-        Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toDays()
-    }
-    val minDifference = remember {
-        Duration.between(lastModified, now.atZone(ZoneId.systemDefault()).toLocalDateTime()).toMinutes()
-    }
-    val text = when {
-        minDifference < 5L -> if (completed) {
-            stringResource(R.string.received_now)
-        } else {
-            stringResource(R.string.sent_now)
-        }
+private fun sentOrCompletedPhrase(lastModified: Instant, now: Instant, completed: Boolean = false): String =
+    when (val phrase = sentOrCompleted(lastModified = lastModified, now = now, completed = completed)) {
+        SentOrCompletedPhrase.RedeemedJustNow -> stringResource(R.string.received_now)
+        SentOrCompletedPhrase.SentJustNow -> stringResource(R.string.sent_now)
 
-        minDifference < 60L -> if (completed) {
+        is SentOrCompletedPhrase.RedeemedMinutesAgo ->
             annotatedStringResource(
                 R.string.received_x_min_ago,
-                minDifference
+                phrase.minutes
             ).toString()
-        } else {
+
+        is SentOrCompletedPhrase.SentMinutesAgo ->
             annotatedStringResource(
                 R.string.sent_x_min_ago,
-                minDifference
+                phrase.minutes
             ).toString()
-        }
 
-        dayDifference < 0L -> if (completed) {
-            annotatedStringResource(
-                R.string.received_on_day,
-                minDifference
-            ).toString()
-        } else {
-            annotatedStringResource(
-                R.string.sent_on_day,
-                remember { dateString(lastModified) }
-            ).toString()
-        }
-
-        else -> if (completed) {
+        is SentOrCompletedPhrase.RedeemedHoursAgo ->
             annotatedStringResource(
                 R.string.received_on_minute,
-                minDifference
+                remember { timeString(LocalDateTime.ofInstant(lastModified, ZoneId.systemDefault())) }
             ).toString()
-        } else {
+
+        is SentOrCompletedPhrase.SentHoursAgo ->
             annotatedStringResource(
                 R.string.sent_on_minute,
-                remember { timeString(lastModified) }
+                remember { timeString(LocalDateTime.ofInstant(lastModified, ZoneId.systemDefault())) }
             ).toString()
-        }
+
+        is SentOrCompletedPhrase.RedeemedOn ->
+            annotatedStringResource(
+                R.string.received_on_day,
+                remember { dateString(LocalDateTime.ofInstant(phrase.on, ZoneId.systemDefault())) }
+            ).toString()
+
+        is SentOrCompletedPhrase.SentOn ->
+            annotatedStringResource(
+                R.string.sent_on_day,
+                remember { dateString(LocalDateTime.ofInstant(phrase.on, ZoneId.systemDefault())) }
+            ).toString()
     }
-    return text
-}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -688,11 +675,13 @@ fun FullDetailMedication(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
-    val showDirectAssignmentLabel by derivedStateOf {
-        val isCompleted =
-            (prescription.state as? SyncedTaskData.SyncedTask.Other)?.state == SyncedTaskData.TaskStatus.Completed
+    val showDirectAssignmentLabel by remember(prescription) {
+        derivedStateOf {
+            val isCompleted =
+                (prescription.state as? SyncedTaskData.SyncedTask.Other)?.state == SyncedTaskData.TaskStatus.Completed
 
-        prescription.isDirectAssignment && !isCompleted
+            prescription.isDirectAssignment && !isCompleted
+        }
     }
 
     Card(
@@ -709,29 +698,6 @@ fun FullDetailMedication(
     ) {
         Row(modifier = Modifier.padding(PaddingDefaults.Medium)) {
             Column(modifier = Modifier.weight(1f)) {
-                if (prescription.isIncomplete) {
-                    FailureStatusChip()
-                } else if (showDirectAssignmentLabel) {
-                    DirectAssignmentStatusChip()
-                } else {
-                    when (prescription.state) {
-                        is SyncedTaskData.SyncedTask.InProgress -> InProgressStatusChip()
-                        is SyncedTaskData.SyncedTask.Pending -> PendingStatusChip()
-                        is SyncedTaskData.SyncedTask.Ready -> ReadyStatusChip()
-                        is SyncedTaskData.SyncedTask.Expired -> ExpiredStatusChip()
-                        is SyncedTaskData.SyncedTask.LaterRedeemable -> LaterRedeemableStatusChip()
-
-                        is SyncedTaskData.SyncedTask.Other -> {
-                            when (prescription.state.state) {
-                                SyncedTaskData.TaskStatus.Completed -> CompletedStatusChip()
-                                else -> UnknownStatusChip()
-                            }
-                        }
-                    }
-                }
-
-                Spacer(Modifier.height(PaddingDefaults.Small + PaddingDefaults.Tiny))
-
                 val medicationName =
                     prescription.name ?: stringResource(R.string.prescription_medication_default_name)
 
@@ -747,11 +713,35 @@ fun FullDetailMedication(
                     prescriptionStateInfo(prescription.state)
                 }
 
-                if (prescription.multiplePrescriptionState.isPartOfMultiplePrescription) {
-                    prescription.multiplePrescriptionState.numerator?.let { numerator ->
-                        prescription.multiplePrescriptionState.denominator?.let { denominator ->
-                            SpacerShortMedium()
-                            NumeratorChip(numerator, denominator)
+                SpacerSmall()
+
+                Row {
+                    if (prescription.isIncomplete) {
+                        FailureStatusChip()
+                    } else if (showDirectAssignmentLabel) {
+                        DirectAssignmentStatusChip()
+                    } else {
+                        when (prescription.state) {
+                            is SyncedTaskData.SyncedTask.InProgress -> InProgressStatusChip()
+                            is SyncedTaskData.SyncedTask.Pending -> PendingStatusChip()
+                            is SyncedTaskData.SyncedTask.Ready -> ReadyStatusChip()
+                            is SyncedTaskData.SyncedTask.Expired -> ExpiredStatusChip()
+                            is SyncedTaskData.SyncedTask.LaterRedeemable -> LaterRedeemableStatusChip()
+
+                            is SyncedTaskData.SyncedTask.Other -> {
+                                when (prescription.state.state) {
+                                    SyncedTaskData.TaskStatus.Completed -> CompletedStatusChip()
+                                    else -> UnknownStatusChip()
+                                }
+                            }
+                        }
+                    }
+                    if (prescription.multiplePrescriptionState.isPartOfMultiplePrescription) {
+                        prescription.multiplePrescriptionState.numerator?.let { numerator ->
+                            prescription.multiplePrescriptionState.denominator?.let { denominator ->
+                                SpacerSmall()
+                                NumeratorChip(numerator, denominator)
+                            }
                         }
                     }
                 }

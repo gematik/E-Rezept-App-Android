@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,11 +20,12 @@ package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
-import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -39,6 +40,7 @@ import java.time.Instant
 
 class PrescriptionUseCase(
     private val repository: PrescriptionRepository,
+    private val taskRepository: TaskRepository,
     private val dispatchers: DispatchProvider
 ) {
 
@@ -176,7 +178,7 @@ class PrescriptionUseCase(
         repository.syncedTasks(profileId).flowOn(dispatchers.IO)
 
     suspend fun downloadTasks(profileId: ProfileIdentifier): Result<Int> =
-        repository.downloadTasks(profileId)
+        taskRepository.downloadTasks(profileId)
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend fun generatePrescriptionDetails(

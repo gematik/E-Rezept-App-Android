@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -29,25 +29,34 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-private class PageTestContainer(dispatchers: DispatchProvider) : ResourcePaging(dispatchers, 50) {
+private class PageTestContainer(dispatchers: DispatchProvider) : ResourcePaging<Unit>(dispatchers, 50) {
 
     suspend fun downloadAll(profileId: ProfileIdentifier) = downloadPaged(profileId)
 
-    override suspend fun downloadResource(profileId: ProfileIdentifier, timestamp: String?, count: Int?): Result<Int> {
+    override suspend fun downloadResource(
+        profileId: ProfileIdentifier,
+        timestamp: String?,
+        count: Int?
+    ): Result<ResourceResult<Unit>> {
         assertEquals("gt2022-03-22T12:30:00Z", timestamp)
         assertEquals(50, count)
-        return Result.success(10)
+        return Result.success(ResourceResult(10, Unit))
     }
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
         Instant.parse("2022-03-22T12:30:00.00Z")
 }
 
-private class PageTestContainerWithError(dispatchers: DispatchProvider) : ResourcePaging(dispatchers, 50) {
+private class PageTestContainerWithError(dispatchers: DispatchProvider) :
+    ResourcePaging<Unit>(dispatchers, 50) {
 
     suspend fun downloadAll(profileId: ProfileIdentifier) = downloadPaged(profileId)
 
-    override suspend fun downloadResource(profileId: ProfileIdentifier, timestamp: String?, count: Int?): Result<Int> {
+    override suspend fun downloadResource(
+        profileId: ProfileIdentifier,
+        timestamp: String?,
+        count: Int?
+    ): Result<ResourceResult<Unit>> {
         assertEquals("gt2022-03-22T12:30:00Z", timestamp)
         assertEquals(50, count)
         return Result.failure(IllegalArgumentException())
@@ -57,18 +66,51 @@ private class PageTestContainerWithError(dispatchers: DispatchProvider) : Resour
         Instant.parse("2022-03-22T12:30:00.00Z")
 }
 
-private class PageTestContainerWithMultiplePages(dispatchers: DispatchProvider) : ResourcePaging(dispatchers, 50) {
+private class PageTestContainerWithMultiplePages(dispatchers: DispatchProvider) :
+    ResourcePaging<Unit>(dispatchers, 50) {
 
     private var page = 0
 
     suspend fun downloadAll(profileId: ProfileIdentifier) = downloadPaged(profileId)
 
-    override suspend fun downloadResource(profileId: ProfileIdentifier, timestamp: String?, count: Int?): Result<Int> {
+    override suspend fun downloadResource(
+        profileId: ProfileIdentifier,
+        timestamp: String?,
+        count: Int?
+    ): Result<ResourceResult<Unit>> {
         assertEquals("gt2022-03-22T12:30:00Z", timestamp)
         assertEquals(50, count)
         return when (page) {
-            0 -> Result.success(50)
-            1 -> Result.success(30)
+            0 -> Result.success(ResourceResult(50, Unit))
+            1 -> Result.success(ResourceResult(30, Unit))
+            else -> error("")
+        }.also {
+            page++
+        }
+    }
+
+    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
+        Instant.parse("2022-03-22T12:30:00.00Z")
+}
+
+private class PageTestContainerWithCustomReturn(dispatchers: DispatchProvider) :
+    ResourcePaging<Int>(dispatchers, 50) {
+
+    private var page = 0
+
+    suspend fun downloadAll(profileId: ProfileIdentifier) =
+        downloadPaged(profileId) { prev: Int?, next: Int -> (prev ?: 0) + next }
+
+    override suspend fun downloadResource(
+        profileId: ProfileIdentifier,
+        timestamp: String?,
+        count: Int?
+    ): Result<ResourceResult<Int>> {
+        assertEquals("gt2022-03-22T12:30:00Z", timestamp)
+        assertEquals(50, count)
+        return when (page) {
+            0 -> Result.success(ResourceResult(50, 1))
+            1 -> Result.success(ResourceResult(30, 1))
             else -> error("")
         }.also {
             page++
@@ -103,6 +145,15 @@ class ResourcePagingTest {
     fun `paging with multiple pages`() = runTest {
         val paging = PageTestContainerWithMultiplePages(coroutineRule.dispatchers)
         val result = paging.downloadAll("")
+
         assertTrue { result.isSuccess }
+    }
+
+    @Test
+    fun `paging with multiple pages and return value`() = runTest {
+        val paging = PageTestContainerWithCustomReturn(coroutineRule.dispatchers)
+        val result = paging.downloadAll("")
+        assertTrue { result.isSuccess }
+        assertEquals(2, result.getOrNull())
     }
 }

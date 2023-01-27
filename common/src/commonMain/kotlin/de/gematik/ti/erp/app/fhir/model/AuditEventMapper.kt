@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -24,7 +24,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
-import de.gematik.ti.erp.app.fhir.parser.profileValue
+import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
@@ -35,30 +35,47 @@ fun extractAuditEvents(
     save: (id: String, taskId: String?, description: String, timestamp: Instant) -> Unit
 ): Int {
     val bundleTotal = bundle.containedArrayOrNull("entry")?.size ?: 0
+
     val resources = bundle
         .findAll(listOf("entry", "resource"))
-        .filterWith(
-            "meta.profile",
-            profileValue("https://gematik.de/fhir/StructureDefinition/ErxAuditEvent", "1.1.1")
-        )
 
     resources.forEach { resource ->
-        val id = resource.containedString("id")
-        val text = resource.contained("text").containedString("div")
-        val taskId = resource
-            .findAll(listOf("entity", "what", "identifier"))
-            .filterWith("system", stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID"))
-            .firstOrNull()
-            ?.containedString("value")
 
-        val timestamp = requireNotNull(resource.contained("recorded").jsonPrimitive.asInstant()) {
-            "Audit event field `recorded` missing"
+        val profileString = resource.contained("meta").contained("profile").contained()
+
+        if (profileString.isProfileValue(
+                "https://gematik.de/fhir/StructureDefinition/ErxAuditEvent",
+                "1.1.1"
+            ) ||
+            profileString.isProfileValue(
+                    "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_AuditEvent",
+                    "1.2"
+                )
+        ) {
+            extractAuditEvent(resource, save)
         }
-
-        val description = text.removeSurrounding("<div xmlns=\"http://www.w3.org/1999/xhtml\">", "</div>")
-
-        save(id, taskId, description, timestamp)
     }
 
     return bundleTotal
+}
+
+fun extractAuditEvent(
+    resource: JsonElement,
+    save: (id: String, taskId: String?, description: String, timestamp: Instant) -> Unit
+) {
+    val id = resource.containedString("id")
+    val text = resource.contained("text").containedString("div")
+    val taskId = resource
+        .findAll(listOf("entity", "what", "identifier"))
+        .filterWith("system", stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID"))
+        .firstOrNull()
+        ?.containedString("value")
+
+    val timestamp = requireNotNull(resource.contained("recorded").jsonPrimitive.asInstant()) {
+        "Audit event field `recorded` missing"
+    }
+
+    val description = text.removeSurrounding("<div xmlns=\"http://www.w3.org/1999/xhtml\">", "</div>")
+
+    save(id, taskId, description, timestamp)
 }

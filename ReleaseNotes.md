@@ -1,3 +1,8 @@
+# Release 1.7.0
+- New wizard for ordering a healthcard
+- Support for new FHIR profile version
+- Lots of bugfixes
+
 # Release 1.6.1
 ### Added
 

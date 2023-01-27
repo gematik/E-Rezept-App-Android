@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -151,6 +151,7 @@ object TestTag {
                 val SupplyForm by tagName()
                 val Category by tagName()
                 val DosageInstruction by tagName()
+                val Quantity by tagName()
                 val FreeText by tagName()
                 val BVG by tagName()
 
@@ -173,18 +174,22 @@ object TestTag {
 
         object OrderOptions {
             val Content by tagName()
-            val Screen by tagName()
 
             val PickUpOptionButton by tagName()
             val CourierDeliveryOptionButton by tagName()
             val OnlineDeliveryOptionButton by tagName()
         }
 
+        object OrderPrescriptionSelection {
+            val Content by tagName()
+            val Screen by tagName()
+        }
+
         object OrderSummary {
             val Content by tagName()
             val Screen by tagName()
 
-            val PrescriptionListItem by tagName()
+            val PrescriptionSelectionButton by tagName()
 
             val SendOrderButton by tagName()
         }
@@ -213,7 +218,6 @@ object TestTag {
 
         val OrderNewCardButton by tagName()
 
-        @Deprecated("add profile removed from settings screen")
         object AddProfileDialog {
             val Modal by tagName()
             val ProfileNameTextField by tagName()
@@ -224,13 +228,17 @@ object TestTag {
         object OrderEgk {
             val OrderEgkScreen by tagName()
             val OrderEgkContent by tagName()
+            val SelectOrderOptionScreen by tagName()
+            val SelectOrderOptionContent by tagName()
+            val HealthCardOrderContactScreen by tagName()
+            val HealthCardOrderContactScreenContent by tagName()
             val NFCExplanationPageLink by tagName()
             val ChooseInsuranceButton by tagName()
         }
 
         object ContactInsuranceCompany {
-            val OrderEgkAndPinRadioButton by tagName()
-            val OrderPinRadioButton by tagName()
+            val OrderEgkAndPinButton by tagName()
+            val OrderPinButton by tagName()
             val TelephoneButton by tagName()
             val WebsiteButton by tagName()
             val MailToButton by tagName()

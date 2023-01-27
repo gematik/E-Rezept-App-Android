@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -25,6 +25,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedBooleanOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
+import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 import java.time.LocalDate
@@ -49,7 +50,7 @@ fun <MedicationDispense, Medication, Ingredient, Ratio, Quantity> extractMedicat
 ): MedicationDispense {
     val dispenseId = resource.containedString("id")
     val patientIdentifier = resource.contained("subject").contained("identifier").containedString("value")
-    val medication = extractMedication(
+    val medication = extractDispenseMedication(
         resource.containedArray("contained")[0],
         processMedication,
         ingredientFn,
@@ -73,4 +74,75 @@ fun <MedicationDispense, Medication, Ingredient, Ratio, Quantity> extractMedicat
         performer,
         whenHandedOver
     )
+}
+
+fun <Medication, Ingredient, Ratio, Quantity> extractDispenseMedication(
+    resource: JsonElement,
+    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    ingredientFn: IngredientFn<Ingredient, Ratio>,
+    ratioFn: RatioFn<Ratio, Quantity>,
+    quantityFn: QuantityFn<Quantity>
+): Medication {
+    val profileString = resource
+        .contained("meta")
+        .contained("profile")
+        .contained()
+
+    return when {
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN",
+            "1.0.2"
+        ) -> extractPZNMedication(resource, processMedication, ratioFn, quantityFn)
+
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN",
+            "1.1.0"
+        ) -> extractPZNMedicationVersion110(resource, processMedication, ratioFn, quantityFn)
+
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding",
+            "1.0.2"
+        ) -> extractMedicationCompounding(resource, processMedication, ingredientFn, ratioFn, quantityFn)
+
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding",
+            "1.1.0"
+        ) -> extractMedicationCompoundingVersion110(resource, processMedication, ingredientFn, ratioFn, quantityFn)
+
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient",
+            "1.0.2"
+        ) -> extractMedicationIngredient(resource, processMedication, ingredientFn, ratioFn, quantityFn)
+
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Ingredient",
+            "1.1.0"
+        ) -> extractMedicationIngredientVersion110(resource, processMedication, ingredientFn, ratioFn, quantityFn)
+
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText",
+            "1.0.2"
+        ) -> extractMedicationFreetext(resource, quantityFn, ratioFn, processMedication)
+
+        profileString.isProfileValue(
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_FreeText",
+            "1.1.0"
+        ) -> extractMedicationFreetextVersion110(resource, quantityFn, ratioFn, processMedication)
+
+        else -> processMedication(
+            "",
+            MedicationProfile.UNKNOWN,
+            MedicationCategory.UNKNOWN,
+            null,
+            null,
+            false,
+            null,
+            null,
+            null,
+            null,
+            listOf(),
+            null,
+            null
+        )
+    }
 }

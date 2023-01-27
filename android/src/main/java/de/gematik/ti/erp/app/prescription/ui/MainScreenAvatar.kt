@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -30,10 +31,13 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddAPhoto
+import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,9 +87,9 @@ fun SmallMainScreenAvatar(onClickAvatar: () -> Unit) {
         if (profile.lastAuthenticated != null) {
             Box(
                 modifier = Modifier
-                    .size(24.dp)
+                    .size(20.dp)
                     .align(Alignment.BottomEnd)
-                    .offset(8.dp, 8.dp)
+                    .offset(8.dp, 6.dp)
                     .clip(CircleShape)
                     .aspectRatio(1f)
                     .border(
@@ -93,21 +97,30 @@ fun SmallMainScreenAvatar(onClickAvatar: () -> Unit) {
                         AppTheme.colors.neutral000,
                         CircleShape
                     )
+                    .background(
+                        color = if (ssoTokenScope?.token?.isValid() == true) {
+                            AppTheme.colors.green200
+                        } else {
+                            AppTheme.colors.neutral200
+                        }
+                    )
 
             ) {
                 when {
                     ssoTokenScope?.token?.isValid() == true -> {
-                        Image(
-                            painterResource(R.drawable.main_screen_erx_icon_small),
+                        Icon(
+                            Icons.Rounded.Check,
                             null,
-                            modifier = Modifier.offset(2.dp, 2.dp)
+                            tint = AppTheme.colors.green600,
+                            modifier = Modifier.size(12.dp).align(Alignment.Center)
                         )
                     }
                     else -> {
-                        Image(
-                            painterResource(R.drawable.main_screen_erx_icon_gray_small),
+                        Icon(
+                            Icons.Rounded.Close,
                             null,
-                            modifier = Modifier.offset(2.dp, 2.dp)
+                            tint = AppTheme.colors.neutral600,
+                            modifier = Modifier.size(12.dp).align(Alignment.Center)
                         )
                     }
                 }

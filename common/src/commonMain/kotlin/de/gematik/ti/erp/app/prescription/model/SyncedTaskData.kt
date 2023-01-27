@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 gematik GmbH
+ * Copyright (c) 2023 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -190,7 +190,7 @@ object SyncedTaskData {
                 this.postalCodeAndCity
             ).filter {
                 it.isNotEmpty()
-            }.joinToString(", ")
+            }.joinToString("\n")
     }
 
     data class Organization(
@@ -236,11 +236,13 @@ object SyncedTaskData {
     data class MedicationRequest(
         val medication: Medication? = null,
         val dateOfAccident: Instant? = null,
+        val accidentType: AccidentType = AccidentType.None,
         val location: String? = null,
         val emergencyFee: Boolean? = null,
         val substitutionAllowed: Boolean,
         val dosageInstruction: String? = null,
         val multiplePrescriptionInfo: MultiplePrescriptionInfo,
+        val quantity: Int = 0,
         val note: String?,
         val bvg: Boolean? = null,
         val additionalFee: AdditionalFee = AdditionalFee.valueOf(null)
@@ -251,6 +253,13 @@ object SyncedTaskData {
         val numbering: Ratio? = null,
         val start: Instant? = null
     )
+
+    enum class AccidentType {
+        Unfall,
+        Arbeitsunfall,
+        Berufskrankheit,
+        None
+    }
 
     data class MedicationDispense(
         val dispenseId: String?,
@@ -265,7 +274,8 @@ object SyncedTaskData {
     enum class MedicationCategory {
         ARZNEI_UND_VERBAND_MITTEL,
         BTM,
-        AMVV;
+        AMVV,
+        UNKNOWN;
     }
 
     data class Quantity(
