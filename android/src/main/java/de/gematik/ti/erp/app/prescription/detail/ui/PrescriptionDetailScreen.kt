@@ -20,12 +20,9 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui
 
-import android.widget.Toast
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -46,7 +43,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -73,13 +69,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
@@ -104,15 +97,15 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.HealthPortalLink
+import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerShortMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import de.gematik.ti.erp.app.utils.compose.annotatedLinkStringLight
 import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
@@ -371,8 +364,10 @@ private fun DeleteAction(
 
     var dropdownExpanded by remember { mutableStateOf(false) }
 
-    val isDeletable by derivedStateOf {
-        (prescription as? PrescriptionData.Synced)?.isDeletable ?: true
+    val isDeletable by remember {
+        derivedStateOf {
+            (prescription as? PrescriptionData.Synced)?.isDeletable ?: true
+        }
     }
 
     IconButton(
@@ -436,7 +431,6 @@ private fun DeleteAction(
     }
 }
 
-@Suppress("LongMethod")
 @Composable
 private fun SyncedPrescriptionOverview(
     navController: NavController,
@@ -461,9 +455,6 @@ private fun SyncedPrescriptionOverview(
                 .testTag(TestTag.Prescriptions.Details.Content),
             contentPadding = colPadding
         ) {
-            // prescription name
-            // prescription kind
-            // prescription state
             item {
                 SyncedHeader(
                     prescription = prescription,
@@ -472,51 +463,22 @@ private fun SyncedPrescriptionOverview(
             }
 
             item {
-                val text = when {
-                    prescription.medicationRequest.additionalFee == SyncedTaskData.AdditionalFee.Exempt ->
-                        stringResource(R.string.pres_detail_no)
+                val text = additionalFeeText(prescription.medicationRequest.additionalFee) ?: noValueText
 
-                    prescription.medicationRequest.additionalFee == SyncedTaskData.AdditionalFee.NotExempt ->
-                        stringResource(R.string.pres_detail_yes)
-
-                    else -> noValueText
-                }
                 Label(
                     text = text,
                     label = stringResource(R.string.pres_details_additional_fee),
-                    onClick = {
-                        when {
-                            prescription.medicationRequest.additionalFee == SyncedTaskData.AdditionalFee.NotExempt ->
-                                onShowInfo(PrescriptionDetailBottomSheetContent.AdditionalFeeNotExempt)
-
-                            prescription.medicationRequest.additionalFee == SyncedTaskData.AdditionalFee.Exempt ->
-                                onShowInfo(PrescriptionDetailBottomSheetContent.AdditionalFeeExempt)
-
-                            else -> {}
-                        }
-                    }
+                    onClick = onClickAdditionalFee(prescription.medicationRequest.additionalFee, onShowInfo)
                 )
             }
 
-            prescription.medicationRequest.emergencyFee?.let {
+            prescription.medicationRequest.emergencyFee?.let { emergencyFee ->
                 item {
-                    // false - emergencyFee fee is to be paid by the insured (default value)
-                    // true - emergencyFee fee is not to be paid by the insured but by the payer
-                    val text = if (it) {
-                        stringResource(R.string.pres_detail_no)
-                    } else {
-                        stringResource(R.string.pres_detail_yes)
-                    }
+                    val text = emergencyFeeText(emergencyFee)
                     Label(
                         text = text,
                         label = stringResource(R.string.pres_details_emergency_fee),
-                        onClick = {
-                            if (it) {
-                                onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt)
-                            } else {
-                                onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFee)
-                            }
-                        }
+                        onClick = onClickEmergencyFee(emergencyFee, onShowInfo)
                     )
                 }
             }
@@ -526,13 +488,7 @@ private fun SyncedPrescriptionOverview(
                     modifier = Modifier.testTag(TestTag.Prescriptions.Details.MedicationButton),
                     text = prescription.name ?: noValueText,
                     label = stringResource(R.string.pres_details_medication),
-                    onClick = {
-                        if (!prescription.isDispensed) {
-                            onSelectMedication(PrescriptionData.Medication.Request(prescription.medicationRequest))
-                        } else {
-                            navController.navigate(PrescriptionDetailsNavigationScreens.MedicationOverview.path())
-                        }
-                    }
+                    onClick = onClickMedication(prescription, onSelectMedication, navController)
                 )
             }
 
@@ -607,6 +563,63 @@ private fun SyncedPrescriptionOverview(
             )
         }
     }
+}
+
+@Composable
+private fun onClickMedication(
+    prescription: PrescriptionData.Synced,
+    onSelectMedication: (PrescriptionData.Medication) -> Unit,
+    navController: NavController
+): () -> Unit = {
+    if (!prescription.isDispensed) {
+        onSelectMedication(PrescriptionData.Medication.Request(prescription.medicationRequest))
+    } else {
+        navController.navigate(PrescriptionDetailsNavigationScreens.MedicationOverview.path())
+    }
+}
+
+@Composable
+private fun onClickEmergencyFee(
+    emergencyFee: Boolean,
+    onShowInfo: (PrescriptionDetailBottomSheetContent) -> Unit
+): () -> Unit = {
+    if (emergencyFee) {
+        onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt)
+    } else {
+        onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFee)
+    }
+}
+
+@Composable
+private fun emergencyFeeText(emergencyFee: Boolean) = if (emergencyFee) {
+    // false - emergencyFee fee is to be paid by the insured (default value)
+    // true - emergencyFee fee is not to be paid by the insured but by the payer
+    stringResource(R.string.pres_detail_no)
+} else {
+    stringResource(R.string.pres_detail_yes)
+}
+
+@Composable
+private fun onClickAdditionalFee(
+    additionalFee: SyncedTaskData.AdditionalFee,
+    onShowInfo: (PrescriptionDetailBottomSheetContent) -> Unit
+): () -> Unit = {
+    when (additionalFee) {
+        SyncedTaskData.AdditionalFee.NotExempt ->
+            onShowInfo(PrescriptionDetailBottomSheetContent.AdditionalFeeNotExempt)
+        SyncedTaskData.AdditionalFee.Exempt ->
+            onShowInfo(PrescriptionDetailBottomSheetContent.AdditionalFeeExempt)
+        else -> {}
+    }
+}
+
+@Composable
+private fun additionalFeeText(additionalFee: SyncedTaskData.AdditionalFee): String? = when (additionalFee) {
+    SyncedTaskData.AdditionalFee.Exempt ->
+        stringResource(R.string.pres_detail_no)
+    SyncedTaskData.AdditionalFee.NotExempt ->
+        stringResource(R.string.pres_detail_yes)
+    else -> null
 }
 
 @Composable
@@ -778,9 +791,6 @@ private fun ScannedPrescriptionOverview(
             .fillMaxSize(),
         contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
     ) {
-        // prescription name
-        // prescription kind
-        // prescription state
         item {
             Column(
                 Modifier
@@ -851,93 +861,5 @@ private fun RedeemedButton(
         modifier = modifier
     ) {
         Text(buttonText)
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun Label(
-    modifier: Modifier = Modifier,
-    text: String?,
-    label: String? = null,
-    onClick: (() -> Unit)? = null
-) {
-    val clipboardManager = LocalClipboardManager.current
-    val context = LocalContext.current
-
-    val verticalPadding = if (label != null) {
-        PaddingDefaults.ShortMedium
-    } else {
-        PaddingDefaults.Medium
-    }
-
-    val noValueText = stringResource(R.string.pres_details_no_value)
-
-    Row(
-        modifier = modifier
-            .combinedClickable(
-                onClick = {
-                    onClick?.invoke()
-                },
-                onLongClick = {
-                    if (text != null) {
-                        clipboardManager.setText(AnnotatedString(text))
-                        Toast
-                            .makeText(context, "$label $text", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                },
-                role = Role.Button
-            )
-            .padding(horizontal = PaddingDefaults.Medium, vertical = verticalPadding)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(
-                text = text ?: noValueText,
-                style = AppTheme.typography.body1
-            )
-            if (label != null) {
-                Text(
-                    text = label,
-                    style = AppTheme.typography.body2l
-                )
-            }
-        }
-        if (onClick != null) {
-            SpacerMedium()
-            Icon(Icons.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
-        }
-    }
-}
-
-@Composable
-fun HealthPortalLink(
-    modifier: Modifier
-) {
-    Column(modifier = modifier) {
-        Text(
-            text = stringResource(R.string.pres_detail_health_portal_description),
-            style = AppTheme.typography.body2l
-        )
-
-        val linkInfo = stringResource(R.string.pres_detail_health_portal_description_url_info)
-        val link = stringResource(R.string.pres_detail_health_portal_description_url)
-        val uriHandler = LocalUriHandler.current
-        val annotatedLink = annotatedLinkStringLight(link, linkInfo)
-
-        SpacerSmall()
-        ClickableText(
-            text = annotatedLink,
-            onClick = {
-                annotatedLink
-                    .getStringAnnotations("URL", it, it)
-                    .firstOrNull()?.let { stringAnnotation ->
-                        uriHandler.openUri(stringAnnotation.item)
-                    }
-            },
-            modifier = Modifier.align(Alignment.End)
-        )
     }
 }

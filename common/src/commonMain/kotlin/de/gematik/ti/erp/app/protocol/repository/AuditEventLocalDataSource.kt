@@ -63,7 +63,7 @@ class AuditEventLocalDataSource(
                     AuditEventEntityV1().apply {
                         this.id = id
                         this.text = description
-                        this.timestamp = timestamp.toRealmInstant()
+                        this.timestamp = timestamp.value.toRealmInstant()
                         this.taskId = taskId
                         this.profile = profile
                     }

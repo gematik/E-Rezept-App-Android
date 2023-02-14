@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.fhir.model.PharmacyService
 import kotlinx.parcelize.Parcelize
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 private const val DefaultRadiusInMeter = 999 * 1000.0
 

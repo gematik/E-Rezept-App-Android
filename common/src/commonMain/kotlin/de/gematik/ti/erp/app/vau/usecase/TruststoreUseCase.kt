@@ -32,10 +32,10 @@ import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi
 import io.github.aakira.napier.Napier
+import kotlinx.datetime.Instant
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
-import java.time.Duration
-import java.time.Instant
+import kotlin.time.Duration
 
 private const val RCA_PREFIX = "GEM.RCA"
 private const val CA_PREFIX = "GEM.KOMP-CA"

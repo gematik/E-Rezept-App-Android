@@ -32,10 +32,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.cardwall.ui.toAnnotatedString
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
+import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel

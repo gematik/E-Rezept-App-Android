@@ -58,6 +58,7 @@ import io.realm.kotlin.RealmConfiguration
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64
 import org.jose4j.jws.JsonWebSignature
@@ -65,7 +66,6 @@ import org.jose4j.jwx.JsonWebStructure
 import org.junit.Rule
 import java.io.File
 import java.security.Security
-import java.time.Instant
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -111,8 +111,8 @@ class CommonIdpRepositoryTest : TestDB() {
         pukIdpEncEndpoint = "http://localhost:8888/idpEnc/jwk.json",
         pukIdpSigEndpoint = "http://localhost:8888/ipdSig/jwk.json",
         certificate = x509Certificate,
-        expirationTimestamp = Instant.ofEpochSecond(EXPECTED_EXPIRATION_TIME),
-        issueTimestamp = Instant.ofEpochSecond(EXPECTED_ISSUE_TIME),
+        expirationTimestamp = Instant.fromEpochSeconds(EXPECTED_EXPIRATION_TIME),
+        issueTimestamp = Instant.fromEpochSeconds(EXPECTED_ISSUE_TIME),
         externalAuthorizationIDsEndpoint = "http://localhost:8888/appList",
         thirdPartyAuthorizationEndpoint = "http://localhost:8888/thirdPartyAuth"
     )

@@ -18,7 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asInstant
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.asFhirInstant
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
@@ -32,7 +33,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 private fun template(
     orderId: String,
@@ -75,6 +76,47 @@ private fun template(
 }
 """.trimIndent()
 
+// private fun templateVersion12(
+//    orderId: String,
+//    reference: String,
+//    payload: String,
+//    recipientTID: String
+// ) = """
+// {
+//  "resourceType": "Communication",
+//  "meta": {
+//    "profile": [
+//      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.2"
+//    ]
+//  },
+//  "identifier": [
+//    {
+//      "system": "https://gematik.de/fhir/NamingSystem/OrderID",
+//      "value": $orderId
+//    }
+//  ],
+//  "status": "unknown",
+//  "basedOn": [
+//    {
+//      "reference": $reference
+//    }
+//  ],
+//  "recipient": [
+//    {
+//      "identifier": {
+//        "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+//        "value": $recipientTID
+//      }
+//    }
+//  ],
+//  "payload": [
+//    {
+//      "contentString": $payload
+//    }
+//  ]
+// }
+// """.trimIndent()
+
 val json = Json {
     encodeDefaults = true
     prettyPrint = false
@@ -90,6 +132,7 @@ fun createCommunicationDispenseRequest(
     val payloadString = json.encodeToString(payload)
     val reference = "Task/$taskId/\$accept?ac=$accessCode"
 
+    // Todo: use template Version 1.2 if supported
     val templateString = template(
         orderId = JsonPrimitive(orderId).toString(),
         reference = JsonPrimitive(reference).toString(),
@@ -111,7 +154,7 @@ fun extractCommunications(
         communicationId: String,
         orderId: String?,
         profile: CommunicationProfile,
-        sentOn: Instant,
+        sentOn: FhirTemporal.Instant,
         sender: String,
         recipient: String,
         payload: String?
@@ -131,12 +174,18 @@ fun extractCommunications(
             profileValue("https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq").invoke(profileString) ->
                 CommunicationProfile.ErxCommunicationDispReq
 
-            profileValue("https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq", "1.1.1").invoke(
+            profileValue(
+                "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq",
+                "1.1.1"
+            ).invoke(
                 profileString
             ) ->
                 CommunicationProfile.ErxCommunicationDispReq
 
-            profileValue("https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq", "1.2").invoke(
+            profileValue(
+                "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq",
+                "1.2"
+            ).invoke(
                 profileString
             ) ->
                 CommunicationProfile.ErxCommunicationDispReq
@@ -173,7 +222,7 @@ fun extractCommunications(
 
         val communicationId = resource.containedString("id")
 
-        val sentOn = requireNotNull(resource.contained("sent").jsonPrimitive.asInstant()) {
+        val sentOn = requireNotNull(resource.contained("sent").jsonPrimitive.asFhirInstant()) {
             "Communication `sent` field missing"
         }
 

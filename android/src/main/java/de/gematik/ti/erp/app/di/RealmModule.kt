@@ -24,7 +24,7 @@ import android.content.SharedPreferences
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
-import de.gematik.ti.erp.app.BuildConfig
+import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.MessageConversionException
 import de.gematik.ti.erp.app.db.appSchemas
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
@@ -70,8 +70,8 @@ val realmModule = DI.Module("realmModule") {
             ).also { realm ->
                 realm.writeBlocking {
                     queryFirst<SettingsEntityV1>()?.let {
-                        it.latestAppVersionName = BuildConfig.VERSION_NAME
-                        it.latestAppVersionCode = BuildConfig.VERSION_CODE
+                        it.latestAppVersionName = BuildKonfig.VERSION_NAME
+                        it.latestAppVersionCode = BuildKonfig.VERSION_CODE
                     }
                 }
             }

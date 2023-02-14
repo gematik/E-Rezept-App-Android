@@ -1,13 +1,13 @@
 {
   "resourceType": "Task",
-  "id": "607255ed-ce41-47fc-aad3-cfce1c39963f",
+  "id": "09330307-16ce-4cdc-810a-ca24ef80dde3",
   "meta": {
     "profile": [
       "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task|1.2"
     ],
     "tag": [
       {
-        "display": "Task in READY state activated by (Z)PVS/KIS via $activate operation"
+        "display": "Task in COMPLETED state dispensed by pharmacy via $closed operation"
       }
     ]
   },
@@ -40,7 +40,7 @@
       "value": "777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"
     }
   ],
-  "status": "ready",
+  "status": "completed",
   "authoredOn": "2022-03-18T15:26:00+00:00",
   "performerType": [
     {
@@ -59,7 +59,7 @@
       "value": "X123456789"
     }
   },
-  "lastModified": "2022-03-18T15:27:00+00:00",
+  "lastModified": "2022-03-18T15:29:00+00:00",
   "input": [
     {
       "type": {
@@ -87,6 +87,22 @@
       },
       "valueReference": {
         "reference": "f8c2298f-7c00-4a68-af29-8a2862d55d43"
+      }
+    }
+  ],
+  "output": [
+    {
+      "type": {
+        "coding": [
+          {
+            "code": "3",
+            "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_DocumentType",
+            "display": "Receipt"
+          }
+        ]
+      },
+      "valueReference": {
+        "reference": "dffbfd6a-5712-4798-bdc8-07201eb77ab8"
       }
     }
   ]

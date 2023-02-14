@@ -29,9 +29,11 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
@@ -39,7 +41,9 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import java.time.ZoneId
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -58,7 +62,7 @@ fun ArchiveScreen(prescriptionViewModel: PrescriptionViewModel, navController: N
         }
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().testTag(TestTag.Prescriptions.Archive.Content),
             state = listState,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -66,14 +70,14 @@ fun ArchiveScreen(prescriptionViewModel: PrescriptionViewModel, navController: N
 
             state?.let {
                 it.redeemedPrescriptions.forEachIndexed { index, prescription ->
-                    item {
+                    item(key = "prescription-${prescription.taskId}") {
                         val previousPrescriptionRedeemedOn =
                             it.redeemedPrescriptions.getOrNull(index - 1)
                                 ?.redeemedOrExpiredOn()
-                                ?.atZone(ZoneId.systemDefault())?.toLocalDate()
+                                ?.toLocalDateTime(TimeZone.currentSystemDefault())
 
                         val redeemedOn = prescription.redeemedOrExpiredOn()
-                            .atZone(ZoneId.systemDefault()).toLocalDate()
+                            .toLocalDateTime(TimeZone.currentSystemDefault())
 
                         val yearChanged = remember {
                             previousPrescriptionRedeemedOn?.year != redeemedOn.year
@@ -82,7 +86,7 @@ fun ArchiveScreen(prescriptionViewModel: PrescriptionViewModel, navController: N
                         if (yearChanged) {
                             val instantOfArchivedPrescription = remember {
                                 val dateFormatter = DateTimeFormatter.ofPattern("yyyy")
-                                redeemedOn.format(dateFormatter)
+                                redeemedOn.toJavaLocalDateTime().format(dateFormatter)
                             }
 
                             Text(

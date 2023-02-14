@@ -94,7 +94,9 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.icons.rounded.AddAPhoto
+import androidx.compose.material.icons.rounded.EuroSymbol
 import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -121,7 +123,7 @@ import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.visualTestTag
 import de.gematik.ti.erp.app.utils.sanitizeProfileName
 import kotlinx.coroutines.launch
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 @Composable
 fun EditProfileScreen(
@@ -197,6 +199,8 @@ fun EditProfileScreenContent(
     onClickPairedDevices: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    val scaffoldState = rememberScaffoldState()
+
     var showAddDefaultProfileDialog by remember { mutableStateOf(false) }
     var deleteProfileDialogVisible by remember { mutableStateOf(false) }
 
@@ -220,6 +224,7 @@ fun EditProfileScreenContent(
             .visualTestTag(ProfileScreen),
         topBarTitle = stringResource(R.string.edit_profile_title),
         navigationMode = NavigationBarMode.Back,
+        scaffoldState = scaffoldState,
         listState = listState,
         actions = {
             ThreeDotMenu(
@@ -261,6 +266,12 @@ fun EditProfileScreenContent(
                 )
             }
 
+            if (selectedProfile.insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.PKV) {
+                item {
+                    ProfileInvoiceInformation {}
+                }
+            }
+
             if (selectedProfile.ssoTokenScope != null) {
                 item {
                     ProfileEditPairedDeviceSection(onShowPairedDevices = onClickPairedDevices)
@@ -277,6 +288,42 @@ fun EditProfileScreenContent(
                 onDismissRequest = { showAddDefaultProfileDialog = false }
             )
         }
+    }
+}
+
+@Composable
+fun ProfileInvoiceInformation(onClick: () -> Unit) {
+    Column {
+        Text(
+            stringResource(
+                id = R.string.profile_invoiceInformation_header
+            ),
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            style = AppTheme.typography.h6
+        )
+        SpacerSmall()
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.Top,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable(
+                    onClick = onClick
+                )
+                .padding(PaddingDefaults.Medium)
+                .semantics(mergeDescendants = true) {}
+        ) {
+            Icon(Icons.Rounded.EuroSymbol, null, tint = AppTheme.colors.primary600)
+            Text(
+                stringResource(
+                    R.string.profile_show_invoices
+                ),
+                style = AppTheme.typography.body1
+            )
+        }
+        SpacerLarge()
+        Divider()
+        SpacerLarge()
     }
 }
 

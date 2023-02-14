@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.protocol.model
 
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 object AuditEventData {
     data class AuditEvent(

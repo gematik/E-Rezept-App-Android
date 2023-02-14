@@ -18,9 +18,10 @@
 
 package de.gematik.ti.erp.app.profiles.model
 
+import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 object ProfilesData {
     enum class AvatarFigure {
@@ -48,6 +49,7 @@ object ProfilesData {
         val insurantName: String? = null,
         val insuranceIdentifier: String? = null,
         val insuranceName: String? = null,
+        val insuranceType: InsuranceTypeV1,
         val lastAuthenticated: Instant? = null,
         val lastAuditEventSynced: Instant? = null,
         val lastTaskSynced: Instant? = null,

@@ -18,16 +18,17 @@
 
 package de.gematik.ti.erp.app.prescription.ui.model
 
-import java.time.Duration
-import java.time.Instant
+import kotlinx.datetime.Clock
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 class SentOrCompletedTest {
     @Test
     fun `just now - completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofMinutes(4)
+        val now = Clock.System.now()
+        val lastModified = now - 4.minutes
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = true)
 
@@ -36,8 +37,8 @@ class SentOrCompletedTest {
 
     @Test
     fun `just now - not completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofMinutes(4)
+        val now = Clock.System.now()
+        val lastModified = now - 4.minutes
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = false)
 
@@ -46,8 +47,8 @@ class SentOrCompletedTest {
 
     @Test
     fun `redeemed minutes ago - completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofMinutes(30)
+        val now = Clock.System.now()
+        val lastModified = now - 30.minutes
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = true)
 
@@ -56,8 +57,8 @@ class SentOrCompletedTest {
 
     @Test
     fun `redeemed minutes ago - not completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofMinutes(30)
+        val now = Clock.System.now()
+        val lastModified = now - 30.minutes
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = false)
 
@@ -66,8 +67,8 @@ class SentOrCompletedTest {
 
     @Test
     fun `redeemed hours ago - completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofMinutes(120)
+        val now = Clock.System.now()
+        val lastModified = now - 120.minutes
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = true)
 
@@ -76,8 +77,8 @@ class SentOrCompletedTest {
 
     @Test
     fun `redeemed hours ago - not completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofMinutes(120)
+        val now = Clock.System.now()
+        val lastModified = now - 120.minutes
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = false)
 
@@ -86,8 +87,8 @@ class SentOrCompletedTest {
 
     @Test
     fun `redeemed on - completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofDays(1)
+        val now = Clock.System.now()
+        val lastModified = now - 1.days
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = true)
 
@@ -96,8 +97,8 @@ class SentOrCompletedTest {
 
     @Test
     fun `redeemed on - not completed`() {
-        val now = Instant.now()
-        val lastModified = now - Duration.ofDays(1)
+        val now = Clock.System.now()
+        val lastModified = now - 1.days
 
         val result = sentOrCompleted(lastModified = lastModified, now = now, completed = false)
 

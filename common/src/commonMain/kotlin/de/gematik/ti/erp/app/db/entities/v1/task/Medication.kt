@@ -21,12 +21,12 @@ package de.gematik.ti.erp.app.db.entities.v1.task
 import de.gematik.ti.erp.app.db.entities.Cascading
 import de.gematik.ti.erp.app.db.entities.enumName
 import de.gematik.ti.erp.app.db.entities.temporalAccessorNullable
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.Ignore
 import io.realm.kotlin.ext.realmListOf
-import java.time.temporal.TemporalAccessor
 
 // https://simplifier.net/erezept/~resources?category=Profile&sortBy=RankScore_desc
 // BTM = Betäubungsmittel, AMVV = Arzneimittelverschreibungsverordnung
@@ -34,6 +34,7 @@ enum class MedicationCategoryV1 {
     ARZNEI_UND_VERBAND_MITTEL,
     BTM,
     AMVV,
+    SONSTIGES,
     UNKNOWN
 }
 
@@ -63,7 +64,7 @@ class MedicationEntityV1 : RealmObject, Cascading {
     var _expirationDate: String? = null
 
     @delegate:Ignore
-    var expirationDate: TemporalAccessor? by temporalAccessorNullable(::_expirationDate)
+    var expirationDate: FhirTemporal? by temporalAccessorNullable(::_expirationDate)
 
     var ingredients: RealmList<IngredientEntityV1> = realmListOf()
 

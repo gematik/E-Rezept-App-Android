@@ -16,10 +16,11 @@
  * 
  */
 
-package de.gematik.ti.erp.app.cardwall.ui
+package de.gematik.ti.erp.app.troubleShooting
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -45,21 +46,86 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.settings.ui.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
+import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.SecondaryButton
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedLinkString
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+
+object TroubleShootingNavigation {
+    object TroubleshootingPageA : Route("TroubleshootingPageA")
+    object TroubleshootingPageB : Route("TroubleshootingPageB")
+    object TroubleshootingPageC : Route("TroubleshootingPageC")
+    object TroubleshootingNoSuccessPage : Route("TroubleshootingNoSuccessPage")
+}
+
+@Composable
+fun TroubleShootingScreen(
+    onClickTryMe: () -> Unit,
+    onCancel: () -> Unit
+) {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController,
+        startDestination = TroubleShootingNavigation.TroubleshootingPageA.path()
+    ) {
+        composable(TroubleShootingNavigation.TroubleshootingPageA.route) {
+            NavigationAnimation {
+                TroubleshootingPageAContent(
+                    onClickTryMe = onClickTryMe,
+                    onNext = { navController.navigate(TroubleShootingNavigation.TroubleshootingPageB.path()) },
+                    onBack = onCancel
+                )
+            }
+        }
+        composable(TroubleShootingNavigation.TroubleshootingPageB.route) {
+            NavigationAnimation {
+                TroubleshootingPageBContent(
+                    onClickTryMe = onClickTryMe,
+                    onNext = { navController.navigate(TroubleShootingNavigation.TroubleshootingPageC.path()) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(TroubleShootingNavigation.TroubleshootingPageC.route) {
+            NavigationAnimation {
+                TroubleshootingPageCContent(
+                    onClickTryMe = onClickTryMe,
+                    onNext = { navController.navigate(TroubleShootingNavigation.TroubleshootingNoSuccessPage.path()) },
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+        composable(TroubleShootingNavigation.TroubleshootingNoSuccessPage.route) {
+            NavigationAnimation {
+                TroubleshootingNoSuccessPageContent(
+                    onNext = onCancel,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 fun TroubleshootingPageAContent(
@@ -321,6 +387,36 @@ private fun TroubleshootingScaffold(
             )
             SpacerLarge()
             content()
+        }
+    }
+}
+
+@Composable
+fun TroubleshootingInfo(
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+        Text(
+            stringResource(R.string.cdw_enter_troubleshooting_title),
+            style = AppTheme.typography.subtitle1,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            stringResource(R.string.cdw_enter_troubleshooting_subtitle),
+            style = AppTheme.typography.body2,
+            textAlign = TextAlign.Center
+        )
+        SpacerMedium()
+        Button(
+            onClick = onClick,
+            shape = RoundedCornerShape(8.dp),
+            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp),
+            contentPadding = PaddingValues(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.Tiny)
+        ) {
+            Icon(Icons.Outlined.Lightbulb, null)
+            SpacerTiny()
+            Text(stringResource(R.string.cdw_enter_troubleshooting_action))
         }
     }
 }

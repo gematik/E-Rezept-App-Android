@@ -23,8 +23,8 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.Rule
-import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -43,7 +43,7 @@ private class PageTestContainer(dispatchers: DispatchProvider) : ResourcePaging<
         return Result.success(ResourceResult(10, Unit))
     }
 
-    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
+    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant =
         Instant.parse("2022-03-22T12:30:00.00Z")
 }
 
@@ -62,7 +62,7 @@ private class PageTestContainerWithError(dispatchers: DispatchProvider) :
         return Result.failure(IllegalArgumentException())
     }
 
-    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
+    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant =
         Instant.parse("2022-03-22T12:30:00.00Z")
 }
 

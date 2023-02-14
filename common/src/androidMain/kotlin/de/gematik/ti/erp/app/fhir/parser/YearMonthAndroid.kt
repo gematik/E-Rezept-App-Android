@@ -16,19 +16,15 @@
  * 
  */
 
-package de.gematik.ti.erp.app.cardwall.ui.model
+package de.gematik.ti.erp.app.fhir.parser
 
-import androidx.compose.runtime.Immutable
+import android.os.Build
+import androidx.annotation.RequiresApi
 
-object CardWallData {
-    enum class AuthenticationMethod {
-        None,
-        Alternative, // e.g. biometrics
-        HealthCard
-    }
+@RequiresApi(Build.VERSION_CODES.O)
+fun YearMonth.toJavaYearMonth(): java.time.YearMonth =
+    java.time.YearMonth.of(this.year, this.monthNumber)
 
-    @Immutable
-    data class State(
-        val hardwareRequirementsFulfilled: Boolean
-    )
-}
+@RequiresApi(Build.VERSION_CODES.O)
+fun Year.toJavaYear(): java.time.Year =
+    java.time.Year.of(this.year)

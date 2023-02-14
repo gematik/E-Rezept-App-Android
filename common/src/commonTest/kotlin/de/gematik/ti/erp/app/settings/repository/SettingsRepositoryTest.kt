@@ -33,11 +33,9 @@ import io.realm.kotlin.RealmConfiguration
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.Rule
 import kotlin.test.Test
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -85,16 +83,12 @@ class SettingsRepositoryTest : TestDB() {
             assertEquals(false, it.zoomEnabled)
             assertEquals(false, it.mlKitAccepted)
             assertEquals(false, it.userHasAcceptedInsecureDevice)
-            assertEquals(
-                LocalDateTime.of(2021, 10, 15, 0, 0).toInstant(ZoneOffset.UTC),
-                it.dataProtectionVersionAcceptedOn
-            )
             assertEquals(0, it.authenticationFails)
         }
 
         repo.acceptInsecureDevice()
 
-        repo.acceptUpdatedDataTerms(Instant.ofEpochSecond(123456))
+        repo.acceptUpdatedDataTerms(Instant.fromEpochSeconds(123456))
 
         repo.incrementNumberOfAuthenticationFailures()
         repo.incrementNumberOfAuthenticationFailures()
@@ -106,7 +100,6 @@ class SettingsRepositoryTest : TestDB() {
             assertEquals(true, it.zoomEnabled)
             assertEquals(true, it.mlKitAccepted)
             assertEquals(true, it.userHasAcceptedInsecureDevice)
-            assertEquals(Instant.ofEpochSecond(123456), it.dataProtectionVersionAcceptedOn)
             assertEquals(2, it.authenticationFails)
         }
 
@@ -114,7 +107,6 @@ class SettingsRepositoryTest : TestDB() {
         repo.general.first().also {
             assertEquals(true, it.zoomEnabled)
             assertEquals(true, it.userHasAcceptedInsecureDevice)
-            assertEquals(Instant.ofEpochSecond(123456), it.dataProtectionVersionAcceptedOn)
             assertEquals(0, it.authenticationFails)
         }
     }

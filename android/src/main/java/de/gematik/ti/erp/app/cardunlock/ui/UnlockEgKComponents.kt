@@ -40,7 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -53,6 +53,7 @@ import de.gematik.ti.erp.app.cardwall.ui.CardWallNfcPositionViewModel
 import de.gematik.ti.erp.app.cardwall.ui.ConformationSecretInputField
 import de.gematik.ti.erp.app.cardwall.ui.NFCInstructionScreen
 import de.gematik.ti.erp.app.cardwall.ui.SecretInputField
+import de.gematik.ti.erp.app.troubleShooting.TroubleShootingScreen
 import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -78,11 +79,10 @@ sealed class ToggleUnlock {
     data class ToggleByHealthCard(val tag: Tag) : ToggleUnlock()
 }
 
-@Suppress("LongMethod")
 @Composable
 fun UnlockEgKScreen(
     unlockMethod: UnlockMethod,
-    navController: NavController,
+    onCancel: () -> Unit,
     onClickLearnMore: () -> Unit
 ) {
     val viewModel by rememberViewModel<UnlockEgkViewModel>()
@@ -94,23 +94,9 @@ fun UnlockEgKScreen(
     var oldSecret by rememberSaveable { mutableStateOf("") }
     var newSecret by rememberSaveable { mutableStateOf("") }
 
-    val onRetryCan = {
-        unlockNavController.navigate(UnlockEgkNavigation.CardAccessNumber.path()) {
-            popUpTo(UnlockEgkNavigation.CardAccessNumber.path()) { inclusive = true }
-        }
-    }
-
-    val onRetryOldSecret = {
-        unlockNavController.navigate(UnlockEgkNavigation.OldSecret.path()) {
-            popUpTo(UnlockEgkNavigation.OldSecret.path()) { inclusive = true }
-        }
-    }
-
-    val onRetryPuk = {
-        unlockNavController.navigate(UnlockEgkNavigation.PersonalUnblockingKey.path()) {
-            popUpTo(UnlockEgkNavigation.PersonalUnblockingKey.path()) { inclusive = true }
-        }
-    }
+    val onRetryCan = onRetryCan(unlockNavController)
+    val onRetryOldSecret = onRetryOldSecret(unlockNavController)
+    val onRetryPuk = onRetryPuk(unlockNavController)
 
     val onAssignPin = {
         unlockMethod = UnlockMethod.ChangeReferenceData
@@ -118,9 +104,6 @@ fun UnlockEgKScreen(
             popUpTo(UnlockEgkNavigation.Intro.path()) { inclusive = true }
         }
     }
-
-    val onClose: () -> Unit = { navController.popBackStack() }
-    val onBack: () -> Unit = { unlockNavController.popBackStack() }
 
     NavHost(
         unlockNavController,
@@ -140,7 +123,7 @@ fun UnlockEgKScreen(
                     cardAccessNumber = cardAccessNumber,
                     onCanChanged = { cardAccessNumber = it },
                     onClickLearnMore = { onClickLearnMore() },
-                    onCancel = onClose
+                    onCancel = onCancel
                 ) {
                     if (unlockMethod == UnlockMethod.ChangeReferenceData) {
                         unlockNavController.navigate(UnlockEgkNavigation.OldSecret.path())
@@ -150,14 +133,13 @@ fun UnlockEgKScreen(
                 }
             }
         }
-
         composable(UnlockEgkNavigation.PersonalUnblockingKey.route) {
             NavigationAnimation {
                 PersonalUnblockingKeyScreen(
                     personalUnblockingKey = personalUnblockingKey,
                     unlockMethod = unlockMethod,
                     onPersonalUnblockingKeyChanged = { personalUnblockingKey = it },
-                    onCancel = onClose
+                    onCancel = onCancel
                 ) {
                     if (unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret) {
                         unlockNavController.navigate(UnlockEgkNavigation.NewSecret.path())
@@ -167,31 +149,28 @@ fun UnlockEgKScreen(
                 }
             }
         }
-
         composable(UnlockEgkNavigation.OldSecret.route) {
             NavigationAnimation {
                 OldSecretScreen(
                     oldSecret = oldSecret,
                     onSecretChange = { oldSecret = it },
-                    onCancel = onClose
+                    onCancel = onCancel
                 ) {
                     unlockNavController.navigate(UnlockEgkNavigation.NewSecret.path())
                 }
             }
         }
-
         composable(UnlockEgkNavigation.NewSecret.route) {
             NavigationAnimation {
                 NewSecretScreen(
                     newSecret = newSecret,
                     onSecretChange = { newSecret = it },
-                    onCancel = onClose
+                    onCancel = onCancel
                 ) {
                     unlockNavController.navigate(UnlockEgkNavigation.UnlockEgk.path())
                 }
             }
         }
-
         composable(UnlockEgkNavigation.UnlockEgk.route) {
             NavigationAnimation {
                 UnlockScreen(
@@ -201,87 +180,46 @@ fun UnlockEgKScreen(
                     personalUnblockingKey = personalUnblockingKey,
                     oldSecret = oldSecret,
                     newSecret = newSecret,
-                    onBack = onBack,
+                    onBack = { unlockNavController.popBackStack() },
                     onClickTroubleshooting = {
-                        unlockNavController.navigate(UnlockEgkNavigation.TroubleshootingPageA.path())
+                        unlockNavController.navigate(UnlockEgkNavigation.TroubleShooting.path())
                     },
                     onRetryCan = onRetryCan,
                     onRetryOldSecret = onRetryOldSecret,
                     onRetryPuk = onRetryPuk,
-                    onFinishUnlock = onClose,
+                    onFinishUnlock = onCancel,
                     onAssignPin = onAssignPin
                 )
             }
         }
-
-        composable(UnlockEgkNavigation.TroubleshootingPageA.route) {
+        composable(UnlockEgkNavigation.TroubleShooting.route) {
             NavigationAnimation {
-                UnlockEGKTroubleshootingPageA(
-                    viewModel = viewModel,
-                    unlockMethod = unlockMethod,
-                    cardAccessNumber = cardAccessNumber,
-                    personalUnblockingKey = personalUnblockingKey,
-                    oldSecret = oldSecret,
-                    newSecret = newSecret,
-                    onRetryCan = onRetryCan,
-                    onRetryOldSecret = onRetryOldSecret,
-                    onRetryPuk = onRetryPuk,
-                    onFinishUnlock = onClose,
-                    onAssignPin = onAssignPin,
-                    onNext = { unlockNavController.navigate(UnlockEgkNavigation.TroubleshootingPageB.path()) },
-                    onBack = onBack
+                TroubleShootingScreen(
+                    onClickTryMe = {
+                        unlockNavController.navigate(UnlockEgkNavigation.UnlockEgk.path())
+                    },
+                    onCancel = { unlockNavController.popBackStack() }
                 )
             }
         }
+    }
+}
 
-        composable(UnlockEgkNavigation.TroubleshootingPageB.route) {
-            NavigationAnimation {
-                UnlockEGKTroubleshootingPageB(
-                    viewModel = viewModel,
-                    unlockMethod = unlockMethod,
-                    cardAccessNumber = cardAccessNumber,
-                    personalUnblockingKey = personalUnblockingKey,
-                    oldSecret = oldSecret,
-                    newSecret = newSecret,
-                    onRetryCan = onRetryCan,
-                    onRetryOldSecret = onRetryOldSecret,
-                    onRetryPuk = onRetryPuk,
-                    onFinishUnlock = onClose,
-                    onAssignPin = onAssignPin,
-                    onNext = { unlockNavController.navigate(UnlockEgkNavigation.TroubleshootingPageC.path()) },
-                    onBack = onBack
-                )
-            }
-        }
+private fun onRetryPuk(unlockNavController: NavHostController): () -> Unit = {
+    unlockNavController.navigate(UnlockEgkNavigation.PersonalUnblockingKey.path()) {
+        popUpTo(UnlockEgkNavigation.PersonalUnblockingKey.path()) { inclusive = true }
+    }
+}
 
-        composable(UnlockEgkNavigation.TroubleshootingPageC.route) {
-            NavigationAnimation {
-                UnlockEGKTroubleshootingPageC(
-                    viewModel = viewModel,
-                    unlockMethod = unlockMethod,
-                    cardAccessNumber = cardAccessNumber,
-                    personalUnblockingKey = personalUnblockingKey,
-                    oldSecret = oldSecret,
-                    newSecret = newSecret,
-                    onRetryCan = onRetryCan,
-                    onRetryOldSecret = onRetryOldSecret,
-                    onRetryPuk = onRetryPuk,
-                    onFinishUnlock = onClose,
-                    onAssignPin = onAssignPin,
-                    onNext = { unlockNavController.navigate(UnlockEgkNavigation.TroubleshootingNoSuccessPage.path()) },
-                    onBack = onBack
-                )
-            }
-        }
+private fun onRetryOldSecret(unlockNavController: NavHostController): () -> Unit = {
+    unlockNavController.navigate(UnlockEgkNavigation.OldSecret.path()) {
+        popUpTo(UnlockEgkNavigation.OldSecret.path()) { inclusive = true }
+    }
+}
 
-        composable(UnlockEgkNavigation.TroubleshootingNoSuccessPage.route) {
-            NavigationAnimation {
-                UnlockEGKTroubleshootingNoSuccessPage(
-                    onNext = onClose,
-                    onBack = onBack
-                )
-            }
-        }
+private fun onRetryCan(unlockNavController: NavHostController): () -> Unit = {
+    unlockNavController.navigate(UnlockEgkNavigation.CardAccessNumber.path()) {
+        popUpTo(UnlockEgkNavigation.CardAccessNumber.path()) { inclusive = true }
     }
 }
 
@@ -530,8 +468,10 @@ private fun NewSecretScreen(
 ) {
     val secretRange = SECRET_MIN_LENGTH..SECRET_MAX_LENGTH
     var repeatedNewSecret by remember { mutableStateOf("") }
-    val isConsistent by derivedStateOf {
-        repeatedNewSecret.isNotBlank() && newSecret == repeatedNewSecret
+    val isConsistent by remember {
+        derivedStateOf {
+            repeatedNewSecret.isNotBlank() && newSecret == repeatedNewSecret
+        }
     }
 
     val lazyListState = rememberLazyListState()

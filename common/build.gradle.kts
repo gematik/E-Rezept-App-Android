@@ -1,4 +1,5 @@
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
+import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.LONG
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import de.gematik.ti.erp.app
@@ -96,6 +97,7 @@ kotlin {
                     }
                     kotlinX {
                         implementation(coroutines("core"))
+                        implementation(datetime)
                     }
                     database {
                         implementation(realm)
@@ -261,6 +263,8 @@ buildkonfig {
         ocspResponseMaxAge: String
     ) {
         defaultConfigs(flavor) {
+            buildConfigField(STRING, "VERSION_NAME", VERSION_NAME)
+            buildConfigField(INT, "VERSION_CODE", VERSION_CODE)
             buildConfigField(BOOLEAN, "INTERNAL", isInternal.toString())
             if (isInternal) {
                 buildConfigField(STRING, "BASE_SERVICE_URI_PU", BASE_SERVICE_URI_PU)

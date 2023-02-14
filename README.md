@@ -6,11 +6,11 @@ The official gematik E-Rezept App (electronic prescription app) is available to 
 
 [![Download E-Rezept on the App Store](https://user-images.githubusercontent.com/52454541/126137060-cb8c7ceb-6a72-423d-9079-f3e1a98b2638.png)](https://apps.apple.com/de/app/das-e-rezept/id1511792179)[![Download E-Rezept on the PlayStore](https://user-images.githubusercontent.com/52454541/126138350-a52e1d84-1588-4e8a-86df-189ee4df8bc8.png)](https://play.google.com/store/apps/details?id=de.gematik.ti.erp.app)[![Download E-Rezept on the App Gallery](https://user-images.githubusercontent.com/52454541/126158983-15d73f12-36c6-41ce-8de5-29d10baaed04.png)](https://appgallery.huawei.com/#/app/C104463531)
 
-and login with the health card of the public health insurance. In July 2021, the e-prescription will start with a test phase, initially in the focus region Berlin-Brandenburg. The nationwide rollout will follow three month later in the fourth quarter.
+and login with the health card of the public health insurance. In July 2021, the e-prescription started with a test phase, initially in the focus region Berlin-Brandenburg. The nationwide rollout started three month later in September 2022.
 
 The e-prescriptions are stored in the telematics infrastructure, for which gematik is responsible.
 
-Visit our [FAQ page](https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten) for more information about the e-prescription.
+Visit our [FAQ page](https://www.das-e-rezept-fuer-deutschland.de/faq) for more information about the e-prescription.
 
 ### Support & Feedback
 

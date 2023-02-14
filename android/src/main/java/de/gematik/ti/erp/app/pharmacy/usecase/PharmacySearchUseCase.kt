@@ -195,7 +195,7 @@ class PharmacySearchUseCase(
                 PharmacyUseCaseData.PrescriptionOrder(
                     taskId = task.taskId,
                     accessCode = task.accessCode!!,
-                    title = task.medicationRequestMedicationName(),
+                    title = task.medicationName(),
                     timestamp = task.authoredOn,
                     substitutionsAllowed = false
                 )

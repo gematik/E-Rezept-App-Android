@@ -33,11 +33,12 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.LocalDate
-import java.time.ZoneOffset
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
@@ -68,7 +69,7 @@ class PrescriptionUseCaseTest {
                 testSyncedTasksOrdered.map { it.taskId },
                 useCase.syncedActiveRecipes(
                     profileId = "",
-                    now = LocalDate.parse("2021-02-01").atStartOfDay().toInstant(ZoneOffset.UTC)
+                    now = LocalDate.parse("2021-02-01").atStartOfDayIn(TimeZone.UTC)
                 ).first().map { it.taskId }
             )
         }
@@ -89,7 +90,7 @@ class PrescriptionUseCaseTest {
                 testRedeemedTaskIdsOrdered,
                 useCase.redeemedPrescriptions(
                     profileId = "",
-                    now = LocalDate.parse("2021-02-01").atStartOfDay().toInstant(ZoneOffset.UTC)
+                    now = LocalDate.parse("2021-02-01").atStartOfDayIn(TimeZone.UTC)
                 ).first().map { it.taskId }
             )
         }

@@ -77,6 +77,7 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,6 +102,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -190,7 +192,11 @@ fun MapsOverview(
         position = CameraPosition.fromLatLngZoom(latLng, DefaultZoomLevel)
     }
 
-    var pharmacies by remember { mutableStateOf<List<PharmacyUseCaseData.Pharmacy>>(emptyList()) }
+    var pharmacies by rememberSaveable(saver = complexAutoSaver()) {
+        mutableStateOf<List<PharmacyUseCaseData.Pharmacy>>(
+            emptyList()
+        )
+    }
     LaunchedEffect(Unit) {
         searchController
             .pharmacyMapsFlow
@@ -207,7 +213,7 @@ fun MapsOverview(
             }
     }
 
-    var showSearchButton by remember { mutableStateOf(false) }
+    var showSearchButton by rememberSaveable { mutableStateOf(false) }
     CameraAnimation(
         cameraPositionState = cameraPositionState,
         pharmacySearchController = searchController,
@@ -288,13 +294,15 @@ fun MapsOverview(
 @OptIn(ExperimentalMaterialApi::class)
 @Stable
 class PharmacySheetState(
-    private val scope: CoroutineScope
+    content: PharmacySearchSheetContentState
 ) : SwipeableState<ModalBottomSheetValue>(
     initialValue = ModalBottomSheetValue.Hidden,
     animationSpec = SwipeableDefaults.AnimationSpec,
     confirmStateChange = { true }
 ) {
-    var content: PharmacySearchSheetContentState by mutableStateOf(PharmacySearchSheetContentState.FilterSelected)
+    lateinit var scope: CoroutineScope
+
+    var content: PharmacySearchSheetContentState by mutableStateOf(content)
         private set
 
     fun show(content: PharmacySearchSheetContentState, snap: Boolean = false) {
@@ -324,8 +332,9 @@ fun rememberPharmacySheetState(
     content: PharmacySearchSheetContentState? = null
 ): PharmacySheetState {
     val scope = rememberCoroutineScope()
-    val state = remember {
-        PharmacySheetState(scope)
+    val state = rememberSaveable(saver = complexAutoSaver(init = { this.scope = scope })) {
+        PharmacySheetState(content ?: PharmacySearchSheetContentState.FilterSelected)
+            .apply { this.scope = scope }
     }
     LaunchedEffect(content) {
         content?.let { state.show(content, snap = true) }

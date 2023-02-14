@@ -67,8 +67,10 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.rememberInstance
-import java.time.OffsetDateTime
 
 private const val WaitForLocationUpdate = 2500L
 private const val DefaultRadiusInMeter = 999 * 1000.0
@@ -141,7 +143,9 @@ class PharmacySearchController(
                             if (searchData.filter.openNow) {
                                 when {
                                     it.openingHours == null -> false
-                                    it.openingHours.isOpenAt(OffsetDateTime.now()) -> true
+                                    it.openingHours.isOpenAt(
+                                        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                                    ) -> true
                                     else -> false
                                 }
                             } else {
@@ -196,7 +200,9 @@ class PharmacySearchController(
                         if (searchData.filter.openNow) {
                             when {
                                 it.openingHours == null -> false
-                                it.openingHours.isOpenAt(OffsetDateTime.now()) -> true
+                                it.openingHours.isOpenAt(
+                                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+                                ) -> true
                                 else -> false
                             }
                         } else {

@@ -104,7 +104,10 @@ import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
 import kotlinx.coroutines.launch
-import java.time.OffsetDateTime
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.format.TextStyle
@@ -423,7 +426,7 @@ private fun PharmacyOpeningHours(openingHours: OpeningHours) {
 
         for (h in sortedOpeningHours) {
             val (day, hours) = h
-            val now = remember { OffsetDateTime.now() }
+            val now = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
             val isOpenToday = remember(now) { h.isOpenToday(now) }
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -437,11 +440,11 @@ private fun PharmacyOpeningHours(openingHours: OpeningHours) {
                     horizontalAlignment = Alignment.End
                 ) {
                     for (hour in hours.sortedBy { it.openingTime }) {
-                        val opens = hour.openingTime.format(dateTimeFormatter)
-                        val closes = hour.closingTime.format(dateTimeFormatter)
+                        val opens = hour.openingTime?.toJavaLocalTime()?.format(dateTimeFormatter) ?: ""
+                        val closes = hour.closingTime?.toJavaLocalTime()?.format(dateTimeFormatter) ?: ""
                         val text = "$opens - $closes"
                         val isOpenNow =
-                            remember(now) { hour.isOpenAt(now.toLocalTime()) && isOpenToday }
+                            remember(now) { hour.isOpenAt(now.time) && isOpenToday }
                         when {
                             isOpenNow ->
                                 Text(

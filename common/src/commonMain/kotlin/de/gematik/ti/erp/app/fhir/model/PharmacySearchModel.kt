@@ -18,9 +18,9 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import java.time.DayOfWeek
-import java.time.LocalTime
-import java.time.OffsetDateTime
+import kotlinx.datetime.DayOfWeek
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.asin
@@ -97,19 +97,23 @@ sealed interface PharmacyService
 
 interface TemporalPharmacyService : PharmacyService {
     val openingHours: OpeningHours
-    fun isOpenAt(tm: OffsetDateTime) = openingHours.isOpenAt(tm)
+    fun isOpenAt(tm: LocalDateTime) = openingHours.isOpenAt(tm)
     fun isAllDayOpen(day: DayOfWeek) = openingHours[day]?.any { it.isAllDayOpen() } ?: false
-    fun openUntil(tm: OffsetDateTime): LocalTime? {
-        val localTm = tm.toLocalTime()
+    fun openUntil(tm: LocalDateTime): LocalTime? {
+        val localTm = tm.time
         return openingHours[tm.dayOfWeek]?.find {
             it.isOpenAt(localTm)
         }?.closingTime
     }
 
-    fun opensAt(tm: OffsetDateTime): LocalTime? {
-        val localTm = tm.toLocalTime()
+    fun opensAt(tm: LocalDateTime): LocalTime? {
+        val localTm = tm.time
         return openingHours[tm.dayOfWeek]?.find {
-            it.openingTime >= localTm
+            if (it.openingTime == null) {
+                true
+            } else {
+                it.openingTime >= localTm
+            }
         }?.openingTime
     }
 }
@@ -141,17 +145,25 @@ data class OpeningHours(val openingTime: Map<DayOfWeek, List<OpeningTime>>) :
     Map<DayOfWeek, List<OpeningTime>> by openingTime
 
 data class OpeningTime(
-    val openingTime: LocalTime,
-    val closingTime: LocalTime
+    val openingTime: LocalTime?,
+    val closingTime: LocalTime?
 ) {
-    fun isOpenAt(tm: LocalTime) = tm in openingTime..closingTime
-    fun isAllDayOpen() = openingTime == LocalTime.MIN && closingTime == LocalTime.MAX
+    fun isOpenAt(tm: LocalTime) =
+        when {
+            openingTime == null && closingTime != null -> tm <= closingTime
+            openingTime != null && closingTime == null -> tm >= openingTime
+            openingTime == null && closingTime == null -> true
+            openingTime != null && closingTime != null -> tm in openingTime..closingTime
+            else -> error("Unreachable")
+        }
+
+    fun isAllDayOpen() = openingTime == null && closingTime == null
 }
 
-fun OpeningHours.isOpenAt(tm: OffsetDateTime) =
+fun OpeningHours.isOpenAt(tm: LocalDateTime) =
     get(tm.dayOfWeek)?.any {
-        it.isOpenAt(tm.toLocalTime())
+        it.isOpenAt(tm.time)
     } ?: false
 
-fun Map.Entry<DayOfWeek, List<OpeningTime>>.isOpenToday(tm: OffsetDateTime) =
+fun Map.Entry<DayOfWeek, List<OpeningTime>>.isOpenToday(tm: LocalDateTime) =
     key == tm.dayOfWeek && value.isNotEmpty()

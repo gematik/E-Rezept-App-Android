@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.vau
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toKotlinInstant
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.isismtt.ocsp.CertHash
 import org.bouncycastle.cert.X509CertificateHolder
@@ -27,8 +29,7 @@ import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder
 import org.bouncycastle.operator.bc.BcDigestCalculatorProvider
 import org.bouncycastle.operator.bc.BcECContentVerifierProviderBuilder
 import java.math.BigInteger
-import java.time.Duration
-import java.time.Instant
+import kotlin.time.Duration
 
 private val certHashOid = ASN1ObjectIdentifier("1.3.36.8.3.13")
 
@@ -85,6 +86,6 @@ fun BasicOCSPResp.checkSignatureWith(signatureCertificate: X509CertificateHolder
  */
 fun BasicOCSPResp.checkValidity(maxAge: Duration, timestamp: Instant) {
     requireNotNull(
-        this.producedAt?.toInstant()?.takeIf { it + maxAge >= timestamp && timestamp >= it }
+        this.producedAt?.toInstant()?.toKotlinInstant()?.takeIf { it + maxAge >= timestamp && timestamp >= it }
     ) { "OCSP response expired" }
 }

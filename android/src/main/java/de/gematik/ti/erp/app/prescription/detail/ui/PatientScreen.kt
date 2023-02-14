@@ -40,12 +40,11 @@ import de.gematik.ti.erp.app.insuranceState
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.repository.statusMapping
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import java.time.LocalDateTime
-import java.time.ZoneOffset
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
+import de.gematik.ti.erp.app.utils.temporalText
+import kotlinx.datetime.TimeZone
 
 @Composable
 fun PatientScreen(
@@ -97,12 +96,8 @@ fun PatientScreen(
                 Label(
                     modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.BirthDate),
                     text = remember(LocalConfiguration.current, patient) {
-                        val dtFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-
                         patient.birthdate?.let {
-                            LocalDateTime
-                                .ofInstant(it, ZoneOffset.UTC)
-                                .format(dtFormatter)
+                            temporalText(it, TimeZone.currentSystemDefault())
                         } ?: noValueText
                     },
                     label = stringResource(R.string.pres_detail_patient_label_birthdate)

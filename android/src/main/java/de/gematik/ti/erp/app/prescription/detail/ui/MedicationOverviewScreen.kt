@@ -39,6 +39,7 @@ import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge

@@ -19,24 +19,27 @@
 package de.gematik.ti.erp.app.db
 
 import io.realm.kotlin.types.RealmInstant
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.OffsetDateTime
-import java.time.ZoneOffset
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
+import kotlinx.datetime.asTimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class RealmInstantConverterTest {
     @Test
     fun `RealmInstant to LocalDateTime`() {
-        val dt = RealmInstant.from(123456, 123456789).toLocalDateTime()
-        assertEquals(123456, dt.toEpochSecond(ZoneOffset.UTC))
-        assertEquals(123456789, dt.nano)
+        val dt = RealmInstant.from(123456, 123456789).toLocalDateTime().toInstant(TimeZone.UTC)
+        assertEquals(123456, dt.epochSeconds)
+        assertEquals(123456789, dt.nanosecondsOfSecond)
     }
 
     @Test
     fun `LocalDateTime to RealmInstant`() {
-        val ri = LocalDateTime.ofEpochSecond(123456, 123456789, ZoneOffset.UTC).toRealmInstant()
+        val ri = Instant.fromEpochSeconds(123456, 123456789).toRealmInstant()
         assertEquals(123456, ri.epochSeconds)
         assertEquals(123456789, ri.nanosecondsOfSecond)
     }
@@ -44,29 +47,28 @@ class RealmInstantConverterTest {
     @Test
     fun `RealmInstant to Instant`() {
         val dt = RealmInstant.from(123456, 123456789).toInstant()
-        assertEquals(123456, dt.epochSecond)
-        assertEquals(123456789, dt.nano)
+        assertEquals(123456, dt.epochSeconds)
+        assertEquals(123456789, dt.nanosecondsOfSecond)
     }
 
     @Test
     fun `Instant to RealmInstant`() {
-        val ri = Instant.ofEpochSecond(123456, 123456789).toRealmInstant()
+        val ri = Instant.fromEpochSeconds(123456, 123456789).toRealmInstant()
         assertEquals(123456, ri.epochSeconds)
         assertEquals(123456789, ri.nanosecondsOfSecond)
     }
 
     @Test
     fun `Convert with offset`() {
-        val dtPlus2 = OffsetDateTime.parse("2022-02-04T14:05:10+02:00")
-        val dtUTC = OffsetDateTime.parse("2022-02-04T12:05:10+00:00")
-        val timestampAtUTC = dtPlus2.toEpochSecond()
+        val dtPlus2 = Instant.parse("2022-02-04T14:05:10+02:00")
+        val timestampAtUTC = dtPlus2.epochSeconds
 
-        assertEquals(dtUTC, dtPlus2.withOffsetSameInstant(ZoneOffset.UTC))
-
-        val realmInstantAtUTC = dtPlus2.toLocalDateTime().toRealmInstant(ZoneOffset.ofHours(2))
+        val realmInstantAtUTC = dtPlus2.toLocalDateTime(UtcOffset(hours = 2).asTimeZone()).toRealmInstant(
+            UtcOffset(hours = 2).asTimeZone()
+        )
         assertEquals(timestampAtUTC, realmInstantAtUTC.epochSeconds)
 
-        val localDateTimeAtPlus2 = realmInstantAtUTC.toLocalDateTime(ZoneOffset.ofHours(2))
+        val localDateTimeAtPlus2 = realmInstantAtUTC.toLocalDateTime(UtcOffset(hours = 2).asTimeZone())
         assertEquals(LocalDateTime.parse("2022-02-04T14:05:10"), localDateTimeAtPlus2)
     }
 }

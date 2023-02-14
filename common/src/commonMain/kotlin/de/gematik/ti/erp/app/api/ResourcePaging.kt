@@ -24,7 +24,8 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.time.Instant
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
@@ -35,6 +36,8 @@ abstract class ResourcePaging<T>(
     private val maxPages: Int = Int.MAX_VALUE
 ) {
     private val lock = Mutex()
+
+    protected open val tag: String = "ResourcePaging"
 
     protected suspend fun downloadPaged(profileId: ProfileIdentifier): Result<Unit> =
         lock.withLock {
@@ -62,7 +65,9 @@ abstract class ResourcePaging<T>(
                 count = maxPageSize
             ).fold(
                 onSuccess = {
-                    Napier.d { "Received ${it.count} entries" }
+                    Napier.d {
+                        "$tag - Received ${it.count} entries"
+                    }
                     if (it.count != maxPageSize) {
                         condition = false
                     }
@@ -127,7 +132,8 @@ abstract class ResourcePaging<T>(
 
     private fun toTimestampString(timestamp: Instant?) =
         timestamp?.let {
-            val tm = it.atOffset(ZoneOffset.UTC)
+            // TODO: remove java date time stuff
+            val tm = it.toJavaInstant().atOffset(ZoneOffset.UTC)
                 .truncatedTo(ChronoUnit.SECONDS)
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
 

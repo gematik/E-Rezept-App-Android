@@ -20,13 +20,19 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import java.io.File
-import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-private val testBundle by lazy { File("$ResourceBasePath/audit_events_bundle.json").readText() }
+private val testBundle by lazy {
+    File("$ResourceBasePath/audit_events_bundle.json").readText()
+}
+private val testAuditEventVersion12 by lazy {
+    File("$ResourceBasePath/audit_events_bundle_version_1_2.json").readText()
+}
 
 class AuditEventMapperTest {
     private class AuditEvent(
@@ -58,6 +64,15 @@ class AuditEventMapperTest {
         )
     )
 
+    private val auditEventsVersion12 = mapOf(
+        0 to AuditEvent(
+            id = "9361863d-fec0-4ba9-8776-7905cf1b0cfa",
+            taskId = null,
+            description = "Praxis Dr. Müller, Bahnhofstr. 78 hat ein E-Rezept 160.123.456.789.123.58 eingestellt",
+            timestamp = Instant.parse("2022-04-27T08:04:27.434Z")
+        )
+    )
+
     @Test
     fun `parse audit events`() {
         var index = 0
@@ -69,12 +84,26 @@ class AuditEventMapperTest {
                 assertEquals(ev.id, id)
                 assertEquals(ev.taskId, taskId)
                 assertEquals(ev.description, description)
-                assertEquals(ev.timestamp, timestamp)
+                assertEquals(ev.timestamp, timestamp.value)
             }
 
             index++
         }
 
         assertEquals(50, index)
+    }
+
+    @Test
+    fun `parse audit events version 1_2`() {
+        extractAuditEvents(
+            Json.parseToJsonElement(testAuditEventVersion12)
+        ) { id, taskId, description, timestamp ->
+            auditEventsVersion12[0]?.let { ev ->
+                assertEquals(ev.id, id)
+                assertEquals(ev.taskId, taskId)
+                assertEquals(ev.description, description)
+                assertEquals(ev.timestamp.asFhirTemporal(), timestamp)
+            }
+        }
     }
 }

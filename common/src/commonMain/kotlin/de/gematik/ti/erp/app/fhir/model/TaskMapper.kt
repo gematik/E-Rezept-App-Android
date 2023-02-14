@@ -18,20 +18,20 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asInstant
-import de.gematik.ti.erp.app.fhir.parser.asLocalDate
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.asFhirInstant
+import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
-import de.gematik.ti.erp.app.fhir.parser.profileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
-import java.time.Instant
-import java.time.LocalDate
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 
 enum class TaskStatus {
     Ready,
@@ -61,19 +61,28 @@ fun extractTaskIds(
             .contained("profile")
             .contained()
 
-        if (
-            profileValue(
-                "https://gematik.de/fhir/StructureDefinition/ErxTask",
-                "1.1.1"
-            ).invoke(profileString)
-        ) {
-            resource
-                .findAll("identifier")
-                .filterWith("system", stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID"))
-                .first()
-                .containedString("value")
-        } else {
-            null
+        when {
+            profileString.isProfileValue("https://gematik.de/fhir/StructureDefinition/ErxTask", "1.1.1") ->
+                resource
+                    .findAll("identifier")
+                    .filterWith("system", stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID"))
+                    .first()
+                    .containedString("value")
+
+            profileString.isProfileValue(
+                "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
+                "1.2"
+            ) ->
+                resource
+                    .findAll("identifier")
+                    .filterWith(
+                        "system",
+                        stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId")
+                    )
+                    .first()
+                    .containedString("value")
+
+            else -> null
         }
     }
 
@@ -130,10 +139,10 @@ fun extractTask(
     process: (
         taskId: String,
         accessCode: String?,
-        lastModified: Instant,
-        expiresOn: LocalDate?,
-        acceptUntil: LocalDate?,
-        authoredOn: Instant,
+        lastModified: FhirTemporal.Instant,
+        expiresOn: FhirTemporal.LocalDate?,
+        acceptUntil: FhirTemporal.LocalDate?,
+        authoredOn: FhirTemporal.Instant,
         status: TaskStatus
     ) -> Unit
 ) {
@@ -164,10 +173,10 @@ fun extractTaskVersion111(
     process: (
         taskId: String,
         accessCode: String?,
-        lastModified: Instant,
-        expiresOn: LocalDate?,
-        acceptUntil: LocalDate?,
-        authoredOn: Instant,
+        lastModified: FhirTemporal.Instant,
+        expiresOn: FhirTemporal.LocalDate?,
+        acceptUntil: FhirTemporal.LocalDate?,
+        authoredOn: FhirTemporal.Instant,
         status: TaskStatus
     ) -> Unit
 ) {
@@ -185,10 +194,10 @@ fun extractTaskVersion111(
 
     val status = mapTaskstatus(task.containedString("status"))
 
-    val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asInstant()) {
+    val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asFhirInstant()) {
         "Couldn't parse `authoredOn`"
     }
-    val lastModified = requireNotNull(task.contained("lastModified").jsonPrimitive.asInstant()) {
+    val lastModified = requireNotNull(task.contained("lastModified").jsonPrimitive.asFhirInstant()) {
         "Couldn't parse `lastModified`"
     }
 
@@ -197,14 +206,14 @@ fun extractTaskVersion111(
         .filterWith("url", stringValue("https://gematik.de/fhir/StructureDefinition/ExpiryDate"))
         .first()
         .contained("valueDate")
-        .jsonPrimitive.asLocalDate()
+        .jsonPrimitive.asFhirLocalDate()
 
     val acceptUntil = task
         .findAll("extension")
         .filterWith("url", stringValue("https://gematik.de/fhir/StructureDefinition/AcceptDate"))
         .first()
         .contained("valueDate")
-        .jsonPrimitive.asLocalDate()
+        .jsonPrimitive.asFhirLocalDate()
 
     process(
         taskId,
@@ -222,10 +231,10 @@ fun extractTaskVersion12(
     process: (
         taskId: String,
         accessCode: String?,
-        lastModified: Instant,
-        expiresOn: LocalDate?,
-        acceptUntil: LocalDate?,
-        authoredOn: Instant,
+        lastModified: FhirTemporal.Instant,
+        expiresOn: FhirTemporal.LocalDate?,
+        acceptUntil: FhirTemporal.LocalDate?,
+        authoredOn: FhirTemporal.Instant,
         status: TaskStatus
     ) -> Unit
 ) {
@@ -243,10 +252,10 @@ fun extractTaskVersion12(
 
     val status = mapTaskstatus(task.containedString("status"))
 
-    val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asInstant()) {
+    val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asFhirInstant()) {
         "Couldn't parse `authoredOn`"
     }
-    val lastModified = requireNotNull(task.contained("lastModified").jsonPrimitive.asInstant()) {
+    val lastModified = requireNotNull(task.contained("lastModified").jsonPrimitive.asFhirInstant()) {
         "Couldn't parse `lastModified`"
     }
 
@@ -255,14 +264,14 @@ fun extractTaskVersion12(
         .filterWith("url", stringValue("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_ExpiryDate"))
         .first()
         .contained("valueDate")
-        .jsonPrimitive.asLocalDate()
+        .jsonPrimitive.asFhirLocalDate()
 
     val acceptUntil = task
         .findAll("extension")
         .filterWith("url", stringValue("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AcceptDate"))
         .first()
         .contained("valueDate")
-        .jsonPrimitive.asLocalDate()
+        .jsonPrimitive.asFhirLocalDate()
 
     process(
         taskId,

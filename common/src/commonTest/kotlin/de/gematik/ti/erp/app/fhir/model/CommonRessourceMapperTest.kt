@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -173,7 +173,7 @@ class CommonRessourceMapperTest {
             processMultiplePrescriptionInfo = { indicator, numbering, start ->
                 assertEquals(true, indicator)
                 assertEquals(ReturnType.Ratio, numbering)
-                assertEquals(LocalDate.parse("2022-08-17"), start)
+                assertEquals(LocalDate.parse("2022-08-17"), start?.value)
                 ReturnType.MultiplePrescriptionInfo
             }
         )

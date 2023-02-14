@@ -20,7 +20,6 @@ package de.gematik.ti.erp
 
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.getPlugin
-import org.gradle.kotlin.dsl.provideDelegate
 import kotlin.properties.PropertyDelegateProvider
 import kotlin.properties.ReadOnlyProperty
 
@@ -28,8 +27,7 @@ fun Project.overriding() =
     PropertyDelegateProvider { _: Any?, _ ->
         ReadOnlyProperty<Any?, String> { ref, property ->
             project.plugins.getPlugin(AppDependenciesPlugin::class).overrideProperties.getProperty(property.name)
-                ?: run {
-                    project.provideDelegate(null, property).getValue(null, property) as String
-                }
+                ?: (project.properties[property.name] as? String)
+                ?: ""
         }
     }

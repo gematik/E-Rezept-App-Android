@@ -83,6 +83,7 @@ class AppDependenciesPlugin : Plugin<Project> {
 
         object KotlinX {
             fun coroutines(target: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$target:1.6.4"
+            const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
             object Test {
                 val coroutinesTest = coroutines("test")
             }
@@ -141,6 +142,7 @@ class AppDependenciesPlugin : Plugin<Project> {
                 const val core = "androidx.test:core:1.5.0"
                 const val rules = "androidx.test:rules:1.5.0"
                 const val espresso = "androidx.test.espresso:espresso-core:3.5.0"
+                const val espressoIntents = "androidx.test.espresso:espresso-intents:3.5.0"
                 const val junitExt = "androidx.test.ext:junit:1.1.4"
                 const val navigation = "androidx.navigation:navigation-testing:2.5.3"
             }
@@ -209,6 +211,10 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val zxcvbn = "com.nulab-inc:zxcvbn:1.7.0"
         }
 
+        object ContentSquare {
+            const val cts = "com.contentsquare.android:library:4.12.0"
+        }
+
         object Test {
             fun mockk(module: String) = "io.mockk:$module:1.13.2"
             const val junit4 = "junit:junit:4.13.2"
@@ -272,6 +278,9 @@ object App {
 
     fun passwordStrength(init: AppDependenciesPlugin.Dependencies.PasswordStrength.() -> Unit) =
         AppDependenciesPlugin.Dependencies.PasswordStrength.init()
+
+    fun contentSquare(init: AppDependenciesPlugin.Dependencies.ContentSquare.() -> Unit) =
+        AppDependenciesPlugin.Dependencies.ContentSquare.init()
 
     fun test(init: AppDependenciesPlugin.Dependencies.Test.() -> Unit) =
         AppDependenciesPlugin.Dependencies.Test.init()

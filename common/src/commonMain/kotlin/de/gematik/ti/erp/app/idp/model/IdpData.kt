@@ -18,11 +18,12 @@
 
 package de.gematik.ti.erp.app.idp.model
 
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64Url
 import org.jose4j.jwx.JsonWebStructure
-import java.time.Duration
-import java.time.Instant
+import kotlin.time.Duration.Companion.hours
 
 object IdpData {
     data class IdpConfiguration(
@@ -45,7 +46,7 @@ object IdpData {
         val expiresOn: Instant = extractExpirationTimestamp(token),
         val validOn: Instant = extractValidOnTimestamp(token)
     ) {
-        fun isValid(instant: Instant = Instant.now()) =
+        fun isValid(instant: Instant = Clock.System.now()) =
             instant < expiresOn && instant >= validOn
     }
 
@@ -174,7 +175,7 @@ object IdpData {
 }
 
 fun extractExpirationTimestamp(ssoToken: String): Instant =
-    Instant.ofEpochSecond(
+    Instant.fromEpochSeconds(
         JsonWebStructure
             .fromCompactSerialization(ssoToken)
             .headers
@@ -182,4 +183,4 @@ fun extractExpirationTimestamp(ssoToken: String): Instant =
     )
 
 fun extractValidOnTimestamp(ssoToken: String): Instant =
-    extractExpirationTimestamp(ssoToken) - Duration.ofHours(24)
+    extractExpirationTimestamp(ssoToken) - 24.hours

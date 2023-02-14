@@ -27,7 +27,7 @@ import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.Ignore
-import java.time.LocalDateTime
+import kotlinx.datetime.LocalDateTime
 
 enum class SettingsAuthenticationMethodV1 {
     HealthCard,
@@ -85,7 +85,7 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var pharmacySearch: PharmacySearchEntityV1? = PharmacySearchEntityV1()
 
     var userHasAcceptedInsecureDevice: Boolean = false
-    var dataProtectionVersionAccepted: RealmInstant = LocalDateTime.of(2021, 10, 15, 0, 0).toRealmInstant()
+    var dataProtectionVersionAccepted: RealmInstant = LocalDateTime(2021, 10, 15, 0, 0).toRealmInstant()
 
     var password: PasswordEntityV1? = PasswordEntityV1()
 

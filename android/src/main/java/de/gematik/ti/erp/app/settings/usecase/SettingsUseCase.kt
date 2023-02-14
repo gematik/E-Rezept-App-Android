@@ -29,12 +29,14 @@ import de.gematik.ti.erp.app.settings.model.SettingsData.General
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 
 val DATA_PROTECTION_LAST_UPDATED: Instant =
-    LocalDate.parse(BuildKonfig.DATA_PROTECTION_LAST_UPDATED).atStartOfDay().toInstant(ZoneOffset.UTC)
+    LocalDate.parse(BuildKonfig.DATA_PROTECTION_LAST_UPDATED).atStartOfDayIn(TimeZone.UTC)
 
 class SettingsUseCase(
     private val context: Context,
@@ -61,9 +63,6 @@ class SettingsUseCase(
     val showMainScreenTooltip: Flow<Boolean> =
         settingsRepository.general.map { !it.mainScreenTooltipsShown }
 
-    var showDataTermsUpdate: Flow<Boolean> =
-        settingsRepository.general.map { it.dataProtectionVersionAcceptedOn < DATA_PROTECTION_LAST_UPDATED }
-
     suspend fun welcomeDrawerShown() {
         settingsRepository.saveWelcomeDrawerShown()
     }
@@ -73,7 +72,7 @@ class SettingsUseCase(
     suspend fun onboardingSucceeded(
         authenticationMode: SettingsData.AuthenticationMode,
         defaultProfileName: String,
-        now: Instant = Instant.now()
+        now: Instant = Clock.System.now()
     ) {
         sanitizedProfileName(defaultProfileName)?.also { name ->
             settingsRepository.saveOnboardingSucceededData(authenticationMode, name, now)

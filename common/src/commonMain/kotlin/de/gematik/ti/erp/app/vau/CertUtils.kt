@@ -18,6 +18,9 @@
 
 package de.gematik.ti.erp.app.vau
 
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toJavaInstant
+import kotlinx.datetime.toKotlinInstant
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
@@ -25,7 +28,6 @@ import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi
 import org.bouncycastle.jce.interfaces.ECPublicKey
 import org.bouncycastle.operator.DefaultDigestAlgorithmIdentifierFinder
 import org.bouncycastle.operator.bc.BcECContentVerifierProviderBuilder
-import java.time.Instant
 import java.util.Date
 
 /**
@@ -42,10 +44,10 @@ fun List<List<X509CertificateHolder>>.filterByOIDAndOCSPResponse(
     filter { it.first().containsIdentifierOid(oid) }
         .filter { chain ->
             validOcspResponses.find { validOcspResponse ->
-                val producedAt = validOcspResponse.producedAt.toInstant()
+                val producedAt = validOcspResponse.producedAt.toInstant().toKotlinInstant()
 
                 validOcspResponse.findValidCert(chain.first().serialNumber)?.let {
-                    val thisUpdate = it.thisUpdate.toInstant()
+                    val thisUpdate = it.thisUpdate.toInstant().toKotlinInstant()
 
                     (producedAt <= timestamp) && (thisUpdate <= timestamp) &&
                         it.matchesIssuer(chain[1])
@@ -98,7 +100,7 @@ internal fun X509CertificateHolder.subjectDNContainsCNPrefixWithNumber(cnPrefix:
  * Throws an exception if the check fails.
  */
 fun X509CertificateHolder.checkValidity(timestamp: Instant) {
-    require(isValidOn(Date.from(timestamp)))
+    require(isValidOn(Date.from(timestamp.toJavaInstant())))
 }
 
 fun X509CertificateHolder.extractECPublicKey(): ECPublicKey {

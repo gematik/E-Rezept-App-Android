@@ -20,9 +20,9 @@ package de.gematik.ti.erp.app.utils
 
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import java.time.Duration
-import java.time.Instant
+import kotlinx.datetime.Instant
 import java.util.UUID
+import kotlin.time.Duration.Companion.days
 
 fun syncedTask(
     taskId: String = "Task/" + UUID.randomUUID().toString(),
@@ -122,8 +122,8 @@ val testSyncedTasks =
             lastModified = Instant.parse("2020-12-06T14:49:46Z"),
             organizationName = null,
             practitionerName = "Praxis Glücklicher gehts nicht",
-            expiresOn = Instant.parse("2020-12-02T14:49:46Z") + Duration.ofDays(3 * 28),
-            acceptUntil = Instant.parse("2020-12-02T14:49:46Z") + Duration.ofDays(28),
+            expiresOn = Instant.parse("2020-12-02T14:49:46Z") + (3 * 28).days,
+            acceptUntil = Instant.parse("2020-12-02T14:49:46Z") + 28.days,
             authoredOn = Instant.parse("2020-12-02T14:49:46Z"),
             status = SyncedTaskData.TaskStatus.Completed,
             medicationName = "Schokolade"
@@ -133,8 +133,8 @@ val testSyncedTasks =
             lastModified = Instant.parse("2020-12-05T14:49:46Z"),
             organizationName = null,
             practitionerName = "Praxis Glücklicher gehts nicht",
-            expiresOn = Instant.parse("2020-12-02T22:49:46Z") + Duration.ofDays(3 * 28),
-            acceptUntil = Instant.parse("2020-12-02T14:49:46Z") + Duration.ofDays(28),
+            expiresOn = Instant.parse("2020-12-02T22:49:46Z") + (3 * 28).days,
+            acceptUntil = Instant.parse("2020-12-02T14:49:46Z") + 28.days,
             authoredOn = Instant.parse("2020-12-02T14:49:46Z"),
             status = SyncedTaskData.TaskStatus.Completed,
             medicationName = "Bonbons"
@@ -144,8 +144,8 @@ val testSyncedTasks =
             lastModified = Instant.parse("2020-12-05T09:49:46Z"),
             organizationName = null,
             practitionerName = "Praxis Glücklicher gehts nicht",
-            expiresOn = Instant.parse("2020-12-02T14:49:46Z") + Duration.ofDays(3 * 28),
-            acceptUntil = Instant.parse("2020-12-02T14:49:46Z") + Duration.ofDays(28),
+            expiresOn = Instant.parse("2020-12-02T14:49:46Z") + (3 * 28).days,
+            acceptUntil = Instant.parse("2020-12-02T14:49:46Z") + 28.days,
             authoredOn = Instant.parse("2020-12-05T09:49:46Z"),
             status = SyncedTaskData.TaskStatus.Ready,
             medicationName = "Gummibärchen"
@@ -155,8 +155,8 @@ val testSyncedTasks =
             lastModified = Instant.parse("2020-12-20T09:49:46Z"),
             organizationName = "MVZ Haus der vielen Ärzte",
             practitionerName = null,
-            expiresOn = Instant.parse("2020-12-20T09:49:46Z") + Duration.ofDays(3 * 28),
-            acceptUntil = Instant.parse("2020-12-20T09:49:46Z") + Duration.ofDays(28),
+            expiresOn = Instant.parse("2020-12-20T09:49:46Z") + (3 * 28).days,
+            acceptUntil = Instant.parse("2020-12-20T09:49:46Z") + 28.days,
             authoredOn = Instant.parse("2020-12-20T09:49:46Z"),
             status = SyncedTaskData.TaskStatus.Ready,
             medicationName = "Viel zu viel"
@@ -166,8 +166,8 @@ val testSyncedTasks =
             lastModified = Instant.parse("2020-12-04T09:49:46Z"),
             organizationName = "MVZ Haus der vielen Ärzte",
             practitionerName = null,
-            expiresOn = Instant.parse("2020-12-04T09:49:46Z") + Duration.ofDays(3 * 28),
-            acceptUntil = Instant.parse("2020-12-04T09:49:46Z") + Duration.ofDays(28),
+            expiresOn = Instant.parse("2020-12-04T09:49:46Z") + (3 * 28).days,
+            acceptUntil = Instant.parse("2020-12-04T09:49:46Z") + 28.days,
             authoredOn = Instant.parse("2020-12-04T09:49:46Z"),
             status = SyncedTaskData.TaskStatus.Ready,
             medicationName = "Viel zu viel"

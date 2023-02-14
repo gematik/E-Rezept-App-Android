@@ -28,7 +28,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 private const val TasksMaxPageSize = 50
 
@@ -43,6 +43,8 @@ class TaskRepository(
     }.map {
         it ?: 0
     }
+
+    override val tag: String = "TaskRepository"
 
     override suspend fun downloadResource(
         profileId: ProfileIdentifier,

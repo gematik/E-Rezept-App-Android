@@ -18,8 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asLocalDate
-import de.gematik.ti.erp.app.fhir.parser.asTemporalAccessor
+import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedBoolean
 import de.gematik.ti.erp.app.fhir.parser.containedInt
@@ -30,10 +29,9 @@ import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import io.github.aakira.napier.Napier
+import de.gematik.ti.erp.app.fhir.parser.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
-import java.time.format.DateTimeParseException
 
 @Suppress("LongParameterList", "LongMethod")
 fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationRequest,
@@ -221,7 +219,7 @@ fun <MedicationRequest, MultiplePrescriptionInfo, Ratio, Quantity> extractMedica
     val dateOfAccident = accidentInformation?.findAll("extension")?.filterWith(
         "url",
         stringValue("unfalltag")
-    )?.firstOrNull()?.containedOrNull("valueDate")?.jsonPrimitive?.asLocalDate()
+    )?.firstOrNull()?.containedOrNull("valueDate")?.jsonPrimitive?.asFhirLocalDate()
 
     val location = accidentInformation?.findAll("extension")?.filterWith(
         "url",
@@ -302,12 +300,7 @@ fun <Patient, Address> extractPatientVersion110(
 ): Patient {
     val name = resource.extractHumanName()
 
-    val birthDate = try {
-        resource.containedOrNull("birthDate")?.jsonPrimitive?.asLocalDate()
-    } catch (expected: DateTimeParseException) {
-        Napier.e("Could not parse birthdate.", expected)
-        null
-    }
+    val birthDate = resource.containedOrNull("birthDate")?.jsonPrimitive?.toFhirTemporal()
 
     val kvnr = resource
         .findAll("identifier")
@@ -368,7 +361,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractPZNMedicationVersion110(
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asTemporalAccessor()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
 
     return processMedication(
         text,
@@ -429,7 +422,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationCompoundingVersio
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asTemporalAccessor()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
 
     return processMedication(
         text,
@@ -484,7 +477,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationIngredientVersion
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asTemporalAccessor()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
 
     return processMedication(
         text,
@@ -524,7 +517,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationFreetextVersion11
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
-        ?.containedOrNull("expirationDate")?.jsonPrimitive?.asTemporalAccessor()
+        ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
 
     return processMedication(
         text,
@@ -579,6 +572,7 @@ private fun extractMedicationCategoryVerion110(resource: JsonElement): Medicatio
         "00" -> MedicationCategory.ARZNEI_UND_VERBAND_MITTEL
         "01" -> MedicationCategory.BTM
         "02" -> MedicationCategory.AMVV
+        "03" -> MedicationCategory.SONSTIGES
         else -> MedicationCategory.UNKNOWN
     }
 }

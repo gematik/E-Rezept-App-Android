@@ -21,21 +21,17 @@ package de.gematik.ti.erp.app.cardwall.ui.model
 import de.gematik.ti.erp.app.Route
 
 object CardWallNavigation {
-    object TroubleshootingPageA : Route("TroubleshootingPageA")
-    object TroubleshootingPageB : Route("TroubleshootingPageB")
-    object TroubleshootingPageC : Route("TroubleshootingPageC")
-    object TroubleshootingNoSuccessPage : Route("TroubleshootingNoSuccessPage")
-    object ExternalAuthenticator : Route("ExternalAuthenticatorOverview")
-    object Intro : Route("CardWallIntro")
-    object MissingCapabilities : Route("MissingCapabilities")
-    object CardAccessNumber : Route("CardWallCardAccessNumber")
+    object Troubleshooting : Route("TroubleShooting")
+    object ExternalAuthenticator : Route("card_wall_external_authenticator_overview")
+    object Intro : Route("card_wall_intro")
+    object MissingCapabilities : Route("card_wall_missing_capabilities")
+    object CardAccessNumber : Route("card_wall_card_access_number")
 
-    object PersonalIdentificationNumber : Route("CardWallPersonalIdentificationNumber")
-    object AuthenticationSelection : Route("CardWallAuthenticationSelection")
-    object AlternativeOption : Route("AlternativeOption")
+    object PersonalIdentificationNumber : Route("card_wall_personal_identification_number")
+    object AuthenticationSelection : Route("card_wall_authentication_selection")
+    object AlternativeOption : Route("card_wall_alternative_option")
 
-    object Authentication : Route("CardWallAuthentication")
-    object InsuranceApp : Route("InsuranceApp")
-    object OrderHealthCard : Route("OrderHealthCard")
-    object UnlockEgk : Route("UnlockEgk")
+    object Authentication : Route("card_wall_authentication")
+    object OrderHealthCard : Route("card_wall_order_health_card")
+    object UnlockEgk : Route("card_wall_unlock_egk")
 }

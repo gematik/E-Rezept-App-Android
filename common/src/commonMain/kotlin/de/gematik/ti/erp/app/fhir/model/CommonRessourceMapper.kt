@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asLocalDate
+import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
@@ -160,7 +160,7 @@ fun <MultiplePrescriptionInfo, Ratio, Quantity> JsonElement.extractMultiplePresc
     val start = this.findAll("extension").filterWith("url", stringValue("Zeitraum"))
         .firstOrNull()
         ?.contained("valuePeriod")
-        ?.containedOrNull("start")?.jsonPrimitive?.asLocalDate()
+        ?.containedOrNull("start")?.jsonPrimitive?.asFhirLocalDate()
 
     return processMultiplePrescriptionInfo(
         indicator,

@@ -79,7 +79,7 @@ val allModules = DI.Module("allModules") {
 
     bindSingleton { FeatureToggleManager(instance()) }
 
-    bindSingleton { Analytics(instance()) }
+    bindSingleton { Analytics(instance(), instance(ApplicationPreferencesTag)) }
 
     importAll(
         cardWallModule,

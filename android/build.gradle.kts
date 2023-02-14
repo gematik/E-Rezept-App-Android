@@ -210,6 +210,8 @@ dependencies {
             implementation(coroutines("core"))
             implementation(coroutines("android"))
             implementation(coroutines("play-services"))
+            compileOnly(datetime)
+            testCompileOnly(datetime)
         }
         android {
             coreLibraryDesugaring(desugaring)
@@ -293,6 +295,11 @@ dependencies {
         passwordStrength {
             implementation(zxcvbn)
         }
+
+        contentSquare {
+            implementation(cts)
+        }
+
         playServices {
             implementation(location)
             implementation(integrity)
@@ -311,6 +318,7 @@ dependencies {
             androidTestUtil(services)
             androidTestImplementation(navigation)
             androidTestImplementation(espresso)
+            androidTestImplementation(espressoIntents)
         }
         kotlinXTest {
             testImplementation(coroutinesTest)
@@ -333,5 +341,5 @@ dependencies {
 }
 
 secrets {
-    defaultPropertiesFileName = "ci-overrides.properties"
+    defaultPropertiesFileName = if (project.rootProject.file("ci-overrides.properties").exists()) "ci-overrides.properties" else "gradle.properties"
 }

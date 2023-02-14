@@ -46,8 +46,6 @@ import java.security.MessageDigest
 import java.security.PublicKey
 import java.security.Security
 import java.security.interfaces.ECPublicKey
-import java.time.Duration
-import java.time.Instant
 import javax.crypto.SecretKey
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -63,13 +61,16 @@ import org.jose4j.jwt.consumer.JwtContext
 import org.jose4j.jwt.consumer.NumericDateValidator
 import org.jose4j.jwx.JsonWebStructure
 import io.github.aakira.napier.Napier
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.long
+import kotlin.time.Duration.Companion.hours
 
-private val discoveryDocumentMaxValidityMinutes: Int = Duration.ofHours(24).toMinutes().toInt()
-private val discoveryDocumentMaxValiditySeconds: Int = Duration.ofHours(24).seconds.toInt()
+private val discoveryDocumentMaxValidityMinutes: Int = 24.hours.inWholeMinutes.toInt()
+private val discoveryDocumentMaxValiditySeconds: Int = 24.hours.inWholeSeconds.toInt()
 
 //
 // Flow with health card:
@@ -128,7 +129,7 @@ class IdpBasicUseCase(
 
         val config = try {
             repository.loadUncheckedIdpConfiguration().also {
-                checkIdpConfigurationValidity(it, Instant.now())
+                checkIdpConfigurationValidity(it, Clock.System.now())
             }
         } catch (e: Exception) {
             Napier.e("IDP config couldn't be validated", e)
@@ -136,7 +137,7 @@ class IdpBasicUseCase(
             // retry
             try {
                 repository.loadUncheckedIdpConfiguration().also {
-                    checkIdpConfigurationValidity(it, Instant.now())
+                    checkIdpConfigurationValidity(it, Clock.System.now())
                 }
             } catch (e: Exception) {
                 Napier.e("IDP config couldn't be validated again; finally aborting", e)
@@ -464,13 +465,13 @@ class IdpBasicUseCase(
         truststoreUseCase.checkIdpCertificate(config.certificate, true)
 
         val claims = JwtClaims().apply {
-            issuedAt = NumericDate.fromMilliseconds(config.issueTimestamp.toEpochMilli())
-            expirationTime = NumericDate.fromMilliseconds(config.expirationTimestamp.toEpochMilli())
+            issuedAt = NumericDate.fromMilliseconds(config.issueTimestamp.toEpochMilliseconds())
+            expirationTime = NumericDate.fromMilliseconds(config.expirationTimestamp.toEpochMilliseconds())
         }
 
         val r = NumericDateValidator().apply {
             setAllowedClockSkewSeconds(60)
-            setEvaluationTime(NumericDate.fromMilliseconds(timestamp.toEpochMilli()))
+            setEvaluationTime(NumericDate.fromMilliseconds(timestamp.toEpochMilliseconds()))
             setRequireExp(true)
             setRequireIat(true)
             setIatAllowedSecondsInThePast(discoveryDocumentMaxValiditySeconds)

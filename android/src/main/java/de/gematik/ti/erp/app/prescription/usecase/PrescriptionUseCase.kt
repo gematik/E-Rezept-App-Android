@@ -36,7 +36,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.transformLatest
 import io.github.aakira.napier.Napier
-import java.time.Instant
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 class PrescriptionUseCase(
     private val repository: PrescriptionRepository,
@@ -46,7 +47,7 @@ class PrescriptionUseCase(
 
     fun syncedActiveRecipes(
         profileId: ProfileIdentifier,
-        now: Instant = Instant.now()
+        now: Instant = Clock.System.now()
     ): Flow<List<PrescriptionUseCaseData.Prescription.Synced>> =
         syncedTasks(profileId).map { tasks ->
             tasks.filter { it.isActive(now) }
@@ -98,7 +99,7 @@ class PrescriptionUseCase(
 
     fun redeemedPrescriptions(
         profileId: ProfileIdentifier,
-        now: Instant = Instant.now()
+        now: Instant = Clock.System.now()
     ): Flow<List<PrescriptionUseCaseData.Prescription>> =
         combine(
             scannedTasks(profileId),
@@ -203,7 +204,7 @@ class PrescriptionUseCase(
     }
 
     suspend fun redeemScannedTask(taskId: String, redeem: Boolean) {
-        repository.updateRedeemedOn(taskId, if (redeem) Instant.now() else null)
+        repository.updateRedeemedOn(taskId, if (redeem) Clock.System.now() else null)
     }
 
     fun getAllTasksWithTaskIdOnly(): Flow<List<String>> =

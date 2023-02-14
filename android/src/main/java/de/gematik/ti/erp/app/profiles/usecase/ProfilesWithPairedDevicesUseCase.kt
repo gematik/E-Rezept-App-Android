@@ -25,7 +25,7 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 class ProfilesWithPairedDevicesUseCase(
     private val idpUseCase: IdpUseCase,
@@ -39,7 +39,7 @@ class ProfilesWithPairedDevicesUseCase(
                         ProfilesUseCaseData.PairedDevice(
                             name = raw.name,
                             alias = pairingData.keyAliasOfSecureElement,
-                            connectedOn = Instant.ofEpochSecond(raw.creationTime)
+                            connectedOn = Instant.fromEpochSeconds(raw.creationTime)
                         )
                     }.sortedByDescending {
                         it.connectedOn

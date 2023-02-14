@@ -42,11 +42,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.orders.usecase.model.OrderUseCaseData
 import de.gematik.ti.erp.app.redeem.ui.createBitMatrix
 import de.gematik.ti.erp.app.redeem.ui.drawDataMatrix
@@ -56,8 +60,9 @@ import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import java.time.LocalDateTime
-import java.time.ZoneId
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -94,6 +99,7 @@ fun MessageSheetContent(
                     Modifier
                         .fillMaxWidth()
                         .verticalScroll(rememberScrollState())
+                        .testTag(TestTag.Orders.Messages.Content)
                 ) {
                     when (message.type) {
                         OrderUseCaseData.Message.Type.All ->
@@ -148,7 +154,9 @@ fun LinkSheetContent(
     val uriHandler = LocalUriHandler.current
 
     Column(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag(TestTag.Orders.Messages.Link),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (message.type != OrderUseCaseData.Message.Type.All) {
@@ -166,6 +174,7 @@ fun LinkSheetContent(
             SpacerLarge()
         }
         PrimaryButtonSmall(
+            modifier = Modifier.testTag(TestTag.Orders.Messages.LinkButton),
             onClick = {
                 message.link?.let { uriHandler.openUri(it) }
             }
@@ -179,7 +188,11 @@ fun LinkSheetContent(
 fun TextSheetContent(
     message: OrderUseCaseData.Message
 ) {
-    Column(modifier = Modifier.fillMaxWidth()) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .semantics(true) { testTag = TestTag.Orders.Messages.Text }
+    ) {
         Box(
             Modifier
                 .fillMaxWidth()
@@ -205,7 +218,7 @@ fun TextSheetContent(
 private fun sentOn(message: OrderUseCaseData.Message): String =
     remember(message) {
         val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-        dateFormatter.format(LocalDateTime.ofInstant(message.sentOn, ZoneId.systemDefault()))
+        dateFormatter.format(message.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime())
     }
 
 @Composable
@@ -244,6 +257,7 @@ private fun CodeLabel(
         Modifier
             .background(AppTheme.colors.neutral100, RoundedCornerShape(8.dp))
             .padding(horizontal = PaddingDefaults.ShortMedium, vertical = PaddingDefaults.ShortMedium / 2)
+            .semantics(true) { testTag = TestTag.Orders.Messages.CodeLabelContent }
     ) {
         Text(
             code,
@@ -257,7 +271,12 @@ private fun CodeLabel(
 
 @Composable
 fun EmptySheetContent(pharmacyName: String) {
-    Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .testTag(TestTag.Orders.Messages.Empty),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
             stringResource(R.string.orders_no_message_title),
             style = AppTheme.typography.subtitle1,
@@ -281,6 +300,7 @@ private fun DataMatrixCode(payload: String, modifier: Modifier) {
             .then(modifier)
             .background(Color.White)
             .padding(PaddingDefaults.Small)
+            .testTag(TestTag.Orders.Messages.Code)
     ) {
         Box(
             modifier = Modifier

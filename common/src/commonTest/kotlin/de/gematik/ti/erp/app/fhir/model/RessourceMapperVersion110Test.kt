@@ -18,8 +18,9 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -41,7 +42,7 @@ class RessourceMapperVersion110Test {
             processPatient = { name, address, birthDate, insuranceIdentifier ->
                 assertEquals("Ludger Königsstein", name)
                 assertEquals(ReturnType.Address, address)
-                assertEquals(LocalDate.parse("1935-06-22"), birthDate)
+                assertEquals(LocalDate.parse("1935-06-22").asFhirTemporal(), birthDate)
                 assertEquals("K220635158", insuranceIdentifier)
 
                 ReturnType.Patient
@@ -222,7 +223,7 @@ class RessourceMapperVersion110Test {
             processMultiplePrescriptionInfo = { indicator, numbering, start ->
                 assertTrue(indicator)
                 assertEquals(ReturnType.Ratio, numbering)
-                assertEquals(LocalDate.parse("2022-05-20"), start)
+                assertEquals(LocalDate.parse("2022-05-20").asFhirTemporal(), start)
                 ReturnType.MultiplePrescriptionInfo
             },
             processMedicationRequest = { dateOfAccident,

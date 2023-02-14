@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.settings.model
 
 import de.gematik.ti.erp.app.secureRandomInstance
 import java.security.MessageDigest
-import java.time.Instant
 
 object SettingsData {
     data class General(
@@ -28,7 +27,6 @@ object SettingsData {
         val onboardingShownIn: AppVersion?,
         val welcomeDrawerShown: Boolean,
         val mainScreenTooltipsShown: Boolean,
-        val dataProtectionVersionAcceptedOn: Instant,
         val zoomEnabled: Boolean,
         val userHasAcceptedInsecureDevice: Boolean,
         val authenticationFails: Int,

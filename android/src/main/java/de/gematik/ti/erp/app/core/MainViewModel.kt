@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.core
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.attestation.usecase.IntegrityUseCase
@@ -51,8 +53,6 @@ class MainViewModel(
             }
         }
 
-    var showDataTermsUpdate = settingsUseCase.showDataTermsUpdate
-
     var integrityPromptShown = false
 
     fun checkDeviceIntegrity() = integrityUseCase.runIntegrityAttestation().map {
@@ -63,6 +63,7 @@ class MainViewModel(
             true
         }
     }
+
     fun onAcceptInsecureDevice() {
         viewModelScope.launch {
             settingsUseCase.acceptInsecureDevice()
@@ -92,9 +93,14 @@ class MainViewModel(
     fun showMainScreenToolTips(): Flow<Boolean> = settingsUseCase.general
         .map { !it.mainScreenTooltipsShown && it.welcomeDrawerShown }
 
-    fun dataProtectionVersionAcceptedOn() =
-        settingsUseCase.general.map { it.dataProtectionVersionAcceptedOn }
-
     fun mlKitNotAccepted() =
         settingsUseCase.general.map { !it.mlKitAccepted }
+
+    fun talkbackEnabled(context: Context): Boolean {
+        val accessibilityManager =
+            context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
+
+        return accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+            .isNotEmpty()
+    }
 }

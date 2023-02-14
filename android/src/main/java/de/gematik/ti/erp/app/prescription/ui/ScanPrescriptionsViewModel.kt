@@ -38,7 +38,7 @@ import kotlinx.coroutines.flow.toCollection
 import kotlinx.coroutines.flow.transform
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
-import java.time.Instant
+import kotlinx.datetime.Clock
 
 private data class ScanWorkflow(
     val info: ScanScreenData.Info? = null,
@@ -84,7 +84,7 @@ class ScanPrescriptionViewModel(
         private set
 
     private val emptyScanWorkflow = ScanWorkflow(
-        code = ScannedCode("", Instant.now()),
+        code = ScannedCode("", Clock.System.now()),
         coordinates = FloatArray(0),
         state = ScanScreenData.ScanState.Final
     )
@@ -113,7 +113,7 @@ class ScanPrescriptionViewModel(
                 Pair(
                     batch.averageScanTime,
                     ScanWorkflow(
-                        code = ScannedCode(json, Instant.now()),
+                        code = ScannedCode(json, Clock.System.now()),
                         coordinates = coords
                     )
                 )

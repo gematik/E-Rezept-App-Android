@@ -27,7 +27,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 enum class RemoteRedeemOption(val type: String) {
     Local(type = "onPremise"),

@@ -18,10 +18,11 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import org.junit.Test
-import java.time.Instant
-import java.time.LocalDate
 import kotlin.test.assertEquals
 
 class TaskMapperTest {
@@ -34,10 +35,10 @@ class TaskMapperTest {
             process = { taskId, accessCode, lastModified, expiresOn, acceptUntil, authoredOn, status ->
                 assertEquals("160.000.000.029.982.30", taskId)
                 assertEquals("dd23212d35d14ccde351f9a1077f3d9508dcb8629882627ec16a22ea86144290", accessCode)
-                assertEquals(Instant.parse("2022-06-09T11:57:37.923Z"), lastModified)
-                assertEquals(LocalDate.parse("2022-09-09"), expiresOn)
-                assertEquals(LocalDate.parse("2022-07-07"), acceptUntil)
-                assertEquals(Instant.parse("2022-06-09T11:50:23.223Z"), authoredOn)
+                assertEquals(Instant.parse("2022-06-09T11:57:37.923Z").asFhirTemporal(), lastModified)
+                assertEquals(LocalDate.parse("2022-09-09").asFhirTemporal(), expiresOn)
+                assertEquals(LocalDate.parse("2022-07-07").asFhirTemporal(), acceptUntil)
+                assertEquals(Instant.parse("2022-06-09T11:50:23.223Z").asFhirTemporal(), authoredOn)
                 assertEquals(TaskStatus.Completed, status)
             }
         )
@@ -51,12 +52,20 @@ class TaskMapperTest {
             process = { taskId, accessCode, lastModified, expiresOn, acceptUntil, authoredOn, status ->
                 assertEquals("160.000.033.491.280.78", taskId)
                 assertEquals("777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea", accessCode)
-                assertEquals(Instant.parse("2022-03-18T15:27:00Z"), lastModified)
-                assertEquals(LocalDate.parse("2022-06-02"), expiresOn)
-                assertEquals(LocalDate.parse("2022-04-02"), acceptUntil)
-                assertEquals(Instant.parse("2022-03-18T15:26:00Z"), authoredOn)
-                assertEquals(TaskStatus.Ready, status)
+                assertEquals(Instant.parse("2022-03-18T15:29:00Z").asFhirTemporal(), lastModified)
+                assertEquals(LocalDate.parse("2022-06-02").asFhirTemporal(), expiresOn)
+                assertEquals(LocalDate.parse("2022-04-02").asFhirTemporal(), acceptUntil)
+                assertEquals(Instant.parse("2022-03-18T15:26:00Z").asFhirTemporal(), authoredOn)
+                assertEquals(TaskStatus.Completed, status)
             }
         )
+    }
+
+    @Test
+    fun `extract task id from bundle`() {
+        val taskJson = Json.parseToJsonElement(task_bundle_version_1_2)
+        val (bundleTotal, taskIds) = extractTaskIds(taskJson)
+        assertEquals(1, bundleTotal)
+        assertEquals("160.000.033.491.280.78", taskIds[0])
     }
 }

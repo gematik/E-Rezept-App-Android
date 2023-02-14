@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.util.Patterns
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.MutatePriority
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.layout.Arrangement
@@ -34,8 +33,6 @@ import androidx.compose.foundation.layout.isImeVisible
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.relocation.BringIntoViewRequester
-import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -53,16 +50,21 @@ import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.max
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.ui.model.addressSupplementInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.deliveryInformationInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.mailInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.nameInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.phoneNumberInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.postalCodeAndCityInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.streetAndNumberInputField
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
-import de.gematik.ti.erp.app.utils.compose.InputField
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -72,7 +74,6 @@ import kotlinx.coroutines.launch
 const val StringLengthLimit = 100
 const val MinPhoneLength = 4
 
-@Suppress("LongMethod")
 @Composable
 fun EditShippingContactScreen(
     orderState: PharmacyOrderState,
@@ -99,33 +100,18 @@ fun EditShippingContactScreen(
     val codeAndCityError by remember(contact) { derivedStateOf { contact.postalCodeAndCity.isBlank() } }
     val mailError by remember(contact) { derivedStateOf { !isMailValid(contact.mail) } }
 
-    if (showBackAlert) {
-        CommonAlertDialog(
-            header = stringResource(R.string.edit_contact_back_alert_header),
-            info = stringResource(R.string.edit_contact_back_alert_information),
-            onCancel = { showBackAlert = false },
-            onClickAction = onBack,
-            cancelText = stringResource(R.string.edit_contact_back_alert_change),
-            actionText = stringResource(R.string.edit_contact_back_alert_action)
-        )
-    }
+    if (showBackAlert) { BackAlert(onCancel = { showBackAlert = false }, onBack = onBack) }
 
     AnimatedElevationScaffold(
         navigationMode = NavigationBarMode.Back,
         bottomBar = {
-            BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
-                Spacer(Modifier.weight(1f))
-                Button(
-                    onClick = {
-                        orderState.onSaveContact(contact)
-                        onBack()
-                    },
-                    enabled = !telephoneError && !mailError && !nameError && !line1Error && !codeAndCityError
-                ) {
-                    Text(stringResource(R.string.edit_shipping_contact_save))
+            ContactBottomBar(
+                enabled = !telephoneError && !mailError && !nameError && !line1Error && !codeAndCityError,
+                onClick = {
+                    orderState.onSaveContact(contact)
+                    onBack()
                 }
-                SpacerSmall()
-            }
+            )
         },
         topBarTitle = stringResource(R.string.edit_shipping_contact_top_bar_title),
         listState = listState,
@@ -156,127 +142,114 @@ fun EditShippingContactScreen(
                 end = PaddingDefaults.Medium
             )
         ) {
-            item {
-                Text(
-                    stringResource(R.string.edit_shipping_contact_title_contact),
-                    style = AppTheme.typography.h6
-                )
-            }
-            item(key = "InputField_1") {
-                InputField(
-                    modifier = Modifier
-                        .scrollOnFocus(1, listState)
-                        .fillParentMaxWidth(),
-                    value = contact.telephoneNumber,
-                    onValueChange = { phone ->
-                        contact = contact.copy(
-                            telephoneNumber = phone.trim().take(StringLengthLimit)
-                        )
-                    },
-                    onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                    label = {
-                        Text(
-                            if (telephoneOptional) {
-                                stringResource(R.string.edit_shipping_contact_phone_optional)
-                            } else {
-                                stringResource(R.string.edit_shipping_contact_phone)
-                            }
-                        )
-                    },
-                    isError = telephoneError,
-                    errorText = { Text(stringResource(R.string.edit_shipping_contact_error_phone)) },
-                    keyBoardType = KeyboardType.Phone
-                )
-            }
-            item(key = "InputField_2") {
-                InputField(
-                    modifier = Modifier
-                        .scrollOnFocus(2, listState)
-                        .fillParentMaxWidth(),
-                    value = contact.mail,
-                    onValueChange = { mail -> contact = (contact.copy(mail = mail.take(StringLengthLimit))) },
-                    onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                    label = { Text(stringResource(R.string.edit_shipping_contact_mail)) },
-                    isError = mailError,
-                    keyBoardType = KeyboardType.Email
-                )
-            }
-            item {
-                SpacerLarge()
-                Text(
-                    stringResource(R.string.edit_shipping_contact_title_address),
-                    style = AppTheme.typography.h6
-                )
-            }
-            item(key = "InputField_3") {
-                InputField(
-                    modifier = Modifier
-                        .scrollOnFocus(4, listState)
-                        .fillParentMaxWidth(),
-                    value = contact.name,
-                    onValueChange = { name -> contact = (contact.copy(name = name.take(StringLengthLimit))) },
-                    onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                    label = { Text(stringResource(R.string.edit_shipping_contact_name)) },
-                    isError = nameError,
-                    errorText = { Text(stringResource(R.string.edit_shipping_contact_error_name)) }
-                )
-            }
-            item(key = "InputField_4") {
-                InputField(
-                    modifier = Modifier
-                        .scrollOnFocus(5, listState)
-                        .fillParentMaxWidth(),
-                    value = contact.line1,
-                    onValueChange = { line1 -> contact = (contact.copy(line1 = line1.take(StringLengthLimit))) },
-                    onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                    label = { Text(stringResource(R.string.edit_shipping_contact_title_line1)) },
-                    isError = line1Error,
-                    errorText = { Text(stringResource(R.string.edit_shipping_contact_error_line1)) }
-                )
-            }
-            item(key = "InputField_5") {
-                InputField(
-                    modifier = Modifier
-                        .scrollOnFocus(6, listState)
-                        .fillParentMaxWidth(),
-                    value = contact.line2,
-                    onValueChange = { line2 -> contact = (contact.copy(line2 = line2.take(StringLengthLimit))) },
-                    onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                    label = { Text(stringResource(R.string.edit_shipping_contact_line2)) },
-                    isError = false
-                )
-            }
-            item(key = "InputField_6") {
-                InputField(
-                    modifier = Modifier
-                        .scrollOnFocus(7, listState)
-                        .fillParentMaxWidth(),
-                    value = contact.postalCodeAndCity,
-                    onValueChange = { postalCodeAndCity ->
-                        contact = (contact.copy(postalCodeAndCity = postalCodeAndCity.take(StringLengthLimit)))
-                    },
-                    onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                    label = { Text(stringResource(R.string.edit_shipping_contact_postal_code_and_city)) },
-                    isError = codeAndCityError,
-                    errorText = { Text(stringResource(R.string.edit_shipping_contact_error_postal_code_and_city)) }
-                )
-            }
-            item(key = "InputField_7") {
-                InputField(
-                    modifier = Modifier
-                        .scrollOnFocus(8, listState)
-                        .fillParentMaxWidth(),
-                    value = contact.deliveryInformation,
-                    onValueChange = { deliveryInformation ->
-                        contact = (contact.copy(deliveryInformation = deliveryInformation.take(StringLengthLimit)))
-                    },
-                    onSubmit = { focusManager.clearFocus() },
-                    label = { Text(stringResource(R.string.edit_shipping_contact_delivery_information)) },
-                    isError = false
-                )
-            }
+            item { ContactHeader() }
+            phoneNumberInputField(
+                listState = listState,
+                value = contact.telephoneNumber,
+                telephoneOptional = telephoneOptional,
+                isError = telephoneError,
+                onValueChange = { phone ->
+                    contact = contact.copy(
+                        telephoneNumber = phone.trim().take(StringLengthLimit)
+                    )
+                },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
+            )
+            mailInputField(
+                listState = listState,
+                value = contact.mail,
+                onValueChange = { mail -> contact = (contact.copy(mail = mail.take(StringLengthLimit))) },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
+                isError = mailError
+            )
+            item { AddressHeader() }
+
+            nameInputField(
+                listState = listState,
+                value = contact.name,
+                onValueChange = { name -> contact = (contact.copy(name = name.take(StringLengthLimit))) },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
+                isError = nameError
+            )
+
+            streetAndNumberInputField(
+                listState = listState,
+                value = contact.line1,
+                onValueChange = { line1 -> contact = (contact.copy(line1 = line1.take(StringLengthLimit))) },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
+                isError = line1Error
+            )
+
+            addressSupplementInputField(
+                listState = listState,
+                value = contact.line2,
+                onValueChange = { line2 -> contact = (contact.copy(line2 = line2.take(StringLengthLimit))) },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
+            )
+
+            postalCodeAndCityInputField(
+                listState = listState,
+                value = contact.postalCodeAndCity,
+                onValueChange = { postalCodeAndCity ->
+                    contact = (contact.copy(postalCodeAndCity = postalCodeAndCity.take(StringLengthLimit)))
+                },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
+                isError = codeAndCityError
+            )
+
+            deliveryInformationInputField(
+                listState = listState,
+                value = contact.deliveryInformation,
+                onValueChange = { deliveryInformation ->
+                    contact = (contact.copy(deliveryInformation = deliveryInformation.take(StringLengthLimit)))
+                },
+                onSubmit = { focusManager.clearFocus() }
+            )
         }
     }
+}
+
+@Composable
+fun ContactBottomBar(enabled: Boolean, onClick: () -> Unit) {
+    BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
+        Spacer(Modifier.weight(1f))
+        Button(
+            onClick = onClick,
+            enabled = enabled
+        ) {
+            Text(stringResource(R.string.edit_shipping_contact_save))
+        }
+        SpacerSmall()
+    }
+}
+
+@Composable
+fun AddressHeader() {
+    SpacerLarge()
+    Text(
+        stringResource(R.string.edit_shipping_contact_title_address),
+        style = AppTheme.typography.h6
+    )
+}
+
+@Composable
+fun BackAlert(onCancel: () -> Unit, onBack: () -> Unit) {
+    CommonAlertDialog(
+        header = stringResource(R.string.edit_contact_back_alert_header),
+        info = stringResource(R.string.edit_contact_back_alert_information),
+        onCancel = onCancel,
+        onClickAction = onBack,
+        cancelText = stringResource(R.string.edit_contact_back_alert_change),
+        actionText = stringResource(R.string.edit_contact_back_alert_action)
+    )
+}
+
+@Composable
+fun ContactHeader() {
+    Text(
+        stringResource(R.string.edit_shipping_contact_title_contact),
+        style = AppTheme.typography.h6
+    )
 }
 
 fun isMailValid(mail: String): Boolean {
@@ -322,38 +295,4 @@ fun Modifier.scrollOnFocus(to: Int, listState: LazyListState, offset: Int = 0) =
             hasFocus = false
         }
     }
-}
-
-@OptIn(ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)
-fun Modifier.scrollOnFocus() = composed {
-    val coroutineScope = rememberCoroutineScope()
-    val mutex = MutatorMutex()
-    val bringIntoViewRequester = remember { BringIntoViewRequester() }
-
-    var hasFocus by remember { mutableStateOf(false) }
-    val keyboardVisible = WindowInsets.isImeVisible
-
-    LaunchedEffect(hasFocus, keyboardVisible) {
-        if (hasFocus && keyboardVisible) {
-            mutex.mutate {
-                delay(LayoutDelay)
-                bringIntoViewRequester.bringIntoView()
-            }
-        }
-    }
-
-    bringIntoViewRequester(bringIntoViewRequester)
-        .onFocusChanged {
-            if (it.hasFocus) {
-                hasFocus = true
-                coroutineScope.launch {
-                    mutex.mutate(MutatePriority.UserInput) {
-                        delay(LayoutDelay)
-                        bringIntoViewRequester.bringIntoView()
-                    }
-                }
-            } else {
-                hasFocus = false
-            }
-        }
 }

@@ -66,7 +66,6 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.navigation.NavController
@@ -99,12 +98,12 @@ import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.dateString
 import de.gematik.ti.erp.app.utils.compose.timeString
-import java.time.Duration
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 
 const val ZERO_DAYS_LEFT = 0L
 const val ONE_DAY_LEFT = 1L
@@ -121,7 +120,6 @@ fun PrescriptionScreen(
 ) {
     val profileHandler = LocalProfileHandler.current
     val profileId = profileHandler.activeProfile.id
-
     var showUserNotAuthenticatedDialog by remember { mutableStateOf(false) }
 
     val onShowCardWall = {
@@ -251,7 +249,10 @@ private fun PrescriptionsContent(
         if (state.redeemedPrescriptions.isNotEmpty()) {
             item {
                 SpacerLarge()
-                TextButton(onClick = onClickArchive) {
+                TextButton(
+                    onClick = onClickArchive,
+                    modifier = Modifier.testTag(TestTag.Prescriptions.ArchiveButton)
+                ) {
                     Text(stringResource(R.string.archived_prescriptions_button))
                 }
                 SpacerLarge()
@@ -351,127 +352,6 @@ private fun LazyListScope.prescriptionContent(
     }
 }
 
-@Preview
-@Composable
-private fun FullDetailRecipeCardPreview() {
-    AppTheme {
-        Column {
-            FullDetailMedication(
-                modifier = Modifier,
-                prescription =
-                PrescriptionUseCaseData.Prescription.Synced(
-                    "",
-                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                    name = "Pantoprazol 40 mg - Medikament mit sehr vielen Namensbestandteilen",
-                    authoredOn = Instant.now(),
-                    isIncomplete = false,
-                    redeemedOn = null,
-                    expiresOn = Instant.now().plus(21, ChronoUnit.DAYS),
-                    acceptUntil = Instant.now().minus(1, ChronoUnit.DAYS),
-                    state = SyncedTaskData.SyncedTask.Other(SyncedTaskData.TaskStatus.InProgress, Instant.now()),
-                    isDirectAssignment = false,
-                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState()
-                ),
-                onClick = {}
-            )
-            SpacerMedium()
-
-            FullDetailMedication(
-                modifier = Modifier,
-                prescription =
-                PrescriptionUseCaseData.Prescription.Synced(
-                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                    taskId = "",
-                    name = "Pantoprazol 40 mg",
-                    isIncomplete = false,
-                    authoredOn = Instant.now(),
-                    redeemedOn = null,
-                    expiresOn = Instant.now().plus(20, ChronoUnit.DAYS),
-                    acceptUntil = Instant.now().plus(97, ChronoUnit.DAYS),
-                    state = SyncedTaskData.SyncedTask.Other(SyncedTaskData.TaskStatus.Other, Instant.now()),
-                    isDirectAssignment = false,
-                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState()
-                ),
-                onClick = {}
-            )
-            SpacerMedium()
-
-            FullDetailMedication(
-                modifier = Modifier,
-                prescription =
-                PrescriptionUseCaseData.Prescription.Synced(
-                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                    taskId = "",
-                    name = "Pantoprazol 40 mg",
-                    isIncomplete = false,
-                    authoredOn = Instant.now(),
-                    redeemedOn = null,
-                    expiresOn = Instant.now(),
-                    acceptUntil = Instant.now().plus(1, ChronoUnit.DAYS),
-                    state = SyncedTaskData.SyncedTask.Other(SyncedTaskData.TaskStatus.Completed, Instant.now()),
-                    isDirectAssignment = false,
-                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState()
-                ),
-                onClick = {}
-            )
-            SpacerMedium()
-
-            FullDetailMedication(
-                modifier = Modifier,
-                prescription =
-                PrescriptionUseCaseData.Prescription.Synced(
-                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                    taskId = "12344",
-                    name = "Pantoprazol 40 mg",
-                    authoredOn = Instant.now(),
-                    isIncomplete = false,
-                    redeemedOn = null,
-                    expiresOn = Instant.now().minus(1, ChronoUnit.DAYS),
-                    acceptUntil = Instant.now().minus(1, ChronoUnit.DAYS),
-                    state = SyncedTaskData.SyncedTask.LaterRedeemable(
-                        Instant.now().minus(1, ChronoUnit.DAYS)
-                    ),
-                    isDirectAssignment = false,
-                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
-                        isPartOfMultiplePrescription = true,
-                        numerator = "1",
-                        denominator = "4",
-                        start = Instant.now()
-                    )
-                ),
-                onClick = {}
-            )
-
-            SpacerMedium()
-            FullDetailMedication(
-                modifier = Modifier,
-                prescription =
-                PrescriptionUseCaseData.Prescription.Synced(
-                    organization = "Medizinisches-Versorgungszentrum (MVZ) welches irgendeinen sehr langen Namen hat",
-                    taskId = "12344",
-                    name = "Medication",
-                    authoredOn = Instant.now(),
-                    isIncomplete = true,
-                    redeemedOn = null,
-                    expiresOn = Instant.now().minus(1, ChronoUnit.DAYS),
-                    acceptUntil = Instant.now().minus(1, ChronoUnit.DAYS),
-                    state = SyncedTaskData.SyncedTask.LaterRedeemable(
-                        Instant.now().minus(1, ChronoUnit.DAYS)
-                    ),
-                    isDirectAssignment = false,
-                    multiplePrescriptionState = PrescriptionUseCaseData.Prescription.MultiplePrescriptionState(
-                        isPartOfMultiplePrescription = false,
-                        numerator = null,
-                        denominator = null,
-                        start = null
-                    )
-                ),
-                onClick = {}
-            )
-        }
-    }
-}
-
 @Composable
 fun readyPrescriptionStateInfo(
     acceptDaysLeft: Long,
@@ -539,7 +419,7 @@ fun readyPrescriptionStateInfo(
 @Composable
 fun prescriptionStateInfo(
     state: SyncedTaskData.SyncedTask.TaskState,
-    now: Instant = Instant.now(),
+    now: Instant = Clock.System.now(),
     textAlign: TextAlign = TextAlign.Left
 ) {
     val warningAmber = mapOf(
@@ -572,8 +452,8 @@ fun prescriptionStateInfo(
         }
 
         is SyncedTaskData.SyncedTask.Ready -> {
-            val expiryDaysLeft = remember { Duration.between(now, state.expiresOn).toDays() }
-            val acceptDaysLeft = remember { Duration.between(now, state.acceptUntil).toDays() }
+            val expiryDaysLeft = remember { (state.expiresOn - now).inWholeDays }
+            val acceptDaysLeft = remember { (state.acceptUntil - now).inWholeDays }
 
             val text = readyPrescriptionStateInfo(acceptDaysLeft, expiryDaysLeft)
 
@@ -646,25 +526,25 @@ private fun sentOrCompletedPhrase(lastModified: Instant, now: Instant, completed
         is SentOrCompletedPhrase.RedeemedHoursAgo ->
             annotatedStringResource(
                 R.string.received_on_minute,
-                remember { timeString(LocalDateTime.ofInstant(lastModified, ZoneId.systemDefault())) }
+                remember { timeString(lastModified.toLocalDateTime(TimeZone.currentSystemDefault())) }
             ).toString()
 
         is SentOrCompletedPhrase.SentHoursAgo ->
             annotatedStringResource(
                 R.string.sent_on_minute,
-                remember { timeString(LocalDateTime.ofInstant(lastModified, ZoneId.systemDefault())) }
+                remember { timeString(lastModified.toLocalDateTime(TimeZone.currentSystemDefault())) }
             ).toString()
 
         is SentOrCompletedPhrase.RedeemedOn ->
             annotatedStringResource(
                 R.string.received_on_day,
-                remember { dateString(LocalDateTime.ofInstant(phrase.on, ZoneId.systemDefault())) }
+                remember { dateString(phrase.on.toLocalDateTime(TimeZone.currentSystemDefault())) }
             ).toString()
 
         is SentOrCompletedPhrase.SentOn ->
             annotatedStringResource(
                 R.string.sent_on_day,
-                remember { dateString(LocalDateTime.ofInstant(phrase.on, ZoneId.systemDefault())) }
+                remember { dateString(phrase.on.toLocalDateTime(TimeZone.currentSystemDefault())) }
             ).toString()
     }
 
@@ -759,22 +639,6 @@ fun FullDetailMedication(
     }
 }
 
-@Preview
-@Composable
-private fun LowDetailRecipeCardPreview() {
-    AppTheme {
-        LowDetailMedication(
-            Modifier,
-            prescription = PrescriptionUseCaseData.Prescription.Scanned(
-                "",
-                Instant.now(),
-                redeemedOn = Instant.now().plus(2, ChronoUnit.DAYS)
-            ),
-            onClick = {}
-        )
-    }
-}
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LowDetailMedication(
@@ -785,13 +649,13 @@ fun LowDetailMedication(
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
 
     val scannedOn = remember {
-        prescription.scannedOn.atZone(ZoneId.systemDefault())
-            .toLocalDate().format(dateFormatter)
+        prescription.scannedOn.toLocalDateTime(TimeZone.currentSystemDefault())
+            .toJavaLocalDateTime().format(dateFormatter)
     }
 
     val redeemedOn = remember {
-        prescription.redeemedOn?.atZone(ZoneId.systemDefault())
-            ?.toLocalDate()?.format(dateFormatter)
+        prescription.redeemedOn?.toLocalDateTime(TimeZone.currentSystemDefault())
+            ?.toJavaLocalDateTime()?.format(dateFormatter)
     }
 
     val dateText = if (redeemedOn != null) {

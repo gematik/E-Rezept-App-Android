@@ -19,26 +19,31 @@
 package de.gematik.ti.erp.app.db
 
 import io.realm.kotlin.types.RealmInstant
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import kotlinx.datetime.FixedOffsetTimeZone
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 
-fun RealmInstant.toLocalDateTime(offset: ZoneOffset = ZoneOffset.UTC): LocalDateTime =
-    LocalDateTime.ofEpochSecond(epochSeconds, nanosecondsOfSecond, offset)
+fun RealmInstant.toLocalDateTime(offset: FixedOffsetTimeZone = TimeZone.UTC): LocalDateTime =
+    toInstant().toLocalDateTime(offset)
 
-fun LocalDateTime.toRealmInstant(offset: ZoneOffset = ZoneOffset.UTC) =
-    RealmInstant.from(toEpochSecond(offset), toLocalTime().nano)
+fun LocalDateTime.toRealmInstant(offset: FixedOffsetTimeZone = TimeZone.UTC) =
+    toInstant(offset).let {
+        RealmInstant.from(it.epochSeconds, it.nanosecondsOfSecond)
+    }
 
 fun RealmInstant.toInstant(): Instant =
     when {
-        this == RealmInstant.MIN -> Instant.MIN
-        this == RealmInstant.MAX -> Instant.MAX
-        else -> Instant.ofEpochSecond(epochSeconds, nanosecondsOfSecond.toLong())
+        this == RealmInstant.MIN -> Instant.DISTANT_FUTURE
+        this == RealmInstant.MAX -> Instant.DISTANT_PAST
+        else -> Instant.fromEpochSeconds(epochSeconds, nanosecondsOfSecond.toLong())
     }
 
 fun Instant.toRealmInstant() =
     when {
-        this == Instant.MIN -> RealmInstant.MIN
-        this == Instant.MAX -> RealmInstant.MAX
-        else -> RealmInstant.from(epochSecond, nano)
+        this == Instant.DISTANT_PAST -> RealmInstant.MIN
+        this == Instant.DISTANT_FUTURE -> RealmInstant.MAX
+        else -> RealmInstant.from(this.epochSeconds, this.nanosecondsOfSecond)
     }

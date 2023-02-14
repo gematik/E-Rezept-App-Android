@@ -36,6 +36,8 @@ import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -46,10 +48,9 @@ import org.bouncycastle.cert.X509CertificateHolder
 import org.junit.Assume
 import org.junit.Rule
 import retrofit2.Retrofit
-import java.time.Duration
-import java.time.Instant
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.time.Duration
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TruststoreIntegrationTest {
@@ -71,7 +72,6 @@ class TruststoreIntegrationTest {
         MockKAnnotations.init(this)
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     @Test
     fun `create truststore from remote source`() = runTest {
         Assume.assumeTrue(BuildKonfig.TEST_RUN_WITH_TRUSTSTORE_INTEGRATION)
@@ -109,7 +109,7 @@ class TruststoreIntegrationTest {
         val useCase = TruststoreUseCase(
             TruststoreConfig { return@TruststoreConfig BuildKonfig.APP_TRUST_ANCHOR_BASE64 },
             VauRepository(localDataSource, VauRemoteDataSource(vauService), coroutineRule.dispatchers),
-            { Instant.now() },
+            { Clock.System.now() },
             { untrustedOCSPList: UntrustedOCSPList,
                 untrustedCertList: UntrustedCertList,
                 trustAnchor: X509CertificateHolder,

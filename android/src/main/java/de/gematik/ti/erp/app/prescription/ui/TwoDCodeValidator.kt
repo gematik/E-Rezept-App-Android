@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import io.github.aakira.napier.Napier
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 data class ScannedCode(
     val json: String,

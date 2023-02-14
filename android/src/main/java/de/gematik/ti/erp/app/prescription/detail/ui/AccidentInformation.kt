@@ -36,10 +36,12 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import java.time.LocalDateTime
-import java.time.ZoneOffset
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -82,12 +84,12 @@ fun AccidentInformation(
                 val text = if (isAccident) {
                     remember(LocalConfiguration.current, prescription.medicationRequest.dateOfAccident) {
                         val dtFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-                        prescription.medicationRequest.dateOfAccident?.let {
-                            LocalDateTime
-                                .ofInstant(it, ZoneOffset.UTC)
-                                .toLocalDate()
-                                .format(dtFormatter)
-                        } ?: MissingValue
+                        prescription.medicationRequest.dateOfAccident
+                            ?.toLocalDateTime(TimeZone.currentSystemDefault())
+                            ?.date
+                            ?.toJavaLocalDate()
+                            ?.format(dtFormatter)
+                            ?: MissingValue
                     }
                 } else {
                     NoInfo

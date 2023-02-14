@@ -75,7 +75,6 @@ import de.gematik.ti.erp.app.cardwall.ui.ReadingCardAnimation
 import de.gematik.ti.erp.app.cardwall.ui.SearchingCardAnimation
 import de.gematik.ti.erp.app.cardwall.ui.TagLostCard
 import de.gematik.ti.erp.app.cardwall.ui.pinRetriesLeft
-import de.gematik.ti.erp.app.cardwall.ui.toAnnotatedString
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -85,6 +84,7 @@ import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
+import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
@@ -371,7 +371,9 @@ private fun HealthCardCredentials(
 ) {
     var pin by remember { mutableStateOf("") }
     var pinVisible by remember { mutableStateOf(false) }
-    val pinCorrect by derivedStateOf { pin.matches(PinCorrectRegex) }
+    val pinCorrect by remember {
+        derivedStateOf { pin.matches(PinCorrectRegex) }
+    }
 
     Column(
         modifier = modifier,

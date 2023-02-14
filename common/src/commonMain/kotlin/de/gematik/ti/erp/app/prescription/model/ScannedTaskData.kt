@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.prescription.model
 
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 object ScannedTaskData {
     data class ScannedTask(

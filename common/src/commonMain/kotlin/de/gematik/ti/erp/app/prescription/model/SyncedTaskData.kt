@@ -19,11 +19,13 @@
 package de.gematik.ti.erp.app.prescription.model
 
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
-import java.time.Duration
-import java.time.Instant
-import java.time.temporal.TemporalAccessor
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
 
-val CommunicationWaitStateDelta: Duration = Duration.ofMinutes(10)
+val CommunicationWaitStateDelta: Duration = 10.minutes
 
 // gemSpec_FD_eRp: A_21267 Prozessparameter - Berechtigungen für Nutzer
 const val DIRECT_ASSIGNMENT_INDICATOR = "169" // direct assignment taskID starts with 169
@@ -37,10 +39,10 @@ object SyncedTaskData {
         ErxCommunicationDispReq, ErxCommunicationReply;
 
         fun toEntityValue() = when (this) {
-            CommunicationProfile.ErxCommunicationDispReq ->
+            ErxCommunicationDispReq ->
                 CommunicationProfileV1.ErxCommunicationDispReq
 
-            CommunicationProfile.ErxCommunicationReply ->
+            ErxCommunicationReply ->
                 CommunicationProfileV1.ErxCommunicationReply
         }.name
     }
@@ -76,7 +78,7 @@ object SyncedTaskData {
 
         data class Other(val state: TaskStatus, val lastModified: Instant) : TaskState
 
-        fun state(now: Instant = Instant.now(), delta: Duration = CommunicationWaitStateDelta): TaskState =
+        fun state(now: Instant = Clock.System.now(), delta: Duration = CommunicationWaitStateDelta): TaskState =
             when {
                 medicationRequest.multiplePrescriptionInfo.indicator &&
                     medicationRequest.multiplePrescriptionInfo.start?.let { start ->
@@ -86,8 +88,8 @@ object SyncedTaskData {
                 }
 
                 expiresOn != null && expiresOn < now && status != TaskStatus.Completed -> Expired(expiresOn)
-                status == TaskStatus.Ready &&
-                    accessCode != null &&
+
+                status == TaskStatus.Ready && accessCode != null &&
                     communications.any { it.profile == CommunicationProfile.ErxCommunicationDispReq } &&
                     redeemState(now, delta) == RedeemState.NotRedeemable -> {
                     val comm = this.communications
@@ -128,7 +130,7 @@ object SyncedTaskData {
          * The list of redeemable prescriptions. Should NOT be used as a filter for the active/archive tab!
          * See [isActive] for a decision it this prescription should be shown in the "Active" or "Archive" tab.
          */
-        fun redeemState(now: Instant = Instant.now(), delta: Duration = CommunicationWaitStateDelta): RedeemState {
+        fun redeemState(now: Instant = Clock.System.now(), delta: Duration = CommunicationWaitStateDelta): RedeemState {
             val expired = (expiresOn != null && expiresOn <= now)
             val redeemableLater = medicationRequest.multiplePrescriptionInfo.indicator &&
                 medicationRequest.multiplePrescriptionInfo.start?.let {
@@ -139,7 +141,9 @@ object SyncedTaskData {
             val latestDispenseReqCommunication = communications
                 .filter { it.profile == CommunicationProfile.ErxCommunicationDispReq }
                 .maxOfOrNull { it.sentOn }
-            val isDeltaLocked = latestDispenseReqCommunication?.let { (it + delta) > now }
+            // if lastModified is more recent than the latest disp req, we can be sure that something
+            // happened with the task (e.g. claimed -> rejected)
+            val isDeltaLocked = latestDispenseReqCommunication?.let { lastModified < it && (it + delta) > now }
 
             return when {
                 redeemableLater || expired -> RedeemState.NotRedeemable
@@ -150,7 +154,7 @@ object SyncedTaskData {
             }
         }
 
-        fun isActive(now: Instant = Instant.now()): Boolean {
+        fun isActive(now: Instant = Clock.System.now()): Boolean {
             val notExpired = (expiresOn != null && now <= expiresOn) || expiresOn == null
             val allowedStatus = status == TaskStatus.Ready || status == TaskStatus.InProgress
             return notExpired && allowedStatus
@@ -165,17 +169,8 @@ object SyncedTaskData {
                 else -> true
             }
 
-        fun medicationRequestMedicationName() =
-            when (medicationRequest.medication) {
-                is MedicationPZN -> medicationRequest.medication.text
-                is MedicationCompounding -> medicationRequest.medication.text
-                is MedicationIngredient -> medicationRequest.medication.ingredients.firstOrNull()?.text ?: ""
-                is MedicationFreeText -> medicationRequest.medication.text
-                else -> ""
-            }.takeIf { it.isNotEmpty() }
-
-        fun medicationName() = medicationRequestMedicationName()
         fun organizationName() = organization.name ?: practitioner.name
+        fun medicationName(): String? = medicationRequest.medication?.name()
     }
 
     data class Address(
@@ -210,7 +205,7 @@ object SyncedTaskData {
     data class Patient(
         val name: String?,
         val address: Address?,
-        val birthdate: Instant?,
+        val birthdate: FhirTemporal?,
         val insuranceIdentifier: String?
     )
 
@@ -275,6 +270,7 @@ object SyncedTaskData {
         ARZNEI_UND_VERBAND_MITTEL,
         BTM,
         AMVV,
+        SONSTIGES,
         UNKNOWN;
     }
 
@@ -297,12 +293,14 @@ object SyncedTaskData {
     )
 
     sealed interface Medication {
+        fun name(): String
+
         val category: MedicationCategory
         val vaccine: Boolean
         val text: String
         val form: String?
         val lotNumber: String?
-        val expirationDate: TemporalAccessor?
+        val expirationDate: FhirTemporal?
     }
 
     data class MedicationFreeText(
@@ -311,8 +309,10 @@ object SyncedTaskData {
         override val text: String,
         override val form: String?,
         override val lotNumber: String?,
-        override val expirationDate: TemporalAccessor?
-    ) : Medication
+        override val expirationDate: FhirTemporal?
+    ) : Medication {
+        override fun name(): String = text
+    }
 
     data class MedicationIngredient(
         override val category: MedicationCategory,
@@ -320,12 +320,14 @@ object SyncedTaskData {
         override val text: String,
         override val form: String?,
         override val lotNumber: String?,
-        override val expirationDate: TemporalAccessor?,
+        override val expirationDate: FhirTemporal?,
         val normSizeCode: String?,
         val amount: Ratio?,
         val ingredients: List<Ingredient>
 
-    ) : Medication
+    ) : Medication {
+        override fun name(): String = joinIngredientNames(ingredients)
+    }
 
     data class MedicationCompounding(
         override val category: MedicationCategory,
@@ -333,13 +335,15 @@ object SyncedTaskData {
         override val text: String,
         override val form: String?,
         override val lotNumber: String?,
-        override val expirationDate: TemporalAccessor?,
+        override val expirationDate: FhirTemporal?,
         val manufacturingInstructions: String?,
         val packaging: String?,
         val amount: Ratio?,
         val ingredients: List<Ingredient>
 
-    ) : Medication
+    ) : Medication {
+        override fun name(): String = joinIngredientNames(ingredients)
+    }
 
     data class MedicationPZN(
         override val category: MedicationCategory,
@@ -347,11 +351,14 @@ object SyncedTaskData {
         override val text: String,
         override val form: String?,
         override val lotNumber: String?,
-        override val expirationDate: TemporalAccessor?,
+        override val expirationDate: FhirTemporal?,
         val uniqueIdentifier: String,
         val normSizeCode: String?,
         val amount: Ratio?
-    ) : Medication
+
+    ) : Medication {
+        override fun name() = text
+    }
 
     data class Communication(
         val taskId: String,
@@ -364,4 +371,9 @@ object SyncedTaskData {
         val payload: String?,
         val consumed: Boolean
     )
+
+    fun joinIngredientNames(ingredients: List<Ingredient>) =
+        ingredients.joinToString(", ") { ingredient ->
+            ingredient.text
+        }
 }

@@ -20,16 +20,17 @@ package de.gematik.ti.erp.app.settings
 
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import kotlinx.coroutines.flow.Flow
-import java.time.Instant
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 interface GeneralSettings {
     val general: Flow<SettingsData.General>
 
-    suspend fun acceptUpdatedDataTerms(now: Instant = Instant.now())
+    suspend fun acceptUpdatedDataTerms(now: Instant = Clock.System.now())
     suspend fun saveOnboardingSucceededData(
         authenticationMode: SettingsData.AuthenticationMode,
         profileName: String,
-        now: Instant = Instant.now()
+        now: Instant = Clock.System.now()
     )
 
     suspend fun saveAuthenticationMode(mode: SettingsData.AuthenticationMode)

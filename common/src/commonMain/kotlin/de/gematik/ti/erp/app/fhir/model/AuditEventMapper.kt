@@ -18,7 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asInstant
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.asFhirInstant
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
@@ -28,11 +29,10 @@ import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
-import java.time.Instant
 
 fun extractAuditEvents(
     bundle: JsonElement,
-    save: (id: String, taskId: String?, description: String, timestamp: Instant) -> Unit
+    save: (id: String, taskId: String?, description: String, timestamp: FhirTemporal.Instant) -> Unit
 ): Int {
     val bundleTotal = bundle.containedArrayOrNull("entry")?.size ?: 0
 
@@ -61,7 +61,7 @@ fun extractAuditEvents(
 
 fun extractAuditEvent(
     resource: JsonElement,
-    save: (id: String, taskId: String?, description: String, timestamp: Instant) -> Unit
+    save: (id: String, taskId: String?, description: String, timestamp: FhirTemporal.Instant) -> Unit
 ) {
     val id = resource.containedString("id")
     val text = resource.contained("text").containedString("div")
@@ -71,7 +71,7 @@ fun extractAuditEvent(
         .firstOrNull()
         ?.containedString("value")
 
-    val timestamp = requireNotNull(resource.contained("recorded").jsonPrimitive.asInstant()) {
+    val timestamp = requireNotNull(resource.contained("recorded").jsonPrimitive.asFhirInstant()) {
         "Audit event field `recorded` missing"
     }
 

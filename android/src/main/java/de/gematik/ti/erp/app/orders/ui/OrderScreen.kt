@@ -79,6 +79,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
@@ -107,6 +108,7 @@ import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.timeDescription
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.first
@@ -114,9 +116,10 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.rememberInstance
-import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -200,7 +203,7 @@ fun MessageScreen(
             listState = listState,
             navigationMode = NavigationBarMode.Back,
             onBack = {
-                scope.launch {
+                scope.launch(Dispatchers.Main) {
                     state.consumeAllMessages()
                     mainNavController.popBackStack()
                 }
@@ -565,6 +568,8 @@ private fun Messages(
                                 Text(
                                     med,
                                     style = AppTheme.typography.subtitle1,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
                                     modifier = Modifier.weight(1f)
                                 )
                                 SpacerMedium()
@@ -601,11 +606,11 @@ private fun ReplyMessage(
 
     val date = remember(message) {
         val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
-        dateFormatter.format(LocalDateTime.ofInstant(message.sentOn, ZoneId.systemDefault()))
+        dateFormatter.format(message.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime())
     }
     val time = remember(message) {
         val dateFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-        dateFormatter.format(LocalDateTime.ofInstant(message.sentOn, ZoneId.systemDefault()))
+        dateFormatter.format(message.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime())
     }
 
     Column(
@@ -619,6 +624,7 @@ private fun ReplyMessage(
                 enabled = message.type != OrderUseCaseData.Message.Type.Text
             )
             .fillMaxWidth()
+            .testTag(TestTag.Orders.Details.MessageListItem)
     ) {
         Row {
             Spacer(Modifier.width(48.dp))
@@ -680,11 +686,11 @@ private fun DispenseMessage(
 ) {
     val date = remember(order) {
         val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
-        dateFormatter.format(LocalDateTime.ofInstant(order.sentOn, ZoneId.systemDefault()))
+        dateFormatter.format(order.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime())
     }
     val time = remember(order) {
         val dateFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-        dateFormatter.format(LocalDateTime.ofInstant(order.sentOn, ZoneId.systemDefault()))
+        dateFormatter.format(order.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime())
     }
     Row(
         Modifier.drawConnectedLine(

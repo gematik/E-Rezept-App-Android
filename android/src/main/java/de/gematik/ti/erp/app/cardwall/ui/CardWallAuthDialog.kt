@@ -20,45 +20,23 @@ package de.gematik.ti.erp.app.cardwall.ui
 
 import android.content.Intent
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.core.CubicBezierEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateDp
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.animateValue
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.core.updateTransition
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -68,12 +46,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
@@ -82,8 +57,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.layout.systemBarsPadding
@@ -98,14 +71,13 @@ import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.analytics.Analytics
-import de.gematik.ti.erp.app.analytics.Analytics.AuthenticationProblem
+import de.gematik.ti.erp.app.analytics.trackAuth
+import de.gematik.ti.erp.app.troubleShooting.TroubleshootingInfo
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.Dialog
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.handleIntent
+import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -121,14 +93,6 @@ import kotlinx.coroutines.flow.retryWhen
 import java.util.Locale
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.cancellation.CancellationException
-
-private enum class HealthCardAnimationState {
-    START,
-    ZOOM_OUT,
-    POSITION_1,
-    POSITION_2,
-    POSITION_3
-}
 
 @Stable
 class CardWallAuthenticationDialogState {
@@ -152,7 +116,7 @@ fun rememberCardWallAuthenticationDialogState(): CardWallAuthenticationDialogSta
 @Composable
 fun CardWallAuthenticationDialog(
     dialogState: CardWallAuthenticationDialogState = rememberCardWallAuthenticationDialogState(),
-    viewModel: CardWallViewModel,
+    cardWallController: CardWallController,
     authenticationData: CardWallAuthenticationData,
     profileId: ProfileIdentifier,
     troubleShootingEnabled: Boolean = false,
@@ -182,7 +146,7 @@ fun CardWallAuthenticationDialog(
                 is ToggleAuth.ToggleByUser -> {
                     if (it.value) {
                         emitAll(
-                            viewModel.doAuthentication(
+                            cardWallController.doAuthentication(
                                 profileId = profileId,
                                 authenticationData = authenticationData,
                                 activity
@@ -211,7 +175,7 @@ fun CardWallAuthenticationDialog(
                         }
                     }
                     emitAll(
-                        viewModel.doAuthentication(
+                        cardWallController.doAuthentication(
                             profileId = profileId,
                             authenticationData = authenticationData,
                             tagFlow
@@ -285,15 +249,43 @@ fun CardWallAuthenticationDialog(
         )
     }
 
-    val nextText = when (state) {
-        AuthenticationState.HealthCardCardAccessNumberWrong -> stringResource(R.string.cdw_auth_retry_pin_can)
-        AuthenticationState.HealthCardPin2RetriesLeft,
-        AuthenticationState.HealthCardPin1RetryLeft -> stringResource(R.string.cdw_auth_retry_pin_can)
-        AuthenticationState.HealthCardBlocked -> stringResource(R.string.cdw_auth_retry_unlock_egk)
-        else -> stringResource(R.string.cdw_auth_retry)
+    val nextText = extractNextText(state)
+    val retryText = extractRetryText(state)
+
+    if (showEnableNfcDialog) {
+        EnableNfcDialog {
+            showEnableNfcDialog = false
+        }
     }
 
-    val retryText = when (val s = state) {
+    retryText?.let {
+        ErrorDialog(
+            header = it.first,
+            info = it.second,
+            retryButtonText = nextText,
+            onCancel = {
+                coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(false)) }
+            },
+            onRetry = {
+                when (state) {
+                    AuthenticationState.HealthCardCardAccessNumberWrong -> onRetryCan()
+                    AuthenticationState.HealthCardPin2RetriesLeft,
+                    AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
+                    AuthenticationState.HealthCardBlocked -> onUnlockEgk()
+                    else -> if (cardWallController.isNFCEnabled()) {
+                        coroutineScope.launch {
+                            toggleAuth.emit(ToggleAuth.ToggleByUser(true))
+                        }
+                    }
+                }
+            }
+        )
+    }
+}
+
+@Composable
+fun extractRetryText(state: AuthenticationState): Pair<AnnotatedString, AnnotatedString>? =
+    when (val s = state) {
         AuthenticationState.IDPCommunicationFailed -> Pair(
             stringResource(R.string.cdw_nfc_intro_step1_header_on_error).toAnnotatedString(),
             stringResource(R.string.cdw_idp_error_time_and_connection).toAnnotatedString()
@@ -337,36 +329,15 @@ fun CardWallAuthenticationDialog(
         else -> null
     }
 
-    if (showEnableNfcDialog) {
-        EnableNfcDialog {
-            showEnableNfcDialog = false
-        }
+@Composable
+fun extractNextText(state: AuthenticationState): String =
+    when (state) {
+        AuthenticationState.HealthCardCardAccessNumberWrong -> stringResource(R.string.cdw_auth_retry_pin_can)
+        AuthenticationState.HealthCardPin2RetriesLeft,
+        AuthenticationState.HealthCardPin1RetryLeft -> stringResource(R.string.cdw_auth_retry_pin_can)
+        AuthenticationState.HealthCardBlocked -> stringResource(R.string.cdw_auth_retry_unlock_egk)
+        else -> stringResource(R.string.cdw_auth_retry)
     }
-
-    retryText?.let {
-        ErrorDialog(
-            header = it.first,
-            info = it.second,
-            retryButtonText = nextText,
-            onCancel = {
-                coroutineScope.launch { toggleAuth.emit(ToggleAuth.ToggleByUser(false)) }
-            },
-            onRetry = {
-                when (state) {
-                    AuthenticationState.HealthCardCardAccessNumberWrong -> onRetryCan()
-                    AuthenticationState.HealthCardPin2RetriesLeft,
-                    AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
-                    AuthenticationState.HealthCardBlocked -> onUnlockEgk()
-                    else -> if (viewModel.isNFCEnabled()) {
-                        coroutineScope.launch {
-                            toggleAuth.emit(ToggleAuth.ToggleByUser(true))
-                        }
-                    }
-                }
-            }
-        )
-    }
-}
 
 @Composable
 fun EnableNfcDialog(onCancel: () -> Unit) {
@@ -404,9 +375,6 @@ fun ErrorDialog(
         cancelText = stringResource(R.string.cancel),
         actionText = retryButtonText
     )
-
-fun String.toAnnotatedString() =
-    buildAnnotatedString { append(this@toAnnotatedString) }
 
 @Composable
 fun pinRetriesLeft(count: Int) =
@@ -498,52 +466,15 @@ private fun AuthenticationDialog(
                         }
                     }
 
-                    info = when (state) {
-                        AuthenticationState.HealthCardCommunicationChannelReady -> Pair(
-                            stringResource(R.string.cdw_nfc_found_headline),
-                            stringResource(R.string.cdw_nfc_found_info)
-                        )
-                        AuthenticationState.HealthCardCommunicationTrustedChannelEstablished -> Pair(
-                            stringResource(R.string.cdw_nfc_communication_headline_trusted_channel_established),
-                            stringResource(R.string.cdw_nfc_communication_info)
-                        )
-                        AuthenticationState.HealthCardCommunicationFinished -> Pair(
-                            stringResource(R.string.cdw_nfc_communication_headline_certificate_loaded),
-                            stringResource(R.string.cdw_nfc_communication_info)
-                        )
-                        AuthenticationState.IDPCommunicationFinished -> Pair(
-                            stringResource(R.string.cdw_nfc_communication_headline_pin_verified),
-                            stringResource(R.string.cdw_nfc_communication_info)
-                        )
-                        AuthenticationState.AuthenticationFlowFinished -> Pair(
-                            stringResource(R.string.cdw_nfc_communication_headline_challenge_signed),
-                            stringResource(R.string.cdw_nfc_communication_info)
-                        )
-                        AuthenticationState.HealthCardCommunicationInterrupted -> Pair(
-                            stringResource(R.string.cdw_nfc_tag_lost_headline),
-                            stringResource(R.string.cdw_nfc_tag_lost_info)
-                        )
-                        else -> info
-                    }
+                    info = extractInfo(state) ?: info
 
-                    if (showTroubleshooting) {
-                        Troubleshooting(
-                            onClick = { onClickTroubleshooting?.run { onClickTroubleshooting() } }
-                        )
-                    } else {
-                        Text(
-                            info.first,
-                            style = AppTheme.typography.subtitle1,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            info.second,
-                            style = AppTheme.typography.body2,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+                    InfoText(
+                        showTroubleshooting,
+                        info,
+                        onClickTroubleshooting = {
+                            onClickTroubleshooting?.run { onClickTroubleshooting() }
+                        }
+                    )
                 }
             }
         }
@@ -551,299 +482,53 @@ private fun AuthenticationDialog(
 }
 
 @Composable
-fun Troubleshooting(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) {
-    Column(modifier, horizontalAlignment = Alignment.CenterHorizontally) {
+fun InfoText(showTroubleshooting: Boolean, info: Pair<String, String>, onClickTroubleshooting: () -> Unit?) {
+    if (showTroubleshooting) {
+        TroubleshootingInfo(
+            onClick = { onClickTroubleshooting?.run { onClickTroubleshooting() } }
+        )
+    } else {
         Text(
-            stringResource(R.string.cdw_enter_troubleshooting_title),
+            info.first,
             style = AppTheme.typography.subtitle1,
-            textAlign = TextAlign.Center
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
         Text(
-            stringResource(R.string.cdw_enter_troubleshooting_subtitle),
+            info.second,
             style = AppTheme.typography.body2,
-            textAlign = TextAlign.Center
-        )
-        SpacerMedium()
-        Button(
-            onClick = onClick,
-            shape = RoundedCornerShape(8.dp),
-            elevation = ButtonDefaults.elevation(defaultElevation = 0.dp),
-            contentPadding = PaddingValues(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.Tiny)
-        ) {
-            Icon(Icons.Outlined.Lightbulb, null)
-            SpacerTiny()
-            Text(stringResource(R.string.cdw_enter_troubleshooting_action))
-        }
-    }
-}
-
-private data class Wobble(val radius: Dp, val color: Color, val delay: Int)
-
-@Suppress("LongMethod")
-@Composable
-fun SearchingCardAnimation() {
-    val wobbleColorL = Wobble(72.dp, AppTheme.colors.primary100.copy(alpha = 0.7f), 600)
-    val wobbleColorM = Wobble(56.dp, AppTheme.colors.primary200.copy(alpha = 0.3f), 300)
-    val wobbleColorS = Wobble(40.dp, AppTheme.colors.primary300.copy(alpha = 0.2f), 0)
-
-    val wobble = listOf(wobbleColorL, wobbleColorM, wobbleColorS)
-
-    val wobbleTransition = rememberInfiniteTransition()
-    val slowInSlowOut = CubicBezierEasing(0.3f, 0.0f, 0.7f, 1.0f)
-
-    val smartPhone = painterResource(R.drawable.ic_phone_transparent)
-    val healthCard = painterResource(R.drawable.ic_healthcard)
-
-    var smartPhoneToggle by remember { mutableStateOf(false) }
-    var healthCardToggle by remember { mutableStateOf(HealthCardAnimationState.START) }
-
-    val smartPhoneTransition = updateTransition(smartPhoneToggle)
-    val healthCardTransition = updateTransition(healthCardToggle)
-
-    val healthCardOffsetDuration = 1500
-
-    val healthCardOffset by healthCardTransition.animateValue(
-        DpOffset.VectorConverter,
-        transitionSpec = {
-            tween(
-                healthCardOffsetDuration - 10,
-                0
-            )
-        },
-        label = "healthCardOffset"
-    ) { state ->
-        when (state) {
-            HealthCardAnimationState.START -> DpOffset(0.dp, 0.dp)
-            HealthCardAnimationState.ZOOM_OUT -> DpOffset(-(30.dp), 0.dp)
-            HealthCardAnimationState.POSITION_1 -> DpOffset(30.dp, 0.dp)
-            HealthCardAnimationState.POSITION_2 -> DpOffset(-(20.dp), 30.dp)
-            HealthCardAnimationState.POSITION_3 -> DpOffset(-(30.dp), 0.dp)
-        }
-    }
-
-    val healthCardScale by healthCardTransition.animateFloat(
-        transitionSpec = {
-            tween(
-                1000,
-                0
-            )
-        },
-        label = "healthCardScale"
-    ) { state ->
-        when (state) {
-            HealthCardAnimationState.START -> 1.0f
-            else -> 0.7f
-        }
-    }
-    val smartPhoneAlpha by smartPhoneTransition.animateFloat(
-        transitionSpec = {
-            tween(
-                1300,
-                1500
-            )
-        },
-        label = "smartPhoneAlpha"
-    ) { state ->
-        when (state) {
-            true -> 1.0f
-            false -> 0.0f
-        }
-    }
-
-    val smartPhoneOffset by smartPhoneTransition.animateDp(
-        transitionSpec = {
-            tween(
-                1300,
-                1500
-            )
-        },
-        label = "smartPhoneOffset"
-    ) { state ->
-        when (state) {
-            true -> 0.dp
-            false -> 50.dp
-        }
-    }
-
-    SideEffect {
-        smartPhoneToggle = true
-    }
-
-    LaunchedEffect(Unit) {
-        delay(3000)
-        healthCardToggle = HealthCardAnimationState.ZOOM_OUT
-        while (true) {
-            delay(healthCardOffsetDuration.toLong())
-            healthCardToggle = HealthCardAnimationState.POSITION_1
-            delay(healthCardOffsetDuration.toLong())
-            healthCardToggle = HealthCardAnimationState.POSITION_2
-            delay(healthCardOffsetDuration.toLong())
-            healthCardToggle = HealthCardAnimationState.POSITION_3
-        }
-    }
-
-    val wobbleAnimations =
-        wobble.map {
-            Triple(
-                it,
-                wobbleTransition.animateFloat(
-                    1.0f,
-                    1.1f,
-                    animationSpec = infiniteRepeatable(
-                        animation = keyframes {
-                            durationMillis = 2500
-                            1.0f at 0
-                            1.0f at it.delay with slowInSlowOut
-                            1.1f at 1000 + it.delay
-                            1.0f at 2500
-                        },
-                        repeatMode = RepeatMode.Restart
-                    )
-                ),
-                wobbleTransition.animateFloat(
-                    1.0f,
-                    0.7f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(
-                            durationMillis = 1000,
-                            delayMillis = it.delay,
-                            slowInSlowOut
-                        ),
-                        repeatMode = RepeatMode.Reverse
-                    )
-                )
-            )
-        }
-
-    Box {
-        Box(
-            modifier = Modifier
-                .drawBehind {
-                    wobbleAnimations.forEach { (wobble, animScale, animAlpha) ->
-                        drawCircle(
-                            color = wobble.color,
-                            radius = wobble.radius.toPx() * animScale.value,
-                            alpha = animAlpha.value
-                        )
-                    }
-                }
-        ) {
-            Image(
-                healthCard,
-                null,
-                modifier = Modifier
-                    .size(100.dp)
-                    .graphicsLayer {
-                        scaleX = healthCardScale
-                        scaleY = healthCardScale
-                    }
-                    .offset(healthCardOffset.x, healthCardOffset.y)
-                    .align(Alignment.Center)
-            )
-
-            Image(
-                smartPhone,
-                null,
-                alpha = smartPhoneAlpha,
-                modifier = Modifier
-                    .size(80.dp)
-                    .align(
-                        Alignment.Center
-                    )
-                    .offset(y = smartPhoneOffset)
-            )
-        }
-    }
-}
-
-@Composable
-fun ReadingCardAnimation() {
-    Box {
-        Image(
-            painterResource(R.drawable.ic_healthcard_spinner),
-            null,
-            modifier = Modifier
-                .align(
-                    Alignment.CenterEnd
-                )
-        )
-        CircularProgressIndicator(
-            color = AppTheme.colors.neutral400,
-            strokeWidth = 2.dp,
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .padding(4.dp)
-                .size(24.dp)
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
         )
     }
 }
 
 @Composable
-fun TagLostCard() {
-    Image(
-        painterResource(R.drawable.ic_healthcard_tag_lost),
-        null
-    )
-}
-
-private fun Analytics.trackAuth(state: AuthenticationState) {
-    if (trackingAllowed.value) {
-        when (state) {
-            AuthenticationState.HealthCardBlocked ->
-                trackAuthenticationProblem(AuthenticationProblem.CardBlocked)
-            AuthenticationState.HealthCardCardAccessNumberWrong ->
-                trackAuthenticationProblem(AuthenticationProblem.CardAccessNumberWrong)
-            AuthenticationState.HealthCardCommunicationInterrupted ->
-                trackAuthenticationProblem(AuthenticationProblem.CardCommunicationInterrupted)
-            AuthenticationState.HealthCardPin1RetryLeft,
-            AuthenticationState.HealthCardPin2RetriesLeft ->
-                trackAuthenticationProblem(AuthenticationProblem.CardPinWrong)
-            AuthenticationState.IDPCommunicationFailed ->
-                trackAuthenticationProblem(AuthenticationProblem.IDPCommunicationFailed)
-            AuthenticationState.IDPCommunicationInvalidCertificate ->
-                trackAuthenticationProblem(AuthenticationProblem.IDPCommunicationInvalidCertificate)
-            AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate ->
-                trackAuthenticationProblem(AuthenticationProblem.IDPCommunicationInvalidOCSPOfCard)
-            AuthenticationState.SecureElementCryptographyFailed ->
-                trackAuthenticationProblem(AuthenticationProblem.SecureElementCryptographyFailed)
-            AuthenticationState.UserNotAuthenticated ->
-                trackAuthenticationProblem(AuthenticationProblem.UserNotAuthenticated)
-            else -> {}
-        }
+fun extractInfo(state: AuthenticationState): Pair<String, String>? =
+    when (state) {
+        AuthenticationState.HealthCardCommunicationChannelReady -> Pair(
+            stringResource(R.string.cdw_nfc_found_headline),
+            stringResource(R.string.cdw_nfc_found_info)
+        )
+        AuthenticationState.HealthCardCommunicationTrustedChannelEstablished -> Pair(
+            stringResource(R.string.cdw_nfc_communication_headline_trusted_channel_established),
+            stringResource(R.string.cdw_nfc_communication_info)
+        )
+        AuthenticationState.HealthCardCommunicationFinished -> Pair(
+            stringResource(R.string.cdw_nfc_communication_headline_certificate_loaded),
+            stringResource(R.string.cdw_nfc_communication_info)
+        )
+        AuthenticationState.IDPCommunicationFinished -> Pair(
+            stringResource(R.string.cdw_nfc_communication_headline_pin_verified),
+            stringResource(R.string.cdw_nfc_communication_info)
+        )
+        AuthenticationState.AuthenticationFlowFinished -> Pair(
+            stringResource(R.string.cdw_nfc_communication_headline_challenge_signed),
+            stringResource(R.string.cdw_nfc_communication_info)
+        )
+        AuthenticationState.HealthCardCommunicationInterrupted -> Pair(
+            stringResource(R.string.cdw_nfc_tag_lost_headline),
+            stringResource(R.string.cdw_nfc_tag_lost_info)
+        )
+        else -> null
     }
-}
-
-@Composable
-fun CardAnimationBox(screen: Int) {
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier
-            .defaultMinSize(minHeight = 150.dp)
-            .fillMaxWidth()
-    ) {
-        when (screen) {
-            0 -> SearchingCardAnimation()
-            1 -> ReadingCardAnimation()
-            2 -> TagLostCard()
-        }
-    }
-}
-
-@Composable
-fun rotatingScanCardAssistance() = listOf(
-    Pair(
-        stringResource(R.string.cdw_nfc_search1_headline),
-        stringResource(R.string.cdw_nfc_search1_info)
-    ),
-    Pair(
-        stringResource(R.string.cdw_nfc_search2_headline),
-        stringResource(R.string.cdw_nfc_search2_info)
-    ),
-    Pair(
-        stringResource(R.string.cdw_nfc_search3_headline),
-        stringResource(R.string.cdw_nfc_search3_info)
-    )
-)

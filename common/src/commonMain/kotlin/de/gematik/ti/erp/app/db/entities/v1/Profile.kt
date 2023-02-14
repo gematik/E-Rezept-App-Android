@@ -60,6 +60,12 @@ enum class AvatarFigureV1 {
     FemaleDeveloper
 }
 
+enum class InsuranceTypeV1 {
+    GKV,
+    PKV,
+    None
+}
+
 class ProfileEntityV1 : RealmObject, Cascading {
 
     @PrimaryKey
@@ -71,6 +77,11 @@ class ProfileEntityV1 : RealmObject, Cascading {
 
     @delegate:Ignore
     var avatarFigure: AvatarFigureV1 by enumName(::_avatarFigure)
+
+    var _insuranceType: String = InsuranceTypeV1.None.toString()
+
+    @delegate:Ignore
+    var insuranceType: InsuranceTypeV1 by enumName(::_insuranceType)
 
     var _colorName: String = ProfileColorNamesV1.SPRING_GRAY.toString()
 

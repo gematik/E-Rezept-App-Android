@@ -18,7 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asLocalDate
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedBooleanOrNull
@@ -28,7 +29,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
-import java.time.LocalDate
+import kotlinx.datetime.LocalDate
 
 typealias MedicationDispenseFn<R, Medication> = (
     dispenseId: String,
@@ -37,7 +38,7 @@ typealias MedicationDispenseFn<R, Medication> = (
     wasSubstituted: Boolean,
     dosageInstruction: String?,
     performer: String, // Telematik-ID
-    whenHandedOver: LocalDate
+    whenHandedOver: FhirTemporal.LocalDate
 ) -> R
 
 fun <MedicationDispense, Medication, Ingredient, Ratio, Quantity> extractMedicationDispense(
@@ -62,7 +63,7 @@ fun <MedicationDispense, Medication, Ingredient, Ratio, Quantity> extractMedicat
     val dosageInstruction = resource.containedOrNull("dosageInstruction")?.containedStringOrNull("text")
     val performer = resource.containedArray("performer")[0]
         .contained("actor").contained("identifier").containedString("value") // Telematik-ID
-    val whenHandedOver = resource.contained("whenHandedOver").jsonPrimitive.asLocalDate()
+    val whenHandedOver = resource.contained("whenHandedOver").jsonPrimitive.asFhirLocalDate()
         ?: error("error on parsing date of delivery")
 
     return processMedicationDispense(

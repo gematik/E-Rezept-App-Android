@@ -36,7 +36,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class MainViewModelTest {
@@ -59,7 +58,6 @@ class MainViewModelTest {
             SettingsData.General(
                 latestAppVersion = AppVersion(code = 1, name = "Test"),
                 onboardingShownIn = null,
-                dataProtectionVersionAcceptedOn = Instant.now(),
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,
@@ -73,7 +71,6 @@ class MainViewModelTest {
 
     @Test
     fun `test showInsecureDevicePrompt - only show once`() = runTest {
-        every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(true)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
         every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
@@ -87,7 +84,6 @@ class MainViewModelTest {
 
     @Test
     fun `test showInsecureDevicePrompt - device is secure`() = runTest {
-        every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
         every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
         every { settingsUseCase.showOnboarding } returns flowOf(false)
         every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
@@ -97,31 +93,5 @@ class MainViewModelTest {
 
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
         assertEquals(false, viewModel.showInsecureDevicePrompt.first())
-    }
-
-    @Test
-    fun `test showDataTermsUpdate - dataTerms updates should be shown`() = runTest {
-        every { settingsUseCase.showDataTermsUpdate } returns flowOf(true)
-        every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
-        every { settingsUseCase.showOnboarding } returns flowOf(false)
-        every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
-        every { settingsUseCase.showMainScreenTooltip } returns flowOf(false)
-
-        viewModel = MainViewModel(integrityUseCase, settingsUseCase)
-
-        assertEquals(true, viewModel.showDataTermsUpdate.first())
-    }
-
-    @Test
-    fun `test showDataTermsUpdate - dataTerms updates should not be shown`() = runTest {
-        every { settingsUseCase.showDataTermsUpdate } returns flowOf(false)
-        every { settingsUseCase.showInsecureDevicePrompt } returns flowOf(false)
-        every { settingsUseCase.showOnboarding } returns flowOf(false)
-        every { settingsUseCase.showWelcomeDrawer } returns flowOf(false)
-        every { settingsUseCase.showMainScreenTooltip } returns flowOf(false)
-
-        viewModel = MainViewModel(integrityUseCase, settingsUseCase)
-
-        assertEquals(false, viewModel.showDataTermsUpdate.first())
     }
 }

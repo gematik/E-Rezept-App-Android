@@ -39,7 +39,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.JsonElement
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 class LocalDataSource(
     private val realm: Realm
@@ -110,7 +110,7 @@ class LocalDataSource(
                         this.taskId = taskId
                         this.communicationId = communicationId
                         this.orderId = orderId ?: ""
-                        this.sentOn = sentOn.toRealmInstant()
+                        this.sentOn = sentOn.value.toRealmInstant()
                         this.sender = sender
                         this.recipient = recipient
                         this.payload = payload

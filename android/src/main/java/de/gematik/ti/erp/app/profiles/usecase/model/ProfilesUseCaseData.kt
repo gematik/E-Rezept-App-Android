@@ -23,24 +23,22 @@ import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import java.time.Instant
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 object ProfilesUseCaseData {
+
+    enum class InsuranceType {
+        GKV,
+        PKV,
+        NONE
+    }
     data class ProfileInsuranceInformation(
         val insurantName: String = "",
         val insuranceIdentifier: String = "",
-        val insuranceName: String = ""
-    ) {
-        companion object {
-            fun ofNullable(
-                insurantName: String?,
-                insuranceIdentifier: String?,
-                insuranceName: String?
-            ): ProfileInsuranceInformation {
-                return ProfileInsuranceInformation(insurantName ?: "", insuranceIdentifier ?: "", insuranceName ?: "")
-            }
-        }
-    }
+        val insuranceName: String = "",
+        val insuranceType: InsuranceType = InsuranceType.NONE
+    )
 
     @Immutable
     data class Profile(
@@ -54,7 +52,7 @@ object ProfilesUseCaseData {
         val lastAuthenticated: Instant? = null,
         val ssoTokenScope: IdpData.SingleSignOnTokenScope?
     ) {
-        fun ssoTokenValid(now: Instant = Instant.now()) = ssoTokenScope?.token?.isValid(now) ?: false
+        fun ssoTokenValid(now: Instant = Clock.System.now()) = ssoTokenScope?.token?.isValid(now) ?: false
         fun hasNoImageSelected() = this.avatarFigure == ProfilesData.AvatarFigure.PersonalizedImage &&
             this.personalizedImage == null
 

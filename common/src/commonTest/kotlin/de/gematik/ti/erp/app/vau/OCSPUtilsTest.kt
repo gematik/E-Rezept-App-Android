@@ -24,7 +24,7 @@ import org.bouncycastle.util.encoders.Base64
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import kotlin.test.Test
-import java.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 class OCSPUtilsTest {
     @Test
@@ -43,23 +43,23 @@ class OCSPUtilsTest {
     fun `valid ocsp response cert is valid within 12 hours`() {
         val ocspResp = OCSPResp(Base64.decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp
 
-        ocspResp.checkValidity(Duration.ofHours(12), TestCertificates.OCSP1.ProducedAt.plus(Duration.ofHours(0)))
-        ocspResp.checkValidity(Duration.ofHours(12), TestCertificates.OCSP1.ProducedAt.plus(Duration.ofHours(5)))
-        ocspResp.checkValidity(Duration.ofHours(12), TestCertificates.OCSP1.ProducedAt.plus(Duration.ofHours(12)))
+        ocspResp.checkValidity(12.hours, TestCertificates.OCSP1.ProducedAt.plus(0.hours))
+        ocspResp.checkValidity(12.hours, TestCertificates.OCSP1.ProducedAt.plus(5.hours))
+        ocspResp.checkValidity(12.hours, TestCertificates.OCSP1.ProducedAt.plus(12.hours))
     }
 
     @Test(expected = Exception::class)
     fun `valid ocsp response cert is invalid over 12 hours - throws exception`() {
         val ocspResp = OCSPResp(Base64.decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp
 
-        ocspResp.checkValidity(Duration.ofHours(12), TestCertificates.OCSP1.ProducedAt.plus(Duration.ofHours(13)))
+        ocspResp.checkValidity(12.hours, TestCertificates.OCSP1.ProducedAt.plus(13.hours))
     }
 
     @Test(expected = Exception::class)
     fun `valid ocsp response cert is invalid if current time is in the past - throws exception`() {
         val ocspResp = OCSPResp(Base64.decode(TestCertificates.OCSP1.Base64)).responseObject as BasicOCSPResp
 
-        ocspResp.checkValidity(Duration.ofHours(12), TestCertificates.OCSP1.ProducedAt.minus(Duration.ofHours(1)))
+        ocspResp.checkValidity(12.hours, TestCertificates.OCSP1.ProducedAt.minus(1.hours))
     }
 
     @Test

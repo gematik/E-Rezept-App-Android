@@ -49,9 +49,11 @@ import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.phrasedDateString
-import java.time.Instant
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -125,7 +127,8 @@ fun AuditEventsScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             val lastAuthenticatedDate = remember {
-                                LocalDateTime.ofInstant(lastAuthenticated, ZoneId.systemDefault())
+                                lastAuthenticated?.toLocalDateTime(TimeZone.currentSystemDefault())
+                                    ?.toJavaLocalDateTime() ?: LocalDateTime.MIN
                             }
 
                             Text(
@@ -156,7 +159,9 @@ fun AuditEventsScreen(
                             Text(auditEvent.description, style = AppTheme.typography.body2)
 
                             val timestamp = remember {
-                                LocalDateTime.ofInstant(auditEvent.timestamp, ZoneId.systemDefault())
+                                auditEvent.timestamp
+                                    .toLocalDateTime(TimeZone.currentSystemDefault())
+                                    .toJavaLocalDateTime()
                             }
 
                             Text(

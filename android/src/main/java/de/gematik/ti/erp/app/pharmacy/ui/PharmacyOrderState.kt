@@ -18,18 +18,16 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
-import android.os.Parcelable
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import de.gematik.ti.erp.app.App
+import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -43,7 +41,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.parcelize.Parcelize
 import org.kodein.di.compose.rememberInstance
 
 @Stable
@@ -132,62 +129,19 @@ class PharmacyOrderState(
     }
 }
 
-@Parcelize
-private data class PharmacyOrderStateSavedState(
-    val selectedPharmacyTelematikID: String?,
-    val selectedOrderOption: PharmacyScreenData.OrderOption?
-) : Parcelable
-
-private fun pharmacyOrderStateSaver(
-    profileId: ProfileIdentifier,
-    useCase: PharmacySearchUseCase,
-    scope: CoroutineScope
-): Saver<PharmacyOrderState, *> = Saver(
-    save = { orderState ->
-        orderState.selectedPharmacy?.telematikId?.let {
-            App.cache.store("pharmacyOrderState-$it", orderState.selectedPharmacy)
-        }
-        PharmacyOrderStateSavedState(
-            selectedPharmacyTelematikID = orderState.selectedPharmacy?.telematikId,
-            selectedOrderOption = orderState.selectedOrderOption
-        )
-    },
-    restore = { savedState ->
-        PharmacyOrderState(
-            profileId,
-            useCase,
-            scope
-        ).apply {
-            val pharmacy = savedState.selectedPharmacyTelematikID?.let {
-                App.cache.recover("pharmacyOrderState-$it") as PharmacyUseCaseData.Pharmacy?
-            }
-
-            pharmacy?.let {
-                savedState.selectedOrderOption?.let {
-                    onSelectPharmacy(pharmacy, savedState.selectedOrderOption)
-                }
-            }
-        }
-    }
-)
-
 @Composable
 fun rememberPharmacyOrderState(): PharmacyOrderState {
     val activeProfile = LocalProfileHandler.current.activeProfile
     val useCase by rememberInstance<PharmacySearchUseCase>()
-    val scope = rememberCoroutineScope()
+    val dispatchProvider by rememberInstance<DispatchProvider>()
     return rememberSaveable(
         activeProfile.id,
-        saver = pharmacyOrderStateSaver(
-            activeProfile.id,
-            useCase,
-            scope
-        )
+        saver = complexAutoSaver()
     ) {
         PharmacyOrderState(
             activeProfile.id,
             useCase,
-            scope
+            CoroutineScope(dispatchProvider.Default)
         )
     }
 }

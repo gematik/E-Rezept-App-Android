@@ -6,9 +6,6 @@
     <string name="back">Zurück</string>
     <string name="at">um</string>
     <string name="on_boarding_page_1_header">Digital. Schnell. Sicher.</string>
-    <string name="cam_edu_headline">Rezepte hinzufügen</string>
-    <string name="cam_edu_description">Sie haben einen Rezept-Ausdruck erhalten? Rezepte fügen Sie der App hinzu, indem Sie den jeweiligen Rezeptcode abscannen.</string>
-    <string name="cam_edu_accept">Verstanden</string>
     <string name="task_id">Task-ID</string>
     <string name="access_code">Access-Code</string>
     <string name="onb_terms_of_use">Nutzungsbedingungen</string>
@@ -30,7 +27,7 @@
     <string name="cam_cancel_resume">Nicht abbrechen</string>
     <string name="cdw_next">Los geht’s</string>
     <string name="cdw_intro_what_you_need">Was Sie benötigen:</string>
-    <string name="cdw_can_headline">Zugangsnummer eingeben</string>
+    <string name="cdw_can_headline">Kartenzugangsnummer eingeben</string>
     <string name="cdw_pin_title">PIN eingeben</string>
     <string name="cdw_auth_retry">Erneut probieren</string>
     <string name="cdw_nfc_intro_step1_header_on_error">Verbindung mit dem Server herstellen fehlgeschlagen.</string>
@@ -60,15 +57,6 @@
     <string name="about_version">Version: %s</string>
     <string name="about_buildhash">Build-Hash: %s</string>
     <string name="debug_menu">Debug-Menü</string>
-    <string name="redeem_title">Rezeptcode</string>
-    <string name="redeem_subtitle">Lassen Sie diesen Rezeptcode in Ihrer Apotheke abscannen.</string>
-    <string name="redeem_txt_code_description">Dieser Sammelcode bündelt %s Rezepte</string>
-    <string name="dialog_redeem_headline">In Apotheke einlösen</string>
-    <string name="dialog_redeem_info">Sie stehen in einer Apotheke und möchten Ihr Rezept einlösen.</string>
-    <string name="dialog_order_headline">Bestellen oder reservieren</string>
-    <string name="dialog_order_info">Senden Sie Ihr Rezept an eine Apotheke und entscheiden Sie, wie Sie Ihre Medikamente erhalten möchten.</string>
-    <string name="search_enable_location_hint_info">Standort freigeben und Apotheken in Ihrer Umgebung finden</string>
-    <string name="search_enable_location_hint_enable">Standort freigeben</string>
     <string name="search_pharmacy_open_until">Geöffnet bis %s Uhr</string>
     <string name="search_pharmacy_continuous_open">Durchgehend geöffnet</string>
     <string name="legal_notice_menu">Impressum</string>
@@ -123,23 +111,14 @@
     <string name="pres_detail_delete_msg">Möchten Sie dieses Rezept unwiderruflich löschen?</string>
     <string name="pres_detail_delete_yes">Löschen</string>
     <string name="pres_detail_delete_no">Abbrechen</string>
-    <string name="pres_detail_aut_idem_info">Ersatzpräparate sind zulässig. Aufgrund gesetzlicher Vorgaben Ihrer Krankenversicherung kann Ihnen eine Alternative ausgehändigt werden.</string>
-    <string name="pharm_detail_preorder_prescription">Verbindlich reservieren</string>
-    <string name="pharm_detail_messanger_delivered">Botendienst anfragen</string>
-    <string name="pharm_detail_mail_delivered">Per Versand liefern lassen</string>
-    <string name="pharm_detail_hint">Bitte beachten Sie, dass auch für verschriebene Medikamente Zuzahlungen anfallen können.</string>
     <string name="pharm_detail_opening_hours">Öffnungszeiten</string>
     <string name="pharm_detail_website">Webseite</string>
-    <string name="pharm_reserve_subheader">Möchten Sie folgende Rezepte in der %s verbindlich einlösen?</string>
     <string name="prescription_item_expiration_only_today">Nur noch heute als Selbstzahlender einlösbar</string>
     <string name="cdw_top_bar_title">Anmelden</string>
     <string name="cdw_enable_nfc_header">NFC aktivieren</string>
     <string name="cdw_enable_nfc_info">Bitte aktivieren Sie die NFC-Funktion Ihres Geräts, um sich mit Ihrer Gesundheitskarte anzumelden.</string>
     <string name="cdw_enable_nfc_btn_text">Aktivieren</string>
     <string name="cdw_auth_retry_pin_can">Korrigieren</string>
-    <string name="redeem_show_single_codes">Als Einzelcodes anzeigen</string>
-    <string name="redeem_show_collective_codes">Als Sammelcode anzeigen</string>
-    <string name="redeem_counter_text" formatted="false">%s von %s</string>
     <string name="redeem_prescriptions_dialog_header">Rezepte eingelöst?</string>
     <string name="redeem_prescriptions_dialog_info">Möchten Sie die Rezepte als eingelöst markieren?</string>
     <string name="redeem_prescriptions_dialog_cancel">Nicht eingelöst</string>
@@ -154,7 +133,7 @@
     <string name="settings_screenshots_button_text">Okay</string>
     <string name="settings_screenshots_toggle_text">Screenshots unterdrücken</string>
     <string name="settings_screenshots_description">Verhindert die Anzeige eines Vorschaubilds beim App-Wechsel</string>
-    <string name="settings_tracking_dialog_title">Erlauben Sie E-Rezept Ihr Nutzerverhalten anonym zu analysieren?</string>
+    <string name="settings_tracking_dialog_title">Erlauben Sie E-Rezept Ihr Nutzungsverhalten anonym zu analysieren?</string>
     <string name="pres_detail_technical_information">Technische Informationen</string>
     <string name="settings_biometric_dialog_title">Sicherheit Ihrer Rezeptdaten</string>
     <string name="settings_biometric_dialog_text">Bitte achten Sie darauf, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und deren biometrische Merkmale auf diesem Gerät gespeichert sein könnten, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
@@ -168,21 +147,16 @@
     <string name="settings_contact_feedback">An Umfrage teilnehmen</string>
     <string name="settings_contact_hotline_number">+49 800 277 377 7</string>
     <string name="settings_contact_mail_address" translatable="false">app-feedback@gematik.de</string>
-    <string name="learn_more_btn">Mehr erfahren</string>
     <string name="on_boarding_page_5_label">Ich möchte dabei helfen, diese App besser zu machen</string>
     <string name="settings_tracking_dialog_text_1">Das umfasst Hard- und Softwareinformationen Ihres Telefons, Einstellungen der E-Rezept App sowie Umfang der Nutzung, jedoch niemals Daten über Ihre Person oder Ihre Gesundheit.</string>
     <string name="settings_tracking_dialog_text_2">Die Daten werden durch Datenverarbeitungsnehmer nur der gematik GmbH zur Verfügung gestellt und spätestens nach 180 Tagen gelöscht. Sie können die Analyse jederzeit wieder im Menü der App deaktivieren.</string>
-    <string name="settings_tracking_dialog_text_3">Wir können durch diese Daten nachvollziehen, welche Funktionen häufig genutzt werden, und diese verbessern. Ferner können wir einschätzen, wie lange ältere Technik unterstützt werden muss, und wann wir z.B. eine neuere Betriebssystemversion verpflichtend machen können, ohne (zu viele) Nutzer zu betreffen.</string>
+    <string name="settings_tracking_dialog_text_3">Wir können durch diese Daten nachvollziehen, welche Funktionen häufig genutzt werden, und diese verbessern. Ferner können wir einschätzen, wie lange ältere Technik unterstützt werden muss, und wann wir z.B. eine neuere Betriebssystemversion verpflichtend machen können, ohne (zu viele) Nutzende zu betreffen.</string>
     <string name="settings_tracking_allow_title">App verbessern</string>
     <string name="settings_tracking_disallow_info">Anonyme Analyse bleibt deaktiviert</string>
     <string name="settings_tracking_allow_info">%s Vielen Dank für Ihre Unterstützung!</string>
     <string name="settings_tracking_allow_emoji" translatable="false">\u2661</string>
-    <string name="redeem_synced_prescriptions_dialog_header">Hinweis</string>
-    <string name="redeem_synced_prescriptions_dialog_info">Es kann zu einer Verzögerung kommen, bis eingelöste Rezepte in das Archiv verschoben werden.</string>
-    <string name="redeem_synced_prescriptions_dialog_ok">Okay</string>
     <string name="alternate_auth_header">Anmelden</string>
     <string name="alternate_auth_info">Bitte identifizieren Sie sich um Rezepte herunterzuladen.</string>
-    <string name="pres_detail_medication_redeemed_on">Eingelöst am %s</string>
     <string name="pharmacy_detail_data_info">Hinweis für die Apotheken: Die Kontaktdaten und Informationen zu Apotheken beziehen wir von mein-apothekenportal.de des Deutschen Apothekenverbandes e.V. Sie haben einen Fehler entdeckt oder möchten Daten korrigieren?</string>
     <string name="pharmacy_detail_data_info_domain" translatable="false">mein-apothekenportal.de</string>
     <string name="pharmacy_detail_data_info_btn">Mehr erfahren</string>
@@ -196,7 +170,6 @@
     <string name="settings_accessibility_headline">Bedienungshilfen</string>
     <string name="settings_accessibility_zoom_toggle">Zoomen</string>
     <string name="settings_accessibility_zoom_info">Ermöglicht das Vergrößern der App über das Zusammen- oder Auseinanderziehen der Finger (Pinch-to-Zoom).</string>
-    <string name="pharm_detail_hint_header">Hinweis</string>
     <string name="settings_appprotection_mode_password_headline">Kennwort</string>
     <string name="settings_appprotection_mode_password_info">Sichern Sie Ihre Daten mit einem selbstgewählten Passwort.</string>
     <string name="settings_password_headline">Kennwort</string>
@@ -206,8 +179,8 @@
     <string name="settings_password_suggestions">Empfehlungen: %s</string>
     <string name="settings_contact_feedback_form">Mail schreiben</string>
     <string name="seetings_feedback_form_additional_data_info">Beim Senden Ihrer Nachricht werden folgende Informationen über genutzte Hardware und Betriebssystem übertragen:</string>
-    <string name="pharmacy_detail_not_ready_header">Einlösen bald möglich</string>
-    <string name="pharmacy_detail_not_ready_info">Diese Apotheke kann derzeit noch keine E-Rezepte in Empfang nehmen.</string>
+    <string name="pharmacy_detail_not_ready_header">Einlösen nur vor Ort</string>
+    <string name="pharmacy_detail_not_ready_info">An diese Apotheke können Sie noch keine E-Rezepte senden.</string>
     <string name="search_pharmacies_filter_open_now">Aktuell geöffnet</string>
     <string name="search_pharmacies_filter_delivery_service">Botendienst</string>
     <string name="search_pharmacies_filter_online_service">Versand</string>
@@ -224,10 +197,6 @@
         <item quantity="one">Noch %s Tag gültig</item>
         <item quantity="other">Noch %s Tage gültig</item>
     </plurals>
-    <string name="cam_accept_mlkit_title">Scanner öffnen</string>
-    <string name="cam_accept_mlkit_body">Wir verarbeiten Ihre Geräteinformationen!\nZum Lesen des Rezeptcodes nutzt diese App das ML Kit von Google. Wenn Sie „Akzeptieren“ auswählen, stimmen Sie zu, dass Google von Zeit zu Zeit auf Geräteinformationen zugreifen und diese zum Zwecke der Nutzungsanalyse, Diagnostik und Konfiguration des ML Kit verarbeiten kann. Sie haben das Recht, Ihre Einwilligung jederzeit zu widerrufen, ohne dass die Rechtmäßigkeit der erfolgten Verarbeitung berührt wird. Das Ablehnen führt jedoch dazu, dass Sie den Rezeptcodescanner nicht verwenden können.</string>
-    <string name="cam_accept_mlkit_accept">Einverstanden</string>
-    <string name="cam_accept_mlkit_decline">Abbrechen</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Fehler 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Das Zertifikat Ihrer Gesundheitskarte ist ungültig. Ist Ihre Karte möglicherweise abgelaufen? Bitte kontaktieren Sie Ihre Krankenversicherung.</string>
     <string name="auth_error_failed_auths_headline">Erfolglose Anmeldeversuche</string>
@@ -269,21 +238,11 @@
     <string name="profile_edit_name_info">Bitte geben Sie einen Namen für das neue Profil ein.</string>
     <string name="profile_edit_name_place_holder">Profilname</string>
     <string name="settings_profiles_headline">Profile</string>
-    <string name="settings_add_profile">Profil hinzufügen</string>
-    <string name="cdw_health_insurance_page_title">Gesundheitskarte</string>
-    <string name="cdw_health_insurance_title">Krankenversicherung kontaktieren</string>
-    <string name="cdw_health_insurance_body_what_you_need">Um sich in dieser App anmelden zu können, benötigen Sie eine NFC-fähige Gesundheitskarte sowie eine zugehörige PIN.</string>
-    <string name="cdw_health_insurance_body_how_to_get">Diese erhalten Sie kostenfrei von Ihrer Krankenversicherung. Hierfür müssen Sie sich mittels amtlichem Ausweisdokument identifiziert haben.</string>
     <string name="cdw_health_insurance_caption_recognize_healthcard">So erkennen Sie eine NFC-fähige Gesundheitskarte</string>
-    <string name="cdw_health_insurance_learn_more" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten/woran-erkenne-ich-ob-ich-eine-nfc-faehige-gesundheitskarte-habe#c204</string>
-    <string name="cdw_health_insurance_select_company">Krankenversicherung wählen</string>
-    <string name="cdw_health_insurance_no_company_selected">Auswahl treffen</string>
-    <string name="cdw_health_insurance_what_to_do">Was möchten Sie beantragen?</string>
     <string name="cdw_health_insurance_no_cantacts_title">Keine Kontaktaufnahme über diese App möglich</string>
     <string name="cdw_health_insurance_no_cantacts_body">Bitte nutzen Sie die üblichen Kanäle, um Ihre Versicherung zu kontaktieren.</string>
     <string name="cdw_health_insurance_contact_healthcard_pin">Gesundheitskarte &amp; PIN</string>
     <string name="cdw_health_insurance_contact_pin_only">Nur PIN</string>
-    <string name="cdw_health_insurance_contact_insurance_company">Kontaktieren Sie Ihre Krankenversicherung</string>
     <string name="cdw_health_insurance_mail_subject">Anmeldung in der E-Rezept App</string>
     <string name="edit_profile_empty_profile_name">Das Namensfeld darf nicht leer sein.</string>
     <string name="edit_profile_duplicated_profile_name">Ein Profil mit dem eingegebenen Namen existiert bereits.</string>
@@ -320,18 +279,15 @@
     <string name="data_terms_second_update_text" translatable="false">Wir verwenden ML Kit von Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland (\"Google\"), um den Rezept-QR-Code zu lesen. Der Rezeptcode ist eine eindeutige Identifizierung Ihres Rezeptes. Er kann verglichen werden mit der Nummer eines Schließfachs. Um diesen Code komfortabel und schnell auszulesen, wird das ML Kit genutzt. Die Verarbeitung des Rezeptcodes findet ausschließlich auf Ihrem Gerät statt. \n\nBei dem ersten Starten des Rezeptcodescanners in unserer App, wird ML Kit auf Ihre Gerät heruntergeladen. Zu diesem Zweck erhebt Google Ihre IP-Adresse. Die Verarbeitung dient der Bereitstellung des Dienstes.\n\nDarüber hinaus erhebt Google folgende nicht-personenbezogene Informationen zum Zwecke der Nutzungsanalyse, Diagnostik und Konfiguration des ML Kit:\n            - Geräteinformationen (z. B. Hersteller, Gerätemodell, Betriebssystemversion, Hardware, Mobilfunkbetreiber, Zeitzone und Spracheinstellungen)\n            - Informationen über die Applikation (z.B. Version der App)\n            - Informationen über die Konfiguration von ML Kit\n            - Fehlermeldungen\n            - Ereignistypen (initialisieren, Modell herunterladen, aktualisieren, ausführen, Erkennung)\n            - Technische Leistungsdaten Ihres Gerätes\n            - IP-Adresse (wird nur temporär gespeichert)\n            - Weitere Daten, insbesondere Ihre Rezeptdaten, werden nicht von Google erhoben.\n\nDie Verarbeitung Ihrer Informationen wird nicht nur von Google Ireland Limited, sondern kann auch von Google LLC in den USA durchgeführt werden. Weiterführendes unter 7. Übermittlung in Drittländer.</string>
     <string name="google_policies_link" translatable="false">https://policies.google.com/privacy/frameworks</string>
     <string name="google_support_link" translatable="false">https://support.google.com/policies/contact/general_privacy_form</string>
-    <string name="select_profile">Profil wählen</string>
-    <string name="edit_profiles">Profile bearbeiten</string>
     <string name="zero_prescriptions_updatet">Keine neuen Rezepte verfügbar</string>
     <plurals name="prescriptions_updated">
-        <item quantity="one">%s Rezept aktualisiert</item>
-        <item quantity="other">%s Rezepte aktualisiert</item>
+        <item quantity="one">%s neues Rezept</item>
+        <item quantity="other">%s neue Rezepte</item>
     </plurals>
     <string name="prescription_status_ready">Einlösbar</string>
     <string name="prescription_status_in_progress">In Einlösung</string>
     <string name="prescription_status_completed">Eingelöst</string>
     <string name="prescription_status_unknown">Unbekannt</string>
-    <string name="pharmacy_detail_title">Details</string>
     <string name="settings_show_audit_events">Zugriffsprotokolle anzeigen</string>
     <string name="settings_show_audit_events_info">Wer hat wann auf Ihre Rezepte zugegriffen?</string>
     <string name="settings_show_token_info">Zugangsschlüssel zum Rezeptdienst</string>
@@ -382,9 +338,6 @@
     <string name="cdw_nfc_error_assign_title">Verbinden der Gesundheitskarte fehlgeschlagen</string>
     <string name="cdw_nfc_error_assign_subtitle">Das aktuelle Profil ist bereits mit einer anderen Gesundheitskarte (Krankenversicherungsnummer %s) verbunden.</string>
     <string name="cdw_nfc_error_assign_other_subtitle">Ihre Gesundheitskarte ist bereits mit einem anderen Profil verbunden. Wechseln Sie zu Profil %s.</string>
-    <string name="pharmacy_order_top_bar_title_order">Meine Bestellung</string>
-    <string name="pharmacy_order_button_text_reserve">Jetzt reservieren</string>
-    <string name="pharmacy_order_button_text_order">Jetzt bestellen</string>
     <string name="edit_shipping_contact_save">Speichern</string>
     <string name="edit_shipping_contact_top_bar_title">Kontaktdaten und Adresse</string>
     <string name="edit_shipping_contact_title_contact">Kontakt</string>
@@ -400,21 +353,13 @@
     <string name="edit_shipping_contact_postal_code_and_city">PLZ und Ort</string>
     <string name="edit_shipping_contact_error_postal_code_and_city">Bitte geben Sie für die Kontaktaufnahme eine Postleitzahl und den Ort an.</string>
     <string name="edit_shipping_contact_delivery_information">Lieferanweisung (optional)</string>
-    <string name="pharmacy_order_bottom_information">Hiermit wird Ihr Rezept an diese Apotheke gesendet. Sie können es anschließend in keiner anderen Apotheke mehr einlösen.</string>
-    <string name="pharmacy_order_contact_and_delivery_address">Kontaktdaten und Lieferadresse</string>
-    <string name="pharmacy_order_title_prescriptions">Rezepte</string>
-    <string name="pharmacy_order_contact_required">Wir benötigen Ihre Kontaktdaten zur Beratung durch die Apotheke und um Sie über den aktuellen Stand Ihrer Bestellung zu informieren.</string>
-    <string name="pharmacy_order_edit_contact">Kontaktdaten angeben</string>
     <string name="pharmacy_order_further_contact_information_required">Weitere Kontaktdaten benötigt</string>
-    <string name="main_order_success_title">Bestellung erfolgreich übermittelt</string>
-    <string name="main_order_success_subtitle">Ihre Apotheke wird sich bald mit Ihnen in Verbindung setzen.</string>
-    <string name="main_order_success_close">Schließen</string>
     <string name="edit_contact_back_alert_header">Änderungen verwerfen?</string>
     <string name="edit_contact_back_alert_action">Verwerfen</string>
     <string name="license_pharmacy_search_description">Für die Suche nutzt das Apothekenverzeichnis Geokoordinaten, die mit Hilfe von OpenStreetMap ermittelt wurden. Wir danken dem Projekt für diese Hilfe.</string>
     <string name="license_pharmacy_search_web_link_info"> © OpenStreetMap (%s)</string>
     <string name="license_pharmacy_search_web_link">https://www.openstreetmap.org/copyright</string>
-    <string name="onb_page_4_header">Nutzung &amp; Datenschutz</string>
+    <string name="onb_page_4_header">Datenschutz &amp; Nutzung</string>
     <string name="cdw_forward">Weiter</string>
     <string name="cdw_pin_info">Ihre PIN haben Sie in einem Brief von Ihrer Krankenversicherung erhalten.</string>
     <string name="cdw_no_pin_received">Keine PIN erhalten</string>
@@ -464,21 +409,11 @@
     <string name="settings_login_connected_devices">Verbundene Geräte</string>
     <string name="paired_device_subtitle_our_device">Registriert seit %s (dieses Gerät)</string>
     <string name="paired_device_subtitle">Registriert seit %s</string>
-    <string name="mainscreen_tab_redeemable">Aktuell</string>
-    <string name="mainscreen_tab_archive">Archiv</string>
-    <string name="task_already_sent_header">Erneut einlösen?</string>
-    <string name="task_already_sent_sub_info">Hinweis: Die Apotheke, die ein Rezept als erste akzeptiert, blockiert es für eine Bearbeitung durch eine weitere Apotheke.</string>
-    <string name="cancel_sent_task_again">Abbrechen</string>
-    <string name="sent_task_again">Okay</string>
-    <plurals name="task_already_sent_info">
-        <item quantity="one">Sie haben das Rezept %s bereits an eine Apotheke gesendet. Dennoch erneut einlösen?</item>
-        <item quantity="other">Sie haben einige dieser Rezepte bereits an eine Apotheke gesendet. Dennoch an weitere Apotheke senden?</item>
-    </plurals>
     <string name="mini_cdw_intro_description">Aus Sicherheitsgründen wird die Verbindung zum Rezeptserver nach 12 Stunden getrennt. Für eine erneute Verbindung benötigen Sie für jeden Verbindungsvorgang Gesundheitskarte und PIN.</string>
     <string name="mini_cdw_pin_input_label">PIN</string>
     <string name="mini_cdw_pin_input_placeholder">PIN (Gesundheitskarte) eingeben</string>
     <string name="mini_cdw_pin_next">Weiter</string>
-    <string name="mini_cdw_title">Authentisierung</string>
+    <string name="mini_cdw_title">Anmelden</string>
     <string name="paired_devices_title">Verbundene Geräte</string>
     <string name="paired_devices_delete_title">Gerät entfernen?</string>
     <string name="paired_devices_delete_cancel">Abbrechen</string>
@@ -500,8 +435,6 @@
     <string name="cdw_enter_troubleshooting_title">Brauchen Sie Hilfe?</string>
     <string name="cdw_enter_troubleshooting_subtitle">Wir haben für Sie einige Tipps zusammengestellt, um die häufigsten Probleme zu lösen.</string>
     <string name="cdw_enter_troubleshooting_action">Verbindungs-Tipps starten</string>
-    <string name="order_scanned_on_info">Gescannt am: %s</string>
-    <string name="order_scanned_prescription_header">Gescanntes Rezept</string>
     <string name="cdw_auth_retry_unlock_egk">Entsperren</string>
     <string name="cdw_header_on_card_blocked">Karte gesperrt</string>
     <string name="cdw_info_on_card_blocked">Die PIN wurde dreimal falsch eingegeben. Ihre Karte wurde daher aus Sicherheitsgründen gesperrt.</string>
@@ -531,10 +464,9 @@
     <string name="cdw_intro_pin_needed">PIN zur Gesundheitskarte</string>
     <string name="cdw_have_no_card_with_pin">Sie verfügen noch nicht über eine NFC-fähige Gesundheitskarte und PIN?</string>
     <string name="cdw_intro_order_now">Jetzt bestellen</string>
-    <string name="cdw_link_health_card_info"> https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten/woran-erkenne-ich-ob-ich-eine-nfc-faehige-gesundheitskarte-habe#c204)</string>
     <string name="cdw_intro_alternate_auth_info">Oder: Melden Sie sich mit der %s an.</string>
     <string name="cdw_intro_alternate_auth_info_link">App Ihrer Krankenversicherung</string>
-    <string name="cdw_can_description">"Ihre Zugangsnummer (Card Access Number, kurz: CAN) finden Sie in der rechten oberen Ecke Ihrer Gesundheitskarte."</string>
+    <string name="cdw_can_description">"Ihre Zugangsnummer finden Sie in der rechten oberen Ecke Ihrer Gesundheitskarte."</string>
     <string name="cdw_no_can_on_card">Meine Karte verfügt über keine Zugangsnummer</string>
     <plurals name="cdw_nfc_intro_step2_info_on_puk_error">
         <item quantity="one">Sie haben noch %s weiteren Versuch, bevor Ihre Karte gesperrt wird.</item>
@@ -553,10 +485,6 @@
     <string name="nfc_instruction_chip_location_bot_central">im unteren Bereich mittig</string>
     <string name="nfc_instruction_chip_location_bot_left">im unteren Bereich links</string>
     <string name="nfc_instruction_help_button">Hilfe</string>
-    <string name="received_x_min_ago">Eingelöst vor %s Minuten</string>
-    <string name="received_on_day">Eingelöst am %s</string>
-    <string name="received_now">Eingelöst gerade eben</string>
-    <string name="received_on_minute">Eingelöst um %s Uhr</string>
     <string name="sent_x_min_ago">Gesendet vor %s Minuten</string>
     <string name="sent_on_day">Gesendet am %s</string>
     <string name="sent_now">Gesendet gerade eben</string>
@@ -598,10 +526,9 @@
     <string name="insurance_information_insurant_name">Name</string>
     <string name="insurance_information_insurance_name">Versicherung</string>
     <string name="insurance_information_insurance_identifier">Versichertennummer</string>
-    <string name="insurance_information_insurant_can">Zugangsnummer (CAN)</string>
+    <string name="insurance_information_insurant_can">Kartenzugangsnummer</string>
     <string name="insurance_information_login">Anmelden</string>
     <string name="insurance_information_logout">Abmelden</string>
-    <string name="insurance_information_login_description">Um Rezepte automatisch zu erhalten, müssen Sie angemeldet sein.</string>
     <string name="image_crop_save_image">Speichern</string>
     <string name="edit_profile_avatar">Ändern</string>
     <string name="edit_profile_picture">Profilbild bearbeiten</string>
@@ -617,8 +544,7 @@
     <string name="token_screen_no_token_header">Keine Tokens</string>
     <string name="token_screen_no_token_info">Sie erhalten einen Token, wenn Sie am Rezeptdienst angemeldet sind.\n    </string>
     <string name="pres_bottombar_orders">Bestellungen</string>
-    <string name="orders_title">Bestellungen</string>
-    <string name="settings_contact_survey_address" translatable="false">https://gematik.shortcm.li/E-Rezept-App_Feedback</string>
+    <string name="settings_contact_survey_address" translatable="false">https://t.maze.co/90489290</string>
     <string name="health_card_section_unlock_card_reset_pin">Wunsch-PIN wählen</string>
     <string name="health_card_section_unlock_card_no_reset">Karte entsperren</string>
     <string name="unlock_egk_choose_new_secret_label">PIN wählen</string>
@@ -644,19 +570,17 @@
     <string name="orders_label_new">Neu</string>
     <string name="orders_history_title">Verlauf</string>
     <string name="orders_cart_title">Bestellung</string>
-    <string name="settings_contact_technical_support_description">Kostenfrei für den Anrufer. Servicezeiten: Mo - Fr 08:00 - 20:00 Uhr außer an bundeseinheitlichen Feiertagen</string>
+    <string name="settings_contact_technical_support_description">Kostenfrei für den Anrufenden. Servicezeiten: Mo - Fr 08:00 - 20:00 Uhr außer an bundeseinheitlichen Feiertagen</string>
     <string name="orders_generic_pharmacy_name">Apotheke</string>
     <string name="unlock_egk_top_bar_title_change_secret">Wunsch-PIN wählen</string>
     <string name="unlock_egk_dialog_new_secret_saved">Wunsch-PIN gespeichert</string>
-    <string name="unlock_egk_dialog_saving_new_secret_not_possible">Speichern der Wunsch-PIN nicht möglich</string>
     <string name="search_pharmacies_filter_e_prescription_ready">E-Rezept</string>
     <string name="search_pharmacies_filter_open_now_and_local">Aktuell geöffnet und in meiner Nähe</string>
     <string name="search_pharmacies_filter_by">Filtern nach …</string>
     <string name="search_pharmacies_start_search">Suche starten</string>
-    <string name="search_pharmacies_location_na_cancel">Abbrechen</string>
-    <string name="prescription_status_direct_assignment">Wird für Sie eingelöst</string>
+    <string name="prescription_status_direct_assignment">Wurde für Sie eingelöst</string>
     <string name="prescription_detail_direct_assignment_chip">Direktzuweisung</string>
-    <string name="redeem_header">Einlösen</string>
+    <string name="redeem_header">Apotheken</string>
     <string name="edit_shipping_contact_phone_optional">Telefonnummer (optional)</string>
     <string name="pharmacy_start_search_text">Nach Name oder Adresse suchen</string>
     <string name="pharmacy_search_apovz_call_failed_header">Keine gültigen Apothekeninformationen</string>
@@ -674,13 +598,12 @@
     <string name="user_not_authenticated_dialog_connect">Anmelden</string>
     <string name="onboarding_default_profile_name">Profil 1</string>
     <string name="search_pharmacies_filter_nearby">In meiner Nähe</string>
-    <string name="pharmacy_detail_no_redeemable_prescription_info">Sie haben keine einlösbaren Rezepte</string>
     <string name="prescription_status_later_redeemable">Später einlösbar</string>
     <string name="pres_detail_medication_redeemable_on">Einlösbar ab %s</string>
-    <string name="multiple_prescription_numbering" formatted="false" translatable="false">%s/%s</string>
+    <string name="multiple_prescription_numbering" translatable="false" formatted="false">%s / %s</string>
     <string name="settings_product_improvement_headline">Produktverbesserungen</string>
     <string name="settings_allow_analytics_header">Anonyme Analyse</string>
-    <string name="settings_allow_analytics_info">Helfen Sie uns, diese App besser zu machen. Alle Nutzerdaten werden anonym erhoben und dienen ausschließlich der Verbesserung des Nutzungserlebsnisses.</string>
+    <string name="settings_allow_analytics_info">Helfen Sie uns, diese App besser zu machen. Alle Nutzungsdaten werden anonym erhoben und dienen ausschließlich der Verbesserung des Nutzungserlebsnisses.</string>
     <string name="settings_device_security_header">Gerätesicherheit</string>
     <string name="settings_personal_settings_header">Persönliche Einstellungen</string>
     <string name="settings_accessibility_header">Bedienungshilfen</string>
@@ -688,7 +611,7 @@
     <string name="share_import_prescription_added">Rezept hinzugefügt</string>
     <string name="share_import_prescription_exists">Rezept bereits vorhanden</string>
     <string name="share_import_error">Ein Fehler beim Importieren ist aufgetreten</string>
-    <string name="can_input_field_label" translatable="false">CAN</string>
+    <string name="can_input_field_label" translatable="false">Kartenzugangsnummer</string>
     <string name="pres_detail_dropdown_delete">Löschen</string>
     <string name="prescription_detail_scanned_chip">Gescanntes Rezept</string>
     <string name="prescription_detail_aut_idem_chip">Ersatzpräparat möglich</string>
@@ -717,11 +640,8 @@
     <string name="pres_detail_no">Nein</string>
     <string name="pres_detail_medication_label_dosage_instruction">Dosierung</string>
     <string name="pres_detail_medication_label_authored_on">Ausstellungsdatum</string>
-    <string name="pres_detail_medication_label_noctu">Noctu</string>
     <string name="pres_details_direct_assignment_state">Dieses Rezept wird im Rahmen einer Behandlung für Sie eingelöst.</string>
-    <string name="pres_details_direct_assignment_received_state">Dieses Rezept wurde im Rahmen einer Behandlung für Sie eingelöst.</string>
     <string name="pres_details_no_value">Keine Angabe</string>
-    <string name="pres_details_no_emergency_fee">Keine Notdienstgebühr</string>
     <string name="pres_details_additional_fee">Zuzahlung</string>
     <string name="pres_details_medication">Medikament</string>
     <string name="pres_detail_medication_label_note">Abgabehinweise</string>
@@ -740,8 +660,6 @@
     <string name="pres_details_exp_da_info">Bei einer Direktzuweisungen wird ein Rezept von einer Praxis oder einem Krankenhaus direkt bei einer Apotheke eingelöst. Versicherte müssen hierbei nicht tätig werden und können nicht in den Einlösungsprozess eingreifen.\n\nDirektzuweisungen werden in der E-Rezept App aufgeführt, um Ihre Behandlung für Sie transparenter zu machen.</string>
     <string name="pres_details_exp_no_em_fee_title">Keine Notdienstgebühr</string>
     <string name="pres_details_exp_no_em_fee_info">Hier ist Eile geboten. Dieses Rezept kann ohne die zusätzliche Zahlung einer Notdienstgebühr auch nachts in einer Apotheke eingelöst werden.</string>
-    <string name="pres_details_exp_em_fee_title">Notdienstgebühr</string>
-    <string name="pres_details_exp_em_fee_info">Dieses Rezept kann nachts in einer Apotheke nicht ohne zusätzliche Zahlung einer Notdienstgebühr eingelöst werden.</string>
     <string name="pres_details_exp_add_fee_title">Zuzahlungspflichtige Medikamente</string>
     <string name="pres_details_exp_no_add_fee_title">Von der Zuzahlung befreit</string>
     <string name="pres_details_exp_add_fee_info">Gesetzlich Versicherte müssen für verschreibungspflichtige Medikamente eine Zuzahlung von bis zu zehn Euro leisten.\n\nDie Höhe der Zuzahlung ist abhängig von dem Preis Ihres Medikaments. Medikamente, die weniger als 5€ kosten müssen Sie selbst zahlen.\nBei Medikamenten die teurer sind, müssen Sie zehn Prozent des Preises zuzahlen, mindestens aber 5€ und höchstens 10€.\n\nGrundsätzlich befreit von einer Zuzahlung sind Kinder und Jugendliche unter 18 Jahren. \n\nSollten Ihre jährlichen Kosten für Medikamente Ihre finanzielle Belastungsgrenzt überschreiten können Sie sich von der Zuzahlung befreien lassen. Sprechen Sie dazu mit Ihrer Krankenversicherung.</string>
@@ -796,15 +714,21 @@
     <string name="unlock_password_not_found_header">Passwort nicht gefunden</string>
     <string name="unlock_password_not_found_info">Es ist kein Passwort auf Ihrer Karte hinterlegt.</string>
     <string name="cdw_mini_alt_auth_removed_title">Sie wurden abgemeldet</string>
-    <string name="cdw_mini_alt_auth_removed">Melden Sie sich erneut an, um Ihre Rezepte zu aktualisieren.</string>
+    <string name="cdw_mini_alt_auth_removed">Log in again to update your recipes.</string>
     <string name="pres_detail_medication_label_ingredient_number">Wirkstoffnummer</string>
     <string name="pres_detail_medication_label_ingredient_strength_unit">Wirkstärke und Einheit</string>
+    <string name="received_x_min_ago">Eingelöst vor %s Minuten</string>
+    <string name="received_on_day">Eingelöst am %s</string>
+    <string name="received_now">Eingelöst gerade eben</string>
+    <string name="received_on_minute">Eingelöst um %s Uhr</string>
+    <string name="orders_title">Bestellungen</string>
+    <string name="pres_details_direct_assignment_received_state">Dieses Rezept wurde im Rahmen einer Behandlung für Sie eingelöst.</string>
+    <string name="pres_details_exp_em_fee_title">Notdienstgebühr</string>
+    <string name="pres_details_exp_em_fee_info">Dieses Rezept kann nachts in einer Apotheke nicht ohne zusätzliche Zahlung einer Notdienstgebühr eingelöst werden.</string>
     <string name="pharmacy_maps_search_here_button">Hier suchen</string>
-    <string name="pharmacy_maps_contacts">Kontakt und Öffnungszeiten</string>
     <string name="search_pharmacies_location_na_settings">Einstellungen</string>
     <string name="search_pharmacies_location_na_services">Standort in den Einstellungen freigeben.</string>
     <string name="pharmacy_maps_header">In meiner Nähe</string>
-    <string name="mainscreen_rename_profile_header">Profilnamen ändern</string>
     <string name="mainscreen_profile_chip_content_description">Gedrückt halten, um den Namen zu bearbeiten.</string>
     <string name="profile_edit_name_for_rename_info">Geben Sie den neuen Namen für das Profil ein.</string>
     <string name="mainscreen_welcome_drawer_info">Um Rezepte digital von Ihrer Praxis zu empfangen, müssen Sie angemeldet sein.</string>
@@ -814,11 +738,6 @@
     <string name="mainscreen_empty_not_connected_info">Fügen Sie Rezepte über den + Button in der rechten oberen Ecke hinzu.</string>
     <string name="mainscreen_login">Anmelden</string>
     <string name="archived_prescriptions_button">Eingelöste Rezepte</string>
-    <string name="prescription_screen_last_updated_now">Zuletzt aktualisiert gerade eben</string>
-    <string name="prescription_screen_last_updated_x_min_ago">Zuletzt aktualisiert vor %s Minuten</string>
-    <string name="prescription_screen_last_updated_x_days_ago">Zuletzt aktualisiert vor %s Tagen</string>
-    <string name="prescription_screen_last_updated_on_day">Zuletzt aktualisiert am %s</string>
-    <string name="prescription_screen_last_updated_on">Zuletzt aktualisiert um %s Uhr</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Vielleicht später</string>
     <string name="mainscreen_connect_bottomsheet_connect">Anmelden</string>
     <string name="mainscreen_bottom_sheet_edit_profile_image">Profilbild bearbeiten</string>
@@ -906,5 +825,6 @@
     <string name="order_health_card_contact_info">Ihre Versicherung bietet folgende Kontaktmöglichkeiten</string>
     <string name="order_health_card_contact_info_single">Ihre Versicherung bietet folgende Kontaktmöglichkeit</string>
     <string name="health_card_order_close">Schließen</string>
-
+    <string name="profile_invoiceInformation_header">Abrechnungen</string>
+    <string name="profile_show_invoices">Abrechnungen anzeigen</string>
 </resources>

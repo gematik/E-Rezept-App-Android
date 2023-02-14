@@ -18,15 +18,16 @@
 
 package de.gematik.ti.erp.app.db.entities
 
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.Year
+import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import kotlinx.datetime.Instant
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 import org.bouncycastle.util.encoders.Base64
-import java.time.Instant
-import java.time.Year
-import java.time.temporal.TemporalAccessor
 
 private object Clazz {
     enum class EnumA {
@@ -151,14 +152,14 @@ class DelegatesTest {
     fun `date time parsing`() {
         val container = object {
             var backingProp: String? = "2015-02-07T13:28:17.243+00:00"
-            var prop: TemporalAccessor? by temporalAccessorNullable(::backingProp)
+            var prop: FhirTemporal? by temporalAccessorNullable(::backingProp)
         }
 
-        assertEquals(Instant.parse("2015-02-07T13:28:17.243+00:00"), container.prop)
+        assertEquals(Instant.parse("2015-02-07T13:28:17.243+00:00"), (container.prop as FhirTemporal.Instant).value)
 
-        container.prop = Year.parse("2023")
+        container.prop = Year.parse("2023").asFhirTemporal()
 
         assertEquals("2023", container.backingProp)
-        assertEquals(Year.parse("2023"), container.prop)
+        assertEquals(Year.parse("2023"), (container.prop as FhirTemporal.Year).value)
     }
 }

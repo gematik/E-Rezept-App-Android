@@ -120,7 +120,9 @@ private fun AvatarPreview() {
             profile = ProfilesUseCaseData.Profile(
                 id = "",
                 name = "",
-                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
+                    insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+                ),
                 active = false,
                 color = ProfilesData.ProfileColorNames.SUN_DEW,
                 avatarFigure = ProfilesData.AvatarFigure.PersonalizedImage,
@@ -145,7 +147,9 @@ private fun AvatarWithSSOPreview() {
             profile = ProfilesUseCaseData.Profile(
                 id = "",
                 name = "",
-                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
+                    insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+                ),
                 active = false,
 
                 color = ProfilesData.ProfileColorNames.SUN_DEW,

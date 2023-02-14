@@ -23,7 +23,7 @@ import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 object PrescriptionData {
     sealed interface Prescription {

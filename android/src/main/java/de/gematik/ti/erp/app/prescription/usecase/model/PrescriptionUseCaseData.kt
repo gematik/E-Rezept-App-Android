@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.prescription.usecase.model
 
 import androidx.compose.runtime.Immutable
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 object PrescriptionUseCaseData {
     /**

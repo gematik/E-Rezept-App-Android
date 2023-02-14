@@ -62,7 +62,7 @@ import de.gematik.ti.erp.app.cardwall.mini.ui.HealthCardPrompt
 import de.gematik.ti.erp.app.cardwall.mini.ui.MiniCardWallViewModel
 import de.gematik.ti.erp.app.cardwall.mini.ui.rememberAuthenticator
 import de.gematik.ti.erp.app.cardwall.ui.CardWallNfcPositionViewModel
-import de.gematik.ti.erp.app.cardwall.ui.CardWallViewModel
+import de.gematik.ti.erp.app.cardwall.ui.CardWallController
 import de.gematik.ti.erp.app.cardwall.ui.ExternalAuthenticatorListViewModel
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAuthenticator
@@ -122,7 +122,7 @@ class MainActivity : AppCompatActivity(), DIAware {
         bindProvider { UnlockEgkViewModel(instance(), instance()) }
         bindProvider { MiniCardWallViewModel(instance(), instance(), instance(), instance(), instance()) }
         bindProvider { CardWallNfcPositionViewModel(instance()) }
-        bindProvider { CardWallViewModel(instance(), instance(), instance()) }
+        bindProvider { CardWallController(instance(), instance(), instance()) }
         bindProvider { ExternalAuthenticatorListViewModel(instance(), instance()) }
         bindProvider { HealthCardOrderViewModel(instance()) }
         bindProvider { PrescriptionDetailsViewModel(instance(), instance()) }

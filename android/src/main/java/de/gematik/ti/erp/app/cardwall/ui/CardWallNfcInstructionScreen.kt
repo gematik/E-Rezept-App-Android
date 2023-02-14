@@ -114,7 +114,7 @@ sealed class CardWallAuthenticationData(
 fun CardWallNfcInstructionScreen(
     onClickTroubleshooting: () -> Unit,
     onBack: () -> Unit,
-    viewModel: CardWallViewModel,
+    cardWallController: CardWallController,
     authenticationData: CardWallAuthenticationData,
     profileId: ProfileIdentifier,
     onNext: () -> Unit,
@@ -127,14 +127,14 @@ fun CardWallNfcInstructionScreen(
 
     val dialogState = rememberCardWallAuthenticationDialogState()
 
-    if (!viewModel.isNFCEnabled()) {
+    if (!cardWallController.isNFCEnabled()) {
         EnableNfcDialog {
             onBack()
         }
     } else {
         CardWallAuthenticationDialog(
             dialogState = dialogState,
-            viewModel = viewModel,
+            cardWallController = cardWallController,
             authenticationData = authenticationData,
             profileId = profileId,
             troubleShootingEnabled = true,

@@ -19,73 +19,84 @@
 package de.gematik.ti.erp.app.analytics
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.core.content.edit
 import androidx.navigation.NavHostController
+import com.contentsquare.android.Contentsquare
+import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import io.github.aakira.napier.Napier
 import java.security.MessageDigest
 
-private const val TrackerName = "Tracker"
+private const val PrefsName = "analyticsAllowed"
 
 // `gemSpec_eRp_FdV A_20187`
 class Analytics constructor(
-    private val context: Context
+    private val context: Context,
+    private val prefs: SharedPreferences
 ) {
-    private val _trackingAllowed = MutableStateFlow(false)
-    val trackingAllowed: StateFlow<Boolean>
-        get() = _trackingAllowed
+    private val _analyticsAllowed = MutableStateFlow(false)
+    val analyticsAllowed: StateFlow<Boolean>
+        get() = _analyticsAllowed
 
-    private val prefsName = "pro.piwik.sdk_" +
-        MessageDigest.getInstance("MD5").digest(TrackerName.toByteArray())
+    // TODO remove in future versions
+    private val piwikPrefsName = "pro.piwik.sdk_" +
+        MessageDigest.getInstance("MD5").digest("Tracker".toByteArray())
             .joinToString(separator = "") { eachByte -> "%02X".format(eachByte) }
 
     init {
-        Napier.d("Init tracker")
+        Napier.d("Init Analytics")
 
-        _trackingAllowed.value = !context.getSharedPreferences(
-            prefsName,
+        Contentsquare.forgetMe()
+
+        // TODO remove in future versions
+        val piwikOptOut = !context.getSharedPreferences(
+            piwikPrefsName,
             Context.MODE_PRIVATE
         ).getBoolean("tracker.optout", true)
+
+        _analyticsAllowed.value = prefs.getBoolean(PrefsName, !piwikOptOut)
+        if (_analyticsAllowed.value) {
+            allowTracking()
+        } else {
+            disallowTracking()
+        }
+    }
+
+    fun tagScreen(screenName: String) {
+        if (analyticsAllowed.value) {
+            Contentsquare.send(screenName)
+            Napier.d("Analytics send $screenName")
+        }
     }
 
     fun allowTracking() {
-        _trackingAllowed.value = true
+        _analyticsAllowed.value = true
 
-        context.getSharedPreferences(
-            prefsName,
-            Context.MODE_PRIVATE
-        ).let { prefs ->
-            prefs.edit {
-                putBoolean("tracker.optout", false)
-            }
+        Contentsquare.optIn(context)
+
+        prefs.edit {
+            putBoolean(PrefsName, true)
         }
 
-        Napier.d("Tracking allowed")
+        Napier.d("Analytics allowed")
     }
 
     fun disallowTracking() {
-        _trackingAllowed.value = false
+        _analyticsAllowed.value = false
 
-        context.getSharedPreferences(
-            prefsName,
-            Context.MODE_PRIVATE
-        ).let { prefs ->
-            prefs.edit {
-                putBoolean("tracker.optout", true)
-            }
+        Contentsquare.optOut(context)
+
+        prefs.edit {
+            putBoolean(PrefsName, false)
         }
 
-        Napier.d("Tracking disallowed")
-    }
-
-    @Suppress("UnusedPrivateMember")
-    fun trackScreen(path: String) {
-        // noop
+        Napier.d("Analytics disallowed")
     }
 
     fun trackIdentifiedWithIDP() {
@@ -116,15 +127,41 @@ class Analytics constructor(
 
 @Composable
 fun TrackNavigationChanges(navController: NavHostController) {
-    val tracker = LocalAnalytics.current
+    val analytics = LocalAnalytics.current
 
     LaunchedEffect(Unit) {
         navController.currentBackStackEntryFlow.collect {
             try {
-                tracker.trackScreen(Uri.parse(it.destination.route).buildUpon().clearQuery().build().toString())
+                analytics.tagScreen(Uri.parse(it.destination.route).buildUpon().clearQuery().build().toString())
             } catch (expected: Exception) {
                 Napier.e("Couldn't track navigation screen", expected)
             }
+        }
+    }
+}
+fun Analytics.trackAuth(state: AuthenticationState) {
+    if (analyticsAllowed.value) {
+        when (state) {
+            AuthenticationState.HealthCardBlocked ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.CardBlocked)
+            AuthenticationState.HealthCardCardAccessNumberWrong ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.CardAccessNumberWrong)
+            AuthenticationState.HealthCardCommunicationInterrupted ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.CardCommunicationInterrupted)
+            AuthenticationState.HealthCardPin1RetryLeft,
+            AuthenticationState.HealthCardPin2RetriesLeft ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.CardPinWrong)
+            AuthenticationState.IDPCommunicationFailed ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.IDPCommunicationFailed)
+            AuthenticationState.IDPCommunicationInvalidCertificate ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.IDPCommunicationInvalidCertificate)
+            AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.IDPCommunicationInvalidOCSPOfCard)
+            AuthenticationState.SecureElementCryptographyFailed ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.SecureElementCryptographyFailed)
+            AuthenticationState.UserNotAuthenticated ->
+                trackAuthenticationProblem(Analytics.AuthenticationProblem.UserNotAuthenticated)
+            else -> {}
         }
     }
 }

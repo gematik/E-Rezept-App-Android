@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.profiles.repository
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.db.entities.deleteAll
 import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
+import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileColorNamesV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
@@ -34,7 +35,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 typealias ProfileIdentifier = String
 
@@ -86,6 +87,7 @@ class ProfilesRepository constructor(
                     insurantName = profile.insurantName ?: "",
                     insuranceIdentifier = profile.insuranceIdentifier,
                     insuranceName = profile.insuranceName,
+                    insuranceType = profile.insuranceType,
                     lastAuthenticated = profile.lastAuthenticated?.toInstant(),
                     lastAuditEventSynced = profile.lastAuditEventSynced?.toInstant(),
                     lastTaskSynced = profile.lastTaskSynced?.toInstant(),
@@ -260,6 +262,14 @@ class ProfilesRepository constructor(
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
                 this.personalizedImage = null
                 this.avatarFigure = AvatarFigureV1.PersonalizedImage
+            }
+        }
+    }
+
+    suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
+        realm.write {
+            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
+                this.insuranceType = InsuranceTypeV1.PKV
             }
         }
     }

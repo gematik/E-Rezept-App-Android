@@ -53,7 +53,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
-import androidx.compose.ui.unit.offset
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.theme.AppTheme

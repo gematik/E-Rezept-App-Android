@@ -24,7 +24,7 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 private const val AuditEventsMaxPageSize = 50
 
@@ -33,6 +33,7 @@ class AuditEventsRepository(
     private val localDataSource: AuditEventLocalDataSource,
     private val dispatchers: DispatchProvider
 ) : ResourcePaging<Unit>(dispatchers, AuditEventsMaxPageSize) {
+    override val tag: String = "AuditEventsRepository"
 
     suspend fun downloadAuditEvents(profileId: ProfileIdentifier) = downloadPaged(profileId)
 

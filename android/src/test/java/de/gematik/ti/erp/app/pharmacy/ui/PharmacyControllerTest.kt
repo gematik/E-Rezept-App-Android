@@ -35,10 +35,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
 import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
@@ -54,7 +54,9 @@ class PharmacySearchViewModelTest {
     private val profile = ProfilesUseCaseData.Profile(
         id = "",
         name = "",
-        insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+        insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
+            insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+        ),
         active = true,
         color = ProfilesData.ProfileColorNames.SPRING_GRAY,
         avatarFigure = ProfilesData.AvatarFigure.PersonalizedImage,
@@ -67,21 +69,21 @@ class PharmacySearchViewModelTest {
             taskId = "A",
             accessCode = "1234",
             title = "Test",
-            timestamp = Instant.EPOCH,
+            timestamp = Instant.fromEpochSeconds(0, 0),
             substitutionsAllowed = false
         ),
         PharmacyUseCaseData.PrescriptionOrder(
             taskId = "B",
             accessCode = "1234",
             title = "Test",
-            timestamp = Instant.EPOCH,
+            timestamp = Instant.fromEpochSeconds(0, 0),
             substitutionsAllowed = false
         ),
         PharmacyUseCaseData.PrescriptionOrder(
             taskId = "C",
             accessCode = "1234",
             title = "Test",
-            timestamp = Instant.EPOCH,
+            timestamp = Instant.fromEpochSeconds(0, 0),
             substitutionsAllowed = false
         )
     )

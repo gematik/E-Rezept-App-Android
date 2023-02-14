@@ -1,3 +1,7 @@
+# Release 1.8.0
+- Switched to new analytics tool
+- Bugfixes
+
 # Release 1.7.0
 - New wizard for ordering a healthcard
 - Support for new FHIR profile version

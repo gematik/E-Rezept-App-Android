@@ -36,8 +36,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.JsonElement
 import java.net.MalformedURLException
 import java.net.URL
-import java.time.DayOfWeek
-import java.time.LocalTime
+import kotlinx.datetime.DayOfWeek
 
 val Contained = listOf("contained")
 val TypeCodingCode = listOf("type", "coding", "code")
@@ -236,11 +235,8 @@ private fun openingHours(
         .asSequence()
         .flatMap { fhirHours ->
             (fhirHours as JsonObject).let {
-                val openingTime = lookupTime(fhirHours[startTimeAlias]?.jsonPrimitive)
-                    ?: LocalTime.MIN
-
-                val closingTime = lookupTime(fhirHours[endTimeAlias]?.jsonPrimitive)
-                    ?: LocalTime.MAX
+                val openingTime = lookupTime(fhirHours[startTimeAlias]?.jsonPrimitive)?.value
+                val closingTime = lookupTime(fhirHours[endTimeAlias]?.jsonPrimitive)?.value
 
                 val time = OpeningTime(openingTime = openingTime, closingTime = closingTime)
 
@@ -264,9 +260,4 @@ private fun fhirDay(day: String) =
         "sat" -> DayOfWeek.SATURDAY
         "sun" -> DayOfWeek.SUNDAY
         else -> error("wrong day format: $day")
-    }
-
-private fun openingHours(days: List<DayOfWeek>, openingTime: LocalTime, closingTime: LocalTime) =
-    days.map {
-        it to OpeningTime(openingTime = openingTime, closingTime = closingTime)
     }

@@ -27,12 +27,15 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
-import java.time.Duration
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import kotlin.time.Duration
 
 enum class TimeDiff {
     FewMinutes,
@@ -62,9 +65,9 @@ fun timeDescription(
     val dt by rememberUpdatedState(instant)
     val fmt by rememberUpdatedState(formatter)
     val timeString = remember(dt, fmt) {
-        val duration = Duration.between(dt, Instant.now())
-        val diffMinutes = duration.toMinutes()
-        val localDt = LocalDateTime.ofInstant(dt, ZoneId.systemDefault())
+        val duration = Clock.System.now() - dt
+        val diffMinutes = duration.inWholeMinutes
+        val localDt = dt.toLocalDateTime(TimeZone.currentSystemDefault())
         mutableStateOf(fmt(timeDiff(diffMinutes = diffMinutes), localDt, duration))
     }
     return timeString
@@ -84,8 +87,8 @@ object TimeDescriptionDefaults {
             val fmt: TimeDescriptionFormatter = { diff, localDt, _ ->
                 when (diff) {
                     TimeDiff.FewMinutes -> fewMinutes
-                    TimeDiff.Today -> today.format(hours.format(localDt))
-                    TimeDiff.Other -> other.format(localDt)
+                    TimeDiff.Today -> today.format(localDt.toJavaLocalDateTime().format(hours))
+                    TimeDiff.Other -> localDt.toJavaLocalDateTime().format(other)
                 }
             }
             fmt

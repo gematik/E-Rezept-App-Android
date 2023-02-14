@@ -18,11 +18,10 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import kotlinx.serialization.json.JsonElement
-import java.time.LocalDate
-import java.time.temporal.TemporalAccessor
 
 typealias AddressFn<R> = (
     line: List<String>?,
@@ -41,7 +40,7 @@ typealias OrganizationFn<R, Address> = (
 typealias PatientFn<R, Address> = (
     name: String?,
     address: Address,
-    birthDate: LocalDate?,
+    birthDate: FhirTemporal?,
     insuranceIdentifier: String?
 ) -> R
 
@@ -57,7 +56,7 @@ typealias InsuranceInformationFn<R> = (
 ) -> R
 
 typealias MedicationRequestFn<R, MultiplePrescriptionInfo> = (
-    dateOfAccident: LocalDate?,
+    dateOfAccident: FhirTemporal.LocalDate?,
     location: String?,
     accidentType: AccidentType,
     emergencyFee: Boolean?,
@@ -73,7 +72,7 @@ typealias MedicationRequestFn<R, MultiplePrescriptionInfo> = (
 typealias MultiplePrescriptionInfoFn<R, Ratio> = (
     indicator: Boolean,
     numbering: Ratio?,
-    start: LocalDate?
+    start: FhirTemporal.LocalDate?
 ) -> R
 
 typealias MedicationFn<R, Ingredient, Ratio> = (
@@ -89,7 +88,7 @@ typealias MedicationFn<R, Ingredient, Ratio> = (
     uniqueIdentifier: String?,
     ingredients: List<Ingredient>,
     lotNumber: String?,
-    expirationDate: TemporalAccessor?
+    expirationDate: FhirTemporal?
 ) -> R
 
 typealias IngredientFn<R, Ratio> = (
@@ -114,6 +113,7 @@ enum class MedicationCategory {
     ARZNEI_UND_VERBAND_MITTEL,
     BTM,
     AMVV,
+    SONSTIGES,
     UNKNOWN
 }
 

@@ -19,15 +19,21 @@
 package de.gematik.ti.erp.app.db.entities.v1.task
 
 import de.gematik.ti.erp.app.db.entities.Cascading
+import de.gematik.ti.erp.app.db.entities.temporalAccessorNullable
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import io.realm.kotlin.Deleteable
-import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.Ignore
 
 class PatientEntityV1 : RealmObject, Cascading {
     var name: String? = null
     var address: AddressEntityV1? = null
-    var birthdate: RealmInstant? = null
+
+    var _dateOfBirth: String? = null
+
+    @delegate:Ignore
+    var dateOfBirth: FhirTemporal? by temporalAccessorNullable(::_dateOfBirth)
     var insuranceIdentifier: String? = null
 
     override fun objectsToFollow(): Iterator<Deleteable> =

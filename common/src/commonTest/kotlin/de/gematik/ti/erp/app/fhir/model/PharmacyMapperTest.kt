@@ -18,10 +18,10 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import kotlinx.datetime.LocalTime
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.time.DayOfWeek
-import java.time.LocalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

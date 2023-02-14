@@ -39,12 +39,12 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.datetime.Clock
 import org.kodein.di.LazyDelegate
 import org.kodein.di.compose.rememberInstance
 import java.net.URI
 import java.net.URISyntaxException
 import java.net.URLEncoder
-import java.time.Instant
 
 private const val ShareBaseUri = "https://das-e-rezept-fuer-deutschland.de/prescription/#"
 
@@ -100,7 +100,7 @@ class SharePrescriptionController(
                                 profileId = profileId,
                                 taskId = taskId,
                                 accessCode = accessCode,
-                                scannedOn = Instant.now(),
+                                scannedOn = Clock.System.now(),
                                 redeemedOn = null
                             )
                         )

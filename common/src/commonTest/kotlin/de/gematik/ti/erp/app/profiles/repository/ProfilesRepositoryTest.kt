@@ -49,8 +49,8 @@ import io.realm.kotlin.RealmConfiguration
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Clock
 import org.junit.Rule
-import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.BeforeTest
 import kotlin.test.assertEquals
@@ -295,7 +295,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `update last authenticated`() = runTest {
-        val now = Instant.now()
+        val now = Clock.System.now()
         repo.saveProfile(defaultProfileName, true)
         repo.profiles().first().also {
             assertEquals(null, it[0].lastAuthenticated)

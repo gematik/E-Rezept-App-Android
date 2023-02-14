@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.mainscreen.ui
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -37,6 +38,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.MarkChatRead
@@ -63,6 +65,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -87,7 +90,6 @@ import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
 import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
 import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.debug.ui.DebugScreenWrapper
-import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.license.ui.LicenseScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingNavigationScreens
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingScreen
@@ -105,7 +107,6 @@ import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionViewModel
 import de.gematik.ti.erp.app.prescription.ui.ScanPrescriptionViewModel
 import de.gematik.ti.erp.app.prescription.ui.ScanScreen
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.DefaultProfile
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
@@ -138,7 +139,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import org.kodein.di.compose.rememberViewModel
-import java.time.Instant
 
 @Suppress("LongMethod")
 @Composable
@@ -149,33 +149,9 @@ fun MainScreen(
     settingsViewModel: SettingsViewModel,
     profileSettingsViewModel: ProfileSettingsViewModel
 ) {
-    LaunchedEffect(Unit) {
-        mainViewModel.authenticationMethod.collect {
-            if (!mainViewModel.showOnboarding && !(
-                it is SettingsData.AuthenticationMode.Password ||
-                    it == SettingsData.AuthenticationMode.DeviceSecurity
-                )
-            ) {
-                navController.navigate(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
-                    launchSingleTop = true
-                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
-                        inclusive = true
-                    }
-                }
-            }
-        }
-    }
+    CheckAuthenticationMethod(mainViewModel, navController)
 
-    val startDestination =
-        when {
-            mainViewModel.showOnboarding -> {
-                MainNavigationScreens.Onboarding.route
-            }
-
-            else -> {
-                MainNavigationScreens.Prescriptions.route
-            }
-        }
+    val startDestination = determineStartDestination(mainViewModel)
 
     TrackNavigationChanges(navController)
     val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
@@ -205,21 +181,6 @@ fun MainScreen(
                     onNext = { navController.popBackStack() },
                     onSecureMethodChange = { secureMethod = it }
                 )
-            }
-        }
-        composable(MainNavigationScreens.DataTermsUpdateScreen.route) {
-            val dataProtectionVersionAccepted: Instant? by mainViewModel
-                .dataProtectionVersionAcceptedOn()
-                .collectAsState(initial = null)
-
-            dataProtectionVersionAccepted?.let { acceptedOn ->
-                DataTermsUpdateScreen(
-                    acceptedOn,
-                    onClickDataTerms = { navController.navigate(MainNavigationScreens.DataProtection.route) }
-                ) {
-                    mainViewModel.acceptUpdatedDataTerms()
-                    navController.navigate(MainNavigationScreens.Prescriptions.route)
-                }
             }
         }
         composable(MainNavigationScreens.DataProtection.route) {
@@ -495,7 +456,7 @@ fun MainScreen(
                         UnlockMethod.ResetRetryCounterWithNewSecret.name -> UnlockMethod.ResetRetryCounterWithNewSecret
                         else -> UnlockMethod.None
                     },
-                    navController = navController,
+                    onCancel = { navController.popBackStack() },
                     onClickLearnMore = {
                         navController.navigate(
                             MainNavigationScreens.OrderHealthCard.path()
@@ -519,17 +480,48 @@ fun MainScreen(
     }
 }
 
-@Suppress("LongMethod", "ComplexMethod")
+@Composable
+private fun determineStartDestination(mainViewModel: MainViewModel) =
+    when {
+        mainViewModel.showOnboarding -> {
+            MainNavigationScreens.Onboarding.route
+        }
+
+        else -> {
+            MainNavigationScreens.Prescriptions.route
+        }
+    }
+
+@Composable
+private fun CheckAuthenticationMethod(mainViewModel: MainViewModel, navController: NavHostController) {
+    LaunchedEffect(Unit) {
+        mainViewModel.authenticationMethod.collect {
+            if (!mainViewModel.showOnboarding && !(
+                it is SettingsData.AuthenticationMode.Password ||
+                    it == SettingsData.AuthenticationMode.DeviceSecurity
+                )
+            ) {
+                navController.navigate(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
+                    launchSingleTop = true
+                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+    }
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MainScreenWithScaffold(
+private fun MainScreenWithScaffold(
     mainNavController: NavController,
     mainViewModel: MainViewModel,
     mainScreenViewModel: MainScreenViewModel,
     settingsViewModel: SettingsViewModel,
     profileSettingsViewModel: ProfileSettingsViewModel
 ) {
-    val profileHandler = LocalProfileHandler.current
+    val context = LocalContext.current
     val bottomNavController = rememberNavController()
 
     val currentBottomNavigationRoute by bottomNavController.currentBackStackEntryFlow.collectAsState(null)
@@ -540,34 +532,8 @@ fun MainScreenWithScaffold(
         }
     }
 
-    LaunchedEffect(Unit) {
-        withContext(Dispatchers.Main) {
-            if (mainViewModel.showDataTermsUpdate.first()) {
-                mainNavController.navigate(
-                    MainNavigationScreens.DataTermsUpdateScreen.path(),
-                    navOptions {
-                        launchSingleTop = true
-                        popUpTo(MainNavigationScreens.Prescriptions.path()) {
-                            inclusive = true
-                        }
-                    }
-                )
-            } else if (mainViewModel.showInsecureDevicePrompt.first()) {
-                mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.path())
-            }
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        if (BuildConfig.DEBUG) {
-            return@LaunchedEffect
-        }
-        if (!mainViewModel.checkDeviceIntegrity().first()) {
-            withContext(Dispatchers.Main) {
-                mainNavController.navigate(MainNavigationScreens.IntegrityNotOkScreen.route)
-            }
-        }
-    }
+    CheckInsecureDevice(mainViewModel, mainNavController)
+    CheckDeviceIntegrity(mainViewModel, mainNavController)
 
     val scaffoldState = rememberScaffoldState()
 
@@ -586,6 +552,7 @@ fun MainScreenWithScaffold(
             it != ModalBottomSheetValue.HalfExpanded
         }
     )
+
     LaunchedEffect(Unit) {
         sheetState.snapTo(ModalBottomSheetValue.Hidden)
     }
@@ -610,6 +577,12 @@ fun MainScreenWithScaffold(
                 mainViewModel.welcomeDrawerShown()
             }
             mainScreenBottomSheetContentState = null
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (mainViewModel.talkbackEnabled(context)) {
+            mainViewModel.mainScreenTooltipsShown()
         }
     }
 
@@ -656,90 +629,167 @@ fun MainScreenWithScaffold(
         // TODO: move to general place?
         ExternalAuthenticationDialog()
 
-        var topBarElevated by remember { mutableStateOf(true) }
+        MainScreenScaffold(
+            mainViewModel = mainViewModel,
+            mainScreenViewModel = mainScreenViewModel,
+            settingsViewModel = settingsViewModel,
+            mainNavController = mainNavController,
+            bottomNavController = bottomNavController,
+            tooltipBounds = toolTipBounds,
 
-        Scaffold(
-            modifier = Modifier.testTag(TestTag.Main.MainScreen),
-            topBar = {
-                if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
-                    MultiProfileTopAppBar(
-                        navController = mainNavController,
-                        elevated = topBarElevated,
-                        mainScreenViewModel = mainScreenViewModel,
-                        mainViewModel = mainViewModel,
-                        isInPrescriptionScreen = isInPrescriptionScreen,
-                        onClickAddProfile = {
-                            mainScreenBottomSheetContentState =
-                                MainScreenBottomSheetContentState.EditOrAddProfileName(addProfile = true)
-                        },
-                        onClickChangeProfileName = { profile ->
-                            profileToRename = profile
-                            mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditOrAddProfileName()
-                        },
-                        tooltipBounds = toolTipBounds
-                    )
-                }
+            onClickAddProfile = {
+                mainScreenBottomSheetContentState =
+                    MainScreenBottomSheetContentState.EditOrAddProfileName(addProfile = true)
             },
-            bottomBar = {
-                MainScreenBottomNavigation(
-                    navController = mainNavController,
-                    viewModel = mainScreenViewModel,
-                    bottomNavController = bottomNavController,
-                    profileId = profileHandler.activeProfile.id
-                )
+            onClickChangeProfileName = { profile ->
+                profileToRename = profile
+                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditOrAddProfileName()
             },
-            floatingActionButton = {
-                if (isInPrescriptionScreen) {
-                    RedeemFloatingActionButton(
-                        onClick = {
-                            mainNavController.navigate(MainNavigationScreens.Redeem.path())
-                        }
-                    )
-                }
+
+            onClickAvatar = {
+                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditProfile
             },
             scaffoldState = scaffoldState
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .padding(innerPadding)
-                    .testTag("main_screen")
+        )
+    }
+}
+
+@Composable
+private fun MainScreenScaffold(
+    mainViewModel: MainViewModel,
+    mainScreenViewModel: MainScreenViewModel,
+    settingsViewModel: SettingsViewModel,
+    mainNavController: NavController,
+    bottomNavController: NavHostController,
+    tooltipBounds: MutableState<Map<Int, Rect>>,
+    onClickAddProfile: () -> Unit,
+    onClickChangeProfileName: (ProfilesUseCaseData.Profile) -> Unit,
+    onClickAvatar: () -> Unit,
+    scaffoldState: ScaffoldState
+) {
+    val currentBottomNavigationRoute by bottomNavController.currentBackStackEntryFlow.collectAsState(null)
+
+    val isInPrescriptionScreen by remember {
+        derivedStateOf {
+            currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
+        }
+    }
+    var topBarElevated by remember { mutableStateOf(true) }
+
+    Scaffold(
+        modifier = Modifier.testTag(TestTag.Main.MainScreen),
+        topBar = {
+            if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
+                MultiProfileTopAppBar(
+                    navController = mainNavController,
+                    elevated = topBarElevated,
+                    mainScreenViewModel = mainScreenViewModel,
+                    mainViewModel = mainViewModel,
+                    isInPrescriptionScreen = isInPrescriptionScreen,
+                    onClickAddProfile = onClickAddProfile,
+                    onClickChangeProfileName = onClickChangeProfileName,
+                    tooltipBounds = tooltipBounds
+                )
+            }
+        },
+        bottomBar = {
+            MainScreenBottomBar(
+                navController = mainNavController,
+                viewModel = mainScreenViewModel,
+                bottomNavController = bottomNavController
+            )
+        },
+        floatingActionButton = {
+            if (isInPrescriptionScreen) {
+                RedeemFloatingActionButton(
+                    onClick = {
+                        mainNavController.navigate(MainNavigationScreens.Redeem.path())
+                    }
+                )
+            }
+        },
+        scaffoldState = scaffoldState
+    ) { innerPadding ->
+
+        MainScreenBottomNavHost(
+            mainScreenViewModel = mainScreenViewModel,
+            settingsViewModel = settingsViewModel,
+            mainNavController = mainNavController,
+            bottomNavController = bottomNavController,
+            innerPadding = innerPadding,
+            onClickAvatar = onClickAvatar,
+            onElevateTopBar = {
+                topBarElevated = it
+            },
+            onClickArchive = { mainNavController.navigate(MainNavigationScreens.Archive.path()) }
+        )
+    }
+}
+
+@Composable
+private fun MainScreenBottomNavHost(
+    mainScreenViewModel: MainScreenViewModel,
+    settingsViewModel: SettingsViewModel,
+    mainNavController: NavController,
+    bottomNavController: NavHostController,
+    innerPadding: PaddingValues,
+    onClickAvatar: () -> Unit,
+    onElevateTopBar: (Boolean) -> Unit,
+    onClickArchive: () -> Unit
+) {
+    Box(
+        modifier = Modifier
+            .padding(innerPadding)
+            .testTag("main_screen")
+    ) {
+        NavHost(
+            bottomNavController,
+            startDestination = MainNavigationScreens.Prescriptions.path()
+        ) {
+            composable(MainNavigationScreens.Prescriptions.route) {
+                val prescriptionViewModel by rememberViewModel<PrescriptionViewModel>()
+                PrescriptionScreen(
+                    navController = mainNavController,
+                    onClickAvatar = onClickAvatar,
+                    prescriptionViewModel = prescriptionViewModel,
+                    mainScreenViewModel = mainScreenViewModel,
+                    onElevateTopBar = onElevateTopBar,
+                    onClickArchive = onClickArchive
+                )
+            }
+            composable(MainNavigationScreens.Orders.route) {
+                OrderScreen(
+                    mainNavController = mainNavController,
+                    mainScreenViewModel = mainScreenViewModel,
+                    onElevateTopBar = onElevateTopBar
+                )
+            }
+            composable(
+                MainNavigationScreens.Settings.route,
+                MainNavigationScreens.Settings.arguments
             ) {
-                NavHost(
-                    bottomNavController,
-                    startDestination = MainNavigationScreens.Prescriptions.path()
-                ) {
-                    composable(MainNavigationScreens.Prescriptions.route) {
-                        val prescriptionViewModel by rememberViewModel<PrescriptionViewModel>()
-                        PrescriptionScreen(
-                            navController = mainNavController,
-                            onClickAvatar = {
-                                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditProfile
-                            },
-                            prescriptionViewModel = prescriptionViewModel,
-                            mainScreenViewModel = mainScreenViewModel,
-                            onElevateTopBar = {
-                                topBarElevated = it
-                            },
-                            onClickArchive = { mainNavController.navigate(MainNavigationScreens.Archive.path()) }
-                        )
-                    }
-                    composable(MainNavigationScreens.Orders.route) {
-                        OrderScreen(
-                            mainNavController = mainNavController,
-                            mainScreenViewModel = mainScreenViewModel,
-                            onElevateTopBar = {
-                                topBarElevated = it
-                            }
-                        )
-                    }
-                    composable(
-                        MainNavigationScreens.Settings.route,
-                        MainNavigationScreens.Settings.arguments
-                    ) {
-                        SettingsScreen(
-                            mainNavController = mainNavController,
-                            settingsViewModel = settingsViewModel
-                        )
+                SettingsScreen(
+                    mainNavController = mainNavController,
+                    settingsViewModel = settingsViewModel
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CheckDeviceIntegrity(mainViewModel: MainViewModel, mainNavController: NavController) {
+    LaunchedEffect(Unit) {
+        if (BuildConfig.DEBUG) {
+            return@LaunchedEffect
+        }
+        if (!mainViewModel.checkDeviceIntegrity().first()) {
+            withContext(Dispatchers.Main) {
+                mainNavController.navigate(MainNavigationScreens.IntegrityNotOkScreen.route)
+                navOptions {
+                    launchSingleTop = true
+                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
+                        inclusive = true
                     }
                 }
             }
@@ -748,14 +798,32 @@ fun MainScreenWithScaffold(
 }
 
 @Composable
-fun MainScreenBottomNavigation(
+private fun CheckInsecureDevice(mainViewModel: MainViewModel, mainNavController: NavController) {
+    LaunchedEffect(Unit) {
+        withContext(Dispatchers.Main) {
+            if (mainViewModel.showInsecureDevicePrompt.first()) {
+                mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.path())
+                navOptions {
+                    launchSingleTop = true
+                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
+                        inclusive = true
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MainScreenBottomBar(
     navController: NavController,
     bottomNavController: NavController,
-    viewModel: MainScreenViewModel,
-    profileId: ProfileIdentifier
+    viewModel: MainScreenViewModel
 ) {
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val profileHandler = LocalProfileHandler.current
+    val profileId = profileHandler.activeProfile.id
 
     val unreadMessagesAvailable by viewModel.unreadMessagesAvailable(profileId)
         .collectAsState(initial = false)
@@ -835,7 +903,7 @@ fun MainScreenBottomNavigation(
 }
 
 @Composable
-fun MainScreenTopBarTitle(isInPrescriptionScreen: Boolean) {
+private fun MainScreenTopBarTitle(isInPrescriptionScreen: Boolean) {
     val text = if (isInPrescriptionScreen) {
         stringResource(R.string.pres_bottombar_prescriptions)
     } else {
@@ -850,7 +918,7 @@ fun MainScreenTopBarTitle(isInPrescriptionScreen: Boolean) {
 }
 
 @Composable
-fun ProfilesChipBar(
+private fun ProfilesChipBar(
     mainScreenViewModel: MainScreenViewModel,
     onClickAddProfile: () -> Unit,
     onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit,
@@ -909,19 +977,11 @@ fun ProfilesChipBar(
     }
 }
 
-@Composable
-fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoTokenScope: IdpData.SingleSignOnTokenScope?) =
-    when {
-        ssoTokenScope?.token?.isValid() == true -> AppTheme.colors.green400
-        profile.lastAuthenticated != null -> AppTheme.colors.neutral400
-        else -> null
-    }
-
 /**
  * The top appbar of the actual main screen.
  */
 @Composable
-fun MultiProfileTopAppBar(
+private fun MultiProfileTopAppBar(
     navController: NavController,
     mainScreenViewModel: MainScreenViewModel,
     mainViewModel: MainViewModel,

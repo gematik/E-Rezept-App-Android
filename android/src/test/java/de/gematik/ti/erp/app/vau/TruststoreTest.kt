@@ -52,8 +52,9 @@ import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import java.security.interfaces.ECPublicKey
-import java.time.Duration
 import java.util.Base64
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class TruststoreTest {
@@ -85,16 +86,16 @@ class TruststoreTest {
     fun setup() {
         MockKAnnotations.init(this)
 
-        every { config.maxOCSPResponseAge } returns Duration.ofHours(12)
+        every { config.maxOCSPResponseAge } returns 12.hours
         every { config.trustAnchor } returns TestCertificates.RCA3.X509Certificate
-        every { timeSource() } returns ocspProducedAt + Duration.ofHours(2)
+        every { timeSource() } returns ocspProducedAt + 2.hours
         every { trustedTruststore.vauPublicKey } returns vauPublicKey
         every { trustedTruststore.idpCertificates } returns
             listOf(TestCertificates.Idp1.X509Certificate, TestCertificates.Idp2.X509Certificate)
         every { trustedTruststore.caCertificates } returns listOf(TestCertificates.CA10.X509Certificate)
         every { trustedTruststore.ocspResponses } returns
             TestCertificates.OCSP.OCSPList.responses.map { it.responseObject as BasicOCSPResp }
-        every { trustedTruststore.checkValidity(Duration.ofHours(12), ocspProducedAt) } coAnswers { }
+        every { trustedTruststore.checkValidity(12.hours, ocspProducedAt) } coAnswers { }
         coEvery { repository.invalidate() } coAnswers { }
 
         truststore = TruststoreUseCase(
@@ -162,7 +163,7 @@ class TruststoreTest {
             findValidOcspResponses(
                 ocspResps,
                 listOf(certChain),
-                Duration.ofHours(12),
+                12.hours,
                 TestCertificates.OCSP2.ProducedAt
             ).toTypedArray()
         )
@@ -181,7 +182,7 @@ class TruststoreTest {
             findValidOcspResponses(
                 ocspResps,
                 listOf(certChain),
-                Duration.ofHours(12),
+                12.hours,
                 TestCertificates.OCSP2.ProducedAt
             ).toTypedArray()
         )
@@ -193,12 +194,12 @@ class TruststoreTest {
             TestCertificates.OCSP.OCSPList,
             TestCertificates.Vau.CertList,
             TestCertificates.RCA3.X509Certificate,
-            Duration.ofHours(12),
+            12.hours,
             TestCertificates.OCSP2.ProducedAt
         )
 
         assertEquals(vauPublicKey, truststore.vauPublicKey)
-        truststore.checkValidity(Duration.ofHours(12), TestCertificates.OCSP2.ProducedAt)
+        truststore.checkValidity(12.hours, TestCertificates.OCSP2.ProducedAt)
     }
 
     @Test
@@ -209,8 +210,8 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
-                    TestCertificates.OCSP2.ProducedAt + Duration.ofDays(1)
+                    12.hours,
+                    TestCertificates.OCSP2.ProducedAt + 1.days
                 )
 
                 false
@@ -236,7 +237,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     any()
                 )
             } returns trustedTruststore
@@ -268,7 +269,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     any()
                 )
             } answers {
@@ -310,7 +311,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     any()
                 )
             } answers {
@@ -319,7 +320,7 @@ class TruststoreTest {
 
             every {
                 trustedTruststore.checkValidity(
-                    Duration.ofHours(12),
+                    12.hours,
                     ocspProducedAt
                 )
             } throws IllegalStateException()
@@ -366,7 +367,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     ocspProducedAt
                 )
             } throws IllegalStateException()
@@ -406,7 +407,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     any()
                 )
             } answers {
@@ -448,7 +449,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     any()
                 )
             } answers {
@@ -485,7 +486,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     any()
                 )
             } answers {
@@ -524,7 +525,7 @@ class TruststoreTest {
                     TestCertificates.OCSP.OCSPList,
                     TestCertificates.Vau.CertList,
                     TestCertificates.RCA3.X509Certificate,
-                    Duration.ofHours(12),
+                    12.hours,
                     any()
                 )
             } answers {

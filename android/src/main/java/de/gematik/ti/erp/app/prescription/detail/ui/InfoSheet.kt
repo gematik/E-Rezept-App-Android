@@ -45,8 +45,8 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.dateTimeMediumText
-import java.time.Instant
-import java.time.temporal.ChronoUnit
+import kotlinx.datetime.Instant
+import kotlin.time.Duration.Companion.days
 
 sealed class PrescriptionDetailBottomSheetContent {
     @Stable
@@ -119,10 +119,7 @@ fun PrescriptionDetailInfoSheetContent(
                         SpacerMedium()
                         DateRange(
                             start = remember {
-                                infoContent.prescription.acceptUntil?.plus(
-                                    1,
-                                    ChronoUnit.DAYS
-                                ) ?: start
+                                infoContent.prescription.acceptUntil?.plus(1.days) ?: start
                             },
                             end = infoContent.prescription.expiresOn ?: start
                         )

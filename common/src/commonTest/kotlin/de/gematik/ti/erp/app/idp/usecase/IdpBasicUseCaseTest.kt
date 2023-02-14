@@ -31,12 +31,12 @@ import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Clock
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.Duration
-import java.time.Instant
+import kotlin.time.Duration.Companion.hours
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class IdpBasicUseCaseTest {
@@ -51,7 +51,7 @@ class IdpBasicUseCaseTest {
 
     private lateinit var useCase: IdpBasicUseCase
 
-    private val now = Instant.now()
+    private val now = Clock.System.now()
     private val idpConfigNow = IdpData.IdpConfiguration(
         authorizationEndpoint = "",
         ssoEndpoint = "",
@@ -61,7 +61,7 @@ class IdpBasicUseCaseTest {
         pukIdpEncEndpoint = "",
         pukIdpSigEndpoint = "",
         certificate = mockk(),
-        expirationTimestamp = now.plus(Duration.ofHours(24)),
+        expirationTimestamp = now + 24.hours,
         issueTimestamp = now,
         externalAuthorizationIDsEndpoint = "",
         thirdPartyAuthorizationEndpoint = ""
@@ -93,7 +93,7 @@ class IdpBasicUseCaseTest {
     fun `checkIdpConfigurationValidity - document expired - throws exception`() = runTest {
         useCase.checkIdpConfigurationValidity(
             idpConfigNow,
-            now.plus(Duration.ofHours(25)) // account for clock skew
+            now + 25.hours // account for clock skew
         )
     }
 
@@ -101,7 +101,7 @@ class IdpBasicUseCaseTest {
     fun `checkIdpConfigurationValidity - document expires too late - throws exception`() = runTest {
         useCase.checkIdpConfigurationValidity(
             idpConfigNow.copy(
-                expirationTimestamp = now.plus(Duration.ofHours(25))
+                expirationTimestamp = now + 25.hours
             ),
             now
         )

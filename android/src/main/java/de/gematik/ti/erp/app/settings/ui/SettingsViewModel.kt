@@ -80,7 +80,7 @@ class SettingsViewModel(
         MutableStateFlow(appPrefs.getBoolean(ScreenshotsAllowed, false))
 
     fun screenState() = combine(
-        analytics.trackingAllowed,
+        analytics.analyticsAllowed,
         settingsUseCase.general,
         settingsUseCase.authenticationMode,
         screenshotsAllowed,

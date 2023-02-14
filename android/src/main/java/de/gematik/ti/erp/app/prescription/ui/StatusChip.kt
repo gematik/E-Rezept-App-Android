@@ -43,11 +43,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -117,7 +119,8 @@ fun ReadyStatusChip() =
         text = stringResource(R.string.prescription_status_ready),
         icon = null,
         textColor = AppTheme.colors.primary900,
-        backgroundColor = AppTheme.colors.primary100
+        backgroundColor = AppTheme.colors.primary100,
+        modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionRedeemable)
     )
 
 @Composable
@@ -132,7 +135,8 @@ fun PendingStatusChip() =
             )
         },
         textColor = AppTheme.colors.neutral600,
-        backgroundColor = AppTheme.colors.neutral200
+        backgroundColor = AppTheme.colors.neutral200,
+        modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionWaitForResponse)
     )
 
 @Composable
@@ -142,7 +146,8 @@ fun InProgressStatusChip() =
         icon = Icons.Rounded.HourglassTop,
         textColor = AppTheme.colors.yellow900,
         backgroundColor = AppTheme.colors.yellow100,
-        iconColor = AppTheme.colors.yellow500
+        iconColor = AppTheme.colors.yellow500,
+        modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionInProgress)
     )
 
 @Composable
@@ -162,7 +167,8 @@ fun CompletedStatusChip() =
         icon = Icons.Rounded.DoneAll,
         textColor = AppTheme.colors.neutral600,
         backgroundColor = AppTheme.colors.neutral200,
-        iconColor = AppTheme.colors.neutral500
+        iconColor = AppTheme.colors.neutral500,
+        modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionRedeemed)
     )
 
 @Composable

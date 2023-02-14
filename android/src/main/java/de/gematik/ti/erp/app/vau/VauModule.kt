@@ -32,12 +32,13 @@ import de.gematik.ti.erp.app.vau.usecase.TrustedTruststoreProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreTimeSourceProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
-import java.time.Duration
-import java.time.Instant
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.kodein.di.DI
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
+import kotlin.time.Duration
 
 val vauModule = DI.Module("vauModule") {
     bindSingleton {
@@ -57,7 +58,7 @@ val vauModule = DI.Module("vauModule") {
             networkSecPrefs = instance(NetworkSecurePreferencesTag)
         )
     }
-    bindSingleton<TruststoreTimeSourceProvider> { { Instant.now() } }
+    bindSingleton<TruststoreTimeSourceProvider> { { Clock.System.now() } }
     bindSingleton<TrustedTruststoreProvider> {
         { untrustedOCSPList: UntrustedOCSPList,
             untrustedCertList: UntrustedCertList,

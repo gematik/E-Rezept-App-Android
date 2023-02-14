@@ -31,7 +31,7 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import java.time.Instant
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 
 class PharmacyLocalDataSource @Inject constructor(
@@ -58,7 +58,7 @@ class PharmacyLocalDataSource @Inject constructor(
     suspend fun saveOrUpdateOftenUsedPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
         realm.tryWrite<Unit> {
             queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)?.apply {
-                this.lastUsed = Instant.now().toRealmInstant()
+                this.lastUsed = Clock.System.now().toRealmInstant()
                 this.usageCount += 1
             } ?: copyToRealm(pharmacy.toOftenUsedPharmacyEntityV1())
         }
@@ -97,7 +97,7 @@ class PharmacyLocalDataSource @Inject constructor(
     suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
         realm.tryWrite<Unit> {
             queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)?.apply {
-                this.lastUsed = Instant.now().toRealmInstant()
+                this.lastUsed = Clock.System.now().toRealmInstant()
             } ?: copyToRealm(pharmacy.toFavoritePharmacyEntityV1())
         }
     }

@@ -44,6 +44,7 @@ import org.kodein.di.compose.rememberViewModel
 interface ProfileBridge {
     val profiles: Flow<List<ProfilesUseCaseData.Profile>>
     suspend fun switchActiveProfile(profile: ProfilesUseCaseData.Profile)
+    suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile)
 }
 
 class ProfileViewModel(
@@ -55,12 +56,18 @@ class ProfileViewModel(
     override suspend fun switchActiveProfile(profile: ProfilesUseCaseData.Profile) {
         profilesUseCase.switchActiveProfile(profile)
     }
+
+    override suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile) {
+        profilesUseCase.switchProfileToPKV(profile)
+    }
 }
 
 val DefaultProfile = ProfilesUseCaseData.Profile(
     id = "",
     name = "",
-    insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+    insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
+        insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+    ),
     active = false,
     color = ProfilesData.ProfileColorNames.SPRING_GRAY,
     lastAuthenticated = null,
@@ -145,6 +152,10 @@ class ProfileHandler(
 
     suspend fun switchActiveProfile(profile: ProfilesUseCaseData.Profile) {
         bridge.switchActiveProfile(profile)
+    }
+
+    suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile) {
+        bridge.switchProfileToPKV(profile)
     }
 }
 

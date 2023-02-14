@@ -88,6 +88,17 @@ object TestTag {
         val FullDetailPrescription by tagName()
         val FullDetailPrescriptionName by tagName()
 
+        val PrescriptionRedeemable by tagName()
+        val PrescriptionWaitForResponse by tagName()
+        val PrescriptionInProgress by tagName()
+        val PrescriptionRedeemed by tagName()
+
+        val ArchiveButton by tagName()
+
+        object Archive {
+            val Content by tagName()
+        }
+
         object Details {
             val Content by tagName()
             val Screen by tagName()
@@ -205,6 +216,17 @@ object TestTag {
             val Screen by tagName()
 
             val PrescriptionListItem by tagName()
+            val MessageListItem by tagName()
+        }
+
+        object Messages {
+            val Content by tagName()
+            val Link by tagName()
+            val LinkButton by tagName()
+            val Text by tagName()
+            val Code by tagName()
+            val CodeLabelContent by tagName()
+            val Empty by tagName()
         }
     }
 

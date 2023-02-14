@@ -23,6 +23,7 @@ import de.gematik.ti.erp.app.db.entities.v1.AuditEventEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
@@ -49,7 +50,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 
-const val ACTUAL_SCHEMA_VERSION = 15L
+const val ACTUAL_SCHEMA_VERSION = 17L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -119,6 +120,15 @@ val appSchemas = setOf(
             if (migrationStartedFrom < 15L) {
                 query<MedicationRequestEntityV1>().find().forEach {
                     it.accidentType = AccidentTypeV1.None
+                }
+            }
+            if (migrationStartedFrom < 17L) {
+                query<ProfileEntityV1>().find().forEach {
+                    if (it.lastAuthenticated != null) {
+                        it._insuranceType = InsuranceTypeV1.GKV.toString()
+                    } else {
+                        it._insuranceType = InsuranceTypeV1.None.toString()
+                    }
                 }
             }
         }

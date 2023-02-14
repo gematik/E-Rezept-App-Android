@@ -116,10 +116,13 @@ import de.gematik.ti.erp.app.utils.compose.Chip
 import de.gematik.ti.erp.app.utils.compose.ModalBottomSheet
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import java.text.DecimalFormat
-import java.time.OffsetDateTime
 
 private const val OneKilometerInMeter = 1000
 
@@ -514,7 +517,7 @@ private fun PharmacyResultCard(
             )
 
             val pharmacyLocalServices = pharmacy.provides.find { it is LocalPharmacyService } as LocalPharmacyService
-            val now = OffsetDateTime.now()
+            val now = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
 
             if (pharmacyLocalServices.isOpenAt(now)) {
                 val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
@@ -637,15 +640,7 @@ fun PharmacySearchResultScreen(
 
     val scope = rememberCoroutineScope()
 
-    val locationPermissionLauncher =
-        rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
-            scope.launch {
-                searchController.search(
-                    name = searchName,
-                    filter = searchFilter.copy(nearBy = permissions.values.any { it })
-                )
-            }
-        }
+    val locationPermissionLauncher = getLocationPermissionLauncher(scope, searchController, searchName, searchFilter)
 
     var showNoLocationDialog by remember { mutableStateOf(false) }
     if (showNoLocationDialog) {
@@ -678,15 +673,17 @@ fun PharmacySearchResultScreen(
     }
 
     val loadState = searchPagingItems.loadState
-    val isLoading by derivedStateOf {
-        searchController.isLoading || listOf(loadState.prepend, loadState.append, loadState.refresh)
-            .any {
-                when (it) {
-                    is LoadState.NotLoading -> false // initial ui only loading indicator
-                    is LoadState.Loading -> true
-                    else -> false
+    val isLoading by remember {
+        derivedStateOf {
+            searchController.isLoading || listOf(loadState.prepend, loadState.append, loadState.refresh)
+                .any {
+                    when (it) {
+                        is LoadState.NotLoading -> false // initial ui only loading indicator
+                        is LoadState.Loading -> true
+                        else -> false
+                    }
                 }
-            }
+        }
     }
 
     val focusManager = LocalFocusManager.current
@@ -821,6 +818,21 @@ fun PharmacySearchResultScreen(
 }
 
 @Composable
+private fun getLocationPermissionLauncher(
+    scope: CoroutineScope,
+    searchController: PharmacySearchController,
+    searchName: String,
+    searchFilter: PharmacyUseCaseData.Filter
+) = rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+    scope.launch {
+        searchController.search(
+            name = searchName,
+            filter = searchFilter.copy(nearBy = permissions.values.any { it })
+        )
+    }
+}
+
+@Composable
 private fun SearchResultContent(
     searchPagingItems: LazyPagingItems<PharmacyUseCaseData.Pharmacy>,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
@@ -834,19 +846,23 @@ private fun SearchResultContent(
         .padding(PaddingDefaults.Medium)
     val loadState = searchPagingItems.loadState
 
-    val showNothingFound by derivedStateOf {
-        listOf(loadState.prepend, loadState.append)
-            .all {
-                when (it) {
-                    is LoadState.NotLoading ->
-                        it.endOfPaginationReached && searchPagingItems.itemCount == 0
+    val showNothingFound by remember {
+        derivedStateOf {
+            listOf(loadState.prepend, loadState.append)
+                .all {
+                    when (it) {
+                        is LoadState.NotLoading ->
+                            it.endOfPaginationReached && searchPagingItems.itemCount == 0
 
-                    else -> false
-                }
-            } && loadState.refresh is LoadState.NotLoading
+                        else -> false
+                    }
+                } && loadState.refresh is LoadState.NotLoading
+        }
     }
 
-    val showError by derivedStateOf { searchPagingItems.itemCount <= 1 && loadState.refresh is LoadState.Error }
+    val showError by remember {
+        derivedStateOf { searchPagingItems.itemCount <= 1 && loadState.refresh is LoadState.Error }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -895,21 +911,13 @@ private fun SearchResultContent(
         }
         itemsIndexed(searchPagingItems) { index, pharmacy ->
             if (pharmacy != null) {
-                Column {
-                    PharmacyResultCard(
-                        modifier = itemPaddingModifier
-                            .semantics {
-                                pharmacyId = pharmacy.telematikId
-                            }
-                            .testTag(TestTag.PharmacySearch.PharmacyListEntry),
-                        pharmacy = pharmacy
-                    ) {
-                        onSelectPharmacy(pharmacy)
-                    }
-                    if (index < searchPagingItems.itemCount - 1) {
-                        Divider(startIndent = PaddingDefaults.Medium)
-                    }
-                }
+                PharmacySearchResult(
+                    itemPaddingModifier,
+                    index,
+                    searchPagingItems.itemCount,
+                    pharmacy,
+                    onSelectPharmacy
+                )
             }
         }
         if (loadState.append is LoadState.Error) {
@@ -924,6 +932,31 @@ private fun SearchResultContent(
                         .padding(PaddingDefaults.Medium)
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun PharmacySearchResult(
+    modifier: Modifier,
+    index: Int,
+    itemCount: Int,
+    pharmacy: PharmacyUseCaseData.Pharmacy,
+    onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit
+) {
+    Column {
+        PharmacyResultCard(
+            modifier = modifier
+                .semantics {
+                    pharmacyId = pharmacy.telematikId
+                }
+                .testTag(TestTag.PharmacySearch.PharmacyListEntry),
+            pharmacy = pharmacy
+        ) {
+            onSelectPharmacy(pharmacy)
+        }
+        if (index < itemCount - 1) {
+            Divider(startIndent = PaddingDefaults.Medium)
         }
     }
 }

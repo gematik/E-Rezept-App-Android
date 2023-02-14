@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
+import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -46,10 +47,15 @@ class ProfilesUseCase(
                 ProfilesUseCaseData.Profile(
                     id = profile.id,
                     name = profile.name,
-                    insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation.ofNullable(
-                        profile.insurantName,
-                        profile.insuranceIdentifier,
-                        profile.insuranceName
+                    insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
+                        insurantName = profile.insurantName ?: "",
+                        insuranceIdentifier = profile.insuranceIdentifier ?: "",
+                        insuranceName = profile.insuranceName ?: "",
+                        insuranceType = when (profile.insuranceType) {
+                            InsuranceTypeV1.None -> ProfilesUseCaseData.InsuranceType.NONE
+                            InsuranceTypeV1.GKV -> ProfilesUseCaseData.InsuranceType.GKV
+                            InsuranceTypeV1.PKV -> ProfilesUseCaseData.InsuranceType.PKV
+                        }
                     ),
                     active = profile.active,
                     color = profile.color,
@@ -133,6 +139,9 @@ class ProfilesUseCase(
     }
 
     fun auditEvents(profileId: ProfileIdentifier) = auditRepository.auditEvents(profileId)
+    suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile) {
+        profilesRepository.switchProfileToPKV(profile.id)
+    }
 }
 
 fun sanitizedProfileName(profileName: String): String? =

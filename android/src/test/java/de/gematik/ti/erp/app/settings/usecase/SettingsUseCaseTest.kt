@@ -30,7 +30,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
-import java.time.Instant
+import kotlinx.datetime.Clock
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -58,7 +58,7 @@ class SettingsUseCaseTest {
 
     @Test
     fun `accept onboarding`() = runTest {
-        val now = Instant.now()
+        val now = Clock.System.now()
         settings.onboardingSucceeded(
             authenticationMode = SettingsData.AuthenticationMode.Unspecified,
             "Profil 1",
@@ -75,54 +75,11 @@ class SettingsUseCaseTest {
     }
 
     @Test
-    fun `show data terms update - data accepted in the past`() = runTest {
-        every { settingsRepository.general } returns flowOf(
-            SettingsData.General(
-                latestAppVersion = AppVersion(code = 1, name = "Test"),
-                onboardingShownIn = null,
-                dataProtectionVersionAcceptedOn = DATA_PROTECTION_LAST_UPDATED.minusSeconds(1000),
-                zoomEnabled = false,
-                userHasAcceptedInsecureDevice = false,
-                authenticationFails = 0,
-                welcomeDrawerShown = false,
-                mainScreenTooltipsShown = true,
-                mlKitAccepted = false
-            )
-        )
-
-        initSettings()
-
-        assertEquals(true, settings.showDataTermsUpdate.first())
-    }
-
-    @Test
-    fun `show data terms update - data already accepted`() = runTest {
-        every { settingsRepository.general } returns flowOf(
-            SettingsData.General(
-                latestAppVersion = AppVersion(code = 1, name = "Test"),
-                onboardingShownIn = null,
-                dataProtectionVersionAcceptedOn = DATA_PROTECTION_LAST_UPDATED.plusSeconds(1000),
-                zoomEnabled = false,
-                userHasAcceptedInsecureDevice = false,
-                authenticationFails = 0,
-                welcomeDrawerShown = false,
-                mainScreenTooltipsShown = true,
-                mlKitAccepted = false
-            )
-        )
-
-        initSettings()
-
-        assertEquals(false, settings.showDataTermsUpdate.first())
-    }
-
-    @Test
     fun `show welcome drawer`() = runTest {
         every { settingsRepository.general } returns flowOf(
             SettingsData.General(
                 latestAppVersion = AppVersion(code = 1, name = "Test"),
                 onboardingShownIn = null,
-                dataProtectionVersionAcceptedOn = DATA_PROTECTION_LAST_UPDATED.plusSeconds(1000),
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,
@@ -142,7 +99,6 @@ class SettingsUseCaseTest {
             SettingsData.General(
                 latestAppVersion = AppVersion(code = 1, name = "Test"),
                 onboardingShownIn = null,
-                dataProtectionVersionAcceptedOn = DATA_PROTECTION_LAST_UPDATED.plusSeconds(1000),
                 zoomEnabled = false,
                 userHasAcceptedInsecureDevice = false,
                 authenticationFails = 0,

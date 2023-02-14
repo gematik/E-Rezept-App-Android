@@ -65,6 +65,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.prescription.ui.rememberRefreshPrescriptionsController
@@ -252,3 +253,11 @@ fun ProfileChip(
         }
     }
 }
+
+@Composable
+private fun ssoStatusColor(profile: ProfilesUseCaseData.Profile, ssoTokenScope: IdpData.SingleSignOnTokenScope?) =
+    when {
+        ssoTokenScope?.token?.isValid() == true -> AppTheme.colors.green400
+        profile.lastAuthenticated != null -> AppTheme.colors.neutral400
+        else -> null
+    }

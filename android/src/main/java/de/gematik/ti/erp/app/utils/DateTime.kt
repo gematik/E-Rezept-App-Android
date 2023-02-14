@@ -18,52 +18,66 @@
 
 package de.gematik.ti.erp.app.utils
 
-import java.time.Instant
+import android.os.Build
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.toJavaYear
+import de.gematik.ti.erp.app.fhir.parser.toJavaYearMonth
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDate
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toJavaLocalTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.Year
 import java.time.YearMonth
-import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import java.time.temporal.TemporalAccessor
 
 val dateTimeShortFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
 
 fun dateTimeShortText(instant: Instant): String =
-    LocalDateTime
-        .ofInstant(instant, ZoneId.systemDefault())
+    instant.toLocalDateTime(TimeZone.currentSystemDefault())
+        .toJavaLocalDateTime()
         .format(dateTimeShortFormatter)
 
 val dateTimeMediumFormatter: DateTimeFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
 
-fun dateTimeMediumText(instant: Instant, zoneId: ZoneId = ZoneOffset.UTC): String =
-    LocalDateTime
-        .ofInstant(instant, zoneId)
+fun dateTimeMediumText(instant: Instant, zone: TimeZone = TimeZone.currentSystemDefault()): String =
+    instant.toLocalDateTime(zone)
+        .toJavaLocalDateTime()
         .format(dateTimeMediumFormatter)
 
 private val YearMonthPattern = DateTimeFormatter.ofPattern("MMMM yyyy")
 private val MonthPattern = DateTimeFormatter.ofPattern("yyyy")
 
-fun temporalText(temporalAccessor: TemporalAccessor, zoneId: ZoneId = ZoneOffset.UTC): String =
-    when (temporalAccessor) {
-        is Instant ->
-            LocalDateTime
-                .ofInstant(temporalAccessor, zoneId)
-                .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM))
-        is LocalDate ->
-            temporalAccessor
-                .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
-        is YearMonth ->
-            temporalAccessor
-                .format(YearMonthPattern)
-        is Year ->
-            temporalAccessor
-                .format(MonthPattern)
-        is LocalTime ->
-            temporalAccessor
-                .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM))
+fun temporalText(temporal: FhirTemporal, timeZone: TimeZone = TimeZone.UTC): String =
+    when (temporal) {
+        is FhirTemporal.Instant -> temporal.value.toLocalDateTime(timeZone).toJavaLocalDateTime()
+            .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM))
+
+        is FhirTemporal.LocalDate -> temporal.value.toJavaLocalDate()
+            .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+
+        is FhirTemporal.LocalDateTime -> temporal.value.toJavaLocalDateTime()
+            .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
+
+        is FhirTemporal.LocalTime -> temporal.value.toJavaLocalTime()
+            .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM))
+
+        is FhirTemporal.Year -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            temporal.value.toJavaYear().format(MonthPattern)
+        } else {
+            error("VERSION.SDK_INT < O")
+        }
+
+        is FhirTemporal.YearMonth -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            temporal.value.toJavaYearMonth().format(YearMonthPattern)
+        } else {
+            error("VERSION.SDK_INT < O")
+        }
+
         else -> "n.a."
     }

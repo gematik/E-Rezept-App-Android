@@ -38,13 +38,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.datetime.Instant
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64
 import org.jose4j.jws.JsonWebSignature
 import java.security.PublicKey
-import java.time.Instant
 
 @JvmInline
 value class JWSDiscoveryDocument(val jws: JsonWebSignature)
@@ -163,8 +163,8 @@ class IdpRepository constructor(
             authenticationEndpoint = overwriteEndpoint(discoveryDocumentBody.authenticationURL),
             pukIdpEncEndpoint = overwriteEndpoint(discoveryDocumentBody.uriPukIdpEnc),
             pukIdpSigEndpoint = overwriteEndpoint(discoveryDocumentBody.uriPukIdpSig),
-            expirationTimestamp = Instant.ofEpochSecond(discoveryDocumentBody.expirationTime),
-            issueTimestamp = Instant.ofEpochSecond(discoveryDocumentBody.issuedAt),
+            expirationTimestamp = Instant.fromEpochSeconds(discoveryDocumentBody.expirationTime),
+            issueTimestamp = Instant.fromEpochSeconds(discoveryDocumentBody.issuedAt),
             certificate = certificateHolder,
             externalAuthorizationIDsEndpoint = overwriteEndpoint(discoveryDocumentBody.krankenkassenAppURL),
             thirdPartyAuthorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.thirdPartyAuthorizationURL)

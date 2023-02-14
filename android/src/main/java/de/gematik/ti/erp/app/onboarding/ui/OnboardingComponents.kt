@@ -39,7 +39,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
@@ -68,7 +67,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -299,8 +297,6 @@ fun OnboardingScreen(
     }
 }
 
-@Suppress("LongMethod")
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun OnboardingScreenWithScaffold(
     navController: NavController,
@@ -314,8 +310,6 @@ private fun OnboardingScreenWithScaffold(
         secureAppMethod: OnboardingSecureAppMethod
     ) -> Unit
 ) {
-    val context = LocalContext.current
-
     val defaultProfileName = stringResource(R.string.onboarding_default_profile_name)
 
     Box {
@@ -331,93 +325,128 @@ private fun OnboardingScreenWithScaffold(
             page = OnboardingPages.pageOf(page.index - 1)
         }
 
-        AnimatedContent(
-            modifier = Modifier.fillMaxSize(),
-            targetState = page,
-            transitionSpec = {
-                when {
-                    initialState == OnboardingPages.Welcome &&
-                        targetState == OnboardingPages.pageOf(1) -> {
-                        fadeIn(tween(durationMillis = 770)) with fadeOut(tween(durationMillis = 770))
-                    }
-
-                    initialState.index > targetState.index -> {
-                        slideIntoContainer(AnimatedContentScope.SlideDirection.Right) with
-                            slideOutOfContainer(AnimatedContentScope.SlideDirection.Right)
-                    }
-
-                    else -> {
-                        slideIntoContainer(AnimatedContentScope.SlideDirection.Left) with
-                            slideOutOfContainer(AnimatedContentScope.SlideDirection.Left)
-                    }
-                }
-            }
+        OnboardingPages(
+            page,
+            navController,
+            defaultProfileName,
+            secureMethod,
+            onSaveNewUser,
+            allowTracking,
+            onAllowTracking,
+            onSecureMethodChange
         ) {
-            when (it) {
-                OnboardingPages.Welcome -> {
-                    OnboardingWelcome(
-                        onNextPage = {
-                            page = OnboardingPages.DataProtection
-                        }
-                    )
-                }
-
-                OnboardingPages.DataProtection -> {
-                    OnboardingPageTerms(
-                        navController = navController,
-                        onNextPage = {
-                            page = OnboardingPages.SecureApp
-                        }
-                    )
-                }
-
-                OnboardingPages.SecureApp -> {
-                    OnboardingSecureApp(
-                        secureMethod = secureMethod,
-                        onSecureMethodChange = onSecureMethodChange,
-                        onOpenBiometricScreen = {
-                            navController.navigate(OnboardingNavigationScreens.Biometry.path())
-                        },
-                        onNextPage = {
-                            page = OnboardingPages.Analytics
-                        }
-                    )
-                }
-
-                OnboardingPages.Analytics -> {
-                    val disAllowToast = stringResource(R.string.settings_tracking_disallow_info)
-                    OnboardingPageAnalytics(
-                        allowAnalytics = allowTracking,
-                        onAllowAnalytics = {
-                            if (!it) {
-                                onAllowTracking(false)
-                                createToastShort(context, disAllowToast)
-                            } else {
-                                navController.navigate(OnboardingNavigationScreens.Analytics.path())
-                            }
-                        },
-                        onNextPage = {
-                            onSaveNewUser(allowTracking, defaultProfileName, secureMethod)
-                        }
-                    )
-                }
-            }
+            page = it
         }
 
         if (BuildKonfig.INTERNAL) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .systemBarsPadding()
-                    .padding(PaddingDefaults.Medium)
-            ) {
-                OutlinedDebugButton(
-                    "SKIP",
-                    onClick = {
-                        onSaveNewUser(false, defaultProfileName, OnboardingSecureAppMethod.Password("a", "a", 9))
+            SkipOnBoardingButton(onClick = {
+                onSaveNewUser(
+                    false,
+                    defaultProfileName,
+                    OnboardingSecureAppMethod.Password("a", "a", 9)
+                )
+            })
+        }
+    }
+}
+
+@OptIn(ExperimentalAnimationApi::class)
+@Composable
+private fun OnboardingPages(
+    page: OnboardingPages,
+    navController: NavController,
+    defaultProfileName: String,
+    secureMethod: OnboardingSecureAppMethod,
+    onSaveNewUser: (
+        allowTracking: Boolean,
+        defaultProfileName: String,
+        secureAppMethod: OnboardingSecureAppMethod
+    ) -> Unit,
+    allowTracking: Boolean,
+    onAllowTracking: (Boolean) -> Unit,
+    onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit,
+    onNextPage: (OnboardingPages) -> Unit
+) {
+    val context = LocalContext.current
+
+    AnimatedContent(
+        modifier = Modifier.fillMaxSize(),
+        targetState = page,
+        transitionSpec = {
+            when {
+                initialState == OnboardingPages.Welcome &&
+                    targetState == OnboardingPages.pageOf(1) -> {
+                    fadeIn(tween(durationMillis = 770)) with fadeOut(tween(durationMillis = 770))
+                }
+
+                initialState.index > targetState.index -> {
+                    slideIntoContainer(AnimatedContentScope.SlideDirection.Right) with
+                        slideOutOfContainer(AnimatedContentScope.SlideDirection.Right)
+                }
+
+                else -> {
+                    slideIntoContainer(AnimatedContentScope.SlideDirection.Left) with
+                        slideOutOfContainer(AnimatedContentScope.SlideDirection.Left)
+                }
+            }
+        }
+    ) {
+        when (it) {
+            OnboardingPages.Welcome -> {
+                OnboardingWelcome { onNextPage(OnboardingPages.DataProtection) }
+            }
+
+            OnboardingPages.DataProtection -> {
+                OnboardingPageTerms(
+                    navController = navController
+                ) { onNextPage(OnboardingPages.SecureApp) }
+            }
+
+            OnboardingPages.SecureApp -> {
+                OnboardingSecureApp(
+                    secureMethod = secureMethod,
+                    onSecureMethodChange = onSecureMethodChange,
+                    onOpenBiometricScreen = {
+                        navController.navigate(OnboardingNavigationScreens.Biometry.path())
+                    },
+                    onNextPage = { onNextPage(OnboardingPages.Analytics) }
+                )
+            }
+
+            OnboardingPages.Analytics -> {
+                val disAllowToast = stringResource(R.string.settings_tracking_disallow_info)
+                OnboardingPageAnalytics(
+                    allowAnalytics = allowTracking,
+                    onAllowAnalytics = { allow ->
+                        if (!allow) {
+                            onAllowTracking(false)
+                            createToastShort(context, disAllowToast)
+                        } else {
+                            navController.navigate(OnboardingNavigationScreens.Analytics.path())
+                        }
+                    },
+                    onNextPage = {
+                        onSaveNewUser(allowTracking, defaultProfileName, secureMethod)
                     }
                 )
             }
+        }
+    }
+}
+
+@Composable
+fun SkipOnBoardingButton(onClick: () -> Unit) {
+    Box(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .align(Alignment.TopEnd)
+                .systemBarsPadding()
+                .padding(PaddingDefaults.Medium)
+        ) {
+            OutlinedDebugButton(
+                "SKIP",
+                onClick = onClick
+            )
         }
     }
 }

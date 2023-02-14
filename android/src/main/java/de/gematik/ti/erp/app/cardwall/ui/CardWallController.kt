@@ -20,33 +20,30 @@ package de.gematik.ti.erp.app.cardwall.ui
 
 import android.nfc.Tag
 import android.os.Build
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWallData
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
-import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
+import org.kodein.di.compose.rememberInstance
 
-class CardWallViewModel(
+@Stable
+class CardWallController(
     private val cardWallUseCase: CardWallUseCase,
     private val authenticationUseCase: AuthenticationUseCase,
     private val dispatchers: DispatchProvider
-) : ViewModel() {
-
-    val defaultState = CardWallData.State(
-        hardwareRequirementsFulfilled = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher
-    )
-
-    fun state(): Flow<CardWallData.State> = flowOf(defaultState)
+) {
+    val hardwareRequirementsFulfilled = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher
 
     fun doAuthentication(
         profileId: ProfileIdentifier,
@@ -92,4 +89,18 @@ class CardWallViewModel(
     }
 
     fun isNFCEnabled() = cardWallUseCase.deviceHasNFCEnabled
+}
+
+@Composable
+fun rememberCardWallController(): CardWallController {
+    val cardWallUseCase by rememberInstance<CardWallUseCase>()
+    val authenticationUseCase by rememberInstance<AuthenticationUseCase>()
+    val dispatchers by rememberInstance<DispatchProvider>()
+    return remember {
+        CardWallController(
+            cardWallUseCase = cardWallUseCase,
+            authenticationUseCase = authenticationUseCase,
+            dispatchers = dispatchers
+        )
+    }
 }

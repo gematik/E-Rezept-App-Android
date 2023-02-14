@@ -36,6 +36,11 @@ val organizationJson by lazy {
 val patientJson_vers_1_0_2 by lazy {
     File("$ResourceBasePath/fhir/patient.json").readText()
 }
+
+val patientJson_vers_1_0_2_with_incomplete_birthDate by lazy {
+    File("$ResourceBasePath/fhir/patient_incomplete_birth_date.json").readText()
+}
+
 val patientJson_vers_1_1_0 by lazy {
     File("$ResourceBasePath/fhir/patient_vers_1_1_0.json").readText()
 }
@@ -107,6 +112,18 @@ val medicationDispenseJson by lazy {
     File("$ResourceBasePath/fhir/medication_dispense.json").readText()
 }
 
+val medicationDispenseWithoutCategoryJson by lazy {
+    File("$ResourceBasePath/fhir/medication_dispense_without_category.json").readText()
+}
+
 val medicationDispenseWithUnknownMedicationProfileJson by lazy {
     File("$ResourceBasePath/fhir/medication_dispense_unknown_medication_profile.json").readText()
+}
+
+val medDispenseBundleVersion_1_2 by lazy {
+    File("$ResourceBasePath/fhir/bundle_med_dispense_version_1_2.json").readText()
+}
+
+val task_bundle_version_1_2 by lazy {
+    File("$ResourceBasePath/fhir/task_bundle_vers_1_2.json").readText()
 }

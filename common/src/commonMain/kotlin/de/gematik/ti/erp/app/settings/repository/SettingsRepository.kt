@@ -22,7 +22,6 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsAuthenticationMethodV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.writeToRealm
 import de.gematik.ti.erp.app.settings.GeneralSettings
@@ -30,12 +29,12 @@ import de.gematik.ti.erp.app.settings.PharmacySettings
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
-import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
 
 @Suppress("TooManyFunctions")
 class SettingsRepository constructor(
@@ -62,7 +61,6 @@ class SettingsRepository constructor(
                         null
                     },
                     welcomeDrawerShown = it.welcomeDrawerShown,
-                    dataProtectionVersionAcceptedOn = it.dataProtectionVersionAccepted.toInstant(),
                     zoomEnabled = it.zoomEnabled,
                     userHasAcceptedInsecureDevice = it.userHasAcceptedInsecureDevice,
                     authenticationFails = it.authenticationFails,

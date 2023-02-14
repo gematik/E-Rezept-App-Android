@@ -18,8 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.ui.model
 
-import java.time.Duration
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 sealed interface SentOrCompletedPhrase {
     object RedeemedJustNow : SentOrCompletedPhrase
@@ -39,8 +38,8 @@ private const val JustNowMinutes = 5L
 private const val MinutesAgo = 60L
 
 fun sentOrCompleted(lastModified: Instant, now: Instant, completed: Boolean = false): SentOrCompletedPhrase {
-    val dayDifference = Duration.between(lastModified, now).toDays()
-    val minDifference = Duration.between(lastModified, now).toMinutes()
+    val dayDifference = (now - lastModified).inWholeDays
+    val minDifference = (now - lastModified).inWholeMinutes
     return when {
         minDifference < JustNowMinutes -> if (completed) {
             SentOrCompletedPhrase.RedeemedJustNow

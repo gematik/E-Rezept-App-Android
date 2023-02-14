@@ -18,8 +18,11 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.Year
+import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -45,7 +48,32 @@ class RessourceMapperVersion102Test {
             processPatient = { name, address, birthDate, insuranceIdentifier ->
                 assertEquals("Prinzessin Lars Graf Freiherr von Schinder", name)
                 assertEquals(ReturnType.Address, address)
-                assertEquals(LocalDate.parse("1964-04-04"), birthDate)
+                assertEquals(FhirTemporal.LocalDate(LocalDate.parse("1964-04-04")), birthDate)
+                assertEquals("X110535541", insuranceIdentifier)
+
+                ReturnType.Patient
+            }
+        )
+
+        assertEquals(ReturnType.Patient, result)
+    }
+
+    @Test
+    fun `process patient version 1_0_2 with incomplete date of birth`() {
+        val patient = Json.parseToJsonElement(patientJson_vers_1_0_2_with_incomplete_birthDate)
+        val result = extractPatient(
+            patient,
+            processAddress = { line, postalCode, city ->
+                assertEquals(listOf("Siegburger Str. 155"), line)
+                assertEquals("51105", postalCode)
+                assertEquals("Köln", city)
+
+                ReturnType.Address
+            },
+            processPatient = { name, address, birthDate, insuranceIdentifier ->
+                assertEquals("Prinzessin Lars Graf Freiherr von Schinder", name)
+                assertEquals(ReturnType.Address, address)
+                assertEquals(Year.parse("1964").asFhirTemporal(), birthDate)
                 assertEquals("X110535541", insuranceIdentifier)
 
                 ReturnType.Patient
@@ -226,7 +254,7 @@ class RessourceMapperVersion102Test {
             processMultiplePrescriptionInfo = { indicator, numbering, start ->
                 assertTrue(indicator)
                 assertEquals(ReturnType.Ratio, numbering)
-                assertEquals(LocalDate.parse("2022-08-17"), start)
+                assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-08-17")), start)
                 ReturnType.MultiplePrescriptionInfo
             },
             processMedicationRequest = { dateOfAccident,
@@ -240,7 +268,7 @@ class RessourceMapperVersion102Test {
                 note,
                 bvg,
                 additionalFee ->
-                assertEquals(LocalDate.parse("2022-06-29"), dateOfAccident)
+                assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-06-29")), dateOfAccident)
                 assertEquals("Dummy-Betrieb", location)
                 assertEquals(AccidentType.Arbeitsunfall, accidentType)
                 assertEquals(false, emergencyFee)

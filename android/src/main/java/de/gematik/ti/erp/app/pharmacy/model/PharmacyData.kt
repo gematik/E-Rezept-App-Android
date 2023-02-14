@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.pharmacy.model
 
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 object PharmacyData {
     data class ShippingContact(

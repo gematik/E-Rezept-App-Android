@@ -51,7 +51,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -65,18 +64,17 @@ import de.gematik.ti.erp.app.cardunlock.usecase.UnlockEgkState
 import de.gematik.ti.erp.app.cardwall.ui.CardAnimationBox
 import de.gematik.ti.erp.app.cardwall.ui.EnableNfcDialog
 import de.gematik.ti.erp.app.cardwall.ui.ErrorDialog
-import de.gematik.ti.erp.app.cardwall.ui.Troubleshooting
+import de.gematik.ti.erp.app.cardwall.ui.InfoText
 import de.gematik.ti.erp.app.cardwall.ui.pinRetriesLeft
 import de.gematik.ti.erp.app.cardwall.ui.rotatingScanCardAssistance
-import de.gematik.ti.erp.app.cardwall.ui.toAnnotatedString
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.settings.ui.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.settings.ui.openMailClient
-import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
+import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -523,24 +521,14 @@ fun CardCommunicationDialog(
 
                         else -> info
                     }
-                    if (showTroubleshooting) {
-                        Troubleshooting(
-                            onClick = { onClickTroubleshooting?.run { onClickTroubleshooting() } }
-                        )
-                    } else {
-                        Text(
-                            info.first,
-                            style = AppTheme.typography.subtitle1,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                        Text(
-                            info.second,
-                            style = AppTheme.typography.body2,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
+
+                    InfoText(
+                        showTroubleshooting,
+                        info,
+                        onClickTroubleshooting = {
+                            onClickTroubleshooting?.run { onClickTroubleshooting() }
+                        }
+                    )
                 }
             }
         }

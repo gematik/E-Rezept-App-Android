@@ -26,11 +26,14 @@ import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.net.Uri
 import android.text.format.DateFormat
+import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -72,6 +75,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Undo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -86,9 +90,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -120,20 +126,15 @@ import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import io.github.aakira.napier.Napier
-import java.time.Instant
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
-
-@Composable
-fun SpacerMaxWidth() =
-    Spacer(modifier = Modifier.fillMaxWidth())
-
-@Composable
-fun Spacer40() =
-    Spacer(modifier = Modifier.size(40.dp))
 
 @Composable
 fun Spacer32() =
@@ -270,6 +271,9 @@ fun NavigationClose(modifier: Modifier = Modifier, onClick: () -> Unit) {
         )
     }
 }
+
+fun String.toAnnotatedString() =
+    buildAnnotatedString { append(this@toAnnotatedString) }
 
 @Composable
 fun annotatedLinkString(uri: String, text: String, tag: String = "URL"): AnnotatedString =
@@ -831,6 +835,14 @@ fun phrasedDateString(date: LocalDateTime): String {
     return "${date.format(dateFormatter)} $at ${timeFormatter.format(timeOfDate)}"
 }
 
+fun dateString(date: kotlinx.datetime.LocalDateTime): String {
+    return dateString(date.toJavaLocalDateTime())
+}
+
+fun timeString(time: kotlinx.datetime.LocalDateTime): String {
+    return timeString(time.toJavaLocalDateTime())
+}
+
 fun dateString(date: LocalDateTime): String {
     val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
     return date.format(dateFormatter)
@@ -848,7 +860,8 @@ fun timeString(date: LocalDateTime): String {
 fun dateWithIntroductionString(@StringRes id: Int, instant: Instant): String {
     val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
     val date = remember {
-        instant.atZone(ZoneId.systemDefault())
+        instant.toLocalDateTime(TimeZone.currentSystemDefault())
+            .toJavaLocalDateTime()
             .toLocalDate().format(dateFormatter)
     }
     val combinedString = annotatedStringResource(id, date).toString()
@@ -874,4 +887,92 @@ fun LabeledText(description: String, content: String?) {
 @Composable
 fun LabeledText(descriptionResource: Int, content: String?) {
     LabeledText(stringResource(descriptionResource), content)
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun Label(
+    modifier: Modifier = Modifier,
+    text: String?,
+    label: String? = null,
+    onClick: (() -> Unit)? = null
+) {
+    val clipboardManager = LocalClipboardManager.current
+    val context = LocalContext.current
+
+    val verticalPadding = if (label != null) {
+        PaddingDefaults.ShortMedium
+    } else {
+        PaddingDefaults.Medium
+    }
+
+    val noValueText = stringResource(R.string.pres_details_no_value)
+
+    Row(
+        modifier = modifier
+            .combinedClickable(
+                onClick = {
+                    onClick?.invoke()
+                },
+                onLongClick = {
+                    if (text != null) {
+                        clipboardManager.setText(AnnotatedString(text))
+                        Toast
+                            .makeText(context, "$label $text", Toast.LENGTH_SHORT)
+                            .show()
+                    }
+                },
+                role = Role.Button
+            )
+            .padding(horizontal = PaddingDefaults.Medium, vertical = verticalPadding)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(
+                text = text ?: noValueText,
+                style = AppTheme.typography.body1
+            )
+            if (label != null) {
+                Text(
+                    text = label,
+                    style = AppTheme.typography.body2l
+                )
+            }
+        }
+        if (onClick != null) {
+            SpacerMedium()
+            Icon(Icons.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+        }
+    }
+}
+
+@Composable
+fun HealthPortalLink(
+    modifier: Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = stringResource(R.string.pres_detail_health_portal_description),
+            style = AppTheme.typography.body2l
+        )
+
+        val linkInfo = stringResource(R.string.pres_detail_health_portal_description_url_info)
+        val link = stringResource(R.string.pres_detail_health_portal_description_url)
+        val uriHandler = LocalUriHandler.current
+        val annotatedLink = annotatedLinkStringLight(link, linkInfo)
+
+        SpacerSmall()
+        ClickableText(
+            text = annotatedLink,
+            onClick = {
+                annotatedLink
+                    .getStringAnnotations("URL", it, it)
+                    .firstOrNull()?.let { stringAnnotation ->
+                        uriHandler.openUri(stringAnnotation.item)
+                    }
+            },
+            modifier = Modifier.align(Alignment.End)
+        )
+    }
 }

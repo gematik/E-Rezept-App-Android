@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.orders.usecase.model
 
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 object OrderUseCaseData {
     data class Pharmacy(

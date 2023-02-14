@@ -21,11 +21,12 @@ package de.gematik.ti.erp.app.vau.usecase
 import de.gematik.ti.erp.app.BuildKonfig
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.util.encoders.Base64
-import java.time.Duration
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.hours
 
 class TruststoreConfig(getTrustAnchor: () -> String) {
     val maxOCSPResponseAge: Duration by lazy {
-        Duration.ofHours(BuildKonfig.VAU_OCSP_RESPONSE_MAX_AGE)
+        BuildKonfig.VAU_OCSP_RESPONSE_MAX_AGE.hours
     }
 
     val trustAnchor by lazy {

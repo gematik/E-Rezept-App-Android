@@ -49,7 +49,6 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.Fingerprint
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -76,6 +75,8 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
@@ -90,7 +91,8 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
-import de.gematik.ti.erp.app.prescription.detail.ui.rememberNotSaveableNavController
+import de.gematik.ti.erp.app.core.complexAutoSaver
+import de.gematik.ti.erp.app.troubleShooting.TroubleShootingScreen
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.HintCard
@@ -107,7 +109,6 @@ import de.gematik.ti.erp.app.utils.compose.annotatedLinkString
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberViewModel
 
 @Composable
 fun CardWallScreen(
@@ -115,14 +116,11 @@ fun CardWallScreen(
     onResumeCardWall: () -> Unit,
     profileId: ProfileIdentifier
 ) {
-    val viewModel: CardWallViewModel by rememberViewModel()
-
-    val navController = rememberNotSaveableNavController()
-
-    val state by viewModel.state().collectAsState(viewModel.defaultState)
+    val cardWallController = rememberCardWallController()
+    val navController = rememberNavController()
 
     val startDestination = when {
-        state.hardwareRequirementsFulfilled -> CardWallNavigation.Intro.path()
+        cardWallController.hardwareRequirementsFulfilled -> CardWallNavigation.Intro.path()
         else -> CardWallNavigation.MissingCapabilities.path()
     }
 
@@ -142,20 +140,6 @@ fun CardWallScreen(
         }
     )
 
-    val onRetryCan = {
-        navController.navigate(CardWallNavigation.CardAccessNumber.path()) {
-            popUpTo(CardWallNavigation.CardAccessNumber.path()) { inclusive = true }
-        }
-    }
-
-    val onRetryPin = {
-        navController.navigate(CardWallNavigation.PersonalIdentificationNumber.path()) {
-            popUpTo(CardWallNavigation.PersonalIdentificationNumber.path()) {
-                inclusive = true
-            }
-        }
-    }
-
     val onUnlockEgk = {
         navController.navigate(CardWallNavigation.UnlockEgk.path()) {
             popUpTo(CardWallNavigation.UnlockEgk.path()) {
@@ -174,21 +158,26 @@ fun CardWallScreen(
 
     TrackNavigationChanges(navController)
 
-    var cardAccessNumber by remember { mutableStateOf("") }
-    var personalIdentificationNumber by remember { mutableStateOf("") }
-    var altPairingInitialState: AltPairingProvider.AuthResult? by remember { mutableStateOf(null) }
+    var cardAccessNumber
+        by rememberSaveable { mutableStateOf("") }
+    var personalIdentificationNumber
+        by rememberSaveable { mutableStateOf("") }
+    var altPairingInitialState: AltPairingProvider.AuthResult?
+        by rememberSaveable(saver = complexAutoSaver()) { mutableStateOf(null) }
 
-    val authenticationData by derivedStateOf {
-        (altPairingInitialState as? AltPairingProvider.AuthResult.Initialized)?.let {
-            CardWallAuthenticationData.AltPairingWithHealthCard(
+    val authenticationData by remember(altPairingInitialState) {
+        derivedStateOf {
+            (altPairingInitialState as? AltPairingProvider.AuthResult.Initialized)?.let {
+                CardWallAuthenticationData.AltPairingWithHealthCard(
+                    cardAccessNumber = cardAccessNumber,
+                    personalIdentificationNumber = personalIdentificationNumber,
+                    initialPairingData = it
+                )
+            } ?: CardWallAuthenticationData.HealthCard(
                 cardAccessNumber = cardAccessNumber,
-                personalIdentificationNumber = personalIdentificationNumber,
-                initialPairingData = it
+                personalIdentificationNumber = personalIdentificationNumber
             )
-        } ?: CardWallAuthenticationData.HealthCard(
-            cardAccessNumber = cardAccessNumber,
-            personalIdentificationNumber = personalIdentificationNumber
-        )
+        }
     }
 
     NavHost(
@@ -307,6 +296,7 @@ fun CardWallScreen(
                                             }
                                         )
                                     }
+
                                     else -> {
                                         onBack()
                                     }
@@ -323,7 +313,7 @@ fun CardWallScreen(
         composable(CardWallNavigation.Authentication.route) {
             NavigationAnimation(mode = navigationMode) {
                 CardWallNfcInstructionScreen(
-                    viewModel = viewModel,
+                    cardWallController = cardWallController,
                     profileId = profileId,
                     authenticationData = authenticationData,
                     onNext = {
@@ -343,7 +333,7 @@ fun CardWallScreen(
                     },
                     onUnlockEgk = onUnlockEgk,
                     onClickTroubleshooting = {
-                        navController.navigate(CardWallNavigation.TroubleshootingPageA.path())
+                        navController.navigate(CardWallNavigation.Troubleshooting.path())
                     },
                     onBack = onBack
                 )
@@ -361,59 +351,13 @@ fun CardWallScreen(
             }
         }
 
-        composable(CardWallNavigation.TroubleshootingPageA.route) {
+        composable(CardWallNavigation.Troubleshooting.route) {
             NavigationAnimation(mode = navigationMode) {
-                CardWallTroubleshootingPageA(
-                    profileId = profileId,
-                    viewModel = viewModel,
-                    onFinal = onResumeCardWall,
-                    onBack = onBack,
-                    onNext = { navController.navigate(CardWallNavigation.TroubleshootingPageB.path()) },
-                    authenticationData = authenticationData,
-                    onRetryCan = onRetryCan,
-                    onRetryPin = onRetryPin,
-                    onUnlockEgk = onUnlockEgk
-                )
-            }
-        }
-
-        composable(CardWallNavigation.TroubleshootingPageB.route) {
-            NavigationAnimation(mode = navigationMode) {
-                CardWallTroubleshootingPageB(
-                    profileId = profileId,
-                    viewModel = viewModel,
-                    onFinal = onResumeCardWall,
-                    onBack = onBack,
-                    onNext = { navController.navigate(CardWallNavigation.TroubleshootingPageC.path()) },
-                    authenticationData = authenticationData,
-                    onRetryCan = onRetryCan,
-                    onRetryPin = onRetryPin,
-                    onUnlockEgk = onUnlockEgk
-                )
-            }
-        }
-
-        composable(CardWallNavigation.TroubleshootingPageC.route) {
-            NavigationAnimation(mode = navigationMode) {
-                CardWallTroubleshootingPageC(
-                    profileId = profileId,
-                    viewModel = viewModel,
-                    onFinal = onResumeCardWall,
-                    onBack = onBack,
-                    onNext = { navController.navigate(CardWallNavigation.TroubleshootingNoSuccessPage.path()) },
-                    authenticationData = authenticationData,
-                    onRetryCan = onRetryCan,
-                    onRetryPin = onRetryPin,
-                    onUnlockEgk = onUnlockEgk
-                )
-            }
-        }
-
-        composable(CardWallNavigation.TroubleshootingNoSuccessPage.route) {
-            NavigationAnimation(mode = navigationMode) {
-                CardWallTroubleshootingNoSuccessPage(
-                    onBack = onBack,
-                    onNext = onResumeCardWall
+                TroubleShootingScreen(
+                    onClickTryMe = {
+                        navController.navigate(CardWallNavigation.Authentication.path())
+                    },
+                    onCancel = { navController.popBackStack() }
                 )
             }
         }
@@ -422,7 +366,7 @@ fun CardWallScreen(
             NavigationAnimation(mode = navigationMode) {
                 UnlockEgKScreen(
                     unlockMethod = UnlockMethod.ResetRetryCounter,
-                    navController = mainNavController,
+                    onCancel = { mainNavController.popBackStack() },
                     onClickLearnMore = { navController.navigate(CardWallNavigation.OrderHealthCard.path()) }
                 )
             }

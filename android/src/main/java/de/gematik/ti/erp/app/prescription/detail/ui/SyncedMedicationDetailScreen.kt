@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.medicationCategory
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -49,14 +50,14 @@ import de.gematik.ti.erp.app.prescription.repository.normSizeMapping
 import de.gematik.ti.erp.app.substitutionAllowed
 import de.gematik.ti.erp.app.supplyForm
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.dateTimeMediumText
 import de.gematik.ti.erp.app.utils.temporalText
-import java.time.Instant
-import java.time.ZoneId
-import java.time.temporal.TemporalAccessor
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
 
 @Composable
 fun SyncedMedicationDetailScreen(
@@ -160,7 +161,7 @@ fun LazyListScope.pznMedicationInformation(medication: SyncedTaskData.Medication
     item {
         Label(
             modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Name),
-            text = medication.text,
+            text = medication.name(),
             label = stringResource(R.string.medication_trade_name)
         )
     }
@@ -208,7 +209,7 @@ fun LazyListScope.ingredientMedicationInformation(
     medication: SyncedTaskData.MedicationIngredient,
     onClickIngredient: (SyncedTaskData.Ingredient) -> Unit
 ) {
-    medication.ingredients.forEachIndexed { index, ingredient ->
+    medication.ingredients.forEach { ingredient ->
         item {
             IngredientNameLabel(ingredient.text) {
                 onClickIngredient(ingredient)
@@ -255,7 +256,7 @@ fun LazyListScope.compoundingMedicationInformation(
 ) {
     item {
         Label(
-            text = medication.text.takeIf { it.isNotEmpty() },
+            text = medication.name(),
             label = stringResource(R.string.medication_compounding_name)
         )
     }
@@ -306,7 +307,7 @@ fun LazyListScope.compoundingMedicationInformation(
 
 fun LazyListScope.freeTextMedicationInformation(medication: SyncedTaskData.MedicationFreeText) {
     item {
-        Label(text = medication.text, label = stringResource(R.string.medication_freetext_name))
+        Label(text = medication.name(), label = stringResource(R.string.medication_freetext_name))
     }
     item {
         CategoryLabel(medication.category)
@@ -413,6 +414,7 @@ fun CategoryLabel(category: SyncedTaskData.MedicationCategory) {
                             SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL -> "00"
                             SyncedTaskData.MedicationCategory.BTM -> "01"
                             SyncedTaskData.MedicationCategory.AMVV -> "02"
+                            SyncedTaskData.MedicationCategory.SONSTIGES -> "03"
                             else -> null
                         }
                     }
@@ -451,7 +453,7 @@ fun BvgLabel(bvg: Boolean) {
 @Composable
 fun AuthoredOnLabel(authoredOn: Instant) {
     Label(
-        text = remember { dateTimeMediumText(authoredOn, ZoneId.systemDefault()) },
+        text = remember { dateTimeMediumText(authoredOn, TimeZone.currentSystemDefault()) },
         label = stringResource(id = R.string.pres_detail_medication_label_authored_on)
     )
 }
@@ -515,9 +517,9 @@ fun HandedOverLabel(whenHandedOver: Instant) {
 }
 
 @Composable
-fun ExpirationDateLabel(expirationDate: TemporalAccessor) {
+fun ExpirationDateLabel(expirationDate: FhirTemporal) {
     Label(
-        text = remember { temporalText(expirationDate, ZoneId.systemDefault()) },
+        text = remember { temporalText(expirationDate, TimeZone.currentSystemDefault()) },
         label = stringResource(id = R.string.pres_detail_medication_label_expiration_date)
     )
 }

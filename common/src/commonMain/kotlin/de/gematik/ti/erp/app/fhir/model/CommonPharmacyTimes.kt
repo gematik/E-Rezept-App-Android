@@ -18,62 +18,63 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asLocalTime
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.asFhirLocalTime
 import kotlinx.serialization.json.JsonPrimitive
-import java.time.LocalTime
+import kotlinx.datetime.LocalTime
 
-private val CommonPharmacyTimes: Map<String, LocalTime> by lazy {
+private val CommonPharmacyTimes: Map<String, FhirTemporal.LocalTime> by lazy {
     mapOf(
-        "00:00:00" to LocalTime.of(0, 0),
-        "00:30:00" to LocalTime.of(0, 30),
-        "01:00:00" to LocalTime.of(1, 0),
-        "01:30:00" to LocalTime.of(1, 30),
-        "02:00:00" to LocalTime.of(2, 0),
-        "02:30:00" to LocalTime.of(2, 30),
-        "03:00:00" to LocalTime.of(3, 0),
-        "03:30:00" to LocalTime.of(3, 30),
-        "04:00:00" to LocalTime.of(4, 0),
-        "04:30:00" to LocalTime.of(4, 30),
-        "05:00:00" to LocalTime.of(5, 0),
-        "05:30:00" to LocalTime.of(5, 30),
-        "06:00:00" to LocalTime.of(6, 0),
-        "06:30:00" to LocalTime.of(6, 30),
-        "07:00:00" to LocalTime.of(7, 0),
-        "07:30:00" to LocalTime.of(7, 30),
-        "08:00:00" to LocalTime.of(8, 0),
-        "08:30:00" to LocalTime.of(8, 30),
-        "09:00:00" to LocalTime.of(9, 0),
-        "09:30:00" to LocalTime.of(9, 30),
-        "10:00:00" to LocalTime.of(10, 0),
-        "10:30:00" to LocalTime.of(10, 30),
-        "11:00:00" to LocalTime.of(11, 0),
-        "11:30:00" to LocalTime.of(11, 30),
-        "12:00:00" to LocalTime.of(12, 0),
-        "12:30:00" to LocalTime.of(12, 30),
-        "13:00:00" to LocalTime.of(13, 0),
-        "13:30:00" to LocalTime.of(13, 30),
-        "14:00:00" to LocalTime.of(14, 0),
-        "14:30:00" to LocalTime.of(14, 30),
-        "15:00:00" to LocalTime.of(15, 0),
-        "15:30:00" to LocalTime.of(15, 30),
-        "16:00:00" to LocalTime.of(16, 0),
-        "16:30:00" to LocalTime.of(16, 30),
-        "17:00:00" to LocalTime.of(17, 0),
-        "17:30:00" to LocalTime.of(17, 30),
-        "18:00:00" to LocalTime.of(18, 0),
-        "18:30:00" to LocalTime.of(18, 30),
-        "19:00:00" to LocalTime.of(19, 0),
-        "19:30:00" to LocalTime.of(19, 30),
-        "20:00:00" to LocalTime.of(20, 0),
-        "20:30:00" to LocalTime.of(20, 30),
-        "21:00:00" to LocalTime.of(21, 0),
-        "21:30:00" to LocalTime.of(21, 30),
-        "22:00:00" to LocalTime.of(22, 0),
-        "22:30:00" to LocalTime.of(22, 30),
-        "23:00:00" to LocalTime.of(23, 0),
-        "23:30:00" to LocalTime.of(23, 30)
+        "00:00:00" to FhirTemporal.LocalTime(LocalTime(0, 0, 0, 0)),
+        "00:30:00" to FhirTemporal.LocalTime(LocalTime(0, 30, 0, 0)),
+        "01:00:00" to FhirTemporal.LocalTime(LocalTime(1, 0, 0, 0)),
+        "01:30:00" to FhirTemporal.LocalTime(LocalTime(1, 30, 0, 0)),
+        "02:00:00" to FhirTemporal.LocalTime(LocalTime(2, 0, 0, 0)),
+        "02:30:00" to FhirTemporal.LocalTime(LocalTime(2, 30, 0, 0)),
+        "03:00:00" to FhirTemporal.LocalTime(LocalTime(3, 0, 0, 0)),
+        "03:30:00" to FhirTemporal.LocalTime(LocalTime(3, 30, 0, 0)),
+        "04:00:00" to FhirTemporal.LocalTime(LocalTime(4, 0, 0, 0)),
+        "04:30:00" to FhirTemporal.LocalTime(LocalTime(4, 30, 0, 0)),
+        "05:00:00" to FhirTemporal.LocalTime(LocalTime(5, 0, 0, 0)),
+        "05:30:00" to FhirTemporal.LocalTime(LocalTime(5, 30, 0, 0)),
+        "06:00:00" to FhirTemporal.LocalTime(LocalTime(6, 0, 0, 0)),
+        "06:30:00" to FhirTemporal.LocalTime(LocalTime(6, 30, 0, 0)),
+        "07:00:00" to FhirTemporal.LocalTime(LocalTime(7, 0, 0, 0)),
+        "07:30:00" to FhirTemporal.LocalTime(LocalTime(7, 30, 0, 0)),
+        "08:00:00" to FhirTemporal.LocalTime(LocalTime(8, 0, 0, 0)),
+        "08:30:00" to FhirTemporal.LocalTime(LocalTime(8, 30, 0, 0)),
+        "09:00:00" to FhirTemporal.LocalTime(LocalTime(9, 0, 0, 0)),
+        "09:30:00" to FhirTemporal.LocalTime(LocalTime(9, 30, 0, 0)),
+        "10:00:00" to FhirTemporal.LocalTime(LocalTime(10, 0, 0, 0)),
+        "10:30:00" to FhirTemporal.LocalTime(LocalTime(10, 30, 0, 0)),
+        "11:00:00" to FhirTemporal.LocalTime(LocalTime(11, 0, 0, 0)),
+        "11:30:00" to FhirTemporal.LocalTime(LocalTime(11, 30, 0, 0)),
+        "12:00:00" to FhirTemporal.LocalTime(LocalTime(12, 0, 0, 0)),
+        "12:30:00" to FhirTemporal.LocalTime(LocalTime(12, 30, 0, 0)),
+        "13:00:00" to FhirTemporal.LocalTime(LocalTime(13, 0, 0, 0)),
+        "13:30:00" to FhirTemporal.LocalTime(LocalTime(13, 30, 0, 0)),
+        "14:00:00" to FhirTemporal.LocalTime(LocalTime(14, 0, 0, 0)),
+        "14:30:00" to FhirTemporal.LocalTime(LocalTime(14, 30, 0, 0)),
+        "15:00:00" to FhirTemporal.LocalTime(LocalTime(15, 0, 0, 0)),
+        "15:30:00" to FhirTemporal.LocalTime(LocalTime(15, 30, 0, 0)),
+        "16:00:00" to FhirTemporal.LocalTime(LocalTime(16, 0, 0, 0)),
+        "16:30:00" to FhirTemporal.LocalTime(LocalTime(16, 30, 0, 0)),
+        "17:00:00" to FhirTemporal.LocalTime(LocalTime(17, 0, 0, 0)),
+        "17:30:00" to FhirTemporal.LocalTime(LocalTime(17, 30, 0, 0)),
+        "18:00:00" to FhirTemporal.LocalTime(LocalTime(18, 0, 0, 0)),
+        "18:30:00" to FhirTemporal.LocalTime(LocalTime(18, 30, 0, 0)),
+        "19:00:00" to FhirTemporal.LocalTime(LocalTime(19, 0, 0, 0)),
+        "19:30:00" to FhirTemporal.LocalTime(LocalTime(19, 30, 0, 0)),
+        "20:00:00" to FhirTemporal.LocalTime(LocalTime(20, 0, 0, 0)),
+        "20:30:00" to FhirTemporal.LocalTime(LocalTime(20, 30, 0, 0)),
+        "21:00:00" to FhirTemporal.LocalTime(LocalTime(21, 0, 0, 0)),
+        "21:30:00" to FhirTemporal.LocalTime(LocalTime(21, 30, 0, 0)),
+        "22:00:00" to FhirTemporal.LocalTime(LocalTime(22, 0, 0, 0)),
+        "22:30:00" to FhirTemporal.LocalTime(LocalTime(22, 30, 0, 0)),
+        "23:00:00" to FhirTemporal.LocalTime(LocalTime(23, 0, 0, 0)),
+        "23:30:00" to FhirTemporal.LocalTime(LocalTime(23, 30, 0, 0))
     )
 }
 
-fun lookupTime(tm: JsonPrimitive?): LocalTime? =
-    tm?.let { CommonPharmacyTimes[it.content] ?: it.asLocalTime() }
+fun lookupTime(tm: JsonPrimitive?): FhirTemporal.LocalTime? =
+    tm?.let { CommonPharmacyTimes[it.content] ?: it.asFhirLocalTime() }

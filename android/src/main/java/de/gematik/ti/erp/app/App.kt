@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app
 import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
+import com.contentsquare.android.Contentsquare
 import de.gematik.ti.erp.app.core.AppScopedCache
 import de.gematik.ti.erp.app.di.allModules
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
@@ -56,6 +57,8 @@ class App : Application(), DIAware {
         ProcessLifecycleOwner.get().lifecycle.apply {
             addObserver(authUseCase)
         }
+
+        Contentsquare.start(this)
     }
 
     companion object {

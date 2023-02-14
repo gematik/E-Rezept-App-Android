@@ -51,6 +51,7 @@ import de.gematik.ti.erp.app.fhir.model.extractKBVBundle
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispense
 import de.gematik.ti.erp.app.fhir.model.extractTask
 import de.gematik.ti.erp.app.fhir.model.extractTaskAndKBVBundle
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -64,10 +65,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.serialization.json.JsonElement
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneOffset
 
 class TaskLocalDataSource(
     private val realm: Realm
@@ -98,9 +99,10 @@ class TaskLocalDataSource(
                     process = { taskResource, bundleResource ->
                         extractTask(
                             task = taskResource,
-                            process = { taskId: String, accessCode: String?, lastModified: Instant,
-                                expiresOn: LocalDate?, acceptUntil: LocalDate?, authoredOn: Instant,
-                                status: TaskStatus ->
+                            process = { taskId: String, accessCode: String?, lastModified: FhirTemporal.Instant,
+                                expiresOn: FhirTemporal.LocalDate?, acceptUntil: FhirTemporal.LocalDate?,
+                                authoredOn: FhirTemporal.Instant, status: TaskStatus ->
+
                                 taskEntity = queryFirst("taskId = $0", taskId) ?: run {
                                     copyToRealm(SyncedTaskEntityV1()).also {
                                         profile.syncedTasks += it
@@ -111,7 +113,7 @@ class TaskLocalDataSource(
                                     this.parent = profile
                                     this.taskId = taskId
                                     this.accessCode = accessCode
-                                    this.lastModified = lastModified.toRealmInstant()
+                                    this.lastModified = lastModified.value.toRealmInstant()
                                     this.status = when (status) {
                                         TaskStatus.Ready -> TaskStatusV1.Ready
                                         TaskStatus.InProgress -> TaskStatusV1.InProgress
@@ -127,9 +129,10 @@ class TaskLocalDataSource(
                                         else -> TaskStatusV1.Other
                                     }
                                     this.expiresOn =
-                                        expiresOn?.atStartOfDay()?.toRealmInstant(ZoneOffset.UTC)
-                                    this.acceptUntil = acceptUntil?.atStartOfDay()?.toRealmInstant(ZoneOffset.UTC)
-                                    this.authoredOn = authoredOn.toRealmInstant()
+                                        expiresOn?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
+                                    this.acceptUntil =
+                                        acceptUntil?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
+                                    this.authoredOn = authoredOn.value.toRealmInstant()
                                 }
                             }
                         )
@@ -150,7 +153,7 @@ class TaskLocalDataSource(
                                     PatientEntityV1().apply {
                                         this.name = name
                                         this.address = address
-                                        this.birthdate = birthDate?.atStartOfDay()?.toRealmInstant()
+                                        this.dateOfBirth = birthDate
                                         this.insuranceIdentifier = insuranceIdentifier
                                     }
                                 },
@@ -223,6 +226,7 @@ class TaskLocalDataSource(
 
                                             MedicationCategory.BTM -> MedicationCategoryV1.BTM
                                             MedicationCategory.AMVV -> MedicationCategoryV1.AMVV
+                                            MedicationCategory.SONSTIGES -> MedicationCategoryV1.SONSTIGES
                                             else -> MedicationCategoryV1.UNKNOWN
                                         }
                                         this.form = form
@@ -239,7 +243,7 @@ class TaskLocalDataSource(
                                     MultiplePrescriptionInfoEntityV1().apply {
                                         this.indicator = indicator
                                         this.numbering = numbering
-                                        this.start = start?.atStartOfDay()?.toRealmInstant()
+                                        this.start = start?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
                                     }
                                 },
                                 processMedicationRequest = { dateOfAccident,
@@ -255,7 +259,8 @@ class TaskLocalDataSource(
                                         additionalFee
                                     ->
                                     MedicationRequestEntityV1().apply {
-                                        this.dateOfAccident = dateOfAccident?.atStartOfDay()?.toRealmInstant()
+                                        this.dateOfAccident =
+                                            dateOfAccident?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
                                         this.location = location
                                         this.accidentType = when (accidentType) {
                                             AccidentType.Unfall -> AccidentTypeV1.Unfall
@@ -398,7 +403,7 @@ class TaskLocalDataSource(
                                 this.wasSubstituted = wasSubstituted
                                 this.dosageInstruction = dosageInstruction
                                 this.performer = performer
-                                this.whenHandedOver = whenHandedOver.atStartOfDay().toRealmInstant()
+                                this.whenHandedOver = whenHandedOver.value.atStartOfDayIn(TimeZone.UTC).toRealmInstant()
                             }
                         }
                     }
@@ -444,7 +449,7 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
                     postalCodeAndCity = it.postalCodeAndCity
                 )
             },
-            birthdate = this.patient?.birthdate?.toInstant(),
+            birthdate = this.patient?.dateOfBirth,
             insuranceIdentifier = this.patient?.insuranceIdentifier
         ),
         insuranceInformation = SyncedTaskData.InsuranceInformation(
@@ -605,6 +610,7 @@ private fun MedicationCategoryV1?.toMedicationCategory(): SyncedTaskData.Medicat
         MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL -> SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL
         MedicationCategoryV1.BTM -> SyncedTaskData.MedicationCategory.BTM
         MedicationCategoryV1.AMVV -> SyncedTaskData.MedicationCategory.AMVV
+        MedicationCategoryV1.SONSTIGES -> SyncedTaskData.MedicationCategory.SONSTIGES
         else -> SyncedTaskData.MedicationCategory.UNKNOWN
     }
 

@@ -61,7 +61,6 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.cardwall.mini.ui.NoneEnrolledException
 import de.gematik.ti.erp.app.cardwall.mini.ui.PromptAuthenticator
 import de.gematik.ti.erp.app.cardwall.mini.ui.UserNotAuthenticatedException
-import de.gematik.ti.erp.app.cardwall.ui.toAnnotatedString
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
@@ -77,6 +76,7 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
@@ -87,9 +87,10 @@ import kotlinx.coroutines.launch
 import io.github.aakira.napier.Napier
 import java.io.IOException
 import java.net.UnknownHostException
-import java.time.Instant
-import java.time.LocalDateTime
-import java.time.ZoneId
+import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -456,20 +457,11 @@ private fun PairedDevice(
 }
 
 @Composable
-fun localizedDateTimeString(timestamp: Instant, format: FormatStyle = FormatStyle.LONG): String {
-    val config = LocalConfiguration.current
-    return remember(config, format) {
-        val fmt = DateTimeFormatter.ofLocalizedDateTime(format)
-        LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).format(fmt)
-    }
-}
-
-@Composable
 fun localizedDateString(timestamp: Instant, format: FormatStyle = FormatStyle.LONG): String {
     val config = LocalConfiguration.current
     return remember(config, format) {
         val fmt = DateTimeFormatter.ofLocalizedDate(format)
-        LocalDateTime.ofInstant(timestamp, ZoneId.systemDefault()).toLocalDate().format(fmt)
+        timestamp.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime().format(fmt)
     }
 }
 

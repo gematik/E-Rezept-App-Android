@@ -27,8 +27,5 @@ object UnlockEgkNavigation {
     object OldSecret : Route("OldSecret")
     object NewSecret : Route("NewSecret")
     object UnlockEgk : Route("UnlockEgk")
-    object TroubleshootingPageA : Route("TroubleshootingPageA")
-    object TroubleshootingPageB : Route("TroubleshootingPageB")
-    object TroubleshootingPageC : Route("TroubleshootingPageC")
-    object TroubleshootingNoSuccessPage : Route("TroubleshootingNoSuccessPage")
+    object TroubleShooting : Route("TroubleShooting")
 }

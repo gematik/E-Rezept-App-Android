@@ -34,7 +34,7 @@ import de.gematik.ti.erp.app.prescription.repository.RemoteDataSource
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
-import java.time.Instant
+import kotlinx.datetime.Instant
 
 private const val CommunicationsMaxPageSize = 50
 
@@ -69,6 +69,8 @@ class CommunicationRepository(
             }
         }
     }
+
+    override val tag: String = "CommunicationRepository"
 
     suspend fun downloadCommunications(profileId: ProfileIdentifier) = downloadPaged(profileId)
 

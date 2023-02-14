@@ -21,8 +21,8 @@ package de.gematik.ti.erp.app.orders.usecase
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.orders.usecase.model.OrderUseCaseData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import kotlinx.datetime.Instant
 import org.junit.Rule
-import java.time.Instant
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -37,7 +37,7 @@ class OrderUseCaseTest {
             orderId = "",
             communicationId = "CID123456",
             profile = SyncedTaskData.CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             sender = "ABC123456",
             recipient = "ABC654321",
             payload = """
@@ -52,7 +52,7 @@ class OrderUseCaseTest {
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             message = "Hi!",
             code = null,
             link = "https://example.org",
@@ -68,7 +68,7 @@ class OrderUseCaseTest {
             orderId = "",
             communicationId = "CID123456",
             profile = SyncedTaskData.CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             sender = "ABC123456",
             recipient = "ABC654321",
             payload = """{ "version": 1, "supplyOptionsType": "shipment", "url": "    ", "pickUpCodeHR": "" }""",
@@ -76,7 +76,7 @@ class OrderUseCaseTest {
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             message = null,
             code = null,
             link = null,
@@ -92,7 +92,7 @@ class OrderUseCaseTest {
             orderId = "",
             communicationId = "CID123456",
             profile = SyncedTaskData.CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             sender = "ABC123456",
             recipient = "ABC654321",
             payload = """{   - """,
@@ -100,7 +100,7 @@ class OrderUseCaseTest {
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             message = null,
             code = null,
             link = null,
@@ -116,7 +116,7 @@ class OrderUseCaseTest {
             orderId = "",
             communicationId = "CID123456",
             profile = SyncedTaskData.CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             sender = "ABC123456",
             recipient = "ABC654321",
             payload = """{ "version": 1, "supplyOptionsType": "shipment", "url": "ftp://example.org" }""",
@@ -124,7 +124,7 @@ class OrderUseCaseTest {
         )
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
-            sentOn = Instant.ofEpochMilli(123456),
+            sentOn = Instant.fromEpochSeconds(123456),
             message = null,
             code = null,
             link = null,

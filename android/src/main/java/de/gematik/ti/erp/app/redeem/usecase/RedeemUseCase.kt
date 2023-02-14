@@ -25,7 +25,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import java.time.Instant
+import kotlinx.datetime.Clock
 
 class RedeemUseCase(
     private val prescriptionRepository: PrescriptionRepository,
@@ -50,7 +50,7 @@ class RedeemUseCase(
         }.flowOn(dispatchers.IO)
 
     suspend fun redeemScannedTasks(taskIds: List<String>) {
-        val redeemedOn = Instant.now()
+        val redeemedOn = Clock.System.now()
         taskIds.forEach { taskId ->
             prescriptionRepository.updateRedeemedOn(taskId, redeemedOn)
         }

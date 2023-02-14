@@ -18,14 +18,13 @@
 
 package de.gematik.ti.erp.app.db.entities
 
-import de.gematik.ti.erp.app.fhir.parser.asFormattedString
-import de.gematik.ti.erp.app.fhir.parser.asTemporalAccessor
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.toFhirTemporal
 import java.lang.IllegalArgumentException
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KMutableProperty
 import kotlin.reflect.KProperty
 import org.bouncycastle.util.encoders.Base64
-import java.time.temporal.TemporalAccessor
 
 inline fun <reified T : Enum<T>> enumName(backingProperty: KMutableProperty<String>) =
     object : ReadWriteProperty<Any?, T> {
@@ -72,11 +71,11 @@ fun byteArrayBase64Nullable(backingProperty: KMutableProperty<String?>) =
     }
 
 fun temporalAccessorNullable(backingProperty: KMutableProperty<String?>) =
-    object : ReadWriteProperty<Any?, TemporalAccessor?> {
-        override fun getValue(thisRef: Any?, property: KProperty<*>): TemporalAccessor? =
-            backingProperty.getter.call()?.asTemporalAccessor()
+    object : ReadWriteProperty<Any?, FhirTemporal?> {
+        override fun getValue(thisRef: Any?, property: KProperty<*>): FhirTemporal? =
+            backingProperty.getter.call()?.toFhirTemporal()
 
-        override fun setValue(thisRef: Any?, property: KProperty<*>, value: TemporalAccessor?) {
-            backingProperty.setter.call(value?.asFormattedString())
+        override fun setValue(thisRef: Any?, property: KProperty<*>, value: FhirTemporal?) {
+            backingProperty.setter.call(value?.formattedString())
         }
     }
