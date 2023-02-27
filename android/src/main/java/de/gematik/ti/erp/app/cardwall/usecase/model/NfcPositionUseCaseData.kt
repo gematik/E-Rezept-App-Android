@@ -24,9 +24,16 @@ import kotlinx.serialization.Serializable
 object NfcPositionUseCaseData {
     @Immutable
     @Serializable
-    data class NfcPosition(
+    data class NfcData(
+        val manufacturer: String,
         val marketingName: String,
         val modelNames: List<String>,
+        val nfcPos: NfcPos
+    )
+
+    @Immutable
+    @Serializable
+    data class NfcPos(
         val x0: Double,
         val y0: Double,
         val x1: Double,

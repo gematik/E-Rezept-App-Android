@@ -82,6 +82,9 @@ class EndpointHelper(
     fun getErpApiKey(): String =
         BuildKonfig.ERP_API_KEY
 
+    fun getIdpScope(): String =
+        BuildKonfig.IDP_DEFAULT_SCOPE
+
     fun getPharmacyApiKey(): String =
         BuildKonfig.PHARMACY_API_KEY
 

@@ -81,7 +81,8 @@ kotlin {
                         compileOnly(paging("common-ktx"))
                     }
                     kotlinX {
-                        coroutines("swing")
+                        implementation(coroutines("swing"))
+                        implementation(datetime)
                     }
                     dependencyInjection {
                         compileOnly(kodein("di-framework-compose"))

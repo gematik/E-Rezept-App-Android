@@ -57,10 +57,17 @@ fun <Organization, Address> extractOrganization(
         .firstOrNull()
         ?.containedString("value")
 
+    val iknr = resource
+        .findAll("identifier")
+        .filterWith("system", stringValue("http://fhir.de/sid/arge-ik/iknr"))
+        .firstOrNull()
+        ?.containedString("value")
+
     return processOrganization(
         name,
         resource.extractAddress(processAddress),
         bsnr,
+        iknr,
         phone,
         mail
     )

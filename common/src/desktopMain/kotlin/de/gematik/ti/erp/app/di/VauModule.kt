@@ -16,10 +16,9 @@
  * 
  */
 
-package de.gematik.ti.erp.app.vau.di
+package de.gematik.ti.erp.app.di
 
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.di.ScopedRealm
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.interceptor.DefaultCryptoConfig
@@ -31,6 +30,8 @@ import de.gematik.ti.erp.app.vau.usecase.TrustedTruststore
 import de.gematik.ti.erp.app.vau.usecase.TruststoreConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreTimeSourceProvider
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.kodein.di.DI
 import org.kodein.di.bind
@@ -39,8 +40,7 @@ import org.kodein.di.bindings.Scope
 import org.kodein.di.instance
 import org.kodein.di.scoped
 import org.kodein.di.singleton
-import java.time.Duration
-import java.time.Instant
+import kotlin.time.Duration
 
 fun vauModule(scope: Scope<Any?>) = DI.Module("VAU Module") {
     bindInstance {
@@ -58,7 +58,7 @@ fun vauModule(scope: Scope<Any?>) = DI.Module("VAU Module") {
     bind { scoped(scope).singleton { DefaultCryptoConfig() } }
     bind { scoped(scope).singleton { VauChannelInterceptor(instance(), instance(), instance()) } }
     bind { scoped(scope).singleton { TruststoreUseCase(instance(), instance(), instance(), instance()) } }
-    bind { scoped(scope).singleton<Any, TruststoreTimeSourceProvider> { { Instant.now() } } }
+    bind { scoped(scope).singleton<Any, TruststoreTimeSourceProvider> { { Clock.System.now() } } }
     bind {
         scoped(scope).singleton {
             { untrustedOCSPList: UntrustedOCSPList,

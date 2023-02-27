@@ -27,4 +27,6 @@ object PrescriptionScreenData {
         val prescriptions: List<PrescriptionUseCaseData.Prescription>,
         val redeemedPrescriptions: List<PrescriptionUseCaseData.Prescription>
     )
+
+    val EmptyState = State(emptyList(), emptyList())
 }

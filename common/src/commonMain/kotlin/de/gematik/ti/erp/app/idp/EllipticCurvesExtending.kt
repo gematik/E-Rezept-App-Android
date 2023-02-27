@@ -25,7 +25,6 @@ import de.gematik.ti.erp.app.idp.EcdsaUsingShaAlgorithmExtending.EcdsaBP384R1Usi
 import de.gematik.ti.erp.app.idp.EcdsaUsingShaAlgorithmExtending.EcdsaBP512R1UsingSha512
 import org.jose4j.jwa.AlgorithmFactoryFactory
 import org.jose4j.keys.EllipticCurves
-import java.lang.reflect.InvocationTargetException
 import java.math.BigInteger
 import java.security.spec.ECFieldFp
 import java.security.spec.ECParameterSpec
@@ -77,41 +76,24 @@ object EllipticCurvesExtending : EllipticCurves() {
     )
     private var initializedInSession = false
 
-    @Throws(
-        InvocationTargetException::class,
-        IllegalAccessException::class,
-        NoSuchMethodException::class
-    )
-    private fun addCurve(name: String, spec: ECParameterSpec) {
-        val method = EllipticCurves::class.java.getDeclaredMethod(
-            "addCurve",
-            String::class.java,
-            ECParameterSpec::class.java
+    fun init(): Boolean = if (initializedInSession) {
+        true
+    } else try {
+        addCurve("BP-256", BP256)
+        addCurve("BP-384", BP384)
+        addCurve("BP-512", BP512)
+        AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
+            EcdsaBP256R1UsingSha256()
         )
-        method.isAccessible = true
-        method.invoke(EllipticCurvesExtending::class.java, name, spec)
-    }
-
-    fun init(): Boolean {
-        return if (initializedInSession) {
-            true
-        } else try {
-            addCurve("BP-256", BP256)
-            addCurve("BP-384", BP384)
-            addCurve("BP-512", BP512)
-            AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
-                EcdsaBP256R1UsingSha256()
-            )
-            AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
-                EcdsaBP384R1UsingSha384()
-            )
-            AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
-                EcdsaBP512R1UsingSha512()
-            )
-            initializedInSession = true
-            true
-        } catch (e: Exception) {
-            throw IllegalStateException("failure on init $e")
-        }
+        AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
+            EcdsaBP384R1UsingSha384()
+        )
+        AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm(
+            EcdsaBP512R1UsingSha512()
+        )
+        initializedInSession = true
+        true
+    } catch (e: Exception) {
+        throw IllegalStateException("failure on init $e")
     }
 }

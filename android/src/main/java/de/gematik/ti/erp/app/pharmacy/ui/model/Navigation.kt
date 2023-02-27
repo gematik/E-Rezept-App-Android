@@ -21,10 +21,10 @@ package de.gematik.ti.erp.app.pharmacy.ui.model
 import de.gematik.ti.erp.app.Route
 
 object PharmacyNavigationScreens {
-    object StartSearch : Route("StartSearch")
-    object List : Route("List")
-    object Maps : Route("Maps")
-    object OrderOverview : Route("OrderOverview")
-    object EditShippingContact : Route("EditShippingContact")
-    object PrescriptionSelection : Route("PrescriptionSelection")
+    object StartSearch : Route("pharmacy_start_search")
+    object List : Route("pharmacy_list")
+    object Maps : Route("pharmacy_maps")
+    object OrderOverview : Route("pharmacy_order_overview")
+    object EditShippingContact : Route("pharmacy_edit_shipping_contact")
+    object PrescriptionSelection : Route("pharmacy_prescription_selection")
 }

@@ -49,10 +49,10 @@ import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.model.UnlockEgkNavigation
 import de.gematik.ti.erp.app.cardwall.ui.CardAccessNumber
 import de.gematik.ti.erp.app.cardwall.ui.CardHandlingScaffold
-import de.gematik.ti.erp.app.cardwall.ui.CardWallNfcPositionViewModel
 import de.gematik.ti.erp.app.cardwall.ui.ConformationSecretInputField
 import de.gematik.ti.erp.app.cardwall.ui.NFCInstructionScreen
 import de.gematik.ti.erp.app.cardwall.ui.SecretInputField
+import de.gematik.ti.erp.app.cardwall.ui.rememberCardWallNfcPositionState
 import de.gematik.ti.erp.app.troubleShooting.TroubleShootingScreen
 import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -581,8 +581,8 @@ private fun UnlockScreen(
     onFinishUnlock: () -> Unit,
     onAssignPin: () -> Unit
 ) {
-    val nfcPositionViewModel by rememberViewModel<CardWallNfcPositionViewModel>()
-    val state by remember { mutableStateOf(nfcPositionViewModel.screenState()) }
+    val nfcPositionState = rememberCardWallNfcPositionState()
+    val state = nfcPositionState.state
     val dialogState = rememberUnlockEgkDialogState()
 
     UnlockEgkDialog(

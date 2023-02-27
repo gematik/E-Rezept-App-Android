@@ -200,19 +200,18 @@ kotlin {
 }
 
 android {
-    buildToolsVersion = "33.0.0"
-    compileSdk = 31
+    buildToolsVersion = "33.0.1"
+    compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdk = 24
-        targetSdk = 30
+        targetSdk = 33
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
     namespace = "de.gematik.ti.erp.lib"
-    // namespace = "de.gematik.ti.erp.lib"
 }
 
 enum class Platforms {
@@ -240,15 +239,6 @@ buildkonfig {
         buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE", DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
         buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY", DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY)
         buildConfigField(STRING, "BUILD_FLAVOR", project.property("buildkonfig.flavor") as String)
-        buildConfigField(
-            STRING,
-            "IDP_DEFAULT_SCOPE",
-            if (project.property("buildkonfig.flavor").toString().contains("rudev", true)) {
-                "e-rezept-dev openid"
-            } else {
-                "e-rezept openid"
-            }
-        )
     }
 
     fun defaultConfigs(
@@ -292,6 +282,8 @@ buildkonfig {
 
                 buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64_PU", APP_TRUST_ANCHOR_BASE64)
                 buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64_TU", APP_TRUST_ANCHOR_BASE64_TEST)
+
+                buildConfigField(STRING, "IDP_SCOPE_DEVRU", "e-rezept-dev openid")
             }
             buildConfigField(STRING, "BASE_SERVICE_URI", baseServiceUri)
             buildConfigField(STRING, "IDP_SERVICE_URI", idpServiceUri)
@@ -303,6 +295,16 @@ buildkonfig {
 
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false")
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_IDP_INTEGRATION", "false")
+
+            buildConfigField(
+                STRING,
+                "IDP_DEFAULT_SCOPE",
+                if (flavor.contains(Environments.DEVRU.name, true)) {
+                    "e-rezept-dev openid"
+                } else {
+                    "e-rezept openid"
+                }
+            )
         }
     }
 

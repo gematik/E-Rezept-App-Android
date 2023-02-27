@@ -34,7 +34,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -43,10 +42,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
@@ -75,7 +71,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.PersonPin
@@ -88,10 +83,9 @@ import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
 import de.gematik.ti.erp.app.settings.ui.AllowBiometryScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
+import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.SecondaryButton
@@ -107,7 +101,6 @@ import de.gematik.ti.erp.app.webview.WebViewScreen
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.util.Locale
 import kotlin.math.max
 import kotlin.math.min
 
@@ -136,73 +129,9 @@ private enum class OnboardingPages(val index: Int) {
 }
 
 @Composable
-fun ReturningUserSecureAppOnboardingScreen(
-    mainNavController: NavController,
-    settingsViewModel: SettingsViewModel,
-    secureMethod: OnboardingSecureAppMethod,
-    onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit
-) {
-    val enabled = when (secureMethod) {
-        is OnboardingSecureAppMethod.DeviceSecurity -> true
-        is OnboardingSecureAppMethod.Password -> (secureMethod as? OnboardingSecureAppMethod.Password)?.let {
-            it.checkedPassword != null
-        } ?: false
-
-        else -> false
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-    Scaffold(
-        modifier = Modifier.statusBarsPadding(),
-        bottomBar = {
-            BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
-                Spacer(modifier = Modifier.weight(1f))
-                Button(
-                    enabled = enabled,
-                    onClick = {
-                        coroutineScope.launch {
-                            when (val sm = secureMethod) {
-                                is OnboardingSecureAppMethod.DeviceSecurity ->
-                                    settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
-
-                                is OnboardingSecureAppMethod.Password ->
-                                    settingsViewModel.onSelectPasswordAsAuthenticationMode(
-                                        requireNotNull(sm.checkedPassword)
-                                    )
-
-                                else -> error("Illegal state. Authentication must be set")
-                            }
-                            mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
-                                launchSingleTop = true
-                                popUpTo(MainNavigationScreens.ReturningUserSecureAppOnboarding.path()) {
-                                    inclusive = true
-                                }
-                            }
-                        }
-                    },
-                    shape = RoundedCornerShape(PaddingDefaults.Small)
-                ) {
-                    Text(stringResource(R.string.ok).uppercase(Locale.getDefault()))
-                }
-                SpacerMedium()
-            }
-        }
-    ) { innerPadding ->
-        Box(Modifier.padding(innerPadding)) {
-            OnboardingSecureApp(
-                secureMethod = secureMethod,
-                onSecureMethodChange = onSecureMethodChange,
-                onNextPage = {},
-                onOpenBiometricScreen = { mainNavController.navigate(MainNavigationScreens.Biometry.path()) }
-            )
-        }
-    }
-}
-
-@Composable
 fun OnboardingScreen(
     mainNavController: NavController,
-    settingsViewModel: SettingsViewModel
+    settingsController: SettingsController
 ) {
     val navController = rememberNavController()
     val coroutineScope = rememberCoroutineScope()
@@ -230,7 +159,7 @@ fun OnboardingScreen(
                     },
                     onSaveNewUser = { allowTracking, defaultProfileName, secureMethod ->
                         coroutineScope.launch(Dispatchers.Main) {
-                            settingsViewModel.onboardingSucceeded(
+                            settingsController.onboardingSucceeded(
                                 authenticationMode = when (secureMethod) {
                                     is OnboardingSecureAppMethod.DeviceSecurity ->
                                         SettingsData.AuthenticationMode.DeviceSecurity

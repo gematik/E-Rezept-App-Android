@@ -42,6 +42,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,7 +57,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.MainViewModel
+import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -64,12 +65,13 @@ import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import kotlinx.coroutines.launch
 import java.util.Locale
 
 @Composable
 fun InsecureDeviceScreen(
     navController: NavController,
-    mainViewModel: MainViewModel,
+    settingsController: SettingsController,
     headline: String,
     icon: Painter,
     headlineBody: String,
@@ -79,6 +81,7 @@ fun InsecureDeviceScreen(
 ) {
     var checked by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
 
     AnimatedElevationScaffold(
         elevated = scrollState.value > 0,
@@ -89,7 +92,9 @@ fun InsecureDeviceScreen(
                 Button(
                     onClick = {
                         if (checked && pinUseCase) {
-                            mainViewModel.onAcceptInsecureDevice()
+                            scope.launch {
+                                settingsController.onAcceptInsecureDevice()
+                            }
                         }
                         navController.popBackStack()
                     },

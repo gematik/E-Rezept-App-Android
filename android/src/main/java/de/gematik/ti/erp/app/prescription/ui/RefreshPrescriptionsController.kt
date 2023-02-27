@@ -30,7 +30,7 @@ import de.gematik.ti.erp.app.cardwall.mini.ui.UserNotAuthenticatedException
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.idp.usecase.IDPConfigException
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.prescription.usecase.RefreshPrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.vau.interceptor.VauException
@@ -51,7 +51,7 @@ import java.net.UnknownHostException
 @Stable
 class RefreshPrescriptionsController(
     private val refreshPrescriptionUseCase: RefreshPrescriptionUseCase,
-    private val mainScreenViewModel: MainScreenViewModel,
+    private val mainScreenController: MainScreenController,
     private val authenticator: Authenticator
 ) {
 
@@ -71,14 +71,14 @@ class RefreshPrescriptionsController(
         ).cancellable().first()
 
         when (finalState) {
-            GenerellErrorState.NoneEnrolled -> {
+            GeneralErrorState.NoneEnrolled -> {
                 onShowCardWall()
             }
-            GenerellErrorState.UserNotAuthenticated -> {
+            GeneralErrorState.UserNotAuthenticated -> {
                 onUserNotAuthenticated()
             }
             else -> {
-                mainScreenViewModel.onRefresh(finalState)
+                mainScreenController.onRefresh(finalState)
             }
         }
     }
@@ -100,14 +100,14 @@ class RefreshPrescriptionsController(
 }
 
 @Composable
-fun rememberRefreshPrescriptionsController(mainScreenViewModel: MainScreenViewModel): RefreshPrescriptionsController {
+fun rememberRefreshPrescriptionsController(mainScreenController: MainScreenController): RefreshPrescriptionsController {
     val refreshPrescriptionUseCase by rememberInstance<RefreshPrescriptionUseCase>()
     val authenticator = LocalAuthenticator.current
 
     return remember {
         RefreshPrescriptionsController(
             refreshPrescriptionUseCase = refreshPrescriptionUseCase,
-            mainScreenViewModel = mainScreenViewModel,
+            mainScreenController = mainScreenController,
             authenticator = authenticator
         )
     }
@@ -149,24 +149,24 @@ fun Flow<PrescriptionServiceState>.catchAndTransformRemoteExceptions() =
         throwable.walkCause()?.also { emit(it) } ?: throw throwable
     }
 
-private fun Throwable.walkCause(): GenerellErrorState? =
+private fun Throwable.walkCause(): GeneralErrorState? =
     cause?.walkCause() ?: transformException()
 
-private fun Throwable.transformException(): GenerellErrorState? =
+private fun Throwable.transformException(): GeneralErrorState? =
     when (this) {
         is UserNotAuthenticatedException ->
-            GenerellErrorState.UserNotAuthenticated
+            GeneralErrorState.UserNotAuthenticated
         is NoneEnrolledException ->
-            GenerellErrorState.NoneEnrolled
+            GeneralErrorState.NoneEnrolled
         is VauException ->
-            GenerellErrorState.FatalTruststoreState
+            GeneralErrorState.FatalTruststoreState
         is IDPConfigException -> // TODO use other state
-            GenerellErrorState.FatalTruststoreState
+            GeneralErrorState.FatalTruststoreState
         is SocketTimeoutException,
         is UnknownHostException ->
-            GenerellErrorState.NetworkNotAvailable
+            GeneralErrorState.NetworkNotAvailable
         is ApiCallException ->
-            GenerellErrorState.ServerCommunicationFailedWhileRefreshing(
+            GeneralErrorState.ServerCommunicationFailedWhileRefreshing(
                 this.response.code()
             )
         else -> null

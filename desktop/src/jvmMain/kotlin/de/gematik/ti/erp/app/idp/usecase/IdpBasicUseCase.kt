@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.BCProvider
-import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
@@ -38,11 +37,11 @@ import java.security.PublicKey
 import java.security.SecureRandom
 import java.security.Security
 import java.security.interfaces.ECPublicKey
-import java.time.Duration
-import java.time.Instant
 import javax.crypto.SecretKey
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -58,9 +57,10 @@ import org.jose4j.jwt.NumericDate
 import org.jose4j.jwt.consumer.JwtContext
 import org.jose4j.jwt.consumer.NumericDateValidator
 import org.jose4j.jwx.JsonWebStructure
+import kotlin.time.Duration.Companion.hours
 
-private val discoveryDocumentMaxValidityMinutes: Int = Duration.ofHours(24).toMinutes().toInt()
-private val discoveryDocumentMaxValiditySeconds: Int = Duration.ofHours(24).seconds.toInt()
+private val discoveryDocumentMaxValidityMinutes: Int = 24.hours.inWholeMinutes.toInt()
+private val discoveryDocumentMaxValiditySeconds: Int = 24.hours.inWholeSeconds.toInt()
 
 enum class IdpScope {
     Default,
@@ -183,7 +183,7 @@ class IdpBasicUseCase(
 
         val config = try {
             repository.loadUncheckedIdpConfiguration().also {
-                checkIdpConfigurationValidity(it, Instant.now())
+                checkIdpConfigurationValidity(it, Clock.System.now())
             }
         } catch (e: Exception) {
             Napier.e("IDP config couldn't be validated", e)
@@ -191,7 +191,7 @@ class IdpBasicUseCase(
             // retry
             try {
                 repository.loadUncheckedIdpConfiguration().also {
-                    checkIdpConfigurationValidity(it, Instant.now())
+                    checkIdpConfigurationValidity(it, Clock.System.now())
                 }
             } catch (e: Exception) {
                 Napier.e("IDP config couldn't be validated again; finally aborting", e)
@@ -485,7 +485,7 @@ class IdpBasicUseCase(
 
         val r = NumericDateValidator().apply {
             setAllowedClockSkewSeconds(60)
-            setEvaluationTime(NumericDate.fromMilliseconds(timestamp.toEpochMilli()))
+            setEvaluationTime(NumericDate.fromMilliseconds(timestamp.toEpochMilliseconds()))
             setRequireExp(true)
             setRequireIat(true)
             setIatAllowedSecondsInThePast(discoveryDocumentMaxValiditySeconds)

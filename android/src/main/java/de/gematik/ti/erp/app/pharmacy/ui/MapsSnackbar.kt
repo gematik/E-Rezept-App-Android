@@ -20,12 +20,12 @@ package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.content.Context
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.prescription.ui.GenerellErrorState
+import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 
 fun mapsErrorMessage(context: Context, deleteState: PrescriptionServiceErrorState): String? =
     when (deleteState) {
-        GenerellErrorState.NetworkNotAvailable ->
+        GeneralErrorState.NetworkNotAvailable ->
             context.getString(R.string.error_message_network_not_available)
         else -> null
     }

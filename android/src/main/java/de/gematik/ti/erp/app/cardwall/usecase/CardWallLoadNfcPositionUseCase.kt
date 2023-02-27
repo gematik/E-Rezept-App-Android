@@ -29,7 +29,7 @@ import java.io.InputStream
 class CardWallLoadNfcPositionUseCase(
     private val context: Context
 ) {
-    private val nfcPositions: List<NfcPositionUseCaseData.NfcPosition> by lazy {
+    private val nfcPositions: List<NfcPositionUseCaseData.NfcData> by lazy {
         loadNfcPositionsFromJSON(
             context.resources.openRawResourceFd(R.raw.nfc_positions).createInputStream()
         ).sortedBy { it.marketingName.lowercase() }
@@ -38,5 +38,5 @@ class CardWallLoadNfcPositionUseCase(
     fun findNfcPositionForPhone() = nfcPositions.find { it.modelNames.contains(Build.MODEL) }
 }
 
-private fun loadNfcPositionsFromJSON(jsonInput: InputStream): List<NfcPositionUseCaseData.NfcPosition> =
+private fun loadNfcPositionsFromJSON(jsonInput: InputStream): List<NfcPositionUseCaseData.NfcData> =
     Json.decodeFromString(jsonInput.bufferedReader().readText())

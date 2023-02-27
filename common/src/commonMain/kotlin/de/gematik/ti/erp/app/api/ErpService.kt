@@ -22,6 +22,7 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.serialization.json.JsonElement
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.POST
@@ -83,7 +84,24 @@ interface ErpService {
 
     @GET("MedicationDispense")
     suspend fun bundleOfMedicationDispenses(
-        @Tag profileName: String,
+        @Tag profileId: ProfileIdentifier,
         @Query("identifier") id: String
     ): Response<JsonElement>
+
+    @GET("Consent")
+    suspend fun getConsent(
+        @Tag profileId: ProfileIdentifier
+    ): Response<JsonElement>
+
+    @POST("Consent")
+    suspend fun grantConsent(
+        @Tag profileId: ProfileIdentifier,
+        @Body consent: JsonElement
+    ): Response<Unit>
+
+    @DELETE("Consent")
+    suspend fun deleteConsent(
+        @Tag profileId: ProfileIdentifier,
+        @Query("category") category: String
+    ): Response<Unit>
 }

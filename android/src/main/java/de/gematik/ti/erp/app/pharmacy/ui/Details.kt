@@ -91,11 +91,9 @@ import de.gematik.ti.erp.app.utils.compose.HintCard
 import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
 import de.gematik.ti.erp.app.utils.compose.HintSmallImage
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
-import de.gematik.ti.erp.app.utils.compose.Spacer16
-import de.gematik.ti.erp.app.utils.compose.Spacer4
-import de.gematik.ti.erp.app.utils.compose.Spacer8
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.canHandleIntent
@@ -469,7 +467,7 @@ private fun PharmacyOpeningHours(openingHours: OpeningHours) {
                     }
                 }
             }
-            Spacer16()
+            SpacerMedium()
         }
     }
 }
@@ -536,7 +534,7 @@ private fun DataInfoSection(modifier: Modifier) {
                 }
         }
     )
-    Spacer8()
+    SpacerSmall()
     Row(modifier = modifier) {
         HintTextActionButton(text = stringResource(R.string.pharmacy_detail_data_info_btn)) {
             uriHandler.openUri(uriFaq)
@@ -574,7 +572,7 @@ private fun Label(
             style = AppTheme.typography.body1,
             color = AppTheme.colors.primary600
         )
-        Spacer4()
+        SpacerTiny()
         Text(
             text = label,
             style = AppTheme.typography.body2l

@@ -173,7 +173,7 @@ fun LocalRedeemScreen(
                     }
                 )
             }
-            if (codes.size > 1 || codes.first().nrOfCodes > 1) {
+            if (codes.size > 1 || (codes.size == 1 && codes.first().nrOfCodes > 1)) {
                 PageIndicator(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     pagerState = pagerState
@@ -213,41 +213,44 @@ private fun DataMatrix(
     val matrix = remember(code) { createBitMatrix(code.payload) }
     val shape = RoundedCornerShape(16.dp)
 
-    Column(
-        modifier = modifier
-            .background(Color.White, shape)
-            .border(1.dp, AppTheme.colors.neutral300, shape)
-            .padding(PaddingDefaults.Medium)
-    ) {
-        @Suppress("MagicNumber")
-        Box(
-            modifier = Modifier
-                .scale(scale = if (isZoomedOut) 0.7f else 1f)
-                .drawDataMatrix(matrix)
-                .aspectRatio(1f)
-                .fillMaxWidth()
-        )
-        SpacerMedium()
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            if (code.name != null) {
-                Text(
-                    modifier = Modifier.weight(1f),
-                    text = code.name,
-                    style = AppTheme.typography.h6,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            } else {
-                Spacer(Modifier.weight(1f))
-            }
+    AppTheme(darkTheme = false) {
+        Column(
+            modifier = modifier
+                .background(AppTheme.colors.neutral000, shape)
+                .border(1.dp, AppTheme.colors.neutral300, shape)
+                .padding(PaddingDefaults.Medium)
+        ) {
+            @Suppress("MagicNumber")
+            Box(
+                modifier = Modifier
+                    .scale(scale = if (isZoomedOut) 0.7f else 1f)
+                    .drawDataMatrix(matrix)
+                    .aspectRatio(1f)
+                    .fillMaxWidth()
+            )
             SpacerMedium()
-            TertiaryButton(
-                onClick = { onClickZoom(!isZoomedOut) }
-            ) {
-                if (isZoomedOut) {
-                    Icon(Icons.Rounded.ZoomIn, null)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                if (code.name != null) {
+                    Text(
+                        modifier = Modifier.weight(1f),
+                        text = code.name,
+                        style = AppTheme.typography.h6,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        color = AppTheme.colors.neutral999
+                    )
                 } else {
-                    Icon(Icons.Rounded.ZoomOut, null)
+                    Spacer(Modifier.weight(1f))
+                }
+                SpacerMedium()
+                TertiaryButton(
+                    onClick = { onClickZoom(!isZoomedOut) }
+                ) {
+                    if (isZoomedOut) {
+                        Icon(Icons.Rounded.ZoomIn, null)
+                    } else {
+                        Icon(Icons.Rounded.ZoomOut, null)
+                    }
                 }
             }
         }

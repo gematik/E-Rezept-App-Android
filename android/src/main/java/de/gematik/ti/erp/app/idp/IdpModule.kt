@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp
 
+import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.di.NetworkSecurePreferencesTag
 import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
@@ -37,7 +38,10 @@ import org.kodein.di.instance
 val idpModule = DI.Module("idpModule") {
     bindProvider { IdpLocalDataSource(instance()) }
     bindProvider { IdpPairingRepository(instance()) }
-    bindProvider { IdpRemoteDataSource(instance()) }
+    bindProvider {
+        val endpointHelper = instance<EndpointHelper>()
+        IdpRemoteDataSource(instance()) { endpointHelper.getIdpScope() }
+    }
     bindProvider { IdpAlternateAuthenticationUseCase(instance(), instance(), instance()) }
     bindProvider { IdpCryptoProvider() }
     bindProvider { IdpDeviceInfoProvider() }

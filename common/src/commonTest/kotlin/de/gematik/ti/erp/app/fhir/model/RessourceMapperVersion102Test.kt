@@ -26,6 +26,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+
 enum class ReturnType {
     Organization, Patient, Practitioner, InsuranceInformation, MedicationRequest, MedicationDispense,
     Medication, Ingredient, MultiplePrescriptionInfo, Quantity, Ratio, Address

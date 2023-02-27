@@ -27,7 +27,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -50,7 +49,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
@@ -59,7 +57,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
@@ -73,7 +70,7 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
@@ -112,8 +109,8 @@ const val TWO_DAYS_LEFT = 2L
 @Composable
 fun PrescriptionScreen(
     navController: NavController,
-    prescriptionViewModel: PrescriptionViewModel,
-    mainScreenViewModel: MainScreenViewModel,
+    prescriptionState: PrescriptionState,
+    mainScreenController: MainScreenController,
     onClickAvatar: () -> Unit,
     onClickArchive: () -> Unit,
     onElevateTopBar: (Boolean) -> Unit
@@ -138,11 +135,11 @@ fun PrescriptionScreen(
     RefreshScaffold(
         profileId = profileId,
         onUserNotAuthenticated = { showUserNotAuthenticatedDialog = true },
-        mainScreenViewModel = mainScreenViewModel,
+        mainScreenController = mainScreenController,
         onShowCardWall = onShowCardWall
     ) { onRefresh ->
         Prescriptions(
-            prescriptionViewModel = prescriptionViewModel,
+            prescriptionState = prescriptionState,
             onClickRefresh = {
                 onRefresh(true, MutatePriority.UserInput)
             },
@@ -177,29 +174,23 @@ val CardPaddingModifier = Modifier
 
 @Composable
 private fun Prescriptions(
-    prescriptionViewModel: PrescriptionViewModel,
+    prescriptionState: PrescriptionState,
     navController: NavController,
     onClickRefresh: () -> Unit,
     onClickAvatar: () -> Unit,
     onClickArchive: () -> Unit,
     onElevateTopBar: (Boolean) -> Unit
 ) {
-    val state by produceState<PrescriptionScreenData.State?>(null) {
-        prescriptionViewModel.screenState().collect {
-            value = it
-        }
-    }
+    val state by prescriptionState.state
 
-    state?.let {
-        PrescriptionsContent(
-            onClickRefresh = onClickRefresh,
-            onClickAvatar = onClickAvatar,
-            state = it,
-            navController = navController,
-            onElevateTopBar = onElevateTopBar,
-            onClickArchive = onClickArchive
-        )
-    }
+    PrescriptionsContent(
+        onClickRefresh = onClickRefresh,
+        onClickAvatar = onClickAvatar,
+        state = state,
+        navController = navController,
+        onElevateTopBar = onElevateTopBar,
+        onClickArchive = onClickArchive
+    )
 }
 
 private val FabPadding = 68.dp

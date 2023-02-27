@@ -37,7 +37,7 @@ class AppDependenciesPlugin : Plugin<Project> {
         project.plugins.all {
             if (this is AppPlugin) {
                 project.extensions.getByType(BaseAppModuleExtension::class).apply {
-                    composeOptions.kotlinCompilerExtensionVersion = Dependencies.composeVersion
+                    composeOptions.kotlinCompilerExtensionVersion = "1.3.2"
                     buildFeatures {
                         compose = true
                     }
@@ -69,7 +69,7 @@ class AppDependenciesPlugin : Plugin<Project> {
         const val TargetSdkVersion = 33
 
         object DependencyInjection {
-            fun kodein(module: String) = "org.kodein.di:kodein-$module:7.14.0"
+            fun kodein(module: String) = "org.kodein.di:kodein-$module:7.16.0"
         }
 
         object Tracker
@@ -89,13 +89,13 @@ class AppDependenciesPlugin : Plugin<Project> {
             }
         }
         object Lottie {
-            const val lottieVersion = "5.0.3"
+            const val lottieVersion = "5.2.0"
             const val lottie = "com.airbnb.android:lottie-compose:$lottieVersion"
         }
         object PlayServices {
             val location = gms("location", "21.0.1")
-            const val integrity = "com.google.android.play:integrity:1.0.2"
-            val maps = gms("maps", "18.0.1")
+            const val integrity = "com.google.android.play:integrity:1.1.0"
+            val maps = gms("maps", "18.1.0")
             private fun gms(module: String, version: String) =
                 "com.google.android.gms:play-services-$module:$version"
 
@@ -105,15 +105,15 @@ class AppDependenciesPlugin : Plugin<Project> {
 
         object Android {
             const val desugaring = "com.android.tools:desugar_jdk_libs:1.1.5"
-            const val appcompat = "androidx.appcompat:appcompat:1.4.1"
+            const val appcompat = "androidx.appcompat:appcompat:1.6.0"
             const val legacySupport = "androidx.legacy:legacy-support-v4:1.0.0"
-            const val coreKtx = "androidx.core:core-ktx:1.7.0"
+            const val coreKtx = "androidx.core:core-ktx:1.9.0"
             const val datastorePreferences = "androidx.datastore:datastore-preferences:1.0.0"
             const val biometric = "androidx.biometric:biometric:1.1.0"
-            const val webkit = "androidx.webkit:webkit:1.4.0"
-            const val security = "androidx.security:security-crypto:1.1.0-alpha03"
+            const val webkit = "androidx.webkit:webkit:1.6.0"
+            const val security = "androidx.security:security-crypto:1.1.0-alpha04"
 
-            val mapsCompose = gmaps("maps-compose", "2.7.2")
+            val mapsCompose = gmaps("maps-compose", "2.9.1")
             val maps = gmaps("maps-ktx", "3.4.0")
             val mapsUtils = gmaps("maps-utils-ktx", "3.4.0")
             val mapsAndroidUtils = gmaps("maps-utils-ktx", "2.4.0")
@@ -123,38 +123,38 @@ class AppDependenciesPlugin : Plugin<Project> {
 
             fun lifecycle(module: String) = "androidx.lifecycle:lifecycle-$module:2.5.1"
 
-            const val composeNavigation = "androidx.navigation:navigation-compose:2.4.2"
+            const val composeNavigation = "androidx.navigation:navigation-compose:2.5.3"
             const val composeActivity = "androidx.activity:activity-compose:1.6.1"
-            const val composePaging = "androidx.paging:paging-compose:1.0.0-alpha14"
+            const val composePaging = "androidx.paging:paging-compose:1.0.0-alpha17"
 
-            const val cameraViewVersion = "1.2.0-rc01"
-            const val cameraVersion = "1.2.0-rc01"
+            const val cameraViewVersion = "1.2.1"
+            const val cameraVersion = "1.2.1"
             fun camera(module: String, version: String = cameraVersion) = "androidx.camera:camera-$module:$version"
 
             const val processPhoenix = "com.jakewharton:process-phoenix:2.1.2"
-            const val imageCropper = "com.github.CanHub:Android-Image-Cropper:4.2.1"
+            const val imageCropper = "com.github.CanHub:Android-Image-Cropper:4.3.2"
 
             object Test {
-                const val runner = "androidx.test:runner:1.5.-"
+                const val runner = "androidx.test:runner:1.5.2"
                 const val orchestrator = "androidx.test:orchestrator:1.4.2"
                 const val services = "androidx.test.services:test-services:1.4.2"
                 const val archCore = "androidx.arch.core:core-testing:2.1.0"
                 const val core = "androidx.test:core:1.5.0"
                 const val rules = "androidx.test:rules:1.5.0"
-                const val espresso = "androidx.test.espresso:espresso-core:3.5.0"
-                const val espressoIntents = "androidx.test.espresso:espresso-intents:3.5.0"
-                const val junitExt = "androidx.test.ext:junit:1.1.4"
+                const val espresso = "androidx.test.espresso:espresso-core:3.5.1"
+                const val espressoIntents = "androidx.test.espresso:espresso-intents:3.5.1"
+                const val junitExt = "androidx.test.ext:junit:1.1.5"
                 const val navigation = "androidx.navigation:navigation-testing:2.5.3"
             }
         }
 
         object AndroidX {
-            fun paging(suffix: String) = "androidx.paging:paging-$suffix:3.1.0"
+            fun paging(suffix: String) = "androidx.paging:paging-$suffix:3.1.1"
         }
 
         object Logging {
             const val napier = "io.github.aakira:napier:2.6.1"
-            const val slf4jNoOp = "org.slf4j:slf4j-nop:2.0.0-alpha5"
+            const val slf4jNoOp = "org.slf4j:slf4j-nop:2.0.6"
         }
 
         object Serialization {
@@ -163,7 +163,7 @@ class AppDependenciesPlugin : Plugin<Project> {
         }
 
         object Crypto {
-            const val jose4j = "org.bitbucket.b_c:jose4j:0.7.12"
+            const val jose4j = "org.bitbucket.b_c:jose4j:0.9.2"
 
             fun bouncyCastle(provider: String, targetPlatform: String = "jdk18on") =
                 "org.bouncycastle:$provider-$targetPlatform:1.72"
@@ -180,10 +180,10 @@ class AppDependenciesPlugin : Plugin<Project> {
         }
 
         object Database {
-            const val realm = "io.realm.kotlin:library-base:1.4.0"
+            const val realm = "io.realm.kotlin:library-base:1.6.1"
         }
 
-        const val composeVersion = "1.2.1"
+        const val composeVersion = "1.3.+"
 
         object Compose {
             const val compiler = "androidx.compose.compiler:compiler:$composeVersion"
@@ -199,7 +199,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val materialIconsExtended =
                 "androidx.compose.material:material-icons-extended:$composeVersion"
 
-            fun accompanist(module: String) = "com.google.accompanist:accompanist-$module:0.27.0"
+            fun accompanist(module: String) = "com.google.accompanist:accompanist-$module:0.28.0"
 
             object Test {
                 const val ui = "androidx.compose.ui:ui-test:$composeVersion"
@@ -212,11 +212,11 @@ class AppDependenciesPlugin : Plugin<Project> {
         }
 
         object ContentSquare {
-            const val cts = "com.contentsquare.android:library:4.12.0"
+            const val cts = "com.contentsquare.android:library:4.15.0"
         }
 
         object Test {
-            fun mockk(module: String) = "io.mockk:$module:1.13.2"
+            fun mockk(module: String) = "io.mockk:$module:1.13.3"
             const val junit4 = "junit:junit:4.13.2"
             const val snakeyaml = "org.yaml:snakeyaml:1.30"
             const val json = "org.json:json:20220924"

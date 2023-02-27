@@ -64,7 +64,6 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -98,7 +97,7 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
-import de.gematik.ti.erp.app.utils.compose.Spacer4
+import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -112,7 +111,7 @@ import java.util.Locale
 @Composable
 fun SettingsScreen(
     mainNavController: NavController,
-    settingsViewModel: SettingsViewModel
+    settingsController: SettingsController
 ) {
     val settingsNavController = rememberNavController()
 
@@ -122,7 +121,7 @@ fun SettingsScreen(
         settingsNavController = settingsNavController,
         navigationMode = navigationMode,
         mainNavController = mainNavController,
-        settingsViewModel = settingsViewModel
+        settingsController = settingsController
     )
 }
 
@@ -130,13 +129,9 @@ fun SettingsScreen(
 fun SettingsScreenWithScaffold(
     mainNavController: NavController,
     navController: NavController,
-    settingsViewModel: SettingsViewModel
+    settingsController: SettingsController
 ) {
-    val state by produceState(SettingsScreen.defaultState) {
-        settingsViewModel.screenState().collect {
-            value = it
-        }
-    }
+    val profilesState by settingsController.profilesState
 
     val listState = rememberLazyListState()
 
@@ -157,7 +152,7 @@ fun SettingsScreenWithScaffold(
                 }
             }
             item {
-                ProfileSection(state, mainNavController)
+                ProfileSection(profilesState, mainNavController)
                 SettingsDivider()
             }
             item {
@@ -252,10 +247,10 @@ private fun SettingsDivider() =
 
 @Composable
 private fun ProfileSection(
-    state: SettingsScreen.State,
+    profilesState: SettingStatesData.ProfilesState,
     navController: NavController
 ) {
-    val profiles = state.profiles
+    val profiles = profilesState.profiles
 
     Column {
         Text(
@@ -318,16 +313,12 @@ private fun ProfileCard(
 @Composable
 fun ProfileNameDialog(
     initialProfileName: String = "",
-    settingsViewModel: SettingsViewModel,
+    settingsController: SettingsController,
     wantRemoveLastProfile: Boolean = false,
     onEdit: (text: String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val settingsScreenState by produceState(SettingsScreen.defaultState) {
-        settingsViewModel.screenState().collect {
-            value = it
-        }
-    }
+    val profilesState by settingsController.profilesState
     var textValue by remember { mutableStateOf(initialProfileName ?: "") }
     var duplicated by remember { mutableStateOf(false) }
 
@@ -370,7 +361,7 @@ fun ProfileNameDialog(
                             val name = sanitizeProfileName(it.trimStart())
                             textValue = name
                             duplicated = textValue.trim() != initialProfileName &&
-                                settingsScreenState.containsProfileWithName(textValue) &&
+                                profilesState.containsProfileWithName(textValue) &&
                                 !wantRemoveLastProfile
                         },
                         keyboardOptions = KeyboardOptions(
@@ -605,12 +596,12 @@ private fun AboutSection(modifier: Modifier) {
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.Rounded.PhoneAndroid, null, modifier = Modifier.size(16.dp))
-                Spacer4()
+                SpacerTiny()
                 Text(
                     stringResource(R.string.about_version, BuildConfig.VERSION_NAME)
                 )
             }
-            Spacer4()
+            SpacerTiny()
             Text(
                 stringResource(R.string.about_buildhash, BuildKonfig.GIT_HASH)
             )

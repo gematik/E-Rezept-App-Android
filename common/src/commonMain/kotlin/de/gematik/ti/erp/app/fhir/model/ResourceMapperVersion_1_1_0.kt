@@ -35,7 +35,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 @Suppress("LongParameterList", "LongMethod")
 fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationRequest,
-    Medication, Ingredient, MultiplePrescriptionInfo, Quantity, Ratio, Address> extractkbvbundleversion110(
+    Medication, Ingredient, MultiplePrescriptionInfo, Quantity, Ratio, Address> extractKBVBundleVersion110(
     bundle: JsonElement,
     processOrganization: OrganizationFn<Organization, Address>,
     processPatient: PatientFn<Patient, Address>,

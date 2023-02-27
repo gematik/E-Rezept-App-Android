@@ -41,7 +41,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -135,62 +134,6 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
-
-@Composable
-fun Spacer32() =
-    Spacer(modifier = Modifier.size(32.dp))
-
-@Composable
-fun Spacer24() =
-    Spacer(modifier = Modifier.size(24.dp))
-
-@Composable
-fun Spacer16() =
-    Spacer(modifier = Modifier.size(16.dp))
-
-@Composable
-fun Spacer8() =
-    Spacer(modifier = Modifier.size(8.dp))
-
-@Composable
-fun Spacer4() =
-    Spacer(modifier = Modifier.size(4.dp))
-
-@Composable
-fun Spacer48() =
-    Spacer(modifier = Modifier.size(48.dp))
-
-@Composable
-fun SpacerLarge() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.Large))
-
-@Composable
-fun SpacerXLarge() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.XLarge))
-
-@Composable
-fun SpacerXXLarge() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.XXLarge))
-
-@Composable
-fun SpacerMedium() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.Medium))
-
-@Composable
-fun SpacerShortMedium() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.ShortMedium))
-
-@Composable
-fun SpacerXXLargeMedium() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.XXLargeMedium))
-
-@Composable
-fun SpacerSmall() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.Small))
-
-@Composable
-fun SpacerTiny() =
-    Spacer(modifier = Modifier.size(PaddingDefaults.Tiny))
 
 @Composable
 fun LargeButton(

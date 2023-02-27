@@ -127,3 +127,7 @@ val medDispenseBundleVersion_1_2 by lazy {
 val task_bundle_version_1_2 by lazy {
     File("$ResourceBasePath/fhir/task_bundle_vers_1_2.json").readText()
 }
+
+val pkvAbgabedatenJson_vers_1_1 by lazy {
+    File("$ResourceBasePath/fhir/pkv_abgabedaten_1_1.json").readText()
+}

@@ -1,0 +1,378 @@
+{
+  "resourceType": "Bundle",
+  "id": "f548dde3-a319-486b-8624-6176ff41ad90",
+  "meta": {
+    "profile": [
+      "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle|1.1"
+    ],
+    "tag": [
+      {
+        "display": "Beispiel RezeptAbgabedatenPKV Bundle (FAM + Noctu + Rezeptänderung)"
+      },
+      {
+        "display": "ACHTUNG! Der fachlich korrekte Inhalt der Beispielinstanz kann nicht gewährleistet werden. Wir sind jederzeit dankbar für Hinweise auf Fehler oder für Verbesserungsvorschläge."
+      }
+    ]
+  },
+  "type": "document",
+  "identifier": {
+    "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+    "value": "200.100.000.000.082.87"
+  },
+  "timestamp": "2022-03-25T23:40:00Z",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Composition",
+        "id": "4dc5f425-b9b6-4e39-9166-42668ead6c86",
+        "meta": {
+          "profile": [
+            "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenComposition|1.1"
+          ]
+        },
+        "status": "final",
+        "type": {
+          "coding": [
+            {
+              "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-CompositionTypes",
+              "code": "ERezeptAbgabedaten"
+            }
+          ]
+        },
+        "title": "ERezeptAbgabedaten",
+        "section": [
+          {
+            "title": "Abgabeinformationen",
+            "entry": [
+              {
+                "reference": "urn:uuid:37a647b8-cb89-491a-af0f-f9bffc2b386c"
+              }
+            ]
+          },
+          {
+            "title": "Apotheke",
+            "entry": [
+              {
+                "reference": "urn:uuid:1fa57d53-812b-4cab-a42e-94a12481108a"
+              }
+            ]
+          }
+        ],
+        "date": "2022-03-25T23:40:00Z",
+        "author": [
+          {
+            "reference": "urn:uuid:1fa57d53-812b-4cab-a42e-94a12481108a"
+          }
+        ]
+      },
+      "fullUrl": "urn:uuid:4dc5f425-b9b6-4e39-9166-42668ead6c86"
+    },
+    {
+      "resource": {
+        "resourceType": "Organization",
+        "id": "1fa57d53-812b-4cab-a42e-94a12481108a",
+        "meta": {
+          "profile": [
+            "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Apotheke|1.1"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "http://fhir.de/sid/arge-ik/iknr",
+            "value": "123456789"
+          }
+        ],
+        "address": [
+          {
+            "type": "physical",
+            "line": [
+              "Taunusstraße 89"
+            ],
+            "_line": [
+              {
+                "extension": [
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+                    "valueString": "Taunusstraße"
+                  },
+                  {
+                    "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+                    "valueString": "89"
+                  }
+                ]
+              }
+            ],
+            "city": "Langen",
+            "postalCode": "63225",
+            "country": "D"
+          }
+        ],
+        "name": "Adler-Apotheke"
+      },
+      "fullUrl": "urn:uuid:1fa57d53-812b-4cab-a42e-94a12481108a"
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationDispense",
+        "id": "37a647b8-cb89-491a-af0f-f9bffc2b386c",
+        "meta": {
+          "profile": [
+            "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abgabeinformationen|1.1"
+          ]
+        },
+        "status": "completed",
+        "medicationCodeableConcept": {
+          "coding": [
+            {
+              "system": "http://terminology.hl7.org/CodeSystem/data-absent-reason",
+              "code": "not-applicable"
+            }
+          ]
+        },
+        "type": {
+          "coding": [
+            {
+              "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-MedicationDispenseTyp",
+              "code": "Abgabeinformationen"
+            }
+          ]
+        },
+        "extension": [
+          {
+            "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Abrechnungszeilen",
+            "valueReference": {
+              "reference": "urn:uuid:8a99bfa5-f7aa-4741-99d8-f1abbd301ae1"
+            }
+          },
+          {
+            "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-EX-ERP-AbrechnungsTyp",
+            "valueCodeableConcept": {
+              "coding": [
+                {
+                  "code": "1",
+                  "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-PKV-CS-ERP-AbrechnungsTyp"
+                }
+              ]
+            }
+          }
+        ],
+        "authorizingPrescription": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+              "value": "200.100.000.000.082.87"
+            }
+          }
+        ],
+        "substitution": {
+          "extension": [
+            {
+              "extension": [
+                {
+                  "url": "ArtRezeptaenderung",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "code": "21",
+                        "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-PKV-CS-ERP-ArtRezeptaenderung"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "url": "RueckspracheArzt",
+                  "valueCodeableConcept": {
+                    "coding": [
+                      {
+                        "code": "2",
+                        "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-RueckspracheArzt"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Rezeptaenderung"
+            }
+          ],
+          "wasSubstituted": true
+        },
+        "performer": [
+          {
+            "actor": {
+              "reference": "urn:uuid:1fa57d53-812b-4cab-a42e-94a12481108a"
+            }
+          }
+        ],
+        "whenHandedOver": "2022-03-25"
+      },
+      "fullUrl": "urn:uuid:37a647b8-cb89-491a-af0f-f9bffc2b386c"
+    },
+    {
+      "resource": {
+        "resourceType": "Invoice",
+        "id": "8a99bfa5-f7aa-4741-99d8-f1abbd301ae1",
+        "meta": {
+          "profile": [
+            "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abrechnungszeilen|1.1"
+          ]
+        },
+        "status": "issued",
+        "type": {
+          "coding": [
+            {
+              "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-InvoiceTyp",
+              "code": "Abrechnungszeilen"
+            }
+          ]
+        },
+        "lineItem": [
+          {
+            "priceComponent": [
+              {
+                "type": "informational",
+                "extension": [
+                  {
+                    "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-MwStSatz",
+                    "valueDecimal": 19
+                  },
+                  {
+                    "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-KostenVersicherter",
+                    "extension": [
+                      {
+                        "url": "Kategorie",
+                        "valueCodeableConcept": {
+                          "coding": [
+                            {
+                              "code": "0",
+                              "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-PKV-CS-ERP-KostenVersicherterKategorie"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "url": "Kostenbetrag",
+                        "valueMoney": {
+                          "currency": "EUR",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "amount": {
+                  "currency": "EUR",
+                  "value": 48.98
+                },
+                "factor": 2
+              }
+            ],
+            "sequence": 1,
+            "chargeItemCodeableConcept": {
+              "coding": [
+                {
+                  "code": "11514676",
+                  "system": "http://fhir.de/CodeSystem/ifa/pzn"
+                }
+              ]
+            }
+          },
+          {
+            "priceComponent": [
+              {
+                "type": "informational",
+                "extension": [
+                  {
+                    "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-MwStSatz",
+                    "valueDecimal": 19
+                  },
+                  {
+                    "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-KostenVersicherter",
+                    "extension": [
+                      {
+                        "url": "Kategorie",
+                        "valueCodeableConcept": {
+                          "coding": [
+                            {
+                              "code": "0",
+                              "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-PKV-CS-ERP-KostenVersicherterKategorie"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "url": "Kostenbetrag",
+                        "valueMoney": {
+                          "currency": "EUR",
+                          "value": 0
+                        }
+                      }
+                    ]
+                  }
+                ],
+                "amount": {
+                  "currency": "EUR",
+                  "value": 2.5
+                },
+                "factor": 1
+              }
+            ],
+            "extension": [
+              {
+                "extension": [
+                  {
+                    "extension": [
+                      {
+                        "url": "Gruppe",
+                        "valueCodeableConcept": {
+                          "coding": [
+                            {
+                              "system": "http://fhir.abda.de/eRezeptAbgabedaten/CodeSystem/DAV-CS-ERP-ZusatzattributGruppe",
+                              "code": "11"
+                            }
+                          ]
+                        }
+                      },
+                      {
+                        "url": "DatumUhrzeit",
+                        "valueDateTime": "2022-03-25T23:30:00.0Z"
+                      },
+                      {
+                        "url": "Schluessel",
+                        "valueBoolean": true
+                      }
+                    ],
+                    "url": "ZusatzattributAbgabeNoctu"
+                  }
+                ],
+                "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Zusatzattribute"
+              }
+            ],
+            "sequence": 2,
+            "chargeItemCodeableConcept": {
+              "coding": [
+                {
+                  "code": "02567018",
+                  "system": "http://fhir.de/CodeSystem/ifa/pzn"
+                }
+              ]
+            }
+          }
+        ],
+        "totalGross": {
+          "currency": "EUR",
+          "extension": [
+            {
+              "url": "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Gesamtzuzahlung",
+              "valueMoney": {
+                "currency": "EUR",
+                "value": 0
+              }
+            }
+          ],
+          "value": 51.48
+        }
+      },
+      "fullUrl": "urn:uuid:8a99bfa5-f7aa-4741-99d8-f1abbd301ae1"
+    }
+  ]
+}

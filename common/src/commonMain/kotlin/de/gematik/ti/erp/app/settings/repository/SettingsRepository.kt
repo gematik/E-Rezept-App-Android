@@ -83,11 +83,6 @@ class SettingsRepository constructor(
                             )
                         }
                     }
-
-                    SettingsAuthenticationMethodV1.Biometrics -> SettingsData.AuthenticationMode.Biometrics
-                    SettingsAuthenticationMethodV1.DeviceCredentials ->
-                        SettingsData.AuthenticationMode.DeviceCredentials
-                    SettingsAuthenticationMethodV1.None -> SettingsData.AuthenticationMode.None
                     else -> SettingsData.AuthenticationMode.Unspecified
                 }
             }

@@ -59,7 +59,6 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -69,12 +68,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -108,7 +104,7 @@ import java.util.zip.ZipOutputStream
 import kotlin.math.max
 
 @Composable
-private fun DebugCard(
+fun DebugCard(
     modifier: Modifier = Modifier,
     title: String,
     onReset: (() -> Unit)? = null,
@@ -283,6 +279,9 @@ fun DebugScreen(
                         },
                         onClickDirectRedemption = {
                             navController.navigate(DebugScreenNavigation.DebugRedeemWithoutFD.path())
+                        },
+                        onClickPKV = {
+                            navController.navigate(DebugScreenNavigation.DebugPKV.path())
                         }
                     )
                 }
@@ -290,6 +289,15 @@ fun DebugScreen(
             composable(DebugScreenNavigation.DebugRedeemWithoutFD.route) {
                 NavigationAnimation(mode = navMode) {
                     DebugScreenDirectRedeem(
+                        onBack = {
+                            navController.popBackStack()
+                        }
+                    )
+                }
+            }
+            composable(DebugScreenNavigation.DebugPKV.route) {
+                NavigationAnimation(mode = navMode) {
+                    DebugScreenPKV(
                         onBack = {
                             navController.popBackStack()
                         }
@@ -435,7 +443,8 @@ private fun RedeemButton(
 @Composable
 fun DebugScreenMain(
     onBack: () -> Unit,
-    onClickDirectRedemption: () -> Unit
+    onClickDirectRedemption: () -> Unit,
+    onClickPKV: () -> Unit
 ) {
     val viewModel by rememberViewModel<DebugSettingsViewModel>()
     val listState = rememberLazyListState()
@@ -491,6 +500,12 @@ fun DebugScreenMain(
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Text(text = "Direct Redemption")
+                        }
+                        Button(
+                            onClick = onClickPKV,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Text(text = "PKV")
                         }
                         Button(
                             onClick = { viewModel.refreshPrescriptions() },
@@ -587,30 +602,14 @@ fun DebugScreenMain(
     }
 }
 
-private const val maxNumberOfVisualLogs = 25
-
 @Composable
 private fun RotatingLog(modifier: Modifier = Modifier, viewModel: DebugSettingsViewModel) {
     DebugCard(modifier, title = "Log") {
-        val logs by viewModel.rotatingLog.collectAsState(emptyList())
-        val joinedLog =
-            logs.subList(max(0, logs.size - maxNumberOfVisualLogs), logs.size).fold(AnnotatedString("")) { acc, log ->
-                acc + AnnotatedString("\n") + log
-            }
-
-        var text by remember(joinedLog) { mutableStateOf(TextFieldValue(joinedLog)) }
-
-        Row {
-            val clipboard = LocalClipboardManager.current
-            Button(onClick = { clipboard.setText(joinedLog) }) {
-                Text("Copy All")
-            }
-
-            Spacer(Modifier.weight(1f))
-
-            val context = LocalContext.current
-            val mailAddress = stringResource(R.string.settings_contact_mail_address)
-            Button(onClick = {
+        val context = LocalContext.current
+        val mailAddress = stringResource(R.string.settings_contact_mail_address)
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
                 val intent = Intent(Intent.ACTION_SENDTO)
                 intent.data = Uri.parse("mailto:")
                 intent.putExtra(Intent.EXTRA_EMAIL, arrayOf(mailAddress))
@@ -621,7 +620,7 @@ private fun RotatingLog(modifier: Modifier = Modifier, viewModel: DebugSettingsV
                     val e = ZipEntry("log.txt")
                     it.putNextEntry(e)
 
-                    val data = joinedLog.text.toByteArray()
+                    val data = viewModel.rotatingLog.value.joinToString("\n").toByteArray()
                     it.write(data, 0, data.size)
                     it.closeEntry()
                 }
@@ -631,21 +630,10 @@ private fun RotatingLog(modifier: Modifier = Modifier, viewModel: DebugSettingsV
                 if (intent.resolveActivity(context.packageManager) != null) {
                     context.startActivity(intent)
                 }
-            }) {
-                Text("Send Mail")
             }
+        ) {
+            Text("Send Mail")
         }
-
-        OutlinedTextField(
-            modifier = Modifier
-                .heightIn(max = 400.dp)
-                .fillMaxWidth(),
-            value = text,
-            readOnly = true,
-            onValueChange = {
-                text = it
-            }
-        )
     }
 }
 

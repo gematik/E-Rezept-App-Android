@@ -54,7 +54,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.MainViewModel
+import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.Dialog
@@ -73,7 +73,7 @@ data class ToolTipState(
 
 @Composable
 fun ToolTips(
-    mainViewModel: MainViewModel,
+    settingsController: SettingsController,
     isInPrescriptionScreen: Boolean,
     toolTipBounds: MutableState<Map<Int, Rect>>
 ) {
@@ -82,7 +82,7 @@ fun ToolTips(
     var tooltipNr by remember { mutableStateOf(0) }
 
     val showMainScreenTooltips by produceState(initialValue = false) {
-        mainViewModel.showMainScreenToolTips().collect {
+        settingsController.showMainScreenToolTips().collect {
             value = it
         }
     }
@@ -113,7 +113,7 @@ fun ToolTips(
             2 -> ToolTip(
                 onDismissRequest = {
                     coroutineScope.launch {
-                        mainViewModel.mainScreenTooltipsShown()
+                        settingsController.mainScreenTooltipsShown()
                     }
                 },
                 tooltipState = ToolTipState(

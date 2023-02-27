@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +34,6 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
-import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -47,7 +45,7 @@ import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ArchiveScreen(prescriptionViewModel: PrescriptionViewModel, navController: NavController, onBack: () -> Unit) {
+fun ArchiveScreen(prescriptionState: PrescriptionState, navController: NavController, onBack: () -> Unit) {
     val listState = rememberLazyListState()
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.archive_screen_title),
@@ -55,11 +53,7 @@ fun ArchiveScreen(prescriptionViewModel: PrescriptionViewModel, navController: N
         onBack = onBack,
         navigationMode = NavigationBarMode.Back
     ) {
-        val state by produceState<PrescriptionScreenData.State?>(null) {
-            prescriptionViewModel.screenState().collect {
-                value = it
-            }
-        }
+        val state by prescriptionState.state
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().testTag(TestTag.Prescriptions.Archive.Content),

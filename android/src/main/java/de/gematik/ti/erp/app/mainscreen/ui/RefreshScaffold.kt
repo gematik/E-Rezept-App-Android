@@ -42,14 +42,14 @@ private const val SpinnerDelay = 300L
 fun RefreshScaffold(
     profileId: ProfileIdentifier,
     onUserNotAuthenticated: () -> Unit,
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenController: MainScreenController,
     onShowCardWall: () -> Unit,
     content: @Composable (onRefresh: (isUserAction: Boolean, priority: MutatePriority) -> Unit) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val mutex = MutatorMutex()
 
-    val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenViewModel)
+    val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenController)
 
     val isRefreshing by refreshPrescriptionsController.isRefreshing
     val refreshState = rememberSwipeRefreshState(isRefreshing)

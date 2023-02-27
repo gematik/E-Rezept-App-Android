@@ -41,7 +41,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.navigationBarsPadding
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingBottomBar
-import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 
@@ -74,7 +73,6 @@ fun AllowBiometryScreen(
     ) {
         if (showBiometricPrompt) {
             BiometricPrompt(
-                authenticationMethod = SettingsData.AuthenticationMode.DeviceSecurity,
                 title = stringResource(R.string.auth_prompt_headline),
                 description = "",
                 negativeButton = stringResource(R.string.auth_prompt_cancel),

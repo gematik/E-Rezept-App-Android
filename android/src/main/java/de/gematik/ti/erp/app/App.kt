@@ -22,6 +22,7 @@ import android.app.Application
 import android.content.Context
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.contentsquare.android.Contentsquare
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import de.gematik.ti.erp.app.core.AppScopedCache
 import de.gematik.ti.erp.app.di.allModules
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
@@ -57,6 +58,8 @@ class App : Application(), DIAware {
         ProcessLifecycleOwner.get().lifecycle.apply {
             addObserver(authUseCase)
         }
+
+        PDFBoxResourceLoader.init(this)
 
         Contentsquare.start(this)
     }

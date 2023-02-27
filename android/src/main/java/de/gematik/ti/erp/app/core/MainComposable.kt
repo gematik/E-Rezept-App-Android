@@ -32,7 +32,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,12 +54,13 @@ import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.settings.ui.SettingsController
+import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberViewModel
 import kotlin.math.max
 import kotlin.math.min
 
@@ -75,10 +75,10 @@ val LocalAnalytics =
 
 @Composable
 fun MainContent(
-    content: @Composable (mainViewModel: MainViewModel) -> Unit
+    content: @Composable (settingsController: SettingsController) -> Unit
 ) {
-    val mainViewModel by rememberViewModel<MainViewModel>()
-    val zoomEnabled by mainViewModel.zoomEnabled.collectAsState(false)
+    val settingsController = rememberSettingsController()
+    val zoomState by settingsController.zoomState
 
     AppTheme {
         val systemUiController = rememberSystemUiController()
@@ -88,9 +88,9 @@ fun MainContent(
         }
 
         Box(
-            modifier = Modifier.zoomable(enabled = zoomEnabled)
+            modifier = Modifier.zoomable(enabled = zoomState.zoomEnabled)
         ) {
-            content(mainViewModel)
+            content(settingsController)
         }
     }
 }

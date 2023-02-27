@@ -23,7 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyNavigation
 import de.gematik.ti.erp.app.pharmacy.ui.PrescriptionSelection
 import de.gematik.ti.erp.app.pharmacy.ui.rememberPharmacyOrderState
@@ -33,7 +33,7 @@ import de.gematik.ti.erp.app.utils.compose.navigationModeState
 
 @Composable
 fun RedeemNavigation(
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenController: MainScreenController,
     onFinish: () -> Unit
 ) {
     val orderState = rememberPharmacyOrderState()
@@ -108,7 +108,7 @@ fun RedeemNavigation(
         }
         composable(RedeemNavigation.PharmacySearch.route) {
             PharmacyNavigation(
-                mainScreenViewModel = mainScreenViewModel,
+                mainScreenController = mainScreenController,
                 isNestedNavigation = true,
                 orderState = orderState,
                 onBack = {

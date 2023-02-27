@@ -78,14 +78,5 @@ object SettingsData {
         }
 
         object Unspecified : AuthenticationMode()
-
-        @Deprecated("replaced by deviceSecurity")
-        object Biometrics : AuthenticationMode()
-
-        @Deprecated("replaced by deviceSecurity")
-        object DeviceCredentials : AuthenticationMode()
-
-        @Deprecated("not available anymore")
-        object None : AuthenticationMode()
     }
 }

@@ -20,22 +20,22 @@ package de.gematik.ti.erp.app.prescription.detail.ui
 
 import android.content.Context
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.prescription.ui.GenerellErrorState
+import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 
 fun deleteErrorMessage(context: Context, deleteState: PrescriptionServiceErrorState): String? =
     when (deleteState) {
-        GenerellErrorState.NetworkNotAvailable ->
+        GeneralErrorState.NetworkNotAvailable ->
             context.getString(R.string.error_message_network_not_available)
-        is GenerellErrorState.ServerCommunicationFailedWhileRefreshing ->
+        is GeneralErrorState.ServerCommunicationFailedWhileRefreshing ->
             context.getString(R.string.error_message_server_communication_failed).format(deleteState.code)
-        GenerellErrorState.FatalTruststoreState ->
+        GeneralErrorState.FatalTruststoreState ->
             context.getString(R.string.error_message_vau_error)
         is DeletePrescriptions.State.Error.PrescriptionWorkflowBlocked ->
             context.getString(R.string.logout_delete_in_progress)
         is DeletePrescriptions.State.Error.PrescriptionNotFound ->
             context.getString(R.string.prescription_not_found)
-        is GenerellErrorState.NoneEnrolled ->
+        is GeneralErrorState.NoneEnrolled ->
             context.getString(R.string.no_auth_enrolled)
         else -> null
     }

@@ -68,7 +68,6 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.cardwall.ui.model.CardWallNfcPositionViewModelData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -76,7 +75,6 @@ import de.gematik.ti.erp.app.utils.compose.NavigationBack
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.TopAppBar
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import org.kodein.di.compose.rememberViewModel
 import kotlin.math.PI
 import kotlin.math.cos
 
@@ -122,8 +120,8 @@ fun CardWallNfcInstructionScreen(
     onRetryCan: () -> Unit,
     onRetryPin: () -> Unit
 ) {
-    val nfcPositionViewModel by rememberViewModel<CardWallNfcPositionViewModel>()
-    val state by remember { mutableStateOf(nfcPositionViewModel.screenState()) }
+    val nfcPositionState = rememberCardWallNfcPositionState()
+    val state = nfcPositionState.state
 
     val dialogState = rememberCardWallAuthenticationDialogState()
 
@@ -150,11 +148,12 @@ fun CardWallNfcInstructionScreen(
     NFCInstructionScreen(onBack, onClickTroubleshooting, state)
 }
 
+@Suppress("LongMethod")
 @Composable
 fun NFCInstructionScreen(
     onBack: () -> Unit,
     onClickTroubleshooting: () -> Unit,
-    state: CardWallNfcPositionViewModelData.NfcPosition
+    state: CardWallNfcPositionStateData.State
 ) {
     val useDarkIcons = MaterialTheme.colors.isLight
     AppTheme(
@@ -182,8 +181,8 @@ fun NFCInstructionScreen(
             var titleHeight by remember { mutableStateOf(0) }
             var subTitleHeight by remember { mutableStateOf(0) }
             var descriptionHeight by remember { mutableStateOf(0) }
-            val nfcXPos by remember { mutableStateOf((state.nfcPosition.x0 + state.nfcPosition.x1) / 2) }
-            val nfcYPos by remember { mutableStateOf((state.nfcPosition.y0 + state.nfcPosition.y1) / 2) }
+            val nfcXPos by remember { mutableStateOf((state.nfcData.nfcPos.x0 + state.nfcData.nfcPos.x1) / 2) }
+            val nfcYPos by remember { mutableStateOf((state.nfcData.nfcPos.y0 + state.nfcData.nfcPos.y1) / 2) }
 
             LazyColumn(
                 state = lazyListState,

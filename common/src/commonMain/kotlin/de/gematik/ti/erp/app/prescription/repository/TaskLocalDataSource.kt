@@ -140,11 +140,11 @@ class TaskLocalDataSource(
                         try {
                             extractKBVBundle(
                                 bundleResource,
-                                processOrganization = { name, address, uniqueIdentifier, phone, mail ->
+                                processOrganization = { name, address, bsnr, iknr, phone, mail ->
                                     OrganizationEntityV1().apply {
                                         this.name = name
                                         this.address = address
-                                        this.uniqueIdentifier = uniqueIdentifier
+                                        this.uniqueIdentifier = bsnr
                                         this.phone = phone
                                         this.mail = mail
                                     }

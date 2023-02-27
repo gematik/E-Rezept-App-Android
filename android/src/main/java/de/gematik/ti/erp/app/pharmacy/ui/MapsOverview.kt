@@ -24,7 +24,6 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -106,7 +105,7 @@ import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.ui.GenerellErrorState
+import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.ModalBottomSheet
@@ -205,7 +204,7 @@ fun MapsOverview(
                     is PharmacySearchController.State.Pharmacies ->
                         pharmacies = result.pharmacies
 
-                    is GenerellErrorState ->
+                    is GeneralErrorState ->
                         mapsErrorMessage(context, result)?.let {
                             scaffoldState.snackbarHostState.showSnackbar(it)
                         }

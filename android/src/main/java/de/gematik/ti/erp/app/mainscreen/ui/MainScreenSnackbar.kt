@@ -28,30 +28,30 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.prescription.ui.GenerellErrorState
+import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.prescription.ui.RefreshedState
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 
 @Composable
 fun MainScreenSnackbar(
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenController: MainScreenController,
     scaffoldState: ScaffoldState
 ) {
     var refreshEvent by remember { mutableStateOf<PrescriptionServiceState?>(null) }
     LaunchedEffect(Unit) {
-        mainScreenViewModel.onRefreshEvent.collect {
+        mainScreenController.onRefreshEvent.collect {
             refreshEvent = it
         }
     }
 
     val refreshEventText = refreshEvent?.let {
         when (it) {
-            GenerellErrorState.NetworkNotAvailable ->
+            GeneralErrorState.NetworkNotAvailable ->
                 stringResource(R.string.error_message_network_not_available)
-            is GenerellErrorState.ServerCommunicationFailedWhileRefreshing ->
+            is GeneralErrorState.ServerCommunicationFailedWhileRefreshing ->
                 stringResource(R.string.error_message_server_communication_failed).format(it.code)
-            GenerellErrorState.FatalTruststoreState ->
+            GeneralErrorState.FatalTruststoreState ->
                 stringResource(R.string.error_message_vau_error)
             is RefreshedState -> {
                 if (it.nrOfNewPrescriptions == 0) {

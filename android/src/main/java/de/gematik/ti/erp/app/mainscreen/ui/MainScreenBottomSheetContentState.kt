@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
-import android.media.Image
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
@@ -50,7 +48,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
@@ -58,7 +55,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.ui.AvatarPicker
 import de.gematik.ti.erp.app.profiles.ui.ColorPicker
@@ -66,8 +62,7 @@ import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileImage
 import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.ui.SettingsScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
+import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
@@ -94,8 +89,7 @@ sealed class MainScreenBottomSheetContentState {
 
 @Composable
 fun MainScreenBottomSheetContentState(
-    settingsViewModel: SettingsViewModel,
-    mainViewModel: MainViewModel,
+    settingsController: SettingsController,
     profileSettingsViewModel: ProfileSettingsViewModel,
     infoContentState: MainScreenBottomSheetContentState?,
     mainNavController: NavController,
@@ -156,7 +150,7 @@ fun MainScreenBottomSheetContentState(
                         )
                     is MainScreenBottomSheetContentState.EditOrAddProfileName ->
                         ProfileSheetContent(
-                            settingsViewModel = settingsViewModel,
+                            settingsController = settingsController,
                             profileSettingsViewModel = profileSettingsViewModel,
                             addProfile = it.addProfile,
                             profileToEdit = if (!it.addProfile) {
@@ -168,7 +162,7 @@ fun MainScreenBottomSheetContentState(
                         ConnectBottomSheetContent(
                             onClickConnect = {
                                 scope.launch {
-                                    mainViewModel.welcomeDrawerShown()
+                                    settingsController.welcomeDrawerShown()
                                 }
                                 mainNavController.navigate(
                                     MainNavigationScreens.CardWall.path(profileHandler.activeProfile.id)
@@ -176,7 +170,7 @@ fun MainScreenBottomSheetContentState(
                             },
                             onCancel = {
                                 scope.launch {
-                                    mainViewModel.welcomeDrawerShown()
+                                    settingsController.welcomeDrawerShown()
                                 }
                                 onCancel()
                             }
@@ -190,19 +184,15 @@ fun MainScreenBottomSheetContentState(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProfileSheetContent(
-    settingsViewModel: SettingsViewModel,
+    settingsController: SettingsController,
     profileSettingsViewModel: ProfileSettingsViewModel,
     profileToEdit: ProfilesUseCaseData.Profile?,
     addProfile: Boolean = false,
     onCancel: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
-
-    val settingsScreenState by produceState(SettingsScreen.defaultState) {
-        settingsViewModel.screenState().collect {
-            value = it
-        }
-    }
+    val scope = rememberCoroutineScope()
+    val profilesState by settingsController.profilesState
     var textValue by remember { mutableStateOf(profileToEdit?.name ?: "") }
     var duplicated by remember { mutableStateOf(false) }
 
@@ -210,7 +200,9 @@ fun ProfileSheetContent(
         if (!addProfile) {
             profileToEdit?.let { profileSettingsViewModel.updateProfileName(it.id, textValue) }
         } else {
-            settingsViewModel.addProfile(textValue)
+            scope.launch {
+                settingsController.addProfile(textValue)
+            }
         }
         onCancel()
         keyboardController?.hide()
@@ -228,7 +220,7 @@ fun ProfileSheetContent(
                 val name = sanitizeProfileName(it.trimStart())
                 textValue = name
                 duplicated = textValue.trim() != profileToEdit?.name &&
-                    settingsScreenState.containsProfileWithName(textValue)
+                    profilesState.containsProfileWithName(textValue)
             },
             keyboardOptions = KeyboardOptions(
                 autoCorrect = true,

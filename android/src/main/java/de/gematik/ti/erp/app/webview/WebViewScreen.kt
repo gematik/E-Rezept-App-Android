@@ -193,7 +193,8 @@ fun createWebViewClient(colors: Colors, typo: Typography) = object : WebViewClie
     }
 
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
-        return if (request.url.scheme == "https" && request.url.host != "localhost") {
+        val isAllowedScheme = request.url.scheme == "https" || request.url.scheme == "mailto"
+        return if (isAllowedScheme && request.url.host != "localhost") {
             view.context.startActivity(Intent(Intent.ACTION_VIEW, request.url))
             true
         } else {

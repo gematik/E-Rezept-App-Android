@@ -132,7 +132,7 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
-import de.gematik.ti.erp.app.utils.compose.Spacer4
+import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
@@ -537,7 +537,7 @@ private fun InfoCard(
 private fun InfoError(text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Icon(Icons.Rounded.Close, null, modifier = Modifier.size(24.dp))
-        Spacer4()
+        SpacerTiny()
         Text(
             text,
             textAlign = TextAlign.Center,

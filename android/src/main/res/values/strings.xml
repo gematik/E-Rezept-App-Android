@@ -827,4 +827,15 @@
     <string name="health_card_order_close">Schließen</string>
     <string name="profile_invoiceInformation_header">Abrechnungen</string>
     <string name="profile_show_invoices">Abrechnungen anzeigen</string>
+    <string name="profile_invoices">Abrechnungen</string>
+    <string name="invoices_connect_info">Um Abrechnungen zu empfangen, müssen Sie mit dem Server verbunden sein.</string>
+    <string name="invoices_connect_btn">Verbinden</string>
+    <string name="invoices_no_invoices">Keine Abrechnungen</string>
+    <string name="profile_revoke_consent">Deaktivieren</string>
+    <string name="profile_invoices_cancel">Abbrechen</string>
+    <string name="profile_revoke_consent_header">Funktion deaktivieren</string>
+    <string name="profile_revoke_consent_info">Hierdurch werden alle Abrechnungen von diesem Gerät und vom Server gelöscht.</string>
+    <string name="profile_grant_consent_header">Abrechnungen empfangen</string>
+    <string name="profile_grant_consent_info">Ihre Abrechnungen werden zusätzlich auf dem Rezeptserver gespeichert.</string>
+    <string name="profile_grant_consent">Empfangen</string>
 </resources>

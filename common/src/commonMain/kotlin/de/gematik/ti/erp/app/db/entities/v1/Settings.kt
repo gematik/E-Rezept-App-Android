@@ -33,16 +33,7 @@ enum class SettingsAuthenticationMethodV1 {
     HealthCard,
     DeviceSecurity,
     Password,
-    Unspecified,
-
-    @Deprecated("Keep for older app versions migrating to a newer one with mandatory app protection.")
-    Biometrics,
-
-    @Deprecated("Keep for older app versions migrating to a newer one with mandatory app protection.")
-    DeviceCredentials,
-
-    @Deprecated("Keep for older app versions migrating to a newer one with mandatory app protection.")
-    None
+    Unspecified
 }
 
 class PasswordEntityV1 : RealmObject {

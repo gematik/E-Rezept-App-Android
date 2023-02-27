@@ -20,20 +20,20 @@ package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.content.Context
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.prescription.ui.GenerellErrorState
+import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 
 fun redeemErrorMessage(context: Context, redeemState: PrescriptionServiceErrorState): String? =
     when (redeemState) {
-        GenerellErrorState.NetworkNotAvailable ->
+        GeneralErrorState.NetworkNotAvailable ->
             context.getString(R.string.error_message_network_not_available)
-        is GenerellErrorState.ServerCommunicationFailedWhileRefreshing ->
+        is GeneralErrorState.ServerCommunicationFailedWhileRefreshing ->
             context.getString(R.string.error_message_server_communication_failed).format(redeemState.code)
-        GenerellErrorState.FatalTruststoreState ->
+        GeneralErrorState.FatalTruststoreState ->
             context.getString(R.string.error_message_vau_error)
         is RedeemPrescriptionsController.State.Error.Unknown ->
             context.getString(R.string.redeem_online_error_uploading)
-        is GenerellErrorState.NoneEnrolled ->
+        is GeneralErrorState.NoneEnrolled ->
             context.getString(R.string.no_auth_enrolled)
         else -> null
     }

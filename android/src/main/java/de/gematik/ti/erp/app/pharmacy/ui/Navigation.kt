@@ -31,7 +31,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
@@ -41,7 +41,7 @@ import kotlinx.coroutines.launch
 @Suppress("LongMethod")
 @Composable
 fun PharmacyNavigation(
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenController: MainScreenController,
     orderState: PharmacyOrderState = rememberPharmacyOrderState(),
     isNestedNavigation: Boolean = false,
     onBack: () -> Unit,
@@ -226,7 +226,7 @@ fun PharmacyNavigation(
                         navController.navigate(PharmacyNavigationScreens.PrescriptionSelection.path())
                     },
                     onFinish = { hasError ->
-                        mainScreenViewModel.onOrdered(hasError = hasError)
+                        mainScreenController.onOrdered(hasError = hasError)
                         onFinish()
                     }
                 )

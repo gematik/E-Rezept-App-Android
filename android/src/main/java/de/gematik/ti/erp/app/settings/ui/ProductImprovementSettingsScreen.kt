@@ -33,7 +33,6 @@ import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.produceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,15 +51,11 @@ import de.gematik.ti.erp.app.utils.compose.provideWebIntent
 
 @Composable
 fun ProductImprovementSettingsScreen(
-    settingsViewModel: SettingsViewModel,
+    settingsController: SettingsController,
     onAllowAnalytics: (Boolean) -> Unit,
     onBack: () -> Unit
 ) {
-    val state by produceState(SettingsScreen.defaultState) {
-        settingsViewModel.screenState().collect {
-            value = it
-        }
-    }
+    val analyticsState by settingsController.analyticsState
 
     val listState = rememberLazyListState()
 
@@ -77,7 +72,7 @@ fun ProductImprovementSettingsScreen(
             item {
                 SpacerMedium()
                 AnalyticsSection(
-                    state.analyticsAllowed
+                    analyticsState.analyticsAllowed
                 ) { allow ->
                     onAllowAnalytics(allow)
                 }

@@ -91,7 +91,6 @@ class AuthenticationUseCase(
             when (lifecycle) {
                 Lifecycle.Created -> {
                     this@AuthenticationUseCase.authRequired.value = when (authenticationMode) {
-                        SettingsData.AuthenticationMode.None,
                         SettingsData.AuthenticationMode.Unspecified -> false
                         else -> true
                     }
@@ -102,7 +101,6 @@ class AuthenticationUseCase(
                 }
                 Lifecycle.Running -> {
                     when (authenticationMode) {
-                        SettingsData.AuthenticationMode.None,
                         SettingsData.AuthenticationMode.Unspecified ->
                             emit(AuthenticationModeAndMethod.Authenticated)
                         else -> if (authRequired) {

@@ -10,7 +10,6 @@
     <ID>ComplexCondition:LoginWithHealthCardScreen.kt$(can.length == it || it == 5 &amp;&amp; can.length == 6) &amp;&amp; isFocussed</ID>
     <ID>ComplexCondition:LoginWithHealthCardScreen.kt$triggerAuth &amp;&amp; state.firstVisibleItemIndex == 4 &amp;&amp; cardAccessNumber.isNotBlank() &amp;&amp; personalIdentificationNumber.isNotBlank()</ID>
     <ID>ComplexCondition:Workarounds.kt$Workarounds$osName == "Mac OS X" &amp;&amp; majorJavaVersion &lt;= 16 &amp;&amp; (majorOsVersion == 11 || majorOsVersion == 12)</ID>
-    <ID>ComplexMethod:SyncedTaskEntityV1Test.kt$SyncedTaskEntityV1Test$@Test fun `cascading delete`()</ID>
     <ID>EmptyDefaultConstructor:PrefixedLogger.kt$NapierLogger$()</ID>
     <ID>EmptyFunctionBlock:DebugScreenWrapper.kt${}</ID>
     <ID>EmptyFunctionBlock:Main.kt$LogHandler${ }</ID>
@@ -42,18 +41,8 @@
     <ID>MagicNumber:BasicData.kt$3</ID>
     <ID>MagicNumber:BasicData.kt$4</ID>
     <ID>MagicNumber:BasicData.kt$IdpNonce.Companion$32</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$0.3f</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$0.7f</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$1.1f</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$10</ID>
     <ID>MagicNumber:CardWallAuthDialog.kt$1000</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$1300</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$1500</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$2500</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$300</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$3000</ID>
     <ID>MagicNumber:CardWallAuthDialog.kt$5000</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$600</ID>
     <ID>MagicNumber:CardWallComponents.kt$6</ID>
     <ID>MagicNumber:CardWallComponents.kt$8</ID>
     <ID>MagicNumber:CardWallNfcInstructionScreen.kt$1.5f</ID>
@@ -76,11 +65,6 @@
     <ID>MagicNumber:EcdsaUsingShaAlgorithmExtending.kt$EcdsaUsingShaAlgorithmExtending.EcdsaBP256R1UsingSha256$64</ID>
     <ID>MagicNumber:EcdsaUsingShaAlgorithmExtending.kt$EcdsaUsingShaAlgorithmExtending.EcdsaBP384R1UsingSha384$64</ID>
     <ID>MagicNumber:EcdsaUsingShaAlgorithmExtending.kt$EcdsaUsingShaAlgorithmExtending.EcdsaBP512R1UsingSha512$64</ID>
-    <ID>MagicNumber:EditShippingContactScreen.kt$4</ID>
-    <ID>MagicNumber:EditShippingContactScreen.kt$5</ID>
-    <ID>MagicNumber:EditShippingContactScreen.kt$6</ID>
-    <ID>MagicNumber:EditShippingContactScreen.kt$7</ID>
-    <ID>MagicNumber:EditShippingContactScreen.kt$8</ID>
     <ID>MagicNumber:FileIdentifier.kt$FileIdentifier$0x011C</ID>
     <ID>MagicNumber:FileIdentifier.kt$FileIdentifier$0x1000</ID>
     <ID>MagicNumber:FileIdentifier.kt$FileIdentifier$0x3FFF</ID>
@@ -189,8 +173,8 @@
     <ID>MagicNumber:Workarounds.kt$Workarounds$11</ID>
     <ID>MagicNumber:Workarounds.kt$Workarounds$12</ID>
     <ID>MagicNumber:Workarounds.kt$Workarounds$16</ID>
-    <ID>MandatoryBracesIfStatements:EllipticCurvesExtending.kt$EllipticCurvesExtending$try { addCurve("BP-256", BP256) addCurve("BP-384", BP384) addCurve("BP-512", BP512) AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm( EcdsaBP256R1UsingSha256() ) AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm( EcdsaBP384R1UsingSha384() ) AlgorithmFactoryFactory.getInstance().jwsAlgorithmFactory.registerAlgorithm( EcdsaBP512R1UsingSha512() ) initializedInSession = true true } catch (e: Exception) { throw IllegalStateException("failure on init $e") }</ID>
-    <ID>MandatoryBracesIfStatements:LoginWithHealthCardScreen.kt$5</ID>
+    <ID>MandatoryBracesIfStatements:EllipticCurvesExtending.kt$EllipticCurvesExtending$else</ID>
+    <ID>MandatoryBracesIfStatements:LoginWithHealthCardScreen.kt$if</ID>
     <ID>MaxLineLength:CardUtilitiesTest.kt$CardUtilitiesTest$"(4e2778f6aaef54cb42865a3c30c753495af4e53121400802d0ab1acd665e9c77,4c2fae1687e9daa36c64570c909f93176f01eeafcb45f9c08e49805f127d94ef,1,7d5a0975fc2c3057eef67530417affe7fb8055c126dc5c6ce94a4b44f330b5d9)"</ID>
     <ID>MaxLineLength:CardUtilitiesTest.kt$CardUtilitiesTest$Hex.decode("041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")</ID>
     <ID>MaxLineLength:CardUtilitiesTest.kt$CardUtilitiesTest$Hex.decode("7C438341041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")</ID>
@@ -327,10 +311,6 @@
     <ID>MaxLineLength:TestData.kt$TestCertificates.OCSP2$"MIIEFgoBAKCCBA8wggQLBgkrBgEFBQcwAQEEggP8MIID+DCB+6FZMFcxCzAJBgNVBAYTAkRFMRowGAYDVQQKDBFnZW1hdGlrIE5PVC1WQUxJRDEsMCoGA1UEAwwjT0NTUCBTaWduZXIgS29tcC1DQTEwIGVjYyBURVNULU9OTFkYDzIwMjEwNTE3MDYyMzAxWjBoMGYwPjAHBgUrDgMCGgQUXI3/vEvbfD7eUzpI1js5mj5OUC4EFCjw+OapyHfMQ0Xbmq7XOoOsDg+oAgcBuyypCGo7gAAYDzIwMjEwNTE3MDYyMzAxWqARGA8yMDIxMDUxNzA2MjMwMVqhIzAhMB8GCSsGAQUFBzABAgQSBBDIsivTG9WljP4InmqVdKQmMAkGByqGSM49BAEDRwAwRAIgZMCyRhqMOaEG10KPz3mL5Yh7oX9fiIdBl8WrxLT2SewCIEvjzedVlnbt/j4e7VALo2xl8wvOcYe8gT04+PqH5vkfoIICojCCAp4wggKaMIICQKADAgECAgcDrTZEREJrMAoGCCqGSM49BAMCMIGEMQswCQYDVQQGEwJERTEfMB0GA1UECgwWZ2VtYXRpayBHbWJIIE5PVC1WQUxJRDEyMDAGA1UECwwpS29tcG9uZW50ZW4tQ0EgZGVyIFRlbGVtYXRpa2luZnJhc3RydWt0dXIxIDAeBgNVBAMMF0dFTS5LT01QLUNBMTAgVEVTVC1PTkxZMB4XDTIwMDUwNjAwMDAwMFoXDTIzMDUwNjIzNTk1OVowVzELMAkGA1UEBhMCREUxGjAYBgNVBAoMEWdlbWF0aWsgTk9ULVZBTElEMSwwKgYDVQQDDCNPQ1NQIFNpZ25lciBLb21wLUNBMTAgZWNjIFRFU1QtT05MWTBaMBQGByqGSM49AgEGCSskAwMCCAEBBwNCAAQbB+RoQs3RyvkN+o/Vs2xZlLZeK4fqt4s9kscFIuTIWn9LNMq80N2bucqWno2iuDXPWeOHJqlGtpoLNFLpWt4Po4HHMIHEMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMA4GA1UdDwEB/wQEAwIGQDAVBgNVHSAEDjAMMAoGCCqCFABMBIEjMBMGA1UdJQQMMAoGCCsGAQUFBwMJMAwGA1UdEwEB/wQCMAAwOAYIKwYBBQUHAQEELDAqMCgGCCsGAQUFBzABhhxodHRwOi8vZWhjYS5nZW1hdGlrLmRlL29jc3AvMB0GA1UdDgQWBBQcqomWuxucPpsAjIXZZJyse1SZ4jAKBggqhkjOPQQDAgNIADBFAiEAiR3T/gS0MtFGdvQHyaCa+XF6lisspf+WRUahfLQPrg4CICQ4KZc7AYkTFnHFGbh2In8Y/Nkjh5wCdpWqeKRgBBUJ"</ID>
     <ID>MaxLineLength:TestData.kt$TestCertificates.OCSP3$"MIIEFgoBAKCCBA8wggQLBgkrBgEFBQcwAQEEggP8MIID+DCB+6FZMFcxCzAJBgNVBAYTAkRFMRowGAYDVQQKDBFnZW1hdGlrIE5PVC1WQUxJRDEsMCoGA1UEAwwjT0NTUCBTaWduZXIgS29tcC1DQTEwIGVjYyBURVNULU9OTFkYDzIwMjEwNTE3MDYyMzAwWjBoMGYwPjAHBgUrDgMCGgQUXI3/vEvbfD7eUzpI1js5mj5OUC4EFCjw+OapyHfMQ0Xbmq7XOoOsDg+oAgcBPCti7yC3gAAYDzIwMjEwNTE3MDYyMzAwWqARGA8yMDIxMDUxNzA2MjMwMFqhIzAhMB8GCSsGAQUFBzABAgQSBBAWpjYsPzj/U96/S1MvypTWMAkGByqGSM49BAEDRwAwRAIgXfEC3h/1H2/aHGEyJY9L59S6NbqdkStBBk2vczj+3mwCIASMGDqPuhA7ZLBJ5HhHpwKYEQw/YPluyBMnz7j2dXtPoIICojCCAp4wggKaMIICQKADAgECAgcDrTZEREJrMAoGCCqGSM49BAMCMIGEMQswCQYDVQQGEwJERTEfMB0GA1UECgwWZ2VtYXRpayBHbWJIIE5PVC1WQUxJRDEyMDAGA1UECwwpS29tcG9uZW50ZW4tQ0EgZGVyIFRlbGVtYXRpa2luZnJhc3RydWt0dXIxIDAeBgNVBAMMF0dFTS5LT01QLUNBMTAgVEVTVC1PTkxZMB4XDTIwMDUwNjAwMDAwMFoXDTIzMDUwNjIzNTk1OVowVzELMAkGA1UEBhMCREUxGjAYBgNVBAoMEWdlbWF0aWsgTk9ULVZBTElEMSwwKgYDVQQDDCNPQ1NQIFNpZ25lciBLb21wLUNBMTAgZWNjIFRFU1QtT05MWTBaMBQGByqGSM49AgEGCSskAwMCCAEBBwNCAAQbB+RoQs3RyvkN+o/Vs2xZlLZeK4fqt4s9kscFIuTIWn9LNMq80N2bucqWno2iuDXPWeOHJqlGtpoLNFLpWt4Po4HHMIHEMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMA4GA1UdDwEB/wQEAwIGQDAVBgNVHSAEDjAMMAoGCCqCFABMBIEjMBMGA1UdJQQMMAoGCCsGAQUFBwMJMAwGA1UdEwEB/wQCMAAwOAYIKwYBBQUHAQEELDAqMCgGCCsGAQUFBzABhhxodHRwOi8vZWhjYS5nZW1hdGlrLmRlL29jc3AvMB0GA1UdDgQWBBQcqomWuxucPpsAjIXZZJyse1SZ4jAKBggqhkjOPQQDAgNIADBFAiEAiR3T/gS0MtFGdvQHyaCa+XF6lisspf+WRUahfLQPrg4CICQ4KZc7AYkTFnHFGbh2In8Y/Nkjh5wCdpWqeKRgBBUJ"</ID>
     <ID>MaxLineLength:TestData.kt$TestCertificates.Vau$"MIIC7jCCApWgAwIBAgIHATwrYu8gtzAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMDEwMDcwMDAwMDBaFw0yNTA4MDcwMDAwMDBaMF4xCzAJBgNVBAYTAkRFMSYwJAYDVQQKDB1nZW1hdGlrIFRFU1QtT05MWSAtIE5PVC1WQUxJRDEnMCUGA1UEAwweRVJQIFJlZmVyZW56ZW50d2lja2x1bmcgRkQgRW5jMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABKYLzjl704qFX+oEuUOyLV70i2Bn2K4jekh/YOxExtdADB3X/q7fX/tVr09GtDRxe3h1yov9TwuHaHYh91RlyMejggEUMIIBEDAMBgNVHRMBAf8EAjAAMCEGA1UdIAQaMBgwCgYIKoIUAEwEgSMwCgYIKoIUAEwEgUowHQYDVR0OBBYEFK5+wVL9g8tGve6b1MdHK1xs62H7MDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAOBgNVHQ8BAf8EBAMCAwgwUwYFKyQIAwMESjBIMEYwRDBCMEAwMgwwRS1SZXplcHQgdmVydHJhdWVuc3fDvHJkaWdlIEF1c2bDvGhydW5nc3VtZ2VidW5nMAoGCCqCFABMBIICMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMAoGCCqGSM49BAMCA0cAMEQCIGZ20lLY2WEAGOTmNEFBB1EeU645fE0Iy2U9ypFHMlw4AiAVEP0HYut0Z8sKUk6WVanMmKXjfxO/qgQFzjsbq954dw=="</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.Vau$MIIC7jCCApWgAwIBAgIHATwrYu8gtzAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMDEwMDcwMDAwMDBaFw0yNTA4MDcwMDAwMDBaMF4xCzAJBgNVBAYTAkRFMSYwJAYDVQQKDB1nZW1hdGlrIFRFU1QtT05MWSAtIE5PVC1WQUxJRDEnMCUGA1UEAwweRVJQIFJlZmVyZW56ZW50d2lja2x1bmcgRkQgRW5jMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABKYLzjl704qFX+oEuUOyLV70i2Bn2K4jekh/YOxExtdADB3X/q7fX/tVr09GtDRxe3h1yov9TwuHaHYh91RlyMejggEUMIIBEDAMBgNVHRMBAf8EAjAAMCEGA1UdIAQaMBgwCgYIKoIUAEwEgSMwCgYIKoIUAEwEgUowHQYDVR0OBBYEFK5+wVL9g8tGve6b1MdHK1xs62H7MDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAOBgNVHQ8BAf8EBAMCAwgwUwYFKyQIAwMESjBIMEYwRDBCMEAwMgwwRS1SZXplcHQgdmVydHJhdWVuc3fDvHJkaWdlIEF1c2bDvGhydW5nc3VtZ2VidW5nMAoGCCqCFABMBIICMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMAoGCCqGSM49BAMCA0cAMEQCIGZ20lLY2WEAGOTmNEFBB1EeU645fE0Iy2U9ypFHMlw4AiAVEP0HYut0Z8sKUk6WVanMmKXjfxO/qgQFzjsbq954dw==</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.Vau$MIICsTCCAligAwIBAgIHA61I5ACUjTAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMDA4MDQwMDAwMDBaFw0yNTA4MDQyMzU5NTlaMEkxCzAJBgNVBAYTAkRFMSYwJAYDVQQKDB1nZW1hdGlrIFRFU1QtT05MWSAtIE5PVC1WQUxJRDESMBAGA1UEAwwJSURQIFNpZyAxMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABJZQrG1NWxIB3kz/6Z2zojlkJqN3vJXZ3EZnJ6JXTXw5ZDFZ5XjwWmtgfomv3VOV7qzI5ycUSJysMWDEu3mqRcajge0wgeowHQYDVR0OBBYEFJ8DVLAZWT+BlojTD4MT/Na+ES8YMDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAMBgNVHRMBAf8EAjAAMCEGA1UdIAQaMBgwCgYIKoIUAEwEgUswCgYIKoIUAEwEgSMwHwYDVR0jBBgwFoAUKPD45qnId8xDRduartc6g6wOD6gwLQYFKyQIAwMEJDAiMCAwHjAcMBowDAwKSURQLURpZW5zdDAKBggqghQATASCBDAOBgNVHQ8BAf8EBAMCB4AwCgYIKoZIzj0EAwIDRwAwRAIgVBPhAwyX8HAVH0O0b3+VazpBAWkQNjkEVRkv+EYX1e8CIFdn4O+nivM+XVi9xiKK4dW1R7MD334OpOPTFjeEhIVV</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.Vau$MIICsTCCAligAwIBAgIHAbssqQhqOzAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMTAxMTUwMDAwMDBaFw0yNjAxMTUyMzU5NTlaMEkxCzAJBgNVBAYTAkRFMSYwJAYDVQQKDB1nZW1hdGlrIFRFU1QtT05MWSAtIE5PVC1WQUxJRDESMBAGA1UEAwwJSURQIFNpZyAzMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABIYZnwiGAn5QYOx43Z8MwaZLD3r/bz6BTcQO5pbeum6qQzYD5dDCcriw/VNPPZCQzXQPg4StWyy5OOq9TogBEmOjge0wgeowDgYDVR0PAQH/BAQDAgeAMC0GBSskCAMDBCQwIjAgMB4wHDAaMAwMCklEUC1EaWVuc3QwCgYIKoIUAEwEggQwIQYDVR0gBBowGDAKBggqghQATASBSzAKBggqghQATASBIzAfBgNVHSMEGDAWgBQo8Pjmqch3zENF25qu1zqDrA4PqDA4BggrBgEFBQcBAQQsMCowKAYIKwYBBQUHMAGGHGh0dHA6Ly9laGNhLmdlbWF0aWsuZGUvb2NzcC8wHQYDVR0OBBYEFC94M9LgW44lNgoAbkPaomnLjS8/MAwGA1UdEwEB/wQCMAAwCgYIKoZIzj0EAwIDRwAwRAIgCg4yZDWmyBirgxzawz/S8DJnRFKtYU/YGNlRc7+kBHcCIBuzba3GspqSmoP1VwMeNNKNaLsgV8vMbDJb30aqaiX1</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.Vau$MIIDGjCCAr+gAwIBAgIBFzAKBggqhkjOPQQDAjCBgTELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxNDAyBgNVBAsMK1plbnRyYWxlIFJvb3QtQ0EgZGVyIFRlbGVtYXRpa2luZnJhc3RydWt0dXIxGzAZBgNVBAMMEkdFTS5SQ0EzIFRFU1QtT05MWTAeFw0xNzA4MzAxMTM2MjJaFw0yNTA4MjgxMTM2MjFaMIGEMQswCQYDVQQGEwJERTEfMB0GA1UECgwWZ2VtYXRpayBHbWJIIE5PVC1WQUxJRDEyMDAGA1UECwwpS29tcG9uZW50ZW4tQ0EgZGVyIFRlbGVtYXRpa2luZnJhc3RydWt0dXIxIDAeBgNVBAMMF0dFTS5LT01QLUNBMTAgVEVTVC1PTkxZMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABDFinQgzfsT1CN0QWwdm7e2JiaDYHocCiy1TWpOPyHwoPC54RULeUIBJeX199Qm1FFpgeIRP1E8cjbHGNsRbju6jggEgMIIBHDAdBgNVHQ4EFgQUKPD45qnId8xDRduartc6g6wOD6gwHwYDVR0jBBgwFoAUB5AzLXVTXn/4yDe/fskmV2jfONIwQgYIKwYBBQUHAQEENjA0MDIGCCsGAQUFBzABhiZodHRwOi8vb2NzcC5yb290LWNhLnRpLWRpZW5zdGUuZGUvb2NzcDASBgNVHRMBAf8ECDAGAQH/AgEAMA4GA1UdDwEB/wQEAwIBBjAVBgNVHSAEDjAMMAoGCCqCFABMBIEjMFsGA1UdEQRUMFKgUAYDVQQKoEkMR2dlbWF0aWsgR2VzZWxsc2NoYWZ0IGbDvHIgVGVsZW1hdGlrYW53ZW5kdW5nZW4gZGVyIEdlc3VuZGhlaXRza2FydGUgbWJIMAoGCCqGSM49BAMCA0kAMEYCIQCprLtIIRx1Y4mKHlNngOVAf6D7rkYSa723oRyX7J2qwgIhAKPi9GSJyYp4gMTFeZkqvj8pcAqxNR9UKV7UYBlHrdxC</ID>
     <ID>MaxLineLength:TestData.kt$TestCrypto$"01 754e548941e5cd073fed6d734578a484be9f0bbfa1b6fa3168ed7ffb22878f0f 9aef9bbd932a020d8828367bd080a3e72b36c41ee40c87253f9b1b0beb8371bf 257db4604af8ae0dfced37ce 86c2b491c7a8309e750b 4e6e307219863938c204dfe85502ee0a"</ID>
     <ID>MaxLineLength:TestResource.kt$ApduResultEnum$ACTIVATECOMMAND_APDU</ID>
     <ID>MaxLineLength:TestResource.kt$ParameterEnum$PARAMETER_BYTEARRAY_DEFAULT</ID>
@@ -353,10 +333,10 @@
     <ID>MemberNameEqualsClassName:Navigation.kt$Route$val route = arguments.fold(Uri.Builder().path(path)) { uri, param -&gt; uri.appendQueryParameter(param.name, "{${param.name}}") }.build().toString()</ID>
     <ID>NestedBlockDepth:EntityUtils.kt$private suspend fun SequenceScope&lt;Deleteable&gt;.flatten( currentObject: Cascading, currentDepth: Int, maxDepth: Int )</ID>
     <ID>NestedBlockDepth:LicenceRule.kt$LicenceRule$override fun visit( node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -&gt; Unit )</ID>
-    <ID>NestedBlockDepth:Utils.kt$ fun ByteArray.contains(other: ByteArray): Boolean</ID>
+    <ID>NestedBlockDepth:Utils.kt$fun ByteArray.contains(other: ByteArray): Boolean</ID>
     <ID>ReturnCount:BiometricPrompt.kt$private fun bestSecureOption(biometricManager: BiometricManager): Int</ID>
     <ID>ReturnCount:TestResource.kt$TestResource$fun getParameter(parameterEnum: ParameterEnum): Any?</ID>
-    <ID>ReturnCount:Utils.kt$ fun ByteArray.contains(other: ByteArray): Boolean</ID>
+    <ID>ReturnCount:Utils.kt$fun ByteArray.contains(other: ByteArray): Boolean</ID>
     <ID>SpreadOperator:AndroidStringResourceGeneratorTask.kt$AndroidStringResourceGeneratorTask$( "%L to Plurals(${tr.items.toTemplateString()}),", primaryUniqueNamesWithId.getValue(tr.name), *tr.items.toArgArray() )</ID>
     <ID>SpreadOperator:AndroidStringResourceGeneratorTask.kt$AndroidStringResourceGeneratorTask$("val strings = mapOf($format)", *values)</ID>
     <ID>SpreadOperator:Common.kt$(id, *(args.map { AnnotatedString(it.toString()) }.toTypedArray()))</ID>
@@ -387,7 +367,7 @@
     <ID>TooGenericExceptionCaught:TwoDCodeScanner.kt$TwoDCodeScanner$e: Exception</ID>
     <ID>TooGenericExceptionCaught:TwoDCodeValidator.kt$TwoDCodeValidator$e: Exception</ID>
     <ID>TooGenericExceptionCaught:VauChannelInterceptor.kt$VauChannelInterceptor$e: Exception</ID>
-    <ID>TooManyFunctions:AppDependenciesPlugin.kt$App$App</ID>
+    <ID>TooManyFunctions:AppDependenciesPlugin.kt$App</ID>
     <ID>TooManyFunctions:Common.kt$de.gematik.ti.erp.app.utils.compose.Common.kt</ID>
     <ID>TooManyFunctions:DebugSettingsViewModel.kt$DebugSettingsViewModel : ViewModel</ID>
     <ID>TooManyFunctions:EditProfileScreen.kt$de.gematik.ti.erp.app.profiles.ui.EditProfileScreen.kt</ID>
@@ -407,7 +387,7 @@
     <ID>TopLevelPropertyNaming:IdpRemoteDataSource.kt$private const val defaultScope = "e-rezept openid"</ID>
     <ID>TopLevelPropertyNaming:IdpRemoteDataSource.kt$private const val pairingScope = "pairing openid"</ID>
     <ID>TopLevelPropertyNaming:PrescriptionDetailScreen.kt$private const val missingValue = "---"</ID>
-    <ID>UnnecessaryAbstractClass:TestDB.kt$TestDB</ID>
+    <ID>UnnecessaryAbstractClass:TestDB.kt$TestDB$TestDB</ID>
     <ID>UnusedPrivateMember:DebugScreenWrapper.kt$navigation: NavController</ID>
     <ID>UnusedPrivateMember:Hints.kt$innerPadding: PaddingValues</ID>
     <ID>UnusedPrivateMember:PrescriptionDetailScreen.kt$@Composable private fun Group( content: @Composable ColumnScope.() -&gt; Unit )</ID>

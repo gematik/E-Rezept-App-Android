@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.idp.repository
 
-import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.api.safeApiCallRaw
@@ -28,11 +27,11 @@ import okhttp3.ResponseBody
 import retrofit2.Response
 import java.net.HttpURLConnection
 
-private val defaultScope = BuildKonfig.IDP_DEFAULT_SCOPE
 private const val pairingScope = "pairing openid"
 
-class IdpRemoteDataSource constructor(
-    private val service: IdpService
+class IdpRemoteDataSource(
+    private val service: IdpService,
+    private val defaultScope: () -> String
 ) {
 
     suspend fun fetchDiscoveryDocument() =
@@ -65,7 +64,7 @@ class IdpRemoteDataSource constructor(
             codeChallenge = codeChallenge,
             nonce = nonce,
             state = state,
-            scope = if (isPairingScope) pairingScope else defaultScope
+            scope = if (isPairingScope) pairingScope else defaultScope()
         )
     }
 
@@ -83,7 +82,7 @@ class IdpRemoteDataSource constructor(
                 codeChallenge = codeChallenge,
                 state = state,
                 nonce = nonce,
-                scope = if (isDeviceRegistration) pairingScope else defaultScope,
+                scope = if (isDeviceRegistration) pairingScope else defaultScope(),
                 redirectUri = redirectUri
             )
         }

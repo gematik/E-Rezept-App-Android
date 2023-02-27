@@ -18,42 +18,39 @@
 
 package de.gematik.ti.erp.app
 
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import io.github.aakira.napier.Antilog
 import io.github.aakira.napier.LogLevel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
+private const val MaxLogEntries = 5000
+private const val LogEntriesToDelete = 100
+
 class VisibleDebugTree : Antilog() {
-    val rotatingLog = MutableStateFlow<List<AnnotatedString>>(emptyList())
+    private val _rotatingLog = MutableStateFlow<List<String>>(emptyList())
+    val rotatingLog: StateFlow<List<String>>
+        get() = _rotatingLog
 
     override fun performLog(priority: LogLevel, tag: String?, throwable: Throwable?, message: String?) {
-        rotatingLog.update {
-            if (it.size > 500) {
-                it.drop(10)
+        _rotatingLog.update {
+            if (it.size > MaxLogEntries + LogEntriesToDelete) {
+                it.drop(LogEntriesToDelete)
             } else {
                 it
-            } + buildAnnotatedString {
-                withStyle(SpanStyle(fontWeight = FontWeight.Bold)) {
-                    append(tag ?: "unknown")
+            } + buildString {
+                val lvl = when (priority) {
+                    LogLevel.VERBOSE -> "V"
+                    LogLevel.DEBUG -> "D"
+                    LogLevel.INFO -> "I"
+                    LogLevel.WARNING -> "W"
+                    LogLevel.ERROR -> "E"
+                    LogLevel.ASSERT -> "A"
                 }
-                append(" ")
-                if (priority == LogLevel.ERROR) {
-                    withStyle(SpanStyle(color = Color.Red)) {
-                        append(message ?: "")
-                    }
-                } else {
-                    append(message ?: "")
-                }
+                append("${ tag ?: "unknown" } $lvl: ${message ?: ""}")
                 throwable?.run {
-                    withStyle(SpanStyle(color = Color.Red)) {
-                        append(throwable.message ?: "")
-                    }
+                    append("\n")
+                    append(throwable.stackTraceToString())
                 }
             }
         }

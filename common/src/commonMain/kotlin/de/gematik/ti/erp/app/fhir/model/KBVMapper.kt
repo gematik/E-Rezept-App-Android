@@ -32,7 +32,8 @@ typealias AddressFn<R> = (
 typealias OrganizationFn<R, Address> = (
     name: String?,
     address: Address,
-    uniqueIdentifier: String?,
+    bsnr: String?,
+    iknr: String?,
     phone: String?,
     mail: String?
 ) -> R
@@ -160,7 +161,7 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
         profileString.isProfileValue(
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",
             "1.0.2"
-        ) -> extractkbvbundleversion102(
+        ) -> extractKBVBundleVersion102(
             bundle,
             processOrganization,
             processPatient,
@@ -180,7 +181,7 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",
             "1.1.0"
         ) ->
-            extractkbvbundleversion110(
+            extractKBVBundleVersion110(
                 bundle,
                 processOrganization,
                 processPatient,

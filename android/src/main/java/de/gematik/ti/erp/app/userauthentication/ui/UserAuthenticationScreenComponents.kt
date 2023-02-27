@@ -191,7 +191,6 @@ fun UserAuthenticationScreen() {
                 )
             else ->
                 BiometricPrompt(
-                    authenticationMethod = state.authenticationMethod,
                     title = stringResource(R.string.auth_prompt_headline),
                     description = "",
                     negativeButton = stringResource(R.string.auth_prompt_cancel),

@@ -32,6 +32,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -40,8 +41,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
+import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -50,13 +51,15 @@ import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.SecondaryButton
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import kotlinx.coroutines.launch
 
 @Composable
 fun MlKitIntroScreen(
     navController: NavController,
-    mainViewModel: MainViewModel
+    settingsController: SettingsController
 ) {
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
 
     AnimatedElevationScaffold(
         modifier = Modifier
@@ -65,7 +68,9 @@ fun MlKitIntroScreen(
         bottomBar = {
             MlKitBottomBar(
                 onAccept = {
-                    mainViewModel.acceptMlKit()
+                    scope.launch {
+                        settingsController.acceptMlKit()
+                    }
                     navController.navigate(MainNavigationScreens.Camera.path())
                 },
                 onClickReadMore = {

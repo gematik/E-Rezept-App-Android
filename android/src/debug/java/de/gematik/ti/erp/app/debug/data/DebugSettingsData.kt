@@ -43,5 +43,5 @@ data class DebugSettingsData(
 ) : Parcelable
 
 enum class Environment {
-    PU, TU, RU, TR
+    PU, TU, RU, RUDEV, TR
 }

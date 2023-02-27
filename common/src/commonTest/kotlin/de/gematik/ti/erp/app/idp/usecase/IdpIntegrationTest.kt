@@ -127,7 +127,7 @@ class IdpIntegrationTest {
 
         idpRepository = spyk(
             IdpRepository(
-                remoteDataSource = IdpRemoteDataSource(idpService),
+                remoteDataSource = IdpRemoteDataSource(idpService) { BuildKonfig.IDP_DEFAULT_SCOPE },
                 localDataSource = localDataSource
             )
         )

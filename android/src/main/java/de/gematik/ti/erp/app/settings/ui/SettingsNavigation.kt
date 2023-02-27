@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.settings.ui
 import AccessibilitySettingsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
@@ -34,6 +35,7 @@ import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import de.gematik.ti.erp.app.utils.compose.createToastShort
+import kotlinx.coroutines.launch
 
 object SettingsNavigationScreens {
     object Settings : Route("Settings")
@@ -49,8 +51,9 @@ fun SettingsNavGraph(
     settingsNavController: NavHostController,
     navigationMode: NavigationMode,
     mainNavController: NavController,
-    settingsViewModel: SettingsViewModel
+    settingsController: SettingsController
 ) {
+    val scope = rememberCoroutineScope()
     NavHost(
         settingsNavController,
         startDestination = SettingsNavigationScreens.Settings.path()
@@ -60,13 +63,13 @@ fun SettingsNavGraph(
                 SettingsScreenWithScaffold(
                     mainNavController = mainNavController,
                     navController = settingsNavController,
-                    settingsViewModel = settingsViewModel
+                    settingsController = settingsController
                 )
             }
         }
         composable(SettingsNavigationScreens.AccessibilitySettings.route) {
             AccessibilitySettingsScreen(
-                settingsViewModel = settingsViewModel,
+                settingsController = settingsController,
                 onBack = { settingsNavController.popBackStack() }
             )
         }
@@ -75,10 +78,10 @@ fun SettingsNavGraph(
             val disAllowAnalyticsToast = stringResource(R.string.settings_tracking_disallow_info)
 
             ProductImprovementSettingsScreen(
-                settingsViewModel = settingsViewModel,
+                settingsController = settingsController,
                 onAllowAnalytics = {
                     if (!it) {
-                        settingsViewModel.onTrackingDisallowed()
+                        settingsController.onTrackingDisallowed()
                         createToastShort(context, disAllowAnalyticsToast)
                     } else {
                         mainNavController.navigate(MainNavigationScreens.AllowAnalytics.path())
@@ -90,13 +93,16 @@ fun SettingsNavGraph(
 
         composable(SettingsNavigationScreens.DeviceSecuritySettings.route) {
             DeviceSecuritySettingsScreen(
-                settingsViewModel = settingsViewModel,
+                settingsController = settingsController,
                 onBack = { settingsNavController.popBackStack() }
             ) {
                 when (it) {
                     is SettingsData.AuthenticationMode.Password ->
                         mainNavController.navigate(MainNavigationScreens.Password.path())
-                    else -> settingsViewModel.onSelectDeviceSecurityAuthenticationMode()
+                    else ->
+                        scope.launch {
+                            settingsController.onSelectDeviceSecurityAuthenticationMode()
+                        }
                 }
             }
         }

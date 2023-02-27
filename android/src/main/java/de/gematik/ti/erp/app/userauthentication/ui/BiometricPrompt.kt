@@ -27,14 +27,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 
 // tag::BiometricPromptAndBestSecureOption[]
 
 @Composable
 fun BiometricPrompt(
-    authenticationMethod: SettingsData.AuthenticationMode,
     title: String,
     description: String,
     negativeButton: String,
@@ -87,39 +85,17 @@ fun BiometricPrompt(
     val promptInfo = remember {
         val secureOption = bestSecureOption(biometricManager)
 
-        if (authenticationMethod == SettingsData.AuthenticationMode.DeviceCredentials) {
-            BiometricPrompt.PromptInfo.Builder()
-                .setTitle(title)
-                .setDescription(description)
-                .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.DEVICE_CREDENTIAL
-                )
-                .build()
-        } else if (authenticationMethod == SettingsData.AuthenticationMode.Biometrics) {
-            BiometricPrompt.PromptInfo.Builder()
-                .setTitle(title)
-                .setDescription(description)
-                .setNegativeButtonText(negativeButton)
-                .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_STRONG
-                )
-                .setAllowedAuthenticators(
-                    BiometricManager.Authenticators.BIOMETRIC_WEAK
-                )
-                .build()
-        } else {
-            BiometricPrompt.PromptInfo.Builder()
-                .setTitle(title)
-                .setDescription(description)
-                .apply {
-                    if ((secureOption and BiometricManager.Authenticators.DEVICE_CREDENTIAL) == 0) {
-                        setNegativeButtonText(negativeButton)
-                    }
-                }.setAllowedAuthenticators(
-                    secureOption
-                )
-                .build()
-        }
+        BiometricPrompt.PromptInfo.Builder()
+            .setTitle(title)
+            .setDescription(description)
+            .apply {
+                if ((secureOption and BiometricManager.Authenticators.DEVICE_CREDENTIAL) == 0) {
+                    setNegativeButtonText(negativeButton)
+                }
+            }.setAllowedAuthenticators(
+                secureOption
+            )
+            .build()
     }
 
     val biometricPrompt = remember { BiometricPrompt(activity, executor, callback) }

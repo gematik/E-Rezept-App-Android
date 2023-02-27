@@ -80,7 +80,7 @@ import de.gematik.ti.erp.app.network.di.networkModule
 import de.gematik.ti.erp.app.prescription.di.prescriptionModule
 import de.gematik.ti.erp.app.protocol.di.protocolModule
 import de.gematik.ti.erp.app.utils.cleanupDbFiles
-import de.gematik.ti.erp.app.vau.di.vauModule
+import de.gematik.ti.erp.app.di.vauModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow

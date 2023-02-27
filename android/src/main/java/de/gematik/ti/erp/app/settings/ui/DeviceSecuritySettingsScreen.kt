@@ -38,7 +38,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -60,16 +59,11 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 
 @Composable
 fun DeviceSecuritySettingsScreen(
-    settingsViewModel: SettingsViewModel,
+    settingsController: SettingsController,
     onBack: () -> Unit,
     onClickProtectionMode: (SettingsData.AuthenticationMode) -> Unit
-
 ) {
-    val authenticationMode by produceState(SettingsScreen.defaultState.authenticationMode) {
-        settingsViewModel.screenState().collect {
-            value = it.authenticationMode
-        }
-    }
+    val authenticationModeState by settingsController.authenticationModeState
 
     val listState = rememberLazyListState()
 
@@ -77,7 +71,6 @@ fun DeviceSecuritySettingsScreen(
 
     if (showBiometricPrompt) {
         BiometricPrompt(
-            authenticationMethod = SettingsData.AuthenticationMode.DeviceSecurity,
             title = stringResource(R.string.auth_prompt_headline),
             description = "",
             negativeButton = stringResource(R.string.auth_prompt_cancel),
@@ -110,7 +103,8 @@ fun DeviceSecuritySettingsScreen(
                 SpacerMedium()
                 AuthenticationModeCard(
                     Icons.Outlined.Fingerprint,
-                    checked = authenticationMode == SettingsData.AuthenticationMode.DeviceSecurity,
+                    checked = authenticationModeState.authenticationMode is
+                    SettingsData.AuthenticationMode.DeviceSecurity,
                     headline = stringResource(R.string.settings_appprotection_device_security_header),
                     info = stringResource(R.string.settings_appprotection_device_security_info),
                     deviceSecurity = true
@@ -121,7 +115,7 @@ fun DeviceSecuritySettingsScreen(
             item {
                 AuthenticationModeCard(
                     Icons.Outlined.Security,
-                    checked = authenticationMode is SettingsData.AuthenticationMode.Password,
+                    checked = authenticationModeState.authenticationMode is SettingsData.AuthenticationMode.Password,
                     headline = stringResource(R.string.settings_appprotection_mode_password_headline),
                     info = stringResource(R.string.settings_appprotection_mode_password_info)
                 ) {

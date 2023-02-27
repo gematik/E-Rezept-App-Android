@@ -1,3 +1,7 @@
+# Release 1.9.0
+- Small refactorings
+- Bugfixes
+
 # Release 1.8.0
 - Switched to new analytics tool
 - Bugfixes

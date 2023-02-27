@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.debug.ui
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
@@ -37,9 +38,16 @@ import de.gematik.ti.erp.app.debug.data.Environment
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
+import de.gematik.ti.erp.app.fhir.model.extractPKVInvoiceBundle
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.invoice.usecase.PkvHtmlTemplate
+import de.gematik.ti.erp.app.invoice.usecase.createPkvHtmlInvoiceTemplate
+import de.gematik.ti.erp.app.invoice.usecase.createSharableFileInCache
+import de.gematik.ti.erp.app.invoice.usecase.sharePDFFile
+import de.gematik.ti.erp.app.invoice.usecase.writePDFAttachment
+import de.gematik.ti.erp.app.invoice.usecase.writePdfFromHtml
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -51,6 +59,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.Json
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.jce.ECNamedCurveTable
 import org.bouncycastle.util.encoders.Base64
@@ -135,6 +144,7 @@ class DebugSettingsViewModel(
                 pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_PU,
                 pharmacyServiceActive = true
             )
+
             Environment.TU -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_TU,
                 eRezeptActive = true,
@@ -143,10 +153,19 @@ class DebugSettingsViewModel(
                 pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 pharmacyServiceActive = true
             )
+
             Environment.RU -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_RU,
                 eRezeptActive = true,
                 idpUrl = BuildKonfig.IDP_SERVICE_URI_RU,
+                idpActive = true,
+                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                pharmacyServiceActive = true
+            )
+            Environment.RUDEV -> debugSettingsData.copy(
+                eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_RU_DEV,
+                eRezeptActive = true,
+                idpUrl = BuildKonfig.IDP_SERVICE_URI_RU_DEV,
                 idpActive = true,
                 pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 pharmacyServiceActive = true
@@ -179,18 +198,21 @@ class DebugSettingsViewModel(
                             aliasOfSecureElementEntry = it.aliasOfSecureElementEntry,
                             healthCardCertificate = it.healthCardCertificate.encoded
                         )
+
                     is IdpData.DefaultToken ->
                         IdpData.DefaultToken(
                             token = it.token?.breakToken(),
                             cardAccessNumber = it.cardAccessNumber,
                             healthCardCertificate = it.healthCardCertificate.encoded
                         )
+
                     is IdpData.ExternalAuthenticationToken ->
                         IdpData.ExternalAuthenticationToken(
                             token = it.token?.breakToken(),
                             authenticatorName = it.authenticatorName,
                             authenticatorId = it.authenticatorId
                         )
+
                     else -> it
                 }
                 idpRepository.saveSingleSignOnToken(
@@ -242,6 +264,55 @@ class DebugSettingsViewModel(
     fun refreshPrescriptions() {
         viewModelScope.launch {
             prescriptionUseCase.downloadTasks(profilesUseCase.activeProfileId().first())
+        }
+    }
+
+    fun shareInvoicePDF(context: Context, bundle: String, attachement: String) {
+        viewModelScope.launch {
+            val html = extractPKVInvoiceBundle(
+                Json.parseToJsonElement(bundle),
+                processDispense = { whenHandedOver ->
+                    whenHandedOver.formattedString()
+                },
+                processPharmacyAddress = { line, postalCode, city ->
+                    requireNotNull(line)
+                    requireNotNull(postalCode)
+                    requireNotNull(city)
+                    (line + "$postalCode $city").joinToString()
+                },
+                processPharmacy = { name, address, _, iknr, _, _ ->
+                    PkvHtmlTemplate.createOrganization(
+                        organizationName = requireNotNull(name),
+                        organizationAddress = address,
+                        organizationIKNR = iknr
+                    )
+                },
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items ->
+                    PkvHtmlTemplate.createPriceData(
+                        currency = currency,
+                        totalBruttoAmount = totalBruttoAmount,
+                        items = items
+                    )
+                },
+                save = { pharmacy, invoice, dispense ->
+                    createPkvHtmlInvoiceTemplate(
+                        patient = "TODO",
+                        patientBirthdate = "TODO",
+                        prescriber = "TODO",
+                        prescribedOn = "TODO",
+                        organization = pharmacy,
+                        dispensedOn = dispense,
+                        priceData = invoice
+                    )
+                }
+            )
+
+            requireNotNull(html) { "HTML string required" }
+
+            val file = createSharableFileInCache(context, "invoices", "invoice")
+            writePdfFromHtml(context, "Invoice", html, file)
+            writePDFAttachment(file, Triple("Test123", "text/plain", attachement.toByteArray()))
+            sharePDFFile(context, file)
         }
     }
 

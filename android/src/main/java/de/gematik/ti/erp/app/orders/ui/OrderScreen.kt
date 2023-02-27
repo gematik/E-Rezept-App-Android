@@ -87,7 +87,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
+import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
 import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
 import de.gematik.ti.erp.app.orders.usecase.model.OrderUseCaseData
@@ -126,7 +126,7 @@ import java.time.format.FormatStyle
 @Composable
 fun OrderScreen(
     mainNavController: NavController,
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenController: MainScreenController,
     onElevateTopBar: (Boolean) -> Unit
 ) {
     val profileHandler = LocalProfileHandler.current
@@ -148,7 +148,7 @@ fun OrderScreen(
     RefreshScaffold(
         profileId = profileHandler.activeProfile.id,
         onUserNotAuthenticated = { showUserNotAuthenticatedDialog = true },
-        mainScreenViewModel = mainScreenViewModel,
+        mainScreenController = mainScreenController,
         onShowCardWall = onShowCardWall
     ) { onRefresh ->
         Orders(

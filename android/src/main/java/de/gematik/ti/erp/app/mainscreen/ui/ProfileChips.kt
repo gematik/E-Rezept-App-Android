@@ -128,19 +128,19 @@ fun AddProfileChip(
 fun ProfileChip(
     profile: ProfilesUseCaseData.Profile,
     selected: Boolean,
-    mainScreenViewModel: MainScreenViewModel,
+    mainScreenController: MainScreenController,
     onClickChip: (ProfileIdentifier) -> Unit,
     onClickChangeProfileName: (profile: ProfilesUseCaseData.Profile) -> Unit,
     tooltipBounds: MutableState<Map<Int, Rect>>,
     toolTipBoundsRequired: Boolean
 ) {
-    val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenViewModel)
+    val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenController)
 
     val isRefreshing by refreshPrescriptionsController.isRefreshing
     var refreshEvent by remember { mutableStateOf<PrescriptionServiceState?>(null) }
 
     LaunchedEffect(Unit) {
-        mainScreenViewModel.onRefreshEvent.collect {
+        mainScreenController.onRefreshEvent.collect {
             refreshEvent = it
         }
     }

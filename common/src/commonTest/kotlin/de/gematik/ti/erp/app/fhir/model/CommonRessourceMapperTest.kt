@@ -38,10 +38,11 @@ class CommonRessourceMapperTest {
 
                 ReturnType.Address
             },
-            processOrganization = { name, address, uniqueIdentifier, phone, mail ->
+            processOrganization = { name, address, bsnr, iknr, phone, mail ->
                 assertEquals("MVZ", name)
                 assertEquals(ReturnType.Address, address)
-                assertEquals("721111100", uniqueIdentifier)
+                assertEquals("721111100", bsnr)
+                assertEquals(null, iknr)
                 assertEquals("0301234567", phone)
                 assertEquals("mvz@e-mail.de", mail)
 

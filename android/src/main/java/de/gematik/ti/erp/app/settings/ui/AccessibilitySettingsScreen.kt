@@ -24,28 +24,25 @@ import androidx.compose.material.icons.rounded.ZoomIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.settings.ui.SettingsScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
+import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import kotlinx.coroutines.launch
 
 @Composable
-fun AccessibilitySettingsScreen(settingsViewModel: SettingsViewModel, onBack: () -> Unit) {
-    val state by produceState(SettingsScreen.defaultState) {
-        settingsViewModel.screenState().collect {
-            value = it
-        }
-    }
-
+fun AccessibilitySettingsScreen(settingsController: SettingsController, onBack: () -> Unit) {
+    val zoomState by settingsController.zoomState
+    val screenshotState by settingsController.screenShotState
+    val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
 
     var showAllowScreenShotsAlert by remember { mutableStateOf(false) }
@@ -62,18 +59,22 @@ fun AccessibilitySettingsScreen(settingsViewModel: SettingsViewModel, onBack: ()
         ) {
             item {
                 SpacerMedium()
-                ZoomSection(zoomChecked = state.zoomEnabled) { zoomEnabled ->
+                ZoomSection(zoomChecked = zoomState.zoomEnabled) { zoomEnabled ->
                     when (zoomEnabled) {
-                        true -> settingsViewModel.onEnableZoom()
-                        false -> settingsViewModel.onDisableZoom()
+                        true -> scope.launch {
+                            settingsController.onEnableZoom()
+                        }
+                        false -> scope.launch {
+                            settingsController.onDisableZoom()
+                        }
                     }
                 }
             }
             item {
                 AllowScreenShotsSection(
-                    state.screenshotsAllowed
+                    screenshotState.screenshotsAllowed
                 ) { screenShotsAllowed ->
-                    settingsViewModel.onSwitchAllowScreenshots(screenShotsAllowed)
+                    settingsController.onSwitchAllowScreenshots(screenShotsAllowed)
                     showAllowScreenShotsAlert = true
                 }
             }

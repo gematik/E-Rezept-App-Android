@@ -30,25 +30,25 @@ import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 
 @Composable
 fun OrderSuccessHandler(
-    mainScreenVM: MainScreenViewModel
+    mainScreenController: MainScreenController
 ) {
     val context = LocalContext.current
 
-    when (mainScreenVM.orderedEvent) {
-        MainScreenViewModel.OrderedEvent.Success -> {
+    when (mainScreenController.orderedEvent) {
+        MainScreenController.OrderedEvent.Success -> {
             LaunchedEffect(Unit) {
                 requestReview(context)
-                mainScreenVM.resetOrderedEvent()
+                mainScreenController.resetOrderedEvent()
             }
         }
 
-        MainScreenViewModel.OrderedEvent.Error -> {
+        MainScreenController.OrderedEvent.Error -> {
             AcceptDialog(
                 header = stringResource(R.string.pharmacy_order_not_possible_title),
                 info = stringResource(R.string.pharmacy_order_not_possible_desc),
                 acceptText = stringResource(R.string.ok),
                 onClickAccept = {
-                    mainScreenVM.resetOrderedEvent()
+                    mainScreenController.resetOrderedEvent()
                 }
             )
         }

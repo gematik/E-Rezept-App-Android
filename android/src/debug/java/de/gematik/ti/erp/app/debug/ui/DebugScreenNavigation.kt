@@ -23,4 +23,5 @@ import de.gematik.ti.erp.app.Route
 object DebugScreenNavigation {
     object DebugMain : Route("DebugMain")
     object DebugRedeemWithoutFD : Route("DebugRedeemWithoutFD")
+    object DebugPKV : Route("DebugPKV")
 }

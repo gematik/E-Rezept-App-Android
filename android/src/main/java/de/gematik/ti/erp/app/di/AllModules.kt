@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.orderhealthcard.orderHealthCardModule
 import de.gematik.ti.erp.app.orders.messagesModule
 import de.gematik.ti.erp.app.pharmacy.pharmacyModule
+import de.gematik.ti.erp.app.pkv.pkvModule
 import de.gematik.ti.erp.app.prescription.prescriptionModule
 import de.gematik.ti.erp.app.prescription.taskModule
 import de.gematik.ti.erp.app.profiles.profilesModule
@@ -97,6 +98,7 @@ val allModules = DI.Module("allModules") {
         taskModule,
         settingsModule,
         vauModule,
-        cardUnlockModule
+        cardUnlockModule,
+        pkvModule
     )
 }

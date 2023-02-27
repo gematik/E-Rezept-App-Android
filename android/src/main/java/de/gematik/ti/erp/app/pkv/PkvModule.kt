@@ -16,10 +16,18 @@
  * 
  */
 
-package de.gematik.ti.erp.app.idp
+package de.gematik.ti.erp.app.pkv
 
-object AlgorithmIdentifiersExtending {
-    const val BRAINPOOL256_USING_SHA256 = "BP256R1"
-    const val BRAINPOOL384_USING_SHA384 = "BP384R1"
-    const val BRAINPOOL512_USING_SHA512 = "BP512R1"
+import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
+import de.gematik.ti.erp.app.consent.repository.ConsentRepository
+import de.gematik.ti.erp.app.consent.usecase.ConsentUseCase
+
+import org.kodein.di.DI
+import org.kodein.di.bindProvider
+import org.kodein.di.instance
+
+val pkvModule = DI.Module("pkvModule") {
+    bindProvider { ConsentUseCase(instance()) }
+    bindProvider { ConsentRemoteDataSource(instance()) }
+    bindProvider { ConsentRepository(instance(), instance()) }
 }

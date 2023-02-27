@@ -92,6 +92,11 @@ class EndpointHelper(
                 pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
                 Environment.RU
             }
+            eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_RU_DEV &&
+                idpServiceUri == BuildKonfig.IDP_SERVICE_URI_RU_DEV &&
+                pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
+                Environment.RUDEV
+            }
             eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_TU &&
                 idpServiceUri == BuildKonfig.IDP_SERVICE_URI_TU &&
                 pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
@@ -113,11 +118,22 @@ class EndpointHelper(
             when (getCurrentEnvironment()) {
                 Environment.PU -> BuildKonfig.ERP_API_KEY_GOOGLE_PU
                 Environment.TU -> BuildKonfig.ERP_API_KEY_GOOGLE_TU
-                Environment.RU -> BuildKonfig.ERP_API_KEY_GOOGLE_RU
+                Environment.RUDEV, Environment.RU -> BuildKonfig.ERP_API_KEY_GOOGLE_RU
                 Environment.TR -> BuildKonfig.ERP_API_KEY_GOOGLE_TR
             }
         } else {
             BuildKonfig.ERP_API_KEY
+        }
+    }
+
+    fun getIdpScope(): String {
+        return if (BuildKonfig.INTERNAL) {
+            when (getCurrentEnvironment()) {
+                Environment.RUDEV -> BuildKonfig.IDP_SCOPE_DEVRU
+                else -> BuildKonfig.IDP_DEFAULT_SCOPE
+            }
+        } else {
+            BuildKonfig.IDP_DEFAULT_SCOPE
         }
     }
 

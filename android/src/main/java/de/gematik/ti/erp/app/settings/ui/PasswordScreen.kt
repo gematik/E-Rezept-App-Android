@@ -93,7 +93,7 @@ import java.util.Locale
 private const val MinimalPasswordScore = 2
 
 @Composable
-fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewModel) {
+fun SecureAppWithPassword(navController: NavController, settingsController: SettingsController) {
     var password by remember { mutableStateOf("") }
     var repeatedPassword by remember { mutableStateOf("") }
     var passwordScore by remember { mutableStateOf(0) }
@@ -113,7 +113,7 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
                 Button(
                     onClick = {
                         coroutineScope.launch {
-                            viewModel.onSelectPasswordAsAuthenticationMode(password)
+                            settingsController.onSelectPasswordAsAuthenticationMode(password)
                             navController.popBackStack()
                         }
                     },
@@ -180,7 +180,7 @@ fun SecureAppWithPassword(navController: NavController, viewModel: SettingsViewM
                         )
                     ) {
                         coroutineScope.launch {
-                            viewModel.onSelectPasswordAsAuthenticationMode(password)
+                            settingsController.onSelectPasswordAsAuthenticationMode(password)
                             navController.popBackStack()
                         }
                     }

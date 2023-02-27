@@ -185,10 +185,6 @@ android {
             pickFirsts += "win32-x86/attach_hotspot_windows.dll"
         }
     }
-
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.0"
-    }
 }
 
 compose.android.useAndroidX = true
@@ -200,6 +196,10 @@ dependencies {
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     testImplementation(kotlin("test"))
+
+    implementation("com.tom-roush:pdfbox-android:2.0.27.0") {
+        exclude(group = "org.bouncycastle")
+    }
 
     app {
         dataMatrix {

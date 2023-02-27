@@ -18,20 +18,24 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
+import de.gematik.ti.erp.app.attestation.usecase.IntegrityUseCase
 import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.map
+import org.kodein.di.compose.rememberInstance
 
-// TODO: transform to controller like class
-class MainScreenViewModel(
+class MainScreenController(
+    private val integrityUseCase: IntegrityUseCase,
     private val messageUseCase: OrderUseCase
-) : ViewModel() {
+) {
 
     enum class OrderedEvent {
         Success,
@@ -58,5 +62,29 @@ class MainScreenViewModel(
 
     fun onOrdered(hasError: Boolean) {
         orderedEvent = if (hasError) OrderedEvent.Error else OrderedEvent.Success
+    }
+
+    var integrityPromptShown = false
+
+    fun checkDeviceIntegrity() = integrityUseCase.runIntegrityAttestation().map {
+        if (!it && !integrityPromptShown) {
+            integrityPromptShown = true
+            false
+        } else {
+            true
+        }
+    }
+}
+
+@Composable
+fun rememberMainScreenController(): MainScreenController {
+    val integrityUseCase by rememberInstance<IntegrityUseCase>()
+    val messageUseCase by rememberInstance<OrderUseCase>()
+
+    return remember {
+        MainScreenController(
+            integrityUseCase = integrityUseCase,
+            messageUseCase = messageUseCase
+        )
     }
 }

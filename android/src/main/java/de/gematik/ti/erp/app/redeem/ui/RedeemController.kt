@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.redeem.ui
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -30,6 +31,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.shareIn
 import org.kodein.di.compose.rememberInstance
 
+@Stable
 class RedeemController(
     scope: CoroutineScope,
     val profileId: ProfileIdentifier,

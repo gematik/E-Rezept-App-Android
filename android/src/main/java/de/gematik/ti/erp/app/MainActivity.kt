@@ -61,29 +61,25 @@ import de.gematik.ti.erp.app.cardwall.mini.ui.ExternalAuthPrompt
 import de.gematik.ti.erp.app.cardwall.mini.ui.HealthCardPrompt
 import de.gematik.ti.erp.app.cardwall.mini.ui.MiniCardWallViewModel
 import de.gematik.ti.erp.app.cardwall.mini.ui.rememberAuthenticator
-import de.gematik.ti.erp.app.cardwall.ui.CardWallNfcPositionViewModel
 import de.gematik.ti.erp.app.cardwall.ui.CardWallController
 import de.gematik.ti.erp.app.cardwall.ui.ExternalAuthenticatorListViewModel
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.MainContent
-import de.gematik.ti.erp.app.core.MainViewModel
 import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenViewModel
 import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardOrderViewModel
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsViewModel
-import de.gematik.ti.erp.app.prescription.ui.PrescriptionViewModel
 import de.gematik.ti.erp.app.prescription.ui.ScanPrescriptionViewModel
 import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
 import de.gematik.ti.erp.app.profiles.ui.ProfileViewModel
-import de.gematik.ti.erp.app.settings.ui.SettingsViewModel
 import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.apicheck.usecase.CheckVersionUseCase
 import de.gematik.ti.erp.app.cardwall.mini.ui.SecureHardwarePrompt
 import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.mainscreen.ui.rememberMainScreenController
 import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyOverviewViewModel
 import de.gematik.ti.erp.app.prescription.detail.ui.SharePrescriptionHandler
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
@@ -121,12 +117,10 @@ class MainActivity : AppCompatActivity(), DIAware {
 
         bindProvider { UnlockEgkViewModel(instance(), instance()) }
         bindProvider { MiniCardWallViewModel(instance(), instance(), instance(), instance(), instance()) }
-        bindProvider { CardWallNfcPositionViewModel(instance()) }
         bindProvider { CardWallController(instance(), instance(), instance()) }
         bindProvider { ExternalAuthenticatorListViewModel(instance(), instance()) }
         bindProvider { HealthCardOrderViewModel(instance()) }
         bindProvider { PrescriptionDetailsViewModel(instance(), instance()) }
-        bindProvider { PrescriptionViewModel(instance(), instance(), instance()) }
         bindProvider {
             ScanPrescriptionViewModel(
                 prescriptionUseCase = instance(),
@@ -141,20 +135,6 @@ class MainActivity : AppCompatActivity(), DIAware {
         bindProvider { ProfileSettingsViewModel(instance(), instance()) }
         bindProvider { UserAuthenticationViewModel(instance()) }
         bindProvider { PharmacyOverviewViewModel(instance()) }
-
-        bindSingleton {
-            SettingsViewModel(
-                settingsUseCase = instance(),
-                profilesUseCase = instance(),
-                profilesWithPairedDevicesUseCase = instance(),
-                analytics = instance(),
-                appPrefs = instance(ApplicationPreferencesTag),
-                dispatchers = instance()
-            )
-        }
-        bindSingleton { MainViewModel(instance(), instance()) }
-        bindSingleton { MainScreenViewModel(instance()) }
-
         bindProvider { CheckVersionUseCase(instance(), instance()) }
 
         if (BuildConfig.DEBUG && BuildKonfig.INTERNAL) {
@@ -243,7 +223,7 @@ class MainActivity : AppCompatActivity(), DIAware {
                 ) {
                     val authenticator = LocalAuthenticator.current
 
-                    MainContent { mainViewModel ->
+                    MainContent { settingsController ->
                         val auth by produceState<AuthenticationModeAndMethod?>(null) {
                             launch {
                                 authenticationModeAndMethod.distinctUntilChangedBy { it::class }
@@ -286,18 +266,16 @@ class MainActivity : AppCompatActivity(), DIAware {
                                         authenticator = authenticator.authenticatorSecureElement
                                     )
 
-                                    val settingsViewModel by rememberViewModel<SettingsViewModel>()
+                                    val mainScreenController = rememberMainScreenController()
                                     val profileSettingsViewModel by rememberViewModel<ProfileSettingsViewModel>()
-                                    val mainScreenViewModel by rememberViewModel<MainScreenViewModel>()
 
                                     CompositionLocalProvider(
                                         LocalProfileHandler provides rememberProfileHandler()
                                     ) {
                                         MainScreen(
                                             navController = navController,
-                                            mainViewModel = mainViewModel,
-                                            settingsViewModel = settingsViewModel,
-                                            mainScreenViewModel = mainScreenViewModel,
+                                            settingsController = settingsController,
+                                            mainScreenController = mainScreenController,
                                             profileSettingsViewModel = profileSettingsViewModel
                                         )
 

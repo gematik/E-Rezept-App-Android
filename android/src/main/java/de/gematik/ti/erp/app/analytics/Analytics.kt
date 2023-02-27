@@ -68,7 +68,7 @@ class Analytics constructor(
         }
     }
 
-    fun tagScreen(screenName: String) {
+    fun trackScreen(screenName: String) {
         if (analyticsAllowed.value) {
             Contentsquare.send(screenName)
             Napier.d("Analytics send $screenName")
@@ -100,28 +100,27 @@ class Analytics constructor(
     }
 
     fun trackIdentifiedWithIDP() {
-        // noop
+        trackScreen("idp_authenticated")
     }
 
-    enum class AuthenticationProblem {
-        CardBlocked,
-        CardAccessNumberWrong,
-        CardCommunicationInterrupted,
-        CardPinWrong,
-        IDPCommunicationFailed,
-        IDPCommunicationInvalidCertificate,
-        IDPCommunicationInvalidOCSPOfCard,
-        SecureElementCryptographyFailed,
-        UserNotAuthenticated
+    enum class AuthenticationProblem(val event: String) {
+        CardBlocked("card_blocked"),
+        CardAccessNumberWrong("card_can_wrong"),
+        CardCommunicationInterrupted("card_com_interrupted"),
+        CardPinWrong("card_pin_wrong"),
+        IDPCommunicationFailed("idp_com_failed"),
+        IDPCommunicationInvalidCertificate("idp_com_invalid_certificate"),
+        IDPCommunicationInvalidOCSPOfCard("idp_com_invalid_ocsp_of_card"),
+        SecureElementCryptographyFailed("secure_element_cryptography_failed"),
+        UserNotAuthenticated("user_not_authenticated")
     }
 
-    @Suppress("UnusedPrivateMember")
     fun trackAuthenticationProblem(kind: AuthenticationProblem) {
-        // noop
+        trackScreen("auth_error_${kind.event}")
     }
 
     fun trackSaveScannedPrescriptions() {
-        // noop
+        trackScreen("pres_scanned_saved")
     }
 }
 
@@ -132,7 +131,7 @@ fun TrackNavigationChanges(navController: NavHostController) {
     LaunchedEffect(Unit) {
         navController.currentBackStackEntryFlow.collect {
             try {
-                analytics.tagScreen(Uri.parse(it.destination.route).buildUpon().clearQuery().build().toString())
+                analytics.trackScreen(Uri.parse(it.destination.route).buildUpon().clearQuery().build().toString())
             } catch (expected: Exception) {
                 Napier.e("Couldn't track navigation screen", expected)
             }
