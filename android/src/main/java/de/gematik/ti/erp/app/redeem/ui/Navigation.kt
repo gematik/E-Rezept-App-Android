@@ -23,6 +23,7 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyNavigation
 import de.gematik.ti.erp.app.pharmacy.ui.PrescriptionSelection
@@ -40,6 +41,9 @@ fun RedeemNavigation(
 
     val navController = rememberNavController()
     val navigationMode by navController.navigationModeState(RedeemNavigation.HowToRedeem.route)
+
+    TrackNavigationChanges(navController)
+
     NavHost(
         navController,
         startDestination = RedeemNavigation.HowToRedeem.route

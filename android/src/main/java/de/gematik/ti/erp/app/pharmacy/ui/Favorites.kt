@@ -49,7 +49,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
-import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyOverviewViewModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -78,7 +77,7 @@ private sealed interface RefreshState {
 fun FavoritePharmacyCard(
     overviewPharmacy: OverviewPharmacyData.OverviewPharmacy,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
-    pharmacyViewModel: PharmacyOverviewViewModel
+    pharmacySearchController: PharmacySearchController
 ) {
     var showFailedPharmacyCallDialog by remember { mutableStateOf(false) }
     var showNoInternetConnectionDialog by remember { mutableStateOf(false) }
@@ -86,7 +85,7 @@ fun FavoritePharmacyCard(
     var state by remember { mutableStateOf<RefreshState>(RefreshState.Loading) }
     LaunchedEffect(overviewPharmacy) {
         refresh(
-            pharmacyViewModel = pharmacyViewModel,
+            pharmacySearchController = pharmacySearchController,
             pharmacyTelematikId = overviewPharmacy.telematikId,
             onStateChange = {
                 state = it
@@ -106,7 +105,7 @@ fun FavoritePharmacyCard(
             onClickAction = {
                 scope.launch {
                     refresh(
-                        pharmacyViewModel = pharmacyViewModel,
+                        pharmacySearchController = pharmacySearchController,
                         pharmacyTelematikId = overviewPharmacy.telematikId,
                         onStateChange = {
                             state = it
@@ -121,7 +120,7 @@ fun FavoritePharmacyCard(
             header = stringResource(R.string.pharmacy_search_apovz_call_failed_header),
             info = stringResource(R.string.pharmacy_search_apovz_call_failed_body),
             onClickAccept = {
-                scope.launch { pharmacyViewModel.deleteOverviewPharmacy(overviewPharmacy) }
+                scope.launch { pharmacySearchController.deleteOverviewPharmacy(overviewPharmacy) }
                 showFailedPharmacyCallDialog = false
             },
             acceptText = stringResource(R.string.pharmacy_search_apovz_call_failed_accept)
@@ -149,12 +148,12 @@ fun FavoritePharmacyCard(
 }
 
 private suspend fun refresh(
-    pharmacyViewModel: PharmacyOverviewViewModel,
+    pharmacySearchController: PharmacySearchController,
     pharmacyTelematikId: String,
     onStateChange: (RefreshState) -> Unit
 ) {
     onStateChange(RefreshState.Loading)
-    val result = pharmacyViewModel.findPharmacyByTelematikIdState(pharmacyTelematikId).first().fold(
+    val result = pharmacySearchController.findPharmacyByTelematikIdState(pharmacyTelematikId).first().fold(
         onFailure = {
             Napier.e("Could not find pharmacy by telematikId", it)
             RefreshState.Error

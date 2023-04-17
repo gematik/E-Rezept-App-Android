@@ -363,6 +363,7 @@ object TestTag {
         val ProfileScreen by tagName()
         val ProfileScreenContent by tagName()
         val InvoicesScreen by tagName()
+        val InvoicesDetailScreen by tagName()
         val InvoicesScreenContent by tagName()
         val OpenTokensScreenButton by tagName()
         val InsuranceId by tagName()

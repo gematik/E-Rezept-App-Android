@@ -59,12 +59,11 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 
 @Composable
 fun DeviceSecuritySettingsScreen(
-    settingsController: SettingsController,
     onBack: () -> Unit,
     onClickProtectionMode: (SettingsData.AuthenticationMode) -> Unit
 ) {
+    val settingsController = rememberSettingsController()
     val authenticationModeState by settingsController.authenticationModeState
-
     val listState = rememberLazyListState()
 
     var showBiometricPrompt by rememberSaveable { mutableStateOf(false) }

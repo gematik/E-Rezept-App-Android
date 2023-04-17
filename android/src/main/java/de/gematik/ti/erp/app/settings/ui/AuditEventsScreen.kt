@@ -42,7 +42,7 @@ import androidx.paging.compose.itemsIndexed
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.settings.ui.SettingsController
+import de.gematik.ti.erp.app.profiles.ui.ProfilesController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -59,13 +59,13 @@ import java.time.LocalDateTime
 @Composable
 fun AuditEventsScreen(
     profileId: ProfileIdentifier,
-    settingsController: SettingsController,
+    profilesController: ProfilesController,
     lastAuthenticated: Instant?,
     tokenValid: Boolean,
     onBack: () -> Unit
 ) {
     val header = stringResource(R.string.autitEvents_headline)
-    val auditEventPagingFlow = remember(profileId) { settingsController.loadAuditEventsForProfile(profileId) }
+    val auditEventPagingFlow = remember(profileId) { profilesController.loadAuditEventsForProfile(profileId) }
     val pagingItems = auditEventPagingFlow.collectAsLazyPagingItems()
     val listState = rememberLazyListState()
 

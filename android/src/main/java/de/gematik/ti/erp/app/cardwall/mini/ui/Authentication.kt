@@ -55,7 +55,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import org.kodein.di.compose.rememberViewModel
 import java.net.URI
 
 class NoneEnrolledException : IllegalStateException()
@@ -237,7 +236,7 @@ fun PromptScaffold(
 
 @Composable
 fun rememberAuthenticator(intentHandler: IntentHandler): Authenticator {
-    val bridge by rememberViewModel<MiniCardWallViewModel>()
+    val bridge = rememberMiniCardWallController()
     val promptSE = rememberSecureHardwarePromptAuthenticator(bridge)
     val promptHC = rememberHealthCardPromptAuthenticator(bridge)
     val promptEX = rememberExternalPromptAuthenticator(bridge, intentHandler)

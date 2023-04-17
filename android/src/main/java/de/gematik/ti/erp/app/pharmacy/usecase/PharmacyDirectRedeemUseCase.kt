@@ -21,11 +21,18 @@ package de.gematik.ti.erp.app.pharmacy.usecase
 import de.gematik.ti.erp.app.pharmacy.buildDirectPharmacyMessage
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import org.bouncycastle.cert.X509CertificateHolder
+import org.bouncycastle.util.encoders.Base64
 import java.util.UUID
 
 class PharmacyDirectRedeemUseCase(
     private val repository: PharmacyRepository
 ) {
+    suspend fun loadCertificate(locationId: String): Result<X509CertificateHolder> =
+        repository
+            .searchBinaryCert(locationId = locationId)
+            .mapCatching { base64Cert ->
+                X509CertificateHolder(Base64.decode(base64Cert))
+            }
 
     suspend fun redeemPrescription(
         url: String,

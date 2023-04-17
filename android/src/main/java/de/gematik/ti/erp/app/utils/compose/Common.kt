@@ -473,7 +473,9 @@ fun CommonAlertDialog(
     header: String?,
     info: String,
     cancelText: String,
+    cancelTextColor: Color? = null,
     actionText: String,
+    actionTextColor: Color? = null,
     enabled: Boolean = true,
     onCancel: () -> Unit,
     onClickAction: () -> Unit
@@ -490,14 +492,18 @@ fun CommonAlertDialog(
                 onClick = onCancel,
                 enabled = enabled
             ) {
-                Text(cancelText)
+                cancelTextColor?.let {
+                    Text(cancelText, color = it)
+                } ?: Text(cancelText)
             }
             TextButton(
                 modifier = Modifier.testTag(TestTag.AlertDialog.ConfirmButton),
                 onClick = onClickAction,
                 enabled = enabled
             ) {
-                Text(actionText)
+                actionTextColor?.let {
+                    Text(actionText, color = it)
+                } ?: Text(actionText)
             }
         }
     )

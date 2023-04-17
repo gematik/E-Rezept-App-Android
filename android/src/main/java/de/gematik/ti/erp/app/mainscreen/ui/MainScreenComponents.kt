@@ -100,18 +100,17 @@ import de.gematik.ti.erp.app.prescription.ui.ArchiveScreen
 import de.gematik.ti.erp.app.prescription.ui.MlKitInformationScreen
 import de.gematik.ti.erp.app.prescription.ui.MlKitIntroScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
-import de.gematik.ti.erp.app.prescription.ui.ScanPrescriptionViewModel
 import de.gematik.ti.erp.app.prescription.ui.ScanScreen
 import de.gematik.ti.erp.app.prescription.ui.rememberPrescriptionState
-import de.gematik.ti.erp.app.profiles.ui.DefaultProfile
+import de.gematik.ti.erp.app.prescription.ui.rememberScanPrescriptionController
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileImageCropper
-import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
+import de.gematik.ti.erp.app.profiles.ui.ProfilesController
+import de.gematik.ti.erp.app.profiles.ui.ProfilesStateData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.redeem.ui.RedeemNavigation
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
-import de.gematik.ti.erp.app.settings.ui.AllowBiometryScreen
 import de.gematik.ti.erp.app.settings.ui.PharmacyLicenseScreen
 import de.gematik.ti.erp.app.settings.ui.SecureAppWithPassword
 import de.gematik.ti.erp.app.settings.ui.SettingsController
@@ -133,7 +132,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import org.kodein.di.compose.rememberViewModel
 
 @Suppress("LongMethod")
 @Composable
@@ -141,7 +139,7 @@ fun MainScreen(
     navController: NavHostController,
     mainScreenController: MainScreenController,
     settingsController: SettingsController,
-    profileSettingsViewModel: ProfileSettingsViewModel
+    profilesController: ProfilesController
 ) {
     val startDestination = determineStartDestination(settingsController)
 
@@ -156,15 +154,6 @@ fun MainScreen(
                 mainNavController = navController,
                 settingsController = settingsController
             )
-        }
-        composable(OnboardingNavigationScreens.Biometry.route) {
-            NavigationAnimation(mode = navigationMode) {
-                AllowBiometryScreen(
-                    onBack = { navController.popBackStack() },
-                    onNext = { navController.popBackStack() },
-                    onSecureMethodChange = { }
-                )
-            }
         }
         composable(MainNavigationScreens.DataProtection.route) {
             NavigationAnimation(mode = navigationMode) {
@@ -185,15 +174,15 @@ fun MainScreen(
             )
         }
         composable(MainNavigationScreens.Camera.route) {
-            val scanViewModel by rememberViewModel<ScanPrescriptionViewModel>()
-            ScanScreen(mainNavController = navController, scanViewModel = scanViewModel)
+            val scanPrescriptionController = rememberScanPrescriptionController()
+            ScanScreen(mainNavController = navController, scanPrescriptionController = scanPrescriptionController)
         }
         composable(MainNavigationScreens.Prescriptions.route) {
             MainScreenWithScaffold(
                 mainNavController = navController,
                 mainScreenController = mainScreenController,
                 settingsController = settingsController,
-                profileSettingsViewModel = profileSettingsViewModel
+                profilesController = profilesController
             )
         }
 
@@ -306,8 +295,7 @@ fun MainScreen(
                 remember { navController.currentBackStackEntry?.arguments?.getString("profileId")!! }
             EditProfileScreen(
                 profileId,
-                settingsController,
-                profileSettingsViewModel,
+                profilesController,
                 onBack = { navController.popBackStack() },
                 mainNavController = navController
             )
@@ -385,17 +373,16 @@ fun MainScreen(
         ) {
             val profileId = remember { it.arguments!!.getString("profileId")!! }
             val scope = rememberCoroutineScope()
-            val profilesState by settingsController.profilesState
+            val profilesState by profilesController.profilesState
 
             profilesState.profileById(profileId)?.let { profile ->
                 EditProfileScreen(
                     profilesState,
                     profile,
-                    settingsController,
-                    profileSettingsViewModel,
+                    profilesController,
                     onRemoveProfile = {
                         scope.launch {
-                            settingsController.removeProfile(profile, it)
+                            profilesController.removeProfile(profile, it)
                         }
                         navController.popBackStack()
                     },
@@ -410,10 +397,12 @@ fun MainScreen(
             MainNavigationScreens.ProfileImageCropper.arguments
         ) {
             val profileId = remember { it.arguments!!.getString("profileId")!! }
-
+            val scope = rememberCoroutineScope()
             ProfileImageCropper(
                 onSaveCroppedImage = {
-                    profileSettingsViewModel.savePersonalizedProfileImage(profileId, it)
+                    scope.launch {
+                        profilesController.savePersonalizedProfileImage(profileId, it)
+                    }
                     navController.popBackStack()
                 },
                 onBack = {
@@ -478,7 +467,7 @@ private fun MainScreenWithScaffold(
     mainNavController: NavController,
     mainScreenController: MainScreenController,
     settingsController: SettingsController,
-    profileSettingsViewModel: ProfileSettingsViewModel
+    profilesController: ProfilesController
 ) {
     val context = LocalContext.current
     val bottomNavController = rememberNavController()
@@ -546,7 +535,7 @@ private fun MainScreenWithScaffold(
     }
 
     var profileToRename by remember {
-        mutableStateOf(DefaultProfile)
+        mutableStateOf(ProfilesStateData.defaultProfile)
     }
 
     val toolTipBounds = remember {
@@ -572,7 +561,7 @@ private fun MainScreenWithScaffold(
         sheetContent = {
             MainScreenBottomSheetContentState(
                 settingsController = settingsController,
-                profileSettingsViewModel = profileSettingsViewModel,
+                profilesController = profilesController,
                 infoContentState = mainScreenBottomSheetContentState,
                 mainNavController = mainNavController,
                 profileToRename = profileToRename,

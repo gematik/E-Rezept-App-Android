@@ -44,4 +44,9 @@ interface PharmacySearchService {
     suspend fun searchByTelematikId(
         @Query("identifier") telematikId: String
     ): Response<JsonElement>
+
+    @GET("api/Binary")
+    suspend fun searchBinary(
+        @Query("_securityContext") locationId: String
+    ): Response<JsonElement>
 }

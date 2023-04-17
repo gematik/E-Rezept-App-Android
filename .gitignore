@@ -22,5 +22,5 @@ Multibranch.Jenkinsfile
 ci
 ci-overrides.properties
 nexus-init.gradle.kts
-doc
+documentation-internal
 android/src/androidTest

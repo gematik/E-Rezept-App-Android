@@ -32,6 +32,10 @@ import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
@@ -152,7 +156,11 @@ class CommonIdpRepositoryTest : TestDB() {
                     PasswordEntityV1::class,
                     ShippingContactEntityV1::class,
                     PharmacySearchEntityV1::class,
-                    MultiplePrescriptionInfoEntityV1::class
+                    MultiplePrescriptionInfoEntityV1::class,
+                    PKVInvoiceEntityV1::class,
+                    InvoiceEntityV1::class,
+                    ChargeableItemV1::class,
+                    PriceComponentV1::class
                 )
             )
                 .schemaVersion(ACTUAL_SCHEMA_VERSION)

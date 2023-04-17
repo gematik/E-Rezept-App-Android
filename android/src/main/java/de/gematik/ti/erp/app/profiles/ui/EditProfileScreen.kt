@@ -109,8 +109,6 @@ import de.gematik.ti.erp.app.mainscreen.ui.rememberMainScreenController
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.ui.ProfileNameDialog
-import de.gematik.ti.erp.app.settings.ui.SettingsController
-import de.gematik.ti.erp.app.settings.ui.SettingStatesData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -128,10 +126,9 @@ import kotlinx.datetime.Instant
 
 @Composable
 fun EditProfileScreen(
-    profilesState: SettingStatesData.ProfilesState,
+    profilesState: ProfilesStateData.ProfilesState,
     profile: ProfilesUseCaseData.Profile,
-    settingsController: SettingsController,
-    profileSettingsViewModel: ProfileSettingsViewModel,
+    profilesController: ProfilesController,
     onRemoveProfile: (newProfileName: String?) -> Unit,
     onBack: () -> Unit,
     mainNavController: NavController
@@ -144,9 +141,8 @@ fun EditProfileScreen(
         navController = navController,
         onBack = onBack,
         selectedProfile = profile,
-        settingsController = settingsController,
         mainScreenController = mainScreenController,
-        profileSettingsViewModel = profileSettingsViewModel,
+        profilesController = profilesController,
         onRemoveProfile = onRemoveProfile,
         mainNavController = mainNavController
     )
@@ -155,12 +151,11 @@ fun EditProfileScreen(
 @Composable
 fun EditProfileScreen(
     profileId: String,
-    settingsController: SettingsController,
-    profileSettingsViewModel: ProfileSettingsViewModel,
+    profilesController: ProfilesController,
     onBack: () -> Unit,
     mainNavController: NavController
 ) {
-    val profilesState by settingsController.profilesState
+    val profilesState by profilesController.profilesState
     val scope = rememberCoroutineScope()
 
     profilesState.profileById(profileId)?.let { profile ->
@@ -171,11 +166,10 @@ fun EditProfileScreen(
             profilesState = profilesState,
             onBack = onBack,
             profile = selectedProfile,
-            settingsController = settingsController,
-            profileSettingsViewModel = profileSettingsViewModel,
+            profilesController = profilesController,
             onRemoveProfile = {
                 scope.launch {
-                    settingsController.removeProfile(profile, it)
+                    profilesController.removeProfile(profile, it)
                     onBack()
                 }
             },
@@ -189,9 +183,8 @@ fun EditProfileScreen(
 fun EditProfileScreenContent(
     onBack: () -> Unit,
     selectedProfile: ProfilesUseCaseData.Profile,
-    profilesState: SettingStatesData.ProfilesState,
-    settingsController: SettingsController,
-    profileSettingsViewModel: ProfileSettingsViewModel,
+    profilesState: ProfilesStateData.ProfilesState,
+    profilesController: ProfilesController,
     onRemoveProfile: (newProfileName: String?) -> Unit,
     onClickEditAvatar: () -> Unit,
     onClickToken: () -> Unit,
@@ -199,16 +192,16 @@ fun EditProfileScreenContent(
     onClickLogout: () -> Unit,
     onClickAuditEvents: () -> Unit,
     onClickPairedDevices: () -> Unit,
-    onClickInvoiceInformation: () -> Unit
+    onClickInvoices: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val scaffoldState = rememberScaffoldState()
-
+    val scope = rememberCoroutineScope()
     var showAddDefaultProfileDialog by remember { mutableStateOf(false) }
     var deleteProfileDialogVisible by remember { mutableStateOf(false) }
 
     if (deleteProfileDialogVisible) {
-        deleteProfileDialog(
+        DeleteProfileDialog(
             onCancel = { deleteProfileDialogVisible = false },
             onClickAction = {
                 if (profilesState.profiles.size == 1) {
@@ -249,7 +242,9 @@ fun EditProfileScreenContent(
                     profile = selectedProfile,
                     profilesState = profilesState,
                     onChangeProfileName = {
-                        profileSettingsViewModel.updateProfileName(selectedProfile.id, it)
+                        scope.launch {
+                            profilesController.updateProfileName(selectedProfile.id, it)
+                        }
                     }
                 )
             }
@@ -271,7 +266,7 @@ fun EditProfileScreenContent(
 
             if (selectedProfile.insuranceInformation.insuranceType == ProfilesUseCaseData.InsuranceType.PKV) {
                 item {
-                    ProfileInvoiceInformation { onClickInvoiceInformation() }
+                    ProfileInvoiceInformation { onClickInvoices() }
                 }
             }
 
@@ -285,7 +280,7 @@ fun EditProfileScreenContent(
 
         if (showAddDefaultProfileDialog) {
             ProfileNameDialog(
-                settingsController = settingsController,
+                profilesController = profilesController,
                 wantRemoveLastProfile = true,
                 onEdit = { showAddDefaultProfileDialog = false; onRemoveProfile(it) },
                 onDismissRequest = { showAddDefaultProfileDialog = false }
@@ -389,7 +384,7 @@ fun ThreeDotMenu(
 }
 
 @Composable
-fun deleteProfileDialog(onCancel: () -> Unit, onClickAction: () -> Unit) {
+fun DeleteProfileDialog(onCancel: () -> Unit, onClickAction: () -> Unit) {
     CommonAlertDialog(
         header = stringResource(id = R.string.remove_profile_header),
         info = stringResource(R.string.remove_profile_detail_message),
@@ -489,7 +484,7 @@ fun SettingsMenuHeadline(text: String) {
 @Composable
 fun ProfileNameSection(
     profile: ProfilesUseCaseData.Profile,
-    profilesState: SettingStatesData.ProfilesState,
+    profilesState: ProfilesStateData.ProfilesState,
     onChangeProfileName: (String) -> Unit
 ) {
     var profileName by remember(profile.name) { mutableStateOf(profile.name) }
@@ -588,7 +583,7 @@ fun ProfileEditBasicTextField(
     textStyle: TextStyle = AppTheme.typography.h5,
     initialProfileName: String,
     onChangeProfileName: (String, Boolean) -> Unit,
-    profilesState: SettingStatesData.ProfilesState,
+    profilesState: ProfilesStateData.ProfilesState,
     onDone: () -> Unit
 ) {
     var profileNameState by remember {
@@ -681,14 +676,14 @@ fun ProfileAvatarSection(
 
 @Composable
 fun ChooseAvatar(
+    iconModifier: Modifier = Modifier,
     useSmallImages: Boolean? = false,
     profile: ProfilesUseCaseData.Profile,
-    iconModifier: Modifier = Modifier,
     emptyIcon: ImageVector,
     showPersonalizedImage: Boolean = true,
     figure: ProfilesData.AvatarFigure
 ) {
-    val imageRessource = ExtractImageResource(useSmallImages, figure)
+    val imageRessource = extractImageResource(useSmallImages, figure)
 
     when (figure) {
         ProfilesData.AvatarFigure.PersonalizedImage -> {
@@ -726,7 +721,7 @@ fun ChooseAvatar(
 }
 
 @Composable
-private fun ExtractImageResource(
+private fun extractImageResource(
     useSmallImages: Boolean? = false,
     figure: ProfilesData.AvatarFigure
 ) = if (useSmallImages == true) {

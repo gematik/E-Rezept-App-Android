@@ -60,6 +60,7 @@ interface ErpService {
     @GET("AuditEvent")
     suspend fun getAuditEvents(
         @Tag profileId: ProfileIdentifier,
+        @Header("Accept-Language") language: String,
         @Query("date") lastKnownDate: String?,
         @Query("_sort") sort: String = "+date",
         @Query("_count") count: Int? = null,
@@ -88,6 +89,7 @@ interface ErpService {
         @Query("identifier") id: String
     ): Response<JsonElement>
 
+    // PKV consent
     @GET("Consent")
     suspend fun getConsent(
         @Tag profileId: ProfileIdentifier
@@ -103,5 +105,27 @@ interface ErpService {
     suspend fun deleteConsent(
         @Tag profileId: ProfileIdentifier,
         @Query("category") category: String
+    ): Response<Unit>
+
+    // PKV Invoices
+    @GET("ChargeItem")
+    suspend fun getChargeItems(
+        @Tag profileId: ProfileIdentifier,
+        @Query("modified") lastUpdated: String?,
+        @Query("_sort") sort: String = "modified",
+        @Query("_count") count: Int? = null,
+        @Query("__offset") offset: Int? = null
+    ): Response<JsonElement>
+
+    @GET("ChargeItem/{id}")
+    suspend fun getChargeItemBundleById(
+        @Tag profileId: ProfileIdentifier,
+        @Path("id") id: String
+    ): Response<JsonElement>
+
+    @DELETE("ChargeItem/{id}")
+    suspend fun deleteChargeItemById(
+        @Tag profileId: ProfileIdentifier,
+        @Path("id") id: String
     ): Response<Unit>
 }

@@ -210,6 +210,7 @@ fun <MedicationRequest, MultiplePrescriptionInfo, Ratio, Quantity> extractMedica
     ratioFn: RatioFn<Ratio, Quantity>,
     quantityFn: QuantityFn<Quantity>
 ): MedicationRequest {
+    val authoredOn = resource.contained("authoredOn").contained().jsonPrimitive.asFhirLocalDate()
     val accidentInformation = resource
         .findAll("extension")
         .filterWith(
@@ -279,6 +280,7 @@ fun <MedicationRequest, MultiplePrescriptionInfo, Ratio, Quantity> extractMedica
         ?.containedStringOrNull("code")
 
     return processMedicationRequest(
+        authoredOn,
         dateOfAccident,
         location,
         accidentType,
@@ -302,9 +304,25 @@ fun <Patient, Address> extractPatientVersion110(
 
     val birthDate = resource.containedOrNull("birthDate")?.jsonPrimitive?.toFhirTemporal()
 
+    val kvnrSystem = resource.containedOrNull("identifier")?.containedOrNull("type")
+        ?.findAll("coding")
+        ?.filterWith(
+            "system",
+            stringValue(
+                "http://fhir.de/CodeSystem/identifier-type-de-basis"
+            )
+        )
+        ?.firstOrNull()
+        ?.containedString("code")
+
+    val system = when (kvnrSystem) {
+        "PKV" -> "http://fhir.de/sid/pkv/kvid-10"
+        else -> "http://fhir.de/sid/gkv/kvid-10"
+    }
+
     val kvnr = resource
         .findAll("identifier")
-        .filterWith("system", stringValue("http://fhir.de/sid/gkv/kvid-10"))
+        .filterWith("system", stringValue(system))
         .firstOrNull()
         ?.containedString("value")
 

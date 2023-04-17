@@ -278,6 +278,7 @@ fun <MedicationRequest, MultiplePrescriptionInfo, Ratio, Quantity> extractMedica
         ?.containedStringOrNull("code")
 
     return processMedicationRequest(
+        null,
         dateOfAccident,
         location,
         accidentType,

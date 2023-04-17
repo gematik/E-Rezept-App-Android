@@ -1,0 +1,35 @@
+{
+  "id": "12cdf428-72cc-4fd6-a5e3-e7cbc01038b6",
+  "meta": {
+    "lastUpdated": "2023-01-07T12:00:01.9253389+01:00"
+  },
+  "resourceType": "Bundle",
+  "type": "searchset",
+  "total": 1,
+  "link": [
+    {
+      "relation": "self",
+      "url": "Bundle12cdf428-72cc-4fd6-a5e3-e7cbc01038b6"
+    }
+  ],
+  "entry": [
+    {
+      "resource": {
+        "id": "TEST-TEST-TEST-TEST-TEST",
+        "meta": {
+          "lastUpdated": "2023-01-07T12:00:01.9253389+01:00",
+          "versionId": "1"
+        },
+        "resourceType": "Binary",
+        "securityContext": {
+          "reference": "Location/TEST-TEST-TEST-TEST-TEST"
+        },
+        "contentType": "application/pkix-cert",
+        "data": "MIIFlDCCBHygAwwKGi44czSg=="
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ]
+}

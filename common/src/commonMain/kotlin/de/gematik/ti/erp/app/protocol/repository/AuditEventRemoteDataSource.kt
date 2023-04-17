@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.protocol.repository
 
+import androidx.compose.ui.text.intl.Locale
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -35,6 +36,7 @@ class AuditEventRemoteDataSource(
     ) {
         service.getAuditEvents(
             profileId = profileId,
+            language = Locale.current.language,
             lastKnownDate = lastKnownUpdate,
             count = count,
             offset = offset

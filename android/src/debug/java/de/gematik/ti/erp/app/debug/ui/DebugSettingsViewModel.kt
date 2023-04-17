@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.debug.ui
 
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.compose.runtime.getValue
@@ -38,16 +37,10 @@ import de.gematik.ti.erp.app.debug.data.Environment
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
-import de.gematik.ti.erp.app.fhir.model.extractPKVInvoiceBundle
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.invoice.usecase.PkvHtmlTemplate
-import de.gematik.ti.erp.app.invoice.usecase.createPkvHtmlInvoiceTemplate
-import de.gematik.ti.erp.app.invoice.usecase.createSharableFileInCache
-import de.gematik.ti.erp.app.invoice.usecase.sharePDFFile
-import de.gematik.ti.erp.app.invoice.usecase.writePDFAttachment
-import de.gematik.ti.erp.app.invoice.usecase.writePdfFromHtml
+import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -83,6 +76,7 @@ class DebugSettingsViewModel(
     private val prescriptionUseCase: PrescriptionUseCase,
     private val vauRepository: VauRepository,
     private val idpRepository: IdpRepository,
+    private val invoiceRepository: InvoiceRepository,
     private val idpUseCase: IdpUseCase,
     private val profilesUseCase: ProfilesUseCase,
     private val featureToggleManager: FeatureToggleManager,
@@ -162,6 +156,7 @@ class DebugSettingsViewModel(
                 pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 pharmacyServiceActive = true
             )
+
             Environment.RUDEV -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_RU_DEV,
                 eRezeptActive = true,
@@ -170,6 +165,7 @@ class DebugSettingsViewModel(
                 pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 pharmacyServiceActive = true
             )
+
             Environment.TR -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_TR,
                 eRezeptActive = true,
@@ -267,55 +263,6 @@ class DebugSettingsViewModel(
         }
     }
 
-    fun shareInvoicePDF(context: Context, bundle: String, attachement: String) {
-        viewModelScope.launch {
-            val html = extractPKVInvoiceBundle(
-                Json.parseToJsonElement(bundle),
-                processDispense = { whenHandedOver ->
-                    whenHandedOver.formattedString()
-                },
-                processPharmacyAddress = { line, postalCode, city ->
-                    requireNotNull(line)
-                    requireNotNull(postalCode)
-                    requireNotNull(city)
-                    (line + "$postalCode $city").joinToString()
-                },
-                processPharmacy = { name, address, _, iknr, _, _ ->
-                    PkvHtmlTemplate.createOrganization(
-                        organizationName = requireNotNull(name),
-                        organizationAddress = address,
-                        organizationIKNR = iknr
-                    )
-                },
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items ->
-                    PkvHtmlTemplate.createPriceData(
-                        currency = currency,
-                        totalBruttoAmount = totalBruttoAmount,
-                        items = items
-                    )
-                },
-                save = { pharmacy, invoice, dispense ->
-                    createPkvHtmlInvoiceTemplate(
-                        patient = "TODO",
-                        patientBirthdate = "TODO",
-                        prescriber = "TODO",
-                        prescribedOn = "TODO",
-                        organization = pharmacy,
-                        dispensedOn = dispense,
-                        priceData = invoice
-                    )
-                }
-            )
-
-            requireNotNull(html) { "HTML string required" }
-
-            val file = createSharableFileInCache(context, "invoices", "invoice")
-            writePdfFromHtml(context, "Invoice", html, file)
-            writePDFAttachment(file, Triple("Test123", "text/plain", attachement.toByteArray()))
-            sharePDFFile(context, file)
-        }
-    }
-
     fun features() = featureToggleManager.features
 
     fun featuresState() =
@@ -405,5 +352,13 @@ class DebugSettingsViewModel(
             telematikId = "",
             recipientCertificates = certificates
         ).getOrThrow()
+    }
+
+    fun saveInvoice(invoiceBundle: String) {
+        viewModelScope.launch {
+            val profileId = profilesUseCase.activeProfileId().first()
+            val bundle = Json.parseToJsonElement(invoiceBundle)
+            invoiceRepository.saveInvoice(profileId, bundle)
+        }
     }
 }

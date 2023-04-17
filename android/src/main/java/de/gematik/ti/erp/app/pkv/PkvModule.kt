@@ -21,6 +21,10 @@ package de.gematik.ti.erp.app.pkv
 import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.usecase.ConsentUseCase
+import de.gematik.ti.erp.app.invoice.repository.InvoiceLocalDataSource
+import de.gematik.ti.erp.app.invoice.repository.InvoiceRemoteDataSource
+import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.invoice.usecase.InvoiceUseCase
 
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -28,6 +32,11 @@ import org.kodein.di.instance
 
 val pkvModule = DI.Module("pkvModule") {
     bindProvider { ConsentUseCase(instance()) }
-    bindProvider { ConsentRemoteDataSource(instance()) }
     bindProvider { ConsentRepository(instance(), instance()) }
+    bindProvider { ConsentRemoteDataSource(instance()) }
+
+    bindProvider { InvoiceUseCase(instance(), instance()) }
+    bindProvider { InvoiceRepository(instance(), instance(), instance()) }
+    bindProvider { InvoiceRemoteDataSource(instance()) }
+    bindProvider { InvoiceLocalDataSource(instance()) }
 }

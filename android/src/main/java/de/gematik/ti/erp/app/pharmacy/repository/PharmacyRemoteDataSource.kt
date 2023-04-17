@@ -49,6 +49,16 @@ class PharmacyRemoteDataSource(
         searchService.searchByBundle(bundleId = bundleId, offset = offset, count = count)
     }
 
+    suspend fun searchBinaryCert(
+        locationId: String
+    ): Result<JsonElement> = safeApiCall("error searching binary") {
+        if (locationId.startsWith("Location/")) {
+            searchService.searchBinary(locationId = locationId)
+        } else {
+            searchService.searchBinary(locationId = "Location/$locationId")
+        }
+    }
+
     suspend fun redeemPrescription(
         url: String,
         message: ByteArray,

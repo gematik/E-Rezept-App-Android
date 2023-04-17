@@ -30,7 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.settings.ui.SettingsController
+import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
@@ -39,7 +39,8 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import kotlinx.coroutines.launch
 
 @Composable
-fun AccessibilitySettingsScreen(settingsController: SettingsController, onBack: () -> Unit) {
+fun AccessibilitySettingsScreen(onBack: () -> Unit) {
+    val settingsController = rememberSettingsController()
     val zoomState by settingsController.zoomState
     val screenshotState by settingsController.screenShotState
     val scope = rememberCoroutineScope()

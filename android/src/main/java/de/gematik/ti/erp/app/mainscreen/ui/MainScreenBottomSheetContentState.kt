@@ -60,7 +60,7 @@ import de.gematik.ti.erp.app.profiles.ui.AvatarPicker
 import de.gematik.ti.erp.app.profiles.ui.ColorPicker
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileImage
-import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
+import de.gematik.ti.erp.app.profiles.ui.ProfilesController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -90,7 +90,7 @@ sealed class MainScreenBottomSheetContentState {
 @Composable
 fun MainScreenBottomSheetContentState(
     settingsController: SettingsController,
-    profileSettingsViewModel: ProfileSettingsViewModel,
+    profilesController: ProfilesController,
     infoContentState: MainScreenBottomSheetContentState?,
     mainNavController: NavController,
     profileToRename: ProfilesUseCaseData.Profile,
@@ -132,7 +132,9 @@ fun MainScreenBottomSheetContentState(
                         EditProfileAvatar(
                             profile = profileHandler.activeProfile,
                             clearPersonalizedImage = {
-                                profileSettingsViewModel.clearPersonalizedImage(profileHandler.activeProfile.id)
+                                scope.launch {
+                                    profilesController.clearPersonalizedImage(profileHandler.activeProfile.id)
+                                }
                             },
                             onPickPersonalizedImage = {
                                 mainNavController.navigate(
@@ -142,16 +144,19 @@ fun MainScreenBottomSheetContentState(
                                 )
                             },
                             onSelectAvatar = { avatar ->
-                                profileSettingsViewModel.saveAvatarFigure(profileHandler.activeProfile.id, avatar)
+                                scope.launch {
+                                    profilesController.saveAvatarFigure(profileHandler.activeProfile.id, avatar)
+                                }
                             },
                             onSelectProfileColor = { color ->
-                                profileSettingsViewModel.updateProfileColor(profileHandler.activeProfile, color)
+                                scope.launch {
+                                    profilesController.updateProfileColor(profileHandler.activeProfile, color)
+                                }
                             }
                         )
                     is MainScreenBottomSheetContentState.EditOrAddProfileName ->
                         ProfileSheetContent(
-                            settingsController = settingsController,
-                            profileSettingsViewModel = profileSettingsViewModel,
+                            profilesController = profilesController,
                             addProfile = it.addProfile,
                             profileToEdit = if (!it.addProfile) {
                                 profileToRename
@@ -184,24 +189,25 @@ fun MainScreenBottomSheetContentState(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProfileSheetContent(
-    settingsController: SettingsController,
-    profileSettingsViewModel: ProfileSettingsViewModel,
+    profilesController: ProfilesController,
     profileToEdit: ProfilesUseCaseData.Profile?,
     addProfile: Boolean = false,
     onCancel: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
-    val profilesState by settingsController.profilesState
+    val profilesState by profilesController.profilesState
     var textValue by remember { mutableStateOf(profileToEdit?.name ?: "") }
     var duplicated by remember { mutableStateOf(false) }
 
     val onEdit = {
         if (!addProfile) {
-            profileToEdit?.let { profileSettingsViewModel.updateProfileName(it.id, textValue) }
+            profileToEdit?.let {
+                scope.launch { profilesController.updateProfileName(it.id, textValue) }
+            }
         } else {
             scope.launch {
-                settingsController.addProfile(textValue)
+                profilesController.addProfile(textValue)
             }
         }
         onCancel()

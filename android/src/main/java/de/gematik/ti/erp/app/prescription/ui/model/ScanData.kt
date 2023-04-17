@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.prescription.ui.model
 
 import androidx.compose.runtime.Immutable
 
-object ScanScreenData {
+object ScanData {
     enum class ScanState {
         Hold,
         Save,
@@ -88,7 +88,7 @@ object ScanScreenData {
             snackBar.shouldShow()
     }
 
-    val defaultScreenState = State(
+    val defaultState = State(
         snackBar = ActionBar(0, 0)
     )
 }

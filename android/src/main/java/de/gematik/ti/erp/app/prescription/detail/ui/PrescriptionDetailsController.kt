@@ -18,29 +18,35 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import de.gematik.ti.erp.app.DispatchProvider
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.launch
+import org.kodein.di.compose.rememberInstance
 
-class PrescriptionDetailsViewModel(
-    val prescriptionUseCase: PrescriptionUseCase,
-    private val dispatchers: DispatchProvider
-) : ViewModel(), DeletePrescriptionsBridge {
-
-    suspend fun screenState(taskId: String): Flow<PrescriptionData.Prescription> =
+@Stable
+class PrescriptionDetailsController(
+    val prescriptionUseCase: PrescriptionUseCase
+) : DeletePrescriptionsBridge {
+    suspend fun prescriptionDetailsFlow(taskId: String): Flow<PrescriptionData.Prescription> =
         prescriptionUseCase.generatePrescriptionDetails(taskId)
 
-    fun redeemScannedTask(taskId: String, redeem: Boolean) {
-        viewModelScope.launch(dispatchers.IO) {
-            prescriptionUseCase.redeemScannedTask(taskId, redeem)
-        }
+    suspend fun redeemScannedTask(taskId: String, redeem: Boolean) {
+        prescriptionUseCase.redeemScannedTask(taskId, redeem)
     }
 
     override suspend fun deletePrescription(profileId: ProfileIdentifier, taskId: String): Result<Unit> =
         prescriptionUseCase.deletePrescription(profileId = profileId, taskId = taskId)
+}
+
+@Composable
+fun rememberPrescriptionDetailsController(): PrescriptionDetailsController {
+    val prescriptionUseCase by rememberInstance<PrescriptionUseCase>()
+
+    return remember {
+        PrescriptionDetailsController(prescriptionUseCase)
+    }
 }

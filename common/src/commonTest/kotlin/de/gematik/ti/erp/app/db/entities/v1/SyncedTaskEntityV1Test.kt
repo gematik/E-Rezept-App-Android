@@ -20,6 +20,10 @@ package de.gematik.ti.erp.app.db.entities.v1
 
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.deleteAll
+import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
@@ -73,7 +77,11 @@ class SyncedTaskEntityV1Test : TestDB() {
                     IngredientEntityV1::class,
                     QuantityEntityV1::class,
                     RatioEntityV1::class,
-                    MultiplePrescriptionInfoEntityV1::class
+                    MultiplePrescriptionInfoEntityV1::class,
+                    PKVInvoiceEntityV1::class,
+                    InvoiceEntityV1::class,
+                    ChargeableItemV1::class,
+                    PriceComponentV1::class
                 )
             )
                 .schemaVersion(0)

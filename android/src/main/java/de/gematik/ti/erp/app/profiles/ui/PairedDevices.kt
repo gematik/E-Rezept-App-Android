@@ -65,7 +65,6 @@ import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -123,7 +122,7 @@ fun ProfileEditPairedDeviceSection(
 @Composable
 fun PairedDevicesScreen(
     selectedProfile: ProfilesUseCaseData.Profile,
-    settingsController: SettingsController,
+    profilesController: ProfilesController,
     onBack: () -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -137,7 +136,7 @@ fun PairedDevicesScreen(
         PairedDevices(
             modifier = Modifier.padding(it),
             selectedProfile = selectedProfile,
-            settingsController = settingsController,
+            profilesController = profilesController,
             listState = listState
         )
     }
@@ -175,7 +174,7 @@ private sealed interface DeleteState {
 private fun PairedDevices(
     modifier: Modifier,
     selectedProfile: ProfilesUseCaseData.Profile,
-    settingsController: SettingsController,
+    profilesController: ProfilesController,
     listState: LazyListState
 ) {
     val authenticator = LocalAuthenticator.current
@@ -187,7 +186,7 @@ private fun PairedDevices(
             .onStart { emit(Unit) } // emit once to start the flow directly
             .collectLatest {
                 state = RefreshState.Loading
-                settingsController
+                profilesController
                     .pairedDevices(selectedProfile.id)
                     .retry(1) { throwable ->
                         Napier.e("Couldn't get paired devices", throwable)
@@ -244,7 +243,7 @@ private fun PairedDevices(
             onClickAction = {
                 coroutineScope.launch {
                     mutex.mutate {
-                        settingsController
+                        profilesController
                             .deletePairedDevice(selectedProfile.id, it.device)
                             .onFailure {
                                 deleteState = DeleteState.Error

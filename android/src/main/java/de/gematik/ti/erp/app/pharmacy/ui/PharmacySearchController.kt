@@ -25,7 +25,9 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -43,7 +45,9 @@ import com.google.android.gms.tasks.CancellationTokenSource
 import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.fhir.model.isOpenAt
+import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
@@ -55,9 +59,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -75,16 +81,11 @@ import org.kodein.di.compose.rememberInstance
 private const val WaitForLocationUpdate = 2500L
 private const val DefaultRadiusInMeter = 999 * 1000.0
 
-private val DefaultSearchData = PharmacyUseCaseData.SearchData(
-    name = "",
-    filter = PharmacyUseCaseData.Filter(),
-    locationMode = PharmacyUseCaseData.LocationMode.Disabled
-)
-
 @Stable
 class PharmacySearchController(
     private val context: Context,
     private val mapsUseCase: PharmacyMapsUseCase,
+    private val pharmacyOverviewUseCase: PharmacyOverviewUseCase,
     private val searchUseCase: PharmacySearchUseCase,
     coroutineScope: CoroutineScope
 ) {
@@ -102,7 +103,7 @@ class PharmacySearchController(
     var isLoading by mutableStateOf(false)
         private set
 
-    var searchState by mutableStateOf(DefaultSearchData)
+    var searchState by mutableStateOf(PharmacySearchStateData.defaultSearchData)
         private set
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -289,6 +290,29 @@ class PharmacySearchController(
             }
         }
     }
+
+    private val pharmacyOverviewFlow = combine(
+        pharmacyOverviewUseCase.favoritePharmacies(),
+        pharmacyOverviewUseCase.oftenUsedPharmacies()
+    ) { favorites, oftenUsed ->
+        favorites + oftenUsed.filterNot { oftenUsedPharmacy ->
+            favorites.any {
+                it.telematikId == oftenUsedPharmacy.telematikId
+            }
+        }
+    }.map { PharmacySearchStateData.PharmacySearchOverviewState(it) }
+
+    val pharmacySearchOverviewState
+        @Composable
+        get() = pharmacyOverviewFlow.collectAsState(PharmacySearchStateData.defaultOverviewPharmacies)
+
+    suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
+        pharmacyOverviewUseCase.deleteOverviewPharmacy(overviewPharmacy)
+    }
+
+    suspend fun findPharmacyByTelematikIdState(
+        telematikId: String
+    ) = flowOf(pharmacyOverviewUseCase.searchPharmacyByTelematikId(telematikId))
 }
 
 private fun isLocationServiceEnabled(context: Context): Boolean {
@@ -335,12 +359,14 @@ fun rememberPharmacySearchController(): PharmacySearchController {
     val context = LocalContext.current
     val pharmacyMapsUseCase by rememberInstance<PharmacyMapsUseCase>()
     val pharmacySearchUseCase by rememberInstance<PharmacySearchUseCase>()
+    val pharmacyOverviewUseCase by rememberInstance<PharmacyOverviewUseCase>()
     val scope = rememberCoroutineScope()
     return remember {
         PharmacySearchController(
             context = context,
             mapsUseCase = pharmacyMapsUseCase,
             searchUseCase = pharmacySearchUseCase,
+            pharmacyOverviewUseCase = pharmacyOverviewUseCase,
             coroutineScope = scope
         )
     }
@@ -358,3 +384,20 @@ private fun anyLocationPermissionGranted(context: Context) =
             it
         ) == PackageManager.PERMISSION_GRANTED
     }
+
+object PharmacySearchStateData {
+    @Immutable
+    data class PharmacySearchOverviewState(
+        val overviewPharmacies: List<OverviewPharmacyData.OverviewPharmacy>
+    )
+
+    val defaultOverviewPharmacies = PharmacySearchOverviewState(
+        overviewPharmacies = listOf()
+    )
+
+    val defaultSearchData = PharmacyUseCaseData.SearchData(
+        name = "",
+        filter = PharmacyUseCaseData.Filter(),
+        locationMode = PharmacyUseCaseData.LocationMode.Disabled
+    )
+}

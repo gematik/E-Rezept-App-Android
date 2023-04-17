@@ -24,6 +24,7 @@ import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
@@ -31,6 +32,9 @@ import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.TruststoreEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
@@ -49,8 +53,9 @@ import de.gematik.ti.erp.app.db.entities.v1.task.RatioEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
+import io.realm.kotlin.ext.realmListOf
 
-const val ACTUAL_SCHEMA_VERSION = 17L
+const val ACTUAL_SCHEMA_VERSION = 19L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -82,7 +87,12 @@ val appSchemas = setOf(
             PharmacyCacheEntityV1::class,
             OftenUsedPharmacyEntityV1::class,
             MultiplePrescriptionInfoEntityV1::class,
-            FavoritePharmacyEntityV1::class
+            FavoritePharmacyEntityV1::class,
+            IngredientEntityV1::class,
+            PKVInvoiceEntityV1::class,
+            InvoiceEntityV1::class,
+            ChargeableItemV1::class,
+            PriceComponentV1::class
         ),
         migrateOrInitialize = { migrationStartedFrom ->
             queryFirst<SettingsEntityV1>() ?: run {
@@ -128,6 +138,24 @@ val appSchemas = setOf(
                         it._insuranceType = InsuranceTypeV1.GKV.toString()
                     } else {
                         it._insuranceType = InsuranceTypeV1.None.toString()
+                    }
+                }
+            }
+            if (migrationStartedFrom < 18L) {
+                query<ProfileEntityV1>().find().forEach {
+                    it.invoices = realmListOf()
+                }
+                query<MedicationRequestEntityV1>().find().forEach {
+                    if (it._authoredOn?.isEmpty() == true) {
+                        it._authoredOn = null
+                    }
+                }
+            }
+
+            if (migrationStartedFrom < 19L) {
+                query<MedicationDispenseEntityV1>().find().forEach {
+                    if (it._handedOverOn?.isEmpty() == true) {
+                        it._handedOverOn = null
                     }
                 }
             }

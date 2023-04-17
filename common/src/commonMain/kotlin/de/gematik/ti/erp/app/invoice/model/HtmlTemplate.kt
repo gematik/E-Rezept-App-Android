@@ -16,31 +16,30 @@
  * 
  */
 
-package de.gematik.ti.erp.app.invoice.usecase
+package de.gematik.ti.erp.app.invoice.model
 
-import de.gematik.ti.erp.app.fhir.model.ChargeableItem
-import de.gematik.ti.erp.app.fhir.model.SpecialPZN
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 
 object PkvHtmlTemplate {
-    fun createOrganization(
+    private fun createOrganization(
         organizationName: String,
         organizationAddress: String,
         organizationIKNR: String?
     ) = "$organizationName<br>$organizationAddress${organizationIKNR?.let { "<br>IKNR: $it" } ?: ""}"
 
-    fun createPrescriber(
+    private fun createPrescriber(
         prescriberName: String,
         prescriberAddress: String,
         prescriberLANR: String
     ) = "$prescriberName<br>$prescriberAddress<br>LANR: $prescriberLANR"
 
-    fun createPatient(
+    private fun createPatient(
         patientName: String,
         patientAddress: String,
         patientKVNR: String
-    ) = "$patientName<br>$patientAddress<br>KVNR: $patientKVNR"
+    ) = "$patientName<br>$patientAddress<br>KVNr: $patientKVNR"
 
-    fun createArticle(
+    private fun createArticle(
         article: String,
         factor: Double,
         tax: Double,
@@ -53,22 +52,28 @@ object PkvHtmlTemplate {
     """.trimIndent()
 
     fun createPriceData(
+        medicationRequest: SyncedTaskData.MedicationRequest,
+        taskId: String,
         currency: String,
         totalBruttoAmount: Double,
-        items: List<ChargeableItem>
+        items: List<InvoiceData.ChargeableItem>
     ): String {
         val (fees, articles) = items.partition {
-            (it.description as? ChargeableItem.Description.PZN)?.isSpecialPZN() ?: false
+            (it.description as? InvoiceData.ChargeableItem.Description.PZN)?.isSpecialPZN() ?: false
         }
 
+        val medication = joinMedicationInfo(medicationRequest)
+
         return createPriceData(
+            medication,
+            taskId,
             currency = currency,
             totalBruttoAmount = totalBruttoAmount,
             articles = articles.map {
                 val article = when (it.description) {
-                    is ChargeableItem.Description.HMNR -> "HMKNR ${it.description.hmnr}"
-                    is ChargeableItem.Description.PZN -> "PZN ${it.description.pzn}"
-                    is ChargeableItem.Description.TA1 -> "TA1 ${it.description.ta1}"
+                    is InvoiceData.ChargeableItem.Description.HMNR -> "HMKNR ${it.description.hmnr}"
+                    is InvoiceData.ChargeableItem.Description.PZN -> "PZN ${it.description.pzn}"
+                    is InvoiceData.ChargeableItem.Description.TA1 -> "TA1 ${it.description.ta1}"
                 }
 
                 createArticle(
@@ -79,13 +84,13 @@ object PkvHtmlTemplate {
                 )
             },
             fees = fees.map {
-                require(it.description is ChargeableItem.Description.PZN)
-                val article = when (SpecialPZN.valueOfPZN(it.description.pzn)) {
-                    SpecialPZN.EmergencyServiceFee -> "Notdienstgebühr"
-                    SpecialPZN.BTMFee -> "BTM-Gebühr"
-                    SpecialPZN.TPrescriptionFee -> "T-Rezept Gebühr"
-                    SpecialPZN.ProvisioningCosts -> "Beschaffungskosten"
-                    SpecialPZN.DeliveryServiceCosts -> "Botendienst"
+                require(it.description is InvoiceData.ChargeableItem.Description.PZN)
+                val article = when (InvoiceData.SpecialPZN.valueOfPZN(it.description.pzn)) {
+                    InvoiceData.SpecialPZN.EmergencyServiceFee -> "Notdienstgebühr"
+                    InvoiceData.SpecialPZN.BTMFee -> "BTM-Gebühr"
+                    InvoiceData.SpecialPZN.TPrescriptionFee -> "T-Rezept Gebühr"
+                    InvoiceData.SpecialPZN.ProvisioningCosts -> "Beschaffungskosten"
+                    InvoiceData.SpecialPZN.DeliveryServiceCosts -> "Botendienst"
                     null -> error("wrong mapping")
                 }
                 createArticle(
@@ -98,32 +103,101 @@ object PkvHtmlTemplate {
         )
     }
 
-    fun createPriceData(
+    fun joinMedicationInfo(medicationRequest: SyncedTaskData.MedicationRequest?): String {
+        return when (val medication = medicationRequest?.medication) {
+            is SyncedTaskData.MedicationPZN ->
+                "${medicationRequest.quantity}x ${medication.text} / " +
+                    "${medication.amount?.numerator?.value} " +
+                    "${medication.amount?.numerator?.unit} " +
+                    "${medication.normSizeCode} "
+            is SyncedTaskData.MedicationCompounding ->
+                "${medicationRequest.quantity}x ${medication.text} / " +
+                    "${medication.amount?.numerator?.value} " +
+                    "${medication.amount?.numerator?.unit} " + "${medication.form} "
+            is SyncedTaskData.MedicationIngredient ->
+                "${medicationRequest.quantity}x ${medication.text} / " +
+                    "${medication.amount?.numerator?.value} " +
+                    "${medication.amount?.numerator?.unit} " + "${medication.form} " +
+                    "${medication.normSizeCode} "
+            is SyncedTaskData.MedicationFreeText -> "${medicationRequest.quantity}x ${medication.text}"
+            else -> ""
+        }
+    }
+
+    private fun createPriceData(
+        requestMedication: String,
+        taskId: String,
         currency: String,
         totalBruttoAmount: Double,
         articles: List<String>,
         fees: List<String>
     ) = """
         <div class="frame">
-        <h5>Kosten</h5>
-        <div class="content costs">
-            <div class="header">Artikel</div>
-            <div class="header">Anzahl</div>
-            <div class="header">MwSt.</div>
-            <div class="header">Bruttopreis in $currency</div>
-            ${articles.joinToString("")}
-            <div class="header" style="padding-top: 0.5em;">Zusätzliche Gebühren</div>
-            <div></div>
-            <div></div>
-            <div></div>
-            ${fees.joinToString("")}
-            <div class="header">Gesamtsumme</div>
-            <div></div>
-            <div></div>
-            <div class="header">${totalBruttoAmount.currencyString()}</div>
+            <h5>Kosten</h5>
+            <div class="content costs">
+                <div class= header>Arzneimittel-ID: $taskId</div>
+                <div></div>
+                <div></div>
+                <div></div>  
+                <div>$requestMedication</div>
+                <div></div>
+                <div></div>
+                <div></div> 
+                <div class="header">Abgabe</div>
+                <div class="header">Anzahl</div>
+                <div class="header">MwSt.</div>
+                <div class="header">Bruttopreis in $currency</div>
+                ${articles.joinToString("")}
+                <div class="header" style="padding-top: 0.5em;">Zusätzliche Gebühren</div>
+                <div></div>
+                <div></div>
+                <div></div>
+                ${fees.joinToString("")}
+                <div class="header">Gesamtsumme</div>
+                <div></div>
+                <div></div>
+                <div class="header">${totalBruttoAmount.currencyString()}</div>
+            </div>
         </div>
     </div>
     """.trimIndent()
+
+    fun createHTML(invoice: InvoiceData.PKVInvoice): String {
+        val patient = createPatient(
+            patientName = invoice.patient.name ?: "",
+            patientAddress = invoice.patient.address?.joinToString() ?: "",
+            patientKVNR = invoice.patient.insuranceIdentifier ?: ""
+        )
+
+        val prescriber = createPrescriber(
+            prescriberName = invoice.practitioner.name ?: "",
+            prescriberAddress = invoice.practitionerOrganization.address?.joinToString() ?: "",
+            prescriberLANR = invoice.practitioner.practitionerIdentifier ?: ""
+        )
+        val pharmacy = createOrganization(
+            organizationName = invoice.pharmacyOrganization.name ?: "",
+            organizationAddress = invoice.pharmacyOrganization.address?.joinToString() ?: "",
+            organizationIKNR = invoice.pharmacyOrganization.uniqueIdentifier
+        )
+
+        val priceData = createPriceData(
+            medicationRequest = invoice.medicationRequest,
+            taskId = invoice.taskId,
+            currency = invoice.invoice.currency,
+            totalBruttoAmount = invoice.invoice.totalBruttoAmount,
+            items = invoice.invoice.chargeableItems
+        )
+
+        return createPkvHtmlInvoiceTemplate(
+            patient = patient,
+            patientBirthdate = invoice.patient.birthdate?.formattedString() ?: "",
+            prescriber = prescriber,
+            prescribedOn = invoice.medicationRequest.authoredOn?.formattedString() ?: "",
+            pharmacy = pharmacy,
+            dispensedOn = invoice.whenHandedOver?.formattedString() ?: "",
+            priceData = priceData
+        )
+    }
 }
 
 @Suppress("LongParameterList", "LongMethod")
@@ -132,7 +206,7 @@ fun createPkvHtmlInvoiceTemplate(
     patientBirthdate: String,
     prescriber: String,
     prescribedOn: String,
-    organization: String,
+    pharmacy: String,
     dispensedOn: String,
     priceData: String
 ) = """
@@ -252,7 +326,7 @@ fun createPkvHtmlInvoiceTemplate(
             <h5>Eingelöst</h5>
             <div class="content">
                 <div style="grid-area: 1/span 2;">
-                    $organization
+                    $pharmacy
                 </div>
                 <div style="padding-top: 1em;">
                     abgegeben am:
@@ -268,4 +342,4 @@ fun createPkvHtmlInvoiceTemplate(
     </html>
 """.trimIndent()
 
-private fun Double.currencyString() = "%.2f".format(this)
+fun Double.currencyString() = "%.2f".format(this)

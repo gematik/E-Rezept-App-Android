@@ -92,6 +92,9 @@ import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardwall.usecase.deviceHasNFC
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.profiles.ui.Avatar
+import de.gematik.ti.erp.app.profiles.ui.ProfilesController
+import de.gematik.ti.erp.app.profiles.ui.ProfilesStateData
+import de.gematik.ti.erp.app.profiles.ui.rememberProfilesController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -128,10 +131,10 @@ fun SettingsScreen(
 @Composable
 fun SettingsScreenWithScaffold(
     mainNavController: NavController,
-    navController: NavController,
-    settingsController: SettingsController
+    navController: NavController
 ) {
-    val profilesState by settingsController.profilesState
+    val profilesController = rememberProfilesController()
+    val profilesState by profilesController.profilesState
 
     val listState = rememberLazyListState()
 
@@ -247,7 +250,7 @@ private fun SettingsDivider() =
 
 @Composable
 private fun ProfileSection(
-    profilesState: SettingStatesData.ProfilesState,
+    profilesState: ProfilesStateData.ProfilesState,
     navController: NavController
 ) {
     val profiles = profilesState.profiles
@@ -313,13 +316,13 @@ private fun ProfileCard(
 @Composable
 fun ProfileNameDialog(
     initialProfileName: String = "",
-    settingsController: SettingsController,
+    profilesController: ProfilesController,
     wantRemoveLastProfile: Boolean = false,
     onEdit: (text: String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val profilesState by settingsController.profilesState
-    var textValue by remember { mutableStateOf(initialProfileName ?: "") }
+    val profilesState by profilesController.profilesState
+    var textValue by remember { mutableStateOf(initialProfileName) }
     var duplicated by remember { mutableStateOf(false) }
 
     val title = if (wantRemoveLastProfile) {

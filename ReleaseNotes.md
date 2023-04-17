@@ -1,3 +1,7 @@
+# Release 1.10.0
+- Began implementation for support of private insurances
+- Bugfixes
+
 # Release 1.9.0
 - Small refactorings
 - Bugfixes

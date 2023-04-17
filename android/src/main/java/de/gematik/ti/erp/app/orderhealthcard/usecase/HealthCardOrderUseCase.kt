@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.orderhealthcard.usecase
 import android.content.Context
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -35,9 +36,10 @@ class HealthCardOrderUseCase(
         ).sortedBy { it.name.lowercase() }
     }
 
-    fun healthInsuranceOrderContacts() = flow {
-        emit(companies)
-    }
+    val healthInsuranceOrderContacts: Flow<List<HealthCardOrderUseCaseData.HealthInsuranceCompany>>
+        get() = flow {
+            emit(companies)
+        }
 }
 
 fun loadHealthInsuranceContactsFromJSON(

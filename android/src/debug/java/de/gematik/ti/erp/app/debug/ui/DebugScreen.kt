@@ -41,7 +41,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
-import androidx.compose.material.Checkbox
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -80,7 +79,6 @@ import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.debug.data.Environment
-import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
@@ -173,54 +171,6 @@ fun EditablePathComponentSetButton(
 }
 
 @Composable
-fun TextWithResetButtonComponent(
-    modifier: Modifier = Modifier,
-    label: String,
-    onClick: () -> Unit,
-    active: Boolean
-) {
-    val color = if (active) Color.Green else Color.Red
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            modifier = Modifier
-                .weight(1f)
-                .padding(end = PaddingDefaults.Medium)
-        )
-        val text = if (active) "UNSET" else "RESET"
-        Button(
-            onClick = onClick,
-            colors = ButtonDefaults.buttonColors(backgroundColor = color),
-            enabled = !active
-        ) {
-            Text(text = text)
-        }
-    }
-}
-
-@Composable
-fun EditablePathComponentCheckable(
-    modifier: Modifier = Modifier,
-    label: String,
-    textFieldValue: String,
-    checked: Boolean,
-    onValueChange: (String, Boolean) -> Unit
-) {
-    EditablePathComponentWithControl(
-        modifier = modifier,
-        label = label,
-        textFieldValue = textFieldValue,
-        onValueChange = onValueChange,
-        content = { onChange ->
-            Checkbox(
-                checked = checked,
-                onCheckedChange = onChange
-            )
-        }
-    )
-}
-
-@Composable
 fun EditablePathComponentWithControl(
     modifier: Modifier,
     label: String,
@@ -257,6 +207,7 @@ fun DebugScreen(
                 endpointHelper = instance(),
                 cardWallUseCase = instance(),
                 prescriptionUseCase = instance(),
+                invoiceRepository = instance(),
                 vauRepository = instance(),
                 idpRepository = instance(),
                 idpUseCase = instance(),
@@ -451,12 +402,6 @@ fun DebugScreenMain(
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
-    val featuresState by produceState(initialValue = mutableMapOf<String, Boolean>()) {
-        viewModel.featuresState().collect {
-            value = it
-        }
-    }
-
     ModalBottomSheetLayout(
         sheetContent = {
             EnvironmentSelector(
@@ -576,24 +521,6 @@ fun DebugScreenMain(
                     FeatureToggles(viewModel = viewModel)
                 }
 
-                item {
-                    DebugCard(title = "Login state") {
-                        val profileHandler = LocalProfileHandler.current
-                        val active = profileHandler.activeProfile
-                        Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-                            Button(
-                                onClick = {
-                                    scope.launch {
-                                        profileHandler.switchProfileToPKV(active)
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(text = "Set User with ${active.name} as PKV", textAlign = TextAlign.Center)
-                            }
-                        }
-                    }
-                }
                 item {
                     RotatingLog(viewModel = viewModel)
                 }

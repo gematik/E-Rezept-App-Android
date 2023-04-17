@@ -36,16 +36,13 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Icon
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.LockOpen
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -65,6 +62,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material.Scaffold
+import androidx.compose.runtime.LaunchedEffect
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
@@ -86,24 +85,16 @@ import de.gematik.ti.erp.app.utils.compose.annotatedLinkString
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberViewModel
 import java.util.Locale
 @Suppress("LongMethod")
 @Composable
 fun UserAuthenticationScreen() {
-    val userAuthViewModel: UserAuthenticationViewModel by rememberViewModel()
+    val authentication = rememberAuthenticationController()
+    val scope = rememberCoroutineScope()
     var showAuthPrompt by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var initiallyHandledAuthPrompt by rememberSaveable { mutableStateOf(false) }
-    val state by produceState(userAuthViewModel.defaultState) {
-        userAuthViewModel.screenState().collect {
-            value = it
-            if (!initiallyHandledAuthPrompt && it.nrOfAuthFailures == 0) {
-                showAuthPrompt = true
-            }
-            initiallyHandledAuthPrompt = true
-        }
-    }
+    val authenticationState by authentication.authenticationState
     val navBarInsetsPadding = WindowInsets.systemBars.asPaddingValues()
     val paddingModifier = if (navBarInsetsPadding.calculateBottomPadding() <= PaddingDefaults.Medium) {
         Modifier.statusBarsPadding()
@@ -114,6 +105,10 @@ fun UserAuthenticationScreen() {
     val focusManager = LocalFocusManager.current
     LaunchedEffect(Unit) {
         focusManager.clearFocus(true)
+        if (!initiallyHandledAuthPrompt && authenticationState.nrOfAuthFailures == 0) {
+            showAuthPrompt = true
+        }
+        initiallyHandledAuthPrompt = true
     }
 
     Scaffold {
@@ -150,13 +145,13 @@ fun UserAuthenticationScreen() {
             } else {
                 AuthenticationScreenContent(
                     showAuthPromptOnClick = { showAuthPrompt = true },
-                    state = state
+                    state = authenticationState
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
             if (showError) {
                 AuthenticationScreenErrorBottomContent(
-                    state = state
+                    state = authenticationState
                 )
             } else {
                 Image(
@@ -172,19 +167,19 @@ fun UserAuthenticationScreen() {
     }
 
     if (showAuthPrompt) {
-        when (state.authenticationMethod) {
+        when (authenticationState.authenticationMethod) {
             is SettingsData.AuthenticationMode.Password ->
                 PasswordPrompt(
-                    userAuthViewModel,
+                    authentication,
                     onAuthenticated = {
                         showAuthPrompt = false
-                        userAuthViewModel.onAuthenticated()
+                        scope.launch { authentication.onAuthenticated() }
                     },
                     onCancel = {
                         showAuthPrompt = false
                     },
                     onAuthenticationError = {
-                        userAuthViewModel.onFailedAuthentication()
+                        scope.launch { authentication.onFailedAuthentication() }
                         showAuthPrompt = false
                         showError = true
                     }
@@ -196,18 +191,18 @@ fun UserAuthenticationScreen() {
                     negativeButton = stringResource(R.string.auth_prompt_cancel),
                     onAuthenticated = {
                         showAuthPrompt = false
-                        userAuthViewModel.onAuthenticated()
+                        scope.launch { authentication.onAuthenticated() }
                     },
                     onCancel = {
                         showAuthPrompt = false
                     },
                     onAuthenticationError = {
-                        userAuthViewModel.onFailedAuthentication()
+                        scope.launch { authentication.onFailedAuthentication() }
                         showAuthPrompt = false
                         showError = true
                     },
                     onAuthenticationSoftError = {
-                        userAuthViewModel.onFailedAuthentication()
+                        scope.launch { authentication.onFailedAuthentication() }
                     }
                 )
         }
@@ -261,7 +256,7 @@ private fun AuthenticationScreenErrorContent(
 }
 
 @Composable
-private fun AuthenticationScreenErrorBottomContent(state: UserAuthenticationScreenState) {
+private fun AuthenticationScreenErrorBottomContent(state: AuthenticationStateData.AuthenticationState) {
     Column(
         modifier = Modifier
             .background(color = AppTheme.colors.neutral100)
@@ -300,7 +295,7 @@ private fun AuthenticationScreenErrorBottomContent(state: UserAuthenticationScre
 @Composable
 private fun AuthenticationScreenContent(
     showAuthPromptOnClick: () -> Unit,
-    state: UserAuthenticationScreenState
+    state: AuthenticationStateData.AuthenticationState
 ) {
     Column(
         modifier = Modifier
@@ -373,7 +368,7 @@ private fun AuthenticationScreenContent(
 
 @Composable
 private fun PasswordPrompt(
-    viewModel: UserAuthenticationViewModel,
+    authenticationState: AuthenticationController,
     onAuthenticated: () -> Unit,
     onCancel: () -> Unit,
     onAuthenticationError: () -> Unit
@@ -396,7 +391,7 @@ private fun PasswordPrompt(
                 enabled = password.isNotEmpty(),
                 onClick = {
                     coroutineScope.launch {
-                        if (viewModel.isPasswordValid(password)) {
+                        if (authenticationState.isPasswordValid(password)) {
                             onAuthenticated()
                         } else {
                             onAuthenticationError()

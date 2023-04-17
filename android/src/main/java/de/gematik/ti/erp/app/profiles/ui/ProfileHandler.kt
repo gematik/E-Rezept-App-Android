@@ -29,17 +29,13 @@ import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
-import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
-import org.kodein.di.compose.rememberViewModel
 
 interface ProfileBridge {
     val profiles: Flow<List<ProfilesUseCaseData.Profile>>
@@ -47,39 +43,11 @@ interface ProfileBridge {
     suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile)
 }
 
-class ProfileViewModel(
-    private val profilesUseCase: ProfilesUseCase
-) : ViewModel(), ProfileBridge {
-    override val profiles: Flow<List<ProfilesUseCaseData.Profile>> =
-        profilesUseCase.profiles
-
-    override suspend fun switchActiveProfile(profile: ProfilesUseCaseData.Profile) {
-        profilesUseCase.switchActiveProfile(profile)
-    }
-
-    override suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile) {
-        profilesUseCase.switchProfileToPKV(profile)
-    }
-}
-
-val DefaultProfile = ProfilesUseCaseData.Profile(
-    id = "",
-    name = "",
-    insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(
-        insuranceType = ProfilesUseCaseData.InsuranceType.NONE
-    ),
-    active = false,
-    color = ProfilesData.ProfileColorNames.SPRING_GRAY,
-    lastAuthenticated = null,
-    ssoTokenScope = null,
-    avatarFigure = ProfilesData.AvatarFigure.PersonalizedImage
-)
-
 @Stable
 class ProfileHandler(
     private val bridge: ProfileBridge,
     coroutineScope: CoroutineScope,
-    activeDefaultProfile: ProfilesUseCaseData.Profile = DefaultProfile
+    activeDefaultProfile: ProfilesUseCaseData.Profile = ProfilesStateData.defaultProfile
 ) {
     enum class ProfileConnectionState {
         LoggedIn,
@@ -142,7 +110,7 @@ class ProfileHandler(
         bridge
             .profiles
             .onEach {
-                activeProfile = it.find { it.active } ?: DefaultProfile
+                activeProfile = it.find { it.active } ?: ProfilesStateData.defaultProfile
             }
             .shareIn(coroutineScope, SharingStarted.Eagerly, 1)
 
@@ -160,28 +128,28 @@ class ProfileHandler(
 }
 
 private fun profileHandlerSaver(
-    bridge: ProfileBridge,
+    profilesController: ProfilesController,
     scope: CoroutineScope
 ): Saver<ProfileHandler, String> = Saver(
     save = { state ->
         state.activeProfile.id
     },
     restore = { savedState ->
-        ProfileHandler(bridge, scope, DefaultProfile.copy(id = savedState))
+        ProfileHandler(profilesController, scope, ProfilesStateData.defaultProfile.copy(id = savedState))
     }
 )
 
 @Composable
 fun rememberProfileHandler(): ProfileHandler {
-    val profileViewModel by rememberViewModel<ProfileViewModel>()
+    val profilesController = rememberProfilesController()
     val coroutineScope = rememberCoroutineScope()
     return rememberSaveable(
         saver = profileHandlerSaver(
-            profileViewModel,
+            profilesController,
             coroutineScope
         )
     ) {
-        ProfileHandler(profileViewModel, coroutineScope)
+        ProfileHandler(profilesController, coroutineScope)
     }
 }
 

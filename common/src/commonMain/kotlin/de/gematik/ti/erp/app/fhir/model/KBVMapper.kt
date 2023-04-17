@@ -57,6 +57,7 @@ typealias InsuranceInformationFn<R> = (
 ) -> R
 
 typealias MedicationRequestFn<R, MultiplePrescriptionInfo> = (
+    authoredOn: FhirTemporal.LocalDate?,
     dateOfAccident: FhirTemporal.LocalDate?,
     location: String?,
     accidentType: AccidentType,

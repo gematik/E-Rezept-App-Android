@@ -161,6 +161,19 @@ fun extractPharmacyServices(
     )
 }
 
+/**
+ * Extract certificates from binary bundle.
+ */
+fun extractBinaryCertificateAsBase64(
+    bundle: JsonElement
+): String {
+    val resource = bundle.findAll(listOf("entry", "resource")).first()
+
+    require(resource.containedString("contentType") == "application/pkix-cert")
+
+    return resource.containedString("data")
+}
+
 private fun <R : Any> Sequence<JsonElement>.mapCatching(
     onError: (JsonElement, Exception) -> Unit,
     transform: (JsonElement) -> R?

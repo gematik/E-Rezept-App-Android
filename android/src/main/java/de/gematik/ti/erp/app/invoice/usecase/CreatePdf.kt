@@ -19,28 +19,28 @@
 package de.gematik.ti.erp.app.invoice.usecase
 
 import android.content.Context
-import android.content.Intent
 import android.print.PdfPrint
 import android.print.PrintAttributes
 import android.print.PrintDocumentAdapter
 import android.util.Base64
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import androidx.core.app.ShareCompat
 import androidx.core.content.FileProvider
 import com.tom_roush.pdfbox.pdmodel.PDDocument
 import com.tom_roush.pdfbox.pdmodel.PDDocumentNameDictionary
 import com.tom_roush.pdfbox.pdmodel.PDEmbeddedFilesNameTreeNode
 import com.tom_roush.pdfbox.pdmodel.common.filespecification.PDComplexFileSpecification
 import com.tom_roush.pdfbox.pdmodel.common.filespecification.PDEmbeddedFile
+import de.gematik.ti.erp.app.BuildConfig
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
-import java.util.GregorianCalendar
-import java.util.UUID
+import java.util.*
 import kotlin.coroutines.suspendCoroutine
 
-private const val FileProviderAuthority = "de.gematik.ti.erp.app.fileprovider"
+private const val FileProviderAuthority = "${BuildConfig.APPLICATION_ID}.fileprovider"
 private const val PDFDensity = 600
 private const val PDFMargin = 24
 
@@ -64,17 +64,15 @@ fun createSharableFileInCache(context: Context, path: String, filePrefix: String
     return newFile
 }
 
-fun sharePDFFile(context: Context, file: File) {
-    val contentUri = FileProvider.getUriForFile(context, FileProviderAuthority, file)
+fun sharePDFFile(context: Context, file: File, subject: String) {
+    val uri = FileProvider.getUriForFile(context, FileProviderAuthority, file)
 
-    val shareIntent = Intent().apply {
-        action = Intent.ACTION_SEND
-        putExtra(Intent.EXTRA_TEXT, "")
-        putExtra(Intent.EXTRA_STREAM, contentUri)
-        type = "application/pdf"
-        flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-    }
-    context.startActivity(Intent.createChooser(shareIntent, null))
+    ShareCompat.IntentBuilder(context)
+        .setType("application/pdf")
+        .setSubject(subject)
+        .addStream(uri)
+        .setChooserTitle(subject)
+        .startChooser()
 }
 
 suspend fun writePdfFromHtml(context: Context, title: String, html: String, out: File) =
@@ -112,7 +110,7 @@ suspend fun writePDF(adapter: PrintDocumentAdapter, out: File) {
     pdfPrint.print(adapter, out)
 }
 
-fun writePDFAttachment(out: File, vararg attachments: Triple<String, String, ByteArray>) {
+fun writePDFAttachments(out: File, attachments: List<Triple<String, String, ByteArray>>) {
     val doc = PDDocument.load(out)
 
     val efTree = PDEmbeddedFilesNameTreeNode()

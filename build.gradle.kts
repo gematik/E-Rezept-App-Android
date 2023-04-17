@@ -18,8 +18,8 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1" apply false
     id("io.realm.kotlin") version "1.6.1" apply false
     id("org.jetbrains.kotlin.android") version "1.7.20" apply false
-    id("com.android.application") version "7.3.1" apply false
-    id("com.android.library") version "7.3.1" apply false
+    id("com.android.application") version "7.4.1" apply false
+    id("com.android.library") version "7.4.1" apply false
     id("org.jetbrains.compose") version "1.3.0" apply false
     id("com.codingfeline.buildkonfig") version "0.13.3" apply false
     id("io.gitlab.arturbosch.detekt") version "1.22.0"

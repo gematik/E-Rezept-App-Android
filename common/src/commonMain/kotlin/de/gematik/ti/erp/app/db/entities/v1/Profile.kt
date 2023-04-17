@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.db.entities.v1
 import de.gematik.ti.erp.app.db.entities.Cascading
 import de.gematik.ti.erp.app.db.entities.byteArrayBase64Nullable
 import de.gematik.ti.erp.app.db.entities.enumName
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.Deleteable
@@ -105,6 +106,7 @@ class ProfileEntityV1 : RealmObject, Cascading {
 
     var syncedTasks: RealmList<SyncedTaskEntityV1> = realmListOf()
     var scannedTasks: RealmList<ScannedTaskEntityV1> = realmListOf()
+    var invoices: RealmList<PKVInvoiceEntityV1> = realmListOf()
 
     var idpAuthenticationData: IdpAuthenticationDataEntityV1? = null
     var auditEvents: RealmList<AuditEventEntityV1> = realmListOf()
@@ -114,6 +116,7 @@ class ProfileEntityV1 : RealmObject, Cascading {
             yield(syncedTasks)
             yield(scannedTasks)
             yield(auditEvents)
+            yield(invoices)
             idpAuthenticationData?.let { yield(it) }
         }
 }

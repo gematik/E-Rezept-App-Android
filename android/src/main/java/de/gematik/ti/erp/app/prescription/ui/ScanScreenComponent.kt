@@ -91,7 +91,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -120,14 +119,13 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
-import de.gematik.ti.erp.app.prescription.ui.model.ScanScreenData
+import de.gematik.ti.erp.app.prescription.ui.model.ScanData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
@@ -147,7 +145,7 @@ import java.util.concurrent.Executors
 @Composable
 fun ScanScreen(
     mainNavController: NavController,
-    scanViewModel: ScanPrescriptionViewModel
+    scanPrescriptionController: ScanPrescriptionController
 ) {
     val context = LocalContext.current
 
@@ -168,7 +166,7 @@ fun ScanScreen(
 
     var flashEnabled by remember { mutableStateOf(false) }
 
-    val state by scanViewModel.screenState().collectAsState(ScanScreenData.defaultScreenState)
+    val state by scanPrescriptionController.state
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val coroutineScope = rememberCoroutineScope()
 
@@ -193,7 +191,9 @@ fun ScanScreen(
         sheetContent = {
             SheetContent(
                 onClickSave = {
-                    scanViewModel.saveToDatabase()
+                    coroutineScope.launch {
+                        scanPrescriptionController.saveToDatabase()
+                    }
                     tracker.trackSaveScannedPrescriptions()
                     mainNavController.navigate(MainNavigationScreens.Prescriptions.path())
                 }
@@ -203,7 +203,7 @@ fun ScanScreen(
         Box {
             if (camPermissionGranted) {
                 CameraView(
-                    scanViewModel,
+                    scanPrescriptionController,
                     Modifier.fillMaxSize(),
                     flashEnabled = flashEnabled,
                     onFlashToggled = {
@@ -219,7 +219,8 @@ fun ScanScreen(
                     flashEnabled = flashEnabled,
                     onFlashClick = { flashEnabled = it },
                     modifier = Modifier.fillMaxSize(),
-                    navController = mainNavController
+                    navController = mainNavController,
+                    scanPrescriptionController
                 )
 
                 if (state.snackBar.shouldShow()) {
@@ -238,7 +239,7 @@ fun ScanScreen(
         }
     }
 
-    HapticAndAudibleFeedback()
+    HapticAndAudibleFeedback(scanPrescriptionController)
 }
 
 @Composable
@@ -335,7 +336,7 @@ private fun AccessDenied(navController: NavController) {
 }
 
 @Composable
-private fun HapticAndAudibleFeedback(scanVM: ScanPrescriptionViewModel = viewModel()) {
+private fun HapticAndAudibleFeedback(scanPrescriptionController: ScanPrescriptionController) {
     val context = LocalContext.current
 
     val toneGenerator = remember {
@@ -346,8 +347,8 @@ private fun HapticAndAudibleFeedback(scanVM: ScanPrescriptionViewModel = viewMod
         }
     }
 
-    LaunchedEffect(scanVM.vibration) {
-        scanVM.vibration.collect {
+    LaunchedEffect(scanPrescriptionController.vibration) {
+        scanPrescriptionController.vibration.collect {
             val vibrator = if (VERSION.SDK_INT >= VERSION_CODES.S) {
                 val vibratorManager = context.getSystemService(VIBRATOR_MANAGER_SERVICE) as VibratorManager
                 vibratorManager.defaultVibrator
@@ -389,14 +390,14 @@ private fun SaveDialog(
         }
     )
 
-private fun beep(toneGenerator: ToneGenerator, pattern: ScanScreenData.VibrationPattern) {
+private fun beep(toneGenerator: ToneGenerator, pattern: ScanData.VibrationPattern) {
     @Suppress("NON_EXHAUSTIVE_WHEN")
     when (pattern) {
-        ScanScreenData.VibrationPattern.Saved -> toneGenerator.startTone(
+        ScanData.VibrationPattern.Saved -> toneGenerator.startTone(
             ToneGenerator.TONE_PROP_PROMPT,
             1000
         )
-        ScanScreenData.VibrationPattern.Error -> toneGenerator.startTone(
+        ScanData.VibrationPattern.Error -> toneGenerator.startTone(
             ToneGenerator.TONE_PROP_NACK,
             1000
         )
@@ -404,8 +405,8 @@ private fun beep(toneGenerator: ToneGenerator, pattern: ScanScreenData.Vibration
     }
 }
 
-private fun vibrate(vibrator: Vibrator, pattern: ScanScreenData.VibrationPattern) {
-    if (pattern == ScanScreenData.VibrationPattern.None) {
+private fun vibrate(vibrator: Vibrator, pattern: ScanData.VibrationPattern) {
+    if (pattern == ScanData.VibrationPattern.None) {
         return
     }
 
@@ -414,11 +415,11 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanScreenData.VibrationPattern
         if (VERSION.SDK_INT >= VERSION_CODES.O) {
             vibrator.vibrate(
                 when (pattern) {
-                    ScanScreenData.VibrationPattern.Focused ->
+                    ScanData.VibrationPattern.Focused ->
                         createOneShot(100L, 100)
-                    ScanScreenData.VibrationPattern.Saved ->
+                    ScanData.VibrationPattern.Saved ->
                         createOneShot(300L, 100)
-                    ScanScreenData.VibrationPattern.Error ->
+                    ScanData.VibrationPattern.Error ->
                         createWaveform(
                             longArrayOf(100, 100, 300),
                             intArrayOf(
@@ -428,19 +429,19 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanScreenData.VibrationPattern
                             ),
                             -1
                         )
-                    ScanScreenData.VibrationPattern.None -> error("Should not be reached")
+                    ScanData.VibrationPattern.None -> error("Should not be reached")
                 }
             )
         } else {
             @Suppress("DEPRECATION")
             when (pattern) {
-                ScanScreenData.VibrationPattern.Focused ->
+                ScanData.VibrationPattern.Focused ->
                     vibrator.vibrate(longArrayOf(0L, 100L), -1)
-                ScanScreenData.VibrationPattern.Saved ->
+                ScanData.VibrationPattern.Saved ->
                     vibrator.vibrate(longArrayOf(0L, 300L), -1)
-                ScanScreenData.VibrationPattern.Error ->
+                ScanData.VibrationPattern.Error ->
                     vibrator.vibrate(longArrayOf(0L, 100L, 100L, 300L), -1)
-                ScanScreenData.VibrationPattern.None -> error("Should not be reached")
+                ScanData.VibrationPattern.None -> error("Should not be reached")
             }
         }
     }
@@ -448,7 +449,7 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanScreenData.VibrationPattern
 
 @Composable
 private fun ActionBarButton(
-    data: ScanScreenData.ActionBar,
+    data: ScanData.ActionBar,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) =
@@ -475,7 +476,7 @@ private fun ActionBarButton(
 
 @Composable
 private fun InfoCard(
-    info: ScanScreenData.Info,
+    info: ScanData.Info,
     modifier: Modifier
 ) =
     Card(
@@ -493,7 +494,7 @@ private fun InfoCard(
             val scanning = stringResource(R.string.cam_info_scanning)
             val invalid = stringResource(R.string.cam_info_invalid)
             val duplicated = stringResource(R.string.cam_info_duplicated)
-            val detected = if (info is ScanScreenData.Info.Scanned) {
+            val detected = if (info is ScanData.Info.Scanned) {
                 annotatedPluralsResource(
                     R.plurals.cam_info_detected,
                     info.nr,
@@ -504,14 +505,14 @@ private fun InfoCard(
             }
 
             when (info) {
-                ScanScreenData.Info.Focus -> Text(
+                ScanData.Info.Focus -> Text(
                     scanning,
                     textAlign = TextAlign.Center,
                     style = AppTheme.typography.subtitle1
                 )
-                ScanScreenData.Info.ErrorNotValid -> InfoError(invalid)
-                ScanScreenData.Info.ErrorDuplicated -> InfoError(duplicated)
-                is ScanScreenData.Info.Scanned -> Text(
+                ScanData.Info.ErrorNotValid -> InfoError(invalid)
+                ScanData.Info.ErrorDuplicated -> InfoError(duplicated)
+                is ScanData.Info.Scanned -> Text(
                     detected,
                     textAlign = TextAlign.Center,
                     style = AppTheme.typography.subtitle1
@@ -519,10 +520,10 @@ private fun InfoCard(
             }
 
             val acc = when (info) {
-                ScanScreenData.Info.Focus -> scanning
-                ScanScreenData.Info.ErrorNotValid -> invalid
-                ScanScreenData.Info.ErrorDuplicated -> duplicated
-                is ScanScreenData.Info.Scanned -> detected.text
+                ScanData.Info.Focus -> scanning
+                ScanData.Info.ErrorNotValid -> invalid
+                ScanData.Info.ErrorDuplicated -> duplicated
+                is ScanData.Info.Scanned -> detected.text
             }
 
             DisposableEffect(view, acc) {
@@ -550,7 +551,7 @@ private fun InfoError(text: String) {
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 private fun CameraView(
-    scanVM: ScanPrescriptionViewModel = viewModel(),
+    scanPrescriptionController: ScanPrescriptionController,
     modifier: Modifier,
     flashEnabled: Boolean,
     onFlashToggled: (Boolean) -> Unit
@@ -593,7 +594,7 @@ private fun CameraView(
                     .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
                     .build()
                     .apply {
-                        setAnalyzer(Executors.newSingleThreadExecutor(), scanVM.scanner)
+                        setAnalyzer(Executors.newSingleThreadExecutor(), scanPrescriptionController.scanner)
                     }
 
                 preview.setSurfaceProvider(camPreviewView.surfaceProvider)
@@ -632,7 +633,7 @@ private fun CameraView(
                 }
 
                 camPreviewView.addOnLayoutChangeListener { _, _, _, _, _, _, _, _, _ ->
-                    scanVM.processor.onLayoutChange(
+                    scanPrescriptionController.processor.onLayoutChange(
                         Size(
                             camPreviewView.width,
                             camPreviewView.height
@@ -698,46 +699,41 @@ private fun ScanOverlay(
     onFlashClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
     navController: NavController,
-    scanVM: ScanPrescriptionViewModel = viewModel()
+    scanPrescriptionController: ScanPrescriptionController
 ) {
     var points by remember { mutableStateOf(FloatArray(8)) }
 
-    var state by remember { mutableStateOf(ScanScreenData.defaultOverlayState) }
+    val overlayState by scanPrescriptionController.overlayState
 
     LaunchedEffect(enabled) {
         if (enabled) {
-            scanVM.scanOverlayState().collect {
-                state = it
-                it.area?.let {
-                    points = it
-                }
+            overlayState.area?.let {
+                points = it
             }
-        } else {
-            state = ScanScreenData.defaultOverlayState
         }
     }
 
     val fillColor =
-        when (state.state) {
-            ScanScreenData.ScanState.Hold -> AppTheme.colors.scanOverlayHoldFill
-            ScanScreenData.ScanState.Save -> AppTheme.colors.scanOverlaySavedFill
-            ScanScreenData.ScanState.Error -> AppTheme.colors.scanOverlayErrorFill
-            ScanScreenData.ScanState.Final -> AppTheme.colors.scanOverlayHoldFill
+        when (overlayState.state) {
+            ScanData.ScanState.Hold -> AppTheme.colors.scanOverlayHoldFill
+            ScanData.ScanState.Save -> AppTheme.colors.scanOverlaySavedFill
+            ScanData.ScanState.Error -> AppTheme.colors.scanOverlayErrorFill
+            ScanData.ScanState.Final -> AppTheme.colors.scanOverlayHoldFill
         }
 
     val outlineColor =
-        when (state.state) {
-            ScanScreenData.ScanState.Hold -> AppTheme.colors.scanOverlayHoldOutline
-            ScanScreenData.ScanState.Save -> AppTheme.colors.scanOverlaySavedOutline
-            ScanScreenData.ScanState.Error -> AppTheme.colors.scanOverlayErrorOutline
-            ScanScreenData.ScanState.Final -> AppTheme.colors.scanOverlayHoldOutline
+        when (overlayState.state) {
+            ScanData.ScanState.Hold -> AppTheme.colors.scanOverlayHoldOutline
+            ScanData.ScanState.Save -> AppTheme.colors.scanOverlaySavedOutline
+            ScanData.ScanState.Error -> AppTheme.colors.scanOverlayErrorOutline
+            ScanData.ScanState.Final -> AppTheme.colors.scanOverlayHoldOutline
         }
 
-    val showAimAid = state.area == null && enabled
+    val showAimAid = overlayState.area == null && enabled
 
     Box(modifier = modifier) {
         Canvas(modifier = Modifier.fillMaxSize()) {
-            if (state.area != null) {
+            if (overlayState.area != null) {
                 val p = Path().apply {
                     moveTo(points[0], points[1])
                     lineTo(points[2], points[3])
@@ -772,7 +768,7 @@ private fun ScanOverlay(
             )
             Spacer(modifier = Modifier.size(24.dp))
             InfoCard(
-                state.info,
+                overlayState.info,
                 modifier = Modifier.align(Alignment.CenterHorizontally)
             )
             if (showAimAid) {

@@ -19,20 +19,24 @@
 package de.gematik.ti.erp.app.cardunlock.ui
 
 import android.nfc.Tag
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.cardunlock.usecase.UnlockEgkState
 import de.gematik.ti.erp.app.cardunlock.usecase.UnlockEgkUseCase
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
-import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import org.kodein.di.compose.rememberInstance
 
-class UnlockEgkViewModel(
+@Stable
+class UnlockEgkController(
     private val unlockEgkUseCase: UnlockEgkUseCase,
     private val dispatchers: DispatchProvider
-) : ViewModel() {
+) {
     fun unlockEgk(
         unlockMethod: UnlockMethod,
         can: String,
@@ -50,5 +54,17 @@ class UnlockEgkViewModel(
             newSecret = newSecret,
             cardChannel = cardChannel
         ).flowOn(dispatchers.IO)
+    }
+}
+
+@Composable
+fun rememberUnlockEgkController(): UnlockEgkController {
+    val unlockEgkUseCase by rememberInstance<UnlockEgkUseCase>()
+    val dispatchers by rememberInstance<DispatchProvider>()
+    return remember {
+        UnlockEgkController(
+            unlockEgkUseCase,
+            dispatchers
+        )
     }
 }

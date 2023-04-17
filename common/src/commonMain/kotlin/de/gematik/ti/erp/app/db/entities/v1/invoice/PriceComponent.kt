@@ -16,20 +16,12 @@
  * 
  */
 
-package de.gematik.ti.erp.app.orderhealthcard.ui.model
+package de.gematik.ti.erp.app.db.entities.v1.invoice
 
-import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
+import io.realm.kotlin.types.RealmObject
 
-object HealthCardOrderViewModelData {
-    @Immutable
-    data class State(
-        val companies: List<HealthCardOrderUseCaseData.HealthInsuranceCompany>,
-        val selectedCompany: HealthCardOrderUseCaseData.HealthInsuranceCompany?,
-        val selectedOption: ContactInsuranceOption
-    )
+class PriceComponentV1 : RealmObject {
 
-    enum class ContactInsuranceOption {
-        WithHealthCardAndPin, PinOnly
-    }
+    var value: Double = 0.0
+    var tax: Double = 0.0
 }

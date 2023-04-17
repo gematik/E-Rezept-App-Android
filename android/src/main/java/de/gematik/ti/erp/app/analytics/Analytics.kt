@@ -31,12 +31,11 @@ import de.gematik.ti.erp.app.core.LocalAnalytics
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import io.github.aakira.napier.Napier
-import java.security.MessageDigest
 
 private const val PrefsName = "analyticsAllowed"
 
 // `gemSpec_eRp_FdV A_20187`
-class Analytics constructor(
+class Analytics(
     private val context: Context,
     private val prefs: SharedPreferences
 ) {
@@ -44,23 +43,12 @@ class Analytics constructor(
     val analyticsAllowed: StateFlow<Boolean>
         get() = _analyticsAllowed
 
-    // TODO remove in future versions
-    private val piwikPrefsName = "pro.piwik.sdk_" +
-        MessageDigest.getInstance("MD5").digest("Tracker".toByteArray())
-            .joinToString(separator = "") { eachByte -> "%02X".format(eachByte) }
-
     init {
         Napier.d("Init Analytics")
 
         Contentsquare.forgetMe()
 
-        // TODO remove in future versions
-        val piwikOptOut = !context.getSharedPreferences(
-            piwikPrefsName,
-            Context.MODE_PRIVATE
-        ).getBoolean("tracker.optout", true)
-
-        _analyticsAllowed.value = prefs.getBoolean(PrefsName, !piwikOptOut)
+        _analyticsAllowed.value = prefs.getBoolean(PrefsName, false)
         if (_analyticsAllowed.value) {
             allowTracking()
         } else {

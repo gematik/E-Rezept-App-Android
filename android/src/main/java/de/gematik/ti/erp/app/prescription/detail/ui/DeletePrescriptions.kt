@@ -40,7 +40,7 @@ interface DeletePrescriptionsBridge {
 
 @Stable
 class DeletePrescriptions(
-    private val bridge: DeletePrescriptionsBridge,
+    private val prescriptionDetailsController: DeletePrescriptionsBridge,
     private val authenticator: Authenticator
 ) {
     sealed interface State : PrescriptionServiceState {
@@ -60,7 +60,7 @@ class DeletePrescriptions(
 
     private fun deletePrescriptionFlow(profileId: ProfileIdentifier, taskId: String) =
         flow {
-            emit(bridge.deletePrescription(profileId = profileId, taskId = taskId))
+            emit(prescriptionDetailsController.deletePrescription(profileId = profileId, taskId = taskId))
         }.map { result ->
             result.fold(
                 onSuccess = {

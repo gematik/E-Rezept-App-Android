@@ -56,38 +56,29 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType.IMMEDIATE
 import com.google.android.play.core.install.model.UpdateAvailability
-import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgkViewModel
+import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.cardwall.mini.ui.ExternalAuthPrompt
 import de.gematik.ti.erp.app.cardwall.mini.ui.HealthCardPrompt
-import de.gematik.ti.erp.app.cardwall.mini.ui.MiniCardWallViewModel
-import de.gematik.ti.erp.app.cardwall.mini.ui.rememberAuthenticator
-import de.gematik.ti.erp.app.cardwall.ui.CardWallController
 import de.gematik.ti.erp.app.cardwall.ui.ExternalAuthenticatorListViewModel
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAuthenticator
-import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.MainContent
 import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
-import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardOrderViewModel
-import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailsViewModel
-import de.gematik.ti.erp.app.prescription.ui.ScanPrescriptionViewModel
-import de.gematik.ti.erp.app.profiles.ui.ProfileSettingsViewModel
-import de.gematik.ti.erp.app.profiles.ui.ProfileViewModel
-import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.apicheck.usecase.CheckVersionUseCase
 import de.gematik.ti.erp.app.cardwall.mini.ui.SecureHardwarePrompt
+import de.gematik.ti.erp.app.cardwall.mini.ui.rememberAuthenticator
 import de.gematik.ti.erp.app.core.IntentHandler
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.mainscreen.ui.rememberMainScreenController
-import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyOverviewViewModel
 import de.gematik.ti.erp.app.prescription.detail.ui.SharePrescriptionHandler
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.rememberProfileHandler
+import de.gematik.ti.erp.app.profiles.ui.rememberProfilesController
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
-import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationViewModel
 import de.gematik.ti.erp.app.utils.compose.DebugOverlay
 import de.gematik.ti.erp.app.utils.compose.DialogHost
 import kotlinx.coroutines.flow.Flow
@@ -101,7 +92,6 @@ import org.kodein.di.android.closestDI
 import org.kodein.di.android.retainedSubDI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
-import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 
@@ -114,27 +104,7 @@ class MainActivity : AppCompatActivity(), DIAware {
         if (BuildKonfig.INTERNAL) {
             fullContainerTreeOnError = true
         }
-
-        bindProvider { UnlockEgkViewModel(instance(), instance()) }
-        bindProvider { MiniCardWallViewModel(instance(), instance(), instance(), instance(), instance()) }
-        bindProvider { CardWallController(instance(), instance(), instance()) }
         bindProvider { ExternalAuthenticatorListViewModel(instance(), instance()) }
-        bindProvider { HealthCardOrderViewModel(instance()) }
-        bindProvider { PrescriptionDetailsViewModel(instance(), instance()) }
-        bindProvider {
-            ScanPrescriptionViewModel(
-                prescriptionUseCase = instance(),
-                profilesUseCase = instance(),
-                scanner = instance(),
-                processor = instance(),
-                validator = instance(),
-                dispatchers = instance()
-            )
-        }
-        bindProvider { ProfileViewModel(instance()) }
-        bindProvider { ProfileSettingsViewModel(instance(), instance()) }
-        bindProvider { UserAuthenticationViewModel(instance()) }
-        bindProvider { PharmacyOverviewViewModel(instance()) }
         bindProvider { CheckVersionUseCase(instance(), instance()) }
 
         if (BuildConfig.DEBUG && BuildKonfig.INTERNAL) {
@@ -267,7 +237,7 @@ class MainActivity : AppCompatActivity(), DIAware {
                                     )
 
                                     val mainScreenController = rememberMainScreenController()
-                                    val profileSettingsViewModel by rememberViewModel<ProfileSettingsViewModel>()
+                                    val profilesController = rememberProfilesController()
 
                                     CompositionLocalProvider(
                                         LocalProfileHandler provides rememberProfileHandler()
@@ -276,7 +246,7 @@ class MainActivity : AppCompatActivity(), DIAware {
                                             navController = navController,
                                             settingsController = settingsController,
                                             mainScreenController = mainScreenController,
-                                            profileSettingsViewModel = profileSettingsViewModel
+                                            profilesController = profilesController
                                         )
 
                                         SharePrescriptionHandler(authenticationModeAndMethod)

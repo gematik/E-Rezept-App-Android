@@ -54,7 +54,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -78,7 +77,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
-import de.gematik.ti.erp.app.pharmacy.repository.model.PharmacyOverviewViewModel
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -88,7 +86,6 @@ import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberViewModel
 
 private const val LastUsedPharmaciesListLength = 5
 
@@ -116,7 +113,7 @@ fun PharmacyOverviewScreen(
             navigationMode = if (isNestedNavigation) NavigationBarMode.Back else NavigationBarMode.Close,
             onBack = onBack
         ) {
-            val pharmacyViewModel by rememberViewModel<PharmacyOverviewViewModel>()
+            val pharmacySearchController = rememberPharmacySearchController()
             OverviewContent(
                 onSelectPharmacy = {
                     sheetState.show(PharmacySearchSheetContentState.PharmacySelected(it))
@@ -125,7 +122,7 @@ fun PharmacyOverviewScreen(
                 onFilterChange = onFilterChange,
                 searchFilter = filter,
                 onStartSearch = onStartSearch,
-                pharmacyViewModel = pharmacyViewModel,
+                pharmacySearchController = pharmacySearchController,
                 onShowFilter = {
                     sheetState.show(PharmacySearchSheetContentState.FilterSelected)
                 },
@@ -185,13 +182,12 @@ private fun OverviewContent(
     searchFilter: PharmacyUseCaseData.Filter,
     onFilterChange: (PharmacyUseCaseData.Filter) -> Unit,
     onStartSearch: () -> Unit,
-    pharmacyViewModel: PharmacyOverviewViewModel,
+    pharmacySearchController: PharmacySearchController,
     onShowFilter: () -> Unit,
     onShowMaps: () -> Unit
 ) {
-    val overviewPharmacyList by produceState(initialValue = listOf<OverviewPharmacyData.OverviewPharmacy>()) {
-        pharmacyViewModel.pharmacyOverviewState().collect { value = it }
-    }
+    val pharmacySearchState by pharmacySearchController.pharmacySearchOverviewState
+    val overviewPharmacyList = pharmacySearchState.overviewPharmacies
 
     val contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
         .add(WindowInsets(top = PaddingDefaults.Medium, bottom = PaddingDefaults.Medium)).asPaddingValues()
@@ -246,7 +242,7 @@ private fun OverviewContent(
             OverviewPharmacies(
                 oftenUsedPharmacyList = overviewPharmacyList,
                 onSelectPharmacy = onSelectPharmacy,
-                pharmacyViewModel = pharmacyViewModel
+                pharmacySearchController = pharmacySearchController
             )
         }
     }
@@ -280,7 +276,7 @@ private fun MapsSection(
 private fun OverviewPharmacies(
     oftenUsedPharmacyList: List<OverviewPharmacyData.OverviewPharmacy>,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy) -> Unit,
-    pharmacyViewModel: PharmacyOverviewViewModel
+    pharmacySearchController: PharmacySearchController
 ) {
     if (oftenUsedPharmacyList.isNotEmpty()) {
         Column(
@@ -302,7 +298,7 @@ private fun OverviewPharmacies(
                     FavoritePharmacyCard(
                         overviewPharmacy = oftenUsedPharmacy,
                         onSelectPharmacy = onSelectPharmacy,
-                        pharmacyViewModel = pharmacyViewModel
+                        pharmacySearchController = pharmacySearchController
                     )
                     SpacerMedium()
                 }

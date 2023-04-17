@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
+import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.filterWith
@@ -28,35 +29,10 @@ import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import de.gematik.ti.erp.app.fhir.parser.toFhirTemporal
+import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import kotlinx.datetime.Instant
+import kotlinx.datetime.toInstant
 import kotlinx.serialization.json.JsonElement
-
-enum class SpecialPZN(val pzn: String) {
-    EmergencyServiceFee("02567018"),
-    BTMFee("02567001"),
-    TPrescriptionFee("06460688"),
-    ProvisioningCosts("09999637"),
-    DeliveryServiceCosts("06461110");
-
-    companion object {
-        fun isAnyOf(pzn: String): Boolean = values().any { it.pzn == pzn }
-
-        fun valueOfPZN(pzn: String) = SpecialPZN.values().find { it.pzn == pzn }
-    }
-}
-
-data class ChargeableItem(val description: Description, val factor: Double, val price: PriceComponent) {
-    sealed interface Description {
-        data class PZN(val pzn: String) : Description {
-            fun isSpecialPZN() = SpecialPZN.isAnyOf(pzn)
-        }
-
-        data class TA1(val ta1: String) : Description
-
-        data class HMNR(val hmnr: String) : Description
-    }
-}
-
-data class PriceComponent(val value: Double, val tax: Double)
 
 typealias PkvDispenseFn<R> = (
     whenHandedOver: FhirTemporal
@@ -66,27 +42,91 @@ typealias InvoiceFn<R> = (
     totalAdditionalFee: Double,
     totalBruttoAmount: Double,
     currency: String,
-    items: List<ChargeableItem>
+    items: List<InvoiceData.ChargeableItem>
 ) -> R
 
-fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractPKVInvoiceBundle(
+fun extractInvoiceKBVAndErpPrBundle(
+    bundle: JsonElement,
+    process: (
+        taskId: String,
+        invoiceBundle: JsonElement,
+        kbvBundle: JsonElement,
+        erpPrBundle: JsonElement
+    ) -> Unit
+) {
+    val resources = bundle
+        .findAll("entry.resource")
+
+    lateinit var invoiceBundle: JsonElement
+    lateinit var kbvBundle: JsonElement
+    lateinit var erpPrBundle: JsonElement
+    var taskId = ""
+
+    resources.forEach { resource ->
+        val profileString = resource
+            .contained("meta")
+            .contained("profile")
+            .contained()
+
+        when {
+            profileString.isProfileValue(
+                "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle",
+                "1.1"
+            ) -> {
+                taskId = resource
+                    .findAll("identifier")
+                    .filterWith(
+                        "system",
+                        stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId")
+                    )
+                    .firstOrNull()
+                    ?.containedString("value") ?: ""
+
+                invoiceBundle = resource
+            }
+
+            profileString.isProfileValue(
+                "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",
+                "1.1.0"
+            ) -> {
+                kbvBundle = resource
+            }
+
+            profileString.isProfileValue(
+                "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Bundle",
+                "1.2"
+            ) -> {
+                erpPrBundle = resource
+            }
+        }
+    }
+    process(taskId, invoiceBundle, kbvBundle, erpPrBundle)
+}
+fun extractBinary(erpPrBundle: JsonElement): ByteArray? {
+    return erpPrBundle.contained("signature").containedString("data").toByteArray()
+}
+
+fun <Dispense, Pharmacy, PharmacyAddress, Invoice> extractInvoiceBundle(
     bundle: JsonElement,
     processDispense: PkvDispenseFn<Dispense>,
     processPharmacyAddress: AddressFn<PharmacyAddress>,
     processPharmacy: OrganizationFn<Pharmacy, PharmacyAddress>,
     processInvoice: InvoiceFn<Invoice>,
     save: (
+        taskId: String,
+        timestamp: Instant,
         pharmacy: Pharmacy,
         invoice: Invoice,
         dispense: Dispense
-    ) -> R
-): R? {
+    ) -> Unit
+) {
     val profileString = bundle.contained("meta").contained("profile").contained()
-    return when {
+
+    when {
         profileString.isProfileValue(
             "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle",
             "1.1"
-        ) -> extractPKVInvoiceBundleVersion11(
+        ) -> extractInvoiceBundleVersion11(
             bundle,
             processDispense,
             processPharmacyAddress,
@@ -94,23 +134,32 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractPKVInvoiceBundle(
             processInvoice,
             save
         )
-
-        else -> null
     }
 }
 
-fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractPKVInvoiceBundleVersion11(
+fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersion11(
     bundle: JsonElement,
     processDispense: PkvDispenseFn<Dispense>,
     processPharmacyAddress: AddressFn<PharmacyAddress>,
     processPharmacy: OrganizationFn<Pharmacy, PharmacyAddress>,
     processInvoice: InvoiceFn<Invoice>,
     save: (
+        taskId: String,
+        timestamp: Instant,
         pharmacy: Pharmacy,
         invoice: Invoice,
         dispense: Dispense
     ) -> R
 ): R {
+    val taskId = bundle.findAll("identifier").filterWith(
+        "system",
+        stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId")
+    )
+        .firstOrNull()
+        ?.containedString("value")
+
+    val timestamp = bundle.containedString("timestamp").toInstant()
+
     val resources = bundle
         .findAll("entry.resource")
 
@@ -159,6 +208,8 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractPKVInvoiceBundleVer
     }
 
     return save(
+        requireNotNull(taskId) { "TaskId missing" },
+        timestamp,
         requireNotNull(pharmacy) { "Pharmacy missing" },
         requireNotNull(invoice) { "Invoice missing" },
         requireNotNull(dispense) { "Dispense missing" }
@@ -226,16 +277,16 @@ fun <Invoice> extractInvoice(
                 .firstOrNull()
                 ?.let {
                     val code = it.containedString("code")
-                    val price = PriceComponent(value, tax)
+                    val price = InvoiceData.PriceComponent(value, tax)
                     when (it.containedString("system")) {
                         "http://fhir.de/CodeSystem/ifa/pzn" ->
-                            ChargeableItem(ChargeableItem.Description.PZN(code), factor, price)
+                            InvoiceData.ChargeableItem(InvoiceData.ChargeableItem.Description.PZN(code), factor, price)
 
                         "http://TA1.abda.de" ->
-                            ChargeableItem(ChargeableItem.Description.TA1(code), factor, price)
+                            InvoiceData.ChargeableItem(InvoiceData.ChargeableItem.Description.TA1(code), factor, price)
 
                         "http://fhir.de/sid/gkv/hmnr" ->
-                            ChargeableItem(ChargeableItem.Description.HMNR(code), factor, price)
+                            InvoiceData.ChargeableItem(InvoiceData.ChargeableItem.Description.HMNR(code), factor, price)
 
                         else -> null
                     }
@@ -250,4 +301,38 @@ fun <Invoice> extractInvoice(
         currency,
         items
     )
+}
+
+fun extractTaskIdsFromChargeItemBundle(
+    bundle: JsonElement
+): Pair<Int, List<String>> {
+    val bundleTotal = bundle.containedArrayOrNull("entry")?.size ?: 0
+    val resources = bundle
+        .findAll("entry.resource")
+
+    val taskIds = resources.mapNotNull { resource ->
+        val profileString = resource
+            .contained("meta")
+            .contained("profile")
+            .contained()
+
+        when {
+            profileString.isProfileValue(
+                "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_ChargeItem",
+                "1.0"
+            ) ->
+                resource
+                    .findAll("identifier")
+                    .filterWith(
+                        "system",
+                        stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId")
+                    )
+                    .first()
+                    .containedString("value")
+
+            else -> null
+        }
+    }
+
+    return bundleTotal to taskIds.toList()
 }

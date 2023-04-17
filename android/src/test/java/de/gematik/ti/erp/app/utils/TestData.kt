@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.utils
 
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.Instant
@@ -35,7 +36,7 @@ fun syncedTask(
     authoredOn: Instant,
     status: SyncedTaskData.TaskStatus,
     medicationName: String,
-    medicationDispenseWhenHandedOver: Instant? = null
+    medicationDispenseWhenHandedOver: FhirTemporal? = null
 ) =
     SyncedTaskData.SyncedTask(
         profileId = "",

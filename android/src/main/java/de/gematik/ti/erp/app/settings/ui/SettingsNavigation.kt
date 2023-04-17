@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.settings.ui
 
 import AccessibilitySettingsScreen
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -62,14 +61,12 @@ fun SettingsNavGraph(
             NavigationAnimation(mode = navigationMode) {
                 SettingsScreenWithScaffold(
                     mainNavController = mainNavController,
-                    navController = settingsNavController,
-                    settingsController = settingsController
+                    navController = settingsNavController
                 )
             }
         }
         composable(SettingsNavigationScreens.AccessibilitySettings.route) {
             AccessibilitySettingsScreen(
-                settingsController = settingsController,
                 onBack = { settingsNavController.popBackStack() }
             )
         }
@@ -93,7 +90,6 @@ fun SettingsNavGraph(
 
         composable(SettingsNavigationScreens.DeviceSecuritySettings.route) {
             DeviceSecuritySettingsScreen(
-                settingsController = settingsController,
                 onBack = { settingsNavController.popBackStack() }
             ) {
                 when (it) {

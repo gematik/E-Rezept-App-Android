@@ -111,7 +111,7 @@ fun rememberUnlockEgkDialogState(): UnlockEgkDialogState {
 fun UnlockEgkDialog(
     unlockMethod: UnlockMethod,
     dialogState: UnlockEgkDialogState,
-    viewModel: UnlockEgkViewModel,
+    unlockEgkController: UnlockEgkController,
     cardAccessNumber: String,
     personalUnblockingKey: String,
     oldSecret: String,
@@ -140,7 +140,7 @@ fun UnlockEgkDialog(
                     if (it.value) {
                         showCardCommunicationDialog = true
                         emitAll(
-                            viewModel.unlockEgk(
+                            unlockEgkController.unlockEgk(
                                 unlockMethod = unlockMethod,
                                 can = cardAccessNumber,
                                 puk = personalUnblockingKey,
@@ -173,7 +173,7 @@ fun UnlockEgkDialog(
                         }
                     }
                     emitAll(
-                        viewModel.unlockEgk(
+                        unlockEgkController.unlockEgk(
                             unlockMethod = unlockMethod,
                             can = cardAccessNumber,
                             puk = personalUnblockingKey,

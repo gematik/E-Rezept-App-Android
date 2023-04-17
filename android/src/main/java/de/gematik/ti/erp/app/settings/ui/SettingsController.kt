@@ -26,15 +26,9 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.core.content.edit
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import androidx.paging.PagingData
 import de.gematik.ti.erp.app.ScreenshotsAllowed
 import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.ProfilesWithPairedDevicesUseCase
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import kotlinx.coroutines.flow.Flow
@@ -47,8 +41,6 @@ import org.kodein.di.compose.rememberInstance
 @Suppress("TooManyFunctions")
 class SettingsController(
     private val settingsUseCase: SettingsUseCase,
-    private val profilesUseCase: ProfilesUseCase,
-    private val profilesWithPairedDevicesUseCase: ProfilesWithPairedDevicesUseCase,
     private val analytics: Analytics,
     private val appPrefs: SharedPreferences
 ) {
@@ -84,23 +76,6 @@ class SettingsController(
         @Composable
         get() = zoomFlow.collectAsState(SettingStatesData.defaultZoomState)
 
-    private val profilesFlow = profilesUseCase.profiles.map { SettingStatesData.ProfilesState(it) }
-
-    val profilesState
-        @Composable
-        get() = profilesFlow.collectAsState(SettingStatesData.defaultProfilesState)
-
-    fun pairedDevices(profileId: ProfileIdentifier) =
-        profilesWithPairedDevicesUseCase.pairedDevices(profileId)
-
-    // tag::DeletePairedDevicesViewModel[]
-    suspend fun deletePairedDevice(profileId: ProfileIdentifier, device: ProfilesUseCaseData.PairedDevice) =
-        profilesWithPairedDevicesUseCase.deletePairedDevices(profileId, device)
-
-    // end::DeletePairedDevicesViewModel[]
-    fun decryptedAccessToken(profile: ProfilesUseCaseData.Profile) =
-        profilesUseCase.decryptedAccessToken(profile.id)
-
     suspend fun onSelectDeviceSecurityAuthenticationMode() {
         settingsUseCase.saveAuthenticationMode(
             SettingsData.AuthenticationMode.DeviceSecurity
@@ -134,29 +109,6 @@ class SettingsController(
         analytics.disallowTracking()
     }
 
-    suspend fun logout(profile: ProfilesUseCaseData.Profile) {
-        profilesUseCase.logout(profile)
-    }
-
-    suspend fun addProfile(profileName: String) {
-        profilesUseCase.addProfile(profileName, activate = true)
-    }
-
-    suspend fun removeProfile(profile: ProfilesUseCaseData.Profile, newProfileName: String?) {
-        if (newProfileName != null) {
-            profilesUseCase.removeAndSaveProfile(profile, newProfileName)
-        } else {
-            profilesUseCase.removeProfile(profile)
-        }
-    }
-
-    suspend fun switchProfile(profile: ProfilesUseCaseData.Profile) {
-        profilesUseCase.switchActiveProfile(profile)
-    }
-
-    fun loadAuditEventsForProfile(profileId: ProfileIdentifier): Flow<PagingData<AuditEventData.AuditEvent>> =
-        profilesUseCase.auditEvents(profileId)
-
     suspend fun onboardingSucceeded(
         authenticationMode: SettingsData.AuthenticationMode,
         defaultProfileName: String,
@@ -173,7 +125,6 @@ class SettingsController(
         }
     }
 
-    val authenticationMethod = settingsUseCase.authenticationMode
     var showOnboarding = runBlocking { settingsUseCase.showOnboarding.first() }
     var showWelcomeDrawer = runBlocking { settingsUseCase.showWelcomeDrawer }
 
@@ -197,10 +148,6 @@ class SettingsController(
 
     suspend fun acceptMlKit() {
         settingsUseCase.acceptMlKit()
-    }
-
-    suspend fun acceptUpdatedDataTerms() {
-        settingsUseCase.acceptUpdatedDataTerms()
     }
 
     suspend fun welcomeDrawerShown() {
@@ -229,16 +176,12 @@ class SettingsController(
 @Composable
 fun rememberSettingsController(): SettingsController {
     val settingsUseCase by rememberInstance<SettingsUseCase>()
-    val profilesUseCase by rememberInstance<ProfilesUseCase>()
-    val profilesWithPairedDevicesUseCase by rememberInstance<ProfilesWithPairedDevicesUseCase>()
     val analytics by rememberInstance<Analytics>()
     val appPrefs by rememberInstance<SharedPreferences>(ApplicationPreferencesTag)
 
     return remember {
         SettingsController(
             settingsUseCase,
-            profilesUseCase,
-            profilesWithPairedDevicesUseCase,
             analytics,
             appPrefs
         )
@@ -275,19 +218,4 @@ object SettingStatesData {
 
     // `gemSpec_eRp_FdV A_20203` default settings does not allow screenshots
     val defaultScreenshotState = ScreenshotState(screenshotsAllowed = false)
-
-    @Immutable
-    data class ProfilesState(
-        val profiles: List<ProfilesUseCaseData.Profile>
-    ) {
-        fun activeProfile() = profiles.find { it.active }!!
-        fun profileById(profileId: String) = profiles.find { it.id == profileId }
-        fun containsProfileWithName(name: String) = profiles.any {
-            it.name.equals(name.trim(), true)
-        }
-    }
-
-    val defaultProfilesState = ProfilesState(
-        profiles = listOf()
-    )
 }

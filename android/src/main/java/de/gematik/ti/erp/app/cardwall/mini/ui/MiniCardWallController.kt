@@ -19,12 +19,14 @@
 package de.gematik.ti.erp.app.cardwall.mini.ui
 
 import android.nfc.Tag
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.MiniCardWallUseCase
-import androidx.lifecycle.ViewModel
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.model.IdpData
@@ -36,21 +38,23 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
+import org.kodein.di.compose.rememberInstance
 import java.net.URI
 
 /**
- * The [MiniCardWallViewModel] is used for refreshing tokens of several authentication methods.
+ * The [MiniCardWallController] is used for refreshing tokens of several authentication methods.
  * While the actual mini card wall is just the prompt for authentication with health card or external authentication,
  * the biometric/alternate authentication uses the prompt provided by the system.
  */
 
-class MiniCardWallViewModel(
+@Stable
+class MiniCardWallController(
     private val useCase: MiniCardWallUseCase,
     private val authenticationUseCase: AuthenticationUseCase,
     private val idpUseCase: IdpUseCase,
     private val idpRepository: IdpRepository,
     private val dispatchers: DispatchProvider
-) : ViewModel(), AuthenticationBridge {
+) : AuthenticationBridge {
     private fun PromptAuthenticator.AuthScope.toIdpScope() =
         when (this) {
             PromptAuthenticator.AuthScope.Prescriptions -> IdpScope.Default
@@ -137,5 +141,24 @@ class MiniCardWallViewModel(
         withContext(dispatchers.IO) {
             idpRepository.invalidate(profileId)
         }
+    }
+}
+
+@Composable
+fun rememberMiniCardWallController(): MiniCardWallController {
+    val useCase by rememberInstance<MiniCardWallUseCase>()
+    val authenticationUseCase by rememberInstance<AuthenticationUseCase>()
+    val idpUseCase by rememberInstance<IdpUseCase>()
+    val idpRepository by rememberInstance<IdpRepository>()
+    val dispatchers by rememberInstance<DispatchProvider>()
+
+    return remember {
+        MiniCardWallController(
+            useCase,
+            authenticationUseCase,
+            idpUseCase,
+            idpRepository,
+            dispatchers
+        )
     }
 }

@@ -24,6 +24,9 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.toInstant
 import kotlin.jvm.JvmInline
 
 /**
@@ -71,6 +74,14 @@ sealed interface FhirTemporal {
             is LocalTime -> this.value.toString()
             is Year -> this.value.toString()
             is YearMonth -> this.value.toString()
+        }
+
+    fun toInstant(timeZone: TimeZone = TimeZone.currentSystemDefault()): kotlinx.datetime.Instant =
+        when (this) {
+            is Instant -> this.value
+            is LocalDate -> this.value.atStartOfDayIn(timeZone)
+            is LocalDateTime -> this.value.toInstant(timeZone)
+            is LocalTime, is Year, is YearMonth -> error("invalid format")
         }
 }
 

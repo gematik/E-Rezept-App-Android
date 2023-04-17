@@ -121,7 +121,7 @@ object SyncedTaskData {
 
         fun redeemedOn() =
             if (status == TaskStatus.Completed) {
-                medicationDispenses.firstOrNull()?.whenHandedOver ?: lastModified
+                medicationDispenses.firstOrNull()?.whenHandedOver?.toInstant() ?: lastModified
             } else {
                 null
             }
@@ -230,6 +230,7 @@ object SyncedTaskData {
 
     data class MedicationRequest(
         val medication: Medication? = null,
+        val authoredOn: FhirTemporal? = null,
         val dateOfAccident: Instant? = null,
         val accidentType: AccidentType = AccidentType.None,
         val location: String? = null,
@@ -263,7 +264,7 @@ object SyncedTaskData {
         val wasSubstituted: Boolean,
         val dosageInstruction: String?,
         val performer: String,
-        val whenHandedOver: Instant
+        val whenHandedOver: FhirTemporal?
     )
 
     enum class MedicationCategory {

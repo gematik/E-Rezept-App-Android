@@ -26,6 +26,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }
+private val testBundleBinaries by lazy { File("$ResourceBasePath/fhir/pharmacy_binary.json").readText() }
 
 class PharmacyMapperTest {
     private val openingTimeA = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))
@@ -94,5 +95,11 @@ class PharmacyMapperTest {
         assertEquals(10, pharmacies.size)
 
         assertEquals(expected, pharmacies[0])
+    }
+
+    @Test
+    fun `extract certificate`() {
+        val result = extractBinaryCertificateAsBase64(Json.parseToJsonElement(testBundleBinaries))
+        assertEquals("MIIFlDCCBHygAwwKGi44czSg==", result)
     }
 }

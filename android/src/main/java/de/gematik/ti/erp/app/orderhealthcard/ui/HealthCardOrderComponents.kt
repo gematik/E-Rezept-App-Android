@@ -59,7 +59,6 @@ import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -83,7 +82,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.orderhealthcard.ui.model.HealthCardOrderViewModelData
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
 import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -95,18 +93,13 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
-import org.kodein.di.compose.rememberViewModel
 
 @Composable
 fun HealthCardContactOrderScreen(
     onBack: () -> Unit
 ) {
-    val healthCardOrderViewModel by rememberViewModel<HealthCardOrderViewModel>()
-    val state by produceState(healthCardOrderViewModel.defaultState) {
-        healthCardOrderViewModel.screenState().collect {
-            value = it
-        }
-    }
+    val healthCardOrderState = rememberHealthCardOrderState()
+    val state by healthCardOrderState.state
 
     val navController = rememberNavController()
 
@@ -131,15 +124,33 @@ fun HealthCardContactOrderScreen(
                 ) {
                     HealthCardOrder(
                         listState = listState,
-                        state = state,
+                        healthCardOrderState = state,
                         onSelectCompany = {
-                            healthCardOrderViewModel.onSelectInsuranceCompany(it)
-                            if (it.hasContactInfoForHealthCardAndPin() && it.hasContactInfoForPin()) {
-                                navController.navigate(HealthCardOrderNavigationScreens.SelectOrderOption.path())
-                            } else {
-                                navController.navigate(
-                                    HealthCardOrderNavigationScreens.HealthCardOrderContact.path()
-                                )
+                            healthCardOrderState.onSelectInsuranceCompany(it)
+                            when (true) {
+                                (it.hasContactInfoForHealthCardAndPin() && it.hasContactInfoForPin()) ->
+                                    navController.navigate(HealthCardOrderNavigationScreens.SelectOrderOption.path())
+                                it.hasContactInfoForHealthCardAndPin() -> {
+                                    healthCardOrderState.onSelectContactOption(
+                                        HealthCardOrderStateData.ContactInsuranceOption.WithHealthCardAndPin
+                                    )
+                                    navController.navigate(
+                                        HealthCardOrderNavigationScreens.HealthCardOrderContact.path()
+                                    )
+                                }
+                                it.hasContactInfoForPin() -> {
+                                    healthCardOrderState.onSelectContactOption(
+                                        HealthCardOrderStateData.ContactInsuranceOption.PinOnly
+                                    )
+                                    navController.navigate(
+                                        HealthCardOrderNavigationScreens.HealthCardOrderContact.path()
+                                    )
+                                }
+                                else -> {
+                                    navController.navigate(
+                                        HealthCardOrderNavigationScreens.HealthCardOrderContact.path()
+                                    )
+                                }
                             }
                         }
                     )
@@ -166,7 +177,7 @@ fun HealthCardContactOrderScreen(
                     SelectOrderOption(
                         listState = listState,
                         onSelectOption = {
-                            healthCardOrderViewModel.onSelectContactOption(it)
+                            healthCardOrderState.onSelectContactOption(it)
                             navController.navigate(HealthCardOrderNavigationScreens.HealthCardOrderContact.path())
                         }
                     )
@@ -225,7 +236,7 @@ private fun HealthInsuranceCompanySelectable(
 @Composable
 private fun HealthCardOrder(
     listState: LazyListState = rememberLazyListState(),
-    state: HealthCardOrderViewModelData.State,
+    healthCardOrderState: HealthCardOrderStateData.HealthCardOrderState,
     onSelectCompany: (HealthCardOrderUseCaseData.HealthInsuranceCompany) -> Unit
 ) {
     var searchName by remember {
@@ -247,7 +258,7 @@ private fun HealthCardOrder(
             SpacerMedium()
         }
         items(
-            state.companies.filter {
+            healthCardOrderState.companies.filter {
                 it.name.contains(searchName, true)
             }
         ) {
@@ -305,7 +316,7 @@ private fun InsuranceCompanySearchField(
 @Composable
 private fun SelectOrderOption(
     listState: LazyListState = rememberLazyListState(),
-    onSelectOption: (HealthCardOrderViewModelData.ContactInsuranceOption) -> Unit
+    onSelectOption: (HealthCardOrderStateData.ContactInsuranceOption) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
@@ -343,7 +354,7 @@ private fun SelectOrderOption(
             Option(
                 testTag = TestTag.Settings.ContactInsuranceCompany.OrderPinButton,
                 name = stringResource(R.string.cdw_health_insurance_contact_pin_only),
-                onSelect = { onSelectOption(HealthCardOrderViewModelData.ContactInsuranceOption.PinOnly) }
+                onSelect = { onSelectOption(HealthCardOrderStateData.ContactInsuranceOption.PinOnly) }
             )
             SpacerMedium()
         }
@@ -351,7 +362,7 @@ private fun SelectOrderOption(
             Option(
                 testTag = TestTag.Settings.ContactInsuranceCompany.OrderEgkAndPinButton,
                 name = stringResource(R.string.cdw_health_insurance_contact_healthcard_pin),
-                onSelect = { onSelectOption(HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin) }
+                onSelect = { onSelectOption(HealthCardOrderStateData.ContactInsuranceOption.WithHealthCardAndPin) }
             )
         }
     }
@@ -384,10 +395,10 @@ private fun Option(
 @Composable
 private fun ContactInsurance(
     listState: LazyListState = rememberLazyListState(),
-    state: HealthCardOrderViewModelData.State
+    healthCardOrderState: HealthCardOrderStateData.HealthCardOrderState
 ) {
-    state.selectedCompany?.let {
-        if (state.selectedCompany.noContactInformation()) {
+    healthCardOrderState.selectedCompany?.let {
+        if (healthCardOrderState.selectedCompany.noContactInformation()) {
             NoContactInformation()
         } else {
             LazyColumn(
@@ -401,7 +412,7 @@ private fun ContactInsurance(
             ) {
                 item {
                     val header = stringResource(R.string.order_health_card_contact_header)
-                    val info = if (state.selectedCompany.singleContactInformation()) {
+                    val info = if (healthCardOrderState.selectedCompany.singleContactInformation()) {
                         stringResource(R.string.order_health_card_contact_info_single)
                     } else {
                         stringResource(R.string.order_health_card_contact_info)
@@ -422,15 +433,15 @@ private fun ContactInsurance(
                     SpacerXXLarge()
                 }
 
-                when (state.selectedOption) {
-                    HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin ->
+                when (healthCardOrderState.selectedOption) {
+                    HealthCardOrderStateData.ContactInsuranceOption.WithHealthCardAndPin ->
                         item {
                             ContactMethodRow(
                                 phone = it.healthCardAndPinPhone,
                                 url = it.healthCardAndPinUrl,
                                 mail = it.healthCardAndPinMail,
                                 company = it,
-                                option = state.selectedOption
+                                option = healthCardOrderState.selectedOption
                             )
                         }
 
@@ -439,13 +450,9 @@ private fun ContactInsurance(
                             ContactMethodRow(
                                 phone = null,
                                 url = it.pinUrl,
-                                mail = if (it.hasMailContentForPin()) {
-                                    it.healthCardAndPinMail
-                                } else {
-                                    null
-                                },
+                                mail = it.healthCardAndPinMail,
                                 company = it,
-                                option = state.selectedOption
+                                option = healthCardOrderState.selectedOption
                             )
                         }
                 }
@@ -488,7 +495,7 @@ private fun ContactMethodRow(
     url: String?,
     mail: String?,
     company: HealthCardOrderUseCaseData.HealthInsuranceCompany,
-    option: HealthCardOrderViewModelData.ContactInsuranceOption
+    option: HealthCardOrderStateData.ContactInsuranceOption
 ) {
     val uriHandler = LocalUriHandler.current
 
@@ -531,7 +538,7 @@ private fun ContactMethodRow(
                     icon = Icons.Filled.MailOutline,
                     onClick = {
                         when {
-                            option == HealthCardOrderViewModelData.ContactInsuranceOption.WithHealthCardAndPin &&
+                            option == HealthCardOrderStateData.ContactInsuranceOption.WithHealthCardAndPin &&
                                 company.hasMailContentForCardAndPin() -> openMailClient(
                                 context = context,
                                 address = mail,
@@ -539,7 +546,7 @@ private fun ContactMethodRow(
                                 body = company.bodyCardAndPinMail!!
                             )
 
-                            option == HealthCardOrderViewModelData.ContactInsuranceOption.PinOnly &&
+                            option == HealthCardOrderStateData.ContactInsuranceOption.PinOnly &&
                                 company.hasMailContentForPin() -> openMailClient(
                                 context = context,
                                 address = mail,

@@ -125,7 +125,7 @@ class MedicationDispenseMapperTest {
                 assertEquals(false, wasSubstituted)
                 assertEquals(null, dosageInstruction)
                 assertEquals("3-SMC-B-Testkarte-883110000116873", performer)
-                assertEquals(LocalDate.parse("2022-07-12"), whenHandedOver.value)
+                assertEquals("2022-07-12", whenHandedOver.formattedString())
                 ReturnType.MedicationDispense
             }
         )

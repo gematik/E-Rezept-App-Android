@@ -68,7 +68,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import org.kodein.di.compose.rememberViewModel
 
 const val SECRET_MIN_LENGTH = 6
 const val SECRET_MAX_LENGTH = 8
@@ -85,7 +84,7 @@ fun UnlockEgKScreen(
     onCancel: () -> Unit,
     onClickLearnMore: () -> Unit
 ) {
-    val viewModel by rememberViewModel<UnlockEgkViewModel>()
+    val unlockEgkController = rememberUnlockEgkController()
     var unlockMethod by rememberSaveable { mutableStateOf(unlockMethod) }
 
     val unlockNavController = rememberNavController()
@@ -175,7 +174,7 @@ fun UnlockEgKScreen(
             NavigationAnimation {
                 UnlockScreen(
                     unlockMethod = unlockMethod,
-                    viewModel = viewModel,
+                    unlockEgkController = unlockEgkController,
                     cardAccessNumber = cardAccessNumber,
                     personalUnblockingKey = personalUnblockingKey,
                     oldSecret = oldSecret,
@@ -468,7 +467,7 @@ private fun NewSecretScreen(
 ) {
     val secretRange = SECRET_MIN_LENGTH..SECRET_MAX_LENGTH
     var repeatedNewSecret by remember { mutableStateOf("") }
-    val isConsistent by remember {
+    val isConsistent by remember(newSecret, repeatedNewSecret) {
         derivedStateOf {
             repeatedNewSecret.isNotBlank() && newSecret == repeatedNewSecret
         }
@@ -568,7 +567,7 @@ private fun NewSecretScreen(
 @Composable
 private fun UnlockScreen(
     unlockMethod: UnlockMethod,
-    viewModel: UnlockEgkViewModel,
+    unlockEgkController: UnlockEgkController,
     cardAccessNumber: String,
     personalUnblockingKey: String,
     oldSecret: String,
@@ -588,7 +587,7 @@ private fun UnlockScreen(
     UnlockEgkDialog(
         unlockMethod = unlockMethod,
         dialogState = dialogState,
-        viewModel = viewModel,
+        unlockEgkController = unlockEgkController,
         cardAccessNumber = cardAccessNumber,
         personalUnblockingKey = personalUnblockingKey,
         troubleShootingEnabled = true,

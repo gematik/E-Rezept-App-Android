@@ -33,12 +33,10 @@ data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 
 object MainNavigationScreens {
     object Onboarding : Route("Onboarding")
-    object Biometry : Route("Biometry")
     object Settings : Route("Settings")
     object Camera : Route("Camera")
     object Prescriptions : Route("Prescriptions")
     object Archive : Route("Archive")
-
     object PrescriptionDetail :
         Route(
             "PrescriptionDetail",
@@ -75,8 +73,6 @@ object MainNavigationScreens {
     object InsecureDeviceScreen : Route("InsecureDeviceScreen")
     object MlKitIntroScreen : Route("MlKitIntroScreen")
     object MlKitInformationScreen : Route("MlKitInformationScreen")
-
-    object DataTermsUpdateScreen : Route("DataTermsUpdateScreen")
     object DataProtection : Route("DataProtection")
     object IntegrityNotOkScreen : Route("IntegrityInfoScreen")
     object EditProfile :

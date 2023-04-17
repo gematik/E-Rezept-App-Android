@@ -19,9 +19,11 @@
 package de.gematik.ti.erp.app.db.entities.v1.task
 
 import de.gematik.ti.erp.app.db.entities.Cascading
+import de.gematik.ti.erp.app.db.entities.temporalAccessorNullable
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import io.realm.kotlin.Deleteable
-import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
+import io.realm.kotlin.types.annotations.Ignore
 
 class MedicationDispenseEntityV1 : RealmObject, Cascading {
     var dispenseId: String = ""
@@ -30,7 +32,11 @@ class MedicationDispenseEntityV1 : RealmObject, Cascading {
     var wasSubstituted: Boolean = false
     var dosageInstruction: String? = null
     var performer: String = "" // Telematik-ID
-    var whenHandedOver: RealmInstant = RealmInstant.MIN
+
+    var _handedOverOn: String? = null
+
+    @delegate:Ignore
+    var handedOverOn: FhirTemporal? by temporalAccessorNullable(::_handedOverOn)
 
     override fun objectsToFollow(): Iterator<Deleteable> = iterator {
         medication?.let { yield(it) }

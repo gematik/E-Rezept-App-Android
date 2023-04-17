@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.pkv.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -28,212 +27,200 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyItemScope
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
-import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
-import de.gematik.ti.erp.app.pkv.ui.ConsentController.State.ChargeConsentNotGranted.isConsentGranted
-import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
-import de.gematik.ti.erp.app.prescription.ui.rememberRefreshPrescriptionsController
+import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate.joinMedicationInfo
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.visualTestTag
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
+
+import androidx.compose.ui.text.font.FontWeight
+
+import de.gematik.ti.erp.app.utils.compose.LabeledText
+import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 
 @Composable
 fun InvoiceInformationScreen(
-    mainScreenController: MainScreenController,
-    onBack: () -> Unit,
     selectedProfile: ProfilesUseCaseData.Profile,
-    onShowCardWall: () -> Unit
+    taskId: String,
+    onBack: () -> Unit,
+    onClickShowMore: () -> Unit,
+    onClickSubmit: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
-
-    val consentController = rememberConsentController(profile = selectedProfile)
-
-    val ssoTokenValid by remember(selectedProfile) {
-        derivedStateOf {
-            selectedProfile.ssoTokenValid()
-        }
-    }
-
-    var consentGranted by remember { mutableStateOf(false) }
-
-    var showGrantConsentDialog by remember { mutableStateOf(false) }
-
     val context = LocalContext.current
 
-    LaunchedEffect(Unit) {
-        if (ssoTokenValid) {
-            val consentState = consentController.getChargeConsent().first()
-            when (consentState) {
-                is PrescriptionServiceErrorState -> {
-                    consentErrorMessage(context, consentState)?.let {
-                        scaffoldState.snackbarHostState.showSnackbar(it)
-                    }
-                }
-            }
-            consentGranted = consentState.isConsentGranted()
-            showGrantConsentDialog = !consentGranted
+    val invoicesController = rememberInvoicesController(profileId = selectedProfile.id)
+    val invoice by produceState<InvoiceData.PKVInvoice?>(null) {
+        invoicesController.detailState(taskId).collect {
+            value = it
         }
     }
+    var showDeleteInvoiceAlert by remember { mutableStateOf(false) }
 
-    var connectBottomBarVisible by remember { mutableStateOf(!ssoTokenValid) }
-
-    var showRevokeConsentAlert by remember { mutableStateOf(false) }
-
-    if (showGrantConsentDialog && selectedProfile.ssoTokenValid()) {
-        GrantConsentDialog(
-            onCancel = onBack,
-            onGrantConsent = {
-                scope.launch {
-                    val consentState = consentController.grantChargeConsent().first()
-                    when (consentState) {
-                        is PrescriptionServiceErrorState -> {
-                            consentErrorMessage(context, consentState)?.let {
-                                scaffoldState.snackbarHostState.showSnackbar(it)
-                            }
-                        }
-                    }
-                    consentGranted = consentState.isConsentGranted()
-                    showGrantConsentDialog = false
-                }
+    if (showDeleteInvoiceAlert) {
+        DeleteInvoiceDialog(
+            onCancel = {
+                showDeleteInvoiceAlert = false
             }
-        )
-    }
-
-    if (showRevokeConsentAlert) {
-        RevokeConsentDialog(
-            onCancel = { showRevokeConsentAlert = false },
-            onRevokeConsent = {
-                scope.launch {
-                    val consentState = consentController.revokeChargeConsent().first()
-                    when (consentState) {
-                        is PrescriptionServiceErrorState -> {
-                            consentErrorMessage(context, consentState)?.let {
-                                scaffoldState.snackbarHostState.showSnackbar(it)
-                            }
-                        }
-                    }
-                    consentGranted = consentState.isConsentGranted()
-                    onBack()
-                }
+        ) {
+            onDeleteInvoice(
+                scope,
+                taskId,
+                invoicesController,
+                selectedProfile,
+                context,
+                scaffoldState
+            ) {
+                showDeleteInvoiceAlert = false
+                onBack()
             }
-        )
+        }
     }
-
-    val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenController)
 
     AnimatedElevationScaffold(
         modifier = Modifier
             .imePadding()
-            .visualTestTag(TestTag.Profile.InvoicesScreen),
-        topBarTitle = stringResource(R.string.profile_invoices),
-        snackbarHost = {
-            SnackbarHost(it, modifier = Modifier.systemBarsPadding())
-        },
+            .visualTestTag(TestTag.Profile.InvoicesDetailScreen),
+        topBarTitle = "",
+        navigationMode = NavigationBarMode.Back,
+        scaffoldState = scaffoldState,
         bottomBar = {
-            if (connectBottomBarVisible) {
-                ConnectBottomBar {
-                    scope.launch {
-                        refreshPrescriptionsController.refresh(
-                            profileId = selectedProfile.id,
-                            isUserAction = true,
-                            onUserNotAuthenticated = { connectBottomBarVisible = true },
-                            onShowCardWall = onShowCardWall
-                        )
+            invoice?.let {
+                InvoiceDetailBottomBar(
+                    it.invoice.totalBruttoAmount,
+                    onClickSubmit = onClickSubmit
+                )
+            }
+        },
+        listState = listState,
+        actions = {
+            Row {
+                InvoicesDetailThreeDotMenu(
+                    onClickDelete = { showDeleteInvoiceAlert = true }
+                )
+            }
+        },
+        onBack = onBack
+    ) { innerPadding ->
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = PaddingDefaults.Medium + innerPadding.calculateTopPadding(),
+                    bottom = PaddingDefaults.Medium + innerPadding.calculateBottomPadding(),
+                    start = PaddingDefaults.Medium,
+                    end = PaddingDefaults.Medium
+                ),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
+        ) {
+            invoice?.let {
+                item {
+                    InvoiceMedicationHeader(it)
+                }
+                item {
+                    LabeledText(
+                        description = stringResource(R.string.invoice_prescribed_by),
+                        content = it.practitioner.name
+                    )
+                }
+                item {
+                    LabeledText(
+                        description = stringResource(R.string.invoice_redeemed_in),
+                        content = it.pharmacyOrganization.name
+                    )
+                }
+                item {
+                    LabeledText(
+                        description = stringResource(R.string.invoice_redeemed_on),
+                        content = it.whenHandedOver?.formattedString()
+                    )
+                }
+                item {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        TertiaryButton(onClick = onClickShowMore) {
+                            Text(text = stringResource(R.string.invoice_show_more))
+                        }
                     }
                 }
             }
-        },
-        navigationMode = NavigationBarMode.Back,
-        scaffoldState = scaffoldState,
-        listState = listState,
-        actions = {
-            InvoicesThreeDotMenu(
-                consentGranted = consentGranted,
-                onClickRevokeConsent = { showRevokeConsentAlert = true }
-            )
-        },
-        onBack = onBack
-    ) {
-        RefreshScaffold(
-            profileId = selectedProfile.id,
-            onUserNotAuthenticated = { connectBottomBarVisible = true },
-            mainScreenController = mainScreenController,
-            onShowCardWall = {}
-        ) { _ ->
-            Invoices(
-                listState = listState
-            )
         }
     }
 }
 
 @Composable
-fun RevokeConsentDialog(onCancel: () -> Unit, onRevokeConsent: () -> Unit) {
-    CommonAlertDialog(
-        header = stringResource(R.string.profile_revoke_consent_header),
-        info = stringResource(R.string.profile_revoke_consent_info),
-        cancelText = stringResource(R.string.profile_invoices_cancel),
-        actionText = stringResource(R.string.profile_revoke_consent),
-        onCancel = onCancel,
-        onClickAction = onRevokeConsent
-    )
+fun InvoiceDetailBottomBar(totalBruttoAmount: Double, onClickSubmit: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .background(
+                color = AppTheme.colors.neutral100
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
+            Text(
+                stringResource(R.string.invoice_details_cost, totalBruttoAmount),
+                style = AppTheme.typography.h6,
+                fontWeight = FontWeight.Bold
+            )
+            Text(stringResource(R.string.invoice_detail_total_brutto_amount), style = AppTheme.typography.body2l)
+        }
+
+        Button(
+            onClick = onClickSubmit,
+            modifier = Modifier.padding(end = PaddingDefaults.Medium)
+        ) {
+            Text(text = stringResource(R.string.invoice_details_submit))
+        }
+    }
 }
 
 @Composable
-fun GrantConsentDialog(onCancel: () -> Unit, onGrantConsent: () -> Unit) {
-    CommonAlertDialog(
-        header = stringResource(R.string.profile_grant_consent_header),
-        info = stringResource(R.string.profile_grant_consent_info),
-        cancelText = stringResource(R.string.profile_invoices_cancel),
-        actionText = stringResource(R.string.profile_grant_consent),
-        onCancel = onCancel,
-        onClickAction = onGrantConsent
-    )
+fun InvoiceMedicationHeader(invoice: InvoiceData.PKVInvoice) {
+    val medicationInfo = joinMedicationInfo(invoice.medicationRequest)
+    Text(text = medicationInfo, style = AppTheme.typography.h5)
 }
 
 @Composable
-fun InvoicesThreeDotMenu(consentGranted: Boolean, onClickRevokeConsent: () -> Unit) {
+fun InvoicesDetailThreeDotMenu(onClickDelete: () -> Unit) {
     var expanded by remember { mutableStateOf(false) }
 
     IconButton(
@@ -248,79 +235,14 @@ fun InvoicesThreeDotMenu(consentGranted: Boolean, onClickRevokeConsent: () -> Un
     ) {
         DropdownMenuItem(
             onClick = {
-                onClickRevokeConsent()
+                onClickDelete()
                 expanded = false
-            },
-            enabled = consentGranted
+            }
         ) {
             Text(
-                text =
-                stringResource(R.string.profile_revoke_consent)
+                text = stringResource(R.string.invoice_detail_delete),
+                color = AppTheme.colors.red600
             )
-        }
-    }
-}
-
-@Composable
-fun Invoices(
-    listState: LazyListState
-) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize(),
-        state = listState
-    ) {
-        item {
-            InvoicesEmptyScreen()
-        }
-    }
-}
-
-@Composable
-fun LazyItemScope.InvoicesEmptyScreen() {
-    Column(
-        modifier = Modifier
-            .fillParentMaxSize()
-            .padding(PaddingDefaults.Medium),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Image(
-            painterResource(R.drawable.girl_red_oh_no),
-            contentDescription = null
-        )
-        Text(
-            stringResource(R.string.invoices_no_invoices),
-            style = AppTheme.typography.subtitle1,
-            textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-fun ConnectBottomBar(onClickConnect: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .navigationBarsPadding()
-            .background(
-                color = AppTheme.colors.primary100
-            ),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.invoices_connect_info),
-            modifier = Modifier
-                .padding(PaddingDefaults.Medium)
-                .weight(1f),
-            style = AppTheme.typography.body2
-        )
-        Button(
-            onClick = onClickConnect,
-            modifier = Modifier.padding(end = PaddingDefaults.Medium)
-        ) {
-            Text(text = stringResource(R.string.invoices_connect_btn))
         }
     }
 }

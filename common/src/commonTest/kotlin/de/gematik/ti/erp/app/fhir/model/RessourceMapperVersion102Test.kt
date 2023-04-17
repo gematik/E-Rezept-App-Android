@@ -258,17 +258,20 @@ class RessourceMapperVersion102Test {
                 assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-08-17")), start)
                 ReturnType.MultiplePrescriptionInfo
             },
-            processMedicationRequest = { dateOfAccident,
-                location,
-                accidentType,
-                emergencyFee,
-                substitutionAllowed,
-                dosageInstruction,
-                quantity,
-                multiplePrescriptionInfo,
-                note,
-                bvg,
-                additionalFee ->
+            processMedicationRequest = {
+                    authoredOn,
+                    dateOfAccident,
+                    location,
+                    accidentType,
+                    emergencyFee,
+                    substitutionAllowed,
+                    dosageInstruction,
+                    quantity,
+                    multiplePrescriptionInfo,
+                    note,
+                    bvg,
+                    additionalFee ->
+                assertEquals(null, authoredOn)
                 assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-06-29")), dateOfAccident)
                 assertEquals("Dummy-Betrieb", location)
                 assertEquals(AccidentType.Arbeitsunfall, accidentType)

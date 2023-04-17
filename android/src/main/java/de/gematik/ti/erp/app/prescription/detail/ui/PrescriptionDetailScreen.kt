@@ -111,7 +111,6 @@ import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberViewModel
 
 const val MissingValue = "---"
 
@@ -120,10 +119,10 @@ fun PrescriptionDetailsScreen(
     taskId: String,
     mainNavController: NavController
 ) {
-    val viewModel: PrescriptionDetailsViewModel by rememberViewModel()
+    val prescriptionDetailsController = rememberPrescriptionDetailsController()
 
     val prescription by produceState<PrescriptionData.Prescription?>(null) {
-        viewModel.screenState(taskId).collect {
+        prescriptionDetailsController.prescriptionDetailsFlow(taskId).collect {
             value = it
         }
     }
@@ -148,7 +147,7 @@ fun PrescriptionDetailsScreen(
             composable(PrescriptionDetailsNavigationScreens.Overview.route) {
                 PrescriptionDetailsWithScaffold(
                     prescription = pres,
-                    viewModel = viewModel,
+                    prescriptionDetailsController = prescriptionDetailsController,
                     navController = navController,
                     onClickMedication = {
                         selectedMedication = it
@@ -230,7 +229,7 @@ fun PrescriptionDetailsScreen(
 @Composable
 private fun PrescriptionDetailsWithScaffold(
     prescription: PrescriptionData.Prescription,
-    viewModel: PrescriptionDetailsViewModel,
+    prescriptionDetailsController: PrescriptionDetailsController,
     navController: NavHostController,
     onClickMedication: (PrescriptionData.Medication) -> Unit,
     onBack: () -> Unit
@@ -291,7 +290,7 @@ private fun PrescriptionDetailsWithScaffold(
                 val authenticator = LocalAuthenticator.current
                 val deletePrescriptionsHandle = remember {
                     DeletePrescriptions(
-                        bridge = viewModel,
+                        prescriptionDetailsController = prescriptionDetailsController,
                         authenticator = authenticator
                     )
                 }
@@ -337,7 +336,12 @@ private fun PrescriptionDetailsWithScaffold(
                         listState = listState,
                         prescription = prescription,
                         onSwitchRedeemed = {
-                            viewModel.redeemScannedTask(taskId = prescription.taskId, redeem = it)
+                            coroutineScope.launch {
+                                prescriptionDetailsController.redeemScannedTask(
+                                    taskId = prescription.taskId,
+                                    redeem = it
+                                )
+                            }
                         },
                         onShowInfo = {
                             infoBottomSheetContent = it

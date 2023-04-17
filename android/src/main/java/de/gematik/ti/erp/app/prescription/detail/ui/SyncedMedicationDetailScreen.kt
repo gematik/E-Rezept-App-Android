@@ -509,11 +509,13 @@ fun PerformerLabel(performer: String) {
 }
 
 @Composable
-fun HandedOverLabel(whenHandedOver: Instant) {
-    Label(
-        text = remember { dateTimeMediumText(whenHandedOver) },
-        label = stringResource(id = R.string.pres_detail_medication_label_handed_over)
-    )
+fun HandedOverLabel(whenHandedOver: FhirTemporal?) {
+    whenHandedOver?.let {
+        Label(
+            text = it.formattedString(),
+            label = stringResource(id = R.string.pres_detail_medication_label_handed_over)
+        )
+    }
 }
 
 @Composable

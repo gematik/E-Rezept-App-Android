@@ -20,6 +20,8 @@ package de.gematik.ti.erp.app.db.entities.v1.task
 
 import de.gematik.ti.erp.app.db.entities.Cascading
 import de.gematik.ti.erp.app.db.entities.enumName
+import de.gematik.ti.erp.app.db.entities.temporalAccessorNullable
+import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
@@ -35,6 +37,11 @@ enum class AccidentTypeV1 {
 @Suppress("LongParameterList")
 class MedicationRequestEntityV1 : RealmObject, Cascading {
     var medication: MedicationEntityV1? = null
+    var _authoredOn: String? = null
+
+    @delegate:Ignore
+    var authoredOn: FhirTemporal? by temporalAccessorNullable(::_authoredOn)
+
     var dateOfAccident: RealmInstant? = null // unfalltag
     var location: String? = null // unfallbetrieb
     @delegate:Ignore

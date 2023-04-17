@@ -246,7 +246,9 @@ class TaskLocalDataSource(
                                         this.start = start?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
                                     }
                                 },
-                                processMedicationRequest = { dateOfAccident,
+                                processMedicationRequest = {
+                                        authoredOn,
+                                        dateOfAccident,
                                         location,
                                         accidentType,
                                         emergencyFee,
@@ -259,6 +261,7 @@ class TaskLocalDataSource(
                                         additionalFee
                                     ->
                                     MedicationRequestEntityV1().apply {
+                                        this.authoredOn = authoredOn
                                         this.dateOfAccident =
                                             dateOfAccident?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
                                         this.location = location
@@ -403,7 +406,7 @@ class TaskLocalDataSource(
                                 this.wasSubstituted = wasSubstituted
                                 this.dosageInstruction = dosageInstruction
                                 this.performer = performer
-                                this.whenHandedOver = whenHandedOver.value.atStartOfDayIn(TimeZone.UTC).toRealmInstant()
+                                this.handedOverOn = whenHandedOver
                             }
                         }
                     }
@@ -518,15 +521,14 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
                 wasSubstituted = medicationDispense.wasSubstituted,
                 dosageInstruction = medicationDispense.dosageInstruction,
                 performer = medicationDispense.performer,
-                whenHandedOver = medicationDispense.whenHandedOver.toInstant()
+                whenHandedOver = medicationDispense.handedOverOn
             )
         },
         communications = this.communications.mapNotNull { communication ->
             communication.toCommunication()
         }
     )
-
-private fun MedicationEntityV1?.toMedication(): SyncedTaskData.Medication? =
+fun MedicationEntityV1?.toMedication(): SyncedTaskData.Medication? =
     when (this?.medicationProfile) {
         MedicationProfileV1.PZN -> SyncedTaskData.MedicationPZN(
             uniqueIdentifier = this.uniqueIdentifier ?: "",

@@ -22,6 +22,7 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.flowOn
 import de.gematik.ti.erp.app.fhir.model.PharmacyServices
+import de.gematik.ti.erp.app.fhir.model.extractBinaryCertificateAsBase64
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import io.github.aakira.napier.Napier
@@ -56,20 +57,34 @@ class PharmacyRepository @Inject constructor(
         offset: Int,
         count: Int
     ): Result<PharmacyServices> =
-        remoteDataSource.searchPharmaciesContinued(
-            bundleId = bundleId,
-            offset = offset,
-            count = count
-        ).map {
-            dispatchers
-            extractPharmacyServices(
-                bundle = it,
-                onError = { element, cause ->
-                    Napier.e(cause) {
-                        element.toString()
+        withContext(dispatchers.IO) {
+            remoteDataSource.searchPharmaciesContinued(
+                bundleId = bundleId,
+                offset = offset,
+                count = count
+            ).map {
+                extractPharmacyServices(
+                    bundle = it,
+                    onError = { element, cause ->
+                        Napier.e(cause) {
+                            element.toString()
+                        }
                     }
-                }
-            )
+                )
+            }
+        }
+
+    suspend fun searchBinaryCert(
+        locationId: String
+    ): Result<String> =
+        withContext(dispatchers.IO) {
+            remoteDataSource.searchBinaryCert(
+                locationId = locationId
+            ).map {
+                extractBinaryCertificateAsBase64(
+                    bundle = it
+                )
+            }
         }
 
     suspend fun redeemPrescription(
