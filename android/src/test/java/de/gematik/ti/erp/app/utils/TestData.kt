@@ -21,9 +21,12 @@ package de.gematik.ti.erp.app.utils
 import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.parse
 
 fun syncedTask(
     taskId: String = "Task/" + UUID.randomUUID().toString(),
@@ -172,6 +175,28 @@ val testSyncedTasks =
             authoredOn = Instant.parse("2020-12-04T09:49:46Z"),
             status = SyncedTaskData.TaskStatus.Ready,
             medicationName = "Viel zu viel"
+        ),
+        // 5
+        syncedTask(
+            lastModified = Clock.System.now().plus(10.minutes),
+            organizationName = "MVZ Haus der vielen Ärzte",
+            practitionerName = null,
+            expiresOn = Instant.parse("2020-12-04T09:49:46Z") + (3 * 28).days,
+            acceptUntil = Instant.parse("2020-12-04T09:49:46Z") + 28.days,
+            authoredOn = Instant.parse("2020-12-04T09:49:46Z"),
+            status = SyncedTaskData.TaskStatus.Completed,
+            medicationName = "Viel zu viel"
+        ),
+        // 6
+        syncedTask(
+            lastModified = Clock.System.now().plus(1.minutes),
+            organizationName = "MVZ Haus der vielen Ärzte",
+            practitionerName = null,
+            expiresOn = Instant.parse("2020-12-04T09:49:46Z") + (3 * 28).days,
+            acceptUntil = Instant.parse("2020-12-04T09:49:46Z") + 28.days,
+            authoredOn = Instant.parse("2020-12-04T09:49:46Z"),
+            status = SyncedTaskData.TaskStatus.Completed,
+            medicationName = "Viel zu viel"
         )
     )
 
@@ -238,6 +263,8 @@ val testScannedTasksOrdered by lazy {
 // keep in sync with `testSyncedTasks`
 val testRedeemedTasksOrdered =
     listOf(
+        testSyncedTasks[5],
+        testSyncedTasks[6],
         testSyncedTasks[0],
         testScannedTasks[0],
         testSyncedTasks[1]

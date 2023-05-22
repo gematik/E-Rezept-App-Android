@@ -43,7 +43,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -64,9 +63,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.rounded.Star
 import androidx.compose.material.icons.rounded.StarBorder
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -76,11 +77,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.fhir.model.Location
-import de.gematik.ti.erp.app.fhir.model.OnlinePharmacyService
 import de.gematik.ti.erp.app.fhir.model.OpeningHours
-import de.gematik.ti.erp.app.fhir.model.PickUpPharmacyService
 import de.gematik.ti.erp.app.fhir.model.isOpenToday
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -101,6 +101,7 @@ import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -205,6 +206,7 @@ fun PharmacyDetailsSheetContent(
         SpacerXXLarge()
 
         OrderSelection(
+            orderState = orderState,
             pharmacy = pharmacy,
             onClickOrder = onClickOrderFn
         )
@@ -220,15 +222,45 @@ private const val NrOfAllOrderOptions = 3
 @Composable
 private fun OrderSelection(
     pharmacy: PharmacyUseCaseData.Pharmacy,
-    onClickOrder: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit
+    onClickOrder: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
+    orderState: PharmacyOrderState
 ) {
-    if (pharmacy.ready) {
-        val pickUpService = remember(pharmacy) { pharmacy.provides.any { it is PickUpPharmacyService } }
-        val deliveryService = remember(pharmacy) { pharmacy.provides.any { it is DeliveryPharmacyService } }
-        val onlineService = remember(pharmacy) { pharmacy.provides.any { it is OnlinePharmacyService } }
+    val context = LocalContext.current
+    val featureToggleManager = FeatureToggleManager(context)
+    val scope = rememberCoroutineScope()
+    var directRedeemEnabled by remember {
+        mutableStateOf(false)
+    }
 
-        val nrOfServices = remember(pickUpService, deliveryService, onlineService) {
-            listOf(pickUpService, deliveryService, onlineService).count { it }
+    LaunchedEffect(Unit) {
+        scope.launch {
+            directRedeemEnabled = featureToggleManager
+                .isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName).first() &&
+                orderState.profile.lastAuthenticated == null
+        }
+    }
+
+    if (pharmacy.ready) {
+        val directPickUpServiceAvailable = directRedeemEnabled && pharmacy.contacts.pickUpUrl.isNotEmpty()
+        val pickUpServiceVisible =
+            pharmacy.pickupServiceAvailable() || directPickUpServiceAvailable
+        val pickupServiceEnabled = directPickUpServiceAvailable ||
+            !directRedeemEnabled && pharmacy.pickupServiceAvailable()
+
+        val directDeliveryServiceAvailable = directRedeemEnabled && pharmacy.contacts.deliveryUrl.isNotEmpty()
+        val deliveryServiceVisible =
+            directDeliveryServiceAvailable || pharmacy.deliveryServiceAvailable()
+        val deliveryServiceEnabled = directDeliveryServiceAvailable ||
+            !directRedeemEnabled && pharmacy.deliveryServiceAvailable()
+
+        val directOnlineServiceAvailable = directRedeemEnabled && pharmacy.contacts.onlineServiceUrl.isNotEmpty()
+        val onlineServiceVisible =
+            pharmacy.onlineServiceAvailable() || directOnlineServiceAvailable
+        val onlineServiceEnabled = directOnlineServiceAvailable ||
+            !directRedeemEnabled && pharmacy.onlineServiceAvailable()
+
+        val nrOfServices = remember(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible) {
+            listOf(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible).count { it }
         }
         val isSingle = nrOfServices == 1
         val isLarge = nrOfServices != NrOfAllOrderOptions
@@ -238,9 +270,10 @@ private fun OrderSelection(
             modifier = Modifier.height(IntrinsicSize.Min)
         ) {
             val orderModifier = Modifier.weight(weight = 0.5f).fillMaxHeight()
-            if (pickUpService) {
+            if (pickUpServiceVisible) {
                 OrderButton(
                     modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.PickUpOptionButton),
+                    enabled = pickupServiceEnabled,
                     onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.ReserveInPharmacy) },
                     isLarge = isLarge,
                     text = stringResource(R.string.pharmacy_order_opt_collect),
@@ -248,19 +281,21 @@ private fun OrderSelection(
                 )
             }
 
-            if (deliveryService) {
+            if (deliveryServiceVisible) {
                 OrderButton(
                     modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.CourierDeliveryOptionButton),
+                    enabled = deliveryServiceEnabled,
                     onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.CourierDelivery) },
                     isLarge = isLarge,
                     text = stringResource(R.string.pharmacy_order_opt_delivery),
                     image = painterResource(R.drawable.delivery_car_small)
                 )
             }
-            if (onlineService) {
+            if (onlineServiceVisible) {
                 OrderButton(
                     modifier = orderModifier
                         .testTag(TestTag.PharmacySearch.OrderOptions.OnlineDeliveryOptionButton),
+                    enabled = onlineServiceEnabled,
                     onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.MailDelivery) },
                     isLarge = isLarge,
                     text = stringResource(R.string.pharmacy_order_opt_mail),
@@ -277,24 +312,39 @@ private fun OrderSelection(
     }
 }
 
+@Suppress("MagicNumber")
 @Composable
 private fun OrderButton(
     modifier: Modifier,
+    enabled: Boolean,
     isLarge: Boolean = true,
     text: String,
     image: Painter,
     onClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val shape = RoundedCornerShape(16.dp)
+    val connectText = stringResource(R.string.connect_for_pharmacy_service)
     Column(
         modifier = modifier
             .background(AppTheme.colors.neutral100, shape)
             .clip(shape)
             .clickable(
                 role = Role.Button,
-                onClick = onClick
+                onClick = {
+                    if (enabled) {
+                        onClick()
+                    } else {
+                        createToastShort(context, connectText)
+                    }
+                }
             )
             .padding(PaddingDefaults.Medium)
+            .alpha(
+                if (enabled) {
+                    1f
+                } else { 0.3f }
+            )
     ) {
         val imgModifier = if (isLarge) {
             Modifier.align(Alignment.End)

@@ -1635,5 +1635,79 @@
       "x1": 0.6,
       "y1": 0.35294117647058826
     }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy A34 5G",
+    "modelNames": [
+      "SM-A3460",
+      "SM-A346B",
+      "SM-A346E",
+      "SM-A346M",
+      "SM-A346N"
+    ],
+    "nfcPos": {
+      "x0": 0.04054054054054057,
+      "y0": 0.016835016835016835,
+      "x1": 0.7297297297297297,
+      "y1": 0.27946127946127947
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S23 Ultra",
+    "modelNames": [
+      "SC-52D",
+      "SM-S9180",
+      "SM-S918B",
+      "SM-S918N",
+      "SM-S918U",
+      "SM-S918U1",
+      "SM-S918W"
+    ],
+    "nfcPos": {
+      "x0": 0.05405405405405406,
+      "y0": 0.3468013468013468,
+      "x1": 0.9324324324324325,
+      "y1": 0.8316498316498316
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S23+",
+    "modelNames": [
+      "SM-S9160",
+      "SM-S916B",
+      "SM-S916N",
+      "SM-S916U",
+      "SM-S916U1",
+      "SM-S916W"
+    ],
+    "nfcPos": {
+      "x0": 0.03355704697986572,
+      "y0": 0.33557046979865773,
+      "x1": 0.9463087248322147,
+      "y1": 0.7550335570469798
+    }
+  },
+  {
+    "manufacturer": "Samsung",
+    "marketingName": "Samsung Galaxy S23",
+    "modelNames": [
+      "SC-51D",
+      "SM-S9110",
+      "SM-S911B",
+      "SM-S911C",
+      "SM-S911N",
+      "SM-S911U",
+      "SM-S911U1",
+      "SM-S911W"
+    ],
+    "nfcPos": {
+      "x0": 0.04054054054054057,
+      "y0": 0.34459459459459457,
+      "x1": 0.9459459459459459,
+      "y1": 0.7533783783783784
+    }
   }
 ]

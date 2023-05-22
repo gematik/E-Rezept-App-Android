@@ -23,8 +23,10 @@ import TokenScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -32,6 +34,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.Route
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.pkv.ui.InvoiceDetailsScreen
@@ -46,16 +49,16 @@ import kotlinx.coroutines.launch
 
 object ProfileDestinations {
     object Profile : Route("profile")
-    object Token : Route("token")
-    object AuditEvents : Route("auditEvents")
-    object PairedDevices : Route("pairedDevices")
-    object ProfileImagePicker : Route("profileImagePicker")
-    object ProfileImageCropper : Route("imageCropper")
-    object Invoices : Route("invoices")
+    object Token : Route("profile_token")
+    object AuditEvents : Route("profile_auditEvents")
+    object PairedDevices : Route("profile_registeredDevices")
+    object ProfileImagePicker : Route("profile_editPicture")
+    object ProfileImageCropper : Route("profile_editPicture_imageCropper")
+    object Invoices : Route("chargeItem_list")
 
     object InvoiceInformation :
         Route(
-            "invoiceInformation",
+            "chargeItem_details",
             navArgument("taskId") { type = NavType.StringType }
         ) {
         fun path(taskId: String) = path("taskId" to taskId)
@@ -63,7 +66,7 @@ object ProfileDestinations {
 
     object InvoiceDetails :
         Route(
-            "invoiceDetails",
+            "chargeItem_details_expanded",
             navArgument("taskId") { type = NavType.StringType }
         ) {
         fun path(taskId: String) = path("taskId" to taskId)
@@ -71,7 +74,7 @@ object ProfileDestinations {
 
     object ShareInformation :
         Route(
-            "shareInformation",
+            "chargeItem_share",
             navArgument("taskId") { type = NavType.StringType }
         ) {
         fun path(taskId: String) = path("taskId" to taskId)
@@ -90,6 +93,8 @@ fun EditProfileNavGraph(
     onRemoveProfile: (newProfileName: String?) -> Unit,
     mainNavController: NavController
 ) {
+    var previousNavEntry by remember { mutableStateOf("profile") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val scope = rememberCoroutineScope()
     val invoicesController = rememberInvoicesController(profileId = selectedProfile.id)
     NavHost(navController = navController, startDestination = ProfileDestinations.Profile.route) {

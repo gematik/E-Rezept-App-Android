@@ -49,11 +49,16 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Route
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.settings.ui.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -72,10 +77,10 @@ import de.gematik.ti.erp.app.utils.compose.annotatedLinkString
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 
 object TroubleShootingNavigation {
-    object TroubleshootingPageA : Route("TroubleshootingPageA")
-    object TroubleshootingPageB : Route("TroubleshootingPageB")
-    object TroubleshootingPageC : Route("TroubleshootingPageC")
-    object TroubleshootingNoSuccessPage : Route("TroubleshootingNoSuccessPage")
+    object TroubleshootingPageA : Route("troubleShooting")
+    object TroubleshootingPageB : Route("troubleShooting_readCardHelp1")
+    object TroubleshootingPageC : Route("troubleShooting_readCardHelp2")
+    object TroubleshootingNoSuccessPage : Route("troubleShooting_readCardHelp3")
 }
 
 @Composable
@@ -84,7 +89,8 @@ fun TroubleShootingScreen(
     onCancel: () -> Unit
 ) {
     val navController = rememberNavController()
-
+    var previousNavEntry by remember { mutableStateOf("troubleShooting") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     NavHost(
         navController,
         startDestination = TroubleShootingNavigation.TroubleshootingPageA.path()

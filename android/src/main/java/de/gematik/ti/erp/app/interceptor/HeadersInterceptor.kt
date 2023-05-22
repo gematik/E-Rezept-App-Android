@@ -75,6 +75,15 @@ class PharmacySearchInterceptor(private val endpointHelper: EndpointHelper) : In
     }
 }
 
+class PharmacyRedeemInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val original: Request = chain.request()
+        val request: Request = original.newBuilder()
+            .build()
+        return chain.proceed(request)
+    }
+}
+
 class UserAgentHeaderInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()

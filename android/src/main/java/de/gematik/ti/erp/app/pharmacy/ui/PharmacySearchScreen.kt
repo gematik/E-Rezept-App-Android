@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.content.Intent
+import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -97,6 +98,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
@@ -104,6 +106,9 @@ import androidx.paging.compose.itemsIndexed
 import com.google.accompanist.flowlayout.FlowRow
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.trackPharmacySearchPopUps
+import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -618,6 +623,7 @@ private fun ErrorRetryHandler(
 fun PharmacySearchResultScreen(
     orderState: PharmacyOrderState,
     searchController: PharmacySearchController,
+    navController: NavHostController,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
     onClickMaps: () -> Unit,
     onBack: () -> Unit
@@ -693,7 +699,18 @@ fun PharmacySearchResultScreen(
             PharmacySearchSheetContentState.PharmacySelected(it)
         }
     )
-
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.isVisible) {
+            analytics.trackPharmacySearchPopUps(sheetState.content)
+        } else {
+            analytics.onPopUpClosed()
+            val route = Uri.parse(navController.currentBackStackEntry!!.destination.route)
+                .buildUpon().clearQuery().build().toString()
+            trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
+        }
+    }
     Box {
         Scaffold(
             modifier = Modifier
@@ -756,7 +773,7 @@ fun PharmacySearchResultScreen(
                     },
                     onClickFilter = {
                         focusManager.clearFocus()
-                        sheetState.show(PharmacySearchSheetContentState.FilterSelected)
+                        sheetState.show(PharmacySearchSheetContentState.FilterSelected())
                     }
                 )
 
@@ -775,7 +792,7 @@ fun PharmacySearchResultScreen(
             sheetState = sheetState,
             sheetContent = {
                 when (sheetState.content) {
-                    PharmacySearchSheetContentState.FilterSelected ->
+                    is PharmacySearchSheetContentState.FilterSelected ->
                         FilterSheetContent(
                             modifier = Modifier.navigationBarsPadding(),
                             filter = searchFilter,

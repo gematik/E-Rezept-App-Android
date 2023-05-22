@@ -215,7 +215,7 @@ fun ConnectionHelper(onClickRefresh: () -> Unit) {
     val profile = profileHandler.activeProfile
     val ssoTokenScope = profile.ssoTokenScope
 
-    if (profile.lastAuthenticated != null && ssoTokenScope?.token == null) {
+    if (ssoTokenScope?.token == null) {
         TertiaryButton(onClickRefresh) {
             Text(stringResource(R.string.mainscreen_login))
         }

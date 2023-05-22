@@ -23,6 +23,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCase
 import de.gematik.ti.erp.app.attestation.usecase.integrityModule
 import de.gematik.ti.erp.app.cardunlock.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
@@ -40,6 +41,7 @@ import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.vau.vauModule
 import org.kodein.di.DI
+import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
@@ -80,7 +82,9 @@ val allModules = DI.Module("allModules") {
 
     bindSingleton { FeatureToggleManager(instance()) }
 
-    bindSingleton { Analytics(instance(), instance(ApplicationPreferencesTag)) }
+    bindProvider { AnalyticsUseCase(instance()) }
+
+    bindSingleton { Analytics(instance(), instance(ApplicationPreferencesTag), instance()) }
 
     importAll(
         cardWallModule,

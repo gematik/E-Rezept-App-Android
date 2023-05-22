@@ -29,3 +29,18 @@ data class CommunicationPayload(
     val hint: String = "",
     val phone: String?
 )
+
+@Serializable
+data class DirectCommunicationMessage(
+    val version: String = "2",
+    val supplyOptionsType: String,
+    val name: String,
+    val address: List<String>,
+    val hint: String = "",
+    val text: String?,
+    val phone: String?,
+    val mail: String?,
+    val transactionID: String,
+    val taskID: String,
+    val accessCode: String
+)

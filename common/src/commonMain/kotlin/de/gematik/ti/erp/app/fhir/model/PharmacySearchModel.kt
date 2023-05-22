@@ -80,10 +80,14 @@ data class PharmacyAddress(
 data class PharmacyContacts(
     val phone: String,
     val mail: String,
-    val url: String
+    val url: String,
+    val pickUpUrl: String,
+    val deliveryUrl: String,
+    val onlineServiceUrl: String
 )
 
 data class Pharmacy(
+    val id: String,
     val name: String,
     val address: PharmacyAddress,
     val location: Location,

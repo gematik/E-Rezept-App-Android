@@ -221,12 +221,18 @@ fun UnknownStatusChip() =
     )
 
 @Composable
-fun DirectAssignmentStatusChip() =
+fun DirectAssignmentStatusChip(redeemed: Boolean) {
+    val text = if (redeemed) {
+        stringResource(R.string.prescription_status_direct_assignment_closed)
+    } else {
+        stringResource(R.string.prescription_status_direct_assignment_ready)
+    }
     StatusChip(
-        text = stringResource(R.string.prescription_status_direct_assignment),
+        text = text,
         textColor = AppTheme.colors.neutral600,
         backgroundColor = AppTheme.colors.neutral200
     )
+}
 
 @Composable
 fun DirectAssignmentChip(

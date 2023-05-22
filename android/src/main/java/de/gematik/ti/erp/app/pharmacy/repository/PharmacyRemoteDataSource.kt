@@ -59,12 +59,14 @@ class PharmacyRemoteDataSource(
         }
     }
 
-    suspend fun redeemPrescription(
+    suspend fun redeemPrescriptionDirectly(
         url: String,
         message: ByteArray,
         pharmacyTelematikId: String,
         transactionId: String
     ): Result<Unit> = safeApiCall("error redeeming prescription with $url") {
+        val messageBody = message.toRequestBody("application/pkcs7-mime".toMediaType())
+
         val validatedUrl = url
             .replace(PlaceholderTelematikId, pharmacyTelematikId, ignoreCase = true)
             .replace(PlaceholderTransactionId, transactionId, ignoreCase = true)
@@ -72,9 +74,7 @@ class PharmacyRemoteDataSource(
                 URL(it)
             }
 
-        val messageBody = message.toRequestBody("application/pkcs7-mime".toMediaType())
-
-        redeemService.redeem(
+        redeemService.redeemDirectly(
             url = validatedUrl.toString(),
             message = messageBody
         )

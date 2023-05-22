@@ -276,7 +276,7 @@ class InvoiceLocalDataSource(
                             MultiplePrescriptionInfoEntityV1().apply {
                                 this.indicator = indicator
                                 this.numbering = numbering
-                                this.start = start?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
+                                this.start = start?.toInstant(TimeZone.UTC)?.toRealmInstant()
                             }
                         },
                         processMedicationRequest = {

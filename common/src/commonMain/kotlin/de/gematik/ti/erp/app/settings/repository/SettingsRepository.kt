@@ -88,7 +88,7 @@ class SettingsRepository constructor(
             }
         }.flowOn(dispatchers.IO)
 
-    override val pharmacySearch: Flow<SettingsData.PharmacySearch>
+    override val pharmacySearch: Flow<SettingsData.PharmacySearch> // TODO move to PharmacySearch
         get() = settings.mapNotNull { settings ->
             settings?.pharmacySearch?.let {
                 SettingsData.PharmacySearch(

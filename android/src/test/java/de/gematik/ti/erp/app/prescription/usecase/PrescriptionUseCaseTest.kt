@@ -91,7 +91,9 @@ class PrescriptionUseCaseTest {
                 useCase.redeemedPrescriptions(
                     profileId = "",
                     now = LocalDate.parse("2021-02-01").atStartOfDayIn(TimeZone.UTC)
-                ).first().map { it.taskId }
+                ).first().map {
+                    it.taskId
+                }
             )
         }
 }

@@ -20,6 +20,9 @@ package de.gematik.ti.erp.app.redeem.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -40,15 +43,16 @@ fun RedeemNavigation(
     val orderState = rememberPharmacyOrderState()
 
     val navController = rememberNavController()
-    val navigationMode by navController.navigationModeState(RedeemNavigation.HowToRedeem.route)
+    val navigationMode by navController.navigationModeState(RedeemNavigation.MethodSelection.route)
 
-    TrackNavigationChanges(navController)
+    var previousNavEntry by remember { mutableStateOf("redeem_methodSelection") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
 
     NavHost(
         navController,
-        startDestination = RedeemNavigation.HowToRedeem.route
+        startDestination = RedeemNavigation.MethodSelection.route
     ) {
-        composable(RedeemNavigation.HowToRedeem.route) {
+        composable(RedeemNavigation.MethodSelection.route) {
             NavigationAnimation(mode = navigationMode) {
                 val prescriptions by orderState.prescriptions
                 HowToRedeem(

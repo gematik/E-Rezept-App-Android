@@ -308,12 +308,12 @@ private fun resumeTextFromUnlockEgkState(
         )
 
         UnlockEgkState.HealthCardCardAccessNumberWrong -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error).toAnnotatedString(),
+            stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error_alert).toAnnotatedString(),
             stringResource(R.string.cdw_nfc_intro_step2_info_on_can_error).toAnnotatedString()
         )
 
         UnlockEgkState.HealthCardPukRetriesLeft -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_puk_error).toAnnotatedString(),
+            stringResource(R.string.cdw_nfc_intro_step2_header_on_puk_error_alert).toAnnotatedString(),
             pukRetriesLeft(state.retriesLeft)
         )
 

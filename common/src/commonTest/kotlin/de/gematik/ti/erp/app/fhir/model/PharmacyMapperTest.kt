@@ -27,12 +27,16 @@ import kotlin.test.assertEquals
 
 private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }
 private val testBundleBinaries by lazy { File("$ResourceBasePath/fhir/pharmacy_binary.json").readText() }
+private val directRedeemPharmacyBundle by lazy {
+    File("$ResourceBasePath/direct_redeem_pharmacy_bundle.json").readText()
+}
 
 class PharmacyMapperTest {
     private val openingTimeA = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))
     private val openingTimeB = OpeningTime(LocalTime.parse("14:00:00"), LocalTime.parse("18:00:00"))
     private val openingTimeC = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("20:00:00"))
     private val expected = Pharmacy(
+        id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
         name = "Heide-Apotheke",
         address = PharmacyAddress(
             lines = listOf("Langener Landstraße 266"),
@@ -43,7 +47,10 @@ class PharmacyMapperTest {
         contacts = PharmacyContacts(
             phone = "0471/87029",
             mail = "info@heide-apotheke-bremerhaven.de",
-            url = "http://www.heide-apotheke-bremerhaven.de"
+            url = "http://www.heide-apotheke-bremerhaven.de",
+            pickUpUrl = "",
+            deliveryUrl = "",
+            onlineServiceUrl = ""
         ),
         provides = listOf(
             LocalPharmacyService(
@@ -82,6 +89,38 @@ class PharmacyMapperTest {
         ready = true
     )
 
+    private val expectedDirectRedeemPharmacy =
+        Pharmacy(
+            id = "ngc26fe2-9c3a-4d52-854e-794c96f73f66",
+            name = "PT-STA-Apotheke 2TEST-ONLY",
+            address = PharmacyAddress(
+                lines = listOf("Münchnerstr. 15 b"),
+                postalCode = "82139",
+                city = "Starnberg"
+            ),
+            location = Location(latitude = 48.0018513, longitude = 11.3497755),
+            contacts = PharmacyContacts(
+                phone = "",
+                mail = "",
+                url = "",
+                pickUpUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=Co" +
+                    "LEeMyykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
+                deliveryUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=CoLEeM" +
+                    "yykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
+                onlineServiceUrl = ""
+            ),
+            provides = listOf(
+                LocalPharmacyService(
+                    name = "PT-STA-Apotheke 2TEST-ONLY",
+                    openingHours = OpeningHours(mapOf())
+                ),
+                OnlinePharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY"),
+                PickUpPharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY")
+            ),
+            telematikId = "3-SMC-B-Testkarte-883110000116948",
+            ready = true
+        )
+
     @Test
     fun `map pharmacies from JSON bundle`() {
         val pharmacies = extractPharmacyServices(
@@ -98,8 +137,23 @@ class PharmacyMapperTest {
     }
 
     @Test
+    fun `map direct redeem pharmacy from JSON bundle get urls for direct redeem`() {
+        val pharmacies = extractPharmacyServices(
+            Json.parseToJsonElement(directRedeemPharmacyBundle),
+            onError = { element, cause ->
+                println(element)
+                throw cause
+            }
+        ).pharmacies
+
+        assertEquals(1, pharmacies.size)
+
+        assertEquals(expectedDirectRedeemPharmacy, pharmacies[0])
+    }
+
+    @Test
     fun `extract certificate`() {
-        val result = extractBinaryCertificateAsBase64(Json.parseToJsonElement(testBundleBinaries))
-        assertEquals("MIIFlDCCBHygAwwKGi44czSg==", result)
+        val result = extractBinaryCertificatesAsBase64(Json.parseToJsonElement(testBundleBinaries))
+        assertEquals(listOf("MIIFlDCCBHygAwwKGi44czSg=="), result)
     }
 }

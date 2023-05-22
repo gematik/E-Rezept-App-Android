@@ -21,10 +21,13 @@ package de.gematik.ti.erp.app.pharmacy.usecase.model
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
 import de.gematik.ti.erp.app.fhir.model.OpeningHours
 import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.fhir.model.Location
+import de.gematik.ti.erp.app.fhir.model.OnlinePharmacyService
 import de.gematik.ti.erp.app.fhir.model.PharmacyService
+import de.gematik.ti.erp.app.fhir.model.PickUpPharmacyService
 import kotlinx.parcelize.Parcelize
 import kotlinx.datetime.Instant
 
@@ -38,10 +41,11 @@ object PharmacyUseCaseData {
         val ready: Boolean = false,
         val deliveryService: Boolean = false,
         val onlineService: Boolean = false,
-        val openNow: Boolean = false
+        val openNow: Boolean = false,
+        val directRedeem: Boolean = false
     ) : Parcelable {
         fun isAnySet(): Boolean =
-            nearBy || ready || deliveryService || onlineService || openNow
+            nearBy || ready || deliveryService || onlineService || openNow || directRedeem
     }
 
     /**
@@ -49,6 +53,7 @@ object PharmacyUseCaseData {
      */
     @Immutable
     data class Pharmacy(
+        val id: String,
         val name: String,
         val address: String?,
         val location: Location?,
@@ -67,6 +72,18 @@ object PharmacyUseCaseData {
             } else {
                 address.replace("\n", ", ")
             }
+
+        @Stable
+        fun pickupServiceAvailable(): Boolean =
+            provides.any { it is PickUpPharmacyService }
+
+        @Stable
+        fun deliveryServiceAvailable(): Boolean =
+            provides.any { it is DeliveryPharmacyService }
+
+        @Stable
+        fun onlineServiceAvailable(): Boolean =
+            provides.any { it is OnlinePharmacyService }
     }
 
     sealed class LocationMode {

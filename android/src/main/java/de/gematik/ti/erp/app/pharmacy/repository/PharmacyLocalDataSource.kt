@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
 import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
@@ -125,4 +126,12 @@ class PharmacyLocalDataSource @Inject constructor(
             isFavorite = true,
             usageCount = 0
         )
+
+    suspend fun markAsRedeemed(taskId: String) {
+        realm.tryWrite<Unit> {
+            queryFirst<ScannedTaskEntityV1>("taskId = $0", taskId)?.apply {
+                this.redeemedOn = Clock.System.now().toRealmInstant()
+            }
+        }
+    }
 }

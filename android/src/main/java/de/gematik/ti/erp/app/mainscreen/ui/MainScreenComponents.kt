@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -84,9 +85,13 @@ import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
+import de.gematik.ti.erp.app.analytics.TrackPopUps
+import de.gematik.ti.erp.app.analytics.trackMainScreenBottomPopUps
+import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
 import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.debug.ui.DebugScreenWrapper
 import de.gematik.ti.erp.app.license.ui.LicenseScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingNavigationScreens
@@ -102,7 +107,6 @@ import de.gematik.ti.erp.app.prescription.ui.MlKitIntroScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
 import de.gematik.ti.erp.app.prescription.ui.ScanScreen
 import de.gematik.ti.erp.app.prescription.ui.rememberPrescriptionState
-import de.gematik.ti.erp.app.prescription.ui.rememberScanPrescriptionController
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileImageCropper
@@ -142,8 +146,11 @@ fun MainScreen(
     profilesController: ProfilesController
 ) {
     val startDestination = determineStartDestination(settingsController)
-
-    TrackNavigationChanges(navController)
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    TrackPopUps(analytics, analyticsState)
+    var previousNavEntry by remember { mutableStateOf("main") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
     NavHost(
         navController,
@@ -174,8 +181,7 @@ fun MainScreen(
             )
         }
         composable(MainNavigationScreens.Camera.route) {
-            val scanPrescriptionController = rememberScanPrescriptionController()
-            ScanScreen(mainNavController = navController, scanPrescriptionController = scanPrescriptionController)
+            ScanScreen(mainNavController = navController)
         }
         composable(MainNavigationScreens.Prescriptions.route) {
             MainScreenWithScaffold(
@@ -244,8 +250,7 @@ fun MainScreen(
             )
         }
         composable(
-            MainNavigationScreens.Redeem.route,
-            MainNavigationScreens.Redeem.arguments
+            MainNavigationScreens.Redeem.route
         ) {
             RedeemNavigation(
                 mainScreenController = mainScreenController,
@@ -402,8 +407,8 @@ fun MainScreen(
                 onSaveCroppedImage = {
                     scope.launch {
                         profilesController.savePersonalizedProfileImage(profileId, it)
+                        navController.navigate(MainNavigationScreens.Prescriptions.path())
                     }
-                    navController.popBackStack()
                 },
                 onBack = {
                     navController.popBackStack()
@@ -462,6 +467,7 @@ private fun determineStartDestination(settingsController: SettingsController) =
     }
 
 @OptIn(ExperimentalMaterialApi::class)
+@Suppress("LongMethod")
 @Composable
 private fun MainScreenWithScaffold(
     mainNavController: NavController,
@@ -471,27 +477,22 @@ private fun MainScreenWithScaffold(
 ) {
     val context = LocalContext.current
     val bottomNavController = rememberNavController()
-
     val currentBottomNavigationRoute by bottomNavController.currentBackStackEntryFlow.collectAsState(null)
-
+    var previousNavEntry by remember { mutableStateOf("main") }
+    TrackNavigationChanges(bottomNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val isInPrescriptionScreen by remember {
         derivedStateOf {
             currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
         }
     }
-
     CheckInsecureDevice(settingsController, mainNavController)
     CheckDeviceIntegrity(mainScreenController, mainNavController)
-
     val scaffoldState = rememberScaffoldState()
-
     MainScreenSnackbar(
         mainScreenController = mainScreenController,
         scaffoldState = scaffoldState
     )
-
     OrderSuccessHandler(mainScreenController)
-
     var mainScreenBottomSheetContentState: MainScreenBottomSheetContentState? by remember { mutableStateOf(null) }
 
     val sheetState = rememberModalBottomSheetState(
@@ -500,11 +501,9 @@ private fun MainScreenWithScaffold(
             it != ModalBottomSheetValue.HalfExpanded
         }
     )
-
     LaunchedEffect(Unit) {
-        sheetState.snapTo(ModalBottomSheetValue.Hidden)
+        sheetState.hide()
     }
-
     LaunchedEffect(mainScreenBottomSheetContentState) {
         if (mainScreenBottomSheetContentState != null) {
             sheetState.show()
@@ -512,46 +511,49 @@ private fun MainScreenWithScaffold(
             sheetState.hide()
         }
     }
-
-    LaunchedEffect(Unit) {
-        if (settingsController.showWelcomeDrawer.first()) {
-            mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Connect
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.isVisible) {
+            mainScreenBottomSheetContentState?.let { analytics.trackMainScreenBottomPopUps(it) }
+        } else {
+            analytics.onPopUpClosed()
+            val route = Uri.parse(mainNavController.currentBackStackEntry!!.destination.route)
+                .buildUpon().clearQuery().build().toString()
+            trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
         }
     }
-
+    LaunchedEffect(Unit) {
+        if (settingsController.showWelcomeDrawer.first()) {
+            mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Welcome()
+        }
+    }
     LaunchedEffect(sheetState.isVisible) {
         if (sheetState.targetValue == ModalBottomSheetValue.Hidden) {
-            if (mainScreenBottomSheetContentState == MainScreenBottomSheetContentState.Connect) {
+            if (mainScreenBottomSheetContentState == MainScreenBottomSheetContentState.Welcome()) {
                 settingsController.welcomeDrawerShown()
             }
             mainScreenBottomSheetContentState = null
         }
     }
-
     LaunchedEffect(Unit) {
         if (settingsController.talkbackEnabled(context)) {
             settingsController.mainScreenTooltipsShown()
         }
     }
-
     var profileToRename by remember {
         mutableStateOf(ProfilesStateData.defaultProfile)
     }
-
     val toolTipBounds = remember {
         mutableStateOf<Map<Int, Rect>>(emptyMap())
     }
-
     ToolTips(settingsController, isInPrescriptionScreen, toolTipBounds)
-
     val coroutineScope = rememberCoroutineScope()
-
     BackHandler(enabled = sheetState.isVisible) {
         coroutineScope.launch {
             sheetState.hide()
         }
     }
-
     ModalBottomSheetLayout(
         sheetState = sheetState,
         modifier = Modifier
@@ -575,25 +577,22 @@ private fun MainScreenWithScaffold(
     ) {
         // TODO: move to general place?
         ExternalAuthenticationDialog()
-
         MainScreenScaffold(
             mainScreenController = mainScreenController,
             settingsController = settingsController,
             mainNavController = mainNavController,
             bottomNavController = bottomNavController,
             tooltipBounds = toolTipBounds,
-
             onClickAddProfile = {
                 mainScreenBottomSheetContentState =
-                    MainScreenBottomSheetContentState.EditOrAddProfileName(addProfile = true)
+                    MainScreenBottomSheetContentState.AddProfile()
             },
             onClickChangeProfileName = { profile ->
                 profileToRename = profile
-                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditOrAddProfileName()
+                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditProfileName()
             },
-
             onClickAvatar = {
-                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditProfile
+                mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditProfilePicture()
             },
             scaffoldState = scaffoldState
         )

@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.BCProvider
+import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse

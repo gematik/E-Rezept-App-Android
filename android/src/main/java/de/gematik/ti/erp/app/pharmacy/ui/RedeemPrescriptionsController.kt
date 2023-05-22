@@ -25,7 +25,10 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.core.LocalAuthenticator
+import de.gematik.ti.erp.app.fhir.model.DirectCommunicationMessage
+import de.gematik.ti.erp.app.fhir.model.json
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -44,6 +47,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.encodeToString
 import org.kodein.di.compose.rememberInstance
 import java.net.HttpURLConnection
 import java.util.UUID
@@ -51,6 +55,7 @@ import java.util.UUID
 @Stable
 class RedeemPrescriptionsController(
     private val searchUseCase: PharmacySearchUseCase,
+    private val pharmacyDirectRedeemUseCase: PharmacyDirectRedeemUseCase,
     private val overviewUseCase: PharmacyOverviewUseCase,
     private val dispatchers: DispatchProvider,
     private val authenticator: Authenticator
@@ -61,6 +66,11 @@ class RedeemPrescriptionsController(
         sealed interface Error : State, PrescriptionServiceErrorState {
             object Unknown : Error
             object TaskIdDoesNotExist : Error
+            object IncorrectDataStructure : Error
+            object JsonViolated : Error
+            object Timeout : Error
+            object Conflict : Error
+            object Gone : Error
         }
     }
 
@@ -80,6 +90,113 @@ class RedeemPrescriptionsController(
             pharmacy = pharmacy,
             contact = contact
         ).cancellable().first()
+
+    suspend fun orderPrescriptionsDirectly(
+        orderId: UUID,
+        prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>,
+        redeemOption: PharmacyScreenData.OrderOption,
+        pharmacy: PharmacyUseCaseData.Pharmacy,
+        contact: PharmacyUseCaseData.ShippingContact
+    ): PrescriptionServiceState =
+        orderPrescriptionsDirectlyFlow(
+            orderId = orderId,
+            prescriptions = prescriptions,
+            redeemOption = redeemOption,
+            pharmacy = pharmacy,
+            contact = contact
+        ).cancellable().first()
+
+    private fun orderPrescriptionsDirectlyFlow(
+        orderId: UUID,
+        prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>,
+        redeemOption: PharmacyScreenData.OrderOption,
+        pharmacy: PharmacyUseCaseData.Pharmacy,
+        contact: PharmacyUseCaseData.ShippingContact
+    ) =
+        flow {
+            withContext(dispatchers.IO) {
+                val certHolderList = pharmacyDirectRedeemUseCase.loadCertificates(
+                    pharmacy.id
+                ).getOrNull()
+
+                val transactionId = UUID.randomUUID().toString()
+
+                val results = prescriptions
+                    .map { prescription ->
+
+                        val message = DirectCommunicationMessage(
+                            version = "2",
+                            supplyOptionsType = when (redeemOption) {
+                                PharmacyScreenData.OrderOption.ReserveInPharmacy -> RemoteRedeemOption.Local.type
+                                PharmacyScreenData.OrderOption.CourierDelivery -> RemoteRedeemOption.Delivery.type
+                                PharmacyScreenData.OrderOption.MailDelivery -> RemoteRedeemOption.Shipment.type
+                            },
+                            name = contact.name,
+                            address = listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
+                            phone = contact.telephoneNumber,
+                            hint = contact.deliveryInformation,
+                            text = "",
+                            mail = contact.mail,
+                            transactionID = transactionId,
+                            taskID = prescription.taskId,
+                            accessCode = prescription.accessCode
+                        )
+                        val messageString = json.encodeToString(message)
+
+                        async {
+                            prescription to certHolderList?.let {
+                                pharmacyDirectRedeemUseCase.redeemPrescriptionDirectly(
+                                    url = when (redeemOption) {
+                                        PharmacyScreenData.OrderOption.CourierDelivery
+                                        -> pharmacy.contacts.deliveryUrl
+                                        PharmacyScreenData.OrderOption.ReserveInPharmacy
+                                        -> pharmacy.contacts.pickUpUrl
+                                        PharmacyScreenData.OrderOption.MailDelivery
+                                        -> pharmacy.contacts.onlineServiceUrl
+                                    },
+                                    message = messageString,
+                                    telematikId = pharmacy.telematikId,
+                                    recipientCertificates = it,
+                                    transactionId = transactionId
+                                )
+                            }
+                        }
+                    }
+                    .awaitAll()
+                    .toMap()
+
+                overviewUseCase.saveOrUpdateUsedPharmacies(pharmacy)
+
+                results.mapValues { (order, result) ->
+                    result?.fold(
+                        onSuccess = {
+                            pharmacyDirectRedeemUseCase.markAsRedeemed(order.taskId)
+                            null
+                        },
+                        onFailure = {
+                            if (it is ApiCallException) {
+                                when (it.response.code()) {
+                                    HttpURLConnection.HTTP_BAD_REQUEST -> State.Error.IncorrectDataStructure
+                                    HttpURLConnection.HTTP_INTERNAL_ERROR -> State.Error.Unknown
+                                    HttpURLConnection.HTTP_UNAUTHORIZED -> State.Error.JsonViolated
+                                    HttpURLConnection.HTTP_CLIENT_TIMEOUT -> State.Error.Timeout
+                                    HttpURLConnection.HTTP_CONFLICT -> State.Error.Conflict
+                                    HttpURLConnection.HTTP_GONE -> State.Error.Gone
+
+                                    else -> throw it
+                                }
+                            } else {
+                                throw it
+                            }
+                        }
+                    )
+                }
+            }.also {
+                emit(it)
+            }
+        }.map { results ->
+            State.Ordered(orderId.toString(), results)
+        }.flowOn(dispatchers.IO)
 
     private fun orderPrescriptionsFlow(
         profileId: ProfileIdentifier,
@@ -151,12 +268,14 @@ class RedeemPrescriptionsController(
 @Composable
 fun rememberRedeemPrescriptionsController(): RedeemPrescriptionsController {
     val searchUseCase by rememberInstance<PharmacySearchUseCase>()
+    val pharmacyDirectRedeemUseCase by rememberInstance<PharmacyDirectRedeemUseCase>()
     val overviewUseCase by rememberInstance<PharmacyOverviewUseCase>()
     val dispatchers by rememberInstance<DispatchProvider>()
     val authenticator = LocalAuthenticator.current
     return remember {
         RedeemPrescriptionsController(
             searchUseCase = searchUseCase,
+            pharmacyDirectRedeemUseCase = pharmacyDirectRedeemUseCase,
             overviewUseCase = overviewUseCase,
             dispatchers = dispatchers,
             authenticator = authenticator

@@ -590,7 +590,7 @@ fun FullDetailMedication(
                     if (prescription.isIncomplete) {
                         FailureStatusChip()
                     } else if (showDirectAssignmentLabel) {
-                        DirectAssignmentStatusChip()
+                        DirectAssignmentStatusChip(prescription.redeemedOn != null)
                     } else {
                         when (prescription.state) {
                             is SyncedTaskData.SyncedTask.InProgress -> InProgressStatusChip()

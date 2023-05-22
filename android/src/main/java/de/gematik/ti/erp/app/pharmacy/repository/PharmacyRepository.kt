@@ -22,7 +22,7 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.flowOn
 import de.gematik.ti.erp.app.fhir.model.PharmacyServices
-import de.gematik.ti.erp.app.fhir.model.extractBinaryCertificateAsBase64
+import de.gematik.ti.erp.app.fhir.model.extractBinaryCertificatesAsBase64
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import io.github.aakira.napier.Napier
@@ -35,7 +35,6 @@ class PharmacyRepository @Inject constructor(
     private val localDataSource: PharmacyLocalDataSource,
     private val dispatchers: DispatchProvider
 ) {
-
     suspend fun searchPharmacies(
         names: List<String>,
         filter: Map<String, String>
@@ -74,26 +73,26 @@ class PharmacyRepository @Inject constructor(
             }
         }
 
-    suspend fun searchBinaryCert(
+    suspend fun searchBinaryCerts(
         locationId: String
-    ): Result<String> =
+    ): Result<List<String>> =
         withContext(dispatchers.IO) {
             remoteDataSource.searchBinaryCert(
                 locationId = locationId
             ).map {
-                extractBinaryCertificateAsBase64(
+                extractBinaryCertificatesAsBase64(
                     bundle = it
                 )
             }
         }
 
-    suspend fun redeemPrescription(
+    suspend fun redeemPrescriptionDirectly(
         url: String,
         message: ByteArray,
         pharmacyTelematikId: String,
         transactionId: String
     ): Result<Unit> =
-        remoteDataSource.redeemPrescription(
+        remoteDataSource.redeemPrescriptionDirectly(
             url = url,
             message = message,
             pharmacyTelematikId = pharmacyTelematikId,
@@ -147,4 +146,8 @@ class PharmacyRepository @Inject constructor(
 
     fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
         localDataSource.isPharmacyInFavorites(pharmacy).flowOn(dispatchers.IO)
+
+    suspend fun markAsRedeemed(taskId: String) {
+        localDataSource.markAsRedeemed(taskId)
+    }
 }

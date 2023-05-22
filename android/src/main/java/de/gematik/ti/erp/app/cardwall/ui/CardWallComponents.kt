@@ -156,7 +156,8 @@ fun CardWallScreen(
         }
     }
 
-    TrackNavigationChanges(navController)
+    var previousNavEntry by remember { mutableStateOf("cardwall_introduction") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
 
     var cardAccessNumber
         by rememberSaveable { mutableStateOf("") }

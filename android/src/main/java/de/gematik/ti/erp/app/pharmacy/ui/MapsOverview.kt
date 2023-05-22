@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.content.Context
 import android.graphics.Point
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
@@ -86,6 +87,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.LocationSource
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
@@ -101,10 +103,15 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.analytics.trackPharmacySearchPopUps
+import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacySearchPopUpNames
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PopUpName
 import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -167,10 +174,15 @@ fun MapsOverviewSmall(
 sealed interface PharmacySearchSheetContentState {
 
     @Stable
-    data class PharmacySelected(val pharmacy: PharmacyUseCaseData.Pharmacy) : PharmacySearchSheetContentState
+    data class PharmacySelected(
+        val pharmacy: PharmacyUseCaseData.Pharmacy,
+        val popUp: PopUpName = PharmacySearchPopUpNames.PharmacySelected
+    ) : PharmacySearchSheetContentState
 
     @Stable
-    object FilterSelected : PharmacySearchSheetContentState
+    data class FilterSelected(
+        val popUp: PopUpName = PharmacySearchPopUpNames.FilterSelected
+    ) : PharmacySearchSheetContentState
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -178,6 +190,7 @@ sealed interface PharmacySearchSheetContentState {
 fun MapsOverview(
     searchController: PharmacySearchController,
     orderState: PharmacyOrderState,
+    navController: NavHostController,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
     onBack: () -> Unit
 ) {
@@ -229,7 +242,18 @@ fun MapsOverview(
             PharmacySearchSheetContentState.PharmacySelected(it)
         }
     )
-
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.isVisible) {
+            analytics.trackPharmacySearchPopUps(sheetState.content)
+        } else {
+            analytics.onPopUpClosed()
+            val route = Uri.parse(navController.currentBackStackEntry!!.destination.route)
+                .buildUpon().clearQuery().build().toString()
+            trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
+        }
+    }
     Box {
         ScaffoldWithMap(
             scaffoldState = scaffoldState,
@@ -251,7 +275,7 @@ fun MapsOverview(
             sheetState = sheetState,
             sheetContent = {
                 when (sheetState.content) {
-                    PharmacySearchSheetContentState.FilterSelected ->
+                    is PharmacySearchSheetContentState.FilterSelected ->
                         FilterSheetContent(
                             modifier = Modifier.navigationBarsPadding(),
                             filter = searchController.searchState.filter,
@@ -304,11 +328,14 @@ class PharmacySheetState(
     var content: PharmacySearchSheetContentState by mutableStateOf(content)
         private set
 
+    val isVisible: Boolean
+        get() = this.currentValue != ModalBottomSheetValue.Hidden
+
     fun show(content: PharmacySearchSheetContentState, snap: Boolean = false) {
         this.content = content
         scope.launch {
             val state = when (content) {
-                PharmacySearchSheetContentState.FilterSelected -> ModalBottomSheetValue.Expanded
+                is PharmacySearchSheetContentState.FilterSelected -> ModalBottomSheetValue.Expanded
                 is PharmacySearchSheetContentState.PharmacySelected -> ModalBottomSheetValue.HalfExpanded
             }
             if (snap) {
@@ -332,7 +359,7 @@ fun rememberPharmacySheetState(
 ): PharmacySheetState {
     val scope = rememberCoroutineScope()
     val state = rememberSaveable(saver = complexAutoSaver(init = { this.scope = scope })) {
-        PharmacySheetState(content ?: PharmacySearchSheetContentState.FilterSelected)
+        PharmacySheetState(content ?: PharmacySearchSheetContentState.FilterSelected())
             .apply { this.scope = scope }
     }
     LaunchedEffect(content) {
@@ -465,7 +492,7 @@ private fun ScaffoldWithMap(
                     }
                 },
                 onClickFilter = {
-                    onShowBottomSheet(PharmacySearchSheetContentState.FilterSelected)
+                    onShowBottomSheet(PharmacySearchSheetContentState.FilterSelected())
                 },
                 onBack = onBack
             )
@@ -481,7 +508,9 @@ private fun CameraAnimation(
     onShowSearchButton: () -> Unit
 ) {
     var lastMarkerCenter by remember { mutableStateOf(Berlin) }
-    val isMoving by derivedStateOf { cameraPositionState.isMoving }
+    val isMoving by remember {
+        derivedStateOf { cameraPositionState.isMoving }
+    }
 
     val moveDistance = with(LocalDensity.current) { 24.dp.roundToPx() }
     LaunchedEffect(isMoving) {

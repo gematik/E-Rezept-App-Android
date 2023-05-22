@@ -105,11 +105,11 @@ import kotlin.math.max
 import kotlin.math.min
 
 object OnboardingNavigationScreens {
-    object Onboarding : Route("Onboarding")
-    object Analytics : Route("Analytics")
-    object TermsOfUse : Route("TermsOfUse")
-    object DataProtection : Route("DataProtection")
-    object Biometry : Route("Biometry")
+    object Onboarding : Route("onboarding")
+    object Analytics : Route("onboarding_analytics")
+    object TermsOfUse : Route("onboarding_termsOfUse")
+    object DataProtection : Route("onboarding_dataProtection")
+    object Biometry : Route("onboarding_biometry")
 }
 
 private enum class OnboardingPages(val index: Int) {

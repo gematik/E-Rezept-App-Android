@@ -74,7 +74,7 @@ typealias MedicationRequestFn<R, MultiplePrescriptionInfo> = (
 typealias MultiplePrescriptionInfoFn<R, Ratio> = (
     indicator: Boolean,
     numbering: Ratio?,
-    start: FhirTemporal.LocalDate?
+    start: FhirTemporal?
 ) -> R
 
 typealias MedicationFn<R, Ingredient, Ratio> = (

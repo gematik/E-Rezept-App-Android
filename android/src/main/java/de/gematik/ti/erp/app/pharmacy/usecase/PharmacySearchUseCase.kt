@@ -69,6 +69,9 @@ class PharmacySearchUseCase(
             if (locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
                 filterMap += "near" to "${locationMode.location.latitude}|${locationMode.location.longitude}|999|km"
             }
+            if (searchData.filter.directRedeem) {
+                filterMap += "type" to "DELEGATOR"
+            }
             if (searchData.filter.ready) {
                 filterMap += "status" to "active"
             }
@@ -262,6 +265,7 @@ class PharmacySearchUseCase(
 fun List<Pharmacy>.mapToUseCasePharmacies(): List<PharmacyUseCaseData.Pharmacy> =
     map { pharmacy ->
         PharmacyUseCaseData.Pharmacy(
+            id = pharmacy.id,
             name = pharmacy.name,
             address = pharmacy.address.let {
                 "${it.lines.joinToString()}\n${it.postalCode} ${it.city}"

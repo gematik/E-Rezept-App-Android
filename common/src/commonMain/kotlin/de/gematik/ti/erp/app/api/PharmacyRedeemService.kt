@@ -29,7 +29,7 @@ interface PharmacyRedeemService {
 
     @POST
     @Headers("Content-Type: application/pkcs7-mime")
-    suspend fun redeem(
+    suspend fun redeemDirectly(
         @Url url: String,
         @Body message: RequestBody
     ): Response<Unit>

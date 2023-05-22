@@ -82,6 +82,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
 import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -102,7 +103,8 @@ fun HealthCardContactOrderScreen(
     val state by healthCardOrderState.state
 
     val navController = rememberNavController()
-
+    var previousNavEntry by remember { mutableStateOf("contactInsuranceCompany") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val title = stringResource(R.string.health_insurance_search_page_title)
 
     val navigationMode by navController.navigationModeState(HealthCardOrderNavigationScreens.HealthCardOrder.route)

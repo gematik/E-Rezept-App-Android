@@ -20,6 +20,7 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui
 
+import android.net.Uri
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -81,8 +82,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackPrescriptionDetailPopUps
+import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsNavigationScreens
@@ -133,13 +139,13 @@ fun PrescriptionDetailsScreen(
     val mainScope = rememberCoroutineScope { Dispatchers.Main }
     val onBack: () -> Unit = {
         mainScope.launch {
-            mainNavController.popBackStack()
+            mainNavController.popBackStack() // TODO onBack instead of NavController
         }
     }
-
+    val navController = rememberNavController()
+    var previousNavEntry by remember { mutableStateOf("prescriptionDetail") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     prescription?.let { pres ->
-
-        val navController = rememberNotSaveableNavController()
         NavHost(
             navController = navController,
             startDestination = PrescriptionDetailsNavigationScreens.Overview.route
@@ -247,6 +253,18 @@ private fun PrescriptionDetailsWithScaffold(
 
     var infoBottomSheetContent: PrescriptionDetailBottomSheetContent? by remember { mutableStateOf(null) }
 
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.isVisible) {
+            infoBottomSheetContent?.let { analytics.trackPrescriptionDetailPopUps(it) }
+        } else {
+            analytics.onPopUpClosed()
+            val route = Uri.parse(navController.currentBackStackEntry!!.destination.route)
+                .buildUpon().clearQuery().build().toString()
+            trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
+        }
+    }
     LaunchedEffect(infoBottomSheetContent) {
         if (infoBottomSheetContent != null) {
             sheetState.show()
@@ -472,7 +490,10 @@ private fun SyncedPrescriptionOverview(
                 Label(
                     text = text,
                     label = stringResource(R.string.pres_details_additional_fee),
-                    onClick = onClickAdditionalFee(prescription.medicationRequest.additionalFee, onShowInfo)
+                    onClick = onClickAdditionalFee(
+                        prescription.medicationRequest.additionalFee,
+                        onShowInfo
+                    )
                 )
             }
 
@@ -588,9 +609,13 @@ private fun onClickEmergencyFee(
     onShowInfo: (PrescriptionDetailBottomSheetContent) -> Unit
 ): () -> Unit = {
     if (emergencyFee) {
-        onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt)
+        onShowInfo(
+            PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt()
+        )
     } else {
-        onShowInfo(PrescriptionDetailBottomSheetContent.EmergencyFee)
+        onShowInfo(
+            PrescriptionDetailBottomSheetContent.EmergencyFee()
+        )
     }
 }
 
@@ -609,10 +634,16 @@ private fun onClickAdditionalFee(
     onShowInfo: (PrescriptionDetailBottomSheetContent) -> Unit
 ): () -> Unit = {
     when (additionalFee) {
-        SyncedTaskData.AdditionalFee.NotExempt ->
-            onShowInfo(PrescriptionDetailBottomSheetContent.AdditionalFeeNotExempt)
-        SyncedTaskData.AdditionalFee.Exempt ->
-            onShowInfo(PrescriptionDetailBottomSheetContent.AdditionalFeeExempt)
+        SyncedTaskData.AdditionalFee.NotExempt -> {
+            onShowInfo(
+                PrescriptionDetailBottomSheetContent.AdditionalFeeNotExempt()
+            )
+        }
+        SyncedTaskData.AdditionalFee.Exempt -> {
+            onShowInfo(
+                PrescriptionDetailBottomSheetContent.AdditionalFeeExempt()
+            )
+        }
         else -> {}
     }
 }
@@ -696,21 +727,31 @@ fun SyncedHeader(
             prescription.isIncomplete -> {
                 SpacerShortMedium()
                 FailureDetailsStatusChip(
-                    onClick = { onShowInfo(PrescriptionDetailBottomSheetContent.Failure) }
+                    onClick = {
+                        onShowInfo(PrescriptionDetailBottomSheetContent.Failure())
+                    }
                 )
             }
 
             prescription.isDirectAssignment -> {
                 SpacerShortMedium()
                 DirectAssignmentChip(
-                    onClick = { onShowInfo(PrescriptionDetailBottomSheetContent.DirectAssignment) }
+                    onClick = {
+                        onShowInfo(
+                            PrescriptionDetailBottomSheetContent.DirectAssignment()
+                        )
+                    }
                 )
             }
 
             prescription.isSubstitutionAllowed -> {
                 SpacerShortMedium()
                 SubstitutionAllowedChip(
-                    onClick = { onShowInfo(PrescriptionDetailBottomSheetContent.SubstitutionAllowed) }
+                    onClick = {
+                        onShowInfo(
+                            PrescriptionDetailBottomSheetContent.SubstitutionAllowed()
+                        )
+                    }
                 )
             }
         }
@@ -723,7 +764,13 @@ fun SyncedHeader(
                     prescription.state is SyncedTaskData.SyncedTask.Ready ||
                         prescription.state is SyncedTaskData.SyncedTask.LaterRedeemable
                     ) -> {
-                { onShowInfo(PrescriptionDetailBottomSheetContent.HowLongValid(prescription)) }
+                {
+                    onShowInfo(
+                        PrescriptionDetailBottomSheetContent.HowLongValid(
+                            prescription
+                        )
+                    )
+                }
             }
 
             else -> null
@@ -808,7 +855,9 @@ private fun ScannedPrescriptionOverview(
                     textAlign = TextAlign.Center
                 )
                 SpacerShortMedium()
-                ScannedChip(onClick = { onShowInfo(PrescriptionDetailBottomSheetContent.Scanned) })
+                ScannedChip(onClick = {
+                    onShowInfo(PrescriptionDetailBottomSheetContent.Scanned())
+                })
                 SpacerShortMedium()
                 val date = dateWithIntroductionString(R.string.prs_low_detail_scanned_on, prescription.scannedOn)
                 Text(date, style = AppTheme.typography.body2l)

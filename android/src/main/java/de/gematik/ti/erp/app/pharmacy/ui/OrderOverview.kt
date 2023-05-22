@@ -79,6 +79,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
@@ -89,6 +91,7 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerShortMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -255,16 +258,29 @@ private fun RedeemButton(
                 onClick = {
                     uploadInProgress = true
                     scope.launch {
+                        val featureToggleManager = FeatureToggleManager(context)
+                        val directRedeemEnabled = featureToggleManager
+                            .isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName).first()
                         try {
-                            val redeemState = redeemController
-                                .orderPrescriptions(
-                                    profileId = orderState.profileId,
+                            val redeemState = if (orderState.profile.lastAuthenticated == null && directRedeemEnabled) {
+                                redeemController.orderPrescriptionsDirectly(
                                     orderId = UUID.randomUUID(),
                                     prescriptions = order.prescriptions,
                                     redeemOption = selectedOrderOption,
                                     pharmacy = selectedPharmacy,
                                     contact = order.contact
                                 )
+                            } else {
+                                redeemController
+                                    .orderPrescriptions(
+                                        profileId = orderState.profile.id,
+                                        orderId = UUID.randomUUID(),
+                                        prescriptions = order.prescriptions,
+                                        redeemOption = selectedOrderOption,
+                                        pharmacy = selectedPharmacy,
+                                        contact = order.contact
+                                    )
+                            }
                             when (redeemState) {
                                 is PrescriptionServiceErrorState -> {
                                     redeemErrorMessage(context, redeemState)?.let {

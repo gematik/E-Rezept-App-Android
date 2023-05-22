@@ -88,6 +88,7 @@ import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardwall.usecase.deviceHasNFC
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
@@ -117,7 +118,8 @@ fun SettingsScreen(
     settingsController: SettingsController
 ) {
     val settingsNavController = rememberNavController()
-
+    var previousNavEntry by remember { mutableStateOf("settings") }
+    TrackNavigationChanges(settingsNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val navigationMode by settingsNavController.navigationModeState(SettingsNavigationScreens.Settings.route)
 
     SettingsNavGraph(

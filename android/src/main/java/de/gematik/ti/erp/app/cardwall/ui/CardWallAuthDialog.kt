@@ -301,15 +301,15 @@ fun extractRetryText(state: AuthenticationState): Pair<AnnotatedString, Annotate
                 .toAnnotatedString()
         )
         AuthenticationState.HealthCardCardAccessNumberWrong -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error).toAnnotatedString(),
+            stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error_alert).toAnnotatedString(),
             stringResource(R.string.cdw_nfc_intro_step2_info_on_can_error).toAnnotatedString()
         )
         AuthenticationState.HealthCardPin2RetriesLeft -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error).toAnnotatedString(),
+            stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error_alert).toAnnotatedString(),
             pinRetriesLeft(2)
         )
         AuthenticationState.HealthCardPin1RetryLeft -> Pair(
-            stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error).toAnnotatedString(),
+            stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error_alert).toAnnotatedString(),
             pinRetriesLeft(1)
         )
         AuthenticationState.HealthCardBlocked -> Pair(

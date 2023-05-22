@@ -1,3 +1,7 @@
+# Release 1.11.0-RC5
+- Direct redemption of prescription without TI
+- Bugfixes
+
 # Release 1.10.0
 - Began implementation for support of private insurances
 - Bugfixes

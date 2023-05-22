@@ -76,15 +76,24 @@ import kotlinx.coroutines.launch
 @Stable
 sealed class MainScreenBottomSheetContentState {
     @Stable
-    object EditProfile : MainScreenBottomSheetContentState()
-
-    @Stable
-    class EditOrAddProfileName(
-        val addProfile: Boolean = false
+    class EditProfilePicture(
+        val popUp: MainScreenBottomPopUpNames.EditProfilePicture = MainScreenBottomPopUpNames.EditProfilePicture
     ) : MainScreenBottomSheetContentState()
 
     @Stable
-    object Connect : MainScreenBottomSheetContentState()
+    class EditProfileName(
+        val popUp: MainScreenBottomPopUpNames.EditProfileName = MainScreenBottomPopUpNames.EditProfileName
+    ) : MainScreenBottomSheetContentState()
+
+    @Stable
+    class AddProfile(
+        val popUp: MainScreenBottomPopUpNames.AddProfile = MainScreenBottomPopUpNames.AddProfile
+    ) : MainScreenBottomSheetContentState()
+
+    @Stable
+    class Welcome(
+        val popUp: MainScreenBottomPopUpNames.Welcome = MainScreenBottomPopUpNames.Welcome
+    ) : MainScreenBottomSheetContentState()
 }
 
 @Composable
@@ -99,9 +108,11 @@ fun MainScreenBottomSheetContentState(
     val profileHandler = LocalProfileHandler.current
 
     val title = when (infoContentState) {
-        MainScreenBottomSheetContentState.EditProfile ->
+        is MainScreenBottomSheetContentState.EditProfilePicture ->
             stringResource(R.string.mainscreen_bottom_sheet_edit_profile_image)
-        is MainScreenBottomSheetContentState.EditOrAddProfileName ->
+        is MainScreenBottomSheetContentState.EditProfileName ->
+            stringResource(R.string.bottom_sheet_edit_profile_name_title)
+        is MainScreenBottomSheetContentState.AddProfile ->
             stringResource(R.string.bottom_sheet_edit_profile_name_title)
         else -> null
     }
@@ -128,7 +139,7 @@ fun MainScreenBottomSheetContentState(
         ) {
             infoContentState?.let {
                 when (it) {
-                    MainScreenBottomSheetContentState.EditProfile ->
+                    is MainScreenBottomSheetContentState.EditProfilePicture ->
                         EditProfileAvatar(
                             profile = profileHandler.activeProfile,
                             clearPersonalizedImage = {
@@ -154,16 +165,21 @@ fun MainScreenBottomSheetContentState(
                                 }
                             }
                         )
-                    is MainScreenBottomSheetContentState.EditOrAddProfileName ->
+                    is MainScreenBottomSheetContentState.EditProfileName ->
                         ProfileSheetContent(
                             profilesController = profilesController,
-                            addProfile = it.addProfile,
-                            profileToEdit = if (!it.addProfile) {
-                                profileToRename
-                            } else { null },
+                            addProfile = false,
+                            profileToEdit = profileToRename,
                             onCancel = onCancel
                         )
-                    MainScreenBottomSheetContentState.Connect ->
+                    is MainScreenBottomSheetContentState.AddProfile ->
+                        ProfileSheetContent(
+                            profilesController = profilesController,
+                            addProfile = true,
+                            profileToEdit = null,
+                            onCancel = onCancel
+                        )
+                    is MainScreenBottomSheetContentState.Welcome ->
                         ConnectBottomSheetContent(
                             onClickConnect = {
                                 scope.launch {

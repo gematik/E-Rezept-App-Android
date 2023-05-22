@@ -34,7 +34,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.PointerIconDefaults
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.input.pointer.pointerMoveFilter
 import androidx.compose.ui.layout.onSizeChanged
@@ -63,7 +62,7 @@ fun HorizontalSplittable(
         if (hovered || dragging) {
             PointerIcon(Cursor(Cursor.E_RESIZE_CURSOR))
         } else {
-            PointerIconDefaults.Default
+            PointerIcon.Default
         }
     }
 

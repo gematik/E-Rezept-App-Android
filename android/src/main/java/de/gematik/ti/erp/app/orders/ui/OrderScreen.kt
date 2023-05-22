@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.orders.ui
 
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.MutatePriority
@@ -86,6 +87,9 @@ import androidx.compose.ui.unit.em
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.trackOrderPopUps
+import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
@@ -181,8 +185,21 @@ fun MessageScreen(
 
     val sheetState = rememberModalBottomSheetState(
         ModalBottomSheetValue.Hidden,
-        confirmStateChange = { it != ModalBottomSheetValue.HalfExpanded }
+        confirmValueChange = { it != ModalBottomSheetValue.HalfExpanded }
     )
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.isVisible) {
+            analytics.trackOrderPopUps()
+        } else {
+            analytics.onPopUpClosed()
+            val route = Uri.parse(mainNavController.currentBackStackEntry!!.destination.route)
+                .buildUpon().clearQuery().build().toString()
+            trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
+        }
+    }
+
     val scope = rememberCoroutineScope()
     var selectedMessage: OrderUseCaseData.Message? by remember { mutableStateOf(null) }
 
@@ -214,7 +231,7 @@ fun MessageScreen(
                 messageState = state,
                 onClickMessage = {
                     selectedMessage = it
-                    scope.launch { sheetState.animateTo(ModalBottomSheetValue.Expanded) }
+                    scope.launch { sheetState.show() }
                 },
                 onClickPrescription = {
                     mainNavController.navigate(

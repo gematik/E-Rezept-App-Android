@@ -376,7 +376,7 @@ fun HintTextActionButton(
 @Composable
 fun HintTextLearnMoreButton(
     modifier: Modifier = Modifier,
-    uri: String = "https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten",
+    uri: String = stringResource(R.string.auth_link_to_gematik_q_and_a),
     align: Alignment.Horizontal = Alignment.Start
 ) {
     val uriHandler = LocalUriHandler.current

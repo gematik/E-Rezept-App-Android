@@ -31,8 +31,8 @@ import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,7 +45,7 @@ import org.kodein.di.compose.rememberInstance
 
 @Stable
 class PharmacyOrderState(
-    val profileId: ProfileIdentifier,
+    val profile: ProfilesUseCaseData.Profile,
     private val useCase: PharmacySearchUseCase,
     private val scope: CoroutineScope
 ) {
@@ -77,7 +77,7 @@ class PharmacyOrderState(
 
     private val prescriptionOrderFlow =
         useCase
-            .prescriptionDetailsForOrdering(profileId)
+            .prescriptionDetailsForOrdering(profile.id)
             .shareIn(scope, SharingStarted.Lazily, 1)
 
     private val hasRedeemableTasksFlow =
@@ -135,11 +135,11 @@ fun rememberPharmacyOrderState(): PharmacyOrderState {
     val useCase by rememberInstance<PharmacySearchUseCase>()
     val dispatchProvider by rememberInstance<DispatchProvider>()
     return rememberSaveable(
-        activeProfile.id,
+        activeProfile,
         saver = complexAutoSaver()
     ) {
         PharmacyOrderState(
-            activeProfile.id,
+            activeProfile,
             useCase,
             CoroutineScope(dispatchProvider.Default)
         )

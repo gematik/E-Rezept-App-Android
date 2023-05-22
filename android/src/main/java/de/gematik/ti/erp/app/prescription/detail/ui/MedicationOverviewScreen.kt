@@ -79,7 +79,7 @@ fun MedicationOverviewScreen(
                     )
                     SpacerMedium()
                     Label(
-                        text = med.text,
+                        text = med.name(),
                         label = null,
                         onClick = {
                             onClickMedication(PrescriptionData.Medication.Request(prescription.medicationRequest))
@@ -101,7 +101,7 @@ fun MedicationOverviewScreen(
                     dispense.medication?.let {
                         item {
                             Label(
-                                text = it.text,
+                                text = it.name(),
                                 label = null,
                                 onClick = {
                                     onClickMedication(PrescriptionData.Medication.Dispense(dispense))

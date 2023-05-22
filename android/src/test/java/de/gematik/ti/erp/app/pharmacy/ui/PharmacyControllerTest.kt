@@ -89,11 +89,19 @@ class PharmacySearchViewModelTest {
     )
 
     private val pharmacy = PharmacyUseCaseData.Pharmacy(
+        id = "",
         name = "Test - Pharmacy",
         address = null,
         location = null,
         distance = null,
-        contacts = PharmacyContacts(phone = "", mail = "", url = ""),
+        contacts = PharmacyContacts(
+            phone = "",
+            mail = "",
+            url = "",
+            pickUpUrl = "",
+            deliveryUrl = "",
+            onlineServiceUrl = ""
+        ),
         provides = listOf(),
         openingHours = null,
         telematikId = "",
@@ -124,7 +132,17 @@ class PharmacySearchViewModelTest {
             )
         )
         orderState = PharmacyOrderState(
-            profileId = "0",
+            profile = ProfilesUseCaseData.Profile(
+                id = "0",
+                name = "Test",
+                insuranceInformation = ProfilesUseCaseData.ProfileInsuranceInformation(),
+                active = false,
+                color = ProfilesData.ProfileColorNames.PINK,
+                lastAuthenticated = null,
+                ssoTokenScope = null,
+                personalizedImage = null,
+                avatarFigure = ProfilesData.AvatarFigure.PersonalizedImage
+            ),
             useCase = useCase,
             scope = CoroutineScope(coroutineRule.dispatchers.Unconfined)
         )

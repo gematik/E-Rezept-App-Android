@@ -18,16 +18,30 @@
 
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
+import androidx.compose.runtime.Immutable
 import de.gematik.ti.erp.app.Route
 
 object PrescriptionDetailsNavigationScreens {
-    object Overview : Route("overview")
-    object MedicationOverview : Route("medicationOverview")
-    object Medication : Route("medication")
-    object Patient : Route("patient")
-    object Prescriber : Route("prescriber")
-    object Organization : Route("organization")
-    object Accident : Route("accident")
-    object TechnicalInformation : Route("technicalInformation")
-    object Ingredient : Route("ingredient")
+    object Overview : Route("prescriptionDetail")
+    object MedicationOverview : Route("prescriptionDetail_medicationOverview")
+    object Medication : Route("prescriptionDetail_medication")
+    object Patient : Route("prescriptionDetail_patient")
+    object Prescriber : Route("prescriptionDetail_practitioner")
+    object Organization : Route("prescriptionDetail_organization")
+    object Accident : Route("prescriptionDetail_accidentInfo")
+    object TechnicalInformation : Route("prescriptionDetail_technicalInfo")
+    object Ingredient : Route("prescriptionDetail_medication_ingredients")
 }
+
+object PrescriptionDetailsPopUpNames {
+    object Validity : PopUpName("prescriptionDetail_prescriptionValidityInfo")
+    object SubstitutionAllowed : PopUpName("prescriptionDetail_substitutionInfo")
+    object DirectAssignment : PopUpName("prescriptionDetail_directAssignmentInfo")
+    object EmergencyFee : PopUpName("prescriptionDetail_emergencyServiceFeeInfo")
+    object AdditionalFee : PopUpName("prescriptionDetail_coPaymentInfo")
+    object Scanned : PopUpName("prescriptionDetail_scannedPrescriptionInfo")
+    object Failure : PopUpName("prescriptionDetail_errorInfo")
+}
+
+@Immutable
+open class PopUpName(val name: String)

@@ -25,6 +25,7 @@ import android.content.Context.VIBRATOR_SERVICE
 import android.content.pm.PackageManager
 import android.media.AudioManager
 import android.media.ToneGenerator
+import android.net.Uri
 import android.os.Build.VERSION
 import android.os.Build.VERSION_CODES
 import android.os.VibrationEffect.createOneShot
@@ -122,8 +123,13 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.runtime.produceState
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.analytics.trackScannerPopUps
+import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.prescription.ui.model.ScanData
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -136,6 +142,7 @@ import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -144,9 +151,10 @@ import java.util.concurrent.Executors
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScanScreen(
-    mainNavController: NavController,
-    scanPrescriptionController: ScanPrescriptionController
+    mainNavController: NavController
 ) {
+    val scanPrescriptionController = rememberScanPrescriptionController()
+
     val context = LocalContext.current
 
     var camPermissionGranted by rememberSaveable { mutableStateOf(false) }
@@ -167,7 +175,21 @@ fun ScanScreen(
     var flashEnabled by remember { mutableStateOf(false) }
 
     val state by scanPrescriptionController.state
+
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.isVisible) {
+            analytics.trackScannerPopUps()
+        } else {
+            analytics.onPopUpClosed()
+            val route = Uri.parse(mainNavController.currentBackStackEntry!!.destination.route)
+                .buildUpon().clearQuery().build().toString()
+            trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
+        }
+    }
+
     val coroutineScope = rememberCoroutineScope()
 
     var cancelRequested by remember { mutableStateOf(false) }
@@ -176,6 +198,12 @@ fun ScanScreen(
     }
     BackHandler(sheetState.isVisible) {
         coroutineScope.launch { sheetState.hide() }
+    }
+    val featureToggleManager = FeatureToggleManager(context)
+    val directRedeemEnabled by produceState(false) {
+        featureToggleManager.isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName).first().apply {
+            value = this
+        }
     }
 
     if (cancelRequested && state.hasCodesToSave()) {
@@ -190,12 +218,20 @@ fun ScanScreen(
         sheetState = sheetState,
         sheetContent = {
             SheetContent(
+                directRedeemEnabled = directRedeemEnabled,
                 onClickSave = {
                     coroutineScope.launch {
                         scanPrescriptionController.saveToDatabase()
+                        tracker.trackSaveScannedPrescriptions()
+                        mainNavController.navigate(MainNavigationScreens.Prescriptions.path())
                     }
-                    tracker.trackSaveScannedPrescriptions()
-                    mainNavController.navigate(MainNavigationScreens.Prescriptions.path())
+                },
+                onClickRedeem = {
+                    coroutineScope.launch {
+                        scanPrescriptionController.saveToDatabase()
+                        tracker.trackSaveScannedPrescriptions()
+                        mainNavController.navigate(MainNavigationScreens.Redeem.path())
+                    }
                 }
             )
         }
@@ -244,7 +280,9 @@ fun ScanScreen(
 
 @Composable
 private fun SheetContent(
-    onClickSave: () -> Unit
+    onClickSave: () -> Unit,
+    onClickRedeem: () -> Unit,
+    directRedeemEnabled: Boolean
 ) {
     SpacerMedium()
     Text(
@@ -255,29 +293,30 @@ private fun SheetContent(
     )
     SpacerSmall()
     BottomSheetAction(
-        enabled = false,
+        enabled = directRedeemEnabled,
         icon = { Icon(Icons.Rounded.ShoppingBag, null) },
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.cam_next_sheet_order_now_title))
                 SpacerSmall()
-                Surface(
-                    color = AppTheme.colors.primary100,
-                    contentColor = AppTheme.colors.primary600,
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Text(
-                        stringResource(R.string.cam_next_sheet_available_soon),
-                        Modifier.padding(horizontal = PaddingDefaults.Small, vertical = 2.dp)
-                    )
+                if (!directRedeemEnabled) {
+                    Surface(
+                        color = AppTheme.colors.primary100,
+                        contentColor = AppTheme.colors.primary600,
+                        shape = RoundedCornerShape(8.dp)
+                    ) {
+                        Text(
+                            stringResource(R.string.cam_next_sheet_available_soon),
+                            Modifier.padding(horizontal = PaddingDefaults.Small, vertical = 2.dp)
+                        )
+                    }
                 }
             }
         },
         info = { Text(stringResource(R.string.cam_next_sheet_order_now_info)) },
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        // TODO - currently disabled; teaser for prescription orders without eGK
-    }
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onClickRedeem
+    )
     BottomSheetAction(
         icon = Icons.Rounded.SaveAlt,
         title = stringResource(R.string.cam_next_sheet_order_later_title),

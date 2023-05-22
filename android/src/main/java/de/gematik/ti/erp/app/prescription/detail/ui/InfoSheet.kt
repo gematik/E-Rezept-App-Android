@@ -40,6 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsPopUpNames
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -50,17 +51,59 @@ import kotlin.time.Duration.Companion.days
 
 sealed class PrescriptionDetailBottomSheetContent {
     @Stable
-    class HowLongValid(val prescription: PrescriptionData.Synced) : PrescriptionDetailBottomSheetContent()
+    class HowLongValid(
+        val prescription: PrescriptionData.Synced,
+        val popUp: PrescriptionDetailsPopUpNames.Validity = PrescriptionDetailsPopUpNames.Validity
+    ) :
+        PrescriptionDetailBottomSheetContent()
 
-    object SubstitutionAllowed : PrescriptionDetailBottomSheetContent()
-    object DirectAssignment : PrescriptionDetailBottomSheetContent()
-    object EmergencyFee : PrescriptionDetailBottomSheetContent()
-    object EmergencyFeeNotExempt : PrescriptionDetailBottomSheetContent()
+    @Stable
+    class SubstitutionAllowed(
+        val popUp: PrescriptionDetailsPopUpNames.SubstitutionAllowed = PrescriptionDetailsPopUpNames.SubstitutionAllowed
+    ) :
+        PrescriptionDetailBottomSheetContent()
 
-    object AdditionalFeeNotExempt : PrescriptionDetailBottomSheetContent()
-    object AdditionalFeeExempt : PrescriptionDetailBottomSheetContent()
-    object Scanned : PrescriptionDetailBottomSheetContent()
-    object Failure : PrescriptionDetailBottomSheetContent()
+    @Stable
+    class DirectAssignment(
+        val popUp: PrescriptionDetailsPopUpNames.DirectAssignment = PrescriptionDetailsPopUpNames.DirectAssignment
+    ) :
+        PrescriptionDetailBottomSheetContent()
+
+    @Stable
+    class EmergencyFee(
+        val popUp: PrescriptionDetailsPopUpNames.EmergencyFee = PrescriptionDetailsPopUpNames.EmergencyFee
+    ) :
+        PrescriptionDetailBottomSheetContent()
+
+    @Stable
+    class EmergencyFeeNotExempt(
+        val popUp: PrescriptionDetailsPopUpNames.EmergencyFee = PrescriptionDetailsPopUpNames.EmergencyFee
+    ) :
+        PrescriptionDetailBottomSheetContent()
+
+    @Stable
+    class AdditionalFeeNotExempt(
+        val popUp: PrescriptionDetailsPopUpNames.AdditionalFee = PrescriptionDetailsPopUpNames.AdditionalFee
+    ) :
+        PrescriptionDetailBottomSheetContent()
+
+    @Stable
+    class AdditionalFeeExempt(
+        val popUp: PrescriptionDetailsPopUpNames.AdditionalFee = PrescriptionDetailsPopUpNames.AdditionalFee
+    ) :
+        PrescriptionDetailBottomSheetContent()
+
+    @Stable
+    class Scanned(
+        val popUp: PrescriptionDetailsPopUpNames.Scanned = PrescriptionDetailsPopUpNames.Scanned
+    ) :
+        PrescriptionDetailBottomSheetContent()
+
+    @Stable
+    class Failure(
+        val popUp: PrescriptionDetailsPopUpNames.Failure = PrescriptionDetailsPopUpNames.Failure
+    ) :
+        PrescriptionDetailBottomSheetContent()
 }
 
 @Composable
@@ -68,31 +111,31 @@ fun PrescriptionDetailInfoSheetContent(
     infoContent: PrescriptionDetailBottomSheetContent
 ) {
     when (infoContent) {
-        PrescriptionDetailBottomSheetContent.DirectAssignment ->
+        is PrescriptionDetailBottomSheetContent.DirectAssignment ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_da_title),
                 info = stringResource(R.string.pres_details_exp_da_info)
             )
 
-        PrescriptionDetailBottomSheetContent.EmergencyFee ->
+        is PrescriptionDetailBottomSheetContent.EmergencyFee ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_em_fee_title),
                 info = stringResource(R.string.pres_details_exp_em_fee_info)
             )
 
-        PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt ->
+        is PrescriptionDetailBottomSheetContent.EmergencyFeeNotExempt ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_no_em_fee_title),
                 info = stringResource(R.string.pres_details_exp_no_em_fee_info)
             )
 
-        PrescriptionDetailBottomSheetContent.AdditionalFeeNotExempt ->
+        is PrescriptionDetailBottomSheetContent.AdditionalFeeNotExempt ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_add_fee_title),
                 info = stringResource(R.string.pres_details_exp_add_fee_info)
             )
 
-        PrescriptionDetailBottomSheetContent.AdditionalFeeExempt ->
+        is PrescriptionDetailBottomSheetContent.AdditionalFeeExempt ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_no_add_fee_title),
                 info = stringResource(R.string.pres_details_exp_no_add_fee_info)
@@ -132,7 +175,7 @@ fun PrescriptionDetailInfoSheetContent(
                 }
             }
 
-        PrescriptionDetailBottomSheetContent.SubstitutionAllowed ->
+        is PrescriptionDetailBottomSheetContent.SubstitutionAllowed ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_sub_allowed_title),
                 info = stringResource(R.string.pres_details_exp_sub_allowed_info)
@@ -144,7 +187,7 @@ fun PrescriptionDetailInfoSheetContent(
                 info = stringResource(R.string.pres_details_exp_scanned_info)
             )
 
-        PrescriptionDetailBottomSheetContent.Failure ->
+        is PrescriptionDetailBottomSheetContent.Failure ->
             PrescriptionDetailInfoSheetContent(
                 title = stringResource(R.string.pres_details_exp_failure_title),
                 info = stringResource(R.string.pres_details_exp_failure_info)

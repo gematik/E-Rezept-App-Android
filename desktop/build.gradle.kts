@@ -58,7 +58,7 @@ fun networkConfigPath(name: String): String {
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "15"
+            kotlinOptions.jvmTarget = "17"
             kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
         withJava()

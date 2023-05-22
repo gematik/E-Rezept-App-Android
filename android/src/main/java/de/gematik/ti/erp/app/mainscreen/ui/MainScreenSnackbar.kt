@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.prescription.ui.RefreshedState
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
+import java.net.HttpURLConnection
 
 @Composable
 fun MainScreenSnackbar(
@@ -50,8 +51,12 @@ fun MainScreenSnackbar(
             GeneralErrorState.NetworkNotAvailable ->
                 stringResource(R.string.error_message_network_not_available)
             is GeneralErrorState.ServerCommunicationFailedWhileRefreshing ->
-                stringResource(R.string.error_message_server_communication_failed).format(it.code)
-            GeneralErrorState.FatalTruststoreState ->
+                if (it.code != HttpURLConnection.HTTP_GONE && it.code != HttpURLConnection.HTTP_NOT_FOUND) {
+                    stringResource(R.string.error_message_server_communication_failed).format(it.code)
+                } else {
+                    stringResource(R.string.zero_prescriptions_updatet)
+                }
+            is GeneralErrorState.FatalTruststoreState ->
                 stringResource(R.string.error_message_vau_error)
             is RefreshedState -> {
                 if (it.nrOfNewPrescriptions == 0) {

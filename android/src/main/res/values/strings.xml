@@ -31,12 +31,10 @@
     <string name="cdw_pin_title">PIN eingeben</string>
     <string name="cdw_auth_retry">Erneut probieren</string>
     <string name="cdw_nfc_intro_step1_header_on_error">Verbindung mit dem Server herstellen fehlgeschlagen.</string>
-    <string name="cdw_nfc_intro_step2_header_on_pin_error">Falsche PIN eingegeben.</string>
     <plurals name="cdw_nfc_intro_step2_info_on_pin_error">
         <item quantity="one">Sie haben noch %s weiteren Versuch, bevor Ihre Karte gesperrt wird.</item>
         <item quantity="other">Sie haben noch %s weitere Versuche, bevor Ihre Karte gesperrt wird.</item>
     </plurals>
-    <string name="cdw_nfc_intro_step2_header_on_can_error">Falsche CAN eingegeben</string>
     <string name="cdw_nfc_intro_step2_info_on_can_error">Sie finden die Zugangsnummer oben rechts auf Ihrer Gesundheitskarte.</string>
     <string name="cdw_nfc_dlg_cancel">Abbrechen</string>
     <string name="cdw_nfc_search1_headline">Suche nach Karte…</string>
@@ -228,8 +226,8 @@
     <string name="error_message_server_communication_failed">Kommunikation mit dem Server fehlgeschlagen: Statuscode %s.</string>
     <string name="error_message_vau_error">Kommunikation mit dem Server fehlgeschlagen: VAU Fehler</string>
     <string name="insecure_device_title_safetynet">Warnung</string>
-    <string name="insecure_device_header_safetynet">Diesem Gerät darf eventuell nicht voll vertraut werden</string>
-    <string name="insecure_device_info_safetynet">Diese App sollte aus Sicherheitsgründen nicht auf gerooteten Geräten genutzt werden.</string>
+    <string name="insecure_device_header_safetynet">Ihr Gerät hat möglicherweise eine reduzierte Sicherheit</string>
+    <string name="insecure_device_info_safetynet">Diese kann z.B. durch manipulierte Geräte oder einen eingeschalteten Entwicklermodus entstehen. Wir empfehlen, die App aus Sicherheitsgründen nicht auf gejailbreakten Geräten zu nutzen.</string>
     <string name="insecure_device_accept_safetynet">Ich nehme das erhöhte Risiko zur Kenntnis und möchte dennoch fortfahren.</string>
     <string name="insecure_device_safetynet_more_info">Weshalb sind Geräte mit Root-Zugriff ein potentielles Sicherheitsrisiko?</string>
     <string name="insecure_device_safetynet_link_text">Mehr erfahren</string>
@@ -368,7 +366,7 @@
     <string name="auth_information">Um sich zu authentifizieren, drücken Sie auf “Entsperren”.</string>
     <string name="auth_failed_biometry_info">Ausgesperrt? Bitte überprüfen Sie Ihre biometrischen Zugangsdaten auf diesem Gerät.</string>
     <string name="auth_failed_password_info">Passwort vergessen? Bitte löschen Sie die App und installieren sie anschließend erneut. Weshalb das so ist, erfahren Sie in unserem %s.</string>
-    <string name="auth_link_to_gematik_q_and_a" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten</string>
+    <string name="auth_link_to_gematik_q_and_a" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/faq</string>
     <string name="auth_link_to_gematik_helptext">Hilfebereich</string>
     <string name="pres_detail_medication_label_amount">Packungsgröße und Einheit</string>
     <string name="pres_detail_medication_label_ingredient_name">Wirkstoff</string>
@@ -446,7 +444,6 @@
     <string name="unlock_egk_new_secret_extra_content_title">PIN gemerkt?</string>
     <string name="unlock_egk_new_secret_extra_content_info">Bitte notieren Sie sich Ihre PIN und bewahren an einem sicheren Ort auf.</string>
     <string name="unlock_egk_dialog_cancel">Abbrechen</string>
-    <string name="cdw_nfc_intro_step2_header_on_puk_error">Falsche PUK eingegeben.</string>
     <string name="unlock_egk_finished_ok">Okay</string>
     <string name="unlock_not_possible_header">Entsperrung nicht möglich</string>
     <string name="unlock_not_possible_info">Sie haben mit dieser PUK die maximale Anzahl an Karten-Entsperrungen erreicht oder haben sie wiederholt falsch eingegeben. Bitte wenden Sie sich an Ihre Versicherung.</string>
@@ -500,7 +497,7 @@
     <string name="cdw_missing_capabilities_title">Wie schade…</string>
     <string name="cdw_missing_capabilities_info">Leider erfüllt Ihr Gerät die Mindestanforderungen für die Anmeldung in der E-Rezept-App nicht. Für eine sichere Authentifizierung mit Ihrer Gesundheitskarte werden mindestens Android 7 sowie ein NFC-Chip benötigt.</string>
     <string name="cdw_missing_capabilities_learn_more">Mehr erfahren</string>
-    <string name="cdw_missing_capabilities_link_to_faq" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten</string>
+    <string name="cdw_missing_capabilities_link_to_faq" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/faq</string>
     <string name="cdw_selection_title">Zugangsdaten speichern?</string>
     <string name="cdw_selection_save">Speichern</string>
     <string name="cdw_selection_save_not">Nicht speichern</string>
@@ -578,7 +575,8 @@
     <string name="search_pharmacies_filter_open_now_and_local">Aktuell geöffnet und in meiner Nähe</string>
     <string name="search_pharmacies_filter_by">Filtern nach …</string>
     <string name="search_pharmacies_start_search">Suche starten</string>
-    <string name="prescription_status_direct_assignment">Wurde für Sie eingelöst</string>
+    <string name="prescription_status_direct_assignment_ready">Wird für Sie eingelöst</string>
+    <string name="prescription_status_direct_assignment_closed">Wurde für Sie eingelöst</string>
     <string name="prescription_detail_direct_assignment_chip">Direktzuweisung</string>
     <string name="redeem_header">Apotheken</string>
     <string name="edit_shipping_contact_phone_optional">Telefonnummer (optional)</string>
@@ -658,8 +656,8 @@
     <string name="medication_overview_dispenses_header">Erhalten</string>
     <string name="pres_details_exp_da_title">Was ist eine Direktzuweisung?</string>
     <string name="pres_details_exp_da_info">Bei einer Direktzuweisungen wird ein Rezept von einer Praxis oder einem Krankenhaus direkt bei einer Apotheke eingelöst. Versicherte müssen hierbei nicht tätig werden und können nicht in den Einlösungsprozess eingreifen.\n\nDirektzuweisungen werden in der E-Rezept App aufgeführt, um Ihre Behandlung für Sie transparenter zu machen.</string>
-    <string name="pres_details_exp_no_em_fee_title">Keine Notdienstgebühr</string>
-    <string name="pres_details_exp_no_em_fee_info">Hier ist Eile geboten. Dieses Rezept kann ohne die zusätzliche Zahlung einer Notdienstgebühr auch nachts in einer Apotheke eingelöst werden.</string>
+    <string name="pres_details_exp_no_em_fee_title">Notdienstgebühr</string>
+    <string name="pres_details_exp_no_em_fee_info">Manchmal ist Eile geboten. Einige Rezepte können ohne die zusätzliche Zahlung einer Notdienstgebühr eingelöst werden, beispielsweise nachts oder an Feiertagen.</string>
     <string name="pres_details_exp_add_fee_title">Zuzahlungspflichtige Medikamente</string>
     <string name="pres_details_exp_no_add_fee_title">Von der Zuzahlung befreit</string>
     <string name="pres_details_exp_add_fee_info">Gesetzlich Versicherte müssen für verschreibungspflichtige Medikamente eine Zuzahlung von bis zu zehn Euro leisten.\n\nDie Höhe der Zuzahlung ist abhängig von dem Preis Ihres Medikaments. Medikamente, die weniger als 5€ kosten müssen Sie selbst zahlen.\nBei Medikamenten die teurer sind, müssen Sie zehn Prozent des Preises zuzahlen, mindestens aber 5€ und höchstens 10€.\n\nGrundsätzlich befreit von einer Zuzahlung sind Kinder und Jugendliche unter 18 Jahren. \n\nSollten Ihre jährlichen Kosten für Medikamente Ihre finanzielle Belastungsgrenzt überschreiten können Sie sich von der Zuzahlung befreien lassen. Sprechen Sie dazu mit Ihrer Krankenversicherung.</string>
@@ -825,6 +823,9 @@
     <string name="order_health_card_contact_info">Ihre Versicherung bietet folgende Kontaktmöglichkeiten</string>
     <string name="order_health_card_contact_info_single">Ihre Versicherung bietet folgende Kontaktmöglichkeit</string>
     <string name="health_card_order_close">Schließen</string>
+    <string name="cdw_nfc_intro_step2_header_on_pin_error_alert">PIN falsch eingegeben.</string>
+    <string name="cdw_nfc_intro_step2_header_on_can_error_alert">Zugangsnummer falsch eingegeben</string>
+    <string name="cdw_nfc_intro_step2_header_on_puk_error_alert">PUK falsch eingegeben.</string>
     <string name="profile_invoiceInformation_header">Kostenbelege</string>
     <string name="profile_show_invoices">Kostenbelege anzeigen</string>
     <string name="profile_invoices">Kostenbelege</string>
@@ -838,7 +839,7 @@
     <string name="profile_grant_consent_header">Kostenbelege empfangen</string>
     <string name="profile_grant_consent_info">Ihre Kostenbelege werden zusätzlich auf dem Rezeptserver gespeichert.</string>
     <string name="profile_grant_consent">Empfangen</string>
-    <string name="pkv_invoices_total_of_year">Gesamt: %s %s</string>
+    <string name="pkv_invoices_total_of_year" formatted="false">Gesamt: %s %s</string>
     <string name="invoice_header_select">Auswählen</string>
     <string name="invoice_header_share">Teilen</string>
     <string name="invoice_header_delete">Löschen</string>
@@ -881,6 +882,5 @@
     <string name="profile_delete_invoice_header">Wirklich löschen?</string>
     <string name="profile_delete_invoice_info">Die Datei wird von Ihrem Gerät und vom Server gelöscht.</string>
     <string name="profile_delete_invoice">Löschen</string>
-
-
+    <string name="connect_for_pharmacy_service">Sie müssen angemeldet sein, um diesen Service zu nutzen.</string>
 </resources>

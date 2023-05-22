@@ -22,24 +22,25 @@ import de.gematik.ti.erp.app.pharmacy.buildDirectPharmacyMessage
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.util.encoders.Base64
-import java.util.UUID
 
 class PharmacyDirectRedeemUseCase(
     private val repository: PharmacyRepository
 ) {
-    suspend fun loadCertificate(locationId: String): Result<X509CertificateHolder> =
+    suspend fun loadCertificates(locationId: String): Result<List<X509CertificateHolder>> =
         repository
-            .searchBinaryCert(locationId = locationId)
-            .mapCatching { base64Cert ->
-                X509CertificateHolder(Base64.decode(base64Cert))
+            .searchBinaryCerts(locationId = locationId).mapCatching {
+                    list ->
+                list.map { base64Cert ->
+                    X509CertificateHolder(Base64.decode(base64Cert))
+                }
             }
 
-    suspend fun redeemPrescription(
+    suspend fun redeemPrescriptionDirectly(
         url: String,
         message: String,
         telematikId: String,
         recipientCertificates: List<X509CertificateHolder>,
-        transactionId: String = UUID.randomUUID().toString()
+        transactionId: String
     ): Result<Unit> =
         runCatching {
             val asn1Message = buildDirectPharmacyMessage(
@@ -47,11 +48,15 @@ class PharmacyDirectRedeemUseCase(
                 recipientCertificates = recipientCertificates
             )
 
-            repository.redeemPrescription(
+            repository.redeemPrescriptionDirectly(
                 url = url,
                 message = asn1Message,
                 pharmacyTelematikId = telematikId,
                 transactionId = transactionId
             ).getOrThrow()
         }
+
+    suspend fun markAsRedeemed(taskId: String) {
+        repository.markAsRedeemed(taskId)
+    }
 }

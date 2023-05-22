@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
@@ -29,6 +28,7 @@ import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.stringValue
+import de.gematik.ti.erp.app.fhir.parser.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -167,7 +167,7 @@ fun <MultiplePrescriptionInfo, Ratio, Quantity> JsonElement.extractMultiplePresc
     val start = this.findAll("extension").filterWith("url", stringValue("Zeitraum"))
         .firstOrNull()
         ?.contained("valuePeriod")
-        ?.containedOrNull("start")?.jsonPrimitive?.asFhirLocalDate()
+        ?.containedOrNull("start")?.jsonPrimitive?.toFhirTemporal()
 
     return processMultiplePrescriptionInfo(
         indicator,

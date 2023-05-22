@@ -56,6 +56,6 @@
 
     <string name="desktop_terms_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/app/datenschutz</string>
     <string name="desktop_data_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/app/datenschutz</string>
-    <string name="desktop_help_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten</string>
+    <string name="desktop_help_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/faq</string>
     <string name="desktop_contact_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/kontakt</string>
 </resources>

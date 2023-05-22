@@ -37,11 +37,10 @@ import de.gematik.ti.erp.app.utils.compose.createToastShort
 import kotlinx.coroutines.launch
 
 object SettingsNavigationScreens {
-    object Settings : Route("Settings")
-
-    object AccessibilitySettings : Route("AccessibilitySettings")
-    object ProductImprovementSettings : Route("ProductImprovementSettings")
-    object DeviceSecuritySettings : Route("DeviceSecuritySettings")
+    object Settings : Route("settings")
+    object AccessibilitySettings : Route("settings_accessibility")
+    object ProductImprovementSettings : Route("settings_productImprovements")
+    object DeviceSecuritySettings : Route("settings_authenticationMethods")
 }
 
 @Suppress("LongMethod")

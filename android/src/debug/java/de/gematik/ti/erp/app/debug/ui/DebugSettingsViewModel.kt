@@ -64,6 +64,7 @@ import java.security.KeyFactory
 import java.security.Signature
 import java.time.Instant
 import java.time.temporal.ChronoUnit
+import java.util.*
 
 private val HealthCardCert = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
 private val HealthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
@@ -346,11 +347,12 @@ class DebugSettingsViewModel(
             }
         } while (obj != null)
 
-        pharmacyDirectRedeemUseCase.redeemPrescription(
+        pharmacyDirectRedeemUseCase.redeemPrescriptionDirectly(
             url = url,
             message = message,
             telematikId = "",
-            recipientCertificates = certificates
+            recipientCertificates = certificates,
+            transactionId = UUID.randomUUID().toString()
         ).getOrThrow()
     }
 

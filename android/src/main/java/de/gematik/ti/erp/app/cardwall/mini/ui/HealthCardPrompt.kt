@@ -588,12 +588,12 @@ private fun HealthCardErrorDialog(
             )
 
             HealthCardPromptAuthenticator.State.ReadState.Error.CardAccessNumberWrong -> Pair(
-                stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error).toAnnotatedString(),
+                stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error_alert).toAnnotatedString(),
                 stringResource(R.string.cdw_nfc_intro_step2_info_on_can_error).toAnnotatedString()
             )
 
             is HealthCardPromptAuthenticator.State.ReadState.Error.PersonalIdentificationWrong -> Pair(
-                stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error).toAnnotatedString(),
+                stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error_alert).toAnnotatedString(),
                 pinRetriesLeft(state.retriesLeft)
             )
 

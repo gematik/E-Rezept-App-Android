@@ -33,7 +33,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.datetime.Instant
 
 private fun template(
     orderId: String,
@@ -76,7 +75,7 @@ private fun template(
 }
 """.trimIndent()
 
-// private fun templateVersion12(
+// private fun templateVersion1_2(
 //    orderId: String,
 //    reference: String,
 //    payload: String,

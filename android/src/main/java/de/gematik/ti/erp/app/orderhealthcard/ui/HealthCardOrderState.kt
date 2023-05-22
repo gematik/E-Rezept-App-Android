@@ -30,9 +30,9 @@ import kotlinx.coroutines.flow.combine
 import org.kodein.di.compose.rememberInstance
 
 object HealthCardOrderNavigationScreens {
-    object HealthCardOrder : Route("HealthCardOrder")
-    object SelectOrderOption : Route("SelectOrderOption")
-    object HealthCardOrderContact : Route("HealthCardOrderContact")
+    object HealthCardOrder : Route("contactInsuranceCompany")
+    object SelectOrderOption : Route("contactInsuranceCompany_selectReason")
+    object HealthCardOrderContact : Route("contactInsuranceCompany_selectMethod")
 }
 
 class HealthCardOrderState(

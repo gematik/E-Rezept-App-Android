@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.api.PharmacySearchService
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.interceptor.ApiKeyHeaderInterceptor
 import de.gematik.ti.erp.app.interceptor.BearerHeaderInterceptor
+import de.gematik.ti.erp.app.interceptor.PharmacyRedeemInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacySearchInterceptor
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
 import de.gematik.ti.erp.app.vau.api.VauService
@@ -221,6 +222,10 @@ val networkModule = DI.Module("Network Module") {
 
         clientBuilder
             .addInterceptor(loggingInterceptor)
+
+        if (BuildKonfig.INTERNAL) {
+            clientBuilder.addInterceptor(PharmacyRedeemInterceptor(instance()))
+        }
 
         Retrofit.Builder()
             .client(clientBuilder.build())

@@ -21,17 +21,15 @@ package de.gematik.ti.erp.app.cardwall.ui.model
 import de.gematik.ti.erp.app.Route
 
 object CardWallNavigation {
-    object Troubleshooting : Route("TroubleShooting")
-    object ExternalAuthenticator : Route("card_wall_external_authenticator_overview")
-    object Intro : Route("card_wall_intro")
-    object MissingCapabilities : Route("card_wall_missing_capabilities")
-    object CardAccessNumber : Route("card_wall_card_access_number")
-
-    object PersonalIdentificationNumber : Route("card_wall_personal_identification_number")
-    object AuthenticationSelection : Route("card_wall_authentication_selection")
-    object AlternativeOption : Route("card_wall_alternative_option")
-
-    object Authentication : Route("card_wall_authentication")
-    object OrderHealthCard : Route("card_wall_order_health_card")
-    object UnlockEgk : Route("card_wall_unlock_egk")
+    object Troubleshooting : Route("troubleShooting")
+    object ExternalAuthenticator : Route("cardWall_extAuth")
+    object Intro : Route("cardWall_introduction")
+    object MissingCapabilities : Route("cardWall_notCapable")
+    object CardAccessNumber : Route("cardWall_CAN")
+    object PersonalIdentificationNumber : Route("cardWall_PIN")
+    object AuthenticationSelection : Route("cardWall_saveLogin")
+    object AlternativeOption : Route("cardWall_saveLoginSecurityInfo")
+    object Authentication : Route("cardWall_readCard")
+    object OrderHealthCard : Route("contactInsuranceCompany")
+    object UnlockEgk : Route("healthCardPassword_introduction")
 }

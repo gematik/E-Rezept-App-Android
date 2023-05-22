@@ -21,21 +21,26 @@ package de.gematik.ti.erp.app.pharmacy.ui
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyNavigationScreens
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 @Suppress("LongMethod")
@@ -47,11 +52,25 @@ fun PharmacyNavigation(
     onBack: () -> Unit,
     onFinish: () -> Unit
 ) {
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val pharmacySearchController = rememberPharmacySearchController()
     var searchFilter by remember(pharmacySearchController.searchState.filter) {
         mutableStateOf(pharmacySearchController.searchState.filter)
     }
+    val featureToggleManager = FeatureToggleManager(context)
+    val hasRedeemableTasks by orderState.hasRedeemableTasks
+
+    LaunchedEffect(Unit) {
+        searchFilter = searchFilter.copy(directRedeem = false)
+        val directRedeemEnabled = featureToggleManager
+            .isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName).first()
+        if (directRedeemEnabled && orderState.profile.lastAuthenticated == null && hasRedeemableTasks
+        ) {
+            searchFilter = searchFilter.copy(directRedeem = true)
+        }
+    }
+
     var showNoLocationDialog by remember { mutableStateOf(false) }
 
     val searchAgainFn = { nearBy: Boolean ->
@@ -110,7 +129,8 @@ fun PharmacyNavigation(
             }
         }
 
-    TrackNavigationChanges(navController)
+    var previousNavEntry by remember { mutableStateOf("pharmacySearch") }
+    TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
 
     val handleSearchResultFn = { searchResult: PharmacySearchController.SearchQueryResult ->
         when (searchResult) {
@@ -136,6 +156,7 @@ fun PharmacyNavigation(
                     isNestedNavigation = isNestedNavigation,
                     orderState = orderState,
                     onBack = onBack,
+                    navController = navController,
                     onFilterChange = { searchFilter = it },
                     filter = searchFilter,
                     onStartSearch = {
@@ -170,6 +191,7 @@ fun PharmacyNavigation(
             NavigationAnimation(mode = navigationMode) {
                 PharmacySearchResultScreen(
                     orderState = orderState,
+                    navController = navController,
                     searchController = pharmacySearchController,
                     onBack = {
                         orderState.onResetPharmacySelection()
@@ -201,6 +223,7 @@ fun PharmacyNavigation(
                 MapsOverview(
                     searchController = pharmacySearchController,
                     orderState = orderState,
+                    navController = navController,
                     onBack = {
                         orderState.onResetPharmacySelection()
                         navController.popBackStack()

@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
+import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -52,6 +53,7 @@ import androidx.compose.material.icons.outlined.Moped
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -69,6 +71,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -76,6 +79,9 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.trackPharmacySearchPopUps
+import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
+import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -94,6 +100,7 @@ private const val LastUsedPharmaciesListLength = 5
 fun PharmacyOverviewScreen(
     isNestedNavigation: Boolean,
     orderState: PharmacyOrderState,
+    navController: NavHostController,
     onBack: () -> Unit,
     onStartSearch: () -> Unit,
     onShowMaps: () -> Unit,
@@ -104,6 +111,19 @@ fun PharmacyOverviewScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val sheetState = rememberPharmacySheetState()
+
+    val analytics = LocalAnalytics.current
+    val analyticsState by analytics.screenState
+    LaunchedEffect(sheetState.isVisible) {
+        if (sheetState.isVisible) {
+            analytics.trackPharmacySearchPopUps(sheetState.content)
+        } else {
+            analytics.onPopUpClosed()
+            val route = Uri.parse(navController.currentBackStackEntry!!.destination.route)
+                .buildUpon().clearQuery().build().toString()
+            trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
+        }
+    }
 
     Box {
         AnimatedElevationScaffold(
@@ -124,7 +144,7 @@ fun PharmacyOverviewScreen(
                 onStartSearch = onStartSearch,
                 pharmacySearchController = pharmacySearchController,
                 onShowFilter = {
-                    sheetState.show(PharmacySearchSheetContentState.FilterSelected)
+                    sheetState.show(PharmacySearchSheetContentState.FilterSelected())
                 },
                 onShowMaps = onShowMaps
             )
@@ -134,7 +154,7 @@ fun PharmacyOverviewScreen(
             sheetState = sheetState,
             sheetContent = {
                 when (sheetState.content) {
-                    PharmacySearchSheetContentState.FilterSelected ->
+                    is PharmacySearchSheetContentState.FilterSelected ->
                         FilterSheetContent(
                             modifier = Modifier.navigationBarsPadding(),
                             filter = filter,

@@ -18,10 +18,12 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
 import de.gematik.ti.erp.app.fhir.parser.containedInt
+import de.gematik.ti.erp.app.fhir.parser.containedIntOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedObject
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
@@ -41,6 +43,10 @@ import kotlinx.datetime.DayOfWeek
 val Contained = listOf("contained")
 val TypeCodingCode = listOf("type", "coding", "code")
 
+const val PickUpRank = 100
+const val DeliveryRank = 200
+const val OnlineServiceRank = 300
+
 /**
  * Extract pharmacy services from a search bundle.
  */
@@ -52,16 +58,17 @@ fun extractPharmacyServices(
     val bundleTotal = bundle.containedInt("total")
     val resources = bundle.findAll(listOf("entry", "resource")).filterWith("name", not(stringValue("-")))
 
-    val pharmacies = resources.mapCatching(onError) { resource ->
-        val locationName = resource.containedString("name")
+    val pharmacies = resources.mapCatching(onError) { pharmacy ->
+        val locationId = pharmacy.containedString("id")
+        val locationName = pharmacy.containedString("name")
         val localService = LocalPharmacyService(
             name = locationName,
-            openingHours = resource.containedArrayOrNull("hoursOfOperation")?.let { hoursOfOperation(it) }
+            openingHours = pharmacy.containedArrayOrNull("hoursOfOperation")?.let { hoursOfOperation(it) }
                 ?: OpeningHours(emptyMap())
         )
 
         val deliveryPharmacyService =
-            resource
+            pharmacy
                 .findAll(Contained)
                 .filterWith(TypeCodingCode, stringValue("498"))
                 .firstOrNull()
@@ -87,7 +94,7 @@ fun extractPharmacyServices(
         //    }
 
         val telematikId =
-            resource
+            pharmacy
                 .findAll(listOf("identifier"))
                 .filterWith(
                     listOf("system"),
@@ -102,7 +109,7 @@ fun extractPharmacyServices(
         var isOutpatientPharmacy = false
         var isMobilePharmacy = false
 
-        resource.findAll(TypeCodingCode).forEach {
+        pharmacy.findAll(TypeCodingCode).forEach {
             when (it.containedString()) {
                 "OUTPHARM" -> isOutpatientPharmacy = true
                 "MOBL" -> isMobilePharmacy = true
@@ -121,7 +128,7 @@ fun extractPharmacyServices(
             null
         }
 
-        val position = resource.containedObject("position").let {
+        val position = pharmacy.containedObject("position").let {
             Location(
                 latitude = it.containedDouble("latitude"),
                 longitude = it.containedDouble("longitude")
@@ -129,16 +136,24 @@ fun extractPharmacyServices(
         }
 
         Pharmacy(
+            id = locationId,
             name = locationName,
             location = position,
-            address = resource.containedObject("address").let { address ->
+            address = pharmacy.containedObject("address").let { address ->
                 PharmacyAddress(
                     lines = address.containedArray("line").map { it.containedString() },
-                    postalCode = address.containedString("postalCode"),
+                    postalCode = if (BuildKonfig.INTERNAL) {
+                        address.containedStringOrNull("postalCode") ?: ""
+                    } else {
+                        address.containedString("postalCode")
+                    },
                     city = address.containedString("city")
                 )
             },
-            contacts = resource.containedArrayOrNull("telecom")?.let { contacts(it) } ?: PharmacyContacts(
+            contacts = pharmacy.containedArrayOrNull("telecom")?.let { contacts(it) } ?: PharmacyContacts(
+                "",
+                "",
+                "",
                 "",
                 "",
                 ""
@@ -150,7 +165,7 @@ fun extractPharmacyServices(
                 pickUpPharmacyService
             ),
             telematikId = telematikId,
-            ready = resource.containedString("status") == "active"
+            ready = pharmacy.containedString("status") == "active"
         )
     }
 
@@ -164,14 +179,16 @@ fun extractPharmacyServices(
 /**
  * Extract certificates from binary bundle.
  */
-fun extractBinaryCertificateAsBase64(
+fun extractBinaryCertificatesAsBase64(
     bundle: JsonElement
-): String {
-    val resource = bundle.findAll(listOf("entry", "resource")).first()
-
-    require(resource.containedString("contentType") == "application/pkix-cert")
-
-    return resource.containedString("data")
+): List<String> {
+    val resources = bundle.findAll(listOf("entry", "resource"))
+    val resourceStrings = mutableListOf<String>()
+    for (resource in resources) {
+        require(resource.containedString("contentType") == "application/pkix-cert")
+        resourceStrings.add(resource.containedString("data"))
+    }
+    return resourceStrings.toList()
 }
 
 private fun <R : Any> Sequence<JsonElement>.mapCatching(
@@ -204,6 +221,9 @@ private fun contacts(
     var phone = ""
     var mail = ""
     var url = ""
+    var pickUpUrl = ""
+    var deliveryUrl = ""
+    var onlineServiceUrl = ""
 
     telecom
         .forEach {
@@ -211,13 +231,21 @@ private fun contacts(
                 "phone" -> phone = it.containedStringOrNull("value") ?: ""
                 "email" -> mail = it.containedStringOrNull("value") ?: ""
                 "url" -> url = sanitizeUrl(it.containedStringOrNull("value") ?: "")
+                "other" -> when (it.containedIntOrNull("rank")) {
+                    PickUpRank -> pickUpUrl = sanitizeUrl(it.containedStringOrNull("value") ?: "")
+                    DeliveryRank -> deliveryUrl = sanitizeUrl(it.containedStringOrNull("value") ?: "")
+                    OnlineServiceRank -> onlineServiceUrl = sanitizeUrl(it.containedStringOrNull("value") ?: "")
+                }
             }
         }
 
     return PharmacyContacts(
         phone = phone,
         mail = mail,
-        url = url
+        url = url,
+        pickUpUrl = pickUpUrl,
+        deliveryUrl = deliveryUrl,
+        onlineServiceUrl = onlineServiceUrl
     )
 }
 

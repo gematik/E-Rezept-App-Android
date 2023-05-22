@@ -21,11 +21,11 @@ package de.gematik.ti.erp.app.cardunlock.model
 import de.gematik.ti.erp.app.Route
 
 object UnlockEgkNavigation {
-    object Intro : Route("Intro")
-    object CardAccessNumber : Route("CardAccessNumber")
-    object PersonalUnblockingKey : Route("PersonalUnblockingKey")
-    object OldSecret : Route("OldSecret")
-    object NewSecret : Route("NewSecret")
-    object UnlockEgk : Route("UnlockEgk")
-    object TroubleShooting : Route("TroubleShooting")
+    object Intro : Route("healthCardPassword_introduction")
+    object CardAccessNumber : Route("healthCardPassword_can")
+    object PersonalUnblockingKey : Route("healthCardPassword_puk")
+    object OldSecret : Route("healthCardPassword_oldPin")
+    object NewSecret : Route("healthCardPassword_pin")
+    object UnlockEgk : Route("healthCardPassword_readCard")
+    object TroubleShooting : Route("troubleShooting")
 }

@@ -21,9 +21,9 @@ package de.gematik.ti.erp.app.redeem.ui.model
 import de.gematik.ti.erp.app.Route
 
 class RedeemNavigation {
-    object HowToRedeem : Route("redeem_how_to")
-    object PrescriptionSelection : Route("redeem_prescription_selection")
-    object LocalRedeem : Route("redeem_local")
-    object OnlineRedeem : Route("redeem_online")
-    object PharmacySearch : Route("redeem_pharmacy_search")
+    object MethodSelection : Route("redeem_methodSelection")
+    object PrescriptionSelection : Route("redeem_prescriptionChooseSubset")
+    object LocalRedeem : Route("redeem_matrixCode")
+    object OnlineRedeem : Route("redeem_prescriptionAllOrSelection")
+    object PharmacySearch : Route("pharmacySearch")
 }

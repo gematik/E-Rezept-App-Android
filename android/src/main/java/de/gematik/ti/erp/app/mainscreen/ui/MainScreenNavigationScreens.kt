@@ -24,6 +24,7 @@ import androidx.navigation.navArgument
 import kotlinx.serialization.Serializable
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PopUpName
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.parcelize.Parcelize
 
@@ -32,63 +33,69 @@ import kotlinx.parcelize.Parcelize
 data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 
 object MainNavigationScreens {
-    object Onboarding : Route("Onboarding")
-    object Settings : Route("Settings")
-    object Camera : Route("Camera")
-    object Prescriptions : Route("Prescriptions")
-    object Archive : Route("Archive")
+    object Onboarding : Route("onboarding")
+    object Settings : Route("settings")
+    object Camera : Route("main_scanner")
+    object Prescriptions : Route("main")
+    object Archive : Route("main_prescriptionArchive")
     object PrescriptionDetail :
         Route(
-            "PrescriptionDetail",
+            "prescriptionDetail",
             navArgument("taskId") { type = NavType.StringType }
         ) {
         fun path(taskId: String) = path("taskId" to taskId)
     }
 
-    object Orders : Route("Orders")
+    object Orders : Route("orders")
 
     object Messages : Route(
-        "Messages",
+        "orders_detail",
         navArgument("orderId") { type = NavType.StringType }
     ) {
         fun path(orderId: String) =
             Messages.path("orderId" to orderId)
     }
 
-    object Pharmacies : Route("Pharmacies")
+    object Pharmacies : Route("pharmacySearch")
 
-    object Redeem : Route("Redeem")
+    object Redeem : Route("redeem_methodSelection")
 
-    object ProfileImageCropper : Route("ProfileImageCropper", navArgument("profileId") { type = NavType.StringType }) {
+    object ProfileImageCropper : Route(
+        "profile_editPicture_imageCropper",
+        navArgument("profileId") { type = NavType.StringType }
+    ) {
         fun path(profileId: String) = path("profileId" to profileId)
     }
 
     object CardWall : Route(
-        "CardWall",
+        "cardWall_introduction",
         navArgument("profileId") { type = NavType.StringType }
     ) {
         fun path(profileId: ProfileIdentifier) = path("profileId" to profileId)
     }
 
-    object InsecureDeviceScreen : Route("InsecureDeviceScreen")
-    object MlKitIntroScreen : Route("MlKitIntroScreen")
-    object MlKitInformationScreen : Route("MlKitInformationScreen")
-    object DataProtection : Route("DataProtection")
-    object IntegrityNotOkScreen : Route("IntegrityInfoScreen")
+    object InsecureDeviceScreen : Route("main_deviceSecurity")
+    object MlKitIntroScreen : Route("mlKit")
+    object MlKitInformationScreen : Route("mlKit_information")
+    object DataProtection : Route("settings_dataProtection")
+    object IntegrityNotOkScreen : Route("main_integrityWarning")
     object EditProfile :
-        Route("EditProfile", navArgument("profileId") { type = NavType.StringType }) {
+        Route("profile", navArgument("profileId") { type = NavType.StringType }) {
         fun path(profileId: String) = path("profileId" to profileId)
     }
-    object Terms : Route("Terms")
-    object Imprint : Route("Imprint")
-    object OpenSourceLicences : Route("OpenSourceLicences")
-    object AdditionalLicences : Route("AdditionalLicences")
-    object AllowAnalytics : Route("AcceptAnalytics")
-    object Password : Route("Password")
-    object Debug : Route("Debug")
-    object OrderHealthCard : Route("OrderHealthCard")
+    object Terms : Route("settings_termsOfUse")
+    object Imprint : Route("settings_legalNotice")
+    object OpenSourceLicences : Route("settings_openSourceLicence")
+    object AdditionalLicences : Route("settings_additionalLicence")
+    object AllowAnalytics : Route("settings_productImprovements_complyTracking")
+    object Password : Route("settings_authenticationMethods_setAppPassword")
+    object Debug : Route("debug")
+    object OrderHealthCard : Route("contactInsuranceCompany")
 
-    object UnlockEgk : Route("UnlockEgk", navArgument("unlockMethod") { type = NavType.StringType }) {
+    object UnlockEgk : Route(
+        "healthCardPassword_introduction",
+        navArgument("unlockMethod") { type = NavType.StringType }
+    ) {
         fun path(unlockMethod: UnlockMethod) = path("unlockMethod" to unlockMethod.name)
     }
 }
@@ -99,3 +106,10 @@ val MainScreenBottomNavigationItems = listOf(
     MainNavigationScreens.Pharmacies,
     MainNavigationScreens.Settings
 )
+
+object MainScreenBottomPopUpNames {
+    object EditProfilePicture : PopUpName("main_editProfilePicture")
+    object EditProfileName : PopUpName("main_editName")
+    object AddProfile : PopUpName("main_createProfile")
+    object Welcome : PopUpName("main_welcomeDrawer")
+}
