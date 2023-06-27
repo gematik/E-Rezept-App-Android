@@ -21,6 +21,7 @@
 package de.gematik.ti.erp.app.prescription.detail.ui
 
 import android.net.Uri
+import android.util.Base64
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +58,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -71,6 +73,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -117,6 +120,9 @@ import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 const val MissingValue = "---"
 
@@ -231,6 +237,35 @@ fun PrescriptionDetailsScreen(
     }
 }
 
+@Serializable
+data class AppLinkPrescription(
+    val patient: String?,
+    val prescriber: String?,
+    val description: String?,
+    val prescribedOn: String?,
+    val taskUrl: String,
+    val emoji: String?
+)
+
+private val AllowedPrescriptionEmojis = listOf(
+    "\uD83D\uDE23",    // 😣
+    "\uD83D\uDE35",    // 😵
+    "\uD83D\uDE35\u200D\uD83D\uDCAB",    // 😵‍💫
+    "\uD83E\uDD22",    // 🤢
+    "\uD83E\uDD2E",    // 🤮
+    "\uD83E\uDD27",    // 🤧
+    "\uD83D\uDE37",    // 😷
+    "\uD83E\uDD12",    // 🙂
+    "\uD83E\uDD15",    // 🙅
+    "\uD83E\uDE7A",    // 🥺
+    "\uD83D\uDC89",    // 💉
+    "\uD83D\uDC8A",    // 💊
+    "\uD83E\uDDA0",    // 🦠
+    "\uD83C\uDF21",    // 🌡️
+    "\uD83E\uDDEA",    // 🧪
+    "\uD83E\uDDEB"     // 🧫
+)
+
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun PrescriptionDetailsWithScaffold(
@@ -303,6 +338,38 @@ private fun PrescriptionDetailsWithScaffold(
                 //         Icon(Icons.Rounded.Share, null, tint = AppTheme.colors.primary700)
                 //     }
                 // }
+
+                val uriHandler = LocalUriHandler.current
+
+                if (prescription.accessCode != null) {
+                    val taskUrl = "Task/${prescription.taskId}/\$accept?ac=${prescription.accessCode}"
+                    val prescriptionBase64 = when (prescription) {
+                        is PrescriptionData.Scanned ->
+                            AppLinkPrescription(
+                                patient = null,
+                                prescriber = null,
+                                description = null,
+                                prescribedOn = null,
+                                taskUrl = taskUrl,
+                                emoji = AllowedPrescriptionEmojis.random()
+                            )
+                        is PrescriptionData.Synced ->
+                            AppLinkPrescription(
+                                patient = prescription.patient.name,
+                                prescriber = prescription.practitioner.name,
+                                description = prescription.name,
+                                prescribedOn = prescription.authoredOn,
+                                taskUrl = taskUrl,
+                                emoji = AllowedPrescriptionEmojis.random()
+                            )
+                    }.let { Base64.encodeToString(Json.encodeToString(it).toByteArray(), Base64.URL_SAFE) }
+
+                    IconButton(onClick = {
+                        uriHandler.openUri("https://rezepte.lol/x/#eyJ2IjogMX0.${prescriptionBase64}")
+                    }) {
+                        Icon(Icons.Rounded.Share, null, tint = AppTheme.colors.primary700)
+                    }
+                }
 
                 val context = LocalContext.current
                 val authenticator = LocalAuthenticator.current
@@ -760,10 +827,10 @@ fun SyncedHeader(
 
         val onClick = when {
             !prescription.isDirectAssignment &&
-                (
-                    prescription.state is SyncedTaskData.SyncedTask.Ready ||
-                        prescription.state is SyncedTaskData.SyncedTask.LaterRedeemable
-                    ) -> {
+                    (
+                            prescription.state is SyncedTaskData.SyncedTask.Ready ||
+                                    prescription.state is SyncedTaskData.SyncedTask.LaterRedeemable
+                            ) -> {
                 {
                     onShowInfo(
                         PrescriptionDetailBottomSheetContent.HowLongValid(
