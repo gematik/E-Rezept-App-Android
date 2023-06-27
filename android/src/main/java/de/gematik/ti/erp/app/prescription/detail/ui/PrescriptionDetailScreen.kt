@@ -93,6 +93,7 @@ import de.gematik.ti.erp.app.analytics.trackPrescriptionDetailPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalAuthenticator
+import de.gematik.ti.erp.app.prescription.detail.ui.model.AppLinkPrescription
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsNavigationScreens
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -118,8 +119,11 @@ import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
+import de.gematik.ti.erp.app.utils.dateIsoText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
@@ -237,35 +241,6 @@ fun PrescriptionDetailsScreen(
     }
 }
 
-@Serializable
-data class AppLinkPrescription(
-    val patient: String?,
-    val prescriber: String?,
-    val description: String?,
-    val prescribedOn: String?,
-    val taskUrl: String,
-    val emoji: String?
-)
-
-private val AllowedPrescriptionEmojis = listOf(
-    "\uD83D\uDE23",    // 😣
-    "\uD83D\uDE35",    // 😵
-    "\uD83D\uDE35\u200D\uD83D\uDCAB",    // 😵‍💫
-    "\uD83E\uDD22",    // 🤢
-    "\uD83E\uDD2E",    // 🤮
-    "\uD83E\uDD27",    // 🤧
-    "\uD83D\uDE37",    // 😷
-    "\uD83E\uDD12",    // 🙂
-    "\uD83E\uDD15",    // 🙅
-    "\uD83E\uDE7A",    // 🥺
-    "\uD83D\uDC89",    // 💉
-    "\uD83D\uDC8A",    // 💊
-    "\uD83E\uDDA0",    // 🦠
-    "\uD83C\uDF21",    // 🌡️
-    "\uD83E\uDDEA",    // 🧪
-    "\uD83E\uDDEB"     // 🧫
-)
-
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun PrescriptionDetailsWithScaffold(
@@ -350,17 +325,16 @@ private fun PrescriptionDetailsWithScaffold(
                                 prescriber = null,
                                 description = null,
                                 prescribedOn = null,
-                                taskUrl = taskUrl,
-                                emoji = AllowedPrescriptionEmojis.random()
+                                taskUrl = taskUrl
                             )
                         is PrescriptionData.Synced ->
                             AppLinkPrescription(
                                 patient = prescription.patient.name,
                                 prescriber = prescription.practitioner.name,
                                 description = prescription.name,
-                                prescribedOn = prescription.authoredOn,
-                                taskUrl = taskUrl,
-                                emoji = AllowedPrescriptionEmojis.random()
+                                // UTC is safe here; most people get their prescriptions during the day
+                                prescribedOn = dateIsoText(prescription.authoredOn, zone = TimeZone.UTC),
+                                taskUrl = taskUrl
                             )
                     }.let { Base64.encodeToString(Json.encodeToString(it).toByteArray(), Base64.URL_SAFE) }
 

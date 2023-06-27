@@ -50,6 +50,11 @@ fun dateTimeMediumText(instant: Instant, zone: TimeZone = TimeZone.currentSystem
         .toJavaLocalDateTime()
         .format(dateTimeMediumFormatter)
 
+fun dateIsoText(instant: Instant, zone: TimeZone = TimeZone.currentSystemDefault()): String =
+    instant.toLocalDateTime(zone)
+        .toJavaLocalDateTime()
+        .format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+
 private val YearMonthPattern = DateTimeFormatter.ofPattern("MMMM yyyy")
 private val MonthPattern = DateTimeFormatter.ofPattern("yyyy")
 
