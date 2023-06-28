@@ -80,7 +80,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
-import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
@@ -110,8 +109,8 @@ import de.gematik.ti.erp.app.prescription.ui.rememberPrescriptionState
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileImageCropper
-import de.gematik.ti.erp.app.profiles.ui.ProfilesController
 import de.gematik.ti.erp.app.profiles.ui.ProfilesStateData
+import de.gematik.ti.erp.app.profiles.ui.rememberProfilesController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.redeem.ui.RedeemNavigation
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
@@ -119,6 +118,7 @@ import de.gematik.ti.erp.app.settings.ui.PharmacyLicenseScreen
 import de.gematik.ti.erp.app.settings.ui.SecureAppWithPassword
 import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
+import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
@@ -134,18 +134,15 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 @Suppress("LongMethod")
 @Composable
 fun MainScreen(
-    navController: NavHostController,
-    mainScreenController: MainScreenController,
-    settingsController: SettingsController,
-    profilesController: ProfilesController
+    navController: NavHostController
 ) {
-    val startDestination = determineStartDestination(settingsController)
+    val settingsController = rememberSettingsController()
+    val startDestination = checkFirstAppStart(settingsController)
     val analytics = LocalAnalytics.current
     val analyticsState by analytics.screenState
     TrackPopUps(analytics, analyticsState)
@@ -186,9 +183,9 @@ fun MainScreen(
         composable(MainNavigationScreens.Prescriptions.route) {
             MainScreenWithScaffold(
                 mainNavController = navController,
-                mainScreenController = mainScreenController,
-                settingsController = settingsController,
-                profilesController = profilesController
+                onDeviceIsInsecure = {
+                    navController.navigate(MainNavigationScreens.IntegrityNotOkScreen.path())
+                }
             )
         }
 
@@ -204,27 +201,24 @@ fun MainScreen(
             MainNavigationScreens.Pharmacies.arguments
         ) {
             PharmacyNavigation(
-                mainScreenController = mainScreenController,
                 onBack = {
                     navController.popBackStack()
                 },
                 onFinish = {
-                    runBlocking(Dispatchers.Main) {
-                        navController.popBackStack(MainNavigationScreens.Prescriptions.route, false)
-                    }
+                    navController.navigate(MainNavigationScreens.Prescriptions.route)
                 }
             )
         }
         composable(MainNavigationScreens.InsecureDeviceScreen.route) {
             InsecureDeviceScreen(
-                navController,
-                settingsController,
                 stringResource(id = R.string.insecure_device_title),
                 painterResource(id = R.drawable.laptop_woman_yellow),
                 stringResource(id = R.string.insecure_device_header),
                 stringResource(id = R.string.insecure_device_info),
                 stringResource(id = R.string.insecure_device_accept)
-            )
+            ) {
+                navController.navigate(MainNavigationScreens.Prescriptions.route)
+            }
         }
         composable(MainNavigationScreens.MlKitIntroScreen.route) {
             MlKitIntroScreen(
@@ -239,23 +233,22 @@ fun MainScreen(
         }
         composable(MainNavigationScreens.IntegrityNotOkScreen.route) {
             InsecureDeviceScreen(
-                navController,
-                settingsController,
                 stringResource(id = R.string.insecure_device_title_safetynet),
                 painterResource(id = R.drawable.laptop_woman_pink),
                 stringResource(id = R.string.insecure_device_header_safetynet),
                 stringResource(id = R.string.insecure_device_info_safetynet),
                 stringResource(id = R.string.insecure_device_accept_safetynet),
                 pinUseCase = false
-            )
+            ) {
+                navController.navigate(MainNavigationScreens.Prescriptions.route)
+            }
         }
         composable(
             MainNavigationScreens.Redeem.route
         ) {
             RedeemNavigation(
-                mainScreenController = mainScreenController,
                 onFinish = {
-                    navController.popBackStack(MainNavigationScreens.Prescriptions.route, false)
+                    navController.navigate(MainNavigationScreens.Prescriptions.route)
                 }
             )
         }
@@ -300,7 +293,6 @@ fun MainScreen(
                 remember { navController.currentBackStackEntry?.arguments?.getString("profileId")!! }
             EditProfileScreen(
                 profileId,
-                profilesController,
                 onBack = { navController.popBackStack() },
                 mainNavController = navController
             )
@@ -376,6 +368,7 @@ fun MainScreen(
             MainNavigationScreens.EditProfile.route,
             MainNavigationScreens.EditProfile.arguments
         ) {
+            val profilesController = rememberProfilesController()
             val profileId = remember { it.arguments!!.getString("profileId")!! }
             val scope = rememberCoroutineScope()
             val profilesState by profilesController.profilesState
@@ -402,6 +395,7 @@ fun MainScreen(
             MainNavigationScreens.ProfileImageCropper.arguments
         ) {
             val profileId = remember { it.arguments!!.getString("profileId")!! }
+            val profilesController = rememberProfilesController()
             val scope = rememberCoroutineScope()
             ProfileImageCropper(
                 onSaveCroppedImage = {
@@ -455,15 +449,13 @@ fun MainScreen(
 }
 
 @Composable
-private fun determineStartDestination(settingsController: SettingsController) =
-    when {
-        settingsController.showOnboarding -> {
-            MainNavigationScreens.Onboarding.route
-        }
-
-        else -> {
-            MainNavigationScreens.Prescriptions.route
-        }
+private fun checkFirstAppStart(settingsController: SettingsController) =
+    if (settingsController.showOnboarding) {
+        // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
+        settingsController.onSwitchAllowScreenshots(false)
+        MainNavigationScreens.Onboarding.route
+    } else {
+        MainNavigationScreens.Prescriptions.route
     }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -471,10 +463,10 @@ private fun determineStartDestination(settingsController: SettingsController) =
 @Composable
 private fun MainScreenWithScaffold(
     mainNavController: NavController,
-    mainScreenController: MainScreenController,
-    settingsController: SettingsController,
-    profilesController: ProfilesController
+    onDeviceIsInsecure: () -> Unit
 ) {
+    val mainScreenController = rememberMainScreenController()
+    val settingsController = rememberSettingsController()
     val context = LocalContext.current
     val bottomNavController = rememberNavController()
     val currentBottomNavigationRoute by bottomNavController.currentBackStackEntryFlow.collectAsState(null)
@@ -485,8 +477,8 @@ private fun MainScreenWithScaffold(
             currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
         }
     }
-    CheckInsecureDevice(settingsController, mainNavController)
-    CheckDeviceIntegrity(mainScreenController, mainNavController)
+    CheckInsecureDevice(onDeviceIsInsecure)
+    CheckDeviceIntegrity(onDeviceIsInsecure)
     val scaffoldState = rememberScaffoldState()
     MainScreenSnackbar(
         mainScreenController = mainScreenController,
@@ -562,8 +554,6 @@ private fun MainScreenWithScaffold(
         sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) },
         sheetContent = {
             MainScreenBottomSheetContentState(
-                settingsController = settingsController,
-                profilesController = profilesController,
                 infoContentState = mainScreenBottomSheetContentState,
                 mainNavController = mainNavController,
                 profileToRename = profileToRename,
@@ -722,37 +712,24 @@ private fun MainScreenBottomNavHost(
 }
 
 @Composable
-private fun CheckDeviceIntegrity(mainScreenController: MainScreenController, mainNavController: NavController) {
+private fun CheckDeviceIntegrity(onDeviceIsInsecure: () -> Unit) {
+    val mainScreenController = rememberMainScreenController()
     LaunchedEffect(Unit) {
-        if (BuildConfig.DEBUG) {
-            return@LaunchedEffect
-        }
-        if (!mainScreenController.checkDeviceIntegrity().first()) {
+        if (mainScreenController.checkDeviceIntegrity().first()) {
             withContext(Dispatchers.Main) {
-                mainNavController.navigate(MainNavigationScreens.IntegrityNotOkScreen.route)
-                navOptions {
-                    launchSingleTop = true
-                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
-                        inclusive = true
-                    }
-                }
+                onDeviceIsInsecure()
             }
         }
     }
 }
 
 @Composable
-private fun CheckInsecureDevice(settingsController: SettingsController, mainNavController: NavController) {
+private fun CheckInsecureDevice(onDeviceIsInsecure: () -> Unit) {
+    val settingsController = rememberSettingsController()
     LaunchedEffect(Unit) {
         withContext(Dispatchers.Main) {
             if (settingsController.showInsecureDevicePrompt.first()) {
-                mainNavController.navigate(MainNavigationScreens.InsecureDeviceScreen.path())
-                navOptions {
-                    launchSingleTop = true
-                    popUpTo(MainNavigationScreens.Prescriptions.path()) {
-                        inclusive = true
-                    }
-                }
+                onDeviceIsInsecure()
             }
         }
     }

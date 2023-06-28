@@ -27,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
@@ -61,15 +60,13 @@ class FastTrackHandler(
 @Composable
 fun ExternalAuthenticationDialog() {
     var showAuthenticationError by remember { mutableStateOf(false) }
-
     val intentHandler = LocalIntentHandler.current
-    val authenticator = LocalAuthenticator.current
     val idpUseCase = rememberInstance<IdpUseCase>()
     val fastTrackHandler = remember { FastTrackHandler(idpUseCase) }
 
     LaunchedEffect(Unit) {
         intentHandler.extAuthIntent.collect {
-            if (!authenticator.authenticatorExternal.isInProgress && !fastTrackHandler.handle(it)) {
+            if (!fastTrackHandler.handle(it)) {
                 showAuthenticationError = true
             }
         }

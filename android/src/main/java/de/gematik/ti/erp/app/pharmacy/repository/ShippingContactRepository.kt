@@ -55,7 +55,8 @@ class ShippingContactRepository(
                     shippingContact.let {
                         it.address!!.line1 = contact.line1
                         it.address!!.line2 = contact.line2
-                        it.address!!.postalCodeAndCity = contact.postalCodeAndCity
+                        it.address!!.postalCode = contact.postalCode
+                        it.address!!.city = contact.city
                         it.name = contact.name
                         it.telephoneNumber = contact.telephoneNumber
                         it.mail = contact.mail
@@ -72,7 +73,8 @@ fun ShippingContactEntityV1.toShippingContact() =
         name = this.name,
         line1 = this.address!!.line1,
         line2 = this.address!!.line2,
-        postalCodeAndCity = this.address!!.postalCodeAndCity,
+        postalCode = this.address!!.postalCode,
+        city = this.address!!.city,
         telephoneNumber = this.telephoneNumber,
         mail = this.mail,
         deliveryInformation = this.deliveryInformation

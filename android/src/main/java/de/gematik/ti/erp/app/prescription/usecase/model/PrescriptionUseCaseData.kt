@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription.usecase.model
 
 import androidx.compose.runtime.Immutable
+import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.Instant
 
@@ -63,7 +64,8 @@ object PrescriptionUseCaseData {
         data class Scanned(
             override val taskId: String,
             val scannedOn: Instant,
-            override val redeemedOn: Instant?
+            override val redeemedOn: Instant?,
+            val communications: List<CommunicationEntityV1>
         ) : Prescription()
 
         fun redeemedOrExpiredOn(): Instant =

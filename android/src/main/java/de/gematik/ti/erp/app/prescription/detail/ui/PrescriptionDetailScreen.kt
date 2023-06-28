@@ -96,9 +96,10 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.DirectAssignmentChip
 import de.gematik.ti.erp.app.prescription.ui.FailureDetailsStatusChip
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionStateInfo
 import de.gematik.ti.erp.app.prescription.ui.ScannedChip
+import de.gematik.ti.erp.app.prescription.ui.SentStatusChip
 import de.gematik.ti.erp.app.prescription.ui.SubstitutionAllowedChip
-import de.gematik.ti.erp.app.prescription.ui.prescriptionStateInfo
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -814,7 +815,7 @@ fun SyncedStatus(
                 textAlign = TextAlign.Center
             )
         } else {
-            prescriptionStateInfo(prescription.state, textAlign = TextAlign.Center)
+            PrescriptionStateInfo(prescription.state, textAlign = TextAlign.Center)
         }
         if (onClick != null) {
             Spacer(Modifier.padding(2.dp))
@@ -855,9 +856,16 @@ private fun ScannedPrescriptionOverview(
                     textAlign = TextAlign.Center
                 )
                 SpacerShortMedium()
-                ScannedChip(onClick = {
-                    onShowInfo(PrescriptionDetailBottomSheetContent.Scanned())
-                })
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    ScannedChip(onClick = {
+                        onShowInfo(PrescriptionDetailBottomSheetContent.Scanned())
+                    })
+                    if (prescription.task.communications.isNotEmpty()) {
+                        SpacerShortMedium()
+                        SentStatusChip()
+                    }
+                }
+
                 SpacerShortMedium()
                 val date = dateWithIntroductionString(R.string.prs_low_detail_scanned_on, prescription.scannedOn)
                 Text(date, style = AppTheme.typography.body2l)

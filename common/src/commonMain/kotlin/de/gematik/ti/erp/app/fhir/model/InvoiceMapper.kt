@@ -22,6 +22,7 @@ import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
+import de.gematik.ti.erp.app.fhir.parser.containedInt
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
@@ -34,6 +35,8 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
 import kotlinx.serialization.json.JsonElement
 
+const val Denominator = 1000.0
+
 typealias PkvDispenseFn<R> = (
     whenHandedOver: FhirTemporal
 ) -> R
@@ -42,7 +45,8 @@ typealias InvoiceFn<R> = (
     totalAdditionalFee: Double,
     totalBruttoAmount: Double,
     currency: String,
-    items: List<InvoiceData.ChargeableItem>
+    items: List<InvoiceData.ChargeableItem>,
+    additionalDispenseItem: InvoiceData.ChargeableItem?
 ) -> R
 
 fun extractInvoiceKBVAndErpPrBundle(
@@ -71,7 +75,7 @@ fun extractInvoiceKBVAndErpPrBundle(
         when {
             profileString.isProfileValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle",
-                "1.1"
+                "1.2"
             ) -> {
                 taskId = resource
                     .findAll("identifier")
@@ -102,8 +106,8 @@ fun extractInvoiceKBVAndErpPrBundle(
     }
     process(taskId, invoiceBundle, kbvBundle, erpPrBundle)
 }
-fun extractBinary(erpPrBundle: JsonElement): ByteArray? {
-    return erpPrBundle.contained("signature").containedString("data").toByteArray()
+fun extractBinary(bundle: JsonElement): ByteArray? {
+    return bundle.contained("signature").containedString("data").toByteArray()
 }
 
 fun <Dispense, Pharmacy, PharmacyAddress, Invoice> extractInvoiceBundle(
@@ -125,8 +129,8 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice> extractInvoiceBundle(
     when {
         profileString.isProfileValue(
             "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle",
-            "1.1"
-        ) -> extractInvoiceBundleVersion11(
+            "1.2"
+        ) -> extractInvoiceBundleVersion12(
             bundle,
             processDispense,
             processPharmacyAddress,
@@ -137,7 +141,7 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice> extractInvoiceBundle(
     }
 }
 
-fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersion11(
+fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersion12(
     bundle: JsonElement,
     processDispense: PkvDispenseFn<Dispense>,
     processPharmacyAddress: AddressFn<PharmacyAddress>,
@@ -160,6 +164,14 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
 
     val timestamp = bundle.containedString("timestamp").toInstant()
 
+    val additionalDispenseBundle = bundle.findAll("entry.resource")
+        .filterWith(
+            "meta.profile",
+            stringValue(
+                "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenEinheit|1.2"
+            )
+        ).firstOrNull()
+
     val resources = bundle
         .findAll("entry.resource")
 
@@ -176,7 +188,7 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
         when {
             profileString.isProfileValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abgabeinformationen",
-                "1.1"
+                "1.2"
             ) -> {
                 dispense = extractPkvDispense(
                     resource,
@@ -186,7 +198,7 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
 
             profileString.isProfileValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Apotheke",
-                "1.1"
+                "1.2"
             ) -> {
                 pharmacy = extractOrganization(
                     resource,
@@ -197,10 +209,11 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
 
             profileString.isProfileValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abrechnungszeilen",
-                "1.1"
+                "1.2"
             ) -> {
                 invoice = extractInvoice(
                     resource,
+                    additionalDispenseBundle,
                     processInvoice
                 )
             }
@@ -226,14 +239,15 @@ fun <Dispense> extractPkvDispense(
 }
 
 fun <Invoice> extractInvoice(
-    invoice: JsonElement,
+    billingLines: JsonElement,
+    additionalDispenseJson: JsonElement?,
     processInvoice: InvoiceFn<Invoice>
 ): Invoice {
-    val totalGross = invoice.contained("totalGross")
+    val totalGross = billingLines.contained("totalGross")
     val currency = totalGross.containedString("currency")
     val totalBruttoAmount = totalGross.containedDouble("value")
 
-    val totalAdditionalFee = invoice
+    val totalAdditionalFee = billingLines
         .findAll("totalGross.extension")
         .filterWith(
             "url",
@@ -243,7 +257,7 @@ fun <Invoice> extractInvoice(
         .contained("valueMoney")
         .containedDouble("value")
 
-    val items = invoice
+    val items = billingLines
         .findAll("lineItem")
         .mapNotNull { lineItem ->
             val value = lineItem
@@ -276,17 +290,34 @@ fun <Invoice> extractInvoice(
                 )
                 .firstOrNull()
                 ?.let {
+                    val text = lineItem
+                        .contained("chargeItemCodeableConcept").containedString("text")
                     val code = it.containedString("code")
                     val price = InvoiceData.PriceComponent(value, tax)
                     when (it.containedString("system")) {
                         "http://fhir.de/CodeSystem/ifa/pzn" ->
-                            InvoiceData.ChargeableItem(InvoiceData.ChargeableItem.Description.PZN(code), factor, price)
+                            InvoiceData.ChargeableItem(
+                                InvoiceData.ChargeableItem.Description.PZN(code),
+                                text,
+                                factor,
+                                price
+                            )
 
                         "http://TA1.abda.de" ->
-                            InvoiceData.ChargeableItem(InvoiceData.ChargeableItem.Description.TA1(code), factor, price)
+                            InvoiceData.ChargeableItem(
+                                InvoiceData.ChargeableItem.Description.TA1(code),
+                                text,
+                                factor,
+                                price
+                            )
 
                         "http://fhir.de/sid/gkv/hmnr" ->
-                            InvoiceData.ChargeableItem(InvoiceData.ChargeableItem.Description.HMNR(code), factor, price)
+                            InvoiceData.ChargeableItem(
+                                InvoiceData.ChargeableItem.Description.HMNR(code),
+                                text,
+                                factor,
+                                price
+                            )
 
                         else -> null
                     }
@@ -295,12 +326,72 @@ fun <Invoice> extractInvoice(
             item
         }.toList()
 
+    val additionalDispenseItem = extractAdditionalDispenseItem(additionalDispenseJson)
+
     return processInvoice(
         totalAdditionalFee,
         totalBruttoAmount,
         currency,
-        items
+        items,
+        additionalDispenseItem
     )
+}
+
+fun extractAdditionalDispenseItem(
+    additionalDispenseJson: JsonElement?
+): InvoiceData.ChargeableItem? {
+    return additionalDispenseJson?.let { additionalDispense ->
+        val lineItem = additionalDispense.contained("lineItem")
+        val text = "" // only Special indicator and its designation from the billing line are available
+        val code = lineItem
+            .findAll("chargeItemCodeableConcept.coding")
+            .filterWith(
+                "system",
+                or(
+                    stringValue("http://fhir.de/CodeSystem/ifa/pzn"),
+                    stringValue("http://TA1.abda.de"),
+                    stringValue("http://fhir.de/sid/gkv/hmnr")
+                )
+            )
+            .first().containedString("code")
+
+        val price = InvoiceData.PriceComponent(0.0, 0.0) // unused property TA_DAV_PKV 6.2.8.2
+
+        val factor = lineItem.contained("priceComponent")
+            .containedInt("factor") / Denominator // TA_DAV_PKV 6.2.8.2
+
+        val item = when (
+            lineItem.contained("chargeItemCodeableConcept")
+                .contained("coding").containedString("system")
+        ) {
+            "http://fhir.de/CodeSystem/ifa/pzn" ->
+                InvoiceData.ChargeableItem(
+                    InvoiceData.ChargeableItem.Description.PZN(code),
+                    text,
+                    factor,
+                    price
+                )
+
+            "http://TA1.abda.de" ->
+                InvoiceData.ChargeableItem(
+                    InvoiceData.ChargeableItem.Description.TA1(code),
+                    text,
+                    factor,
+                    price
+                )
+
+            "http://fhir.de/sid/gkv/hmnr" ->
+                InvoiceData.ChargeableItem(
+                    InvoiceData.ChargeableItem.Description.HMNR(code),
+                    text,
+                    factor,
+                    price
+                )
+
+            else -> null
+        }
+        item
+    }
 }
 
 fun extractTaskIdsFromChargeItemBundle(

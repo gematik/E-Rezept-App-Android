@@ -27,6 +27,9 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
+import java.time.format.DateTimeFormatter
 import kotlin.jvm.JvmInline
 
 /**
@@ -83,8 +86,13 @@ sealed interface FhirTemporal {
             is LocalDateTime -> this.value.toInstant(timeZone)
             is LocalTime, is Year, is YearMonth -> error("invalid format")
         }
+
+    fun toFormattedDate(): String? = this.toInstant(TimeZone.currentSystemDefault())
+        .toFormattedDate()
 }
 
+fun Instant.toFormattedDate(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
+    .toJavaLocalDateTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
 fun Instant.asFhirTemporal() = FhirTemporal.Instant(this)
 fun LocalDateTime.asFhirTemporal() = FhirTemporal.LocalDateTime(this)
 fun LocalDate.asFhirTemporal() = FhirTemporal.LocalDate(this)

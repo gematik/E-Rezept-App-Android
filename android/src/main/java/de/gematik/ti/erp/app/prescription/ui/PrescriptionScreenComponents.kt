@@ -68,7 +68,7 @@ import androidx.compose.ui.unit.em
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-
+import de.gematik.ti.erp.app.fhir.parser.toFormattedDate
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
@@ -76,7 +76,7 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.ui.model.SentOrCompletedPhrase
 import de.gematik.ti.erp.app.prescription.ui.model.sentOrCompleted
-import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
+import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData.Prescription
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileHandler
@@ -87,13 +87,13 @@ import de.gematik.ti.erp.app.utils.compose.DynamicText
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.dateString
+import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.timeString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -230,6 +230,7 @@ private fun PrescriptionsContent(
                 ProfileConnectionSection(onClickAvatar, onClickRefresh)
                 SpacerMedium()
             }
+
             prescriptionContent(
                 state = state,
                 navController = navController
@@ -310,10 +311,12 @@ private fun LazyListScope.prescriptionContent(
     navController: NavController,
     state: PrescriptionScreenData.State
 ) {
-    state.prescriptions.forEachIndexed { index, prescription ->
+    val indexedPrescriptions = processPrescriptionsDayIndices(state.prescriptions)
+
+    state.prescriptions.forEach { prescription ->
         item(key = "prescription-${prescription.taskId}") {
             when (prescription) {
-                is PrescriptionUseCaseData.Prescription.Synced ->
+                is Prescription.Synced ->
                     FullDetailMedication(
                         prescription,
                         modifier = CardPaddingModifier,
@@ -326,10 +329,11 @@ private fun LazyListScope.prescriptionContent(
                         }
                     )
 
-                is PrescriptionUseCaseData.Prescription.Scanned ->
+                is Prescription.Scanned -> {
                     LowDetailMedication(
                         modifier = CardPaddingModifier,
                         prescription,
+                        indexedPrescriptions.getOrDefault(prescription.taskId, 1),
                         onClick = {
                             navController.navigate(
                                 MainNavigationScreens.PrescriptionDetail.path(
@@ -338,9 +342,25 @@ private fun LazyListScope.prescriptionContent(
                             )
                         }
                     )
+                }
             }
         }
     }
+}
+
+private fun processPrescriptionsDayIndices(prescriptions: List<Prescription>): Map<String, Int> {
+    var previousPrescription: Prescription.Scanned? = null
+    var dayIndex = 1
+    val indexedPrescriptions = mutableMapOf<String, Int>()
+
+    prescriptions.filterIsInstance<Prescription.Scanned>().forEach {
+        val current = it.scannedOn.toFormattedDate()
+        val prev = previousPrescription?.scannedOn?.toFormattedDate()
+        if (current == prev) dayIndex++ else dayIndex = 1
+        previousPrescription = it
+        indexedPrescriptions[it.taskId] = dayIndex
+    }
+    return indexedPrescriptions
 }
 
 @Composable
@@ -408,7 +428,7 @@ fun readyPrescriptionStateInfo(
 }
 
 @Composable
-fun prescriptionStateInfo(
+fun PrescriptionStateInfo(
     state: SyncedTaskData.SyncedTask.TaskState,
     now: Instant = Clock.System.now(),
     textAlign: TextAlign = TextAlign.Left
@@ -542,7 +562,7 @@ private fun sentOrCompletedPhrase(lastModified: Instant, now: Instant, completed
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FullDetailMedication(
-    prescription: PrescriptionUseCaseData.Prescription.Synced,
+    prescription: Prescription.Synced,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -581,7 +601,7 @@ fun FullDetailMedication(
                 )
 
                 if (!prescription.isDirectAssignment) {
-                    prescriptionStateInfo(prescription.state)
+                    PrescriptionStateInfo(prescription.state)
                 }
 
                 SpacerSmall()
@@ -634,7 +654,8 @@ fun FullDetailMedication(
 @Composable
 fun LowDetailMedication(
     modifier: Modifier = Modifier,
-    prescription: PrescriptionUseCaseData.Prescription.Scanned,
+    prescription: Prescription.Scanned,
+    index: Int,
     onClick: () -> Unit
 ) {
     val dateFormatter = remember { DateTimeFormatter.ofPattern("dd.MM.yyyy") }
@@ -669,7 +690,11 @@ fun LowDetailMedication(
                     .weight(1f)
             ) {
                 Text(
-                    stringResource(R.string.prs_low_detail_medication),
+                    if (index > 0) {
+                        stringResource(R.string.prs_low_detail_medication) + " $index"
+                    } else {
+                        stringResource(R.string.prs_low_detail_medication)
+                    },
                     style = AppTheme.typography.subtitle1
                 )
                 SpacerTiny()
@@ -677,6 +702,13 @@ fun LowDetailMedication(
                     dateText,
                     style = AppTheme.typography.body2l
                 )
+                SpacerSmall()
+
+                Row {
+                    if (prescription.communications.isNotEmpty()) {
+                        SentStatusChip()
+                    }
+                }
             }
 
             Icon(

@@ -92,7 +92,8 @@ class PrescriptionUseCase(
                     PrescriptionUseCaseData.Prescription.Scanned(
                         taskId = task.taskId,
                         scannedOn = task.scannedOn,
-                        redeemedOn = task.redeemedOn
+                        redeemedOn = task.redeemedOn,
+                        communications = task.communications
                     )
                 }
         }
@@ -134,7 +135,8 @@ class PrescriptionUseCase(
                     PrescriptionUseCaseData.Prescription.Scanned(
                         taskId = task.taskId,
                         scannedOn = task.scannedOn,
-                        redeemedOn = task.redeemedOn
+                        redeemedOn = task.redeemedOn,
+                        communications = task.communications
                     )
                 }
 

@@ -26,7 +26,8 @@ object PharmacyData {
         val name: String,
         val line1: String,
         val line2: String,
-        val postalCodeAndCity: String,
+        val postalCode: String,
+        val city: String,
         val telephoneNumber: String,
         val mail: String,
         val deliveryInformation: String
@@ -38,7 +39,8 @@ fun SyncedTaskData.SyncedTask.shippingContact() =
         name = this.patient.name ?: "",
         line1 = this.patient.address?.line1 ?: "",
         line2 = this.patient.address?.line2 ?: "",
-        postalCodeAndCity = this.patient.address?.postalCodeAndCity ?: "",
+        postalCode = this.patient.address?.postalCode ?: "",
+        city = this.patient.address?.city ?: "",
         telephoneNumber = "",
         mail = "",
         deliveryInformation = ""

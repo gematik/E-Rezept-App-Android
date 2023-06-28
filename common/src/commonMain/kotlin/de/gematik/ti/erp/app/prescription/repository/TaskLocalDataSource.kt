@@ -174,7 +174,8 @@ class TaskLocalDataSource(
                                     AddressEntityV1().apply {
                                         this.line1 = line?.getOrNull(0) ?: ""
                                         this.line2 = line?.getOrNull(1) ?: ""
-                                        this.postalCodeAndCity = listOfNotNull(postalCode, city).joinToString(" ")
+                                        this.postalCode = postalCode ?: ""
+                                        this.city = city ?: ""
                                     }
                                 },
                                 processQuantity = { value, unit ->
@@ -239,11 +240,12 @@ class TaskLocalDataSource(
                                         this.ingredients = ingredients.toRealmList()
                                     }
                                 },
-                                processMultiplePrescriptionInfo = { indicator, numbering, start ->
+                                processMultiplePrescriptionInfo = { indicator, numbering, start, end ->
                                     MultiplePrescriptionInfoEntityV1().apply {
                                         this.indicator = indicator
                                         this.numbering = numbering
                                         this.start = start?.toInstant(TimeZone.UTC)?.toRealmInstant()
+                                        this.end = end?.toInstant(TimeZone.UTC)?.toRealmInstant()
                                     }
                                 },
                                 processMedicationRequest = {
@@ -431,7 +433,8 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
                 SyncedTaskData.Address(
                     line1 = it.line1,
                     line2 = it.line2,
-                    postalCodeAndCity = it.postalCodeAndCity
+                    postalCode = it.postalCode,
+                    city = it.city
                 )
             },
             uniqueIdentifier = this.organization?.uniqueIdentifier,
@@ -449,7 +452,8 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
                 SyncedTaskData.Address(
                     line1 = it.line1,
                     line2 = it.line2,
-                    postalCodeAndCity = it.postalCodeAndCity
+                    postalCode = it.postalCode,
+                    city = it.city
                 )
             },
             birthdate = this.patient?.dateOfBirth,
@@ -647,5 +651,6 @@ fun ScannedTaskEntityV1.toScannedTask() =
         taskId = this.taskId,
         accessCode = this.accessCode,
         scannedOn = this.scannedOn.toInstant(),
-        redeemedOn = this.redeemedOn?.toInstant()
+        redeemedOn = this.redeemedOn?.toInstant(),
+        communications = this.communications
     )

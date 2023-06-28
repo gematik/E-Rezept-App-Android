@@ -124,9 +124,6 @@
     <string name="technical_hotline_info">Infolinia techniczna</string>
     <string name="main_scan_acc">Otwórz skaner recept</string>
     <string name="main_settings_acc">Ustawienia</string>
-    <string name="settings_screenshots_alert_headline">Wskazówka</string>
-    <string name="settings_screenshots_alert_info">Ta zmiana będzie widoczna dopiero po ponownym uruchomieniu aplikacji.</string>
-    <string name="settings_screenshots_button_text">OK</string>
     <string name="settings_screenshots_toggle_text">Blokuj tworzenie zrzutów ekranu</string>
     <string name="settings_screenshots_description">Zapobiega wyświetlaniu podglądu przy zmianie aplikacji</string>
     <string name="settings_tracking_dialog_title">Czy zezwalasz aplikacji E-recepta na anonimową analizę Twojej aktywności?</string>
@@ -342,8 +339,6 @@
     <string name="edit_shipping_contact_title_line1">Ulica i numer domu</string>
     <string name="edit_shipping_contact_error_line1">Proszę podać ulicę i numer domu w celach kontaktowych.</string>
     <string name="edit_shipping_contact_line2">Dodatkowe dane adresowe (opcjonalnie)</string>
-    <string name="edit_shipping_contact_postal_code_and_city">Kod pocztowy i miejscowość</string>
-    <string name="edit_shipping_contact_error_postal_code_and_city">Proszę podać kod pocztowy i miejscowość w celach kontaktowych.</string>
     <string name="edit_shipping_contact_delivery_information">Wskazówki dotyczące dostawy (opcjonalnie)</string>
     <string name="pharmacy_order_further_contact_information_required">Potrzebne są dodatkowe dane kontaktowe</string>
     <string name="edit_contact_back_alert_header">Odrzucić zmiany?</string>

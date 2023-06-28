@@ -224,7 +224,7 @@ val networkModule = DI.Module("Network Module") {
             .addInterceptor(loggingInterceptor)
 
         if (BuildKonfig.INTERNAL) {
-            clientBuilder.addInterceptor(PharmacyRedeemInterceptor(instance()))
+            clientBuilder.addInterceptor(PharmacyRedeemInterceptor())
         }
 
         Retrofit.Builder()

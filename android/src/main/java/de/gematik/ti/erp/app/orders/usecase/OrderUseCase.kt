@@ -118,6 +118,10 @@ class OrderUseCase(
         }
     }
 
+    suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String) {
+        repository.saveLocalCommunication(taskId, pharmacyId, transactionId)
+    }
+
     suspend fun consumeOrder(orderId: String) {
         withContext(dispatchers.IO) {
             repository.loadDispReqCommunications(orderId).first().forEach {

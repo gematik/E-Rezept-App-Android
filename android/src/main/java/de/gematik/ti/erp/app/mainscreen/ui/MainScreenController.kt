@@ -27,14 +27,17 @@ import de.gematik.ti.erp.app.attestation.usecase.IntegrityUseCase
 import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import org.kodein.di.compose.rememberInstance
 
 class MainScreenController(
     private val integrityUseCase: IntegrityUseCase,
-    private val messageUseCase: OrderUseCase
+    private val messageUseCase: OrderUseCase,
+    private val settingsUseCase: SettingsUseCase
 ) {
 
     enum class OrderedEvent {
@@ -64,15 +67,8 @@ class MainScreenController(
         orderedEvent = if (hasError) OrderedEvent.Error else OrderedEvent.Success
     }
 
-    var integrityPromptShown = false
-
     fun checkDeviceIntegrity() = integrityUseCase.runIntegrityAttestation().map {
-        if (!it && !integrityPromptShown) {
-            integrityPromptShown = true
-            false
-        } else {
-            true
-        }
+        !it && !settingsUseCase.general.first().userHasAcceptedInsecureDevice
     }
 }
 
@@ -80,11 +76,13 @@ class MainScreenController(
 fun rememberMainScreenController(): MainScreenController {
     val integrityUseCase by rememberInstance<IntegrityUseCase>()
     val messageUseCase by rememberInstance<OrderUseCase>()
+    val settingsUseCase by rememberInstance<SettingsUseCase>()
 
     return remember {
         MainScreenController(
             integrityUseCase = integrityUseCase,
-            messageUseCase = messageUseCase
+            messageUseCase = messageUseCase,
+            settingsUseCase = settingsUseCase
         )
     }
 }

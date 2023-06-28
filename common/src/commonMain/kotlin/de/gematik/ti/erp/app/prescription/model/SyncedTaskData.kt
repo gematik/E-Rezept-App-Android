@@ -176,16 +176,26 @@ object SyncedTaskData {
     data class Address(
         val line1: String,
         val line2: String,
-        val postalCodeAndCity: String
+        val postalCode: String,
+        val city: String
     ) {
         fun joinToString(): String =
             listOf(
                 this.line1,
                 this.line2,
-                this.postalCodeAndCity
+                this.postalCode + " " + this.city
             ).filter {
                 it.isNotEmpty()
-            }.joinToString("\n")
+            }.joinToString(System.getProperty("line.separator"))
+
+        fun joinToHtmlString(): String =
+            listOf(
+                this.line1,
+                this.line2,
+                this.postalCode + " " + this.city
+            ).filter {
+                it.isNotEmpty()
+            }.joinToString("<br>")
     }
 
     data class Organization(
@@ -247,7 +257,8 @@ object SyncedTaskData {
     data class MultiplePrescriptionInfo(
         val indicator: Boolean = false,
         val numbering: Ratio? = null,
-        val start: Instant? = null
+        val start: Instant? = null,
+        val end: Instant? = null
     )
 
     enum class AccidentType {

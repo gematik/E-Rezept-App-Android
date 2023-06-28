@@ -71,7 +71,7 @@ fun CardAccessNumber(
     val lazyListState = rememberLazyListState()
 
     CardHandlingScaffold(
-        modifier = Modifier.testTag("cardWall/cardAccessNumber"),
+        modifier = Modifier.testTag(TestTag.CardWall.CAN.CANScreen),
         backMode = NavigationBarMode.Back,
         title = screenTitle,
         nextEnabled = can.length == EXPECTED_CAN_LENGTH,
@@ -154,6 +154,7 @@ fun CanDescription(onClickLearnMore: () -> Unit) {
             onClick = { onClickLearnMore() },
             style = AppTheme.typography.body2,
             modifier = Modifier.align(Alignment.End)
+                .testTag(TestTag.CardWall.CAN.OrderEgkButton)
         )
     }
 }

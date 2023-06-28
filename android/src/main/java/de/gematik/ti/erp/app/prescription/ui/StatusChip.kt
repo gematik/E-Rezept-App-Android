@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
@@ -72,7 +73,7 @@ fun StatusChip(
             .padding(vertical = 6.dp, horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text, style = AppTheme.typography.subtitle2, color = textColor)
+        Text(text, style = AppTheme.typography.subtitle2, color = textColor, overflow = TextOverflow.Ellipsis)
         icon?.let {
             SpacerSmall()
             it()
@@ -121,6 +122,15 @@ fun ReadyStatusChip() =
         textColor = AppTheme.colors.primary900,
         backgroundColor = AppTheme.colors.primary100,
         modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionRedeemable)
+    )
+
+@Composable
+fun SentStatusChip() =
+    StatusChip(
+        text = stringResource(R.string.prescription_status_sent),
+        icon = null,
+        textColor = AppTheme.colors.yellow900,
+        backgroundColor = AppTheme.colors.yellow100
     )
 
 @Composable

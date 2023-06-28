@@ -19,18 +19,16 @@
 package de.gematik.ti.erp.app.mainscreen.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -61,8 +59,9 @@ import de.gematik.ti.erp.app.profiles.ui.ColorPicker
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileImage
 import de.gematik.ti.erp.app.profiles.ui.ProfilesController
+import de.gematik.ti.erp.app.profiles.ui.rememberProfilesController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.ui.SettingsController
+import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
@@ -98,13 +97,13 @@ sealed class MainScreenBottomSheetContentState {
 
 @Composable
 fun MainScreenBottomSheetContentState(
-    settingsController: SettingsController,
-    profilesController: ProfilesController,
     infoContentState: MainScreenBottomSheetContentState?,
     mainNavController: NavController,
     profileToRename: ProfilesUseCaseData.Profile,
     onCancel: () -> Unit
 ) {
+    val profilesController = rememberProfilesController()
+    val settingsController = rememberSettingsController()
     val profileHandler = LocalProfileHandler.current
 
     val title = when (infoContentState) {
@@ -132,70 +131,70 @@ fun MainScreenBottomSheetContentState(
             Text(it, style = AppTheme.typography.subtitle1)
             SpacerMedium()
         }
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+        LazyColumn(
+            Modifier.fillMaxWidth()
         ) {
-            infoContentState?.let {
-                when (it) {
-                    is MainScreenBottomSheetContentState.EditProfilePicture ->
-                        EditProfileAvatar(
-                            profile = profileHandler.activeProfile,
-                            clearPersonalizedImage = {
-                                scope.launch {
-                                    profilesController.clearPersonalizedImage(profileHandler.activeProfile.id)
-                                }
-                            },
-                            onPickPersonalizedImage = {
-                                mainNavController.navigate(
-                                    MainNavigationScreens.ProfileImageCropper.path(
-                                        profileId = profileHandler.activeProfile.id
+            item {
+                infoContentState?.let {
+                    when (it) {
+                        is MainScreenBottomSheetContentState.EditProfilePicture ->
+                            EditProfileAvatar(
+                                profile = profileHandler.activeProfile,
+                                clearPersonalizedImage = {
+                                    scope.launch {
+                                        profilesController.clearPersonalizedImage(profileHandler.activeProfile.id)
+                                    }
+                                },
+                                onPickPersonalizedImage = {
+                                    mainNavController.navigate(
+                                        MainNavigationScreens.ProfileImageCropper.path(
+                                            profileId = profileHandler.activeProfile.id
+                                        )
                                     )
-                                )
-                            },
-                            onSelectAvatar = { avatar ->
-                                scope.launch {
-                                    profilesController.saveAvatarFigure(profileHandler.activeProfile.id, avatar)
+                                },
+                                onSelectAvatar = { avatar ->
+                                    scope.launch {
+                                        profilesController.saveAvatarFigure(profileHandler.activeProfile.id, avatar)
+                                    }
+                                },
+                                onSelectProfileColor = { color ->
+                                    scope.launch {
+                                        profilesController.updateProfileColor(profileHandler.activeProfile, color)
+                                    }
                                 }
-                            },
-                            onSelectProfileColor = { color ->
-                                scope.launch {
-                                    profilesController.updateProfileColor(profileHandler.activeProfile, color)
+                            )
+                        is MainScreenBottomSheetContentState.EditProfileName ->
+                            ProfileSheetContent(
+                                profilesController = profilesController,
+                                addProfile = false,
+                                profileToEdit = profileToRename,
+                                onCancel = onCancel
+                            )
+                        is MainScreenBottomSheetContentState.AddProfile ->
+                            ProfileSheetContent(
+                                profilesController = profilesController,
+                                addProfile = true,
+                                profileToEdit = null,
+                                onCancel = onCancel
+                            )
+                        is MainScreenBottomSheetContentState.Welcome ->
+                            ConnectBottomSheetContent(
+                                onClickConnect = {
+                                    scope.launch {
+                                        settingsController.welcomeDrawerShown()
+                                    }
+                                    mainNavController.navigate(
+                                        MainNavigationScreens.CardWall.path(profileHandler.activeProfile.id)
+                                    )
+                                },
+                                onCancel = {
+                                    scope.launch {
+                                        settingsController.welcomeDrawerShown()
+                                    }
+                                    onCancel()
                                 }
-                            }
-                        )
-                    is MainScreenBottomSheetContentState.EditProfileName ->
-                        ProfileSheetContent(
-                            profilesController = profilesController,
-                            addProfile = false,
-                            profileToEdit = profileToRename,
-                            onCancel = onCancel
-                        )
-                    is MainScreenBottomSheetContentState.AddProfile ->
-                        ProfileSheetContent(
-                            profilesController = profilesController,
-                            addProfile = true,
-                            profileToEdit = null,
-                            onCancel = onCancel
-                        )
-                    is MainScreenBottomSheetContentState.Welcome ->
-                        ConnectBottomSheetContent(
-                            onClickConnect = {
-                                scope.launch {
-                                    settingsController.welcomeDrawerShown()
-                                }
-                                mainNavController.navigate(
-                                    MainNavigationScreens.CardWall.path(profileHandler.activeProfile.id)
-                                )
-                            },
-                            onCancel = {
-                                scope.launch {
-                                    settingsController.welcomeDrawerShown()
-                                }
-                                onCancel()
-                            }
-                        )
+                            )
+                    }
                 }
             }
         }

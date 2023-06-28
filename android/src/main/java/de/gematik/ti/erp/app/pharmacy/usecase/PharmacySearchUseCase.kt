@@ -172,6 +172,7 @@ class PharmacySearchUseCase(
             prescriptionRepository.scannedTasks(profileId).map { tasks ->
                 tasks.filter {
                     it.isRedeemable()
+                    it.communications.isEmpty()
                 }
             }
         ) { shippingContacts, syncedTasks, scannedTasks ->
@@ -210,7 +211,8 @@ class PharmacySearchUseCase(
                     name = shippingContact?.name ?: "",
                     line1 = shippingContact?.line1 ?: "",
                     line2 = shippingContact?.line2 ?: "",
-                    postalCodeAndCity = shippingContact?.postalCodeAndCity ?: "",
+                    postalCode = shippingContact?.postalCode ?: "",
+                    city = shippingContact?.city ?: "",
                     telephoneNumber = shippingContact?.telephoneNumber ?: "",
                     mail = shippingContact?.mail ?: "",
                     deliveryInformation = shippingContact?.deliveryInformation ?: ""
@@ -241,7 +243,7 @@ class PharmacySearchUseCase(
                 version = "1",
                 supplyOptionsType = redeemOption.type,
                 name = contact.name,
-                address = listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
+                address = listOf(contact.line1, contact.line2, contact.postalCode, contact.city),
                 phone = contact.telephoneNumber,
                 hint = contact.deliveryInformation
             )
@@ -255,7 +257,8 @@ class PharmacySearchUseCase(
             name = contact.name.trim(),
             line1 = contact.line1.trim(),
             line2 = contact.line2.trim(),
-            postalCodeAndCity = contact.postalCodeAndCity.trim(),
+            postalCode = contact.postalCode.trim(),
+            city = contact.city.trim(),
             telephoneNumber = contact.telephoneNumber.trim(),
             mail = contact.mail.trim(),
             deliveryInformation = contact.deliveryInformation.trim()

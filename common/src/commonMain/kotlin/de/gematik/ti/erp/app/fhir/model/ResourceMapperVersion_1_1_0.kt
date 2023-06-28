@@ -66,6 +66,11 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
         .firstOrNull()
         ?.containedString("value")
 
+    val practitionerId = bundle.findAll("entry.resource.author")
+        .filterWith("type", stringValue("Practitioner"))
+        .firstOrNull()
+        ?.containedStringOrNull("reference")?.split("/")?.last() ?: ""
+
     savePVSIdentifier(pvsId)
 
     val resources = bundle
@@ -110,7 +115,7 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
             profileString.isProfileValue(
                 "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner",
                 "1.1.0"
-            ) -> {
+            ) && (resource.containedStringOrNull("id") ?: "") == practitionerId -> {
                 practitioner = extractPractitioner(
                     resource,
                     processPractitioner

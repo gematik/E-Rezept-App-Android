@@ -123,13 +123,10 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.runtime.produceState
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.analytics.trackScannerPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.prescription.ui.model.ScanData
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -142,7 +139,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
@@ -199,12 +195,6 @@ fun ScanScreen(
     BackHandler(sheetState.isVisible) {
         coroutineScope.launch { sheetState.hide() }
     }
-    val featureToggleManager = FeatureToggleManager(context)
-    val directRedeemEnabled by produceState(false) {
-        featureToggleManager.isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName).first().apply {
-            value = this
-        }
-    }
 
     if (cancelRequested && state.hasCodesToSave()) {
         SaveDialog(
@@ -218,7 +208,6 @@ fun ScanScreen(
         sheetState = sheetState,
         sheetContent = {
             SheetContent(
-                directRedeemEnabled = directRedeemEnabled,
                 onClickSave = {
                     coroutineScope.launch {
                         scanPrescriptionController.saveToDatabase()
@@ -281,8 +270,7 @@ fun ScanScreen(
 @Composable
 private fun SheetContent(
     onClickSave: () -> Unit,
-    onClickRedeem: () -> Unit,
-    directRedeemEnabled: Boolean
+    onClickRedeem: () -> Unit
 ) {
     SpacerMedium()
     Text(
@@ -293,24 +281,11 @@ private fun SheetContent(
     )
     SpacerSmall()
     BottomSheetAction(
-        enabled = directRedeemEnabled,
         icon = { Icon(Icons.Rounded.ShoppingBag, null) },
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(stringResource(R.string.cam_next_sheet_order_now_title))
                 SpacerSmall()
-                if (!directRedeemEnabled) {
-                    Surface(
-                        color = AppTheme.colors.primary100,
-                        contentColor = AppTheme.colors.primary600,
-                        shape = RoundedCornerShape(8.dp)
-                    ) {
-                        Text(
-                            stringResource(R.string.cam_next_sheet_available_soon),
-                            Modifier.padding(horizontal = PaddingDefaults.Small, vertical = 2.dp)
-                        )
-                    }
-                }
             }
         },
         info = { Text(stringResource(R.string.cam_next_sheet_order_now_info)) },

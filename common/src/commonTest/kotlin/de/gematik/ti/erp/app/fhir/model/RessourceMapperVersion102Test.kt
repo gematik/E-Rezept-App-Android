@@ -252,10 +252,11 @@ class RessourceMapperVersion102Test {
                 assertEquals(ReturnType.Quantity, denominator)
                 ReturnType.Ratio
             },
-            processMultiplePrescriptionInfo = { indicator, numbering, start ->
+            processMultiplePrescriptionInfo = { indicator, numbering, start, end ->
                 assertTrue(indicator)
                 assertEquals(ReturnType.Ratio, numbering)
                 assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-08-17")), start)
+                assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-11-25")), end)
                 ReturnType.MultiplePrescriptionInfo
             },
             processMedicationRequest = {

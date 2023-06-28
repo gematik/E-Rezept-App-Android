@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
+import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
 
@@ -27,7 +28,8 @@ object ScannedTaskData {
         val taskId: String,
         val accessCode: String,
         val scannedOn: Instant,
-        val redeemedOn: Instant?
+        val redeemedOn: Instant?,
+        val communications: List<CommunicationEntityV1> = emptyList()
     ) {
         fun isRedeemable() = redeemedOn == null
     }

@@ -55,9 +55,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.settings.ui.SettingsController
+import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -70,18 +69,19 @@ import java.util.Locale
 
 @Composable
 fun InsecureDeviceScreen(
-    navController: NavController,
-    settingsController: SettingsController,
     headline: String,
     icon: Painter,
     headlineBody: String,
     infoText: String,
     toggleDescription: String,
-    pinUseCase: Boolean = true
+    pinUseCase: Boolean = true,
+    onBack: () -> Unit
 ) {
     var checked by rememberSaveable { mutableStateOf(false) }
     val scrollState = rememberScrollState()
     val scope = rememberCoroutineScope()
+
+    val settingsController = rememberSettingsController()
 
     AnimatedElevationScaffold(
         elevated = scrollState.value > 0,
@@ -91,12 +91,12 @@ fun InsecureDeviceScreen(
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        if (checked && pinUseCase) {
+                        if (checked) {
                             scope.launch {
                                 settingsController.onAcceptInsecureDevice()
                             }
                         }
-                        navController.popBackStack()
+                        onBack()
                     },
                     shape = RoundedCornerShape(PaddingDefaults.Small),
                     enabled = if (pinUseCase) true else checked
@@ -112,7 +112,7 @@ fun InsecureDeviceScreen(
         },
         actions = {},
         topBarTitle = headline,
-        onBack = { navController.popBackStack() }
+        onBack = onBack
     ) { innerPadding ->
         Column(
             modifier = Modifier

@@ -36,18 +36,19 @@ val pkvInvoice = InvoiceData.PKVInvoice(
         2.30,
         6.80,
         "EUR",
-        listOf()
+        listOf(),
+        null
     ),
     pharmacyOrganization = SyncedTaskData.Organization(
         "Pharmacy",
-        SyncedTaskData.Address("", "", ""),
+        SyncedTaskData.Address("", "", "", ""),
         null,
         null,
         null
     ),
     practitionerOrganization = SyncedTaskData.Organization(
         "Practitioner",
-        SyncedTaskData.Address("", "", ""),
+        SyncedTaskData.Address("", "", "", ""),
         null,
         null,
         null
@@ -55,7 +56,7 @@ val pkvInvoice = InvoiceData.PKVInvoice(
     practitioner = SyncedTaskData.Practitioner("Practitioner", "", ""),
     patient = SyncedTaskData.Patient(
         "Patient",
-        SyncedTaskData.Address("", "", ""),
+        SyncedTaskData.Address("", "", "", ""),
         null,
         null
     ),
@@ -76,18 +77,19 @@ val pkvInvoice2 = InvoiceData.PKVInvoice(
         2.30,
         6.80,
         "EUR",
-        listOf()
+        listOf(),
+        null
     ),
     pharmacyOrganization = SyncedTaskData.Organization(
         "Pharmacy",
-        SyncedTaskData.Address("", "", ""),
+        SyncedTaskData.Address("", "", "", ""),
         null,
         null,
         null
     ),
     practitionerOrganization = SyncedTaskData.Organization(
         "Practitioner",
-        SyncedTaskData.Address("", "", ""),
+        SyncedTaskData.Address("", "", "", ""),
         null,
         null,
         null
@@ -95,7 +97,7 @@ val pkvInvoice2 = InvoiceData.PKVInvoice(
     practitioner = SyncedTaskData.Practitioner("Practitioner", "", ""),
     patient = SyncedTaskData.Patient(
         "Patient",
-        SyncedTaskData.Address("", "", ""),
+        SyncedTaskData.Address("", "", "", ""),
         null,
         null
     ),

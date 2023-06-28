@@ -37,6 +37,7 @@ class ChargeableItemV1 : RealmObject, Cascading {
     @delegate:Ignore
     var descriptionTypeV1: DescriptionTypeV1 by enumName(::_description)
     var description: String = ""
+    var text: String = ""
 
     var factor: Double = 0.0
 

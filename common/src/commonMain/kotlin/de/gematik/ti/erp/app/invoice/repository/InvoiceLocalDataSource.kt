@@ -88,258 +88,270 @@ class InvoiceLocalDataSource(
 
                 lateinit var invoiceEntity: PKVInvoiceEntityV1
 
-                extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
-                    extractInvoiceBundle(
-                        invoiceBundle,
-                        processDispense = { whenHandedOver ->
-                            whenHandedOver
-                        },
-                        processPharmacyAddress = { line, postalCode, city ->
-                            AddressEntityV1().apply {
-                                this.line1 = line?.getOrNull(0) ?: ""
-                                this.line2 = line?.getOrNull(1) ?: ""
-                                this.postalCodeAndCity = postalCode + city
-                            }
-                        },
-                        processPharmacy = { name, address, _, iknr, _, _ ->
-                            OrganizationEntityV1().apply {
-                                this.name = name
-                                this.address = address
-                                this.uniqueIdentifier = iknr
-                            }
-                        },
-                        processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items ->
-                            InvoiceEntityV1().apply {
-                                this.totalAdditionalFee = totalAdditionalFee
-                                this.totalBruttoAmount = totalBruttoAmount
-                                this.currency = currency
-                                items.forEach { item ->
-                                    this.chargeableItems.add(
-                                        ChargeableItemV1().apply {
-                                            when (item.description) {
-                                                is InvoiceData.ChargeableItem.Description.PZN -> {
-                                                    this.descriptionTypeV1 = DescriptionTypeV1.PZN
-                                                    this.description = item.description.pzn
-                                                }
+                extractInvoiceKBVAndErpPrBundle(
+                    bundle,
+                    process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+                        extractInvoiceBundle(
+                            invoiceBundle,
+                            processDispense = { whenHandedOver ->
+                                whenHandedOver
+                            },
+                            processPharmacyAddress = { line, postalCode, city ->
+                                AddressEntityV1().apply {
+                                    this.line1 = line?.getOrNull(0) ?: ""
+                                    this.line2 = line?.getOrNull(1) ?: ""
+                                    this.postalCode = postalCode ?: ""
+                                    this.city = city ?: ""
+                                }
+                            },
+                            processPharmacy = { name, address, _, iknr, _, _ ->
+                                OrganizationEntityV1().apply {
+                                    this.name = name
+                                    this.address = address
+                                    this.uniqueIdentifier = iknr
+                                }
+                            },
+                            processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, additionalItem ->
+                                InvoiceEntityV1().apply {
+                                    this.totalAdditionalFee = totalAdditionalFee
+                                    this.totalBruttoAmount = totalBruttoAmount
+                                    this.currency = currency
+                                    items.forEach { item ->
+                                        this.chargeableItems.add(
+                                            applyChargeableItem(item)
+                                        )
+                                    }
+                                    this.additionalDispenseItem = additionalItem?.let { applyChargeableItem(it) }
+                                }
+                            },
+                            save = { taskId, timeStamp, pharmacy, invoice, whenHandedOver ->
+                                invoiceEntity = queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId) ?: run {
+                                    copyToRealm(PKVInvoiceEntityV1()).also {
+                                        profile.invoices += it
+                                    }
+                                }
 
-                                                is InvoiceData.ChargeableItem.Description.TA1 -> {
-                                                    this.descriptionTypeV1 = DescriptionTypeV1.TA1
-                                                    this.description = item.description.ta1
-                                                }
+                                val kbvBinary = extractBinary(kbvBundle) ?: byteArrayOf() // Verordnung
+                                val invoiceBinary = extractBinary(invoiceBundle) ?: byteArrayOf() // Abrechnung
+                                val erpPrBinary = extractBinary(erpPrBundle) ?: byteArrayOf() // Quittung
 
-                                                is InvoiceData.ChargeableItem.Description.HMNR -> {
-                                                    this.descriptionTypeV1 = DescriptionTypeV1.HMNR
-                                                    this.description = item.description.hmnr
-                                                }
-                                            }
-                                            this.factor = item.factor
-                                            this.price = PriceComponentV1().apply {
-                                                this.value = item.price.value
-                                                this.tax = item.price.tax
-                                            }
+                                profile.apply {
+                                    this.invoices.add(
+                                        invoiceEntity.apply {
+                                            this.parent = profile
+                                            this.taskId = taskId
+                                            this.timestamp = timeStamp.toRealmInstant()
+                                            this.pharmacyOrganization = pharmacy
+                                            this.invoice = invoice
+                                            this.whenHandedOver = whenHandedOver
+                                            this.kbvBinary = kbvBinary
+                                            this.erpPrBinary = erpPrBinary
+                                            this.invoiceBinary = invoiceBinary
                                         }
                                     )
                                 }
                             }
-                        },
-                        save = { taskId, timeStamp, pharmacy, invoice, whenHandedOver ->
-                            invoiceEntity = queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId) ?: run {
-                                copyToRealm(PKVInvoiceEntityV1()).also {
-                                    profile.invoices += it
+                        )
+
+                        extractKBVBundle(
+                            kbvBundle,
+                            processOrganization = { name, address, _, iknr, phone, mail ->
+                                OrganizationEntityV1().apply {
+                                    this.name = name
+                                    this.address = address
+                                    this.uniqueIdentifier = iknr
+                                    this.phone = phone
+                                    this.mail = mail
                                 }
-                            }
-
-                            val kbvBinary = extractBinary(kbvBundle) ?: byteArrayOf() // Verordnung
-                            val invoiceBinary = extractBinary(invoiceBundle) ?: byteArrayOf() // Abrechnung
-                            val erpPrBinary = extractBinary(erpPrBundle) ?: byteArrayOf() // Quittung
-
-                            profile.apply {
-                                this.invoices.add(
-                                    invoiceEntity.apply {
-                                        this.parent = profile
-                                        this.taskId = taskId
-                                        this.timestamp = timeStamp.toRealmInstant()
-                                        this.pharmacyOrganization = pharmacy
-                                        this.invoice = invoice
-                                        this.whenHandedOver = whenHandedOver
-                                        this.kbvBinary = kbvBinary
-                                        this.erpPrBinary = erpPrBinary
-                                        this.invoiceBinary = invoiceBinary
+                            },
+                            processPatient = { name, address, birthDate, insuranceIdentifier ->
+                                PatientEntityV1().apply {
+                                    this.name = name
+                                    this.address = address
+                                    this.dateOfBirth = birthDate
+                                    this.insuranceIdentifier = insuranceIdentifier
+                                }
+                            },
+                            processPractitioner = { name, qualification, practitionerIdentifier ->
+                                PractitionerEntityV1().apply {
+                                    this.name = name
+                                    this.qualification = qualification
+                                    this.practitionerIdentifier = practitionerIdentifier
+                                }
+                            },
+                            processInsuranceInformation = { name, statusCode ->
+                                InsuranceInformationEntityV1().apply {
+                                    this.name = name
+                                    this.statusCode = statusCode
+                                }
+                            },
+                            processAddress = { line, postalCode, city ->
+                                AddressEntityV1().apply {
+                                    this.line1 = line?.getOrNull(0) ?: ""
+                                    this.line2 = line?.getOrNull(1) ?: ""
+                                    this.postalCode = postalCode ?: ""
+                                    this.city = city ?: ""
+                                }
+                            },
+                            processQuantity = { value, unit ->
+                                QuantityEntityV1().apply {
+                                    this.value = value
+                                    this.unit = unit
+                                }
+                            },
+                            processRatio = { numerator, denominator ->
+                                RatioEntityV1().apply {
+                                    this.numerator = numerator
+                                    this.denominator = denominator
+                                }
+                            },
+                            processIngredient = { text, form, number, amount, strength ->
+                                IngredientEntityV1().apply {
+                                    this.text = text
+                                    this.form = form
+                                    this.number = number
+                                    this.amount = amount
+                                    this.strength = strength
+                                }
+                            },
+                            processMedication = { text,
+                                medicationProfile,
+                                medicationCategory,
+                                form,
+                                amount,
+                                vaccine,
+                                manufacturingInstructions,
+                                packaging,
+                                normSizeCode,
+                                uniqueIdentifier,
+                                ingredients,
+                                _,
+                                _ ->
+                                MedicationEntityV1().apply {
+                                    this.text = text ?: ""
+                                    this.medicationProfile = when (medicationProfile) {
+                                        MedicationProfile.PZN -> MedicationProfileV1.PZN
+                                        MedicationProfile.COMPOUNDING -> MedicationProfileV1.COMPOUNDING
+                                        MedicationProfile.INGREDIENT -> MedicationProfileV1.INGREDIENT
+                                        MedicationProfile.FREETEXT -> MedicationProfileV1.FREETEXT
+                                        else -> MedicationProfileV1.UNKNOWN
                                     }
-                                )
-                            }
-                        }
-                    )
+                                    this.medicationCategory = when (medicationCategory) {
+                                        MedicationCategory.ARZNEI_UND_VERBAND_MITTEL ->
+                                            MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL
 
-                    extractKBVBundle(
-                        kbvBundle,
-                        processOrganization = { name, address, bsnr, iknr, phone, mail ->
-                            OrganizationEntityV1().apply {
-                                this.name = name
-                                this.address = address
-                                this.uniqueIdentifier = bsnr
-                                this.phone = phone
-                                this.mail = mail
-                            }
-                        },
-                        processPatient = { name, address, birthDate, insuranceIdentifier ->
-                            PatientEntityV1().apply {
-                                this.name = name
-                                this.address = address
-                                this.dateOfBirth = birthDate
-                                this.insuranceIdentifier = insuranceIdentifier
-                            }
-                        },
-                        processPractitioner = { name, qualification, practitionerIdentifier ->
-                            PractitionerEntityV1().apply {
-                                this.name = name
-                                this.qualification = qualification
-                                this.practitionerIdentifier = practitionerIdentifier
-                            }
-                        },
-                        processInsuranceInformation = { name, statusCode ->
-                            InsuranceInformationEntityV1().apply {
-                                this.name = name
-                                this.statusCode = statusCode
-                            }
-                        },
-                        processAddress = { line, postalCode, city ->
-                            AddressEntityV1().apply {
-                                this.line1 = line?.getOrNull(0) ?: ""
-                                this.line2 = line?.getOrNull(1) ?: ""
-                                this.postalCodeAndCity = listOfNotNull(postalCode, city).joinToString(" ")
-                            }
-                        },
-                        processQuantity = { value, unit ->
-                            QuantityEntityV1().apply {
-                                this.value = value
-                                this.unit = unit
-                            }
-                        },
-                        processRatio = { numerator, denominator ->
-                            RatioEntityV1().apply {
-                                this.numerator = numerator
-                                this.denominator = denominator
-                            }
-                        },
-                        processIngredient = { text, form, number, amount, strength ->
-                            IngredientEntityV1().apply {
-                                this.text = text
-                                this.form = form
-                                this.number = number
-                                this.amount = amount
-                                this.strength = strength
-                            }
-                        },
-                        processMedication = { text,
-                            medicationProfile,
-                            medicationCategory,
-                            form,
-                            amount,
-                            vaccine,
-                            manufacturingInstructions,
-                            packaging,
-                            normSizeCode,
-                            uniqueIdentifier,
-                            ingredients,
-                            _,
-                            _ ->
-                            MedicationEntityV1().apply {
-                                this.text = text ?: ""
-                                this.medicationProfile = when (medicationProfile) {
-                                    MedicationProfile.PZN -> MedicationProfileV1.PZN
-                                    MedicationProfile.COMPOUNDING -> MedicationProfileV1.COMPOUNDING
-                                    MedicationProfile.INGREDIENT -> MedicationProfileV1.INGREDIENT
-                                    MedicationProfile.FREETEXT -> MedicationProfileV1.FREETEXT
-                                    else -> MedicationProfileV1.UNKNOWN
+                                        MedicationCategory.BTM -> MedicationCategoryV1.BTM
+                                        MedicationCategory.AMVV -> MedicationCategoryV1.AMVV
+                                        MedicationCategory.SONSTIGES -> MedicationCategoryV1.SONSTIGES
+                                        else -> MedicationCategoryV1.UNKNOWN
+                                    }
+                                    this.form = form
+                                    this.amount = amount
+                                    this.vaccine = vaccine
+                                    this.manufacturingInstructions = manufacturingInstructions
+                                    this.packaging = packaging
+                                    this.normSizeCode = normSizeCode
+                                    this.uniqueIdentifier = uniqueIdentifier
+                                    this.ingredients = ingredients.toRealmList()
                                 }
-                                this.medicationCategory = when (medicationCategory) {
-                                    MedicationCategory.ARZNEI_UND_VERBAND_MITTEL ->
-                                        MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL
+                            },
+                            processMultiplePrescriptionInfo = { indicator, numbering, start, end ->
+                                MultiplePrescriptionInfoEntityV1().apply {
+                                    this.indicator = indicator
+                                    this.numbering = numbering
+                                    this.start = start?.toInstant(TimeZone.UTC)?.toRealmInstant()
+                                    this.end = end?.toInstant(TimeZone.UTC)?.toRealmInstant()
+                                }
+                            },
+                            processMedicationRequest = {
+                                    authoredOn,
+                                    dateOfAccident,
+                                    location,
+                                    accidentType,
+                                    emergencyFee,
+                                    substitutionAllowed,
+                                    dosageInstruction,
+                                    quantity,
+                                    multiplePrescriptionInfo,
+                                    note,
+                                    bvg,
+                                    additionalFee
+                                ->
+                                MedicationRequestEntityV1().apply {
+                                    this.authoredOn = authoredOn
+                                    this.dateOfAccident =
+                                        dateOfAccident?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
+                                    this.location = location
+                                    this.accidentType = when (accidentType) {
+                                        AccidentType.Unfall -> AccidentTypeV1.Unfall
+                                        AccidentType.Arbeitsunfall -> AccidentTypeV1.Arbeitsunfall
+                                        AccidentType.Berufskrankheit -> AccidentTypeV1.Berufskrankheit
+                                        AccidentType.None -> AccidentTypeV1.None
+                                    }
+                                    this.emergencyFee = emergencyFee
+                                    this.substitutionAllowed = substitutionAllowed
+                                    this.dosageInstruction = dosageInstruction
+                                    this.quantity = quantity
+                                    this.multiplePrescriptionInfo = multiplePrescriptionInfo
+                                    this.note = note
+                                    this.bvg = bvg
+                                    this.additionalFee = additionalFee
+                                }
+                            },
+                            savePVSIdentifier = {},
+                            save = { organization,
+                                patient,
+                                practitioner,
+                                _,
+                                medication,
+                                medicationRequest ->
 
-                                    MedicationCategory.BTM -> MedicationCategoryV1.BTM
-                                    MedicationCategory.AMVV -> MedicationCategoryV1.AMVV
-                                    MedicationCategory.SONSTIGES -> MedicationCategoryV1.SONSTIGES
-                                    else -> MedicationCategoryV1.UNKNOWN
+                                invoiceEntity = queryFirst("taskId = $0", taskId) ?: run {
+                                    copyToRealm(PKVInvoiceEntityV1()).also {
+                                        profile.invoices += it
+                                    }
                                 }
-                                this.form = form
-                                this.amount = amount
-                                this.vaccine = vaccine
-                                this.manufacturingInstructions = manufacturingInstructions
-                                this.packaging = packaging
-                                this.normSizeCode = normSizeCode
-                                this.uniqueIdentifier = uniqueIdentifier
-                                this.ingredients = ingredients.toRealmList()
-                            }
-                        },
-                        processMultiplePrescriptionInfo = { indicator, numbering, start ->
-                            MultiplePrescriptionInfoEntityV1().apply {
-                                this.indicator = indicator
-                                this.numbering = numbering
-                                this.start = start?.toInstant(TimeZone.UTC)?.toRealmInstant()
-                            }
-                        },
-                        processMedicationRequest = {
-                                authoredOn,
-                                dateOfAccident,
-                                location,
-                                accidentType,
-                                emergencyFee,
-                                substitutionAllowed,
-                                dosageInstruction,
-                                quantity,
-                                multiplePrescriptionInfo,
-                                note,
-                                bvg,
-                                additionalFee
-                            ->
-                            MedicationRequestEntityV1().apply {
-                                this.authoredOn = authoredOn
-                                this.dateOfAccident =
-                                    dateOfAccident?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
-                                this.location = location
-                                this.accidentType = when (accidentType) {
-                                    AccidentType.Unfall -> AccidentTypeV1.Unfall
-                                    AccidentType.Arbeitsunfall -> AccidentTypeV1.Arbeitsunfall
-                                    AccidentType.Berufskrankheit -> AccidentTypeV1.Berufskrankheit
-                                    AccidentType.None -> AccidentTypeV1.None
-                                }
-                                this.emergencyFee = emergencyFee
-                                this.substitutionAllowed = substitutionAllowed
-                                this.dosageInstruction = dosageInstruction
-                                this.quantity = quantity
-                                this.multiplePrescriptionInfo = multiplePrescriptionInfo
-                                this.note = note
-                                this.bvg = bvg
-                                this.additionalFee = additionalFee
-                            }
-                        },
-                        savePVSIdentifier = {},
-                        save = { organization,
-                            patient,
-                            practitioner,
-                            _,
-                            medication,
-                            medicationRequest ->
 
-                            invoiceEntity = queryFirst("taskId = $0", taskId) ?: run {
-                                copyToRealm(PKVInvoiceEntityV1()).also {
-                                    profile.invoices += it
+                                invoiceEntity.apply {
+                                    this.parent = profile
+                                    this.practitionerOrganization = organization
+                                    this.patient = patient
+                                    this.practitioner = practitioner
+                                    this.medicationRequest = medicationRequest.apply {
+                                        this.medication = medication
+                                    }
                                 }
                             }
+                        )
+                    }
+                )
+            }
+        }
+    }
 
-                            invoiceEntity.apply {
-                                this.parent = profile
-                                this.practitionerOrganization = organization
-                                this.patient = patient
-                                this.practitioner = practitioner
-                                this.medicationRequest = medicationRequest.apply {
-                                    this.medication = medication
-                                }
-                            }
-                        }
-                    )
-                })
+    private fun applyChargeableItem(item: InvoiceData.ChargeableItem): ChargeableItemV1 {
+        return ChargeableItemV1().apply {
+            when (item.description) {
+                is InvoiceData.ChargeableItem.Description.PZN -> {
+                    this.descriptionTypeV1 = DescriptionTypeV1.PZN
+                    this.description = item.description.pzn
+                }
+
+                is InvoiceData.ChargeableItem.Description.TA1 -> {
+                    this.descriptionTypeV1 = DescriptionTypeV1.TA1
+                    this.description = item.description.ta1
+                }
+
+                is InvoiceData.ChargeableItem.Description.HMNR -> {
+                    this.descriptionTypeV1 = DescriptionTypeV1.HMNR
+                    this.description = item.description.hmnr
+                }
+            }
+            this.text = item.text
+            this.factor = item.factor
+            this.price = PriceComponentV1().apply {
+                this.value = item.price.value
+                this.tax = item.price.tax
             }
         }
     }
@@ -350,10 +362,12 @@ class InvoiceLocalDataSource(
             timestamp = this.timestamp.toInstant(),
             pharmacyOrganization = SyncedTaskData.Organization(
                 name = this.pharmacyOrganization?.name ?: "",
+                uniqueIdentifier = this.pharmacyOrganization?.uniqueIdentifier,
                 address = SyncedTaskData.Address(
                     line1 = this.pharmacyOrganization?.address?.line1 ?: "",
                     line2 = this.pharmacyOrganization?.address?.line2 ?: "",
-                    postalCodeAndCity = this.pharmacyOrganization?.address?.postalCodeAndCity ?: ""
+                    postalCode = this.pharmacyOrganization?.address?.postalCode ?: "",
+                    city = this.pharmacyOrganization?.address?.city ?: ""
                 )
             ),
             practitionerOrganization = SyncedTaskData.Organization(
@@ -361,7 +375,8 @@ class InvoiceLocalDataSource(
                 address = SyncedTaskData.Address(
                     line1 = this.practitionerOrganization?.address?.line1 ?: "",
                     line2 = this.practitionerOrganization?.address?.line2 ?: "",
-                    postalCodeAndCity = this.practitionerOrganization?.address?.postalCodeAndCity ?: ""
+                    postalCode = this.practitionerOrganization?.address?.postalCode ?: "",
+                    city = this.practitionerOrganization?.address?.city ?: ""
                 )
             ),
             practitioner = SyncedTaskData.Practitioner(
@@ -375,7 +390,8 @@ class InvoiceLocalDataSource(
                     SyncedTaskData.Address(
                         line1 = it.line1,
                         line2 = it.line2,
-                        postalCodeAndCity = it.postalCodeAndCity
+                        postalCode = it.postalCode,
+                        city = it.city
                     )
                 },
                 birthdate = this.patient?.dateOfBirth,
@@ -408,7 +424,8 @@ class InvoiceLocalDataSource(
                             unit = ""
                         )
                     ),
-                    start = this.medicationRequest?.multiplePrescriptionInfo?.start?.toInstant()
+                    start = this.medicationRequest?.multiplePrescriptionInfo?.start?.toInstant(),
+                    end = this.medicationRequest?.multiplePrescriptionInfo?.end?.toInstant()
                 ),
                 additionalFee = when (this.medicationRequest?.additionalFee) {
                     "0" -> SyncedTaskData.AdditionalFee.NotExempt
@@ -427,19 +444,9 @@ class InvoiceLocalDataSource(
                 totalBruttoAmount = this.invoice?.totalBruttoAmount ?: 0.0,
                 currency = this.invoice?.currency ?: "",
                 chargeableItems = this.invoice?.chargeableItems?.map {
-                    InvoiceData.ChargeableItem(
-                        description = when (it.descriptionTypeV1) {
-                            DescriptionTypeV1.PZN -> InvoiceData.ChargeableItem.Description.PZN(it.description)
-                            DescriptionTypeV1.HMNR -> InvoiceData.ChargeableItem.Description.HMNR(it.description)
-                            DescriptionTypeV1.TA1 -> InvoiceData.ChargeableItem.Description.TA1(it.description)
-                        },
-                        factor = it.factor,
-                        price = InvoiceData.PriceComponent(
-                            value = it.price?.value ?: 0.0,
-                            tax = it.price?.tax ?: 0.0
-                        )
-                    )
-                } ?: listOf()
+                    it.toChargeableItem()
+                } ?: listOf(),
+                additionalDispenseItem = this.invoice?.additionalDispenseItem?.toChargeableItem()
             )
         )
 
@@ -474,4 +481,18 @@ class InvoiceLocalDataSource(
             queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId)?.let { delete(it) }
         }
     }
+
+    fun ChargeableItemV1.toChargeableItem() = InvoiceData.ChargeableItem(
+        description = when (this.descriptionTypeV1) {
+            DescriptionTypeV1.PZN -> InvoiceData.ChargeableItem.Description.PZN(this.description)
+            DescriptionTypeV1.HMNR -> InvoiceData.ChargeableItem.Description.HMNR(this.description)
+            DescriptionTypeV1.TA1 -> InvoiceData.ChargeableItem.Description.TA1(this.description)
+        },
+        text = this.text,
+        factor = this.factor,
+        price = InvoiceData.PriceComponent(
+            value = this.price?.value ?: 0.0,
+            tax = this.price?.tax ?: 0.0
+        )
+    )
 }

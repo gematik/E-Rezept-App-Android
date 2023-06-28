@@ -54,11 +54,12 @@ import androidx.compose.ui.unit.max
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.ui.model.addressSupplementInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.cityInputField
 import de.gematik.ti.erp.app.pharmacy.ui.model.deliveryInformationInputField
 import de.gematik.ti.erp.app.pharmacy.ui.model.mailInputField
 import de.gematik.ti.erp.app.pharmacy.ui.model.nameInputField
 import de.gematik.ti.erp.app.pharmacy.ui.model.phoneNumberInputField
-import de.gematik.ti.erp.app.pharmacy.ui.model.postalCodeAndCityInputField
+import de.gematik.ti.erp.app.pharmacy.ui.model.postalCodeInputField
 import de.gematik.ti.erp.app.pharmacy.ui.model.streetAndNumberInputField
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -73,7 +74,9 @@ import kotlinx.coroutines.launch
 
 const val StringLengthLimit = 100
 const val MinPhoneLength = 4
+const val PostalCodeLength = 5
 
+@Suppress("LongMethod")
 @Composable
 fun EditShippingContactScreen(
     orderState: PharmacyOrderState,
@@ -97,7 +100,9 @@ fun EditShippingContactScreen(
     }
     val nameError by remember(contact) { derivedStateOf { contact.name.isBlank() } }
     val line1Error by remember(contact) { derivedStateOf { contact.line1.isBlank() } }
-    val codeAndCityError by remember(contact) { derivedStateOf { contact.postalCodeAndCity.isBlank() } }
+    val postalCodeError by remember(contact) { derivedStateOf { contact.postalCode.length != PostalCodeLength } }
+    val cityError by remember(contact) { derivedStateOf { contact.city.isBlank() } }
+
     val mailError by remember(contact) { derivedStateOf { !isMailValid(contact.mail) } }
 
     if (showBackAlert) { BackAlert(onCancel = { showBackAlert = false }, onBack = onBack) }
@@ -106,7 +111,7 @@ fun EditShippingContactScreen(
         navigationMode = NavigationBarMode.Back,
         bottomBar = {
             ContactBottomBar(
-                enabled = !telephoneError && !mailError && !nameError && !line1Error && !codeAndCityError,
+                enabled = !telephoneError && !mailError && !nameError && !line1Error && !postalCodeError && !cityError,
                 onClick = {
                     orderState.onSaveContact(contact)
                     onBack()
@@ -116,7 +121,8 @@ fun EditShippingContactScreen(
         topBarTitle = stringResource(R.string.edit_shipping_contact_top_bar_title),
         listState = listState,
         onBack = {
-            if (!telephoneError && !mailError && !nameError && !line1Error && !codeAndCityError) {
+            @Suppress("ComplexCondition")
+            if (!telephoneError && !mailError && !nameError && !line1Error && !postalCodeError && !cityError) {
                 orderState.onSaveContact(contact)
                 onBack()
             } else {
@@ -187,14 +193,24 @@ fun EditShippingContactScreen(
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) }
             )
 
-            postalCodeAndCityInputField(
+            postalCodeInputField(
                 listState = listState,
-                value = contact.postalCodeAndCity,
-                onValueChange = { postalCodeAndCity ->
-                    contact = (contact.copy(postalCodeAndCity = postalCodeAndCity.take(StringLengthLimit)))
+                value = contact.postalCode,
+                onValueChange = { postalCode ->
+                    contact = (contact.copy(postalCode = postalCode.take(PostalCodeLength)))
                 },
                 onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
-                isError = codeAndCityError
+                isError = postalCodeError
+            )
+
+            cityInputField(
+                listState = listState,
+                value = contact.city,
+                onValueChange = { city ->
+                    contact = (contact.copy(city = city.take(StringLengthLimit)))
+                },
+                onSubmit = { focusManager.moveFocus(FocusDirection.Down) },
+                isError = cityError
             )
 
             deliveryInformationInputField(

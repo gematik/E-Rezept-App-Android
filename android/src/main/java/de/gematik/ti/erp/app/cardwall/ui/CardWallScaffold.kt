@@ -68,7 +68,7 @@ fun CardWallIntroScaffold(
     val scrollState = rememberScrollState()
 
     AnimatedElevationScaffold(
-        modifier = Modifier.testTag(TestTag.CardWall.Login.LoginScreen)
+        modifier = Modifier.testTag(TestTag.CardWall.Intro.IntroScreen)
             .systemBarsPadding(),
         topBarTitle = "",
         elevated = scrollState.value > 0,
@@ -227,7 +227,7 @@ fun AddCardContent(
         HintTextActionButton(
             text = stringResource(R.string.cdw_intro_order_now),
             align = Alignment.End,
-            modifier = Modifier.align(Alignment.End)
+            modifier = Modifier.align(Alignment.End).testTag(TestTag.CardWall.Intro.OrderEgkButton)
         ) {
             onClickOrderNow()
         }

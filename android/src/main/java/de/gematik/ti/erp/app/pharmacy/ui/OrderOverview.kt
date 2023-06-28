@@ -79,8 +79,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
@@ -258,11 +256,8 @@ private fun RedeemButton(
                 onClick = {
                     uploadInProgress = true
                     scope.launch {
-                        val featureToggleManager = FeatureToggleManager(context)
-                        val directRedeemEnabled = featureToggleManager
-                            .isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName).first()
                         try {
-                            val redeemState = if (orderState.profile.lastAuthenticated == null && directRedeemEnabled) {
+                            val redeemState = if (orderState.profile.lastAuthenticated == null) {
                                 redeemController.orderPrescriptionsDirectly(
                                     orderId = UUID.randomUUID(),
                                     prescriptions = order.prescriptions,

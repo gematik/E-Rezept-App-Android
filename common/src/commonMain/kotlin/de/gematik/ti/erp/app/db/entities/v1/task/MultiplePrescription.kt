@@ -26,9 +26,10 @@ import io.realm.kotlin.types.RealmObject
 class MultiplePrescriptionInfoEntityV1(
     var indicator: Boolean,
     var numbering: RatioEntityV1?,
-    var start: RealmInstant?
+    var start: RealmInstant?,
+    var end: RealmInstant?
 ) : RealmObject, Cascading {
-    constructor() : this(indicator = false, numbering = null, start = RealmInstant.MIN)
+    constructor() : this(indicator = false, numbering = null, start = RealmInstant.MIN, end = RealmInstant.MIN)
 
     override fun objectsToFollow(): Iterator<Deleteable> = iterator {
         numbering?.let { yield(it) }

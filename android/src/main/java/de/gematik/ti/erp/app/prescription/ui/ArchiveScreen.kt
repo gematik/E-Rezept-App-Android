@@ -97,6 +97,7 @@ fun ArchiveScreen(prescriptionState: PrescriptionState, navController: NavContro
                                 LowDetailMedication(
                                     modifier = CardPaddingModifier,
                                     prescription,
+                                    0,
                                     onClick = {
                                         navController.navigate(
                                             MainNavigationScreens.PrescriptionDetail.path(

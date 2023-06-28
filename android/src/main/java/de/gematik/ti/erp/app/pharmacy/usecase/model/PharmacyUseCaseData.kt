@@ -125,7 +125,8 @@ object PharmacyUseCaseData {
         val name: String,
         val line1: String,
         val line2: String,
-        val postalCodeAndCity: String,
+        val postalCode: String,
+        val city: String,
         val telephoneNumber: String,
         val mail: String,
         val deliveryInformation: String
@@ -135,7 +136,8 @@ object PharmacyUseCaseData {
             name,
             line1,
             line2,
-            postalCodeAndCity,
+            postalCode,
+            city,
             telephoneNumber,
             mail,
             deliveryInformation
@@ -145,7 +147,8 @@ object PharmacyUseCaseData {
         fun address() = listOf(
             line1,
             line2,
-            postalCodeAndCity
+            postalCode,
+            city
         ).filter { it.isNotBlank() }
 
         @Stable
@@ -159,14 +162,15 @@ object PharmacyUseCaseData {
         fun phoneOrAddressMissing() = telephoneNumber.isBlank() || addressIsMissing()
 
         @Stable
-        fun addressIsMissing() = name.isBlank() || line1.isBlank() || postalCodeAndCity.isBlank()
+        fun addressIsMissing() = name.isBlank() || line1.isBlank() || postalCode.isBlank() || city.isBlank()
 
         companion object {
             val Empty = ShippingContact(
                 name = "",
                 line1 = "",
                 line2 = "",
-                postalCodeAndCity = "",
+                postalCode = "",
+                city = "",
                 telephoneNumber = "",
                 mail = "",
                 deliveryInformation = ""

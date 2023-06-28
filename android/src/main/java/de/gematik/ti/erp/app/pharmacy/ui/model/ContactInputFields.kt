@@ -21,8 +21,6 @@ package de.gematik.ti.erp.app.pharmacy.ui.model
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.Text
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -152,7 +150,7 @@ fun LazyListScope.addressSupplementInputField(
 }
 
 @Suppress("MagicNumber")
-fun LazyListScope.postalCodeAndCityInputField(
+fun LazyListScope.postalCodeInputField(
     listState: LazyListState,
     value: String,
     onValueChange: (String) -> Unit,
@@ -167,9 +165,33 @@ fun LazyListScope.postalCodeAndCityInputField(
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
-            label = { Text(stringResource(R.string.edit_shipping_contact_postal_code_and_city)) },
+            label = { Text(stringResource(R.string.edit_shipping_contact_postal_code)) },
             isError = isError,
-            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_postal_code_and_city)) }
+            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_postal_code)) },
+            keyBoardType = KeyboardType.Number
+        )
+    }
+}
+
+@Suppress("MagicNumber")
+fun LazyListScope.cityInputField(
+    listState: LazyListState,
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSubmit: (String) -> Unit,
+    isError: Boolean
+) {
+    item(key = "InputField_7") {
+        InputField(
+            modifier = Modifier
+                .scrollOnFocus(8, listState)
+                .fillParentMaxWidth(),
+            value = value,
+            onValueChange = onValueChange,
+            onSubmit = onSubmit,
+            label = { Text(stringResource(R.string.edit_shipping_contact_city)) },
+            isError = isError,
+            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_city)) }
         )
     }
 }
@@ -181,10 +203,10 @@ fun LazyListScope.deliveryInformationInputField(
     onValueChange: (String) -> Unit,
     onSubmit: (String) -> Unit
 ) {
-    item(key = "InputField_7") {
+    item(key = "InputField_8") {
         InputField(
             modifier = Modifier
-                .scrollOnFocus(8, listState)
+                .scrollOnFocus(9, listState)
                 .fillParentMaxWidth(),
             value = value,
             onValueChange = onValueChange,

@@ -61,7 +61,6 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -81,7 +80,7 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.currencyString
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
+import de.gematik.ti.erp.app.mainscreen.ui.rememberMainScreenController
 import de.gematik.ti.erp.app.pkv.ui.ConsentController.State.ChargeConsentNotGranted.isConsentGranted
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.prescription.ui.rememberRefreshPrescriptionsController
@@ -104,9 +103,9 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 
+@Suppress("LongMethod")
 @Composable
 fun InvoicesScreen(
-    mainScreenController: MainScreenController,
     onBack: () -> Unit,
     selectedProfile: ProfilesUseCaseData.Profile,
     onShowCardWall: () -> Unit,
@@ -122,10 +121,8 @@ fun InvoicesScreen(
     var showGrantConsentDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val ssoTokenValid by remember(selectedProfile) {
-        derivedStateOf {
-            selectedProfile.ssoTokenValid()
-        }
+    val ssoTokenValid by remember {
+        mutableStateOf(selectedProfile.ssoTokenValid())
     }
 
     CheckConsentState(consentController, ssoTokenValid, scaffoldState, context) {
@@ -182,6 +179,7 @@ fun InvoicesScreen(
         }
     }
 
+    val mainScreenController = rememberMainScreenController()
     val refreshPrescriptionsController = rememberRefreshPrescriptionsController(mainScreenController)
 
     AnimatedElevationScaffold(

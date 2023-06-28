@@ -114,7 +114,8 @@ class PharmacySearchViewModelTest {
         name = "Beate Muster",
         line1 = "Friedrichstraße 136",
         line2 = "",
-        postalCodeAndCity = "10117 Berlin",
+        postalCode = "10117",
+        city = "Berlin",
         telephoneNumber = "",
         mail = "",
         deliveryInformation = ""

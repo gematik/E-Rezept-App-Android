@@ -74,7 +74,8 @@ typealias MedicationRequestFn<R, MultiplePrescriptionInfo> = (
 typealias MultiplePrescriptionInfoFn<R, Ratio> = (
     indicator: Boolean,
     numbering: Ratio?,
-    start: FhirTemporal?
+    start: FhirTemporal?,
+    end: FhirTemporal?
 ) -> R
 
 typealias MedicationFn<R, Ingredient, Ratio> = (
@@ -192,7 +193,8 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
                 processMedication,
                 processIngredient,
                 processRatio,
-                processQuantity, processMultiplePrescriptionInfo,
+                processQuantity,
+                processMultiplePrescriptionInfo,
                 processMedicationRequest,
                 savePVSIdentifier,
                 save

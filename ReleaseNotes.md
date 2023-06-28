@@ -1,3 +1,7 @@
+# Release 1.12.1
+- Redeem prescriptions directly without being authenticated with TI
+- Bugfixes (lots)
+
 # Release 1.11.0-RC5
 - Direct redemption of prescription without TI
 - Bugfixes

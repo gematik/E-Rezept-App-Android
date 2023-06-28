@@ -38,8 +38,9 @@ import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.json.JsonElement
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonElement
 
 class LocalDataSource(
     private val realm: Realm
@@ -125,6 +126,24 @@ class LocalDataSource(
 
             totalCommunicationsInBundle
         }
+
+    suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String) {
+        realm.tryWrite {
+            val entity = CommunicationEntityV1().apply {
+                this.profile = CommunicationProfileV1.ErxCommunicationDispReq
+                this.taskId = taskId
+                this.communicationId = transactionId
+                this.sentOn = Clock.System.now().toRealmInstant()
+                this.sender = pharmacyId
+                this.consumed = false
+            }
+
+            queryFirst<ScannedTaskEntityV1>("taskId = $0", taskId)?.let { scannedTask ->
+                scannedTask.communications += copyToRealm(entity)
+            }
+            1
+        }
+    }
 
     fun loadScannedTasks(profileId: ProfileIdentifier): Flow<List<ScannedTaskData.ScannedTask>> =
         realm.query<ScannedTaskEntityV1>("parent.id = $0", profileId)

@@ -105,7 +105,6 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.TestTag.Profile.OpenTokensScreenButton
 import de.gematik.ti.erp.app.TestTag.Profile.ProfileScreen
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.mainscreen.ui.rememberMainScreenController
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.ui.ProfileNameDialog
@@ -134,14 +133,12 @@ fun EditProfileScreen(
     mainNavController: NavController
 ) {
     val navController = rememberNavController()
-    val mainScreenController = rememberMainScreenController()
 
     EditProfileNavGraph(
         profilesState = profilesState,
         navController = navController,
         onBack = onBack,
         selectedProfile = profile,
-        mainScreenController = mainScreenController,
         profilesController = profilesController,
         onRemoveProfile = onRemoveProfile,
         mainNavController = mainNavController
@@ -151,10 +148,10 @@ fun EditProfileScreen(
 @Composable
 fun EditProfileScreen(
     profileId: String,
-    profilesController: ProfilesController,
     onBack: () -> Unit,
     mainNavController: NavController
 ) {
+    val profilesController = rememberProfilesController()
     val profilesState by profilesController.profilesState
     val scope = rememberCoroutineScope()
 

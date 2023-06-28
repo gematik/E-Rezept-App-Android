@@ -77,8 +77,6 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.fhir.model.OpeningHours
 import de.gematik.ti.erp.app.fhir.model.isOpenToday
@@ -101,7 +99,6 @@ import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
@@ -225,8 +222,6 @@ private fun OrderSelection(
     onClickOrder: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
     orderState: PharmacyOrderState
 ) {
-    val context = LocalContext.current
-    val featureToggleManager = FeatureToggleManager(context)
     val scope = rememberCoroutineScope()
     var directRedeemEnabled by remember {
         mutableStateOf(false)
@@ -234,9 +229,7 @@ private fun OrderSelection(
 
     LaunchedEffect(Unit) {
         scope.launch {
-            directRedeemEnabled = featureToggleManager
-                .isFeatureEnabled(Features.REDEEM_WITHOUT_TI.featureName).first() &&
-                orderState.profile.lastAuthenticated == null
+            directRedeemEnabled = orderState.profile.lastAuthenticated == null
         }
     }
 

@@ -281,6 +281,7 @@ object TestTag {
     }
 
     object DebugMenu {
+        val FakeNFCCapabilities by tagName()
         val DebugMenuScreen by tagName()
         val DebugMenuContent by tagName()
         val CertificateField by tagName()
@@ -408,12 +409,21 @@ object TestTag {
             val LoginScreen by tagName()
         }
 
+        object Intro {
+            val IntroScreen by tagName()
+            val OrderEgkButton by tagName()
+        }
+
         object CAN {
+            val CANScreen by tagName()
             val CANField by tagName()
+            val OrderEgkButton by tagName()
         }
 
         object PIN {
+            val PinScreen by tagName()
             val PINField by tagName()
+            val OrderEgkButton by tagName()
         }
 
         object StoreCredentials {

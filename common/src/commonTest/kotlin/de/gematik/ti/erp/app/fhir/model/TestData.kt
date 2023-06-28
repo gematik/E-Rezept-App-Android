@@ -129,9 +129,37 @@ val task_bundle_version_1_2 by lazy {
 }
 
 val charge_item_bundle_version_1_2 by lazy {
-    File("$ResourceBasePath/fhir/charge_item_bundle_vers_1_2.json").readText()
+    File("$ResourceBasePath/fhir/pkv/charge_item_bundle_vers_1_2.json").readText()
 }
 
-val pkvAbgabedatenJson_vers_1_1 by lazy {
-    File("$ResourceBasePath/fhir/charge_item_by_id_bundle.json").readText()
+val chargeItem_freetext by lazy {
+    File("$ResourceBasePath/fhir/pkv/Freitext-Verordnung.json").readText()
+}
+
+val chargeItem_pzn_1 by lazy {
+    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_1.json").readText()
+}
+
+val chargeItem_pzn_2 by lazy {
+    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_2.json").readText()
+}
+
+val chargeItem_pzn_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_3.json").readText()
+}
+
+val chargeItem_pzn_5 by lazy {
+    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_5.json").readText()
+}
+
+val chargeItem_pzn_6 by lazy {
+    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_6.json").readText()
+}
+
+val chargeItem_pzn_7 by lazy {
+    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_7.json").readText()
+}
+
+val chargeItem_pzn_8 by lazy {
+    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_8.json").readText()
 }

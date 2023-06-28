@@ -126,9 +126,6 @@
     <string name="technical_hotline_info">Technische Hotline</string>
     <string name="main_scan_acc">Scanner für Rezepte öffnen</string>
     <string name="main_settings_acc">Einstellungen</string>
-    <string name="settings_screenshots_alert_headline">Hinweis</string>
-    <string name="settings_screenshots_alert_info">Diese Änderung wird erst nach einem Neustart der App wirksam.</string>
-    <string name="settings_screenshots_button_text">Okay</string>
     <string name="settings_screenshots_toggle_text">Screenshots unterdrücken</string>
     <string name="settings_screenshots_description">Verhindert die Anzeige eines Vorschaubilds beim App-Wechsel</string>
     <string name="settings_tracking_dialog_title">Erlauben Sie E-Rezept Ihr Nutzungsverhalten anonym zu analysieren?</string>
@@ -283,6 +280,7 @@
         <item quantity="other">%s neue Rezepte</item>
     </plurals>
     <string name="prescription_status_ready">Einlösbar</string>
+    <string name="prescription_status_sent">Gesendet</string>
     <string name="prescription_status_in_progress">In Einlösung</string>
     <string name="prescription_status_completed">Eingelöst</string>
     <string name="prescription_status_unknown">Unbekannt</string>
@@ -348,8 +346,10 @@
     <string name="edit_shipping_contact_title_line1">Straße und Hausnummer</string>
     <string name="edit_shipping_contact_error_line1">Bitte geben Sie für die Kontaktaufnahme eine Straße und Hausnummer an.</string>
     <string name="edit_shipping_contact_line2">Adresszusatz (optional)</string>
-    <string name="edit_shipping_contact_postal_code_and_city">PLZ und Ort</string>
-    <string name="edit_shipping_contact_error_postal_code_and_city">Bitte geben Sie für die Kontaktaufnahme eine Postleitzahl und den Ort an.</string>
+    <string name="edit_shipping_contact_postal_code">PLZ</string>
+    <string name="edit_shipping_contact_city">Ort</string>
+    <string name="edit_shipping_contact_error_postal_code">Bitte geben Sie für die Kontaktaufnahme Ihre Postleitzahl an.</string>
+    <string name="edit_shipping_contact_error_city">Bitte geben Sie für die Kontaktaufnahme Ihren Wohnort an.</string>
     <string name="edit_shipping_contact_delivery_information">Lieferanweisung (optional)</string>
     <string name="pharmacy_order_further_contact_information_required">Weitere Kontaktdaten benötigt</string>
     <string name="edit_contact_back_alert_header">Änderungen verwerfen?</string>

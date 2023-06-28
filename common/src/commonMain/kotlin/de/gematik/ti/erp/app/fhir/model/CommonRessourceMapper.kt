@@ -164,15 +164,22 @@ fun <MultiplePrescriptionInfo, Ratio, Quantity> JsonElement.extractMultiplePresc
         .firstOrNull()
         ?.contained("valueRatio")
         ?.extractRatio(ratioFn, quantityFn)
-    val start = this.findAll("extension").filterWith("url", stringValue("Zeitraum"))
+
+    val validityPeriod = this.findAll("extension").filterWith("url", stringValue("Zeitraum"))
         .firstOrNull()
         ?.contained("valuePeriod")
+
+    val start = validityPeriod
         ?.containedOrNull("start")?.jsonPrimitive?.toFhirTemporal()
+
+    val end = validityPeriod
+        ?.containedOrNull("end")?.jsonPrimitive?.toFhirTemporal()
 
     return processMultiplePrescriptionInfo(
         indicator,
         numbering,
-        start
+        start,
+        end
     )
 }
 fun <Ingredient, Ratio, Quantity> JsonElement.extractIngredient(

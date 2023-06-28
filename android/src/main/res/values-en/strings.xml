@@ -120,9 +120,6 @@
     <string name="technical_hotline_info">Technical hotline</string>
     <string name="main_scan_acc">Open scanner for prescriptions</string>
     <string name="main_settings_acc">Settings</string>
-    <string name="settings_screenshots_alert_headline">Note</string>
-    <string name="settings_screenshots_alert_info">This change will only take effect after the app is restarted.</string>
-    <string name="settings_screenshots_button_text">OK</string>
     <string name="settings_screenshots_toggle_text">Suppress screenshots</string>
     <string name="settings_screenshots_description">Prevents the display of a preview image when switching apps</string>
     <string name="settings_tracking_dialog_title">Do you consent to the anonymous analysis of usage behaviour by e-prescription?</string>
@@ -328,8 +325,6 @@
     <string name="edit_shipping_contact_title_line1">Street and house number</string>
     <string name="edit_shipping_contact_error_line1">Please enter a street and house number for contact purposes.</string>
     <string name="edit_shipping_contact_line2">Additional address line (optional)</string>
-    <string name="edit_shipping_contact_postal_code_and_city">Postcode and town/city</string>
-    <string name="edit_shipping_contact_error_postal_code_and_city">Please enter a postcode and town/city for contact purposes.</string>
     <string name="edit_shipping_contact_delivery_information">Delivery instruction (optional)</string>
     <string name="pharmacy_order_further_contact_information_required">More contact details required</string>
     <string name="edit_contact_back_alert_header">Discard changes?</string>

@@ -47,7 +47,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
-import androidx.core.content.edit
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.lifecycleScope
@@ -71,11 +70,9 @@ import de.gematik.ti.erp.app.cardwall.mini.ui.rememberAuthenticator
 import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.mainscreen.ui.rememberMainScreenController
 import de.gematik.ti.erp.app.prescription.detail.ui.SharePrescriptionHandler
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.rememberProfileHandler
-import de.gematik.ti.erp.app.profiles.ui.rememberProfilesController
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
 import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
@@ -120,6 +117,18 @@ class MainActivity : AppCompatActivity(), DIAware {
 
     private val appPrefs: SharedPreferences by instance(ApplicationPreferencesTag)
 
+    private val appPrefsListener: SharedPreferences.OnSharedPreferenceChangeListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
+            if (key == ScreenshotsAllowed) {
+                // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
+                if (sharedPrefs.getBoolean(ScreenshotsAllowed, false)) {
+                    this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                } else {
+                    this.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                }
+            }
+        }
+
     private val intentHandler = IntentHandler(this)
 
     private val _nfcTag = MutableSharedFlow<Tag>()
@@ -163,18 +172,7 @@ class MainActivity : AppCompatActivity(), DIAware {
             installMessageConversionExceptionHandler()
         }
 
-        if (BuildKonfig.INTERNAL) {
-            appPrefs.edit {
-                putBoolean(ScreenshotsAllowed, true)
-            }
-        }
-
-        switchScreenshotMode()
-        appPrefs.registerOnSharedPreferenceChangeListener { _, key ->
-            if (key == ScreenshotsAllowed) {
-                switchScreenshotMode()
-            }
-        }
+        appPrefs.registerOnSharedPreferenceChangeListener(appPrefsListener)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
@@ -193,7 +191,7 @@ class MainActivity : AppCompatActivity(), DIAware {
                 ) {
                     val authenticator = LocalAuthenticator.current
 
-                    MainContent { settingsController ->
+                    MainContent { settingscontroller ->
                         val auth by produceState<AuthenticationModeAndMethod?>(null) {
                             launch {
                                 authenticationModeAndMethod.distinctUntilChangedBy { it::class }
@@ -236,17 +234,11 @@ class MainActivity : AppCompatActivity(), DIAware {
                                         authenticator = authenticator.authenticatorSecureElement
                                     )
 
-                                    val mainScreenController = rememberMainScreenController()
-                                    val profilesController = rememberProfilesController()
-
                                     CompositionLocalProvider(
                                         LocalProfileHandler provides rememberProfileHandler()
                                     ) {
                                         MainScreen(
-                                            navController = navController,
-                                            settingsController = settingsController,
-                                            mainScreenController = mainScreenController,
-                                            profilesController = profilesController
+                                            navController = navController
                                         )
 
                                         SharePrescriptionHandler(authenticationModeAndMethod)
@@ -339,14 +331,5 @@ class MainActivity : AppCompatActivity(), DIAware {
         super.onPause()
 
         NfcAdapter.getDefaultAdapter(applicationContext)?.disableReaderMode(this)
-    }
-
-    private fun switchScreenshotMode() {
-        // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
-        if (appPrefs.getBoolean(ScreenshotsAllowed, false)) {
-            this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        } else {
-            this.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-        }
     }
 }

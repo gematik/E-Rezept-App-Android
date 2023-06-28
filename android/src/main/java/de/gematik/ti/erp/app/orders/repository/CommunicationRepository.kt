@@ -127,4 +127,8 @@ class CommunicationRepository(
             communicationLocalDataSource.setCommunicationStatus(communicationId, consumed)
         }
     }
+
+    suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String) {
+        taskLocalDataSource.saveLocalCommunication(taskId, pharmacyId, transactionId)
+    }
 }

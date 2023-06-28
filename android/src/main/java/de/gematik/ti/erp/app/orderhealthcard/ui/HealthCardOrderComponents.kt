@@ -574,6 +574,7 @@ private fun ContactMethod(
     onClick: () -> Unit
 ) {
     Card(
+        modifier = modifier,
         onClick = onClick,
         shape = RoundedCornerShape(8.dp),
         contentColor = AppTheme.colors.primary600,

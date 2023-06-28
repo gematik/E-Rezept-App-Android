@@ -5,13 +5,16 @@
         <pin-set expiration="2030-09-23">
             <pin digest="SHA-256">RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=</pin>
             <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
+            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
         </pin-set>
+
     </domain-config>
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="false">erp-test.app.ti-dienste.de</domain>
         <pin-set expiration="2030-09-23">
             <pin digest="SHA-256">RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=</pin>
             <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
+            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
         </pin-set>
     </domain-config>
 
@@ -20,6 +23,7 @@
         <pin-set expiration="2030-09-23">
             <pin digest="SHA-256">RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=</pin>
             <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
+            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
         </pin-set>
     </domain-config>
 
@@ -47,8 +51,9 @@
 
     <domain-config cleartextTrafficPermitted="false">
         <domain includeSubdomains="false">apovzd.app.ti-dienste.de</domain>
-        <pin-set expiration="2030-09-23">
+        <pin-set expiration="2030-09-23" >
             <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
+            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
         </pin-set>
     </domain-config>
 

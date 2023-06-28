@@ -170,10 +170,11 @@ class CommonRessourceMapperTest {
                 assertEquals(ReturnType.Quantity, denominator)
                 ReturnType.Ratio
             },
-            processMultiplePrescriptionInfo = { indicator, numbering, start ->
+            processMultiplePrescriptionInfo = { indicator, numbering, start, end ->
                 assertEquals(true, indicator)
                 assertEquals(ReturnType.Ratio, numbering)
                 assertEquals("2022-08-17", start?.formattedString())
+                assertEquals("2022-11-25", end?.formattedString())
                 ReturnType.MultiplePrescriptionInfo
             }
         )

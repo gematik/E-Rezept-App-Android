@@ -128,9 +128,6 @@
     <string name="technical_hotline_info">الخط الفني الساخن</string>
     <string name="main_scan_acc">فتح الماسح الضوئي للوصفات الطبية</string>
     <string name="main_settings_acc">الإعدادات</string>
-    <string name="settings_screenshots_alert_headline">ملاحظة</string>
-    <string name="settings_screenshots_alert_info">لن يتم تشغيل هذا التغيير إلا بعد غعاد تشغيل التطبيق.</string>
-    <string name="settings_screenshots_button_text">موافق</string>
     <string name="settings_screenshots_toggle_text">منع أخذ لقطات الشاشة</string>
     <string name="settings_screenshots_description">يمنع عرض الصور المصغرة للمعاينة عند التبديل بين التطبيقات</string>
     <string name="settings_tracking_dialog_title">هل تسمح للوصفات الطبية الإلكترونية بتحليل سلوك الاستخدام دون إفصاح عن الهوية؟</string>
@@ -356,8 +353,6 @@
     <string name="edit_shipping_contact_title_line1">الشارع ورقم المنزل</string>
     <string name="edit_shipping_contact_error_line1">يُرجى إدخال الشارع ورقم المنزل من أجل التواصل معك.</string>
     <string name="edit_shipping_contact_line2">العنوان التكميلي (اختياري)</string>
-    <string name="edit_shipping_contact_postal_code_and_city">الرمز البريدي والمكان</string>
-    <string name="edit_shipping_contact_error_postal_code_and_city">يُرجى إدخال الرمز البريدي والمكان من أجل التواصل معك.</string>
     <string name="edit_shipping_contact_delivery_information">إرشادات التسليم (اختياري)</string>
     <string name="pharmacy_order_further_contact_information_required">نحتاج إلى المزيد من بيانات الاتصال</string>
     <string name="edit_contact_back_alert_header">حذف التغييرات؟</string>

@@ -20,12 +20,12 @@ package de.gematik.ti.erp.app.onboarding.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedContentScope
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.with
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
@@ -46,6 +47,9 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.FlashOn
+import androidx.compose.material.icons.rounded.PersonPin
+import androidx.compose.material.icons.rounded.Star
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -71,10 +75,6 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material.icons.rounded.FlashOn
-import androidx.compose.material.icons.rounded.PersonPin
-import androidx.compose.material.icons.rounded.Star
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Route
@@ -305,17 +305,17 @@ private fun OnboardingPages(
             when {
                 initialState == OnboardingPages.Welcome &&
                     targetState == OnboardingPages.pageOf(1) -> {
-                    fadeIn(tween(durationMillis = 770)) with fadeOut(tween(durationMillis = 770))
+                    fadeIn(tween(durationMillis = 770)) togetherWith fadeOut(tween(durationMillis = 770))
                 }
 
                 initialState.index > targetState.index -> {
-                    slideIntoContainer(AnimatedContentScope.SlideDirection.Right) with
-                        slideOutOfContainer(AnimatedContentScope.SlideDirection.Right)
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Right) togetherWith
+                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Right)
                 }
 
                 else -> {
-                    slideIntoContainer(AnimatedContentScope.SlideDirection.Left) with
-                        slideOutOfContainer(AnimatedContentScope.SlideDirection.Left)
+                    slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Left) togetherWith
+                        slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Left)
                 }
             }
         }

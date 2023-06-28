@@ -47,6 +47,7 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.IntentHandler
+import de.gematik.ti.erp.app.mainscreen.ui.ExternalAuthenticationDialog
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -60,12 +61,10 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.onCompletion
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.net.URI
 
 @Stable
 class ExternalPromptAuthenticator(
@@ -110,7 +109,7 @@ class ExternalPromptAuthenticator(
                         }
 
                         is Request.InsuranceSelected -> {
-                            Napier.d("doExternalAuthentication for $authFor")
+                            Napier.d("Fasttrack: doExternalAuthentication for $authFor")
 
                             bridge.doExternalAuthentication(
                                 profileId = profileId,
@@ -126,23 +125,7 @@ class ExternalPromptAuthenticator(
                                 cancel()
                             }
 
-                            Napier.d("wait for instant of $authFor")
-
-                            val uri = intentHandler.extAuthIntent.first()
-
-                            Napier.d("doExternalAuthorization for $uri")
-
-                            bridge.doExternalAuthorization(URI(uri))
-                                .onSuccess {
-                                    send(PromptAuthenticator.AuthResult.Authenticated)
-                                    cancel()
-                                }
-                                .onFailure {
-                                    Napier.e("doExternalAuthorization failed", it)
-                                    // TODO error handling
-                                    send(PromptAuthenticator.AuthResult.Cancelled)
-                                    cancel()
-                                }
+                            Napier.d("Fasttrack: wait for instant of $authFor")
                         }
                     }
                 }
@@ -238,6 +221,7 @@ fun ExternalAuthPrompt(
                 }
             }
         }
+        ExternalAuthenticationDialog()
     }
 }
 

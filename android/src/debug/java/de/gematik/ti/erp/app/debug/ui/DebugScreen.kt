@@ -471,6 +471,7 @@ fun DebugScreenMain(
                                     .weight(1f)
                             )
                             Switch(
+                                modifier = Modifier.testTag(TestTag.DebugMenu.FakeNFCCapabilities),
                                 checked = viewModel.debugSettingsData.fakeNFCCapabilities,
                                 onCheckedChange = { viewModel.allowNfc(it) }
                             )

@@ -24,9 +24,7 @@ import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
@@ -34,17 +32,19 @@ import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.TruststoreEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
@@ -55,7 +55,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
 
-const val ACTUAL_SCHEMA_VERSION = 19L
+const val ACTUAL_SCHEMA_VERSION = 21L
 
 val appSchemas = setOf(
     AppRealmSchema(

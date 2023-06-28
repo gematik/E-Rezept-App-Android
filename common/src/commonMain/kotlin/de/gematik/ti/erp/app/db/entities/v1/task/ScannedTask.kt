@@ -18,16 +18,25 @@
 
 package de.gematik.ti.erp.app.db.entities.v1.task
 
+import de.gematik.ti.erp.app.db.entities.Cascading
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
+import io.realm.kotlin.Deleteable
+import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant
+import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 
-class ScannedTaskEntityV1 : RealmObject {
+class ScannedTaskEntityV1 : RealmObject, Cascading {
     var taskId: String = ""
     var accessCode: String = ""
     var scannedOn: RealmInstant = RealmInstant.MIN
     var redeemedOn: RealmInstant? = null
+    var communications: RealmList<CommunicationEntityV1> = realmListOf()
 
     // back reference
     var parent: ProfileEntityV1? = null
+    override fun objectsToFollow(): Iterator<Deleteable> =
+        iterator {
+            yield(communications)
+        }
 }

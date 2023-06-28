@@ -6,7 +6,6 @@
     <ID>ClassNaming:SchemaTest.kt$RealmA_V2 : RealmObject</ID>
     <ID>ClassNaming:SchemaTest.kt$RealmA_V3 : RealmObject</ID>
     <ID>ClassNaming:SchemaTest.kt$RealmB_V1 : RealmObject</ID>
-    <ID>ComplexCondition:EditShippingContactScreen.kt$!telephoneError &amp;&amp; !mailError &amp;&amp; !nameError &amp;&amp; !line1Error &amp;&amp; !codeAndCityError</ID>
     <ID>ComplexCondition:LoginWithHealthCardScreen.kt$(can.length == it || it == 5 &amp;&amp; can.length == 6) &amp;&amp; isFocussed</ID>
     <ID>ComplexCondition:LoginWithHealthCardScreen.kt$triggerAuth &amp;&amp; state.firstVisibleItemIndex == 4 &amp;&amp; cardAccessNumber.isNotBlank() &amp;&amp; personalIdentificationNumber.isNotBlank()</ID>
     <ID>ComplexCondition:Workarounds.kt$Workarounds$osName == "Mac OS X" &amp;&amp; majorJavaVersion &lt;= 16 &amp;&amp; (majorOsVersion == 11 || majorOsVersion == 12)</ID>
@@ -21,7 +20,6 @@
     <ID>LargeClass:StringResource.kt$Strings</ID>
     <ID>LongMethod:AndroidStringResourceGeneratorTask.kt$AndroidStringResourceGeneratorTask$@OptIn(ExperimentalXmlUtilApi::class, ExperimentalStdlibApi::class) @TaskAction fun generateStringResources()</ID>
     <ID>LongMethod:CardWallComponents.kt$@Composable fun CardWallScreen( mainNavController: NavController, onResumeCardWall: () -&gt; Unit, profileId: ProfileIdentifier )</ID>
-    <ID>LongMethod:CardWallNfcInstructionScreen.kt$@Composable fun NFCInstructionScreen( onBack: () -&gt; Unit, onClickTroubleshooting: () -&gt; Unit, state: CardWallNfcPositionViewModelData.NfcPosition )</ID>
     <ID>LongMethod:KBVCodeMapping.kt$fun Strings.codeToDosageFormMapping()</ID>
     <ID>LongMethod:LoginWithHealthCardScreen.kt$@OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class ) @Composable fun LoginWithHealthCard( viewModel: LoginWithHealthCardViewModel, onFinished: () -&gt; Unit, onClose: () -&gt; Unit )</ID>
     <ID>LongMethod:Main.kt$fun main()</ID>
@@ -115,12 +113,8 @@
     <ID>MagicNumber:PasswordScreen.kt$3</ID>
     <ID>MagicNumber:PasswordScreen.kt$4</ID>
     <ID>MagicNumber:PharmacySearchModel.kt$Location$180.0</ID>
-    <ID>MagicNumber:PrescriptionViewModel.kt$PrescriptionViewModel$1000L</ID>
-    <ID>MagicNumber:PrescriptionViewModel.kt$PrescriptionViewModel$60L</ID>
     <ID>MagicNumber:ProtocolUseCase.kt$ProtocolUseCase$50</ID>
     <ID>MagicNumber:QueryUtils.kt$100</ID>
-    <ID>MagicNumber:ScanPrescriptionsViewModel.kt$ScanPrescriptionViewModel$1000L</ID>
-    <ID>MagicNumber:ScanPrescriptionsViewModel.kt$ScanPrescriptionViewModel$3000L</ID>
     <ID>MagicNumber:ScanScreenComponent.kt$0.4f</ID>
     <ID>MagicNumber:ScanScreenComponent.kt$0.6f</ID>
     <ID>MagicNumber:ScanScreenComponent.kt$1</ID>
@@ -167,8 +161,6 @@
     <ID>MagicNumber:Utils.kt$48</ID>
     <ID>MagicNumber:Utils.kt$9</ID>
     <ID>MagicNumber:Utils.kt$97</ID>
-    <ID>MagicNumber:VisibleDebugTree.kt$VisibleDebugTree$10</ID>
-    <ID>MagicNumber:VisibleDebugTree.kt$VisibleDebugTree$500</ID>
     <ID>MagicNumber:WebViewScreen.kt$100</ID>
     <ID>MagicNumber:Workarounds.kt$Workarounds$11</ID>
     <ID>MagicNumber:Workarounds.kt$Workarounds$12</ID>
@@ -379,9 +371,7 @@
     <ID>TooManyFunctions:IdpRepository.kt$IdpRepository</ID>
     <ID>TooManyFunctions:PrescriptionDetailScreen.kt$de.gematik.ti.erp.app.prescription.ui.PrescriptionDetailScreen.kt</ID>
     <ID>TooManyFunctions:SettingsScreen.kt$de.gematik.ti.erp.app.settings.ui.SettingsScreen.kt</ID>
-    <ID>TooManyFunctions:SettingsViewModel.kt$SettingsViewModel : ViewModel</ID>
     <ID>TopLevelPropertyNaming:ClientCrypto.kt$private const val byteSpace: Byte = 32</ID>
-    <ID>TopLevelPropertyNaming:DebugScreen.kt$private const val maxNumberOfVisualLogs = 25</ID>
     <ID>TopLevelPropertyNaming:HeadersInterceptor.kt$private const val invalidAccessTokenHeader = "Www-Authenticate"</ID>
     <ID>TopLevelPropertyNaming:HeadersInterceptor.kt$private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"</ID>
     <ID>TopLevelPropertyNaming:IdpRemoteDataSource.kt$private const val defaultScope = "e-rezept openid"</ID>

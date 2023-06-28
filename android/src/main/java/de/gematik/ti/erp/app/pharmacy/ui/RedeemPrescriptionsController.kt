@@ -27,6 +27,7 @@ import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.fhir.model.DirectCommunicationMessage
 import de.gematik.ti.erp.app.fhir.model.json
+import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
@@ -56,6 +57,7 @@ import java.util.UUID
 class RedeemPrescriptionsController(
     private val searchUseCase: PharmacySearchUseCase,
     private val pharmacyDirectRedeemUseCase: PharmacyDirectRedeemUseCase,
+    private val orderUseCase: OrderUseCase,
     private val overviewUseCase: PharmacyOverviewUseCase,
     private val dispatchers: DispatchProvider,
     private val authenticator: Authenticator
@@ -71,6 +73,7 @@ class RedeemPrescriptionsController(
             object Timeout : Error
             object Conflict : Error
             object Gone : Error
+            object NotFound : Error
         }
     }
 
@@ -132,7 +135,7 @@ class RedeemPrescriptionsController(
                                 PharmacyScreenData.OrderOption.MailDelivery -> RemoteRedeemOption.Shipment.type
                             },
                             name = contact.name,
-                            address = listOf(contact.line1, contact.line2, contact.postalCodeAndCity),
+                            address = listOf(contact.line1, contact.line2, contact.postalCode, contact.city),
                             phone = contact.telephoneNumber,
                             hint = contact.deliveryInformation,
                             text = "",
@@ -170,7 +173,7 @@ class RedeemPrescriptionsController(
                 results.mapValues { (order, result) ->
                     result?.fold(
                         onSuccess = {
-                            pharmacyDirectRedeemUseCase.markAsRedeemed(order.taskId)
+                            orderUseCase.saveLocalCommunication(order.taskId, pharmacy.id, transactionId)
                             null
                         },
                         onFailure = {
@@ -182,11 +185,12 @@ class RedeemPrescriptionsController(
                                     HttpURLConnection.HTTP_CLIENT_TIMEOUT -> State.Error.Timeout
                                     HttpURLConnection.HTTP_CONFLICT -> State.Error.Conflict
                                     HttpURLConnection.HTTP_GONE -> State.Error.Gone
+                                    HttpURLConnection.HTTP_NOT_FOUND -> State.Error.NotFound
 
-                                    else -> throw it
+                                    else -> State.Error.Unknown
                                 }
                             } else {
-                                throw it
+                                State.Error.Unknown
                             }
                         }
                     )
@@ -239,10 +243,10 @@ class RedeemPrescriptionsController(
                             if (it is ApiCallException) {
                                 when (it.response.code()) {
                                     HttpURLConnection.HTTP_BAD_REQUEST -> State.Error.TaskIdDoesNotExist
-                                    else -> throw it
+                                    else -> State.Error.Unknown // TODO: better error handling
                                 }
                             } else {
-                                throw it
+                                State.Error.Unknown
                             }
                         }
                     )
@@ -269,6 +273,7 @@ class RedeemPrescriptionsController(
 fun rememberRedeemPrescriptionsController(): RedeemPrescriptionsController {
     val searchUseCase by rememberInstance<PharmacySearchUseCase>()
     val pharmacyDirectRedeemUseCase by rememberInstance<PharmacyDirectRedeemUseCase>()
+    val orderUseCase by rememberInstance<OrderUseCase>()
     val overviewUseCase by rememberInstance<PharmacyOverviewUseCase>()
     val dispatchers by rememberInstance<DispatchProvider>()
     val authenticator = LocalAuthenticator.current
@@ -276,6 +281,7 @@ fun rememberRedeemPrescriptionsController(): RedeemPrescriptionsController {
         RedeemPrescriptionsController(
             searchUseCase = searchUseCase,
             pharmacyDirectRedeemUseCase = pharmacyDirectRedeemUseCase,
+            orderUseCase = orderUseCase,
             overviewUseCase = overviewUseCase,
             dispatchers = dispatchers,
             authenticator = authenticator

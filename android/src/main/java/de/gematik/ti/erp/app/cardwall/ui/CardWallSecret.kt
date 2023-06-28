@@ -81,7 +81,7 @@ fun CardWallSecretScreen(
 ) {
     val lazyListState = rememberLazyListState()
     CardHandlingScaffold(
-        modifier = Modifier.testTag("cardWall/secretScreen"),
+        modifier = Modifier.testTag(TestTag.CardWall.PIN.PinScreen),
         backMode = when (navMode) {
             NavigationMode.Forward,
             NavigationMode.Back,
@@ -130,6 +130,7 @@ fun CardWallSecretScreen(
             }
             item {
                 ClickableTaggedText(
+                    modifier = Modifier.testTag(TestTag.CardWall.PIN.OrderEgkButton),
                     text = annotatedLinkStringLight(
                         uri = "",
                         text = stringResource(R.string.cdw_no_pin_received)

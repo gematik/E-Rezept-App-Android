@@ -36,7 +36,6 @@ import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
-import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.pkv.ui.InvoiceDetailsScreen
 import de.gematik.ti.erp.app.pkv.ui.InvoiceInformationScreen
 import de.gematik.ti.erp.app.pkv.ui.InvoicesScreen
@@ -88,7 +87,6 @@ fun EditProfileNavGraph(
     navController: NavHostController,
     onBack: () -> Unit,
     selectedProfile: ProfilesUseCaseData.Profile,
-    mainScreenController: MainScreenController,
     profilesController: ProfilesController,
     onRemoveProfile: (newProfileName: String?) -> Unit,
     mainNavController: NavController
@@ -203,7 +201,6 @@ fun EditProfileNavGraph(
         composable(ProfileDestinations.Invoices.route) {
             NavigationAnimation(mode = NavigationMode.Closed) {
                 InvoicesScreen(
-                    mainScreenController = mainScreenController,
                     invoicesController = invoicesController,
                     selectedProfile = selectedProfile,
                     onBack = { navController.popBackStack() },

@@ -23,15 +23,11 @@ import androidx.compose.material.icons.rounded.Camera
 import androidx.compose.material.icons.rounded.ZoomIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
-import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -45,8 +41,6 @@ fun AccessibilitySettingsScreen(onBack: () -> Unit) {
     val screenshotState by settingsController.screenShotState
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-
-    var showAllowScreenShotsAlert by remember { mutableStateOf(false) }
 
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.settings_accessibility_headline),
@@ -76,12 +70,8 @@ fun AccessibilitySettingsScreen(onBack: () -> Unit) {
                     screenshotState.screenshotsAllowed
                 ) { screenShotsAllowed ->
                     settingsController.onSwitchAllowScreenshots(screenShotsAllowed)
-                    showAllowScreenShotsAlert = true
                 }
             }
-        }
-        if (showAllowScreenShotsAlert) {
-            RestartAlert { showAllowScreenShotsAlert = false }
         }
     }
 }
@@ -117,19 +107,5 @@ private fun AllowScreenShotsSection(
         icon = Icons.Rounded.Camera,
         header = stringResource(R.string.settings_screenshots_toggle_text),
         description = stringResource(R.string.settings_screenshots_description)
-    )
-}
-
-@Composable
-private fun RestartAlert(onDismissRequest: () -> Unit) {
-    val title = stringResource(R.string.settings_screenshots_alert_headline)
-    val message = stringResource(R.string.settings_screenshots_alert_info)
-    val confirmText = stringResource(R.string.settings_screenshots_button_text)
-
-    AcceptDialog(
-        header = title,
-        onClickAccept = onDismissRequest,
-        info = message,
-        acceptText = confirmText
     )
 }

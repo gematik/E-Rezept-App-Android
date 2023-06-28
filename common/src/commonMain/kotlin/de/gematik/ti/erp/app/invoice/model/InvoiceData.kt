@@ -24,7 +24,7 @@ import kotlinx.datetime.Instant
 
 object InvoiceData {
 
-    enum class SpecialPZN(val pzn: String) {
+    enum class SpecialPZN(val value: String) {
         EmergencyServiceFee("02567018"),
         BTMFee("02567001"),
         TPrescriptionFee("06460688"),
@@ -32,9 +32,9 @@ object InvoiceData {
         DeliveryServiceCosts("06461110");
 
         companion object {
-            fun isAnyOf(pzn: String): Boolean = values().any { it.pzn == pzn }
+            fun isAnyOf(pzn: String): Boolean = values().any { it.value == pzn }
 
-            fun valueOfPZN(pzn: String) = SpecialPZN.values().find { it.pzn == pzn }
+            fun valueOfPZN(pzn: String) = SpecialPZN.values().find { it.value == pzn }
         }
     }
 
@@ -55,18 +55,29 @@ object InvoiceData {
         val totalAdditionalFee: Double,
         val totalBruttoAmount: Double,
         val currency: String,
-        val chargeableItems: List<ChargeableItem> = listOf()
+        val chargeableItems: List<ChargeableItem> = listOf(),
+        val additionalDispenseItem: ChargeableItem?
     )
 
-    data class ChargeableItem(val description: Description, val factor: Double, val price: PriceComponent) {
+    data class ChargeableItem(
+        val description: Description,
+        val text: String,
+        val factor: Double,
+        val price: PriceComponent
+    ) {
+
         sealed interface Description {
             data class PZN(val pzn: String) : Description {
                 fun isSpecialPZN() = SpecialPZN.isAnyOf(pzn)
             }
 
-            data class TA1(val ta1: String) : Description
+            data class TA1(val ta1: String) : Description {
+                fun isSpecialPZN() = SpecialPZN.isAnyOf(ta1)
+            }
 
-            data class HMNR(val hmnr: String) : Description
+            data class HMNR(val hmnr: String) : Description {
+                fun isSpecialPZN() = SpecialPZN.isAnyOf(hmnr)
+            }
         }
     }
 

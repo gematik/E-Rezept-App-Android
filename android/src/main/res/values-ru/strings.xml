@@ -124,9 +124,6 @@
     <string name="technical_hotline_info">Техническая горячая линия</string>
     <string name="main_scan_acc">Открыть сканер рецептов</string>
     <string name="main_settings_acc">Настройки</string>
-    <string name="settings_screenshots_alert_headline">Указание</string>
-    <string name="settings_screenshots_alert_info">Это изменение вступит в силу только при следующем запуске приложения.</string>
-    <string name="settings_screenshots_button_text">OK</string>
     <string name="settings_screenshots_toggle_text">Отключить скриншоты</string>
     <string name="settings_screenshots_description">Скрывать предпросмотр при смене приложения</string>
     <string name="settings_tracking_dialog_title">Разрешаете ли вы приложению E-Rezept анонимно анализировать поведение пользователя?</string>
@@ -342,8 +339,6 @@
     <string name="edit_shipping_contact_title_line1">Улица и номер дома</string>
     <string name="edit_shipping_contact_error_line1">Укажите улицу и номер дома, чтобы с вами можно было связаться.</string>
     <string name="edit_shipping_contact_line2">Дополнительное поле для адреса (необязательно)</string>
-    <string name="edit_shipping_contact_postal_code_and_city">Почтовый индекс и населенный пункт</string>
-    <string name="edit_shipping_contact_error_postal_code_and_city">Укажите почтовый индекс и населенный пункт, чтобы с вами можно было связаться.</string>
     <string name="edit_shipping_contact_delivery_information">Указания по доставке (необязательно)</string>
     <string name="pharmacy_order_further_contact_information_required">Необходимы дополнительные контактные данные</string>
     <string name="edit_contact_back_alert_header">Отменить изменения?</string>

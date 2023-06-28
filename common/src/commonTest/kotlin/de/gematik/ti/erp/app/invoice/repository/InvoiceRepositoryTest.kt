@@ -49,7 +49,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.QuantityEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.RatioEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
-import de.gematik.ti.erp.app.fhir.model.pkvAbgabedatenJson_vers_1_1
+import de.gematik.ti.erp.app.fhir.model.chargeItem_freetext
 import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
@@ -133,7 +133,7 @@ class InvoiceRepositoryTest : TestDB() {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `save invoices and load invoice`() {
-        val chargeItemByIdBundle = Json.parseToJsonElement(pkvAbgabedatenJson_vers_1_1)
+        val chargeItemByIdBundle = Json.parseToJsonElement(chargeItem_freetext)
 
         runTest {
             profileRepository.saveProfile("test", true)
@@ -143,19 +143,19 @@ class InvoiceRepositoryTest : TestDB() {
             invoiceRepository.saveInvoice(testProfileId, chargeItemByIdBundle)
             val invoice = invoiceRepository.invoices(testProfileId).first()[0]
 
-            assertEquals("200.000.001.205.203.40", invoice.taskId)
-            assertEquals(534.2, invoice.invoice.totalBruttoAmount)
-            assertEquals(Instant.parse("2023-02-17T14:07:45.077Z"), invoice.timestamp)
+            assertEquals("200.334.138.469.717.92", invoice.taskId)
+            assertEquals(36.15, invoice.invoice.totalBruttoAmount)
+            assertEquals(Instant.parse("2023-07-07T23:30:00Z"), invoice.timestamp)
 
             val attachments = invoiceRepository.loadInvoiceAttachments(invoice.taskId)
 
-            assertEquals("200.000.001.205.203.40_verordnung.ps7", attachments?.get(0)?.first)
+            assertEquals("200.334.138.469.717.92_verordnung.ps7", attachments?.get(0)?.first)
             assertEquals("application/pkcs7-mime", attachments?.get(0)?.second)
 
-            assertEquals("200.000.001.205.203.40_abrechnung.ps7", attachments?.get(1)?.first)
+            assertEquals("200.334.138.469.717.92_abrechnung.ps7", attachments?.get(1)?.first)
             assertEquals("application/pkcs7-mime", attachments?.get(1)?.second)
 
-            assertEquals("200.000.001.205.203.40_quittung.ps7", attachments?.get(2)?.first)
+            assertEquals("200.334.138.469.717.92_quittung.ps7", attachments?.get(2)?.first)
             assertEquals("application/pkcs7-mime", attachments?.get(2)?.second)
         }
     }

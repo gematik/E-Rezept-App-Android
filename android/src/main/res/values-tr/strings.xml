@@ -120,9 +120,6 @@
     <string name="technical_hotline_info">Teknik destek hattı</string>
     <string name="main_scan_acc">Reçeteler için tarayıcıyı açın</string>
     <string name="main_settings_acc">Ayarlar</string>
-    <string name="settings_screenshots_alert_headline">Not</string>
-    <string name="settings_screenshots_alert_info">Bu değişiklik, yalnızca uygulamayı yeniden başlattıktan sonra geçerli olacaktır.</string>
-    <string name="settings_screenshots_button_text">Tamam</string>
     <string name="settings_screenshots_toggle_text">Ekran görüntülerini gizle</string>
     <string name="settings_screenshots_description">Uygulamaları değiştirdiğinizde önizleme görüntüsünün görüntülenmesini engeller</string>
     <string name="settings_tracking_dialog_title">E-Rezept\'in kullanıcı davranışınızı anonim olarak analiz etmesine izin veriyor musunuz?</string>
@@ -328,8 +325,6 @@
     <string name="edit_shipping_contact_title_line1">Sokak ve bina numarası</string>
     <string name="edit_shipping_contact_error_line1">İletişime geçmek için bir sokak ve bina numarası girin.</string>
     <string name="edit_shipping_contact_line2">Adres eki (opsiyonel)</string>
-    <string name="edit_shipping_contact_postal_code_and_city">Posta kodu ve yer</string>
-    <string name="edit_shipping_contact_error_postal_code_and_city">İletişime geçmek için bir posta kodu ve yeri girin.</string>
     <string name="edit_shipping_contact_delivery_information">Teslimat talimatları (opsiyonel)</string>
     <string name="pharmacy_order_further_contact_information_required">Daha fazla iletişim bilgileri gerekli</string>
     <string name="edit_contact_back_alert_header">Değişiklikler silinsin mi?</string>

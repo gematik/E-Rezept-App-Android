@@ -183,7 +183,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val realm = "io.realm.kotlin:library-base:1.7.1"
         }
 
-        const val composeVersion = "1.4.2"
+        const val composeVersion = "1.5.0-beta02"
 
         object Compose {
             const val compiler = "androidx.compose.compiler:compiler:$composeVersion"
