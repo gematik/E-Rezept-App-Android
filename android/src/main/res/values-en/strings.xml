@@ -487,7 +487,7 @@
     <string name="cdw_info_second">Using biometric protection for your access data means that you can launch this app in future without your medical card and PIN in order to view, retrieve, redeem or delete prescriptions.</string>
     <string name="cdw_info_third">Please be aware that people with whom you may share this device and whose biometrics may be stored on this device or who have the device PIN, swipe pattern or password may also have access to your prescriptions.</string>
     <string name="main_fasttrack_error_title">Unfortunately that didn\'t work</string>
-    <string name="main_fasttrack_error_info">Authentication with the health insurance company\'s app was successful.</string>
+    <string name="main_fasttrack_error_info">Authentication with the health insurance company\'s app was not successful.</string>
     <string name="pres_detail_medication_expired_on">Expired on %s</string>
     <string name="prescription_not_found">The prescription has already been deleted from the server</string>
     <string name="edit_contact_back_alert_information">Please correct your input or discard changes</string>
