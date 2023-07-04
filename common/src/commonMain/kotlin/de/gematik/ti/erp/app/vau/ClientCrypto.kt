@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.vau
 
+import de.gematik.ti.erp.app.Requirement
 import okhttp3.Headers
 import okhttp3.HttpUrl
 import okhttp3.MediaType.Companion.toMediaType
@@ -181,6 +182,12 @@ class VauChannelSpec constructor(
      *
      * @return the encrypted request and [RawRequestData] of the actual encryption process.
      */
+    @Requirement(
+        "A_20161-01#5",
+        "A_21325",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Generate AES key, assemble and encrypt VAU request."
+    )
     fun encryptHttpRequest(
         innerRequest: Request,
         userpseudonym: String,
@@ -226,6 +233,12 @@ class VauChannelSpec constructor(
      *
      * @return the decrypted inner response with the user pseudonym.
      */
+    @Requirement(
+        "A_20174#2",
+        "A_20175",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Decrypt VAU response."
+    )
     fun decryptHttpResponse(
         outerResponse: Response,
         previousInnerRequest: Request,

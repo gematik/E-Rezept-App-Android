@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.asFhirInstant
 import de.gematik.ti.erp.app.fhir.parser.contained
@@ -146,6 +147,11 @@ enum class CommunicationProfile {
     ErxCommunicationDispReq, ErxCommunicationReply
 }
 
+@Requirement(
+    "A_19984#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Validate incoming Communication data."
+)
 fun extractCommunications(
     bundle: JsonElement,
     save: (

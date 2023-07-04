@@ -101,6 +101,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.TestTag.Profile.OpenTokensScreenButton
 import de.gematik.ti.erp.app.TestTag.Profile.ProfileScreen
@@ -402,6 +403,12 @@ fun SecuritySection(
     SecurityAuditEventsSubSection(onClickAuditEvents)
 }
 
+@Requirement(
+    "A_19177",
+    "A_19185",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Button to display audit events for profile."
+)
 @Composable
 fun SecurityAuditEventsSubSection(onClickAuditEvents: () -> Unit) {
     Row(

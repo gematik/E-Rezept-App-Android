@@ -56,7 +56,8 @@ object InvoiceData {
         val totalBruttoAmount: Double,
         val currency: String,
         val chargeableItems: List<ChargeableItem> = listOf(),
-        val additionalDispenseItem: ChargeableItem?
+        val additionalDispenseItems: List<ChargeableItem> = listOf(),
+        val additionalInformation: List<String> = listOf()
     )
 
     data class ChargeableItem(

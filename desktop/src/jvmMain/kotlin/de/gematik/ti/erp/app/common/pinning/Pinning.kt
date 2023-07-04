@@ -54,4 +54,10 @@ public fun buildCertificatePinner(): CertificatePinner = CertificatePinner.Build
     .add("erp.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
     // expires on 2024-07-07
     .add("apovzd.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
+    // expires on TODO
+    .add("idp-ref.app.ti-dienste.de", "sha256/OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=")
+    // expires on TODO
+    .add("idp-test.app.ti-dienste.de", "sha256/OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=")
+    // expires on TODO
+    .add("idp.app.ti-dienste.de", "sha256/OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=")
     .build()

@@ -77,6 +77,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
@@ -525,6 +526,12 @@ private fun OnboardingPageAnalytics(
     }
 }
 
+@Requirement(
+    "A_19184",
+    "A_20194",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Displays terms of service and privacy statement to the user."
+)
 @Composable
 private fun OnboardingPageTerms(
     navController: NavController,

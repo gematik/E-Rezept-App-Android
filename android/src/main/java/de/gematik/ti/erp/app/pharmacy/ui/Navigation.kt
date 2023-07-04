@@ -164,7 +164,7 @@ fun PharmacyNavigation(
                             handleSearchResultFn(
                                 pharmacySearchController.search(
                                     name = "",
-                                    filter = searchFilter.copy(nearBy = true, ready = true)
+                                    filter = searchFilter.copy(nearBy = true)
                                 )
                             )
                         }

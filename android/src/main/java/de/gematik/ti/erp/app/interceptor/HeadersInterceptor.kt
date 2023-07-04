@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.interceptor
 
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -32,6 +33,12 @@ import io.github.aakira.napier.Napier
 private const val invalidAccessTokenHeader = "Www-Authenticate"
 private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"
 
+@Requirement(
+    "A_19187",
+    "A_20529-01",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
+)
 class BearerHeaderInterceptor(
     private val idpUseCase: IdpUseCase
 ) : Interceptor {

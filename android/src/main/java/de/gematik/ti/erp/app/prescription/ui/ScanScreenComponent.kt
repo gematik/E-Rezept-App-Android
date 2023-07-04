@@ -124,6 +124,7 @@ import androidx.navigation.NavController
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.trackScannerPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
@@ -155,6 +156,11 @@ fun ScanScreen(
 
     var camPermissionGranted by rememberSaveable { mutableStateOf(false) }
 
+    @Requirement(
+        "A_20193#2",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Request user permission for using the camera."
+    )
     val camPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             camPermissionGranted = it

@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription.detail.ui
 
 import androidx.compose.runtime.Stable
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
@@ -52,6 +53,11 @@ class DeletePrescriptions(
         }
     }
 
+    @Requirement(
+        "A_19229#1",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "User can delete a locally and remotely stored prescription and all its linked resources."
+    )
     suspend fun deletePrescription(
         profileId: ProfileIdentifier,
         taskId: String

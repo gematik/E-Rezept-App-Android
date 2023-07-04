@@ -67,6 +67,7 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.ui.rememberProfileHandler
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -166,6 +167,7 @@ fun AuthenticatorList(
     }
 
     val coroutineScope = rememberCoroutineScope()
+    val profileHandler = rememberProfileHandler()
 
     var search by remember { mutableStateOf("") }
     val externalAuthenticatorListFiltered by rememberFilteredAuthenticatorsList(
@@ -232,9 +234,10 @@ fun AuthenticatorList(
                                             profileId = profileId,
                                             auth = it
                                         )
-
                                     intentHandler.startFastTrackApp(redirectUri)
-
+                                    if (it.id.endsWith("pkv")) {
+                                        profileHandler.switchProfileToPKV(profileId)
+                                    }
                                     onNext()
                                 }
                             }

@@ -34,6 +34,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingBottomBar
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -45,6 +46,15 @@ import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 
+@Requirement(
+    "A_19087",
+    "A_19088#1",
+    "A_19091#1",
+    "A_19092",
+    "A_19181-01#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Display opt-in for analytics. Full app functionality is available also without opting in."
+)
 @Composable
 fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit) {
     val context = LocalContext.current
@@ -67,6 +77,11 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit
         },
         listState = lazyListState,
         bottomBar = {
+            @Requirement(
+                "A_19091#2",
+                sourceSpecification = "gemSpec_eRp_FdV",
+                rationale = "User confirms the opt in"
+            )
             OnboardingBottomBar(
                 buttonText = stringResource(R.string.settings_tracking_allow_button),
                 onButtonClick = {
@@ -91,6 +106,12 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit
                 .testTag(TestTag.Onboarding.Analytics.ScreenContent)
         ) {
             item {
+                @Requirement(
+                    "A_19089#1",
+                    "A_19090",
+                    sourceSpecification = "gemSpec_eRp_FdV",
+                    rationale = "Display explanation of data processing for analytics opt-in"
+                )
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()

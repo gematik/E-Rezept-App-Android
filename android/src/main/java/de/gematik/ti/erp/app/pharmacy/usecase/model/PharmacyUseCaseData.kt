@@ -22,14 +22,14 @@ import android.os.Parcelable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
-import de.gematik.ti.erp.app.fhir.model.OpeningHours
-import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.fhir.model.OnlinePharmacyService
+import de.gematik.ti.erp.app.fhir.model.OpeningHours
+import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.fhir.model.PharmacyService
 import de.gematik.ti.erp.app.fhir.model.PickUpPharmacyService
-import kotlinx.parcelize.Parcelize
 import kotlinx.datetime.Instant
+import kotlinx.parcelize.Parcelize
 
 private const val DefaultRadiusInMeter = 999 * 1000.0
 
@@ -38,14 +38,13 @@ object PharmacyUseCaseData {
     @Immutable
     data class Filter(
         val nearBy: Boolean = false,
-        val ready: Boolean = false,
         val deliveryService: Boolean = false,
         val onlineService: Boolean = false,
         val openNow: Boolean = false,
         val directRedeem: Boolean = false
     ) : Parcelable {
         fun isAnySet(): Boolean =
-            nearBy || ready || deliveryService || onlineService || openNow || directRedeem
+            nearBy || deliveryService || onlineService || openNow || directRedeem
     }
 
     /**

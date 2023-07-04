@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp.repository
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationIdList
 import de.gematik.ti.erp.app.idp.api.models.Challenge
@@ -59,6 +60,11 @@ class IdpRepository constructor(
     fun decryptedAccessToken(profileId: ProfileIdentifier) =
         decryptedAccessTokenMap.map { it[profileId] }.distinctUntilChanged()
 
+    @Requirement(
+        "A_21328#1",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Store access token in data structure only."
+    )
     fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: String) {
         decryptedAccessTokenMap.update {
             it + (profileId to accessToken)
@@ -72,6 +78,11 @@ class IdpRepository constructor(
     fun authenticationData(profileId: ProfileIdentifier): Flow<IdpData.AuthenticationData> =
         localDataSource.authenticationData(profileId)
 
+    @Requirement(
+        "A_20483",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Fetch challenge from IDP."
+    )
     suspend fun fetchChallenge(
         url: String,
         codeChallenge: String,
@@ -220,6 +231,15 @@ class IdpRepository constructor(
             externalAuthorizationData = externalAuthorizationData
         )
 
+    @Requirement(
+        "A_20186",
+        "A_21326",
+        "A_21327",
+        "A_20499-01",
+        "A_21603",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Invalidate/delete session data upon logout."
+    )
     suspend fun invalidate(profileId: ProfileIdentifier) {
         invalidateConfig()
         invalidateDecryptedAccessToken(profileId)

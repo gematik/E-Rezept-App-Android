@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.repository
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.db.entities.deleteAll
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
@@ -155,6 +156,11 @@ class LocalDataSource(
                 }
             }
 
+    @Requirement(
+        "A_19229#2",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "User can a locally stored prescription and all its linked resources."
+    )
     suspend fun deleteTask(taskId: String) {
         realm.tryWrite<Unit> {
             queryFirst<ScannedTaskEntityV1>("taskId = $0", taskId)?.let { delete(it) }

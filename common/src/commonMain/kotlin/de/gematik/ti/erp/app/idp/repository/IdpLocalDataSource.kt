@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp.repository
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
@@ -81,6 +82,13 @@ class IdpLocalDataSource constructor(
         }
     }
 
+    @Requirement(
+        "A_21328#2",
+        "A_21322",
+        "A_21595#4",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Save the SSO token to database."
+    )
     suspend fun saveSingleSignOnToken(
         profileId: ProfileIdentifier,
         tokenScope: IdpData.SingleSignOnTokenScope

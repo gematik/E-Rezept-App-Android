@@ -39,6 +39,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -119,6 +120,16 @@ private fun SurveySection() {
     }
 }
 
+@Requirement(
+    "A_19088#2",
+    "A_20187#3",
+    "A_19088",
+    "A_19089#2",
+    "A_19097",
+    "A_19181-01#2",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "User can opt-in and opt-out of analytics"
+)
 @Composable
 private fun AnalyticsSection(
     analyticsAllowed: Boolean,

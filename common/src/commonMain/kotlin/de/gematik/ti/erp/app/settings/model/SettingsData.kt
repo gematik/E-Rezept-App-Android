@@ -41,13 +41,12 @@ object SettingsData {
     data class PharmacySearch(
         val name: String,
         val locationEnabled: Boolean,
-        val ready: Boolean = false,
         val deliveryService: Boolean = false,
         val onlineService: Boolean = false,
         val openNow: Boolean = false
     ) {
         fun isAnySet(): Boolean =
-            ready || deliveryService || onlineService || openNow
+            deliveryService || onlineService || openNow
     }
 
     sealed class AuthenticationMode {

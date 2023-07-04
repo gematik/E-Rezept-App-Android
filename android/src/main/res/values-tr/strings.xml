@@ -210,7 +210,7 @@
     <string name="insecure_device_accept">Bu notu gelecekte gösterme.</string>
     <string name="error_message_network_not_available">Bağlantı başarısız. Ağa bağlantı kurulamadı.</string>
     <string name="error_message_server_communication_failed">Sunucu ile iletişim başarısız oldu: %s durum kodu.</string>
-    <string name="error_message_vau_error">Sunucu ile iletişim başarısız: VAU hatası</string>
+    <string name="error_message_vau_error">Sunucuyla iletişim kurulamadı: Lütfen internet bağlantısını ve saat/tarih ayarlarını kontrol edin.</string>
     <string name="insecure_device_title_safetynet">Uyarı</string>
     <string name="insecure_device_header_safetynet">Cihazınızın güvenliği azaltılmış olabilir</string>
     <string name="insecure_device_info_safetynet">Buna, örneğin manipüle edilmiş cihazlar veya etkinleştirilmiş bir geliştirici modu neden olabilir. Güvenlik nedeniyle, uygulamanın jailbreak\'li cihazlarda kullanılmasını önermiyoruz.</string>
@@ -264,7 +264,7 @@
         <item quantity="other">%s yeni reçete</item>
     </plurals>
     <string name="prescription_status_ready">Kullanılabilir</string>
-    <string name="prescription_status_in_progress">Reçete aktarıldı</string>
+    <string name="prescription_status_in_progress">kurtuluşta</string>
     <string name="prescription_status_completed">Kullanıldı</string>
     <string name="prescription_status_unknown">Bilinmiyor</string>
     <string name="settings_show_audit_events">Erişim protokollerini göster</string>
@@ -381,7 +381,7 @@
     <string name="settings_login_connected_devices">Bağlı cihazlar</string>
     <string name="paired_device_subtitle_our_device">%s tarihinden beri kayıtlı (bu cihaz)</string>
     <string name="paired_device_subtitle">%s tarihinden beri kayıtlı</string>
-    <string name="mini_cdw_intro_description">Güvenlik nedeniyle, reçete sunucusuna bağlantı 12 saat sonra sonlandırılır. Yeniden bağlanmak için her bağlantı işlemi için bir sağlık kartına ve PIN\'e ihtiyacınız vardır.</string>
+    <string name="mini_cdw_intro_description">Güvenlik nedeniyle reçete sunucusuna bağlantı 12 saat sonra sonlandırılır. Yeniden bağlanmak için, her bağlantı işlemi için bir sağlık kartına ve PIN\'e ihtiyacınız vardır.</string>
     <string name="mini_cdw_pin_input_label">PIN</string>
     <string name="mini_cdw_pin_input_placeholder">PIN\'inizi (sağlık kartı) girin.</string>
     <string name="mini_cdw_pin_next">İleri</string>
@@ -428,13 +428,13 @@
     <string name="unlock_egk_intro_puk">Sağlık kartınızın PUK\'u</string>
     <string name="unlock_egk_next">İleri</string>
     <string name="health_card_section_header">Sağlık kartı</string>
-    <string name="health_card_section_order_card">Yeni bir kart sipariş edin</string>
+    <string name="health_card_section_order_card">PIN veya kart sipariş edin</string>
     <string name="cdw_intro_header">Oturum aç</string>
     <string name="cdw_intro_info">Reçeteleri çevrim içi alın ve bir ezcaneye iletin.</string>
     <string name="cdw_intro_nfc_card_needed">NFC özellikli sağlık kartı</string>
     <string name="cdw_intro_pin_needed">Sağlık kartının PIN\'i</string>
     <string name="cdw_have_no_card_with_pin">NFC özellikli sağlık kartına ve PIN\'e henüz sahip değil misiniz?</string>
-    <string name="cdw_intro_order_now">Şimdi sipariş verin</string>
+    <string name="cdw_intro_order_now">Şimdi Uygula</string>
     <string name="cdw_intro_alternate_auth_info">Veya: %s ile oturum açın.</string>
     <string name="cdw_intro_alternate_auth_info_link">Sağlık sigortanızın uygulaması</string>
     <string name="cdw_can_description">"Erişim numaranızı sağlık kartınızın sağ üst köşesinde bulacaksınız."</string>
@@ -475,7 +475,7 @@
     <string name="cdw_selection_save">Kaydet</string>
     <string name="cdw_selection_save_not">Kaydetme</string>
     <string name="cdw_selection_hint_title">Not</string>
-    <string name="cdw_selection_hint_info_">Güvenlik nedeniyle, reçete sunucusuna bağlantı 12 saat sonra sonlandırılır. Yeniden bağlanmak için her bağlantı işlemi için bir sağlık kartına ve PIN\'e ihtiyacınız vardır.</string>
+    <string name="cdw_selection_hint_info_">Güvenlik nedeniyle reçete sunucusuna bağlantı 12 saat sonra sonlandırılır. Yeniden bağlanmak için, her bağlantı işlemi için bir sağlık kartına ve PIN\'e ihtiyacınız vardır.</string>
     <string name="enroll_biometric_dialog_header">Biyometrik güvenlik önlemi ayarla</string>
     <string name="enroll_biometric_dialog_info">Erişim verilerini kaydetmek mümkün değil. Cihazınızda önceden biyometrik bir güvenlik önlemi (ör. parmak izi) ayarlayın.</string>
     <string name="enroll_biometric_dialog_cancel">İptal et</string>
@@ -543,7 +543,6 @@
     <string name="orders_generic_pharmacy_name">eczane</string>
     <string name="unlock_egk_top_bar_title_change_secret">İstediğiniz PIN\'i seçin</string>
     <string name="unlock_egk_dialog_new_secret_saved">İstenen PIN kaydedildi</string>
-    <string name="search_pharmacies_filter_e_prescription_ready">E-Rezept</string>
     <string name="search_pharmacies_filter_open_now_and_local">Şu anda açık ve yakınımda</string>
     <string name="search_pharmacies_filter_by">Tarafından filtre …</string>
     <string name="search_pharmacies_start_search">Aramaya başla</string>
@@ -582,8 +581,8 @@
     <string name="prescription_detail_aut_idem_chip">Muadil mümkün</string>
     <string name="health_card_section_unlock_card_forgot_pin">PIN\'i unuttum</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
-        <item quantity="one">%s Tarif</item>
-        <item quantity="other">%s Tarifler</item>
+        <item quantity="one">%s reçete</item>
+        <item quantity="other">%s reçeteler</item>
     </plurals>
     <string name="onboarding_data_terms_info">Gizlilik politikasını ve kullanım koşullarını okudum ve kabul ediyorum.</string>
     <string name="onboarding_data_button">Veri koruma politikası</string>
@@ -611,7 +610,7 @@
     <string name="pres_detail_medication_label_note">Teslimat notları</string>
     <string name="pres_detail_medication_label_bvg">BVG\'ye göre uygun</string>
     <string name="pres_detail_medication_label_subtitution">alternatif hazırlık</string>
-    <string name="medication_compounding_name">tarif adı</string>
+    <string name="medication_compounding_name">formül adı</string>
     <string name="pres_detail_medication_label_packaging">Ambalajlama</string>
     <string name="pres_detail_medication_label_manufacturing">işçiliği talimatı</string>
     <string name="medication_freetext_name">tanım</string>
@@ -635,7 +634,7 @@
     <string name="pres_details_exp_sub_allowed_info">Sağlık sigortanızın yasal zorunlulukları nedeniyle, aynı etken maddeye sahip bir alternatif sunulabilir. \n\n İlaçlar farklı görünebilir ve farklı adlandırılabilir, farklı fiyatlara ve üreticilere sahip olabilir, ancak yine de aynı etken maddeyi içerir. Aktif bileşenin kendisi ve dozajı, ilaçların vücuttaki etkisi için özellikle önemlidir. Eczanedeki hastalar, ilaçların karşılaştırılabilir olması koşuluyla, genellikle doktorun reçetede yazdığından farklı bir ilaç alırlar. Değişimin terapötik ve ekonomik nedenleri olabilir.</string>
     <string name="pres_details_exp_scanned_title">Taranmış reçete</string>
     <string name="pres_details_exp_scanned_info">Güvenlik nedeniyle, kağıt çıktıdan alınan reçeteler herhangi bir kişisel veya tıbbi veri içermemelidir. \n\n Reçetede yer alan tüm bilgileri görüntülemek için bu uygulamada sağlık kartı veya sigorta uygulamasıyla oturum açın.</string>
-    <string name="pres_details_exp_failure_title">Tarif yanlış</string>
+    <string name="pres_details_exp_failure_title">Reçete yanlış</string>
     <string name="pres_details_exp_failure_info">Bu reçete yanlış yazılmıştır.</string>
     <string name="pres_details_scanned_prescription">Taranmış reçete</string>
     <string name="pres_details_emergency_fee">acil servis ücreti</string>
@@ -678,7 +677,7 @@
     <string name="unlock_password_not_found_header">Şifre bulunamadı</string>
     <string name="unlock_password_not_found_info">Kartınızda kayıtlı şifre yok.</string>
     <string name="cdw_mini_alt_auth_removed_title">Çıkış yaptınız</string>
-    <string name="cdw_mini_alt_auth_removed">Tariflerinizi güncellemek için tekrar giriş yapın.</string>
+    <string name="cdw_mini_alt_auth_removed">Reçetelerinizi güncellemek için tekrar oturum açın.</string>
     <string name="pres_detail_medication_label_ingredient_number">aktif madde numarası</string>
     <string name="pres_detail_medication_label_ingredient_strength_unit">güç ve birlik</string>
     <string name="received_x_min_ago">%s dakika önce kullanıldı</string>
@@ -696,10 +695,10 @@
     <string name="mainscreen_profile_chip_content_description">Adı düzenlemek için basılı tutun.</string>
     <string name="profile_edit_name_for_rename_info">Profil için yeni adı girin.</string>
     <string name="mainscreen_welcome_drawer_info">Muayenehanenizden dijital reçeteler almak için giriş yapmalısınız.</string>
-    <string name="mainscreen_welcome_drawer_header">Yemek tarifleri dijital olarak alınsın mı?</string>
+    <string name="mainscreen_welcome_drawer_header">Reçeteleri dijital olarak mı alıyorsunuz?</string>
     <string name="mainscreen_empty_connected_info">Yenilemek için ekranı aşağı sürükleyin.</string>
     <string name="mainscreen_empty_content_header">Reçete yok</string>
-    <string name="mainscreen_empty_not_connected_info">Sağ üst köşedeki + düğmesini kullanarak tarifler ekleyin.</string>
+    <string name="mainscreen_empty_not_connected_info">Sağ üst köşedeki + düğmesini kullanarak reçete ekleyin.</string>
     <string name="mainscreen_login">Giriş yapmak</string>
     <string name="archived_prescriptions_button">Kullanılan reçeteler</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Belki sonra</string>
@@ -717,11 +716,11 @@
     <string name="pharmacy_order_collect">eczaneden al</string>
     <string name="pharmacy_order_delivery">kurye ile teslimat</string>
     <string name="pharmacy_order_mail">Posta ile teslimat</string>
-    <string name="pharmacy_order_nr_of_prescriptions">%s Tarifler</string>
+    <string name="pharmacy_order_nr_of_prescriptions">%s reçeteler</string>
     <string name="pharmacy_order_not_possible_title">Kullanılamaz</string>
     <string name="pharmacy_order_not_possible_desc">Bir veya daha fazla reçete kullanılamadı.</string>
-    <string name="pharmacy_order_no_selected_prescriptions_title">Tarif seçilmedi</string>
-    <string name="pharmacy_order_no_selected_prescriptions_desc">Tarifleri kullanmak için en az bir tarif seçilmelidir.</string>
+    <string name="pharmacy_order_no_selected_prescriptions_title">Reçete seçilmedi</string>
+    <string name="pharmacy_order_no_selected_prescriptions_desc">Reçeteleri kullanmak için en az bir reçete seçilmelidir.</string>
     <string name="pharmacy_order_add_contacts">İletişim bilgilerini ekleyin</string>
     <string name="pharmacy_order_change_contacts">Değişmek</string>
     <string name="pharmacy_order_no_prescriptions_title">reçete yok</string>
@@ -729,10 +728,10 @@
     <string name="pharmacy_order_opt_collect">toplamak</string>
     <string name="pharmacy_order_opt_delivery">kurye</string>
     <string name="pharmacy_order_opt_mail">Kargo</string>
-    <string name="pharmacy_order_select_prescriptions">yemek tarifleri seç</string>
-    <string name="main_screen_tooltip_1_content">Tarifleri taramak için buraya dokunun</string>
+    <string name="pharmacy_order_select_prescriptions">reçeteleri seç</string>
+    <string name="main_screen_tooltip_1_content">Reçeteleri taramak için buraya dokunun</string>
     <string name="main_screen_tooltip_2_content">Adları düzenlemek için uzun basın</string>
-    <string name="main_screen_tooltip_3_content">Örneğin çocuklarınız veya ebeveynleriniz için daha fazla profil ekleyin.</string>
+    <string name="main_screen_tooltip_3_content">Örneğin çocuklarınız veya ebeveynleriniz için daha fazla profil ekleyin</string>
     <string name="main_screen_tooltip_tap_screen">Görüntülenen araç ipucunu atlamak için ekrana tıklayın.</string>
     <string name="order_onb_how_to_title">Nasıl geri alınır?</string>
     <string name="order_onb_how_to_desc">İlaçlarınızı nasıl almak istersiniz?</string>
@@ -744,36 +743,36 @@
     <string name="local_redeem_grouped_codes">kolektif kod</string>
     <string name="local_redeem_single_codes">tek kodlar</string>
     <plurals name="online_redeem_rx_desc">
-        <item quantity="one">%s reçeteniz var.</item>
-        <item quantity="other">%s tarifiniz var.</item>
+        <item quantity="one">Sizde %s reçetesi var.</item>
+        <item quantity="other">Sizin %s reçeteniz var.</item>
     </plurals>
     <string name="online_redeem_choose_rx">seçim yap</string>
-    <string name="online_redeem_choose_all_rx">Tüm tarifler</string>
-    <string name="online_redeem_choose_rx_title">Hangi tarifler?</string>
+    <string name="online_redeem_choose_all_rx">Tüm reçeteler</string>
+    <string name="online_redeem_choose_rx_title">Hangi reçeteler?</string>
     <string name="rx_selection_next">İleri</string>
     <string name="mlkit_intro_accept">İleri</string>
     <string name="mlkit_intro_read_more">Daha fazla bilgi</string>
     <string name="mlkit_intro_header">Not</string>
     <string name="mlkit_intro_info">Bu uygulama, kodları tanımak için Google\'ın yazılımını kullanır.</string>
     <string name="ml_information_title">Daha fazla bilgi</string>
-    <string name="ml_info_header">Tarif kodu tarayıcı hakkında</string>
+    <string name="ml_info_header">Reçete kodu tarayıcı hakkında</string>
     <string name="ml_pararaph_1_header">Reçete kodu hangi verileri içerir?</string>
-    <string name="ml_pararaph_1_info">Reçete kodu sadece tarifin tanımlayıcısını içerir. Bu, reçetenin dijital sağlık ağındaki reçete hizmetinde bulunmasını sağlar. Reçete kodu, sizinle veya ilacınızla ilgili herhangi bir veri içermez.</string>
-    <string name="ml_pararaph_2_header">Yani kimse sadece tarif koduyla bir şey yapamaz mı?</string>
+    <string name="ml_pararaph_1_info">Reçete kodu sadece reçetenin tanımlayıcısını içerir. Bu, reçetenin dijital sağlık ağındaki reçete hizmetinde bulunmasını sağlar. Reçete kodu, sizinle veya ilacınızla ilgili herhangi bir veri içermez.</string>
+    <string name="ml_pararaph_2_header">Yani kimse sadece reçete koduyla bir şey yapamaz mı?</string>
     <string name="ml_pararaph_2_info">Doğru. Reçete verilerinin reçete servisinden indirilmesi gerekir. Bu, güvenli bir oturum açma gerektirir.</string>
     <string name="ml_pararaph_3_header">Reçete hizmetine kimler kayıt olabilir?</string>
     <string name="ml_pararaph_3_info">Sigortalıların, eczanelerin, muayenehanelerin ve hastanelerin dijital sağlık ağında reçete hizmetine kaydolması mümkündür.</string>
     <string name="ml_pararaph_4_header">E-reçete uygulaması neden Google özelliklerini kullanıyor?</string>
     <string name="ml_pararaph_4_info">Google, uygulamalara kolayca yerleştirilebilen ve Google tarafından sürekli olarak geliştirilip güncellenen işlevler sunar. Bu, fonksiyonların birçok farklı uç cihazda çalışmasını ve güvenli bir şekilde çalıştırılabilmesini sağlar. Uygulama, Android cihazlar (Google ML Kit) için kamera ve tarama işlevini geliştirmeye yönelik bir özellik kullanır.</string>
     <string name="ml_pararaph_5_header">Google ML Kit tarama iyileştirmesi nasıl çalışır?</string>
-    <string name="ml_pararaph_5_info">Google ML Kit, bir kamera tarafından çekilen görüntüyü optimize etmeye yardımcı olur, böylece tarif kodları zayıf aydınlatma koşullarında veya daha eski kamera modellerinde bile okunabilir.</string>
+    <string name="ml_pararaph_5_info">Google ML Kit, bir kamera tarafından çekilen görüntüyü optimize etmeye yardımcı olur, böylece reçete kodları zayıf aydınlatma koşullarında veya daha eski kamera modellerinde bile okunabilir.</string>
     <string name="ml_pararaph_6_header">Reçete veya ilacımla ilgili veriler Google\'a aktarılacak mı?</string>
-    <string name="ml_pararaph_6_info">hayır Okunan tarif kodu doğrudan uygulamaya kaydedilir. Google\'a aktarılmayacaktır. Reçete verileri kodda değil, yalnızca dijital sağlık ağında saklanır. Oradan uygulamaya gönderilirler. Google\'ın dijital sağlık ağına erişimi yoktur.</string>
+    <string name="ml_pararaph_6_info">HAYIR. Okunan reçete kodu doğrudan uygulamaya kaydedilir ve Google\'a aktarılmaz. Reçete verileri kodda değil, yalnızca dijital sağlık ağında saklanır. Oradan uygulamaya gönderilirler.Google\'ın dijital sağlık ağına erişimi yoktur.</string>
     <string name="ml_pararaph_7_header">Google, ML Kit kullanırken hangi verileri işler?</string>
-    <string name="ml_pararaph_7_info">Google, bunu istatistiksel olarak kaydetmek ve böylece ek işlevi iyileştirmek için yalnızca kullanılan son cihaz ve ek işlevin genel kullanımı (örn. hata oranı, kamera ayarları) hakkındaki teknik bilgilere erişebilir. Eriştiğinizde Google, uç cihazınızın IP adresini geçici olarak kaydeder. Hakkınızdaki bilgiler ve tarifin içeriği Google tarafından kaydedilmeyecektir.</string>
+    <string name="ml_pararaph_7_info">Google, bunu istatistiksel olarak kaydetmek ve böylece ek işlevi iyileştirmek için yalnızca kullanılan son cihaz ve ek işlevin genel kullanımı (örn. hata oranı, kamera ayarları) hakkındaki teknik bilgilere erişebilir. Eriştiğinizde Google, uç cihazınızın IP adresini geçici olarak kaydeder. Hakkınızdaki bilgiler ve reçetenin içeriği Google tarafından kaydedilmeyecektir.</string>
     <string name="ml_pararaph_8_header">Google ML Kit\'in kullanımı gönüllü mü?</string>
-    <string name="ml_pararaph_8_info">Evet. Ancak ML Kit, e-reçete uygulamasının Android sürümündeki reçete kodu tarayıcısına yerleştirilmiştir. Tarif kodu tarayıcıyı bir Android cihazda kullanıyorsanız, ML Kit işlevi de her zaman kullanılır. Ancak, tarif kodu tarayıcısını kullanmadan yapabilirsiniz. Elektronik sağlık kartı veya sağlık sigortası uygulamanız üzerinden dijital sağlık ağına kaydolursanız reçeteleriniz de uygulamaya yüklenebilir.</string>
-    <string name="ml_pararaph_9_header">Tariflerime kimlerin baktığını görebilir miyim?</string>
+    <string name="ml_pararaph_8_info">Evet Ancak ML Kit, e-reçete uygulamasının Android sürümündeki reçete kodu tarayıcısına yerleşiktir.Bir Android cihazda reçete kodu tarayıcı kullanıyorsanız, ML Kit işlevi de her zaman kullanılır. Ancak, reçete kodu tarayıcı kullanmadan yapabilirsiniz. Elektronik sağlık kartı veya sağlık sigortası uygulamanız üzerinden dijital sağlık ağına kaydolursanız reçeteleriniz de uygulamaya yüklenebilir.</string>
+    <string name="ml_pararaph_9_header">Reçetelerime kimin baktığını görebilir miyim?</string>
     <string name="ml_pararaph_9_info">Evet. Verilerinize tüm erişimler tamamen dijital sağlık ağında kaydedilir. E-reçete uygulamasında verilerinize kimlerin ulaştığını görebilirsiniz.</string>
     <string name="ml_pararaph_10_header">Uygulama veya e-reçete ile ilgili sorularım olursa kiminle iletişime geçebilirim?</string>
     <string name="ml_pararaph_10_info">Ayrıntılı bilgiyi veri koruma beyanında bulabilirsiniz.</string>
@@ -803,7 +802,7 @@
     <string name="profile_revoke_consent_header">işlevi devre dışı bırak</string>
     <string name="profile_revoke_consent_info">Bu, bu cihazdaki ve sunucudaki tüm makbuzları siler.</string>
     <string name="profile_grant_consent_header">Gider makbuzlarını alma</string>
-    <string name="profile_grant_consent_info">Masraf makbuzlarınız da reçete sunucusuna kaydedilir.</string>
+    <string name="profile_grant_consent_info">Maliyet makbuzlarınız da reçete sunucusuna kaydedilir.</string>
     <string name="profile_grant_consent">Almak</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Toplam: %s %s</string>
     <string name="invoice_header_select">Seçmek</string>
@@ -843,4 +842,12 @@
     <string name="profile_delete_invoice_header">Gerçekten silinsin mi?</string>
     <string name="profile_delete_invoice_info">Dosya cihazınızdan ve sunucudan silinecektir.</string>
     <string name="profile_delete_invoice">Sil</string>
+    <string name="prescription_status_sent">Gönderildi</string>
+    <string name="edit_shipping_contact_postal_code">Posta kodu</string>
+    <string name="edit_shipping_contact_city">Konum</string>
+    <string name="edit_shipping_contact_error_postal_code">Bizimle iletişime geçmek için lütfen posta kodunuzu girin.</string>
+    <string name="edit_shipping_contact_error_city">Bizimle iletişime geçerken lütfen ikamet ettiğiniz yeri giriniz.</string>
+    <string name="prescription_status_direct_assignment_ready">senin için kurtarılacak</string>
+    <string name="prescription_status_direct_assignment_closed">Senin için kurtarıldı</string>
+    <string name="connect_for_pharmacy_service">Bu hizmeti kullanmak için giriş yapmalısınız.</string>
 </resources>

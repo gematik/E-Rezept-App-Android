@@ -1,3 +1,7 @@
+# Release 1.13.0-RC1
+- Fasttrack authentication with external insurance apps works again
+- Bugfixes
+
 # Release 1.12.1
 - Redeem prescriptions directly without being authenticated with TI
 - Bugfixes (lots)

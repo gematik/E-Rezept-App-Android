@@ -22,15 +22,19 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AppBarDefaults
+import androidx.compose.material.Badge
+import androidx.compose.material.BadgedBox
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
@@ -42,14 +46,14 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.MarkChatRead
-import androidx.compose.material.icons.outlined.MarkChatUnread
-import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.PinDrop
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.ShoppingBag
 import androidx.compose.material.icons.rounded.AddCircle
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
@@ -63,6 +67,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color.Companion.Red
+import androidx.compose.ui.graphics.Color.Companion.White
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalContext
@@ -80,6 +86,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navOptions
+import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
@@ -104,6 +111,8 @@ import de.gematik.ti.erp.app.prescription.ui.ArchiveScreen
 import de.gematik.ti.erp.app.prescription.ui.MlKitInformationScreen
 import de.gematik.ti.erp.app.prescription.ui.MlKitIntroScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScreen
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
+import de.gematik.ti.erp.app.prescription.ui.RefreshedState
 import de.gematik.ti.erp.app.prescription.ui.ScanScreen
 import de.gematik.ti.erp.app.prescription.ui.rememberPrescriptionState
 import de.gematik.ti.erp.app.profiles.ui.EditProfileScreen
@@ -135,6 +144,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+
+private const val BottomBarBadgeOffsetX = -5
+private const val BottomBarBadgeOffsetY = 5
 
 @Suppress("LongMethod")
 @Composable
@@ -478,23 +490,27 @@ private fun MainScreenWithScaffold(
         }
     }
     CheckInsecureDevice(onDeviceIsInsecure)
-    CheckDeviceIntegrity(onDeviceIsInsecure)
+    CheckDeviceIntegrity(mainScreenController, mainNavController)
     val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
     MainScreenSnackbar(
         mainScreenController = mainScreenController,
         scaffoldState = scaffoldState
     )
     OrderSuccessHandler(mainScreenController)
     var mainScreenBottomSheetContentState: MainScreenBottomSheetContentState? by remember { mutableStateOf(null) }
-
     val sheetState = rememberModalBottomSheetState(
-        ModalBottomSheetValue.Hidden,
-        confirmStateChange = {
-            it != ModalBottomSheetValue.HalfExpanded
-        }
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
     )
-    LaunchedEffect(Unit) {
-        sheetState.hide()
+    if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
+        DisposableEffect(Unit) {
+            onDispose {
+                scope.launch {
+                    settingsController.welcomeDrawerShown()
+                }
+            }
+        }
     }
     LaunchedEffect(mainScreenBottomSheetContentState) {
         if (mainScreenBottomSheetContentState != null) {
@@ -712,12 +728,20 @@ private fun MainScreenBottomNavHost(
 }
 
 @Composable
-private fun CheckDeviceIntegrity(onDeviceIsInsecure: () -> Unit) {
-    val mainScreenController = rememberMainScreenController()
+private fun CheckDeviceIntegrity(mainScreenController: MainScreenController, mainNavController: NavController) {
     LaunchedEffect(Unit) {
+        if (BuildConfig.DEBUG) {
+            return@LaunchedEffect
+        }
         if (mainScreenController.checkDeviceIntegrity().first()) {
             withContext(Dispatchers.Main) {
-                onDeviceIsInsecure()
+                mainNavController.navigate(MainNavigationScreens.IntegrityNotOkScreen.route)
+                navOptions {
+                    launchSingleTop = true
+                    popUpTo(MainNavigationScreens.IntegrityNotOkScreen.path()) {
+                        inclusive = true
+                    }
+                }
             }
         }
     }
@@ -727,6 +751,9 @@ private fun CheckDeviceIntegrity(onDeviceIsInsecure: () -> Unit) {
 private fun CheckInsecureDevice(onDeviceIsInsecure: () -> Unit) {
     val settingsController = rememberSettingsController()
     LaunchedEffect(Unit) {
+        if (BuildConfig.DEBUG) {
+            return@LaunchedEffect
+        }
         withContext(Dispatchers.Main) {
             if (settingsController.showInsecureDevicePrompt.first()) {
                 onDeviceIsInsecure()
@@ -735,6 +762,7 @@ private fun CheckInsecureDevice(onDeviceIsInsecure: () -> Unit) {
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 private fun MainScreenBottomBar(
     navController: NavController,
@@ -745,9 +773,27 @@ private fun MainScreenBottomBar(
     val currentRoute = navBackStackEntry?.destination?.route
     val profileHandler = LocalProfileHandler.current
     val profileId = profileHandler.activeProfile.id
+    var prescriptionCount = 0
+    var refreshEvent by remember { mutableStateOf<PrescriptionServiceState?>(null) }
+
+    LaunchedEffect(Unit) {
+        mainScreenController.onRefreshEvent.collect {
+            refreshEvent = it
+        }
+    }
+    refreshEvent?.let {
+        when (it) {
+            is RefreshedState -> {
+                prescriptionCount = it.nrOfNewPrescriptions
+            }
+        }
+    }
 
     val unreadMessagesAvailable by mainScreenController.unreadMessagesAvailable(profileId)
         .collectAsState(initial = false)
+
+    val ordersCount by mainScreenController.numberOfMessagesAvailable(profileId)
+        .collectAsState(initial = 0)
 
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,
@@ -767,27 +813,76 @@ private fun MainScreenBottomBar(
                 selectedContentColor = AppTheme.colors.primary700,
                 unselectedContentColor = AppTheme.colors.neutral600,
                 icon = {
-                    when (screen) {
-                        MainNavigationScreens.Prescriptions -> Icon(
-                            painterResource(R.drawable.ic_logo_outlined),
-                            null,
-                            modifier = Modifier.size(24.dp)
-                        )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        when (screen) {
+                            MainNavigationScreens.Prescriptions ->
+                                if (prescriptionCount > 0) {
+                                    BadgedBox(
+                                        badge = {
+                                            Badge(
+                                                modifier = Modifier.offset(
+                                                    x = BottomBarBadgeOffsetX.dp,
+                                                    y = BottomBarBadgeOffsetY.dp
+                                                ),
+                                                backgroundColor = Red,
+                                                contentColor = White
+                                            ) { Text(prescriptionCount.toString()) }
+                                        }
+                                    ) {
+                                        Icon(
+                                            painterResource(R.drawable.ic_logo_outlined),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                } else {
+                                    Icon(
+                                        painterResource(R.drawable.ic_logo_outlined),
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
 
-                        MainNavigationScreens.Orders -> Icon(
-                            if (unreadMessagesAvailable) Icons.Outlined.MarkChatUnread else Icons.Outlined.MarkChatRead,
-                            null
-                        )
+                            MainNavigationScreens.Pharmacies -> Icon(
+                                Icons.Outlined.PinDrop,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
 
-                        MainNavigationScreens.Pharmacies -> Icon(
-                            Icons.Outlined.Search,
-                            contentDescription = null
-                        )
+                            MainNavigationScreens.Orders ->
+                                if (ordersCount > 0) {
+                                    BadgedBox(
+                                        badge = {
+                                            Badge(
+                                                modifier = Modifier.offset(
+                                                    x = BottomBarBadgeOffsetX.dp,
+                                                    y = BottomBarBadgeOffsetY.dp
+                                                ),
+                                                backgroundColor = Red,
+                                                contentColor = White
+                                            ) { Text(ordersCount.toString()) }
+                                        }
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.ShoppingBag,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                } else {
+                                    Icon(
+                                        Icons.Outlined.ShoppingBag,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp)
+                                    )
+                                }
 
-                        MainNavigationScreens.Settings -> Icon(
-                            Icons.Outlined.Settings,
-                            contentDescription = null
-                        )
+                            MainNavigationScreens.Settings -> Icon(
+                                Icons.Outlined.Settings,
+                                contentDescription = null,
+                                modifier = Modifier.size(24.dp)
+                            )
+                        }
                     }
                 },
                 label = {

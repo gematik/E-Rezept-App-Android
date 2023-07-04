@@ -30,6 +30,7 @@ import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 import kotlin.jvm.JvmInline
 
 /**
@@ -91,8 +92,11 @@ sealed interface FhirTemporal {
         .toFormattedDate()
 }
 
+fun Instant.toFormattedDateTime(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
+    .toJavaLocalDateTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.SHORT))
+
 fun Instant.toFormattedDate(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
-    .toJavaLocalDateTime().format(DateTimeFormatter.ofPattern("dd.MM.yyyy"))
+    .toJavaLocalDateTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
 fun Instant.asFhirTemporal() = FhirTemporal.Instant(this)
 fun LocalDateTime.asFhirTemporal() = FhirTemporal.LocalDateTime(this)
 fun LocalDate.asFhirTemporal() = FhirTemporal.LocalDate(this)

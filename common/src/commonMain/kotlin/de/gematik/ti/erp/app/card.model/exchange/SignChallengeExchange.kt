@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.card.model.exchange
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.card.model.card.CardKey
 import de.gematik.ti.erp.app.card.model.card.ICardChannel
 import de.gematik.ti.erp.app.card.model.card.PsoAlgorithm
@@ -30,6 +31,16 @@ import de.gematik.ti.erp.app.card.model.command.psoComputeDigitalSignature
 import de.gematik.ti.erp.app.card.model.command.select
 import de.gematik.ti.erp.app.card.model.identifier.ApplicationIdentifier
 
+@Requirement(
+    "A_20526-01",
+    "A_17205",
+    "A_17207",
+    "A_17359",
+    "A_20172#3",
+    "A_20700-07#1",
+    sourceSpecification = "gemF_Tokenverschlüsselung",
+    rationale = "Sign challenge using the health card certificate."
+)
 fun ICardChannel.signChallenge(challenge: ByteArray): ByteArray {
     HealthCardCommand.select(ApplicationIdentifier(Df.Esign.AID)).executeSuccessfulOn(this)
 

@@ -78,7 +78,8 @@ object PkvHtmlTemplate {
         taskId: String,
         totalBruttoAmount: Double,
         items: List<InvoiceData.ChargeableItem>,
-        additionalDispenseItem: InvoiceData.ChargeableItem?
+        additionalDispenseItems: List<InvoiceData.ChargeableItem>,
+        additionalInformation: List<String>
     ): String {
         val (fees, articles) = items.partition {
             when (it.description) {
@@ -90,15 +91,6 @@ object PkvHtmlTemplate {
         }
 
         val medication = joinMedicationInfo(medicationRequest)
-
-        val additionalDispenseHtml = additionalDispenseItem?.let {
-            val pzn = when (it.description) {
-                is InvoiceData.ChargeableItem.Description.HMNR -> it.description.hmnr
-                is InvoiceData.ChargeableItem.Description.PZN -> it.description.pzn
-                is InvoiceData.ChargeableItem.Description.TA1 -> it.description.ta1
-            }
-            createArticle(text = it.text, pzn = pzn, factor = it.factor)
-        } ?: ""
 
         val multiplePrescriptionInfo = createMultiplePrescriptionInfo(
             medicationRequest.multiplePrescriptionInfo
@@ -130,7 +122,20 @@ object PkvHtmlTemplate {
                     bruttoAmount = it.price.value
                 )
             },
-            additionalDispenseHtml
+            additionalDispenseItems.map {
+                val pzn = when (it.description) {
+                    is InvoiceData.ChargeableItem.Description.HMNR -> it.description.hmnr
+                    is InvoiceData.ChargeableItem.Description.PZN -> it.description.pzn
+                    is InvoiceData.ChargeableItem.Description.TA1 -> it.description.ta1
+                }
+
+                createArticle(
+                    text = it.text,
+                    pzn = pzn,
+                    factor = it.factor
+                )
+            },
+            additionalInformation
         )
 
         val additionalFees = fees.map {
@@ -227,7 +232,8 @@ object PkvHtmlTemplate {
         taskId: String,
         multiplePrescriptionInfo: String,
         articles: List<String>,
-        additionalArticle: String
+        additionalArticles: List<String>,
+        additionalInformation: List<String>
     ) = """
         <div class="frame">
             <div class="content costs">
@@ -242,7 +248,8 @@ object PkvHtmlTemplate {
                 <div class="header">Anz.</div>
                 <div class="header">Bruttopreis [€]</div>
                 ${articles.joinToString("")}
-                $additionalArticle
+                ${additionalArticles.joinToString("</br>")}
+                <div style="grid-area: 6/span 4; padding-top: 2em">${additionalInformation.joinToString("</br>")}</div>
             </div>
         </div>
     </div>
@@ -271,7 +278,8 @@ object PkvHtmlTemplate {
             taskId = invoice.taskId,
             totalBruttoAmount = invoice.invoice.totalBruttoAmount,
             items = invoice.invoice.chargeableItems,
-            additionalDispenseItem = invoice.invoice.additionalDispenseItem
+            additionalDispenseItems = invoice.invoice.additionalDispenseItems,
+            additionalInformation = invoice.invoice.additionalInformation
         )
 
         return createPkvHtmlInvoiceTemplate(

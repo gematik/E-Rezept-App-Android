@@ -26,6 +26,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.core.content.edit
+import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.ScreenshotsAllowed
 import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
@@ -102,11 +103,11 @@ class SettingsController(
     }
 
     fun onTrackingAllowed() {
-        analytics.allowTracking()
+        analytics.allowAnalytics()
     }
 
     fun onTrackingDisallowed() {
-        analytics.disallowTracking()
+        analytics.disallowAnalytics()
     }
 
     suspend fun onboardingSucceeded(
@@ -217,5 +218,9 @@ object SettingStatesData {
     )
 
     // `gemSpec_eRp_FdV A_20203` default settings does not allow screenshots
-    val defaultScreenshotState = ScreenshotState(screenshotsAllowed = false)
+    val defaultScreenshotState = if (BuildConfig.DEBUG) {
+        ScreenshotState(screenshotsAllowed = true)
+    } else {
+        ScreenshotState(screenshotsAllowed = false)
+    }
 }

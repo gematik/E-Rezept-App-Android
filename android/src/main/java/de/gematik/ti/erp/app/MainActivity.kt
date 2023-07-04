@@ -40,6 +40,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -210,6 +211,12 @@ class MainActivity : AppCompatActivity(), DIAware {
                             .fillMaxSize()
                             .graphicsLayer(alpha = 0f)
 
+                        val profileHandler = rememberProfileHandler()
+                        val activeProfile = profileHandler.activeProfile
+                        val ssoTokenValid = rememberSaveable(activeProfile.ssoTokenScope) {
+                            activeProfile.ssoTokenValid()
+                        }
+
                         Box(modifier = Modifier.fillMaxSize()) {
                             if (auth !is AuthenticationModeAndMethod.Authenticated) {
                                 Image(
@@ -224,12 +231,15 @@ class MainActivity : AppCompatActivity(), DIAware {
                                     if (auth is AuthenticationModeAndMethod.Authenticated) Modifier else noDrawModifier
                                 ) {
                                     // mini card wall
-                                    HealthCardPrompt(
-                                        authenticator = authenticator.authenticatorHealthCard
-                                    )
-                                    ExternalAuthPrompt(
-                                        authenticator = authenticator.authenticatorExternal
-                                    )
+                                    if (!ssoTokenValid) {
+                                        HealthCardPrompt(
+                                            authenticator = authenticator.authenticatorHealthCard
+                                        )
+                                        ExternalAuthPrompt(
+                                            authenticator = authenticator.authenticatorExternal
+                                        )
+                                    }
+
                                     SecureHardwarePrompt(
                                         authenticator = authenticator.authenticatorSecureElement
                                     )

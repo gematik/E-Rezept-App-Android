@@ -163,3 +163,7 @@ val chargeItem_pzn_7 by lazy {
 val chargeItem_pzn_8 by lazy {
     File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_8.json").readText()
 }
+
+val chargeItem_compounding by lazy {
+    File("$ResourceBasePath/fhir/pkv/Rezeptur-Verordnung_Nr_1.json").readText()
+}

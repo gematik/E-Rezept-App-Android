@@ -37,7 +37,7 @@ val pkvInvoice = InvoiceData.PKVInvoice(
         6.80,
         "EUR",
         listOf(),
-        null
+        listOf()
     ),
     pharmacyOrganization = SyncedTaskData.Organization(
         "Pharmacy",
@@ -78,7 +78,7 @@ val pkvInvoice2 = InvoiceData.PKVInvoice(
         6.80,
         "EUR",
         listOf(),
-        null
+        listOf()
     ),
     pharmacyOrganization = SyncedTaskData.Organization(
         "Pharmacy",

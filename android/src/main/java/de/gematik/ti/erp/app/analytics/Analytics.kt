@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.core.content.edit
 import androidx.navigation.NavHostController
 import com.contentsquare.android.Contentsquare
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCase
 import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCaseData
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
@@ -43,7 +44,11 @@ import kotlinx.coroutines.flow.combine
 
 private const val PrefsName = "analyticsAllowed"
 
-// `gemSpec_eRp_FdV A_20187`
+@Requirement(
+    "A_19095",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Resets the analytics id and creates a new one [-> init block]."
+)
 class Analytics(
     private val context: Context,
     private val prefs: SharedPreferences,
@@ -53,6 +58,19 @@ class Analytics(
     val analyticsAllowed: StateFlow<Boolean>
         get() = _analyticsAllowed
 
+    @Requirement(
+        "A_19093",
+        "A_19094",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Only screen names and data like error states are transmitted."
+    )
+    fun trackScreen(screenName: String) {
+        if (analyticsAllowed.value) {
+            Contentsquare.send(screenName)
+            Napier.d("Analytics send $screenName")
+        }
+    }
+
     init {
         Napier.d("Init Analytics")
 
@@ -60,9 +78,9 @@ class Analytics(
 
         _analyticsAllowed.value = prefs.getBoolean(PrefsName, false)
         if (_analyticsAllowed.value) {
-            allowTracking()
+            allowAnalytics()
         } else {
-            disallowTracking()
+            disallowAnalytics()
         }
     }
 
@@ -71,8 +89,7 @@ class Analytics(
     private var analyticsScreenFlow = combine(
         analyticsUseCase.screenNamesFlow,
         popUpFlow
-    ) {
-            screenNames, popUp ->
+    ) { screenNames, popUp ->
         AnalyticsData.AnalyticsScreenState(screenNames, popUp)
     }
 
@@ -92,14 +109,12 @@ class Analytics(
         }
     }
 
-    fun trackScreen(screenName: String) {
-        if (analyticsAllowed.value) {
-            Contentsquare.send(screenName)
-            Napier.d("Analytics send $screenName")
-        }
-    }
-
-    fun allowTracking() {
+    @Requirement(
+        "A_20187#1",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Enable analytics"
+    )
+    fun allowAnalytics() {
         _analyticsAllowed.value = true
 
         Contentsquare.optIn(context)
@@ -111,7 +126,12 @@ class Analytics(
         Napier.d("Analytics allowed")
     }
 
-    fun disallowTracking() {
+    @Requirement(
+        "A_20187#2",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Disable analytics"
+    )
+    fun disallowAnalytics() {
         _analyticsAllowed.value = false
 
         Contentsquare.optOut(context)
@@ -209,23 +229,32 @@ fun Analytics.trackAuth(state: AuthenticationState) {
         when (state) {
             AuthenticationState.HealthCardBlocked ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.CardBlocked)
+
             AuthenticationState.HealthCardCardAccessNumberWrong ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.CardAccessNumberWrong)
+
             AuthenticationState.HealthCardCommunicationInterrupted ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.CardCommunicationInterrupted)
+
             AuthenticationState.HealthCardPin1RetryLeft,
             AuthenticationState.HealthCardPin2RetriesLeft ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.CardPinWrong)
+
             AuthenticationState.IDPCommunicationFailed ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.IDPCommunicationFailed)
+
             AuthenticationState.IDPCommunicationInvalidCertificate ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.IDPCommunicationInvalidCertificate)
+
             AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.IDPCommunicationInvalidOCSPOfCard)
+
             AuthenticationState.SecureElementCryptographyFailed ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.SecureElementCryptographyFailed)
+
             AuthenticationState.UserNotAuthenticated ->
                 trackAuthenticationProblem(Analytics.AuthenticationProblem.UserNotAuthenticated)
+
             else -> {}
         }
     }

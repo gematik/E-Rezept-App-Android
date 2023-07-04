@@ -83,8 +83,8 @@ class ProfilesController(
     override val profiles: Flow<List<ProfilesUseCaseData.Profile>> =
         profilesUseCase.profiles
 
-    override suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile) {
-        profilesUseCase.switchProfileToPKV(profile)
+    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
+        profilesUseCase.switchProfileToPKV(profileId)
     }
 
     suspend fun updateProfileColor(profile: ProfilesUseCaseData.Profile, color: ProfilesData.ProfileColorNames) {

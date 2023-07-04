@@ -16,7 +16,7 @@
  * 
  */
 
-package de.gematik.ti.erp.app.invoice.usecase
+package de.gematik.ti.erp.app.pkv.usecase
 
 import android.content.Context
 import android.print.PdfPrint

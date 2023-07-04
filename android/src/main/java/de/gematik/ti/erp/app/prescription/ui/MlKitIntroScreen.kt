@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -53,6 +54,11 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import kotlinx.coroutines.launch
 
+@Requirement(
+    "A_20194",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Display information regarding usage of MLKit to the user."
+)
 @Composable
 fun MlKitIntroScreen(
     navController: NavController,

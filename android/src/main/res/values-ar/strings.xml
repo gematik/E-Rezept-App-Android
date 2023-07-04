@@ -230,7 +230,7 @@
     <string name="insecure_device_accept">عدم إظهار هذه الملاحظة في المستقبل.</string>
     <string name="error_message_network_not_available">فشل الاتصال. لم يتمكن من الاتصال بالإنترنت.</string>
     <string name="error_message_server_communication_failed">فشل الاتصال بالسيرفر. كود الحالة %s.</string>
-    <string name="error_message_vau_error">فشل الاتصال بالسيرفر. خطأ VAU</string>
+    <string name="error_message_vau_error">فشل الاتصال بالخادم: يُرجى التحقق من اتصال الإنترنت وإعدادات الوقت / التاريخ.</string>
     <string name="insecure_device_title_safetynet">تحذير</string>
     <string name="insecure_device_header_safetynet">قد يكون جهازك قد قلل من مستوى الأمان</string>
     <string name="insecure_device_info_safetynet">يمكن أن يحدث هذا ، على سبيل المثال ، عن طريق الأجهزة التي تم التلاعب بها أو وضع المطور المنشط. لأسباب أمنية ، لا نوصي باستخدام التطبيق على أجهزة مكسورة الحماية.</string>
@@ -288,7 +288,7 @@
         <item quantity="other">تم تحديث %s من الوصفات</item>
     </plurals>
     <string name="prescription_status_ready">قابلة للصرف</string>
-    <string name="prescription_status_in_progress">قيد الصرف</string>
+    <string name="prescription_status_in_progress">في الخلاص</string>
     <string name="prescription_status_completed">تم الصرف</string>
     <string name="prescription_status_unknown">غير معروف</string>
     <string name="settings_show_audit_events">عرض بروتوكول الدخول</string>
@@ -409,7 +409,7 @@
     <string name="settings_login_connected_devices">الأجهزة المتصلة</string>
     <string name="paired_device_subtitle_our_device">مسجل منذ %s (هذا الجهاز)</string>
     <string name="paired_device_subtitle">مسجل منذ %s</string>
-    <string name="mini_cdw_intro_description">لأسباب أمنية ، يتم إنهاء الاتصال بخادم الوصفات بعد 12 ساعة. لإعادة الاتصال ، تحتاج إلى بطاقة صحية ورقم تعريف شخصي لكل عملية اتصال.</string>
+    <string name="mini_cdw_intro_description">لأسباب أمنية ، يتم إنهاء الاتصال بخادم الوصفات الطبية بعد 12 ساعة. لإعادة الاتصال ، تحتاج إلى بطاقة صحية ورقم تعريف شخصي لكل عملية اتصال.</string>
     <string name="mini_cdw_pin_input_label">رمز PIN</string>
     <string name="mini_cdw_pin_input_placeholder">أدخل رقم التعريف الشخصي (البطاقة الصحية).</string>
     <string name="mini_cdw_pin_next">متابعة</string>
@@ -456,13 +456,13 @@
     <string name="unlock_egk_intro_puk">مفتاح فك القفل الشخصي لبطاقتك الصحية</string>
     <string name="unlock_egk_next">متابعة</string>
     <string name="health_card_section_header">البطاقة الصحية</string>
-    <string name="health_card_section_order_card">طلب بطاقة جديدة</string>
+    <string name="health_card_section_order_card">اطلب رقم التعريف الشخصي أو البطاقة</string>
     <string name="cdw_intro_header">التسجيل</string>
     <string name="cdw_intro_info">استقبل الوصفات الطبية أونلاين وأرسلها إلى الصيدلية.</string>
     <string name="cdw_intro_nfc_card_needed">بطاقة صحية مزودة بتقنية الإتصال اللاسلكية</string>
     <string name="cdw_intro_pin_needed">رقم التعريف الشخصي للبطاقة الصحية</string>
     <string name="cdw_have_no_card_with_pin">ليس لديك حتى الآن بطاقة صحية مزودة بتقنية الإتصال اللاسلكية ورقم تعريف شخصي؟</string>
-    <string name="cdw_intro_order_now">اطلب الآن</string>
+    <string name="cdw_intro_order_now">قدم الآن</string>
     <string name="cdw_intro_alternate_auth_info">أو: قم بتسجيل الدخول باستخدام %s.</string>
     <string name="cdw_intro_alternate_auth_info_link">تطبيق تأمينك الصحي</string>
     <string name="cdw_can_description">"تجد رقم الدخول إلى بطاقتك  في الركن الأيمن العلوي من مقدمة بطاقة التأمين الصحي الخاصة بك. "</string>
@@ -507,7 +507,7 @@
     <string name="cdw_selection_save">حفظ</string>
     <string name="cdw_selection_save_not">عدم الحفظ</string>
     <string name="cdw_selection_hint_title">ملاحظة</string>
-    <string name="cdw_selection_hint_info_">لأسباب أمنية ، يتم إنهاء الاتصال بخادم الوصفات بعد 12 ساعة. لإعادة الاتصال ، تحتاج إلى بطاقة صحية ورقم تعريف شخصي لكل عملية اتصال.</string>
+    <string name="cdw_selection_hint_info_">لأسباب أمنية ، يتم إنهاء الاتصال بخادم الوصفات الطبية بعد 12 ساعة. لإعادة الاتصال ، تحتاج إلى بطاقة صحية ورقم تعريف شخصي لكل عملية اتصال.</string>
     <string name="enroll_biometric_dialog_header">إعداد التأمين البيومتري</string>
     <string name="enroll_biometric_dialog_info">لا يمكن حفظ بيانات الدخول. قم بإعداد التأمين البيومتري (مثل بصمة الإصبع) على جهازك مسبقًا.</string>
     <string name="enroll_biometric_dialog_cancel">إلغاء</string>
@@ -575,7 +575,6 @@
     <string name="orders_generic_pharmacy_name">الصيدلية</string>
     <string name="unlock_egk_top_bar_title_change_secret">حدد رقم التعريف الشخصي المطلوب</string>
     <string name="unlock_egk_dialog_new_secret_saved">تم حفظ رقم التعريف الشخصي المطلوب</string>
-    <string name="search_pharmacies_filter_e_prescription_ready">الوصفة الإلكترونية</string>
     <string name="search_pharmacies_filter_open_now_and_local">حاليا مفتوحة وقريبة مني</string>
     <string name="search_pharmacies_filter_by">مصنف بواسطة …</string>
     <string name="search_pharmacies_start_search">ابدأ البحث</string>
@@ -615,11 +614,11 @@
     <string name="health_card_section_unlock_card_forgot_pin">نسيت رقم التعريف الشخصي</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
         <item quantity="zero"></item>
-        <item quantity="one">وصفة %s</item>
+        <item quantity="one">روشتة</item>
         <item quantity="two"></item>
         <item quantity="few"></item>
         <item quantity="many"></item>
-        <item quantity="other">%s وصفات</item>
+        <item quantity="other">الوصفات الطبية</item>
     </plurals>
     <string name="onboarding_data_terms_info">لقد قرأت وقبلت سياسة الخصوصية وشروط الاستخدام.</string>
     <string name="onboarding_data_button">سياسة الخصوصية</string>
@@ -647,7 +646,7 @@
     <string name="pres_detail_medication_label_note">مذكرات التسليم</string>
     <string name="pres_detail_medication_label_bvg">مؤهلة وفقًا لـ BVG</string>
     <string name="pres_detail_medication_label_subtitution">تحضير بديل</string>
-    <string name="medication_compounding_name">اسم الوصفة</string>
+    <string name="medication_compounding_name">اسم الصيغة</string>
     <string name="pres_detail_medication_label_packaging">التعبئة والتغليف</string>
     <string name="pres_detail_medication_label_manufacturing">تعليمات صياغة</string>
     <string name="medication_freetext_name">وصف</string>
@@ -671,7 +670,7 @@
     <string name="pres_details_exp_sub_allowed_info">نظرًا للمتطلبات القانونية لشركة التأمين الصحي الخاصة بك ، يمكن أن تحصل على بديل يحتوي على نفس العنصر النشط. \n\n يمكن أن تبدو الأدوية وتسمى بشكل مختلف ، ولها أسعار ومصنعون مختلفون ، لكنها لا تزال تحتوي على نفس العنصر النشط. العنصر النشط نفسه والجرعة مهمان بشكل خاص لتأثير الأدوية في الجسم. غالبًا ما يحصل المرضى في الصيدلية على دواء مختلف عن الدواء الموصوف من قبل الطبيب في الوصفة الطبية - بشرط أن تكون الأدوية متشابهة. يمكن أن تكون هناك أسباب علاجية واقتصادية للتغيير.</string>
     <string name="pres_details_exp_scanned_title">الوصفة الطبية التي تم مسحها</string>
     <string name="pres_details_exp_scanned_info">لأسباب أمنية ، يجب ألا تعرض الوصفات الطبية المستوردة من المطبوعات الورقية أي بيانات شخصية أو طبية. \n\n سجّل الدخول إلى هذا التطبيق باستخدام البطاقة الصحية أو تطبيق التأمين لعرض جميع المعلومات الواردة في الوصفة الطبية.</string>
-    <string name="pres_details_exp_failure_title">الوصفة غير صحيحة</string>
+    <string name="pres_details_exp_failure_title">الوصفة الطبية غير صحيحة</string>
     <string name="pres_details_exp_failure_info">تم إصدار هذه الوصفة بشكل غير صحيح.</string>
     <string name="pres_details_scanned_prescription">الوصفة الطبية التي تم مسحها</string>
     <string name="pres_details_emergency_fee">رسوم خدمة الطوارئ</string>
@@ -714,7 +713,7 @@
     <string name="unlock_password_not_found_header">كلمة المرور لم يتم العثور</string>
     <string name="unlock_password_not_found_info">لا توجد كلمة مرور مخزنة على بطاقتك.</string>
     <string name="cdw_mini_alt_auth_removed_title">لقد تم تسجيل الخروج</string>
-    <string name="cdw_mini_alt_auth_removed">سجل الدخول مرة أخرى لتحديث الوصفات الخاصة بك.</string>
+    <string name="cdw_mini_alt_auth_removed">قم بتسجيل الدخول مرة أخرى لتحديث الوصفات الطبية الخاصة بك.</string>
     <string name="pres_detail_medication_label_ingredient_number">رقم العنصر النشط</string>
     <string name="pres_detail_medication_label_ingredient_strength_unit">الفاعلية والوحدة</string>
     <string name="received_x_min_ago">تم استرداد القيمة قبل %s دقيقة</string>
@@ -732,10 +731,10 @@
     <string name="mainscreen_profile_chip_content_description">عقد لتحرير الاسم.</string>
     <string name="profile_edit_name_for_rename_info">أدخل الاسم الجديد لملف التعريف.</string>
     <string name="mainscreen_welcome_drawer_info">يجب عليك تسجيل الدخول لتلقي الوصفات الطبية الرقمية من عيادتك.</string>
-    <string name="mainscreen_welcome_drawer_header">تلقي الوصفات رقميًا؟</string>
+    <string name="mainscreen_welcome_drawer_header">تلقي الوصفات الطبية رقميًا؟</string>
     <string name="mainscreen_empty_connected_info">اسحب الشاشة لأسفل للتحديث.</string>
     <string name="mainscreen_empty_content_header">لا توجد وصفات طبية</string>
-    <string name="mainscreen_empty_not_connected_info">أضف الوصفات باستخدام زر + في الزاوية اليمنى العليا.</string>
+    <string name="mainscreen_empty_not_connected_info">أضف الوصفات الطبية باستخدام زر + في الزاوية اليمنى العليا.</string>
     <string name="mainscreen_login">تسجيل الدخول</string>
     <string name="archived_prescriptions_button">الوصفات الطبية المردودة</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">ربما لاحقا</string>
@@ -753,11 +752,11 @@
     <string name="pharmacy_order_collect">التقط في الصيدلية</string>
     <string name="pharmacy_order_delivery">التسليم عن طريق البريد</string>
     <string name="pharmacy_order_mail">التسليم عن طريق البريد</string>
-    <string name="pharmacy_order_nr_of_prescriptions">%s وصفات</string>
+    <string name="pharmacy_order_nr_of_prescriptions">وصفات %s</string>
     <string name="pharmacy_order_not_possible_title">الاسترداد غير ممكن</string>
     <string name="pharmacy_order_not_possible_desc">لا يمكن استبدال وصفة طبية واحدة أو أكثر.</string>
-    <string name="pharmacy_order_no_selected_prescriptions_title">لم يتم تحديد وصفة</string>
-    <string name="pharmacy_order_no_selected_prescriptions_desc">لاسترداد الوصفات ، يجب تحديد وصفة واحدة على الأقل.</string>
+    <string name="pharmacy_order_no_selected_prescriptions_title">لم يتم اختيار وصفة طبية</string>
+    <string name="pharmacy_order_no_selected_prescriptions_desc">لاسترداد الوصفات الطبية ، يجب اختيار وصفة طبية واحدة على الأقل.</string>
     <string name="pharmacy_order_add_contacts">أضف معلومات الاتصال</string>
     <string name="pharmacy_order_change_contacts">للتغيير</string>
     <string name="pharmacy_order_no_prescriptions_title">بدون وصفة طبية</string>
@@ -765,10 +764,10 @@
     <string name="pharmacy_order_opt_collect">يلتقط</string>
     <string name="pharmacy_order_opt_delivery">فتى التوصيل</string>
     <string name="pharmacy_order_opt_mail">إرسال</string>
-    <string name="pharmacy_order_select_prescriptions">اختر الوصفات</string>
-    <string name="main_screen_tooltip_1_content">انقر هنا لمسح الوصفات</string>
+    <string name="pharmacy_order_select_prescriptions">اختر الوصفات الطبية</string>
+    <string name="main_screen_tooltip_1_content">انقر هنا لمسح الوصفات الطبية</string>
     <string name="main_screen_tooltip_2_content">اضغط مع الاستمرار لتعديل الأسماء</string>
-    <string name="main_screen_tooltip_3_content">أضف المزيد من الملفات الشخصية ، على سبيل المثال لأطفالك أو والديك.</string>
+    <string name="main_screen_tooltip_3_content">أضف المزيد من الملفات الشخصية ، على سبيل المثال لأطفالك أو والديك</string>
     <string name="main_screen_tooltip_tap_screen">انقر فوق الشاشة لتخطي تلميح الأداة المعروض.</string>
     <string name="order_onb_how_to_title">كيفية تخليص؟</string>
     <string name="order_onb_how_to_desc">كيف تريد أن تتلقى أدويتك؟</string>
@@ -785,35 +784,35 @@
         <item quantity="two"></item>
         <item quantity="few"></item>
         <item quantity="many"></item>
-        <item quantity="other">لديك %s وصفات.</item>
+        <item quantity="other">لديك %s وصفات طبية.</item>
     </plurals>
     <string name="online_redeem_choose_rx">اختر اختيارًا</string>
-    <string name="online_redeem_choose_all_rx">كل الوصفات</string>
-    <string name="online_redeem_choose_rx_title">ما هي الوصفات؟</string>
+    <string name="online_redeem_choose_all_rx">جميع الوصفات الطبية</string>
+    <string name="online_redeem_choose_rx_title">ما هي الوصفات الطبية؟</string>
     <string name="rx_selection_next">متابعة</string>
     <string name="mlkit_intro_accept">متابعة</string>
     <string name="mlkit_intro_read_more">معرفة المزيد</string>
     <string name="mlkit_intro_header">ملاحظة</string>
     <string name="mlkit_intro_info">يستخدم هذا التطبيق برنامجًا من Google للتعرف على الرموز.</string>
     <string name="ml_information_title">معرفة المزيد</string>
-    <string name="ml_info_header">حول الماسح رمز وصفة</string>
-    <string name="ml_pararaph_1_header">ما هي البيانات التي يحتوي عليها كود الوصفة؟</string>
-    <string name="ml_pararaph_1_info">يحتوي رمز الوصفة على معرّف للوصفة فقط. يسمح ذلك بإيجاد الوصفة الطبية في خدمة الوصفات الطبية في شبكة الصحة الرقمية. لا يحتوي رمز الوصفة الطبية على أي بيانات عنك أو عن أدويتك.</string>
-    <string name="ml_pararaph_2_header">إذن لا أحد يستطيع فعل أي شيء باستخدام كود الوصفة وحده؟</string>
+    <string name="ml_info_header">حول الماسح الضوئي رمز وصفة طبية</string>
+    <string name="ml_pararaph_1_header">ما هي البيانات التي يحتوي عليها رمز الوصفة؟</string>
+    <string name="ml_pararaph_1_info">يحتوي رمز الوصفة الطبية فقط على معرف للوصفة الطبية. يسمح ذلك بإيجاد الوصفة الطبية في خدمة الوصفات الطبية في شبكة الصحة الرقمية. لا يحتوي رمز الوصفة الطبية على أي بيانات عنك أو عن أدويتك.</string>
+    <string name="ml_pararaph_2_header">إذن لا أحد يستطيع فعل أي شيء بقانون الوصفة وحده؟</string>
     <string name="ml_pararaph_2_info">صيح. يجب تنزيل بيانات الوصفات الطبية من خدمة الوصفات الطبية. هذا يتطلب تسجيل دخول آمن.</string>
     <string name="ml_pararaph_3_header">من يمكنه التسجيل في خدمة الوصفات الطبية؟</string>
     <string name="ml_pararaph_3_info">التسجيل في خدمة الوصفات الطبية في الشبكة الصحية الرقمية ممكن للأشخاص المؤمن عليهم والصيدليات والممارسات الطبية والمستشفيات.</string>
     <string name="ml_pararaph_4_header">لماذا يستخدم تطبيق الوصفات الطبية الإلكترونية ميزات Google؟</string>
     <string name="ml_pararaph_4_info">تقدم Google وظائف يمكن دمجها بسهولة في التطبيقات والتي يتم تطويرها وتحديثها باستمرار بواسطة Google. هذا يضمن أن الوظائف تعمل على العديد من الأجهزة الطرفية المختلفة ويمكن تشغيلها بأمان. يستخدم التطبيق ميزة لتحسين وظائف الكاميرا والمسح الضوئي لأجهزة Android (Google ML Kit).</string>
     <string name="ml_pararaph_5_header">كيف يعمل تحسين Google ML Kit Scan؟</string>
-    <string name="ml_pararaph_5_info">تساعد Google ML Kit على تحسين الصورة الملتقطة بواسطة الكاميرا بحيث يمكن قراءة أكواد الوصفات حتى في ظروف الإضاءة السيئة أو مع طرز الكاميرا القديمة.</string>
+    <string name="ml_pararaph_5_info">تساعد Google ML Kit على تحسين الصورة الملتقطة بواسطة الكاميرا بحيث يمكن قراءة أكواد الوصفات الطبية حتى في ظروف الإضاءة السيئة أو مع طرز الكاميرا القديمة.</string>
     <string name="ml_pararaph_6_header">هل سيتم نقل البيانات المتعلقة بالوصفة الطبية أو الأدوية الخاصة بي إلى Google؟</string>
-    <string name="ml_pararaph_6_info">رقم يتم حفظ رمز وصفة القراءة مباشرة في التطبيق. لن يتم تمريرها إلى Google. لا يتم تخزين بيانات الوصفات الطبية في الكود ، فقط في شبكة الصحة الرقمية. من هناك يتم إرسالها إلى التطبيق. ليس لدى Google حق الوصول إلى شبكة الصحة الرقمية.</string>
+    <string name="ml_pararaph_6_info">يتم حفظ رمز الوصفة الطبية المقروء مباشرةً في التطبيق ، ولن يتم تمريره إلى Google. لا يتم تخزين بيانات الوصفات الطبية في الكود ، فقط في شبكة الصحة الرقمية. من هناك يتم إرسالها إلى التطبيق. جوجل ليس لديها حق الوصول إلى شبكة الصحة الرقمية.</string>
     <string name="ml_pararaph_7_header">ما البيانات التي تعالجها Google عند استخدام ML Kit؟</string>
-    <string name="ml_pararaph_7_info">تمتلك Google فقط إمكانية الوصول إلى المعلومات الفنية حول الجهاز النهائي المستخدم والاستخدام العام للوظيفة الإضافية (مثل معدل الخطأ ، وإعدادات الكاميرا) من أجل تسجيل هذا إحصائيًا وبالتالي تحسين الوظيفة الإضافية. عند الوصول ، تسجل Google عنوان IP الخاص بجهازك الطرفي مؤقتًا. لن تسجل Google معلومات عنك ومحتويات الوصفة.</string>
+    <string name="ml_pararaph_7_info">تمتلك Google فقط إمكانية الوصول إلى المعلومات الفنية حول الجهاز النهائي المستخدم والاستخدام العام للوظيفة الإضافية (مثل معدل الخطأ وإعدادات الكاميرا) من أجل تسجيل هذا إحصائيًا وبالتالي تحسين الوظيفة الإضافية. عند الوصول ، تسجل Google عنوان IP الخاص بجهازك الطرفي مؤقتًا. لن تسجل Google معلومات عنك ومحتويات الوصفة الطبية.</string>
     <string name="ml_pararaph_8_header">هل استخدام Google ML Kit تطوعي؟</string>
-    <string name="ml_pararaph_8_info">نعم. ومع ذلك ، تم تضمين ML Kit في الماسح الضوئي لرمز الوصفة في إصدار Android من تطبيق الوصفات الطبية الإلكترونية. إذا كنت تستخدم الماسح الضوئي لرمز الوصفة على جهاز Android ، فسيتم أيضًا استخدام وظيفة ML Kit دائمًا. ومع ذلك ، يمكنك الاستغناء عن استخدام الماسح الضوئي لرمز الوصفة. يمكن أيضًا تحميل الوصفات الطبية الخاصة بك في التطبيق إذا قمت بالتسجيل في الشبكة الصحية الرقمية باستخدام البطاقة الصحية الإلكترونية أو عبر تطبيق التأمين الصحي الخاص بك.</string>
-    <string name="ml_pararaph_9_header">هل يمكنني رؤية من شاهد وصفاتي؟</string>
+    <string name="ml_pararaph_8_info">نعم ومع ذلك ، تم تضمين ML Kit في الماسح الضوئي لرمز الوصفة الطبية في إصدار Android من تطبيق الوصفات الطبية الإلكترونية. إذا كنت تستخدم الماسح الضوئي لرمز الوصفة الطبية على جهاز Android ، فسيتم أيضًا استخدام وظيفة ML Kit دائمًا. ومع ذلك ، يمكنك الاستغناء عن استخدام الماسح الضوئي للرموز الطبية. يمكن أيضًا تحميل الوصفات الطبية الخاصة بك في التطبيق إذا قمت بالتسجيل في الشبكة الصحية الرقمية باستخدام البطاقة الصحية الإلكترونية أو عبر تطبيق التأمين الصحي الخاص بك.</string>
+    <string name="ml_pararaph_9_header">هل يمكنني رؤية من شاهد الوصفات الطبية الخاصة بي؟</string>
     <string name="ml_pararaph_9_info">نعم. يتم تسجيل الدخول إلى بياناتك بالكامل في شبكة الصحة الرقمية. في تطبيق الوصفات الطبية الإلكترونية ، يمكنك معرفة من وصل إلى بياناتك.</string>
     <string name="ml_pararaph_10_header">بمن يمكنني الاتصال إذا كانت لدي أسئلة حول التطبيق أو الوصفة الإلكترونية؟</string>
     <string name="ml_pararaph_10_info">يمكنك العثور على معلومات مفصلة في إعلان حماية البيانات.</string>
@@ -843,7 +842,7 @@
     <string name="profile_revoke_consent_header">تعطيل وظيفة</string>
     <string name="profile_revoke_consent_info">سيؤدي هذا إلى حذف جميع الإيصالات من هذا الجهاز ومن الخادم.</string>
     <string name="profile_grant_consent_header">استلام إيصالات المصروفات</string>
-    <string name="profile_grant_consent_info">يتم أيضًا حفظ إيصالات التكلفة الخاصة بك على خادم الوصفات.</string>
+    <string name="profile_grant_consent_info">يتم أيضًا حفظ إيصالات التكلفة الخاصة بك على خادم الوصفات الطبية.</string>
     <string name="profile_grant_consent">يستلم</string>
     <string name="pkv_invoices_total_of_year" formatted="false">الإجمالي: %s %s</string>
     <string name="invoice_header_select">الاختيار</string>
@@ -883,4 +882,12 @@
     <string name="profile_delete_invoice_header">هل ترغب حقًا في الحذف؟</string>
     <string name="profile_delete_invoice_info">سيتم حذف الملف من جهازك ومن الخادم.</string>
     <string name="profile_delete_invoice">حذف</string>
+    <string name="prescription_status_sent">تم النشر</string>
+    <string name="edit_shipping_contact_postal_code">الرمز البريدي</string>
+    <string name="edit_shipping_contact_city">المكان</string>
+    <string name="edit_shipping_contact_error_postal_code">الرجاء إدخال الرمز البريدي الخاص بك للاتصال بنا.</string>
+    <string name="edit_shipping_contact_error_city">الرجاء إدخال مكان إقامتك عند الاتصال بنا.</string>
+    <string name="prescription_status_direct_assignment_ready">سيتم استبدالها لك</string>
+    <string name="prescription_status_direct_assignment_closed">تم استبدالها من أجلك</string>
+    <string name="connect_for_pharmacy_service">يجب عليك تسجيل الدخول لاستخدام هذه الخدمة.</string>
 </resources>

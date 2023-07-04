@@ -220,7 +220,7 @@
     <string name="insecure_device_accept">Більше не показувати цю вказівку в майбутньому.</string>
     <string name="error_message_network_not_available">Помилка підключення. Не вдалося встановити з’єднання з мережею.</string>
     <string name="error_message_server_communication_failed">Помилка встановлення зв’язок із сервером: код статусу %s</string>
-    <string name="error_message_vau_error">Помилка встановлення зв’язок із сервером: помилка VAU</string>
+    <string name="error_message_vau_error">Не вдалося зв’язатися із сервером: перевірте підключення до Інтернету та налаштування часу/дати.</string>
     <string name="insecure_device_title_safetynet">Попередження</string>
     <string name="insecure_device_header_safetynet">Ваш пристрій може мати знижений рівень безпеки</string>
     <string name="insecure_device_info_safetynet">Це може бути спричинено, наприклад, маніпуляціями з пристроями або активованим режимом розробника. З міркувань безпеки ми не рекомендуємо використовувати програму на зламаних пристроях.</string>
@@ -276,7 +276,7 @@
         <item quantity="other">%s нових рецепта</item>
     </plurals>
     <string name="prescription_status_ready">Можна погасити</string>
-    <string name="prescription_status_in_progress">Погашається</string>
+    <string name="prescription_status_in_progress">У спокуті</string>
     <string name="prescription_status_completed">Погашено</string>
     <string name="prescription_status_unknown">Невідомо</string>
     <string name="settings_show_audit_events">Відобразити протоколи доступу</string>
@@ -442,13 +442,13 @@
     <string name="unlock_egk_intro_puk">PUK-код вашої картки здоров\'я</string>
     <string name="unlock_egk_next">Далі</string>
     <string name="health_card_section_header">Картка здоров\'я</string>
-    <string name="health_card_section_order_card">Замовити нову картку</string>
+    <string name="health_card_section_order_card">Замовити ПІН або картку</string>
     <string name="cdw_intro_header">Вхід</string>
     <string name="cdw_intro_info">Отримуйте рецепти онлайн і переадресовуйте їх в аптеку.</string>
     <string name="cdw_intro_nfc_card_needed">Картка здоров’я з підтримкою NFC</string>
     <string name="cdw_intro_pin_needed">PIN-код картки здоров’я</string>
     <string name="cdw_have_no_card_with_pin">У вас ще немає картки здоров’я з підтримкою NFC та PIN-коду до неї?</string>
-    <string name="cdw_intro_order_now">Замовити зараз</string>
+    <string name="cdw_intro_order_now">Застосувати зараз</string>
     <string name="cdw_intro_alternate_auth_info">Або: увійдіть за допомогою %s.</string>
     <string name="cdw_intro_alternate_auth_info_link">Застосунок вашої медичної страхової компанії</string>
     <string name="cdw_can_description">"Ваш номер доступу ви знайдете у верхньому правому куті своєї картки здоров\'я."</string>
@@ -559,7 +559,6 @@
     <string name="orders_generic_pharmacy_name">Аптека</string>
     <string name="unlock_egk_top_bar_title_change_secret">Виберіть потрібний PIN-код</string>
     <string name="unlock_egk_dialog_new_secret_saved">Бажаний PIN-код збережено</string>
-    <string name="search_pharmacies_filter_e_prescription_ready">E-Rezept</string>
     <string name="search_pharmacies_filter_open_now_and_local">Наразі відкрито і біля мене</string>
     <string name="search_pharmacies_filter_by">Фільтрувати за…</string>
     <string name="search_pharmacies_start_search">почати пошук</string>
@@ -629,7 +628,7 @@
     <string name="pres_detail_medication_label_note">Накладні на доставку</string>
     <string name="pres_detail_medication_label_bvg">Відповідає вимогам BVG</string>
     <string name="pres_detail_medication_label_subtitution">альтернативна підготовка</string>
-    <string name="medication_compounding_name">назва рецепта</string>
+    <string name="medication_compounding_name">назва формули</string>
     <string name="pres_detail_medication_label_packaging">Упаковка</string>
     <string name="pres_detail_medication_label_manufacturing">інструкція по виготовленню</string>
     <string name="medication_freetext_name">опис</string>
@@ -653,7 +652,7 @@
     <string name="pres_details_exp_sub_allowed_info">Відповідно до юридичних вимог вашої страхової компанії, вам можуть надати альтернативу з тим самим діючим інгредієнтом. \n\n Ліки можуть виглядати і називатися по-різному, мати різні ціни та виробників, але містити однакову діючу речовину. Сам активний інгредієнт і дозування особливо важливі для впливу ліків на організм. Пацієнти в аптеці часто отримують інший препарат, ніж той, який виписав лікар за рецептом – за умови, що препарати порівнювані. Для зміни можуть бути терапевтичні та економічні причини.</string>
     <string name="pres_details_exp_scanned_title">Відсканований рецепт</string>
     <string name="pres_details_exp_scanned_info">З міркувань безпеки рецепти, імпортовані з паперової роздруківки, не повинні містити жодних особистих чи медичних даних. \n\n Увійдіть у цю програму за допомогою медичної картки або програми страхування, щоб переглянути всю інформацію, що міститься в рецепті.</string>
-    <string name="pres_details_exp_failure_title">Рецепт невірний</string>
+    <string name="pres_details_exp_failure_title">Неправильний рецепт</string>
     <string name="pres_details_exp_failure_info">Цей рецепт був виписаний неправильно.</string>
     <string name="pres_details_scanned_prescription">Відсканований рецепт</string>
     <string name="pres_details_emergency_fee">плата за екстрену службу</string>
@@ -735,11 +734,11 @@
     <string name="pharmacy_order_collect">Забрати в аптеці</string>
     <string name="pharmacy_order_delivery">Доставка кур\'єром</string>
     <string name="pharmacy_order_mail">Доставка поштою</string>
-    <string name="pharmacy_order_nr_of_prescriptions">%s Рецепти</string>
+    <string name="pharmacy_order_nr_of_prescriptions">%s рецептів</string>
     <string name="pharmacy_order_not_possible_title">Викупити неможливо</string>
     <string name="pharmacy_order_not_possible_desc">Один або кілька рецептів не вдалося викупити.</string>
     <string name="pharmacy_order_no_selected_prescriptions_title">Рецепт не вибрано</string>
-    <string name="pharmacy_order_no_selected_prescriptions_desc">Щоб отримати рецепти, потрібно вибрати принаймні один рецепт.</string>
+    <string name="pharmacy_order_no_selected_prescriptions_desc">Щоб викупити рецепти, потрібно вибрати принаймні один рецепт.</string>
     <string name="pharmacy_order_add_contacts">Додайте контактну інформацію</string>
     <string name="pharmacy_order_change_contacts">Змінювати</string>
     <string name="pharmacy_order_no_prescriptions_title">Без рецепта</string>
@@ -750,7 +749,7 @@
     <string name="pharmacy_order_select_prescriptions">вибрати рецепти</string>
     <string name="main_screen_tooltip_1_content">Торкніться тут, щоб сканувати рецепти</string>
     <string name="main_screen_tooltip_2_content">Тривале натискання для редагування імен</string>
-    <string name="main_screen_tooltip_3_content">Додайте більше профілів, наприклад, для ваших дітей або батьків.</string>
+    <string name="main_screen_tooltip_3_content">Додайте більше профілів, наприклад, для ваших дітей або батьків</string>
     <string name="main_screen_tooltip_tap_screen">Клацніть на дисплеї, щоб пропустити відображену підказку.</string>
     <string name="order_onb_how_to_title">Як викупити?</string>
     <string name="order_onb_how_to_desc">Як би ви хотіли отримати ваші ліки?</string>
@@ -779,20 +778,20 @@
     <string name="ml_info_header">Про сканер кодів рецептів</string>
     <string name="ml_pararaph_1_header">Які дані містить код рецепта?</string>
     <string name="ml_pararaph_1_info">Код рецепту містить лише ідентифікатор рецепту. Це дозволяє знайти рецепт у службі рецептів у цифровій мережі охорони здоров’я. Код рецепта не містить жодних даних про вас чи ваші ліки.</string>
-    <string name="ml_pararaph_2_header">Тож ніхто нічого не може зробити лише з кодом рецепту?</string>
+    <string name="ml_pararaph_2_header">Отже, ніхто нічого не може зробити з кодом рецепта?</string>
     <string name="ml_pararaph_2_info">Правильно. Дані про рецепт необхідно завантажити зі служби рецептів. Для цього потрібен безпечний вхід.</string>
     <string name="ml_pararaph_3_header">Хто може зареєструватися в рецептурній службі?</string>
     <string name="ml_pararaph_3_info">Реєстрація в службі рецептів у цифровій мережі охорони здоров’я можлива для застрахованих осіб, аптек, медичних практик і лікарень.</string>
     <string name="ml_pararaph_4_header">Чому додаток для електронних рецептів використовує функції Google?</string>
     <string name="ml_pararaph_4_info">Google пропонує функції, які можна легко вбудувати в програми та які Google постійно розробляє та оновлює. Це гарантує, що функції працюють на багатьох різних кінцевих пристроях і ними можна безпечно керувати. Додаток використовує функцію для покращення камери та функцій сканування для пристроїв Android (Google ML Kit).</string>
     <string name="ml_pararaph_5_header">Як працює покращення сканування Google ML Kit?</string>
-    <string name="ml_pararaph_5_info">Google ML Kit допомагає оптимізувати зображення, зняте камерою, щоб коди рецептів можна було прочитати навіть в умовах поганого освітлення або за допомогою старих моделей камер.</string>
+    <string name="ml_pararaph_5_info">Google ML Kit допомагає оптимізувати зображення, отримане камерою, щоб коди рецептів можна було зчитувати навіть в умовах поганого освітлення або за допомогою старих моделей камер.</string>
     <string name="ml_pararaph_6_header">Чи будуть дані про рецепт або мої ліки передані в Google?</string>
-    <string name="ml_pararaph_6_info">немає Прочитаний код рецепта зберігається безпосередньо в додатку. Його не буде передано Google. Дані про рецепти не зберігаються в коді, лише в цифровій мережі охорони здоров’я. Звідти вони надсилаються в додаток. Google не має доступу до цифрової мережі охорони здоров’я.</string>
+    <string name="ml_pararaph_6_info">Немає. Прочитаний код рецепта зберігається безпосередньо в додатку. Він не буде передано в Google. Дані про рецепти не зберігаються в коді, лише в цифровій мережі охорони здоров’я. Звідти вони надсилаються в додаток Google не має доступу до цифрової мережі охорони здоров’я.</string>
     <string name="ml_pararaph_7_header">Які дані обробляє Google під час використання ML Kit?</string>
-    <string name="ml_pararaph_7_info">Google має доступ лише до технічної інформації про використовуваний кінцевий пристрій і загальне використання додаткової функції (наприклад, частота помилок, налаштування камери), щоб статистично зафіксувати це й таким чином покращити додаткову функцію. Під час доступу Google тимчасово записує IP-адресу вашого кінцевого пристрою. Інформація про вас і вміст рецепта не будуть записані Google.</string>
+    <string name="ml_pararaph_7_info">Google має доступ лише до технічної інформації про використовуваний кінцевий пристрій і загальне використання додаткової функції (наприклад, частота помилок, налаштування камери), щоб зафіксувати це статистично та таким чином покращити додаткову функцію. Під час доступу Google тимчасово записує IP-адресу вашого кінцевого пристрою. Інформація про вас і вміст рецепта не буде записана Google.</string>
     <string name="ml_pararaph_8_header">Чи є використання Google ML Kit добровільним?</string>
-    <string name="ml_pararaph_8_info">Так. Однак ML Kit вбудовано в сканер кодів рецептів у версії програми для електронних рецептів для Android. Якщо ви використовуєте сканер кодів рецептів на пристрої Android, функція ML Kit також використовується завжди. Однак можна обійтися і без використання сканера кодів рецептів. Ваші рецепти також можна завантажити в додаток, якщо ви зареєструєтесь у цифровій мережі охорони здоров’я за допомогою електронної медичної картки або через програму медичного страхування.</string>
+    <string name="ml_pararaph_8_info">так Однак ML Kit вбудовано в сканер кодів рецептів у версії програми для електронних рецептів для Android. Якщо ви використовуєте сканер кодів рецептів на пристрої Android, функція ML Kit також використовується завжди. Однак ви можете обійтися без використання сканера кодів рецептів. Ваші рецепти також можна завантажити в додаток, якщо ви зареєструєтесь у цифровій мережі охорони здоров’я за допомогою електронної медичної картки або через програму медичного страхування.</string>
     <string name="ml_pararaph_9_header">Чи можу я побачити, хто переглядав мої рецепти?</string>
     <string name="ml_pararaph_9_info">Так. Весь доступ до ваших даних повністю реєструється в цифровій мережі охорони здоров’я. У додатку для електронних рецептів ви можете побачити, хто мав доступ до ваших даних.</string>
     <string name="ml_pararaph_10_header">До кого я можу звернутися, якщо у мене є запитання щодо програми чи електронного рецепта?</string>
@@ -823,7 +822,7 @@
     <string name="profile_revoke_consent_header">відключити функцію</string>
     <string name="profile_revoke_consent_info">Це видалить усі квитанції з цього пристрою та із сервера.</string>
     <string name="profile_grant_consent_header">Отримувати видаткові квитанції</string>
-    <string name="profile_grant_consent_info">Ваші чеки також зберігаються на сервері рецептів.</string>
+    <string name="profile_grant_consent_info">Ваші квитанції також зберігаються на сервері рецептів.</string>
     <string name="profile_grant_consent">Отримати</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Усього: %s %s</string>
     <string name="invoice_header_select">Вибрати</string>
@@ -863,4 +862,12 @@
     <string name="profile_delete_invoice_header">Справді видалити?</string>
     <string name="profile_delete_invoice_info">Файл буде видалено з вашого пристрою та з сервера.</string>
     <string name="profile_delete_invoice">Видалити</string>
+    <string name="prescription_status_sent">Опубліковано</string>
+    <string name="edit_shipping_contact_postal_code">Пошт. індекс</string>
+    <string name="edit_shipping_contact_city">Нас. пункт</string>
+    <string name="edit_shipping_contact_error_postal_code">Будь ласка, введіть свій поштовий індекс, щоб зв\'язатися з нами.</string>
+    <string name="edit_shipping_contact_error_city">Будь ласка, вкажіть своє місце проживання при зверненні до нас.</string>
+    <string name="prescription_status_direct_assignment_ready">Буде викуплено для вас</string>
+    <string name="prescription_status_direct_assignment_closed">Був викуплений для вас</string>
+    <string name="connect_for_pharmacy_service">Ви повинні увійти в систему, щоб скористатися цією послугою.</string>
 </resources>

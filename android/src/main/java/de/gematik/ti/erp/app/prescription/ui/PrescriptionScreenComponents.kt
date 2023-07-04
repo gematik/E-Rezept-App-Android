@@ -67,6 +67,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.fhir.parser.toFormattedDate
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
@@ -151,6 +152,11 @@ fun PrescriptionScreen(
     }
 }
 
+@Requirement(
+    "A_21576#2",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Show biometric credentials changed dialog."
+)
 @Composable
 fun UserNotAuthenticatedDialog(onCancel: () -> Unit, onShowCardWall: () -> Unit) {
     CommonAlertDialog(

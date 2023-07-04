@@ -30,6 +30,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -40,7 +41,7 @@ import kotlinx.coroutines.flow.shareIn
 interface ProfileBridge {
     val profiles: Flow<List<ProfilesUseCaseData.Profile>>
     suspend fun switchActiveProfile(profile: ProfilesUseCaseData.Profile)
-    suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile)
+    suspend fun switchProfileToPKV(profileId: ProfileIdentifier)
 }
 
 @Stable
@@ -122,8 +123,8 @@ class ProfileHandler(
         bridge.switchActiveProfile(profile)
     }
 
-    suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile) {
-        bridge.switchProfileToPKV(profile)
+    suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
+        bridge.switchProfileToPKV(profileId)
     }
 }
 

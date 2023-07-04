@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp.api
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntries
@@ -38,7 +39,18 @@ import retrofit2.http.POST
 import retrofit2.http.Query
 import retrofit2.http.Url
 
+@Requirement(
+    "A_20603#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Store the client-id registered with the IDP and add it to requests."
+)
 const val CLIENT_ID = "eRezeptApp"
+
+@Requirement(
+    "A_20740#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Store the redirect URI for this app."
+)
 const val REDIRECT_URI = "https://redirect.gematik.de/erezept"
 const val EXT_AUTH_REDIRECT_URI: String = "https://das-e-rezept-fuer-deutschland.de/extauth"
 
@@ -65,6 +77,11 @@ interface IdpService {
         @Url url: String
     ): Response<JsonWebSignature>
 
+    @Requirement(
+        "A_20603#2",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Store the client-id registered with the IDP and add it to requests."
+    )
     @GET
     suspend fun requestAuthenticationRedirect(
         @Url url: String,
@@ -79,6 +96,11 @@ interface IdpService {
         @Query("code_challenge") codeChallenge: String
     ): Response<ResponseBody>
 
+    @Requirement(
+        "A_20603#3",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Store the client-id registered with the IDP and add it to requests."
+    )
     @GET
     suspend fun fetchTokenChallenge(
         @Url url: String,
@@ -102,6 +124,11 @@ interface IdpService {
         @Field("signed_challenge") signedChallenge: String
     ): Response<ResponseBody>
 
+    @Requirement(
+        "A_20603#4",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Store the client-id registered with the IDP and add it to requests."
+    )
     @FormUrlEncoded
     @POST
     @Headers(

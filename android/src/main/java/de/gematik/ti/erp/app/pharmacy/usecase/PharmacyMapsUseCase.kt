@@ -41,7 +41,6 @@ class PharmacyMapsUseCase(
                 SettingsData.PharmacySearch(
                     name = searchData.name,
                     locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,
-                    ready = searchData.filter.ready,
                     deliveryService = searchData.filter.deliveryService,
                     onlineService = searchData.filter.onlineService,
                     openNow = searchData.filter.openNow
@@ -57,9 +56,6 @@ class PharmacyMapsUseCase(
                     val radiusInKm = locationMode.radiusInMeter.toInt() / 1000
                     val loc = locationMode.location
                     filterMap += "near" to "${loc.latitude}|${loc.longitude}|$radiusInKm|km"
-                }
-                if (searchData.filter.ready) {
-                    filterMap += "status" to "active"
                 }
                 if (searchData.filter.onlineService) {
                     filterMap += "type" to "mobl"

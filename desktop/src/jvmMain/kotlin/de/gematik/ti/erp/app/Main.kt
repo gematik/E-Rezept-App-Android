@@ -40,7 +40,6 @@ import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.ReusableContent
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
@@ -70,6 +69,7 @@ import de.gematik.ti.erp.app.common.SpacerTiny
 import de.gematik.ti.erp.app.common.theme.DesktopAppTheme
 import de.gematik.ti.erp.app.communication.di.communicationModule
 import de.gematik.ti.erp.app.di.realmModule
+import de.gematik.ti.erp.app.di.vauModule
 import de.gematik.ti.erp.app.fhir.FhirMapper
 import de.gematik.ti.erp.app.idp.di.idpModule
 import de.gematik.ti.erp.app.main.ui.MainNavigation
@@ -80,7 +80,6 @@ import de.gematik.ti.erp.app.network.di.networkModule
 import de.gematik.ti.erp.app.prescription.di.prescriptionModule
 import de.gematik.ti.erp.app.protocol.di.protocolModule
 import de.gematik.ti.erp.app.utils.cleanupDbFiles
-import de.gematik.ti.erp.app.di.vauModule
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -240,14 +239,6 @@ fun main() {
                     val mainState by produceState(mainViewModel.defaultState) {
                         mainViewModel.screenState().collect {
                             value = it
-                        }
-                    }
-
-                    LaunchedEffect(Unit) {
-                        mainViewModel.logout.collect {
-                            // close the scope manually
-                            resourceScope.close()
-                            navigation.navigate(MainNavigation.Welcome, clearBackStack = true)
                         }
                     }
 

@@ -112,6 +112,9 @@ class OrderUseCase(
     fun unreadCommunicationsAvailable(profileId: ProfileIdentifier) =
         repository.hasUnreadMessages(profileId).flowOn(dispatchers.IO)
 
+    fun numberOfOrdersAvailable(profileId: ProfileIdentifier) =
+        repository.numberOfUnreadMessages(profileId).flowOn(dispatchers.IO)
+
     suspend fun consumeCommunication(communicationId: String) {
         withContext(dispatchers.IO) {
             repository.setCommunicationStatus(communicationId, true)

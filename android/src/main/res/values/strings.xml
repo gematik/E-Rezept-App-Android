@@ -221,7 +221,7 @@
     <string name="insecure_device_accept">Diesen Hinweis in Zukunft nicht mehr anzeigen.</string>
     <string name="error_message_network_not_available">Verbindung fehlgeschlagen. Eine Netzwerkverbindung konnte nicht aufgebaut werden.</string>
     <string name="error_message_server_communication_failed">Kommunikation mit dem Server fehlgeschlagen: Statuscode %s.</string>
-    <string name="error_message_vau_error">Kommunikation mit dem Server fehlgeschlagen: VAU Fehler</string>
+    <string name="error_message_vau_error">Kommunikation mit dem Server fehlgeschlagen: Bitte prüfen Sie die Internetverbindung und die Uhrzeit-/Datumseinstellungen.</string>
     <string name="insecure_device_title_safetynet">Warnung</string>
     <string name="insecure_device_header_safetynet">Ihr Gerät hat möglicherweise eine reduzierte Sicherheit</string>
     <string name="insecure_device_info_safetynet">Diese kann z.B. durch manipulierte Geräte oder einen eingeschalteten Entwicklermodus entstehen. Wir empfehlen, die App aus Sicherheitsgründen nicht auf gejailbreakten Geräten zu nutzen.</string>
@@ -280,7 +280,6 @@
         <item quantity="other">%s neue Rezepte</item>
     </plurals>
     <string name="prescription_status_ready">Einlösbar</string>
-    <string name="prescription_status_sent">Gesendet</string>
     <string name="prescription_status_in_progress">In Einlösung</string>
     <string name="prescription_status_completed">Eingelöst</string>
     <string name="prescription_status_unknown">Unbekannt</string>
@@ -346,10 +345,6 @@
     <string name="edit_shipping_contact_title_line1">Straße und Hausnummer</string>
     <string name="edit_shipping_contact_error_line1">Bitte geben Sie für die Kontaktaufnahme eine Straße und Hausnummer an.</string>
     <string name="edit_shipping_contact_line2">Adresszusatz (optional)</string>
-    <string name="edit_shipping_contact_postal_code">PLZ</string>
-    <string name="edit_shipping_contact_city">Ort</string>
-    <string name="edit_shipping_contact_error_postal_code">Bitte geben Sie für die Kontaktaufnahme Ihre Postleitzahl an.</string>
-    <string name="edit_shipping_contact_error_city">Bitte geben Sie für die Kontaktaufnahme Ihren Wohnort an.</string>
     <string name="edit_shipping_contact_delivery_information">Lieferanweisung (optional)</string>
     <string name="pharmacy_order_further_contact_information_required">Weitere Kontaktdaten benötigt</string>
     <string name="edit_contact_back_alert_header">Änderungen verwerfen?</string>
@@ -454,13 +449,13 @@
     <string name="unlock_egk_intro_puk">PUK Ihrer Gesundheitskarte</string>
     <string name="unlock_egk_next">Weiter</string>
     <string name="health_card_section_header">Gesundheitskarte</string>
-    <string name="health_card_section_order_card">Neue Karte bestellen</string>
+    <string name="health_card_section_order_card">PIN oder Karte bestellen</string>
     <string name="cdw_intro_header">Anmelden</string>
     <string name="cdw_intro_info">Rezepte online empfangen und an eine Apotheke weiterleiten.</string>
     <string name="cdw_intro_nfc_card_needed">NFC-fähige Gesundheitskarte</string>
     <string name="cdw_intro_pin_needed">PIN zur Gesundheitskarte</string>
     <string name="cdw_have_no_card_with_pin">Sie verfügen noch nicht über eine NFC-fähige Gesundheitskarte und PIN?</string>
-    <string name="cdw_intro_order_now">Jetzt bestellen</string>
+    <string name="cdw_intro_order_now">Jetzt beantragen</string>
     <string name="cdw_intro_alternate_auth_info">Oder: Melden Sie sich mit der %s an.</string>
     <string name="cdw_intro_alternate_auth_info_link">App Ihrer Krankenversicherung</string>
     <string name="cdw_can_description">"Ihre Zugangsnummer finden Sie in der rechten oberen Ecke Ihrer Gesundheitskarte."</string>
@@ -571,12 +566,9 @@
     <string name="orders_generic_pharmacy_name">Apotheke</string>
     <string name="unlock_egk_top_bar_title_change_secret">Wunsch-PIN wählen</string>
     <string name="unlock_egk_dialog_new_secret_saved">Wunsch-PIN gespeichert</string>
-    <string name="search_pharmacies_filter_e_prescription_ready">E-Rezept</string>
     <string name="search_pharmacies_filter_open_now_and_local">Aktuell geöffnet und in meiner Nähe</string>
     <string name="search_pharmacies_filter_by">Filtern nach …</string>
     <string name="search_pharmacies_start_search">Suche starten</string>
-    <string name="prescription_status_direct_assignment_ready">Wird für Sie eingelöst</string>
-    <string name="prescription_status_direct_assignment_closed">Wurde für Sie eingelöst</string>
     <string name="prescription_detail_direct_assignment_chip">Direktzuweisung</string>
     <string name="redeem_header">Apotheken</string>
     <string name="edit_shipping_contact_phone_optional">Telefonnummer (optional)</string>
@@ -712,7 +704,7 @@
     <string name="unlock_password_not_found_header">Passwort nicht gefunden</string>
     <string name="unlock_password_not_found_info">Es ist kein Passwort auf Ihrer Karte hinterlegt.</string>
     <string name="cdw_mini_alt_auth_removed_title">Sie wurden abgemeldet</string>
-    <string name="cdw_mini_alt_auth_removed">Log in again to update your recipes.</string>
+    <string name="cdw_mini_alt_auth_removed">Melden Sie sich erneut an, um Ihre Rezepte zu aktualisieren.</string>
     <string name="pres_detail_medication_label_ingredient_number">Wirkstoffnummer</string>
     <string name="pres_detail_medication_label_ingredient_strength_unit">Wirkstärke und Einheit</string>
     <string name="received_x_min_ago">Eingelöst vor %s Minuten</string>
@@ -766,7 +758,7 @@
     <string name="pharmacy_order_select_prescriptions">Rezepte wählen</string>
     <string name="main_screen_tooltip_1_content">Hier tippen, um Rezepte einzuscannen</string>
     <string name="main_screen_tooltip_2_content">Lange drücken, um Namen zu bearbeiten</string>
-    <string name="main_screen_tooltip_3_content">Weitere Profile hinzufügen, z.B. für Ihre Kinder oder Eltern.</string>
+    <string name="main_screen_tooltip_3_content">Weitere Profile hinzufügen, z.B. für Ihre Kinder oder Eltern</string>
     <string name="main_screen_tooltip_tap_screen">Klicken Sie auf das Display um den angezeigten Tooltip zu überspringen.</string>
     <string name="order_onb_how_to_title">Wie einlösen?</string>
     <string name="order_onb_how_to_desc">Wie möchten Sie Ihre Medikamente erhalten?</string>
@@ -882,5 +874,12 @@
     <string name="profile_delete_invoice_header">Wirklich löschen?</string>
     <string name="profile_delete_invoice_info">Die Datei wird von Ihrem Gerät und vom Server gelöscht.</string>
     <string name="profile_delete_invoice">Löschen</string>
+    <string name="prescription_status_sent">Gesendet</string>
+    <string name="edit_shipping_contact_postal_code">PLZ</string>
+    <string name="edit_shipping_contact_city">Ort</string>
+    <string name="edit_shipping_contact_error_postal_code">Bitte geben Sie für die Kontaktaufnahme Ihre Postleitzahl an.</string>
+    <string name="edit_shipping_contact_error_city">Bitte geben Sie für die Kontaktaufnahme Ihren Wohnort an.</string>
+    <string name="prescription_status_direct_assignment_ready">Wird für Sie eingelöst</string>
+    <string name="prescription_status_direct_assignment_closed">Wurde für Sie eingelöst</string>
     <string name="connect_for_pharmacy_service">Sie müssen angemeldet sein, um diesen Service zu nutzen.</string>
 </resources>

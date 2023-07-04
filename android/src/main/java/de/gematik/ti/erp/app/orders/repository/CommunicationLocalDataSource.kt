@@ -103,6 +103,11 @@ class CommunicationLocalDataSource(
             .asFlow()
             .map { it > 0 }
 
+    fun numberOfUnreadOrders(profileId: ProfileIdentifier): Flow<Long> =
+        realm.query<CommunicationEntityV1>("consumed = false && parent.parent.id = $0", profileId)
+            .count()
+            .asFlow()
+
     private fun orQuerySubstring(field: String, count: Int): String =
         (0 until count)
             .map { "$field = $$it" }

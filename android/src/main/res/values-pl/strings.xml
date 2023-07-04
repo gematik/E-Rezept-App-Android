@@ -220,7 +220,7 @@
     <string name="insecure_device_accept">Nie pokazuj tej wskazówki w przyszłości.</string>
     <string name="error_message_network_not_available">Nie udało się nawiązać połączenia z siecią.</string>
     <string name="error_message_server_communication_failed">Nie udało się nawiązać połączenia z serwerem: kod statusu %s.</string>
-    <string name="error_message_vau_error">Nie udało się nawiązać połączenia z serwerem: błąd VAU</string>
+    <string name="error_message_vau_error">Błąd komunikacji z serwerem: Sprawdź połączenie internetowe i ustawienia daty/godziny.</string>
     <string name="insecure_device_title_safetynet">Ostrzeżenie</string>
     <string name="insecure_device_header_safetynet">Twoje urządzenie mogło mieć obniżone zabezpieczenia</string>
     <string name="insecure_device_info_safetynet">Może to być spowodowane na przykład manipulowaniem urządzeniami lub aktywowanym trybem programisty. Ze względów bezpieczeństwa nie zalecamy korzystania z aplikacji na urządzeniach z jailbreakiem.</string>
@@ -276,7 +276,7 @@
         <item quantity="other"></item>
     </plurals>
     <string name="prescription_status_ready">Gotowa do odbioru</string>
-    <string name="prescription_status_in_progress">W realizacji</string>
+    <string name="prescription_status_in_progress">W odkupieniu</string>
     <string name="prescription_status_completed">Zrealizowana</string>
     <string name="prescription_status_unknown">Nieznana</string>
     <string name="settings_show_audit_events">Wyświetl protokoły dostępu</string>
@@ -395,7 +395,7 @@
     <string name="settings_login_connected_devices">Podłączone urządzenia</string>
     <string name="paired_device_subtitle_our_device">Zarejestrowane od %s (to urządzenie)</string>
     <string name="paired_device_subtitle">Zarejestrowane od %s</string>
-    <string name="mini_cdw_intro_description">Ze względów bezpieczeństwa połączenie z serwerem receptur zostaje zakończone po 12 godzinach. Aby ponownie nawiązać połączenie, potrzebujesz karty zdrowia i kodu PIN dla każdego procesu łączenia.</string>
+    <string name="mini_cdw_intro_description">Ze względów bezpieczeństwa połączenie z serwerem recept zostaje przerwane po 12 godzinach. Aby ponownie się połączyć, potrzebujesz karty zdrowia i kodu PIN dla każdego procesu łączenia.</string>
     <string name="mini_cdw_pin_input_label">PIN</string>
     <string name="mini_cdw_pin_input_placeholder">Wprowadź PIN (karty zdrowia)</string>
     <string name="mini_cdw_pin_next">Dalej</string>
@@ -442,13 +442,13 @@
     <string name="unlock_egk_intro_puk">PUK do Twojej karty zdrowia</string>
     <string name="unlock_egk_next">Dalej</string>
     <string name="health_card_section_header">Karta zdrowia</string>
-    <string name="health_card_section_order_card">Zamów nową kartę</string>
+    <string name="health_card_section_order_card">Zamów PIN lub kartę</string>
     <string name="cdw_intro_header">Zaloguj się</string>
     <string name="cdw_intro_info">Odbieraj recepty online i przesyłaj je do apteki.</string>
     <string name="cdw_intro_nfc_card_needed">Karta zdrowia obsługująca funkcję NFC</string>
     <string name="cdw_intro_pin_needed">PIN do karty zdrowia</string>
     <string name="cdw_have_no_card_with_pin">Nie masz jeszcze karty zdrowia obsługującej funkcję NFC i kodu PIN?</string>
-    <string name="cdw_intro_order_now">Zamów teraz</string>
+    <string name="cdw_intro_order_now">Aplikuj teraz</string>
     <string name="cdw_intro_alternate_auth_info">Albo: zaloguj się za pomocą %s.</string>
     <string name="cdw_intro_alternate_auth_info_link">Aplikacja Twojej instytucji ubezpieczenia zdrowotnego</string>
     <string name="cdw_can_description">"Numer dostępu znajdziesz w prawym górnym rogu swojej karty zdrowia."</string>
@@ -491,7 +491,7 @@
     <string name="cdw_selection_save">Zapisz</string>
     <string name="cdw_selection_save_not">Nie zapisuj</string>
     <string name="cdw_selection_hint_title">Wskazówka</string>
-    <string name="cdw_selection_hint_info_">Ze względów bezpieczeństwa połączenie z serwerem receptur zostaje zakończone po 12 godzinach. Aby ponownie nawiązać połączenie, potrzebujesz karty zdrowia i kodu PIN dla każdego procesu łączenia.</string>
+    <string name="cdw_selection_hint_info_">Ze względów bezpieczeństwa połączenie z serwerem recept zostaje przerwane po 12 godzinach. Aby ponownie się połączyć, potrzebujesz karty zdrowia i kodu PIN dla każdego procesu łączenia.</string>
     <string name="enroll_biometric_dialog_header">Ustaw zabezpieczenie biometryczne</string>
     <string name="enroll_biometric_dialog_info">Nie można zapisać danych dostępowych. Wcześniej utwórz zabezpieczenie biometryczne (np. odcisk palca) na swoim urządzeniu.</string>
     <string name="enroll_biometric_dialog_cancel">Anuluj</string>
@@ -559,7 +559,6 @@
     <string name="orders_generic_pharmacy_name">Apteka</string>
     <string name="unlock_egk_top_bar_title_change_secret">Wybierz żądany kod PIN</string>
     <string name="unlock_egk_dialog_new_secret_saved">Zapisano żądany kod PIN</string>
-    <string name="search_pharmacies_filter_e_prescription_ready">E-recepta</string>
     <string name="search_pharmacies_filter_open_now_and_local">Obecnie otwarte i blisko mnie</string>
     <string name="search_pharmacies_filter_by">Filtruj według …</string>
     <string name="search_pharmacies_start_search">Zacznij szukać</string>
@@ -598,10 +597,10 @@
     <string name="prescription_detail_aut_idem_chip">Możliwość wyboru preparatu zastępczego</string>
     <string name="health_card_section_unlock_card_forgot_pin">Nie pamiętam kodu PIN</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
-        <item quantity="one">%s Przepis</item>
+        <item quantity="one">%s recepta</item>
         <item quantity="few"></item>
         <item quantity="many"></item>
-        <item quantity="other">%s Przepisy</item>
+        <item quantity="other">%s recepty</item>
     </plurals>
     <string name="onboarding_data_terms_info">Zapoznałem się i akceptuję politykę prywatności i warunki użytkowania.</string>
     <string name="onboarding_data_button">Polityka prywatności</string>
@@ -629,7 +628,7 @@
     <string name="pres_detail_medication_label_note">Dokumenty dostawy</string>
     <string name="pres_detail_medication_label_bvg">Kwalifikuje się zgodnie z BVG</string>
     <string name="pres_detail_medication_label_subtitution">przygotowanie alternatywne</string>
-    <string name="medication_compounding_name">nazwa przepisu</string>
+    <string name="medication_compounding_name">nazwa formuły</string>
     <string name="pres_detail_medication_label_packaging">Opakowania</string>
     <string name="pres_detail_medication_label_manufacturing">instrukcja rzemieślnicza</string>
     <string name="medication_freetext_name">opis</string>
@@ -653,7 +652,7 @@
     <string name="pres_details_exp_sub_allowed_info">Ze względu na wymagania prawne Twojej firmy ubezpieczeniowej, możesz otrzymać alternatywę z tą samą substancją czynną. \n\n Leki mogą wyglądać i nazywać się inaczej, mieć różne ceny i producentów, a mimo to zawierają ten sam składnik aktywny. Sam składnik aktywny i dawkowanie są szczególnie ważne dla działania leków na organizm. Pacjenci w aptece często otrzymują inny lek niż ten przepisany przez lekarza na receptę – pod warunkiem, że leki są porównywalne. Zmiana może mieć przyczyny terapeutyczne i ekonomiczne.</string>
     <string name="pres_details_exp_scanned_title">Zeskanowana recepta</string>
     <string name="pres_details_exp_scanned_info">Ze względów bezpieczeństwa recepty importowane z wydruku papierowego nie mogą zawierać żadnych danych osobowych ani medycznych. \n\n Zaloguj się do tej aplikacji za pomocą karty zdrowia lub aplikacji ubezpieczeniowej, aby wyświetlić wszystkie informacje zawarte na recepcie.</string>
-    <string name="pres_details_exp_failure_title">Nieprawidłowy przepis</string>
+    <string name="pres_details_exp_failure_title">Recepta błędna</string>
     <string name="pres_details_exp_failure_info">Ta recepta została wystawiona nieprawidłowo.</string>
     <string name="pres_details_scanned_prescription">Zeskanowana recepta</string>
     <string name="pres_details_emergency_fee">opłata za usługi ratunkowe</string>
@@ -696,7 +695,7 @@
     <string name="unlock_password_not_found_header">Nie znaleziono hasła</string>
     <string name="unlock_password_not_found_info">Na Twojej karcie nie jest zapisane żadne hasło.</string>
     <string name="cdw_mini_alt_auth_removed_title">Zostałeś wylogowany</string>
-    <string name="cdw_mini_alt_auth_removed">Zaloguj się ponownie, aby zaktualizować swoje przepisy.</string>
+    <string name="cdw_mini_alt_auth_removed">Zaloguj się ponownie, aby zaktualizować swoje recepty.</string>
     <string name="pres_detail_medication_label_ingredient_number">numer składnika aktywnego</string>
     <string name="pres_detail_medication_label_ingredient_strength_unit">moc i jedność</string>
     <string name="received_x_min_ago">Wykorzystano %s minut temu</string>
@@ -714,10 +713,10 @@
     <string name="mainscreen_profile_chip_content_description">Przytrzymaj, aby edytować nazwę.</string>
     <string name="profile_edit_name_for_rename_info">Wprowadź nową nazwę profilu.</string>
     <string name="mainscreen_welcome_drawer_info">Musisz być zalogowany, aby otrzymywać cyfrowe recepty ze swojej praktyki.</string>
-    <string name="mainscreen_welcome_drawer_header">Otrzymywać przepisy cyfrowo?</string>
+    <string name="mainscreen_welcome_drawer_header">Odbierać recepty cyfrowo?</string>
     <string name="mainscreen_empty_connected_info">Przeciągnij ekran w dół, aby odświeżyć.</string>
     <string name="mainscreen_empty_content_header">Brak recept</string>
-    <string name="mainscreen_empty_not_connected_info">Dodaj przepisy za pomocą przycisku + w prawym górnym rogu.</string>
+    <string name="mainscreen_empty_not_connected_info">Dodaj recepty za pomocą przycisku + w prawym górnym rogu.</string>
     <string name="mainscreen_login">Zaloguj sie</string>
     <string name="archived_prescriptions_button">Realizowane recepty</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Może później</string>
@@ -735,11 +734,11 @@
     <string name="pharmacy_order_collect">Odbierz w aptece</string>
     <string name="pharmacy_order_delivery">Dostawa kurierem</string>
     <string name="pharmacy_order_mail">Dostawa pocztą</string>
-    <string name="pharmacy_order_nr_of_prescriptions">%s Przepisy</string>
+    <string name="pharmacy_order_nr_of_prescriptions">%s recept</string>
     <string name="pharmacy_order_not_possible_title">Odkupienie niemożliwe</string>
     <string name="pharmacy_order_not_possible_desc">Nie można zrealizować jednej lub więcej recept.</string>
-    <string name="pharmacy_order_no_selected_prescriptions_title">Nie wybrano przepisu</string>
-    <string name="pharmacy_order_no_selected_prescriptions_desc">Aby wykorzystać przepisy, należy wybrać co najmniej jeden przepis.</string>
+    <string name="pharmacy_order_no_selected_prescriptions_title">Nie wybrano recepty</string>
+    <string name="pharmacy_order_no_selected_prescriptions_desc">Aby zrealizować recepty, należy wybrać co najmniej jedną receptę.</string>
     <string name="pharmacy_order_add_contacts">Dodaj informacje kontaktowe</string>
     <string name="pharmacy_order_change_contacts">Zmienić</string>
     <string name="pharmacy_order_no_prescriptions_title">Bez recepty</string>
@@ -747,10 +746,10 @@
     <string name="pharmacy_order_opt_collect">ulec poprawie</string>
     <string name="pharmacy_order_opt_delivery">dostawca</string>
     <string name="pharmacy_order_opt_mail">Wysyłka</string>
-    <string name="pharmacy_order_select_prescriptions">wybieraj przepisy</string>
-    <string name="main_screen_tooltip_1_content">Kliknij tutaj, aby zeskanować przepisy</string>
+    <string name="pharmacy_order_select_prescriptions">wybieraj recepty</string>
+    <string name="main_screen_tooltip_1_content">Kliknij tutaj, aby zeskanować recepty</string>
     <string name="main_screen_tooltip_2_content">Naciśnij długo, aby edytować nazwy</string>
-    <string name="main_screen_tooltip_3_content">Dodaj więcej profili, np. dla swoich dzieci lub rodziców.</string>
+    <string name="main_screen_tooltip_3_content">Dodaj więcej profili, np. dla swoich dzieci lub rodziców</string>
     <string name="main_screen_tooltip_tap_screen">Kliknij wyświetlacz, aby pominąć wyświetloną wskazówkę narzędzia.</string>
     <string name="order_onb_how_to_title">Jak odkupić?</string>
     <string name="order_onb_how_to_desc">W jaki sposób chciałbyś otrzymywać leki?</string>
@@ -762,38 +761,38 @@
     <string name="local_redeem_grouped_codes">kodeks zbiorowy</string>
     <string name="local_redeem_single_codes">pojedyncze kody</string>
     <plurals name="online_redeem_rx_desc">
-        <item quantity="one">Masz receptę na %s .</item>
+        <item quantity="one">Masz receptę %s .</item>
         <item quantity="few"></item>
         <item quantity="many"></item>
-        <item quantity="other">Masz %s przepisów.</item>
+        <item quantity="other">Masz %s recept.</item>
     </plurals>
     <string name="online_redeem_choose_rx">Wybierz</string>
-    <string name="online_redeem_choose_all_rx">Wszystkie przepisy</string>
-    <string name="online_redeem_choose_rx_title">Które przepisy?</string>
+    <string name="online_redeem_choose_all_rx">Wszystkie recepty</string>
+    <string name="online_redeem_choose_rx_title">Jakie recepty?</string>
     <string name="rx_selection_next">Dalej</string>
     <string name="mlkit_intro_accept">Dalej</string>
     <string name="mlkit_intro_read_more">Dowiedz się więcej</string>
     <string name="mlkit_intro_header">Wskazówka</string>
     <string name="mlkit_intro_info">Ta aplikacja używa oprogramowania Google do rozpoznawania kodów.</string>
     <string name="ml_information_title">Dowiedz się więcej</string>
-    <string name="ml_info_header">O skanerze kodów receptur</string>
-    <string name="ml_pararaph_1_header">Jakie dane zawiera kod receptury?</string>
-    <string name="ml_pararaph_1_info">Kod receptury zawiera tylko identyfikator receptury. Dzięki temu receptę można znaleźć w serwisie recept w cyfrowej sieci zdrowia. Kod recepty nie zawiera żadnych danych o Tobie ani o Twoim leku.</string>
-    <string name="ml_pararaph_2_header">Więc nikt nie może nic zrobić z samym kodem przepisu?</string>
+    <string name="ml_info_header">O skanerze kodów recept</string>
+    <string name="ml_pararaph_1_header">Jakie dane zawiera kod recepty?</string>
+    <string name="ml_pararaph_1_info">Kod recepty zawiera tylko identyfikator recepty. Dzięki temu receptę można znaleźć w serwisie recept w cyfrowej sieci zdrowia. Kod recepty nie zawiera żadnych danych o Tobie ani o Twoim leku.</string>
+    <string name="ml_pararaph_2_header">Więc nikt nie może nic zrobić z samym kodem recepty?</string>
     <string name="ml_pararaph_2_info">Prawidłowy. Dane recepty należy pobrać z serwisu recept. Wymaga to bezpiecznego logowania.</string>
     <string name="ml_pararaph_3_header">Kto może zarejestrować się w usłudze recepty?</string>
     <string name="ml_pararaph_3_info">Rejestracja w serwisie recept w cyfrowej sieci zdrowia jest możliwa dla ubezpieczonych, aptek, praktyk lekarskich i szpitali.</string>
     <string name="ml_pararaph_4_header">Dlaczego aplikacja e-recepta korzysta z funkcji Google?</string>
     <string name="ml_pararaph_4_info">Google oferuje funkcje, które można łatwo zintegrować z aplikacjami i które są stale rozwijane i aktualizowane przez Google. Gwarantuje to, że funkcje działają na wielu różnych urządzeniach końcowych i mogą być bezpiecznie obsługiwane. Aplikacja korzysta z funkcji poprawiającej funkcjonalność aparatu i skanowania dla urządzeń z systemem Android (Google ML Kit).</string>
     <string name="ml_pararaph_5_header">Jak działa ulepszenie skanowania Google ML Kit?</string>
-    <string name="ml_pararaph_5_info">Google ML Kit pomaga zoptymalizować obraz przechwytywany przez aparat, dzięki czemu kody receptur można odczytać nawet w złych warunkach oświetleniowych lub przy użyciu starszych modeli aparatów.</string>
+    <string name="ml_pararaph_5_info">Google ML Kit pomaga zoptymalizować obraz przechwytywany przez aparat, tak aby kody recept można było odczytać nawet w złych warunkach oświetleniowych lub przy użyciu starszych modeli aparatów.</string>
     <string name="ml_pararaph_6_header">Czy dane dotyczące recepty lub mojego leku zostaną przekazane do Google?</string>
-    <string name="ml_pararaph_6_info">nie Odczytany kod receptury jest zapisywany bezpośrednio w aplikacji. Nie zostaną one przekazane do Google. Dane recepty nie są przechowywane w kodzie, tylko w cyfrowej sieci zdrowia. Stamtąd są one wysyłane do aplikacji. Google nie ma dostępu do cyfrowej sieci zdrowia.</string>
+    <string name="ml_pararaph_6_info">NIE. Odczytany kod recepty jest zapisywany bezpośrednio w aplikacji i nie jest przekazywany do Google. Dane recepty nie są przechowywane w kodzie, tylko w cyfrowej sieci zdrowia. Stamtąd są one przesyłane do aplikacji. Google nie ma dostępu do cyfrowej sieci zdrowia.</string>
     <string name="ml_pararaph_7_header">Jakie dane przetwarza Google podczas korzystania z zestawu ML Kit?</string>
-    <string name="ml_pararaph_7_info">Google ma dostęp wyłącznie do informacji technicznych dotyczących używanego urządzenia końcowego i ogólnego korzystania z funkcji dodatkowej (np. współczynnika błędów, ustawień aparatu) w celu rejestrowania ich statystycznie i ulepszania w ten sposób funkcji dodatkowej. Podczas uzyskiwania dostępu Google tymczasowo zapisuje adres IP urządzenia końcowego. Informacje o Tobie i treść przepisu nie będą rejestrowane przez Google.</string>
+    <string name="ml_pararaph_7_info">Google ma dostęp wyłącznie do informacji technicznych dotyczących używanego urządzenia końcowego i ogólnego korzystania z funkcji dodatkowej (np. współczynnika błędów, ustawień aparatu) w celu rejestrowania tego statystycznie i ulepszania w ten sposób funkcji dodatkowej. Podczas uzyskiwania dostępu Google tymczasowo zapisuje adres IP urządzenia końcowego. Informacje o Tobie i treść recepty nie będą rejestrowane przez Google.</string>
     <string name="ml_pararaph_8_header">Czy korzystanie z Google ML Kit jest dobrowolne?</string>
-    <string name="ml_pararaph_8_info">Tak. Jednak ML Kit jest wbudowany w skaner kodów receptur w wersji aplikacji e-recept na Androida. Jeśli używasz skanera kodów receptur na urządzeniu z Androidem, funkcja ML Kit jest również zawsze używana. Możesz jednak obejść się bez korzystania ze skanera kodów receptur. Twoje recepty można również załadować do aplikacji, jeśli zarejestrujesz się w cyfrowej sieci zdrowia za pomocą elektronicznej karty zdrowia lub za pośrednictwem aplikacji ubezpieczenia zdrowotnego.</string>
-    <string name="ml_pararaph_9_header">Czy mogę zobaczyć, kto przeglądał moje przepisy?</string>
+    <string name="ml_pararaph_8_info">Tak Jednak ML Kit jest wbudowany w skaner kodów recept w wersji aplikacji e-recepty na Androida.Jeśli używasz skanera kodów recept na urządzeniu z Androidem, funkcja ML Kit jest również zawsze używana. Możesz jednak obejść się bez użycia skanera kodów recept. Twoje recepty można również załadować do aplikacji, jeśli zarejestrujesz się w cyfrowej sieci zdrowia za pomocą elektronicznej karty zdrowia lub za pośrednictwem aplikacji ubezpieczenia zdrowotnego.</string>
+    <string name="ml_pararaph_9_header">Czy mogę zobaczyć, kto przeglądał moje recepty?</string>
     <string name="ml_pararaph_9_info">Tak. Cały dostęp do twoich danych jest w pełni rejestrowany w cyfrowej sieci zdrowia. W aplikacji e-recepta możesz zobaczyć, kto miał dostęp do Twoich danych.</string>
     <string name="ml_pararaph_10_header">Z kim mogę się skontaktować, jeśli mam pytania dotyczące aplikacji lub e-recepty?</string>
     <string name="ml_pararaph_10_info">Szczegółowe informacje można znaleźć w oświadczeniu o ochronie danych.</string>
@@ -823,7 +822,7 @@
     <string name="profile_revoke_consent_header">wyłączyć funkcję</string>
     <string name="profile_revoke_consent_info">Spowoduje to usunięcie wszystkich paragonów z tego urządzenia iz serwera.</string>
     <string name="profile_grant_consent_header">Otrzymuj rachunki za wydatki</string>
-    <string name="profile_grant_consent_info">Rachunki poniesionych kosztów są również zapisywane na serwerze receptur.</string>
+    <string name="profile_grant_consent_info">Rachunki poniesionych kosztów są również zapisywane na serwerze recept.</string>
     <string name="profile_grant_consent">Odbierać</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Razem: %s %s</string>
     <string name="invoice_header_select">Wybierz</string>
@@ -863,4 +862,12 @@
     <string name="profile_delete_invoice_header">Naprawdę usunąć?</string>
     <string name="profile_delete_invoice_info">Plik zostanie usunięty z Twojego urządzenia i serwera.</string>
     <string name="profile_delete_invoice">Usuń</string>
+    <string name="prescription_status_sent">wysłane</string>
+    <string name="edit_shipping_contact_postal_code">Kod pocztowy</string>
+    <string name="edit_shipping_contact_city">Miejscowość</string>
+    <string name="edit_shipping_contact_error_postal_code">Wprowadź swój kod pocztowy, aby się z nami skontaktować.</string>
+    <string name="edit_shipping_contact_error_city">W przypadku kontaktu z nami prosimy o podanie miejsca zamieszkania.</string>
+    <string name="prescription_status_direct_assignment_ready">Zostanie dla ciebie odkupiony</string>
+    <string name="prescription_status_direct_assignment_closed">Został odkupiony dla ciebie</string>
+    <string name="connect_for_pharmacy_service">Aby korzystać z tej usługi, musisz być zalogowany.</string>
 </resources>

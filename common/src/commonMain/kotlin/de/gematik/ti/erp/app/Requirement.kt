@@ -15,21 +15,29 @@
  * limitations under the Licence.
  * 
  */
-
 package de.gematik.ti.erp.app
 
-import javax.crypto.KeyGenerator
-import javax.crypto.SecretKey
-
-@Requirement(
-    "A_19179",
-    "A_21323",
-    "GS-A_4368",
-    "GS-A_4367",
-    sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Entropy is ensured by using SecureRandom for generation."
+@Target(
+    AnnotationTarget.ANNOTATION_CLASS,
+    AnnotationTarget.CLASS,
+    AnnotationTarget.CONSTRUCTOR,
+    AnnotationTarget.EXPRESSION,
+    AnnotationTarget.FIELD,
+    AnnotationTarget.FILE,
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.LOCAL_VARIABLE,
+    AnnotationTarget.PROPERTY,
+    AnnotationTarget.PROPERTY_GETTER,
+    AnnotationTarget.PROPERTY_SETTER,
+    AnnotationTarget.TYPE,
+    AnnotationTarget.TYPEALIAS,
+    AnnotationTarget.TYPE_PARAMETER,
+    AnnotationTarget.VALUE_PARAMETER
 )
-fun generateRandomAES256Key(): SecretKey =
-    KeyGenerator.getInstance("AES").apply {
-        init(256, secureRandomInstance())
-    }.generateKey()
+@Retention(AnnotationRetention.SOURCE)
+@Repeatable
+annotation class Requirement(
+    vararg val requirements: String,
+    val sourceSpecification: String,
+    val rationale: String
+)

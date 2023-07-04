@@ -26,6 +26,7 @@ import androidx.security.crypto.MasterKey
 
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.MessageConversionException
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.db.appSchemas
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.openRealmWith
@@ -45,6 +46,12 @@ private const val PassphraseSizeInBytes = 64
 
 const val RealmDatabaseSecurePreferencesTag = "RealmDatabaseSecurePreferences"
 
+@Requirement(
+    "A_19186",
+    "A_20184#2",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Only encrypted SharedPreferences and an encrypted database are used to store data."
+)
 val realmModule = DI.Module("realmModule") {
     bindSingleton(RealmDatabaseSecurePreferencesTag) {
         val context = instance<Context>()

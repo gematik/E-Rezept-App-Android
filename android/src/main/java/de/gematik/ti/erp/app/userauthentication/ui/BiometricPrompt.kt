@@ -26,11 +26,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.utils.compose.createToastShort
 
 // tag::BiometricPromptAndBestSecureOption[]
 
+@Requirement(
+    "A_21584",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Only biometric means provided by the operating system are used."
+)
 @Composable
 fun BiometricPrompt(
     title: String,
@@ -109,6 +115,11 @@ fun BiometricPrompt(
     }
 }
 
+@Requirement(
+    "A_21582",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Selection of the best available authentication option on the device."
+)
 private fun bestSecureOption(biometricManager: BiometricManager): Int {
     when (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)) {
         BiometricManager.BIOMETRIC_SUCCESS,

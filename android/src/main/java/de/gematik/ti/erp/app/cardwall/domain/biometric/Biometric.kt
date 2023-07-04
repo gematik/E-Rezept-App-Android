@@ -22,6 +22,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Build
 import androidx.biometric.BiometricManager
+import de.gematik.ti.erp.app.Requirement
 
 fun isDeviceSupportsBiometric(biometricMode: Int) = when (biometricMode) {
     BiometricManager.BIOMETRIC_SUCCESS,
@@ -31,11 +32,24 @@ fun isDeviceSupportsBiometric(biometricMode: Int) = when (biometricMode) {
         false
 }
 
+@Requirement(
+    "A_21583",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Check for support of BIOMETRIC_STRONG."
+)
 fun deviceStrongBiometricStatus(context: Context): Int {
     val biometricManager = BiometricManager.from(context)
     return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
 }
 
+@Requirement(
+    "A_21578#2",
+    "A_21579#2",
+    "A_21580#2",
+    "A_21580#2",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Check for availability of strongbox."
+)
 fun hasDeviceStrongBox(context: Context) =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         context.packageManager.hasSystemFeature(PackageManager.FEATURE_STRONGBOX_KEYSTORE)

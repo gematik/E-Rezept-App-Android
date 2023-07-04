@@ -20,6 +20,7 @@
 
 package de.gematik.ti.erp.app.idp
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.EcdsaUsingShaAlgorithmExtending.EcdsaBP256R1UsingSha256
 import de.gematik.ti.erp.app.idp.EcdsaUsingShaAlgorithmExtending.EcdsaBP384R1UsingSha384
 import de.gematik.ti.erp.app.idp.EcdsaUsingShaAlgorithmExtending.EcdsaBP512R1UsingSha512
@@ -31,6 +32,11 @@ import java.security.spec.ECParameterSpec
 import java.security.spec.ECPoint
 import java.security.spec.EllipticCurve
 
+@Requirement(
+    "GS-A_4361",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Support for required algorithms implemented using ECDSA."
+)
 object EllipticCurvesExtending : EllipticCurves() {
     const val BP_256 = "BP-256"
     const val BP_384 = "BP-384"

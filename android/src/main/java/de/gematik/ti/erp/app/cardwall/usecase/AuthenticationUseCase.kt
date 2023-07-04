@@ -24,6 +24,7 @@ import android.security.keystore.KeyPermanentlyInvalidatedException
 import android.security.keystore.UserNotAuthenticatedException
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Stable
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.card.model.command.ResponseException
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardChannel
@@ -159,6 +160,16 @@ class AuthenticationUseCase(
     private val idpUseCase: IdpUseCase
 ) {
 
+    @Requirement(
+        "A_20172#1",
+        "A_20526-01#1",
+        "A_20283-01#2",
+        "A_20167",
+        "A_19938-01#2",
+        "GS-A_5322",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Authenticate to the IDP using the health card certificate."
+    )
     fun authenticateWithHealthCard(
         profileId: ProfileIdentifier,
         scope: IdpScope = IdpScope.Default,
@@ -181,6 +192,14 @@ class AuthenticationUseCase(
                 }
             }
 
+    @Requirement(
+        "A_20172#2",
+        "A_20526-01#2",
+        "A_20700-07#2",
+        "A_20700-07#3",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Authenticate to the IDP using the health card certificate."
+    )
     @RequiresApi(Build.VERSION_CODES.P)
     fun pairDeviceWithHealthCardAndSecureElement(
         profileId: ProfileIdentifier,

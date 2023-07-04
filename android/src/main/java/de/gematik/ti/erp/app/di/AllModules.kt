@@ -22,6 +22,7 @@ import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCase
 import de.gematik.ti.erp.app.attestation.usecase.integrityModule
@@ -54,6 +55,11 @@ const val ApplicationPreferencesTag = "ApplicationPreferences"
 const val NetworkPreferencesTag = "NetworkPreferences"
 const val NetworkSecurePreferencesTag = "NetworkSecurePreferences"
 
+@Requirement(
+    "A_20184#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Bind EncryptedSharedPreferences."
+)
 val allModules = DI.Module("allModules") {
     bindSingleton<DispatchProvider> { object : DispatchProvider {} }
 

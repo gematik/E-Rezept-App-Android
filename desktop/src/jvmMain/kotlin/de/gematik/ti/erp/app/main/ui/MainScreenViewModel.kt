@@ -20,8 +20,8 @@ package de.gematik.ti.erp.app.main.ui
 
 import de.gematik.ti.erp.app.main.ui.model.MainScreenData
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlin.system.exitProcess
 
 class MainScreenViewModel(
     private val zoomRange: ClosedFloatingPointRange<Float>,
@@ -32,10 +32,6 @@ class MainScreenViewModel(
     private val state = MutableStateFlow(defaultState)
 
     fun screenState(): Flow<MainScreenData.State> = state
-
-    private val _logout = MutableSharedFlow<Boolean>()
-    val logout: Flow<Boolean>
-        get() = _logout
 
     fun onZoom(step: Float) {
         state.value = state.value.copy(zoomed = true, zoom = (state.value.zoom + step).coerceIn(zoomRange))
@@ -58,7 +54,6 @@ class MainScreenViewModel(
     }
 
     suspend fun onLogout() {
-        state.value = defaultState
-        _logout.emit(true)
+        exitProcess(0)
     }
 }

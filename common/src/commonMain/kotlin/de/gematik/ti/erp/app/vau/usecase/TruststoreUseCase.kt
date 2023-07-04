@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.vau.usecase
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import de.gematik.ti.erp.app.vau.checkSignatureWith
@@ -160,6 +161,14 @@ class TruststoreUseCase(
         }
     }
 
+    @Requirement(
+        "A_20161-01#4",
+        "A_20614#2,",
+        "A_20617-01#3",
+        "A_21218#2",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Create Truststore."
+    )
     private suspend fun createTrustedTruststore(timestamp: Instant): TrustedTruststore {
         Napier.d("Load truststore from repository...")
 
@@ -194,6 +203,14 @@ class TrustedTruststore private constructor(
 
     val vauPublicKey: ECPublicKey
 ) {
+    @Requirement(
+        "A_20161-01#3",
+        "A_20614#1,",
+        "A_20617-01#2",
+        "A_21218#1",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Check OCSP validity."
+    )
     fun checkValidity(ocspResponseMaxAge: Duration, timestamp: Instant) {
         require(ocspResponses.isNotEmpty()) { "No OCSp responses. This should never happen" }
         ocspResponses.forEach { resp ->
@@ -208,6 +225,12 @@ class TrustedTruststore private constructor(
         }
     }
 
+    @Requirement(
+        "A_20161-01#1",
+        "A_20623",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Create a TrustedTruststore."
+    )
     companion object {
         fun create(
             untrustedOCSPList: UntrustedOCSPList,
@@ -318,6 +341,11 @@ fun findValidVauChain(
 /**
  * Returns all valid IDP certificate chains.
  */
+@Requirement(
+    "A_20625",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Validate signature of IDP chains."
+)
 fun findValidIdpChains(
     chains: List<List<X509CertificateHolder>>,
     validOcspResponses: List<BasicOCSPResp>,

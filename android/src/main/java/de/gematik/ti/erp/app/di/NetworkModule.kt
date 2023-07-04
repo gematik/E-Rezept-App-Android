@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.di
 
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.PharmacyRedeemService
 import de.gematik.ti.erp.app.api.PharmacySearchService
@@ -82,6 +83,26 @@ const val PrefixedLoggerTag = "PrefixedLogger"
 const val JsonConverterFactoryTag = "JsonConverterFactory"
 const val JsonFhirConverterFactoryTag = "JsonFhirConverterFactoryTag"
 
+@Requirement(
+    "A_19187",
+    "A_19739",
+    "A_19938-01#1",
+    "A_20033",
+    "A_20206-01",
+    "A_20283-01#3",
+    "A_20529-01",
+    "A_20606",
+    "A_20608",
+    "GS-A_5035",
+    "GS-A_4387",
+    "GS-A_4385",
+    "A_20607",
+    "A_20609",
+    "A_20617-01#1",
+    "A_20618",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Any connection to the IDP or the ERP service uses this configuration."
+)
 @OptIn(ExperimentalSerializationApi::class)
 val networkModule = DI.Module("Network Module") {
     bindInstance {
@@ -253,6 +274,16 @@ val networkModule = DI.Module("Network Module") {
     }
 }
 
+@Requirement(
+    "A_20206",
+    "A_17322",
+    "A_18464",
+    "A_18467",
+    "A_21332",
+    "A_21275-01",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
+)
 private fun getConnectionSpec(): List<ConnectionSpec> = ConnectionSpec
     .Builder(ConnectionSpec.RESTRICTED_TLS)
     .tlsVersions(

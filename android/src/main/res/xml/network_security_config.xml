@@ -32,6 +32,7 @@
         <domain includeSubdomains="false">idp-ref.app.ti-dienste.de</domain>
         <pin-set expiration="2026-09-21">
             <pin digest="SHA-256">86fLIetopQLDNxFZ0uMI66Xpl1pFgLlHHn9v6kT0i4I=</pin>
+            <pin digest="SHA-256">OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=</pin>
         </pin-set>
     </domain-config>
 
@@ -39,6 +40,7 @@
         <domain includeSubdomains="false">idp-test.app.ti-dienste.de</domain>
         <pin-set expiration="2026-09-21">
             <pin digest="SHA-256">86fLIetopQLDNxFZ0uMI66Xpl1pFgLlHHn9v6kT0i4I=</pin>
+            <pin digest="SHA-256">OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=</pin>
         </pin-set>
     </domain-config>
 
@@ -46,6 +48,7 @@
         <domain includeSubdomains="false">idp.app.ti-dienste.de</domain>
         <pin-set expiration="2026-09-21">
             <pin digest="SHA-256">86fLIetopQLDNxFZ0uMI66Xpl1pFgLlHHn9v6kT0i4I=</pin>
+            <pin digest="SHA-256">OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=</pin>
         </pin-set>
     </domain-config>
 

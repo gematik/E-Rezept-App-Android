@@ -139,8 +139,8 @@ class ProfilesUseCase(
     }
 
     fun auditEvents(profileId: ProfileIdentifier) = auditRepository.auditEvents(profileId)
-    suspend fun switchProfileToPKV(profile: ProfilesUseCaseData.Profile) {
-        profilesRepository.switchProfileToPKV(profile.id)
+    suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
+        profilesRepository.switchProfileToPKV(profileId)
     }
 }
 

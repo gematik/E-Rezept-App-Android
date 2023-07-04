@@ -82,7 +82,7 @@ class AppDependenciesPlugin : Plugin<Project> {
         }
 
         object KotlinX {
-            fun coroutines(target: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$target:1.6.4"
+            fun coroutines(target: String) = "org.jetbrains.kotlinx:kotlinx-coroutines-$target:1.7.1"
             const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:0.4.0"
             object Test {
                 val coroutinesTest = coroutines("test")
@@ -108,7 +108,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val appcompat = "androidx.appcompat:appcompat:1.6.0"
             const val legacySupport = "androidx.legacy:legacy-support-v4:1.0.0"
             const val coreKtx = "androidx.core:core-ktx:1.9.0"
-            const val datastorePreferences = "androidx.datastore:datastore-preferences:1.0.0"
+            const val datastorePreferences = "androidx.datastore:datastore-preferences:1.1.0-alpha04"
             const val biometric = "androidx.biometric:biometric:1.1.0"
             const val webkit = "androidx.webkit:webkit:1.6.0"
             const val security = "androidx.security:security-crypto:1.1.0-alpha04"
@@ -166,7 +166,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val jose4j = "org.bitbucket.b_c:jose4j:0.9.2"
 
             fun bouncyCastle(provider: String, targetPlatform: String = "jdk18on") =
-                "org.bouncycastle:$provider-$targetPlatform:1.72"
+                "org.bouncycastle:$provider-$targetPlatform:1.74"
         }
 
         object Network {

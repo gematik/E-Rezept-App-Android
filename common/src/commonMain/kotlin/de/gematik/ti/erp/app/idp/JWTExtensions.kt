@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp
 
+import de.gematik.ti.erp.app.Requirement
 import org.jose4j.base64url.Base64Url
 import org.jose4j.json.internal.json_simple.JSONObject
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers
@@ -31,6 +32,11 @@ import java.security.PublicKey
 import java.security.Signature
 import javax.crypto.SecretKey
 
+@Requirement(
+    "A_21324",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Generate Key-Verifier using Token-Key and Code-Verifier."
+)
 fun buildKeyVerifier(
     tokenKey: SecretKey,
     codeVerifier: String,

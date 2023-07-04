@@ -78,6 +78,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -96,6 +97,11 @@ import java.util.UUID
 private const val OrderSuccessVideoAspectRatio = 1.69f
 private val TopBarColor = Color(0xffd6e9fb)
 
+@Requirement(
+    "A_19183#2",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Displays a summary of a prescription assignment to a pharmacy."
+)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun OrderOverview(

@@ -78,7 +78,7 @@ fun DebugScreenPKV(onBack: () -> Unit) {
                         Button(
                             onClick = {
                                 scope.launch {
-                                    profileHandler.switchProfileToPKV(activeProfile)
+                                    profileHandler.switchProfileToPKV(activeProfile.id)
                                 }
                             },
                             modifier = Modifier.fillMaxWidth()

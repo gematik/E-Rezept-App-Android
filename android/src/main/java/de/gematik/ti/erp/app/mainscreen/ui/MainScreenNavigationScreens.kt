@@ -102,8 +102,8 @@ object MainNavigationScreens {
 
 val MainScreenBottomNavigationItems = listOf(
     MainNavigationScreens.Prescriptions,
-    MainNavigationScreens.Orders,
     MainNavigationScreens.Pharmacies,
+    MainNavigationScreens.Orders,
     MainNavigationScreens.Settings
 )
 

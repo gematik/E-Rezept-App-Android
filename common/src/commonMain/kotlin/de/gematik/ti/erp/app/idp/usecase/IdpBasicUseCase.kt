@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.BCProvider
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.generateRandomAES256Key
 import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
 import de.gematik.ti.erp.app.idp.api.IdpService
@@ -250,7 +251,11 @@ class IdpBasicUseCase(
             idpTokenResult.idTokenPayload
         )
 
-        // final [redirectSsoToken] & [accessToken]
+        @Requirement(
+            "A_20527#1",
+            sourceSpecification = "gemSpec_IDP_Frontend",
+            rationale = "Returns the AUTHORIZATION_CODE (accessToken) and the SSO token."
+        )
         return IdpAuthFlowResult(
             accessToken = idpTokenResult.decryptedAccessToken,
             ssoToken = redirectSsoToken,
@@ -336,6 +341,12 @@ class IdpBasicUseCase(
         return redirect
     }
 
+    @Requirement(
+        "A_19908-01",
+        "GS-A_4357-01",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Fetch and check challenge."
+    )
     suspend fun fetchAndCheckUnsignedChallenge(
         url: String,
         codeChallenge: String,
@@ -374,6 +385,13 @@ class IdpBasicUseCase(
         )
     }
 
+    @Requirement(
+        "A_20529-01",
+        "A_20740#2",
+        "A_21414",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Post relevant information to IDP and decrypt access-token."
+    )
     suspend fun postCodeAndDecryptAccessToken(
         url: String,
         nonce: IdpNonce,
@@ -442,6 +460,11 @@ class IdpBasicUseCase(
             payload = """{ "njwt": "$signedChallenge" }"""
         }
 
+    @Requirement(
+        "A_20309",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Generate code verifier using SecureRandome."
+    )
     fun generateCodeVerifier(): String {
         // https://datatracker.ietf.org/doc/html/rfc7636#section-4.1
         // 60 bytes are about 80 characters of base64
@@ -461,6 +484,15 @@ class IdpBasicUseCase(
         )
     }
 
+    @Requirement(
+        "A_20512",
+        "A_20614#2",
+        "A_20617-01#3",
+        "A_21218#2",
+        "A_22296-01#2",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Get and validate discovery document."
+    )
     suspend fun checkIdpConfigurationValidity(config: IdpData.IdpConfiguration, timestamp: Instant) {
         truststoreUseCase.checkIdpCertificate(config.certificate, true)
 

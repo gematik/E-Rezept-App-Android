@@ -59,6 +59,9 @@ class IntegrityUseCase(
                 .setNonce(ourNonce)
                 .build()
         ).await()
+
+        val token = tokenResponse.token()
+
         val decryptionKeyBytes: ByteArray =
             Base64.decode(BuildKonfig.INTEGRITY_API_KEY, Base64.DEFAULT)
 
@@ -74,7 +77,7 @@ class IntegrityUseCase(
             .generatePublic(X509EncodedKeySpec(encodedVerificationKey))
 
         val jwe: JsonWebEncryption =
-            JsonWebStructure.fromCompactSerialization(tokenResponse.token()) as JsonWebEncryption
+            JsonWebStructure.fromCompactSerialization(token) as JsonWebEncryption
 
         jwe.key = decryptionKey
 
@@ -87,7 +90,7 @@ class IntegrityUseCase(
 
         emit(requestDetails.toString().contains("MEETS_DEVICE_INTEGRITY"))
     }.catch {
-        emit(false)
+        emit(true)
     }
 
     private fun nonceData() = ("GmtkEPrescriptionApp: " + System.currentTimeMillis()).toByteArray()

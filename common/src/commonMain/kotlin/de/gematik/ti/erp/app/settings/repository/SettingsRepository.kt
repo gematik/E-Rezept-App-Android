@@ -94,7 +94,6 @@ class SettingsRepository constructor(
                 SettingsData.PharmacySearch(
                     name = it.name,
                     locationEnabled = it.locationEnabled,
-                    ready = it.filterReady,
                     deliveryService = it.filterDeliveryService,
                     onlineService = it.filterOnlineService,
                     openNow = it.filterOpenNow
@@ -107,7 +106,6 @@ class SettingsRepository constructor(
             this.pharmacySearch?.apply {
                 this.name = search.name
                 this.locationEnabled = search.locationEnabled
-                this.filterReady = search.ready
                 this.filterDeliveryService = search.deliveryService
                 this.filterOnlineService = search.onlineService
                 this.filterOpenNow = search.openNow

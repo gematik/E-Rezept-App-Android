@@ -24,6 +24,7 @@ import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
 import de.gematik.ti.erp.app.fhir.model.Pharmacy
@@ -71,9 +72,6 @@ class PharmacySearchUseCase(
             }
             if (searchData.filter.directRedeem) {
                 filterMap += "type" to "DELEGATOR"
-            }
-            if (searchData.filter.ready) {
-                filterMap += "status" to "active"
             }
             if (searchData.filter.onlineService) {
                 filterMap += "type" to "mobl"
@@ -135,6 +133,13 @@ class PharmacySearchUseCase(
         }
     }
 
+    @Requirement(
+        "A_20182",
+        "A_20183",
+        "A_20208",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Search results are only based on search term and filter criteria set by the user."
+    )
     suspend fun searchPharmacies(
         searchData: PharmacyUseCaseData.SearchData
     ): Flow<PagingData<PharmacyUseCaseData.Pharmacy>> {
@@ -142,7 +147,6 @@ class PharmacySearchUseCase(
             SettingsData.PharmacySearch(
                 name = searchData.name,
                 locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,
-                ready = searchData.filter.ready,
                 deliveryService = searchData.filter.deliveryService,
                 onlineService = searchData.filter.onlineService,
                 openNow = searchData.filter.openNow

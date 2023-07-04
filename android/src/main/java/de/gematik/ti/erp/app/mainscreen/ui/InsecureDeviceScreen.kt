@@ -56,6 +56,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -66,7 +67,11 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import kotlinx.coroutines.launch
 import java.util.Locale
-
+@Requirement(
+    "A_21574",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Show integrity warning."
+)
 @Composable
 fun InsecureDeviceScreen(
     headline: String,

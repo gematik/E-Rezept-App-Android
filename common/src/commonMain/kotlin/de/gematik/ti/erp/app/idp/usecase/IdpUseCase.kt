@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp.usecase
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.idp.api.EXT_AUTH_REDIRECT_URI
 import de.gematik.ti.erp.app.idp.api.IdpService
@@ -99,6 +100,13 @@ class IdpUseCase(
     /**
      * If no bearer token is set or [refresh] is true, this will trigger [IdpBasicUseCase.refreshAccessTokenWithSsoFlow].
      */
+    @Requirement(
+        "A_20283-01#1",
+        "A_21326",
+        "A_21327",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Load and decrypt access token."
+    )
     suspend fun loadAccessToken(
         refresh: Boolean = false,
         profileId: ProfileIdentifier,
@@ -226,6 +234,14 @@ class IdpUseCase(
     /**
      * Initial flow fetching the sso & access token requiring the health card to sign the challenge.
      */
+    @Requirement(
+        "A_20600#1",
+        "A_20601",
+        "A_20601-01",
+        "A_21598#2",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Authenticate to the IDP using the health card certificate."
+    )
     suspend fun authenticationFlowWithHealthCard(
         profileId: ProfileIdentifier,
         scope: IdpScope = IdpScope.Default,
@@ -302,6 +318,11 @@ class IdpUseCase(
      * Get all the information for the correct endpoints from the discovery document and request
      * the external Health Insurance Companies which are capable of authenticate you with their app
      */
+    @Requirement(
+        "A_22296-01#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Load list of external authenticators for Fast Track."
+    )
     suspend fun loadExternAuthenticatorIDs(): List<AuthenticationId> {
         val initialData = basicUseCase.initializeConfigurationAndKeys()
         return repository.fetchExternalAuthorizationIDList(
@@ -354,6 +375,15 @@ class IdpUseCase(
     /**
      * The scope is determined by the previously saved value within the shared prefs as `EXT_AUTH_SCOPE`.
      */
+    @Requirement(
+        "A_20527#2",
+        "A_20600#2",
+        "A_20601",
+        "A_20601-01",
+        "A_22301",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "External authentication (fast track)"
+    )
     suspend fun authenticateWithExternalAppAuthorization(
         uri: URI
     ) {
@@ -483,6 +513,11 @@ class IdpUseCase(
      * Actual authentication with secure element key material. Just like the [authenticationFlowWithHealthCard] it
      * sets the sso & access token within the repository.
      */
+    @Requirement(
+        "A_21598#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Authentication flow with health card and secure element."
+    )
     suspend fun alternateAuthenticationFlowWithSecureElement(
         profileId: ProfileIdentifier,
         scope: IdpScope = IdpScope.Default

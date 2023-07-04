@@ -55,7 +55,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
 
-const val ACTUAL_SCHEMA_VERSION = 21L
+const val ACTUAL_SCHEMA_VERSION = 22L
 
 val appSchemas = setOf(
     AppRealmSchema(

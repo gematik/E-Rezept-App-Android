@@ -58,7 +58,7 @@ object AppNavTypes {
 }
 
 @Immutable
-open class Route(private val path: String, vararg arguments: NamedNavArgument) {
+open class Route(private val path: String, vararg arguments: NamedNavArgument, val badgeCount: Int = 1) {
     val route = arguments.fold(Uri.Builder().path(path)) { uri, param ->
         uri.appendQueryParameter(param.name, "{${param.name}}")
     }.build().toString()

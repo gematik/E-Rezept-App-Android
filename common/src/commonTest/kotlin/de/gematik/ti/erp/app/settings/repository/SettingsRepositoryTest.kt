@@ -116,7 +116,6 @@ class SettingsRepositoryTest : TestDB() {
         repo.pharmacySearch.first().also {
             assertEquals("", it.name)
             assertEquals(false, it.locationEnabled)
-            assertEquals(false, it.ready)
             assertEquals(false, it.deliveryService)
             assertEquals(false, it.onlineService)
             assertEquals(false, it.openNow)
@@ -126,7 +125,6 @@ class SettingsRepositoryTest : TestDB() {
             SettingsData.PharmacySearch(
                 name = "Some Pharmacy",
                 locationEnabled = true,
-                ready = false,
                 deliveryService = true,
                 onlineService = false,
                 openNow = true
@@ -136,7 +134,6 @@ class SettingsRepositoryTest : TestDB() {
         repo.pharmacySearch.first().also {
             assertEquals("Some Pharmacy", it.name)
             assertEquals(true, it.locationEnabled)
-            assertEquals(false, it.ready)
             assertEquals(true, it.deliveryService)
             assertEquals(false, it.onlineService)
             assertEquals(true, it.openNow)

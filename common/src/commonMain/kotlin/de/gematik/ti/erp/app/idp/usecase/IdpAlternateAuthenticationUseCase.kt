@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp.usecase
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.REDIRECT_URI
 import de.gematik.ti.erp.app.idp.api.models.AuthenticationData
@@ -64,6 +65,12 @@ class IdpAlternateAuthenticationUseCase(
         encodeDefaults = true
     }
 
+    @Requirement(
+        "A_21591",
+        "A_21600",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Gather device info and register with health card."
+    )
     suspend fun registerDeviceWithHealthCard(
         initialData: IdpInitialData,
         accessToken: String,
@@ -138,7 +145,12 @@ class IdpAlternateAuthenticationUseCase(
         }
     }
 
-// tag::DeletePairedDevicesUseCase[]
+    // tag::DeletePairedDevicesUseCase[]
+    @Requirement(
+        "A_21443",
+        sourceSpecification = "gemF_Biometrie",
+        rationale = "Delete pairing for device."
+    )
     suspend fun deletePairedDevice(
         initialData: IdpInitialData,
         accessToken: String,
@@ -329,6 +341,11 @@ class IdpAlternateAuthenticationUseCase(
             deviceInformation = deviceInformation
         )
 
+    @Requirement(
+        "A_21416",
+        sourceSpecification = "gemF_Biometrie",
+        rationale = "Generate registration data and encrypt it with PuK_IDP_ENC."
+    )
     fun buildEncryptedRegistrationData(
         registrationData: RegistrationData,
         idpPukEncKey: PublicKey
@@ -382,6 +399,11 @@ class IdpAlternateAuthenticationUseCase(
             signature
         )
 
+    @Requirement(
+        "A_21431",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Create and encrypt authentication data."
+    )
     fun buildEncryptedSignedAuthenticationData(
         signedAuthenticationData: String,
         challengeExpiry: Long,

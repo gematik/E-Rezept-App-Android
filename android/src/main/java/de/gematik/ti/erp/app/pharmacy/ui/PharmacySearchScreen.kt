@@ -105,6 +105,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemsIndexed
 import com.google.accompanist.flowlayout.FlowRow
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackPharmacySearchPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
@@ -338,17 +339,6 @@ private fun FilterSection(
                         }
                     }
                 }
-                if (filter.ready) {
-                    item {
-                        Chip(
-                            stringResource(R.string.search_pharmacies_filter_e_prescription_ready),
-                            closable = true,
-                            checked = false
-                        ) {
-                            onClickChip(filter.copy(ready = false))
-                        }
-                    }
-                }
                 if (filter.deliveryService) {
                     item {
                         Chip(
@@ -445,17 +435,6 @@ fun FilterSheetContent(
                     onClickChipFn(
                         filterValue.copy(
                             openNow = it
-                        )
-                    )
-                }
-                Chip(
-                    stringResource(R.string.search_pharmacies_filter_e_prescription_ready),
-                    closable = false,
-                    checked = filterValue.ready
-                ) {
-                    onClickChipFn(
-                        filterValue.copy(
-                            ready = it
                         )
                     )
                 }
@@ -617,6 +596,11 @@ private fun ErrorRetryHandler(
     }
 }
 
+@Requirement(
+    "A_20285",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Search results are displayed solely based on search term and user-set filters."
+)
 @Suppress("LongMethod")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable

@@ -326,7 +326,7 @@
     <ID>NestedBlockDepth:EntityUtils.kt$private suspend fun SequenceScope&lt;Deleteable&gt;.flatten( currentObject: Cascading, currentDepth: Int, maxDepth: Int )</ID>
     <ID>NestedBlockDepth:LicenceRule.kt$LicenceRule$override fun visit( node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -&gt; Unit )</ID>
     <ID>NestedBlockDepth:Utils.kt$fun ByteArray.contains(other: ByteArray): Boolean</ID>
-    <ID>ReturnCount:BiometricPrompt.kt$private fun bestSecureOption(biometricManager: BiometricManager): Int</ID>
+    <ID>ReturnCount:BiometricPrompt.kt$@Requirement( "A_21582", sourceSpecification = "gemSpec_IDP_Frontend", rationale = "Selection of the best available authentication option on the device." ) private fun bestSecureOption(biometricManager: BiometricManager): Int</ID>
     <ID>ReturnCount:TestResource.kt$TestResource$fun getParameter(parameterEnum: ParameterEnum): Any?</ID>
     <ID>ReturnCount:Utils.kt$fun ByteArray.contains(other: ByteArray): Boolean</ID>
     <ID>SpreadOperator:AndroidStringResourceGeneratorTask.kt$AndroidStringResourceGeneratorTask$( "%L to Plurals(${tr.items.toTemplateString()}),", primaryUniqueNamesWithId.getValue(tr.name), *tr.items.toArgArray() )</ID>

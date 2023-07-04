@@ -111,7 +111,8 @@ class InvoiceLocalDataSource(
                                     this.uniqueIdentifier = iknr
                                 }
                             },
-                            processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, additionalItem ->
+                            processInvoice = { totalAdditionalFee, totalBruttoAmount, currency,
+                                items, additionalItems, additionalInformation ->
                                 InvoiceEntityV1().apply {
                                     this.totalAdditionalFee = totalAdditionalFee
                                     this.totalBruttoAmount = totalBruttoAmount
@@ -121,7 +122,14 @@ class InvoiceLocalDataSource(
                                             applyChargeableItem(item)
                                         )
                                     }
-                                    this.additionalDispenseItem = additionalItem?.let { applyChargeableItem(it) }
+                                    additionalItems.forEach { item ->
+                                        this.additionalDispenseItems.add(
+                                            applyChargeableItem(item)
+                                        )
+                                    }
+                                    additionalInformation.forEach {
+                                        this.additionalInformation.add(it)
+                                    }
                                 }
                             },
                             save = { taskId, timeStamp, pharmacy, invoice, whenHandedOver ->
@@ -446,7 +454,10 @@ class InvoiceLocalDataSource(
                 chargeableItems = this.invoice?.chargeableItems?.map {
                     it.toChargeableItem()
                 } ?: listOf(),
-                additionalDispenseItem = this.invoice?.additionalDispenseItem?.toChargeableItem()
+                additionalDispenseItems = this.invoice?.additionalDispenseItems?.map {
+                    it.toChargeableItem()
+                } ?: listOf(),
+                additionalInformation = this.invoice?.additionalInformation?.toList() ?: listOf()
             )
         )
 

@@ -22,6 +22,7 @@ import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
+import de.gematik.ti.erp.app.fhir.parser.containedDoubleOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedInt
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.filterWith
@@ -30,12 +31,18 @@ import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import de.gematik.ti.erp.app.fhir.parser.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.parser.toFormattedDateTime
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
 import kotlinx.serialization.json.JsonElement
 
 const val Denominator = 1000.0
+const val IndicatorUrl =
+    "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-ZusatzdatenFaktorkennzeichen"
+
+const val AdditionalProductionUrl =
+    "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenHerstellung|1.2"
 
 typealias PkvDispenseFn<R> = (
     whenHandedOver: FhirTemporal
@@ -46,7 +53,8 @@ typealias InvoiceFn<R> = (
     totalBruttoAmount: Double,
     currency: String,
     items: List<InvoiceData.ChargeableItem>,
-    additionalDispenseItem: InvoiceData.ChargeableItem?
+    additionalDispenseItems: List<InvoiceData.ChargeableItem>,
+    additionalInformation: List<String>
 ) -> R
 
 fun extractInvoiceKBVAndErpPrBundle(
@@ -164,13 +172,21 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
 
     val timestamp = bundle.containedString("timestamp").toInstant()
 
-    val additionalDispenseBundle = bundle.findAll("entry.resource")
+    val additionalDispenses = bundle.findAll("entry.resource")
         .filterWith(
             "meta.profile",
             stringValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenEinheit|1.2"
             )
-        ).firstOrNull()
+        )
+
+    val additionalDispenseData = bundle.findAll("entry.resource")
+        .filterWith(
+            "meta.profile",
+            stringValue(
+                AdditionalProductionUrl
+            )
+        )
 
     val resources = bundle
         .findAll("entry.resource")
@@ -213,7 +229,8 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
             ) -> {
                 invoice = extractInvoice(
                     resource,
-                    additionalDispenseBundle,
+                    additionalDispenses,
+                    additionalDispenseData,
                     processInvoice
                 )
             }
@@ -240,7 +257,8 @@ fun <Dispense> extractPkvDispense(
 
 fun <Invoice> extractInvoice(
     billingLines: JsonElement,
-    additionalDispenseJson: JsonElement?,
+    additionalDispensesJson: Sequence<JsonElement>,
+    additionalDispenseDataJson: Sequence<JsonElement>,
     processInvoice: InvoiceFn<Invoice>
 ): Invoice {
     val totalGross = billingLines.contained("totalGross")
@@ -325,24 +343,77 @@ fun <Invoice> extractInvoice(
 
             item
         }.toList()
+    var additionalDispenses = listOf<InvoiceData.ChargeableItem>()
+    var additionalInformation = listOf<String>()
 
-    val additionalDispenseItem = extractAdditionalDispenseItem(additionalDispenseJson)
-
+    when (items[0].description) {
+        InvoiceData.ChargeableItem.Description.TA1("02567053") -> // separation
+            additionalDispenses = chargeableItems(additionalDispensesJson)
+        InvoiceData.ChargeableItem.Description.TA1("09999092") -> // parentale Zytostatica
+            additionalInformation = joinZytostaticaProductionSteps(additionalDispensesJson, additionalDispenseDataJson)
+        else -> // must be compounding
+            additionalInformation = listOf(joinComponents(additionalDispensesJson))
+    }
     return processInvoice(
         totalAdditionalFee,
         totalBruttoAmount,
         currency,
         items,
-        additionalDispenseItem
+        additionalDispenses,
+        additionalInformation
     )
 }
 
-fun extractAdditionalDispenseItem(
-    additionalDispenseJson: JsonElement?
-): InvoiceData.ChargeableItem? {
-    return additionalDispenseJson?.let { additionalDispense ->
-        val lineItem = additionalDispense.contained("lineItem")
-        val text = "" // only Special indicator and its designation from the billing line are available
+fun joinZytostaticaProductionSteps(
+    additionalDispensesJson: Sequence<JsonElement>,
+    additionalDispensDataJson: Sequence<JsonElement>
+): List<String> {
+    val additionalInformation: MutableList<String> = mutableListOf()
+    var productionItems = ""
+    val dispenseData = additionalDispensDataJson.toList()
+    val dispenses = additionalDispensesJson.toList()
+
+    if (dispenseData.isNotEmpty()) {
+        additionalInformation.add("Bestandteile (Nettopreise):")
+        dispenseData.forEachIndexed { index, data ->
+            val whenPrepared =
+                data.containedString("whenPrepared").toFhirTemporal().toInstant().toFormattedDateTime()
+            val reference = data.findAll("extension").filterWith(
+                "url",
+                stringValue(
+                    "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-ZusatzdatenEinheit"
+                )
+            ).firstOrNull()?.contained("valueReference")
+                ?.containedString("reference")?.removePrefix("urn:uuid:")
+
+            val dispense = dispenses.filter {
+                it.containedString("id") == reference
+            }.first()
+
+            val productionStep = index + 1
+
+            productionItems = joinProductionItems(dispense)
+
+            additionalInformation.add("Herstellung $productionStep - $whenPrepared: $productionItems")
+        }
+    }
+
+    return additionalInformation
+}
+
+fun joinProductionItems(additionalDispensesJson: JsonElement): String {
+    val productionItems: MutableList<String> = mutableListOf()
+    val items = additionalDispensesJson.findAll("lineItem").toList()
+
+    items.forEachIndexed { index, lineItem ->
+        productionItems += additionalDispensesJson.findAll("extension")
+            .filterWith(
+                "url",
+                stringValue(
+                    "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Zaehler"
+                )
+            ).first().containedInt("valuePositiveInt").toString()
+
         val code = lineItem
             .findAll("chargeItemCodeableConcept.coding")
             .filterWith(
@@ -354,44 +425,129 @@ fun extractAdditionalDispenseItem(
                 )
             )
             .first().containedString("code")
+        productionItems += code
 
-        val price = InvoiceData.PriceComponent(0.0, 0.0) // unused property TA_DAV_PKV 6.2.8.2
+        val indicator = lineItem
+            .contained("priceComponent").findAll("extension")
+            .filterWith(
+                "url",
+                stringValue(IndicatorUrl)
+            )
+            .first().contained("valueCodeableConcept").contained("coding").containedString("code")
+        productionItems += indicator
 
         val factor = lineItem.contained("priceComponent")
-            .containedInt("factor") / Denominator // TA_DAV_PKV 6.2.8.2
+            .containedDouble("factor") / Denominator // TA_DAV_PKV 6.2.8.2
+        productionItems += factor.toString()
 
-        val item = when (
-            lineItem.contained("chargeItemCodeableConcept")
-                .contained("coding").containedString("system")
-        ) {
-            "http://fhir.de/CodeSystem/ifa/pzn" ->
-                InvoiceData.ChargeableItem(
-                    InvoiceData.ChargeableItem.Description.PZN(code),
-                    text,
-                    factor,
-                    price
-                )
+        val value = lineItem
+            .contained("priceComponent")
+            .contained("amount")
+            .containedDouble("value")
+        productionItems += value.toString() + "€"
 
-            "http://TA1.abda.de" ->
-                InvoiceData.ChargeableItem(
-                    InvoiceData.ChargeableItem.Description.TA1(code),
-                    text,
-                    factor,
-                    price
-                )
-
-            "http://fhir.de/sid/gkv/hmnr" ->
-                InvoiceData.ChargeableItem(
-                    InvoiceData.ChargeableItem.Description.HMNR(code),
-                    text,
-                    factor,
-                    price
-                )
-
-            else -> null
+        if (index + 1 != items.count()) {
+            productionItems += "/"
         }
-        item
     }
+    return productionItems.joinToString(" ")
+}
+
+fun joinComponents(additionalDispensesJson: Sequence<JsonElement>): String {
+    val components = mutableListOf("Bestandteile:")
+    val items = chargeableItems(additionalDispensesJson)
+    val itemsSize = items.size
+    items.forEachIndexed { index, item ->
+        when (item.description) {
+            is InvoiceData.ChargeableItem.Description.PZN -> components += item.description.pzn
+            is InvoiceData.ChargeableItem.Description.TA1 -> components += item.description.ta1
+            is InvoiceData.ChargeableItem.Description.HMNR -> components += item.description.hmnr
+        }
+        components += item.factor.toString()
+        components += item.price.value.toString()
+        if (index + 1 != itemsSize) {
+            components += "/"
+        }
+    }
+    components += " (Nettopreise)"
+
+    return components.joinToString(" ")
+}
+
+private fun chargeableItems(additionalDispensesJson: Sequence<JsonElement>) =
+    additionalDispensesJson.findAll("lineItem")
+        .mapNotNull { lineItem ->
+            val text = "" // only Special indicator and its designation from the billing line are available
+            val code = lineItem
+                .findAll("chargeItemCodeableConcept.coding")
+                .filterWith(
+                    "system",
+                    or(
+                        stringValue("http://fhir.de/CodeSystem/ifa/pzn"),
+                        stringValue("http://TA1.abda.de"),
+                        stringValue("http://fhir.de/sid/gkv/hmnr")
+                    )
+                )
+                .first().containedString("code")
+
+            val value = lineItem
+                .contained("priceComponent")
+                .contained("amount")
+                .containedDouble("value")
+
+            val tax = lineItem
+                .findAll("priceComponent.extension")
+                .filterWith(
+                    "url",
+                    stringValue("http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-MwStSatz")
+                )
+                .firstOrNull()
+                ?.containedDoubleOrNull("valueDecimal") ?: 0.0
+
+            val price = InvoiceData.PriceComponent(value, tax)
+
+            val factor = lineItem.contained("priceComponent")
+                .containedDouble("factor") / Denominator // TA_DAV_PKV 6.2.8.2
+
+            val item = chargeableItem(lineItem, code, text, factor, price)
+            item
+        }.toList()
+
+private fun chargeableItem(
+    lineItem: JsonElement,
+    code: String,
+    text: String,
+    factor: Double,
+    price: InvoiceData.PriceComponent
+) = when (
+    lineItem.contained("chargeItemCodeableConcept")
+        .contained("coding").containedString("system")
+) {
+    "http://fhir.de/CodeSystem/ifa/pzn" ->
+        InvoiceData.ChargeableItem(
+            InvoiceData.ChargeableItem.Description.PZN(code),
+            text,
+            factor,
+            price
+        )
+
+    "http://TA1.abda.de" ->
+        InvoiceData.ChargeableItem(
+            InvoiceData.ChargeableItem.Description.TA1(code),
+            text,
+            factor,
+            price
+        )
+
+    "http://fhir.de/sid/gkv/hmnr" ->
+        InvoiceData.ChargeableItem(
+            InvoiceData.ChargeableItem.Description.HMNR(code),
+            text,
+            factor,
+            price
+        )
+
+    else -> null
 }
 
 fun extractTaskIdsFromChargeItemBundle(

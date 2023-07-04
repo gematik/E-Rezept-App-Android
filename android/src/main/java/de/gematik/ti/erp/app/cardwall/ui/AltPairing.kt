@@ -32,6 +32,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.secureRandomInstance
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -61,6 +62,22 @@ class AltPairingProvider(
         class Initialized(val aliasOfSecureElementEntry: ByteArray, val publicKey: PublicKey) : AuthResult
     }
 
+    @Requirement(
+        "A_21576#1",
+        "A_21578#1",
+        "A_21579#1",
+        "A_21580#1",
+        "A_21580#1",
+        "A_21581",
+        "A_21585",
+        "A_21586",
+        "A_21587",
+        "A_21588",
+        "A_21589",
+        "A_21590",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Initialize biometric authentication for strongbox backed devices."
+    )
     @RequiresApi(Build.VERSION_CODES.P)
     suspend fun initializeAndPrompt(): AuthResult = suspendCancellableCoroutine { continuation ->
         val aliasOfSecureElementEntry = ByteArray(KeyStoreAliasKeySize).apply {

@@ -30,11 +30,12 @@ class InvoiceEntityV1 : RealmObject, Cascading {
     var totalBruttoAmount: Double = 0.0
     var currency: String = ""
     var chargeableItems: RealmList<ChargeableItemV1> = realmListOf()
-    var additionalDispenseItem: ChargeableItemV1? = null
+    var additionalDispenseItems: RealmList<ChargeableItemV1> = realmListOf()
+    var additionalInformation: RealmList<String> = realmListOf()
 
     override fun objectsToFollow(): Iterator<Deleteable> =
         iterator {
             yield(chargeableItems)
-            additionalDispenseItem?.let { yield(it) }
+            yield(additionalDispenseItems)
         }
 }

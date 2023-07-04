@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp.model
 
+import de.gematik.ti.erp.app.Requirement
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
@@ -54,6 +55,11 @@ object IdpData {
         val token: SingleSignOnToken?
     }
 
+    @Requirement(
+        "A_21595#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Data structure holding the health card certificate."
+    )
     sealed interface TokenWithHealthCardScope : SingleSignOnTokenScope {
         val cardAccessNumber: String
         val healthCardCertificate: X509CertificateHolder
@@ -66,6 +72,11 @@ object IdpData {
             Base64Url.encode(aliasOfSecureElementEntry) // url safe for compatibility with response from idp backend
     }
 
+    @Requirement(
+        "A_21595#2",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Data structure holding the health card certificate."
+    )
     data class DefaultToken(
         override val token: SingleSignOnToken?,
         override val cardAccessNumber: String,
@@ -88,6 +99,11 @@ object IdpData {
         val authenticatorName: String
     ) : SingleSignOnTokenScope
 
+    @Requirement(
+        "A_21595#3",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Data structure holding the health card certificate."
+    )
     data class AlternateAuthenticationToken(
         override val token: SingleSignOnToken?,
         override val cardAccessNumber: String,

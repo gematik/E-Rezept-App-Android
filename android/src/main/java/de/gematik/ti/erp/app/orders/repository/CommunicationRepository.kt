@@ -38,6 +38,7 @@ import kotlinx.datetime.Instant
 
 private const val CommunicationsMaxPageSize = 50
 
+@Suppress("TooManyFunctions")
 class CommunicationRepository(
     private val taskLocalDataSource: LocalDataSource,
     private val taskRemoteDataSource: RemoteDataSource,
@@ -118,6 +119,9 @@ class CommunicationRepository(
 
     fun hasUnreadMessages(profileId: ProfileIdentifier) =
         communicationLocalDataSource.hasUnreadMessages(profileId).flowOn(dispatchers.IO)
+
+    fun numberOfUnreadMessages(profileId: ProfileIdentifier) =
+        communicationLocalDataSource.numberOfUnreadOrders(profileId).flowOn(dispatchers.IO)
 
     fun taskIdsByOrder(orderId: String) =
         communicationLocalDataSource.taskIdsByOrder(orderId).flowOn(dispatchers.IO)

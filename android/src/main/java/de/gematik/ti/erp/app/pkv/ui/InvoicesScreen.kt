@@ -65,6 +65,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -121,16 +122,14 @@ fun InvoicesScreen(
     var showGrantConsentDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
-    val ssoTokenValid by remember {
-        mutableStateOf(selectedProfile.ssoTokenValid())
+    val ssoTokenValid = rememberSaveable(selectedProfile.ssoTokenScope) {
+        selectedProfile.ssoTokenValid()
     }
 
     CheckConsentState(consentController, ssoTokenValid, scaffoldState, context) {
         consentGranted = it
         showGrantConsentDialog = !consentGranted
     }
-
-    var connectBottomBarVisible by remember { mutableStateOf(!ssoTokenValid) }
 
     var showRevokeConsentAlert by remember { mutableStateOf(false) }
 
@@ -191,13 +190,13 @@ fun InvoicesScreen(
             SnackbarHost(it, modifier = Modifier.systemBarsPadding())
         },
         bottomBar = {
-            if (connectBottomBarVisible) {
+            if (!ssoTokenValid) {
                 ConnectBottomBar {
                     scope.launch {
                         refreshPrescriptionsController.refresh(
                             profileId = selectedProfile.id,
                             isUserAction = true,
-                            onUserNotAuthenticated = { connectBottomBarVisible = true },
+                            onUserNotAuthenticated = {},
                             onShowCardWall = onShowCardWall
                         )
                     }

@@ -220,7 +220,7 @@
     <string name="insecure_device_accept">Не показывать больше это указание.</string>
     <string name="error_message_network_not_available">Не удалось установить соединение. Подключение к сети не выполнено.</string>
     <string name="error_message_server_communication_failed">Не удалось установить соединение с сервером: код состояния %s.</string>
-    <string name="error_message_vau_error">Не удалось установить соединение с сервером: ошибка VAU</string>
+    <string name="error_message_vau_error">Не удалось связаться с сервером: проверьте подключение к Интернету и настройки времени/даты.</string>
     <string name="insecure_device_title_safetynet">Предупреждение</string>
     <string name="insecure_device_header_safetynet">Ваше устройство может иметь пониженную безопасность</string>
     <string name="insecure_device_info_safetynet">Это может быть вызвано, например, управляемыми устройствами или активированным режимом разработчика. Из соображений безопасности мы не рекомендуем использовать приложение на взломанных устройствах.</string>
@@ -276,7 +276,7 @@
         <item quantity="other">новые рецепты</item>
     </plurals>
     <string name="prescription_status_ready">Можно выкупить</string>
-    <string name="prescription_status_in_progress">Осуществляется выкуп</string>
+    <string name="prescription_status_in_progress">В искуплении</string>
     <string name="prescription_status_completed">Выкуплен</string>
     <string name="prescription_status_unknown">Неизвестно</string>
     <string name="settings_show_audit_events">Показать протоколы доступа</string>
@@ -395,7 +395,7 @@
     <string name="settings_login_connected_devices">Привязанные устройства</string>
     <string name="paired_device_subtitle_our_device">Дата регистрации %s (данное устройство)</string>
     <string name="paired_device_subtitle">Дата регистрации %s</string>
-    <string name="mini_cdw_intro_description">В целях безопасности соединение с сервером рецептов прерывается через 12 часов. Для повторного подключения вам потребуется карта здоровья и PIN-код для каждого процесса подключения.</string>
+    <string name="mini_cdw_intro_description">В целях безопасности соединение с сервером предписаний прерывается через 12 часов. Для повторного подключения вам потребуется карта здоровья и PIN-код для каждого процесса подключения.</string>
     <string name="mini_cdw_pin_input_label">PIN-код</string>
     <string name="mini_cdw_pin_input_placeholder">Введите PIN-код (карточки здоровья)</string>
     <string name="mini_cdw_pin_next">Далее</string>
@@ -442,13 +442,13 @@
     <string name="unlock_egk_intro_puk">PUK-код вашей медицинской карточки</string>
     <string name="unlock_egk_next">Далее</string>
     <string name="health_card_section_header">Медицинская карточка</string>
-    <string name="health_card_section_order_card">Заказать новую карточку</string>
+    <string name="health_card_section_order_card">Заказать PIN-код или карту</string>
     <string name="cdw_intro_header">Войти</string>
     <string name="cdw_intro_info">Получайте рецепты онлайн и направляйте их в аптеку.</string>
     <string name="cdw_intro_nfc_card_needed">Медицинская карточка с поддержкой NFC</string>
     <string name="cdw_intro_pin_needed">PIN-код медицинской карточки</string>
     <string name="cdw_have_no_card_with_pin">У вас еще нет медицинской карточки с поддержкой NFC и PIN-кода?</string>
-    <string name="cdw_intro_order_now">Заказать сейчас</string>
+    <string name="cdw_intro_order_now">Применить сейчас</string>
     <string name="cdw_intro_alternate_auth_info">Или: войдите в систему с помощью %s.</string>
     <string name="cdw_intro_alternate_auth_info_link">Приложение вашей организации медицинского страхования</string>
     <string name="cdw_can_description">\"Номер доступа находится на вашей медицинской карточке в правом верхнем углу\".</string>
@@ -491,7 +491,7 @@
     <string name="cdw_selection_save">Сохранить</string>
     <string name="cdw_selection_save_not">Не сохранять</string>
     <string name="cdw_selection_hint_title">Указание</string>
-    <string name="cdw_selection_hint_info_">В целях безопасности соединение с сервером рецептов прерывается через 12 часов. Для повторного подключения вам потребуется карта здоровья и PIN-код для каждого процесса подключения.</string>
+    <string name="cdw_selection_hint_info_">В целях безопасности соединение с сервером предписаний прерывается через 12 часов. Для повторного подключения вам потребуется карта здоровья и PIN-код для каждого процесса подключения.</string>
     <string name="enroll_biometric_dialog_header">Настроить биометрическую защиту</string>
     <string name="enroll_biometric_dialog_info">Сохранение данных доступа невозможно. Сначала настройте на своем устройстве биометрическую защиту (например, с помощью отпечатка пальца).</string>
     <string name="enroll_biometric_dialog_cancel">Отмена</string>
@@ -559,7 +559,6 @@
     <string name="orders_generic_pharmacy_name">Аптека</string>
     <string name="unlock_egk_top_bar_title_change_secret">Выберите нужный PIN-код</string>
     <string name="unlock_egk_dialog_new_secret_saved">Желаемый PIN-код сохранен</string>
-    <string name="search_pharmacies_filter_e_prescription_ready">E-Rezept</string>
     <string name="search_pharmacies_filter_open_now_and_local">В настоящее время открыто и рядом со мной</string>
     <string name="search_pharmacies_filter_by">Сортировать по …</string>
     <string name="search_pharmacies_start_search">начать поиск</string>
@@ -629,7 +628,7 @@
     <string name="pres_detail_medication_label_note">Накладные</string>
     <string name="pres_detail_medication_label_bvg">Соответствует требованиям BVG</string>
     <string name="pres_detail_medication_label_subtitution">альтернативная подготовка</string>
-    <string name="medication_compounding_name">название рецепта</string>
+    <string name="medication_compounding_name">имя формулы</string>
     <string name="pres_detail_medication_label_packaging">Упаковка</string>
     <string name="pres_detail_medication_label_manufacturing">инструкция по изготовлению</string>
     <string name="medication_freetext_name">описание</string>
@@ -696,7 +695,7 @@
     <string name="unlock_password_not_found_header">Пароль не найден</string>
     <string name="unlock_password_not_found_info">На вашей карте не хранится пароль.</string>
     <string name="cdw_mini_alt_auth_removed_title">Вы вышли из системы</string>
-    <string name="cdw_mini_alt_auth_removed">Войдите снова, чтобы обновить свои рецепты.</string>
+    <string name="cdw_mini_alt_auth_removed">Войдите еще раз, чтобы обновить свои рецепты.</string>
     <string name="pres_detail_medication_label_ingredient_number">номер активного ингредиента</string>
     <string name="pres_detail_medication_label_ingredient_strength_unit">мощь и единство</string>
     <string name="received_x_min_ago">Активирован %s минут назад</string>
@@ -735,11 +734,11 @@
     <string name="pharmacy_order_collect">Забрать в аптеке</string>
     <string name="pharmacy_order_delivery">Доставка курьером</string>
     <string name="pharmacy_order_mail">Доставка по почте</string>
-    <string name="pharmacy_order_nr_of_prescriptions">%s Рецепты</string>
+    <string name="pharmacy_order_nr_of_prescriptions">%s рецептов</string>
     <string name="pharmacy_order_not_possible_title">Выкупить невозможно</string>
     <string name="pharmacy_order_not_possible_desc">Не удалось активировать один или несколько рецептов.</string>
     <string name="pharmacy_order_no_selected_prescriptions_title">Рецепт не выбран</string>
-    <string name="pharmacy_order_no_selected_prescriptions_desc">Чтобы активировать рецепты, необходимо выбрать хотя бы один рецепт.</string>
+    <string name="pharmacy_order_no_selected_prescriptions_desc">Чтобы выкупить рецепты, необходимо выбрать хотя бы один рецепт.</string>
     <string name="pharmacy_order_add_contacts">Добавить контактную информацию</string>
     <string name="pharmacy_order_change_contacts">Изменить</string>
     <string name="pharmacy_order_no_prescriptions_title">Без рецепта</string>
@@ -750,7 +749,7 @@
     <string name="pharmacy_order_select_prescriptions">выбирать рецепты</string>
     <string name="main_screen_tooltip_1_content">Нажмите здесь, чтобы отсканировать рецепты</string>
     <string name="main_screen_tooltip_2_content">Длительное нажатие для редактирования имен</string>
-    <string name="main_screen_tooltip_3_content">Добавьте больше профилей, например, для ваших детей или родителей.</string>
+    <string name="main_screen_tooltip_3_content">Добавьте больше профилей, например, для ваших детей или родителей</string>
     <string name="main_screen_tooltip_tap_screen">Нажмите на дисплей, чтобы пропустить отображаемую всплывающую подсказку.</string>
     <string name="order_onb_how_to_title">Как выкупить?</string>
     <string name="order_onb_how_to_desc">Как бы вы хотели получить лекарство?</string>
@@ -762,7 +761,7 @@
     <string name="local_redeem_grouped_codes">коллективный код</string>
     <string name="local_redeem_single_codes">отдельные коды</string>
     <plurals name="online_redeem_rx_desc">
-        <item quantity="one">У вас %s рецепт.</item>
+        <item quantity="one">У вас есть %s рецепт .</item>
         <item quantity="few"></item>
         <item quantity="many"></item>
         <item quantity="other">У вас есть %s рецептов.</item>
@@ -779,20 +778,20 @@
     <string name="ml_info_header">О сканере кода рецепта</string>
     <string name="ml_pararaph_1_header">Какие данные содержит код рецепта?</string>
     <string name="ml_pararaph_1_info">Код рецепта содержит только идентификатор рецепта. Это позволяет найти рецепт в службе рецептов в цифровой сети здравоохранения. Код рецепта не содержит никаких данных о вас или вашем лекарстве.</string>
-    <string name="ml_pararaph_2_header">То есть никто ничего не может сделать только с кодом рецепта?</string>
+    <string name="ml_pararaph_2_header">То есть никто ничего не может сделать с одним только кодом рецепта?</string>
     <string name="ml_pararaph_2_info">Правильный. Данные рецепта должны быть загружены из службы рецептов. Для этого требуется безопасный вход.</string>
     <string name="ml_pararaph_3_header">Кто может зарегистрироваться в службе рецептов?</string>
     <string name="ml_pararaph_3_info">Регистрация в службе рецептов в сети цифрового здравоохранения возможна для застрахованных лиц, аптек, врачебных кабинетов и больниц.</string>
     <string name="ml_pararaph_4_header">Почему приложение электронных рецептов использует функции Google?</string>
     <string name="ml_pararaph_4_info">Google предлагает функции, которые можно легко встроить в приложения и которые Google постоянно разрабатывает и обновляет. Это гарантирует, что функции работают на многих различных конечных устройствах и могут работать безопасно. Приложение использует функцию для улучшения функций камеры и сканирования для устройств Android (Google ML Kit).</string>
     <string name="ml_pararaph_5_header">Как работает улучшение сканирования Google ML Kit?</string>
-    <string name="ml_pararaph_5_info">Google ML Kit помогает оптимизировать изображение, снятое камерой, чтобы коды рецептов можно было считывать даже в условиях плохого освещения или с более старыми моделями камер.</string>
+    <string name="ml_pararaph_5_info">Google ML Kit помогает оптимизировать изображение, снятое камерой, чтобы коды предписаний можно было считывать даже в условиях плохого освещения или на старых моделях камер.</string>
     <string name="ml_pararaph_6_header">Будут ли данные о рецепте или моем лекарстве передаваться в Google?</string>
-    <string name="ml_pararaph_6_info">нет Прочитанный код рецепта сохраняется прямо в приложении. Он не будет передан в Google. Данные рецепта не хранятся в коде, только в цифровой сети здравоохранения. Оттуда они отправляются в приложение. Google не имеет доступа к сети цифрового здравоохранения.</string>
+    <string name="ml_pararaph_6_info">Нет. Считанный код рецепта сохраняется непосредственно в приложении и не передается в Google. Данные рецепта не хранятся в коде, только в цифровой сети здравоохранения. Оттуда они отправляются в приложение. Google не имеет доступа к сети цифрового здравоохранения.</string>
     <string name="ml_pararaph_7_header">Какие данные обрабатывает Google при использовании ML Kit?</string>
-    <string name="ml_pararaph_7_info">Google имеет доступ только к технической информации об используемом конечном устройстве и общем использовании дополнительной функции (например, частота ошибок, настройки камеры) только для статистической регистрации и, таким образом, улучшения дополнительной функции. При доступе Google временно записывает IP-адрес вашего конечного устройства. Информация о вас и содержании рецепта не будет записана Google.</string>
+    <string name="ml_pararaph_7_info">Google имеет доступ только к технической информации об используемом конечном устройстве и общем использовании дополнительной функции (например, частоте ошибок, настройках камеры) только для статистической регистрации и, таким образом, улучшения дополнительной функции. При доступе Google временно записывает IP-адрес вашего конечного устройства. Информация о вас и содержании рецепта не будет записана Google.</string>
     <string name="ml_pararaph_8_header">Является ли использование Google ML Kit добровольным?</string>
-    <string name="ml_pararaph_8_info">Да. Однако ML Kit встроен в сканер кода рецепта в Android-версии приложения для электронных рецептов. Если вы используете сканер кода рецепта на устройстве Android, функция ML Kit также всегда используется. Однако можно обойтись и без использования сканера кода рецепта. Ваши рецепты также могут быть загружены в приложение, если вы зарегистрируетесь в сети цифрового здравоохранения с помощью электронной карты здоровья или через приложение медицинского страхования.</string>
+    <string name="ml_pararaph_8_info">да Однако ML Kit встроен в сканер кодов рецептов в Android-версии приложения электронных рецептов.Если вы используете сканер кодов рецептов на устройстве Android, функция ML Kit также всегда используется. Однако можно обойтись и без использования сканера кодов предписаний. Ваши рецепты также могут быть загружены в приложение, если вы зарегистрируетесь в сети цифрового здравоохранения с помощью электронной карты здоровья или через приложение медицинского страхования.</string>
     <string name="ml_pararaph_9_header">Могу ли я увидеть, кто просматривал мои рецепты?</string>
     <string name="ml_pararaph_9_info">Да. Весь доступ к вашим данным полностью регистрируется в цифровой сети здравоохранения. В приложении электронного рецепта вы можете увидеть, кто получил доступ к вашим данным.</string>
     <string name="ml_pararaph_10_header">С кем я могу связаться, если у меня есть вопросы о приложении или электронном рецепте?</string>
@@ -863,4 +862,12 @@
     <string name="profile_delete_invoice_header">Реально удалить?</string>
     <string name="profile_delete_invoice_info">Файл будет удален с вашего устройства и с сервера.</string>
     <string name="profile_delete_invoice">Удалить</string>
+    <string name="prescription_status_sent">Опубликовано</string>
+    <string name="edit_shipping_contact_postal_code">Почтовый индекс</string>
+    <string name="edit_shipping_contact_city">Населенный пункт</string>
+    <string name="edit_shipping_contact_error_postal_code">Пожалуйста, введите свой почтовый индекс, чтобы связаться с нами.</string>
+    <string name="edit_shipping_contact_error_city">Пожалуйста, укажите место жительства при обращении к нам.</string>
+    <string name="prescription_status_direct_assignment_ready">Будет искуплен для вас</string>
+    <string name="prescription_status_direct_assignment_closed">Был искуплен за тебя</string>
+    <string name="connect_for_pharmacy_service">Вы должны войти в систему, чтобы использовать эту услугу.</string>
 </resources>

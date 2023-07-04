@@ -103,6 +103,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.trackPharmacySearchPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
@@ -384,6 +385,12 @@ private fun ScaffoldWithMap(
 
     var showNoLocationDialog by remember { mutableStateOf(false) }
 
+    @Requirement(
+        "A_20193#1",
+        "A_21154",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Request user permission for location services."
+    )
     val locationPermissionLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
             if (permissions.values.any { it }) {

@@ -59,7 +59,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _ ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(21.04, totalBruttoAmount)
                     assertEquals("EUR", currency)
@@ -142,7 +142,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _ ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(31.4, totalBruttoAmount)
                     assertEquals("EUR", currency)
@@ -225,7 +225,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _ ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(24.32, totalBruttoAmount)
                     assertEquals("EUR", currency)
@@ -322,7 +322,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _ ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(82.68, totalBruttoAmount)
                     assertEquals("EUR", currency)
@@ -405,7 +405,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _ ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(42.77, totalBruttoAmount)
                     assertEquals("EUR", currency)
@@ -488,7 +488,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _ ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(63.84, totalBruttoAmount)
                     assertEquals("EUR", currency)
@@ -561,7 +561,7 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 8`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_8)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle) { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.108.757.032.088.60", taskId)
             val erpBinary = extractBinary(erpPrBundle)
@@ -585,7 +585,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, additionalItem ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, additionalItems, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(50.97, totalBruttoAmount)
                     assertEquals("EUR", currency)
@@ -609,14 +609,14 @@ class InvoiceMapperTest {
                             InvoiceData.ChargeableItem.Description.PZN("17543785"),
                             "",
                             0.1,
-                            InvoiceData.PriceComponent(0.0, 0.0)
+                            InvoiceData.PriceComponent(42.83, 0.0)
                         ),
-                        additionalItem
+                        additionalItems[0]
                     )
 
                     assertEquals(
                         false,
-                        (additionalItem?.description as InvoiceData.ChargeableItem.Description.PZN).isSpecialPZN()
+                        (additionalItems[0].description as InvoiceData.ChargeableItem.Description.PZN).isSpecialPZN()
                     )
 
                     PKVReturnType.Invoice
@@ -652,7 +652,98 @@ class InvoiceMapperTest {
                     PKVReturnType.InvoiceBundle
                 }
             )
-        })
+        }
+    }
+
+    @Test
+    fun `process chargeItem compounding`() {
+        val bundle = Json.parseToJsonElement(chargeItem_compounding)
+
+        extractInvoiceKBVAndErpPrBundle(bundle) { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+
+            assertEquals("200.858.310.624.061.76", taskId)
+            val erpBinary = extractBinary(erpPrBundle)
+            val invoiceBinary = extractBinary(invoiceBundle)
+            val kbvBinary = extractBinary(kbvBundle)
+
+            assertEquals(
+                "aYDkjPosw3Sa5dX5EmSghwhVg7d9jhoXHdwszETXV/8=",
+                erpBinary?.decodeToString()
+            )
+
+            assertEquals(
+                "Y2RjMTVjNThkMzlkMjllNDdjMTk1MjIzNDlkODRjMThiNTliYTZkMGFhZmI5NGYyZjM2NDFkNGJiZTk1ODhiMQ==",
+                invoiceBinary?.decodeToString()
+            )
+
+            assertEquals(
+                "Y2RjMTVjNThkMzlkMjllNDdjMTk1MjIzNDlkODRjMThiNTliYTZkMGFhZmI5NGYyZjM2NDFkNGJiZTk1ODhiMQ==",
+                kbvBinary?.decodeToString()
+            )
+
+            extractInvoiceBundle(
+                invoiceBundle,
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, additionalInfo ->
+                    assertEquals(0.0, totalAdditionalFee)
+                    assertEquals(31.7, totalBruttoAmount)
+                    assertEquals("EUR", currency)
+
+                    assertEquals(
+                        InvoiceData.ChargeableItem(
+                            InvoiceData.ChargeableItem.Description.TA1("09999011"),
+                            "Rezeptur",
+                            1.0,
+                            InvoiceData.PriceComponent(31.7, 19.0)
+                        ),
+                        items[0]
+                    )
+                    assertEquals(
+                        false,
+                        (items[0].description as InvoiceData.ChargeableItem.Description.TA1).isSpecialPZN()
+                    )
+
+                    assertEquals(
+                        listOf(
+                            "Bestandteile: 03110083 0.4328 5.84 / 01096858 0.39956 5.5 / " +
+                                "00538343 1.0 0.95 / 06460518 1.0 6.0 / 06460518 1.0 8.35  (Nettopreise)"
+                        ),
+                        additionalInfo
+                    )
+
+                    PKVReturnType.Invoice
+                },
+                processDispense = { whenHandedOver ->
+                    assertEquals(LocalDate.parse("2023-07-03").asFhirTemporal(), whenHandedOver)
+
+                    PKVReturnType.Dispense
+                },
+                processPharmacyAddress = { line, postalCode, city ->
+                    assertEquals(listOf("Taunusstraße 89"), line)
+                    assertEquals("63225", postalCode)
+                    assertEquals("Langen", city)
+
+                    PKVReturnType.PharmacyAddress
+                },
+                processPharmacy = { name, address, bsnr, iknr, phone, mail ->
+                    assertEquals("Adler-Apotheke", name)
+                    assertEquals(PKVReturnType.PharmacyAddress, address)
+                    assertEquals(null, bsnr)
+                    assertEquals("308412345", iknr)
+                    assertEquals(null, phone)
+                    assertEquals(null, mail)
+
+                    PKVReturnType.Pharmacy
+                },
+                save = { taskId, _, pharmacy, invoice, dispense ->
+                    assertEquals("200.858.310.624.061.76", taskId)
+                    assertEquals(PKVReturnType.Pharmacy, pharmacy)
+                    assertEquals(PKVReturnType.Invoice, invoice)
+                    assertEquals(PKVReturnType.Dispense, dispense)
+
+                    PKVReturnType.InvoiceBundle
+                }
+            )
+        }
     }
 
     @Test
@@ -692,7 +783,7 @@ class InvoiceMapperTest {
 
             extractInvoiceBundle(
                 invoiceBundle,
-                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _ ->
+                processInvoice = { totalAdditionalFee, totalBruttoAmount, currency, items, _, _ ->
                     assertEquals(0.0, totalAdditionalFee)
                     assertEquals(36.15, totalBruttoAmount)
                     assertEquals("EUR", currency)

@@ -29,6 +29,7 @@ val CommunicationWaitStateDelta: Duration = 10.minutes
 
 // gemSpec_FD_eRp: A_21267 Prozessparameter - Berechtigungen für Nutzer
 const val DIRECT_ASSIGNMENT_INDICATOR = "169" // direct assignment taskID starts with 169
+const val DIRECT_ASSIGNMENT_INDICATOR_PKV = "209" // pkv direct assignment taskID starts with 209
 
 object SyncedTaskData {
     enum class TaskStatus {
@@ -161,7 +162,7 @@ object SyncedTaskData {
         }
 
         fun isDirectAssignment() =
-            taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR)
+            taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR) || taskId.startsWith(DIRECT_ASSIGNMENT_INDICATOR_PKV)
 
         fun isDeletable() =
             when {

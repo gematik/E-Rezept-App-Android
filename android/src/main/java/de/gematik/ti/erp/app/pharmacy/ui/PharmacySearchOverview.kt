@@ -236,7 +236,6 @@ private fun OverviewContent(
             ) {
                 onFilterChange(
                     searchFilter.copy(
-                        ready = true,
                         onlineService = false,
                         deliveryService = false,
                         openNow = false
@@ -355,7 +354,6 @@ private fun FilterSection(
                 onClick(
                     filter.copy(
                         nearBy = true,
-                        ready = true,
                         openNow = true,
                         deliveryService = false,
                         onlineService = false
@@ -372,7 +370,6 @@ private fun FilterSection(
                 onClick(
                     filter.copy(
                         nearBy = true,
-                        ready = true,
                         deliveryService = true,
                         onlineService = false,
                         openNow = false
@@ -389,7 +386,6 @@ private fun FilterSection(
                 onClick(
                     filter.copy(
                         nearBy = false,
-                        ready = true,
                         onlineService = true,
                         deliveryService = false,
                         openNow = false

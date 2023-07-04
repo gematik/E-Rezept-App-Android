@@ -71,6 +71,7 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.NfcNotEnabledException
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.cardwall.ui.ReadingCardAnimation
 import de.gematik.ti.erp.app.cardwall.ui.SearchingCardAnimation
 import de.gematik.ti.erp.app.cardwall.ui.TagLostCard
@@ -207,6 +208,14 @@ class HealthCardPromptAuthenticator(
         profile = null
     }
 
+    @Requirement(
+        "A_19937",
+        "A_20079",
+        "A_20605#1",
+        "GS-A_5542",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Propagates IDP auth states to the user."
+    )
     private fun AuthenticationState.emitAuthState() {
         when {
             isInProgress() -> {
@@ -553,6 +562,13 @@ private fun HealthCardAnimation(
     }
 }
 
+@Requirement(
+    "A_20079",
+    "A_20085",
+    "A_20605#2",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Display error messages from endpoint."
+)
 @Composable
 private fun HealthCardErrorDialog(
     state: HealthCardPromptAuthenticator.State.ReadState.Error,

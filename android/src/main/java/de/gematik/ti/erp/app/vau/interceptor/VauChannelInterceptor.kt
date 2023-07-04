@@ -23,6 +23,7 @@ import androidx.core.content.edit
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.VauChannelSpec
@@ -52,6 +53,12 @@ private const val VAU_USER_ALIAS_PREF_KEY = "VAU_USER_ALIAS"
  */
 class VauException(e: Exception) : IOException(e)
 
+@Requirement(
+    "A_20161-01#4",
+    "A_20174#1  ",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "Handle VAU response."
+)
 class VauChannelInterceptor(
     endpointHelper: EndpointHelper,
     private val truststore: TruststoreUseCase,
@@ -59,7 +66,6 @@ class VauChannelInterceptor(
     private val dispatchers: DispatchProvider,
     private val networkSecPrefs: SharedPreferences
 ) : Interceptor {
-    // `gemSpec_Krypt A_20175`
     private var previousUserAlias = networkSecPrefs.getString(VAU_USER_ALIAS_PREF_KEY, null) ?: "0"
         set(v) {
             field = v

@@ -70,6 +70,7 @@ import com.google.zxing.BarcodeFormat
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.datamatrix.DataMatrixWriter
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderState
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -83,6 +84,11 @@ import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.roundToInt
 
+@Requirement(
+    "A_20181",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Only the title of the prescription and the DMC consisting of Task-ID and Access-Code are displayed."
+)
 @OptIn(ExperimentalPagerApi::class)
 @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
@@ -203,6 +209,11 @@ fun LocalRedeemScreen(
     }
 }
 
+@Requirement(
+    "A_19183#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "User displays a DMC to redeem a prescription in a pharmacy."
+)
 @Composable
 private fun DataMatrix(
     modifier: Modifier,

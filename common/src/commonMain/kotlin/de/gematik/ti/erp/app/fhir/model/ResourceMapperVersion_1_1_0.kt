@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.fhir.model
 import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedBoolean
+import de.gematik.ti.erp.app.fhir.parser.containedBooleanOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedInt
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
@@ -254,7 +255,8 @@ fun <MedicationRequest, MultiplePrescriptionInfo, Ratio, Quantity> extractMedica
             stringValue("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee")
         ).firstOrNull()?.containedBoolean("valueBoolean")
 
-    val substitutionAllowed = resource.contained("substitution").containedBoolean("allowedBoolean")
+    val substitutionAllowed = resource.containedOrNull("substitution")
+        ?.containedBooleanOrNull("allowedBoolean") ?: false
 
     val dosageInstruction = resource.containedOrNull("dosageInstruction")?.containedStringOrNull("text")
     val multiplePrescriptionInfo = resource

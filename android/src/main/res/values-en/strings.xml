@@ -210,7 +210,7 @@
     <string name="insecure_device_accept">Do not show this message in future.</string>
     <string name="error_message_network_not_available">Connection failed. A network connection could not be created.</string>
     <string name="error_message_server_communication_failed">Communication with the server failed: status code %s.</string>
-    <string name="error_message_vau_error">Communication with the server failed: VAU error</string>
+    <string name="error_message_vau_error">Failed to communicate with the server: Please check the internet connection and the time/date settings.</string>
     <string name="insecure_device_title_safetynet">Warning</string>
     <string name="insecure_device_header_safetynet">Your device may have reduced security</string>
     <string name="insecure_device_info_safetynet">This can be caused, for example, by manipulated devices or an activated developer mode. For security reasons, we do not recommend using the app on jailbroken devices.</string>
@@ -264,7 +264,7 @@
         <item quantity="other">%s new prescriptions</item>
     </plurals>
     <string name="prescription_status_ready">Can be redeemed</string>
-    <string name="prescription_status_in_progress">Being redeemed</string>
+    <string name="prescription_status_in_progress">In redemption</string>
     <string name="prescription_status_completed">Redeemed</string>
     <string name="prescription_status_unknown">Unknown</string>
     <string name="settings_show_audit_events">Show access logs</string>
@@ -381,7 +381,7 @@
     <string name="settings_login_connected_devices">Connected devices</string>
     <string name="paired_device_subtitle_our_device">Registered since %s (this device)</string>
     <string name="paired_device_subtitle">Registered since %s</string>
-    <string name="mini_cdw_intro_description">For security reasons, the connection to the recipe server is terminated after 12 hours. To reconnect, you need a health card and PIN for each connection process.</string>
+    <string name="mini_cdw_intro_description">For security reasons, the connection to the prescription server is terminated after 12 hours. To reconnect, you need a health card and PIN for each connection process.</string>
     <string name="mini_cdw_pin_input_label">PIN</string>
     <string name="mini_cdw_pin_input_placeholder">Enter your PIN (medical card).</string>
     <string name="mini_cdw_pin_next">Next</string>
@@ -428,7 +428,7 @@
     <string name="unlock_egk_intro_puk">Medical card PUK</string>
     <string name="unlock_egk_next">Next</string>
     <string name="health_card_section_header">Medical card</string>
-    <string name="health_card_section_order_card">Order new card</string>
+    <string name="health_card_section_order_card">Order PIN or card</string>
     <string name="cdw_intro_header">Log in</string>
     <string name="cdw_intro_info">Receive prescriptions online and forward them to a pharmacy.</string>
     <string name="cdw_intro_nfc_card_needed">NFC-enabled medical card</string>
@@ -475,7 +475,7 @@
     <string name="cdw_selection_save">Save</string>
     <string name="cdw_selection_save_not">Do not save</string>
     <string name="cdw_selection_hint_title">Note</string>
-    <string name="cdw_selection_hint_info_">For security reasons, the connection to the recipe server is terminated after 12 hours. To reconnect, you need a health card and PIN for each connection process.</string>
+    <string name="cdw_selection_hint_info_">For security reasons, the connection to the prescription server is terminated after 12 hours. To reconnect, you need a health card and PIN for each connection process.</string>
     <string name="enroll_biometric_dialog_header">Set up biometric protection</string>
     <string name="enroll_biometric_dialog_info">Access data cannot be saved. Set up biometric protection (e.g. fingerprint) on your device beforehand.</string>
     <string name="enroll_biometric_dialog_cancel">Cancel</string>
@@ -487,7 +487,7 @@
     <string name="cdw_info_second">Using biometric protection for your access data means that you can launch this app in future without your medical card and PIN in order to view, retrieve, redeem or delete prescriptions.</string>
     <string name="cdw_info_third">Please be aware that people with whom you may share this device and whose biometrics may be stored on this device or who have the device PIN, swipe pattern or password may also have access to your prescriptions.</string>
     <string name="main_fasttrack_error_title">Unfortunately that didn\'t work</string>
-    <string name="main_fasttrack_error_info">Authentication with the health insurance company\'s app was successful.</string>
+    <string name="main_fasttrack_error_info">Authentication with the health insurance company\'s app was not successful.</string>
     <string name="pres_detail_medication_expired_on">Expired on %s</string>
     <string name="prescription_not_found">The prescription has already been deleted from the server</string>
     <string name="edit_contact_back_alert_information">Please correct your input or discard changes</string>
@@ -513,7 +513,7 @@
     <string name="main_empty_screen_tokens_removed_connect_now">Connect to the prescription server now?</string>
     <string name="token_screen_no_token_header">No tokens</string>
     <string name="token_screen_no_token_info">You will receive a token when you are logged in to the prescription service.\n</string>
-    <string name="pres_bottombar_orders">orders</string>
+    <string name="pres_bottombar_orders">Orders</string>
     <string name="health_card_section_unlock_card_reset_pin">Select desired PIN</string>
     <string name="health_card_section_unlock_card_no_reset">Unlock card</string>
     <string name="unlock_egk_choose_new_secret_label">Choose PIN</string>
@@ -543,7 +543,6 @@
     <string name="orders_generic_pharmacy_name">Pharmacy</string>
     <string name="unlock_egk_top_bar_title_change_secret">Select desired PIN</string>
     <string name="unlock_egk_dialog_new_secret_saved">Desired PIN saved</string>
-    <string name="search_pharmacies_filter_e_prescription_ready">E-prescription</string>
     <string name="search_pharmacies_filter_open_now_and_local">Currently open and near me</string>
     <string name="search_pharmacies_filter_by">Filter by …</string>
     <string name="search_pharmacies_start_search">start search</string>
@@ -582,8 +581,8 @@
     <string name="prescription_detail_aut_idem_chip">Substitute medication possible</string>
     <string name="health_card_section_unlock_card_forgot_pin">Forgot PIN</string>
     <plurals name="orders_plurals_label_nr_of_prescriptions">
-        <item quantity="one">%s Recipe</item>
-        <item quantity="other">%s Recipes</item>
+        <item quantity="one">%s Prescription</item>
+        <item quantity="other">%s Prescriptions</item>
     </plurals>
     <string name="onboarding_data_terms_info">I have read and accept the privacy policy and terms of use.</string>
     <string name="onboarding_data_button">Privacy Policy</string>
@@ -611,7 +610,7 @@
     <string name="pres_detail_medication_label_note">Delivery Notes</string>
     <string name="pres_detail_medication_label_bvg">Eligible according to BVG</string>
     <string name="pres_detail_medication_label_subtitution">alternative preparation</string>
-    <string name="medication_compounding_name">recipe name</string>
+    <string name="medication_compounding_name">formula name</string>
     <string name="pres_detail_medication_label_packaging">Packaging</string>
     <string name="pres_detail_medication_label_manufacturing">crafting instruction</string>
     <string name="medication_freetext_name">description</string>
@@ -635,7 +634,7 @@
     <string name="pres_details_exp_sub_allowed_info">Due to the legal requirements of your health insurance company, you can be given an alternative with the same active ingredient. \n\n Medicines can look and be called differently, have different prices and manufacturers, but still contain the same active ingredient. The active ingredient itself and the dosage are particularly important for the effect of drugs in the body. Patients in the pharmacy often get a different drug than the one prescribed by the doctor on the prescription - provided the drugs are comparable. There can be therapeutic and economic reasons for the change.</string>
     <string name="pres_details_exp_scanned_title">Scanned prescription</string>
     <string name="pres_details_exp_scanned_info">For security reasons, prescriptions imported from a paper printout must not display any personal or medical data. \n\n Sign in to this app with health card or insurance app to view all information contained in the prescription.</string>
-    <string name="pres_details_exp_failure_title">Recipe incorrect</string>
+    <string name="pres_details_exp_failure_title">Prescription incorrect</string>
     <string name="pres_details_exp_failure_info">This prescription was issued incorrectly.</string>
     <string name="pres_details_scanned_prescription">Scanned prescription</string>
     <string name="pres_details_emergency_fee">emergency service fee</string>
@@ -678,14 +677,14 @@
     <string name="unlock_password_not_found_header">Password not found</string>
     <string name="unlock_password_not_found_info">There is no password stored on your card.</string>
     <string name="cdw_mini_alt_auth_removed_title">You have been logged out</string>
-    <string name="cdw_mini_alt_auth_removed">Sign in again to update your recipes.</string>
+    <string name="cdw_mini_alt_auth_removed">Sign in again to update your prescriptions.</string>
     <string name="pres_detail_medication_label_ingredient_number">active ingredient number</string>
     <string name="pres_detail_medication_label_ingredient_strength_unit">potency and unity</string>
     <string name="received_x_min_ago">Redeemed %s minutes ago</string>
     <string name="received_on_day">Redeemed on %s</string>
     <string name="received_now">Redeemed just now</string>
     <string name="received_on_minute">Redeemed at %s o\'clock</string>
-    <string name="orders_title">orders</string>
+    <string name="orders_title">Orders</string>
     <string name="pres_details_direct_assignment_received_state">This prescription was redeemed for you as part of a treatment.</string>
     <string name="pres_details_exp_em_fee_title">emergency service fee</string>
     <string name="pres_details_exp_em_fee_info">This prescription cannot be filled at night in a pharmacy without the additional payment of an emergency service fee.</string>
@@ -696,10 +695,10 @@
     <string name="mainscreen_profile_chip_content_description">Hold to edit the name.</string>
     <string name="profile_edit_name_for_rename_info">Enter the new name for the profile.</string>
     <string name="mainscreen_welcome_drawer_info">You must be logged in to receive digital prescriptions from your practice.</string>
-    <string name="mainscreen_welcome_drawer_header">Receive recipes digitally?</string>
+    <string name="mainscreen_welcome_drawer_header">Receive prescriptions digitally?</string>
     <string name="mainscreen_empty_connected_info">Drag the screen down to refresh.</string>
     <string name="mainscreen_empty_content_header">No prescriptions</string>
-    <string name="mainscreen_empty_not_connected_info">Add recipes using the + button in the top right corner.</string>
+    <string name="mainscreen_empty_not_connected_info">Add prescriptions using the + button in the top right corner.</string>
     <string name="mainscreen_login">log in</string>
     <string name="archived_prescriptions_button">Redeemed prescriptions</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Vielleicht später</string>
@@ -717,11 +716,11 @@
     <string name="pharmacy_order_collect">Pick up at the pharmacy</string>
     <string name="pharmacy_order_delivery">Delivery by courier</string>
     <string name="pharmacy_order_mail">Delivery by mail</string>
-    <string name="pharmacy_order_nr_of_prescriptions">%s Recipes</string>
+    <string name="pharmacy_order_nr_of_prescriptions">%s Prescriptions</string>
     <string name="pharmacy_order_not_possible_title">Redeem not possible</string>
     <string name="pharmacy_order_not_possible_desc">One or more prescriptions could not be redeemed.</string>
-    <string name="pharmacy_order_no_selected_prescriptions_title">No recipe selected</string>
-    <string name="pharmacy_order_no_selected_prescriptions_desc">To redeem recipes, at least one recipe must be selected.</string>
+    <string name="pharmacy_order_no_selected_prescriptions_title">No prescription selected</string>
+    <string name="pharmacy_order_no_selected_prescriptions_desc">To redeem prescriptions, at least one prescription must be selected.</string>
     <string name="pharmacy_order_add_contacts">Add contact information</string>
     <string name="pharmacy_order_change_contacts">To change</string>
     <string name="pharmacy_order_no_prescriptions_title">No prescription</string>
@@ -729,10 +728,10 @@
     <string name="pharmacy_order_opt_collect">pickup</string>
     <string name="pharmacy_order_opt_delivery">delivery boy</string>
     <string name="pharmacy_order_opt_mail">Mail order</string>
-    <string name="pharmacy_order_select_prescriptions">choose recipes</string>
-    <string name="main_screen_tooltip_1_content">Tap here to scan recipes</string>
+    <string name="pharmacy_order_select_prescriptions">choose prescriptions</string>
+    <string name="main_screen_tooltip_1_content">Tap here to scan prescriptions</string>
     <string name="main_screen_tooltip_2_content">Long press to edit names</string>
-    <string name="main_screen_tooltip_3_content">Add more profiles, eg for your children or parents.</string>
+    <string name="main_screen_tooltip_3_content">Add more profiles, eg for your children or parents</string>
     <string name="main_screen_tooltip_tap_screen">Click on the display to skip the displayed tool tip.</string>
     <string name="order_onb_how_to_title">How to redeem?</string>
     <string name="order_onb_how_to_desc">How would you like to receive your medication?</string>
@@ -745,35 +744,35 @@
     <string name="local_redeem_single_codes">single codes</string>
     <plurals name="online_redeem_rx_desc">
         <item quantity="one">You have %s prescription.</item>
-        <item quantity="other">You have %s recipes.</item>
+        <item quantity="other">You have %s prescriptions.</item>
     </plurals>
     <string name="online_redeem_choose_rx">Make a selection</string>
-    <string name="online_redeem_choose_all_rx">All recipes</string>
-    <string name="online_redeem_choose_rx_title">Which recipes?</string>
+    <string name="online_redeem_choose_all_rx">All prescriptions</string>
+    <string name="online_redeem_choose_rx_title">Which prescriptions?</string>
     <string name="rx_selection_next">Next</string>
     <string name="mlkit_intro_accept">Next</string>
     <string name="mlkit_intro_read_more">Find out more</string>
     <string name="mlkit_intro_header">Note</string>
     <string name="mlkit_intro_info">This app uses software from Google to recognize codes.</string>
     <string name="ml_information_title">Find out more</string>
-    <string name="ml_info_header">About the recipe code scanner</string>
-    <string name="ml_pararaph_1_header">What data does the recipe code contain?</string>
-    <string name="ml_pararaph_1_info">The recipe code contains only an identifier of the recipe. This allows the prescription to be found on the prescription service in the digital health network. The prescription code does not contain any data about you or your medication.</string>
-    <string name="ml_pararaph_2_header">So nobody can do anything with the recipe code alone?</string>
+    <string name="ml_info_header">About the prescription code scanner</string>
+    <string name="ml_pararaph_1_header">What data does the prescription code contain?</string>
+    <string name="ml_pararaph_1_info">The prescription code contains only an identifier of the prescription. This allows the prescription to be found on the prescription service in the digital health network. The prescription code does not contain any data about you or your medication.</string>
+    <string name="ml_pararaph_2_header">So nobody can do anything with the prescription code alone?</string>
     <string name="ml_pararaph_2_info">Correct. The prescription data must be downloaded from the prescription service. This requires a secure login.</string>
     <string name="ml_pararaph_3_header">Who can register for the prescription service?</string>
     <string name="ml_pararaph_3_info">Registering with the prescription service in the digital health network is possible for insured persons, pharmacies, medical practices and hospitals.</string>
     <string name="ml_pararaph_4_header">Why does the e-prescription app use Google features?</string>
     <string name="ml_pararaph_4_info">Google offers functions that can be easily built into apps and that are constantly being developed and updated by Google. This ensures that the functions work on many different end devices and can be operated securely. The app uses a feature to improve camera and scanning functionality for Android devices (Google ML Kit).</string>
     <string name="ml_pararaph_5_header">How does Google ML Kit scan enhancement work?</string>
-    <string name="ml_pararaph_5_info">Google ML Kit helps to optimize the image captured by a camera so that the recipe codes can be read even in poor lighting conditions or with older camera models.</string>
+    <string name="ml_pararaph_5_info">Google ML Kit helps to optimize the image captured by a camera so that the prescription codes can be read even in poor lighting conditions or with older camera models.</string>
     <string name="ml_pararaph_6_header">Will data about the prescription or my medication be passed on to Google?</string>
-    <string name="ml_pararaph_6_info">no The read recipe code is saved directly in the app. It will not be passed on to Google. The prescription data is not stored in the code, only in the digital health network. From there they are sent to the app. Google does not have access to the digital health network.</string>
+    <string name="ml_pararaph_6_info">No. The read prescription code is saved directly in the app. It will not be passed on to Google. The prescription data is not stored in the code, only in the digital health network. From there they are sent to the app. Google does not have access to the digital health network.</string>
     <string name="ml_pararaph_7_header">What data does Google process when using ML Kit?</string>
-    <string name="ml_pararaph_7_info">Google only has access to technical information about the end device used and the general use of the additional function (e.g. error rate, camera settings) in order to record this statistically and thus improve the additional function. When you access, Google temporarily records the IP address of your end device. Information about you and the contents of the recipe will not be recorded by Google.</string>
+    <string name="ml_pararaph_7_info">Google only has access to technical information about the end device used and the general use of the additional function (e.g. error rate, camera settings) in order to record this statistically and thus improve the additional function. When you access, Google temporarily records the IP address of your end device. Information about you and the contents of the prescription will not be recorded by Google.</string>
     <string name="ml_pararaph_8_header">Is the use of Google ML Kit voluntary?</string>
-    <string name="ml_pararaph_8_info">Yes. However, ML Kit is built into the recipe code scanner in the Android version of the e-prescription app. If you use the recipe code scanner on an Android device, the ML Kit function is also always used. However, you can do without using the recipe code scanner. Your prescriptions can also be loaded into the app if you register with the digital health network with the electronic health card or via your health insurance app.</string>
-    <string name="ml_pararaph_9_header">Can I see who has viewed my recipes?</string>
+    <string name="ml_pararaph_8_info">Yes. However, ML Kit is built into the prescription code scanner in the Android version of the e-prescription app. If you use the prescription code scanner on an Android device, the ML Kit function is also always used. However, you can do without using the prescription code scanner. Your prescriptions can also be loaded into the app if you register with the digital health network with the electronic health card or via your health insurance app.</string>
+    <string name="ml_pararaph_9_header">Can I see who has viewed my prescriptions?</string>
     <string name="ml_pararaph_9_info">Yes. All access to your data is fully logged in the digital health network. In the e-prescription app you can see who has accessed your data.</string>
     <string name="ml_pararaph_10_header">Who can I contact if I have questions about the app or the e-prescription?</string>
     <string name="ml_pararaph_10_info">You can find detailed information in the data protection declaration.</string>
@@ -803,7 +802,7 @@
     <string name="profile_revoke_consent_header">disable function</string>
     <string name="profile_revoke_consent_info">This will delete all receipts from this device and from the server.</string>
     <string name="profile_grant_consent_header">Receive expense receipts</string>
-    <string name="profile_grant_consent_info">Your cost receipts are also saved on the recipe server.</string>
+    <string name="profile_grant_consent_info">Your cost receipts are also saved on the prescription server.</string>
     <string name="profile_grant_consent">Receive</string>
     <string name="pkv_invoices_total_of_year" formatted="false">Total: %s %s</string>
     <string name="invoice_header_select">Select</string>
@@ -843,4 +842,12 @@
     <string name="profile_delete_invoice_header">Really delete?</string>
     <string name="profile_delete_invoice_info">The file will be deleted from your device and from the server.</string>
     <string name="profile_delete_invoice">Delete</string>
+    <string name="prescription_status_sent">Posted</string>
+    <string name="edit_shipping_contact_postal_code">Postcode</string>
+    <string name="edit_shipping_contact_city">Place</string>
+    <string name="edit_shipping_contact_error_postal_code">Please enter your zip code to contact us.</string>
+    <string name="edit_shipping_contact_error_city">Please enter your place of residence when contacting us.</string>
+    <string name="prescription_status_direct_assignment_ready">Will be redeemed for you</string>
+    <string name="prescription_status_direct_assignment_closed">Was redeemed for you</string>
+    <string name="connect_for_pharmacy_service">You must be logged in to use this service.</string>
 </resources>

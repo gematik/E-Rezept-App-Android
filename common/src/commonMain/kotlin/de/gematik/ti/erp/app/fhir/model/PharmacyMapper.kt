@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
@@ -50,6 +51,11 @@ const val OnlineServiceRank = 300
 /**
  * Extract pharmacy services from a search bundle.
  */
+@Requirement(
+    "A_19984#2",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Validate incoming Pharmacy data."
+)
 fun extractPharmacyServices(
     bundle: JsonElement,
     onError: (JsonElement, Exception) -> Unit = { _, _ -> }
