@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app
 
 import android.app.Activity
 import android.content.Intent
-import android.content.SharedPreferences
 import android.nfc.NfcAdapter
 import android.nfc.Tag
 import android.os.Bundle
@@ -63,7 +62,6 @@ import de.gematik.ti.erp.app.cardwall.ui.ExternalAuthenticatorListViewModel
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.core.MainContent
-import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreen
 import de.gematik.ti.erp.app.apicheck.usecase.CheckVersionUseCase
 import de.gematik.ti.erp.app.cardwall.mini.ui.SecureHardwarePrompt
@@ -93,8 +91,6 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 
-const val ScreenshotsAllowed = "SCREENSHOTS_ALLOWED"
-
 class NfcNotEnabledException : IllegalStateException()
 
 class MainActivity : AppCompatActivity(), DIAware {
@@ -115,20 +111,6 @@ class MainActivity : AppCompatActivity(), DIAware {
     private val auth: AuthenticationUseCase by instance()
 
     private val analytics: Analytics by instance()
-
-    private val appPrefs: SharedPreferences by instance(ApplicationPreferencesTag)
-
-    private val appPrefsListener: SharedPreferences.OnSharedPreferenceChangeListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { sharedPrefs, key ->
-            if (key == ScreenshotsAllowed) {
-                // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
-                if (sharedPrefs.getBoolean(ScreenshotsAllowed, false)) {
-                    this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                } else {
-                    this.window?.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                }
-            }
-        }
 
     private val intentHandler = IntentHandler(this)
 
@@ -173,8 +155,6 @@ class MainActivity : AppCompatActivity(), DIAware {
             installMessageConversionExceptionHandler()
         }
 
-        appPrefs.registerOnSharedPreferenceChangeListener(appPrefsListener)
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
@@ -192,7 +172,14 @@ class MainActivity : AppCompatActivity(), DIAware {
                 ) {
                     val authenticator = LocalAuthenticator.current
 
-                    MainContent { settingscontroller ->
+                    MainContent { settingsController ->
+                        val screenShotState by settingsController.screenshotState
+
+                        if (screenShotState.screenshotsAllowed) {
+                            this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                        } else {
+                            this.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                        }
                         val auth by produceState<AuthenticationModeAndMethod?>(null) {
                             launch {
                                 authenticationModeAndMethod.distinctUntilChangedBy { it::class }

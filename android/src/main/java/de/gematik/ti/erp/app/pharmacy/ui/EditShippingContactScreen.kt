@@ -92,7 +92,7 @@ fun EditShippingContactScreen(
 
     val telephoneOptional by remember(orderState.selectedOrderOption) {
         derivedStateOf {
-            orderState.selectedOrderOption == PharmacyScreenData.OrderOption.ReserveInPharmacy
+            orderState.selectedOrderOption == PharmacyScreenData.OrderOption.PickupService
         }
     }
     val telephoneError by remember(contact, telephoneOptional) {

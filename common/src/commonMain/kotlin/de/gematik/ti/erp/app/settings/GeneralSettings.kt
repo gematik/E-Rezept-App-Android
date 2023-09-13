@@ -45,4 +45,5 @@ interface GeneralSettings {
     suspend fun saveWelcomeDrawerShown()
     suspend fun saveMainScreenTooltipShown()
     suspend fun acceptMlKit()
+    suspend fun saveAllowScreenshots(allow: Boolean)
 }

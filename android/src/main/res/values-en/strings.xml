@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">E-prescription</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
@@ -430,7 +430,10 @@
     <string name="health_card_section_header">Medical card</string>
     <string name="health_card_section_order_card">Order PIN or card</string>
     <string name="cdw_intro_header">Log in</string>
-    <string name="cdw_intro_info">Receive prescriptions online and forward them to a pharmacy.</string>
+    <string name="cdw_intro_info">How would you like to authenticate?</string>
+    <string name="cdw_intro_auth_insurance_app">Insurance app</string>
+    <string name="cdw_intro_auth_health_card">Insurance card</string>
+    <string name="cdw_intro_auth_health_card_pin">Associated PIN required</string>
     <string name="cdw_intro_nfc_card_needed">NFC-enabled medical card</string>
     <string name="cdw_intro_pin_needed">Medical card PIN</string>
     <string name="cdw_have_no_card_with_pin">Don\'t have an NFC-enabled medical card and PIN yet?</string>
@@ -850,4 +853,23 @@
     <string name="prescription_status_direct_assignment_ready">Will be redeemed for you</string>
     <string name="prescription_status_direct_assignment_closed">Was redeemed for you</string>
     <string name="connect_for_pharmacy_service">You must be logged in to use this service.</string>
+    <string name="server_return_code_200">The prescription(s) have been transferred successfully.</string>
+    <string name="server_return_code_400">The prescription cannot be processed. Please try again. You may have to select a different pharmacy.</string>
+    <string name="server_return_code_500">The prescription cannot be processed. The pharmacy reports an unknown error. If necessary, try another pharmacy.</string>
+    <string name="server_return_code_401">The prescription was rejected by the pharmacy. The prescription may be invalid, or your delivery address or contact details may be invalid.</string>
+    <string name="server_return_code_404">Unable to redeem, please check your internet connection.</string>
+    <string name="server_return_code_408">The prescription was successfully transferred. However, the pharmacy reports a processing error. Please contact the pharmacy.</string>
+    <string name="server_return_code_409">The prescription was rejected by the pharmacy. The prescription has already been redeemed.</string>
+    <string name="server_return_code_410">The prescription was rejected by the pharmacy. The prescription has been deleted.</string>
+    <string name="server_return_no_code">"The prescription could not be transferred. Please check your internet connection and try again. "</string>
+    <string name="several_return_code">One or more recipes could not be transferred.</string>
+    <string name="server_return_code_200_title">Send successfully!</string>
+    <string name="server_return_code_400_title">Pharmacy mistake</string>
+    <string name="server_return_code_500_title">Pharmacy mistake</string>
+    <string name="server_return_code_408_title">Contact pharmacy</string>
+    <string name="server_return_code_409_title">Prescription already redeemed</string>
+    <string name="server_return_code_410_title">Prescription deleted</string>
+    <string name="server_return_no_code_title">No Internet</string>
+    <string name="server_return_code_title_failure">Error sending</string>
+
 </resources>

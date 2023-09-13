@@ -24,7 +24,6 @@ object CardWallNavigation {
     object Troubleshooting : Route("troubleShooting")
     object ExternalAuthenticator : Route("cardWall_extAuth")
     object Intro : Route("cardWall_introduction")
-    object MissingCapabilities : Route("cardWall_notCapable")
     object CardAccessNumber : Route("cardWall_CAN")
     object PersonalIdentificationNumber : Route("cardWall_PIN")
     object AuthenticationSelection : Route("cardWall_saveLogin")

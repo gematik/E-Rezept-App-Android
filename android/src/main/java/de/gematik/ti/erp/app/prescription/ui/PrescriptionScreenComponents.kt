@@ -317,7 +317,7 @@ private fun LazyListScope.prescriptionContent(
     navController: NavController,
     state: PrescriptionScreenData.State
 ) {
-    val indexedPrescriptions = processPrescriptionsDayIndices(state.prescriptions)
+    val prescriptionsIndices = processPrescriptionsDayIndices(state.prescriptions)
 
     state.prescriptions.forEach { prescription ->
         item(key = "prescription-${prescription.taskId}") {
@@ -339,7 +339,7 @@ private fun LazyListScope.prescriptionContent(
                     LowDetailMedication(
                         modifier = CardPaddingModifier,
                         prescription,
-                        indexedPrescriptions.getOrDefault(prescription.taskId, 1),
+                        prescriptionsIndices.getOrDefault(prescription.taskId, 1),
                         onClick = {
                             navController.navigate(
                                 MainNavigationScreens.PrescriptionDetail.path(

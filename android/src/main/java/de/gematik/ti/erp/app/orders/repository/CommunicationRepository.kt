@@ -114,14 +114,16 @@ class CommunicationRepository(
     fun loadRepliedCommunications(taskIds: List<String>) =
         communicationLocalDataSource.loadRepliedCommunications(taskIds = taskIds).flowOn(dispatchers.IO)
 
-    fun hasUnreadMessages(taskIds: List<String>, orderId: String) =
-        communicationLocalDataSource.hasUnreadMessages(taskIds, orderId).flowOn(dispatchers.IO)
+    fun hasUnreadPrescription(taskIds: List<String>, orderId: String) =
+        communicationLocalDataSource.hasUnreadPrescription(taskIds, orderId).flowOn(dispatchers.IO)
 
-    fun hasUnreadMessages(profileId: ProfileIdentifier) =
-        communicationLocalDataSource.hasUnreadMessages(profileId).flowOn(dispatchers.IO)
+    fun hasUnreadPrescription(profileId: ProfileIdentifier) =
+        communicationLocalDataSource.hasUnreadPrescription(profileId).flowOn(dispatchers.IO)
 
-    fun numberOfUnreadMessages(profileId: ProfileIdentifier) =
-        communicationLocalDataSource.numberOfUnreadOrders(profileId).flowOn(dispatchers.IO)
+    fun unreadOrders(profileId: ProfileIdentifier) =
+        communicationLocalDataSource.unreadOrders(profileId).flowOn(dispatchers.IO)
+    fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier) =
+        communicationLocalDataSource.unreadPrescriptionsInAllOrders(profileId).flowOn(dispatchers.IO)
 
     fun taskIdsByOrder(orderId: String) =
         communicationLocalDataSource.taskIdsByOrder(orderId).flowOn(dispatchers.IO)

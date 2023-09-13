@@ -18,13 +18,18 @@
 
 package de.gematik.ti.erp.app.utils
 
+import org.bouncycastle.crypto.digests.SHA256Digest
+import org.bouncycastle.crypto.prng.FixedSecureRandom
+import org.bouncycastle.crypto.prng.SP800SecureRandomBuilder
 import java.security.SecureRandom
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 
-fun generateRandomAES256Key(): SecretKey =
+fun generateRandomAES256Key(seed: ByteArray): SecretKey =
     KeyGenerator.getInstance("AES").apply {
-        init(256, secureRandomInstance())
+        init(256, secureRandomInstance(seed))
     }.generateKey()
 
-fun secureRandomInstance(): SecureRandom = SecureRandom()
+fun secureRandomInstance(seed: ByteArray): SecureRandom =
+    SP800SecureRandomBuilder(FixedSecureRandom(seed), false)
+        .buildHash(SHA256Digest(), seed, false)

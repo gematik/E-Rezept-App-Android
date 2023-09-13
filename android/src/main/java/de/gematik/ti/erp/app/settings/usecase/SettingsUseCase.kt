@@ -60,8 +60,6 @@ class SettingsUseCase(
 
     val showOnboarding = settingsRepository.general.map { it.onboardingShownIn == null } // TODO Move to Mainscreen
     val showWelcomeDrawer = settingsRepository.general.map { !it.welcomeDrawerShown }
-    val showMainScreenTooltip: Flow<Boolean> =
-        settingsRepository.general.map { !it.mainScreenTooltipsShown }
 
     suspend fun welcomeDrawerShown() {
         settingsRepository.saveWelcomeDrawerShown()

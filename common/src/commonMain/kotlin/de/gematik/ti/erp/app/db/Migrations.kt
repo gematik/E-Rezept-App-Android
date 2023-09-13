@@ -54,8 +54,9 @@ import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
+import kotlinx.datetime.Instant
 
-const val ACTUAL_SCHEMA_VERSION = 22L
+const val ACTUAL_SCHEMA_VERSION = 24L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -157,6 +158,14 @@ val appSchemas = setOf(
                     if (it._handedOverOn?.isEmpty() == true) {
                         it._handedOverOn = null
                     }
+                }
+            }
+
+            if (migrationStartedFrom < 23L) {
+                query<SyncedTaskEntityV1>().find().forEach {
+                    it.lastModified = Instant.parse("2023-06-01T00:00:00Z").toRealmInstant()
+                    it.isIncomplete = false
+                    it.failureToReport = ""
                 }
             }
         }

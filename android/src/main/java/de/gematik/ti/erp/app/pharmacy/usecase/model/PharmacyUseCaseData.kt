@@ -60,8 +60,7 @@ object PharmacyUseCaseData {
         val contacts: PharmacyContacts,
         val provides: List<PharmacyService>,
         val openingHours: OpeningHours?,
-        val telematikId: String,
-        val ready: Boolean
+        val telematikId: String
     ) {
 
         @Stable

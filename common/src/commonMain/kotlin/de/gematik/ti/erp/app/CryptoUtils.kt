@@ -28,6 +28,7 @@ import javax.crypto.SecretKey
     "GS-A_4367",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "Entropy is ensured by using SecureRandom for generation."
+    // TODO Update this req. when using the health card for random number generation is also implemented for Android.
 )
 fun generateRandomAES256Key(): SecretKey =
     KeyGenerator.getInstance("AES").apply {

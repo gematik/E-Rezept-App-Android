@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.idp.usecase
 
 import de.gematik.ti.erp.app.BCProvider
+import de.gematik.ti.erp.app.cardwall.AuthenticationUseCase
 import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
@@ -169,7 +170,7 @@ class IdpBasicUseCase(
     private val repository: IdpRepository,
     private val truststoreUseCase: TruststoreUseCase
 ) {
-
+    private val seed = AuthenticationUseCase.Companion.seed
     // ////////////////////////////////////////////////////////////////////////////////////////
 
     suspend fun initializeConfigurationAndKeys(): IdpInitialData {
@@ -412,7 +413,7 @@ class IdpBasicUseCase(
         pukEncKey: JWSPublicKey,
         pukSigKey: JWSPublicKey
     ): String {
-        val symmetricalKey = generateRandomAES256Key()
+        val symmetricalKey = generateRandomAES256Key(seed.value)
 
         val keyVerifier = buildKeyVerifier(
             symmetricalKey,
@@ -462,7 +463,7 @@ class IdpBasicUseCase(
         // 60 bytes are about 80 characters of base64
         return Base64Url.encode(
             ByteArray(60).apply {
-                secureRandomInstance().nextBytes(this)
+                secureRandomInstance(seed.value).nextBytes(this)
             }
         )
     }

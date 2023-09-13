@@ -20,20 +20,14 @@ package de.gematik.ti.erp.app.settings.ui
 
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.core.content.edit
-import de.gematik.ti.erp.app.BuildConfig
-import de.gematik.ti.erp.app.ScreenshotsAllowed
 import de.gematik.ti.erp.app.analytics.Analytics
-import de.gematik.ti.erp.app.di.ApplicationPreferencesTag
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.runBlocking
@@ -42,18 +36,8 @@ import org.kodein.di.compose.rememberInstance
 @Suppress("TooManyFunctions")
 class SettingsController(
     private val settingsUseCase: SettingsUseCase,
-    private val analytics: Analytics,
-    private val appPrefs: SharedPreferences
+    private val analytics: Analytics
 ) {
-
-    private var screenshotsAllowed =
-        MutableStateFlow(appPrefs.getBoolean(ScreenshotsAllowed, false))
-
-    private var screenShotFlow = screenshotsAllowed.map { SettingStatesData.ScreenshotState(it) }
-
-    val screenShotState
-        @Composable
-        get() = screenShotFlow.collectAsState(SettingStatesData.defaultScreenshotState)
 
     private val analyticsFlow = analytics.analyticsAllowed.map { SettingStatesData.AnalyticsState(it) }
 
@@ -77,6 +61,14 @@ class SettingsController(
         @Composable
         get() = zoomFlow.collectAsState(SettingStatesData.defaultZoomState)
 
+    private val screenShotFlow = settingsUseCase.general.map {
+        SettingStatesData.ScreenshotState(it.screenShotsAllowed)
+    }
+
+    val screenshotState
+        @Composable
+        get() = screenShotFlow.collectAsState(SettingStatesData.defaultScreenshotState)
+
     suspend fun onSelectDeviceSecurityAuthenticationMode() {
         settingsUseCase.saveAuthenticationMode(
             SettingsData.AuthenticationMode.DeviceSecurity
@@ -87,11 +79,12 @@ class SettingsController(
         settingsUseCase.saveAuthenticationMode(SettingsData.AuthenticationMode.Password(password = password))
     }
 
-    fun onSwitchAllowScreenshots(allowScreenshots: Boolean) {
-        appPrefs.edit {
-            putBoolean(ScreenshotsAllowed, allowScreenshots)
-        }
-        screenshotsAllowed.value = allowScreenshots
+    suspend fun onAllowScreenshots() {
+        settingsUseCase.saveAllowScreenshots(true)
+    }
+
+    suspend fun onDisAllowScreenshots() {
+        settingsUseCase.saveAllowScreenshots(false)
     }
 
     suspend fun onEnableZoom() {
@@ -178,13 +171,11 @@ class SettingsController(
 fun rememberSettingsController(): SettingsController {
     val settingsUseCase by rememberInstance<SettingsUseCase>()
     val analytics by rememberInstance<Analytics>()
-    val appPrefs by rememberInstance<SharedPreferences>(ApplicationPreferencesTag)
 
     return remember {
         SettingsController(
             settingsUseCase,
-            analytics,
-            appPrefs
+            analytics
         )
     }
 }
@@ -217,10 +208,8 @@ object SettingStatesData {
         val screenshotsAllowed: Boolean
     )
 
-    // `gemSpec_eRp_FdV A_20203` default settings does not allow screenshots
-    val defaultScreenshotState = if (BuildConfig.DEBUG) {
-        ScreenshotState(screenshotsAllowed = true)
-    } else {
-        ScreenshotState(screenshotsAllowed = false)
-    }
+    // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
+    val defaultScreenshotState = ScreenshotState(
+        screenshotsAllowed = false
+    )
 }

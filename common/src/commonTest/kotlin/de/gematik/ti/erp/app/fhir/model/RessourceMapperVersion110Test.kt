@@ -26,6 +26,52 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class RessourceMapperVersion110Test {
+// Do not remove please (needed for debugging faulty resources)
+//    @Test
+//    fun `process kbvBundle version 1_1_0`() {
+//        val kbvBundle = Json.parseToJsonElement(testKBVBundleJson_vers_1_1_0)
+//
+//        extractKBVBundle(
+//            kbvBundle,
+//            processAddress = { _, _, _ ->
+//                ReturnType.Address
+//            },
+//            processIngredient = { _, _, _, _, _->
+//               ReturnType.Ingredient
+//            },
+//            processInsuranceInformation = { _, _ ->
+//                   ReturnType.InsuranceInformation
+//            },
+//            processMedication = {_, _, _, _, _, _, _, _, _, _, _, _, _->
+//                ReturnType.Medication
+//            },
+//            processMedicationRequest = { _, _, _, _, _, _, _, _, _, _, _, _->
+//                ReturnType.MedicationRequest
+//            },
+//            processOrganization = { _, _, _, _, _, _->
+//                ReturnType.Organization
+//            },
+//            processPatient = { _, _, _, _->
+//                ReturnType.Patient
+//            },
+//            processPractitioner = {  _, _, _ ->
+//                ReturnType.Practitioner
+//            },
+//            processQuantity = { _, _->
+//                ReturnType.Quantity
+//            },
+//            processRatio = {_, _ ->
+//                ReturnType.Ratio
+//            },
+//            processMultiplePrescriptionInfo = { _, _, _, _ ->
+//                ReturnType.MultiplePrescriptionInfo
+//            },
+//            savePVSIdentifier = {},
+//            save = {_, _, _, _, _,_, ->
+//
+//            }
+//        )
+//    }
 
     @Test
     fun `process patient version 1_1_0`() {

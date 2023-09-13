@@ -104,11 +104,10 @@ class PharmacySearchViewModelTest {
         ),
         provides = listOf(),
         openingHours = null,
-        telematikId = "",
-        ready = false
+        telematikId = ""
     )
 
-    private val orderOption = PharmacyScreenData.OrderOption.ReserveInPharmacy
+    private val orderOption = PharmacyScreenData.OrderOption.PickupService
 
     private val contacts = PharmacyUseCaseData.ShippingContact(
         name = "Beate Muster",

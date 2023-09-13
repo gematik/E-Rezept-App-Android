@@ -44,12 +44,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import de.gematik.ti.erp.app.R
-import de.gematik.ti.erp.app.TestTag
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.dp
+import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.fhir.parser.toFormattedDate
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.prescriptionIds
@@ -115,11 +116,13 @@ fun PrescriptionSelection(
                     },
                 state = listState
             ) {
+                val prescriptionsIndices = processPrescriptionsDayIndicesForSelection(prescriptions)
                 prescriptions.forEach { prescription ->
                     item(key = "prescription-${prescription.taskId}") {
                         PrescriptionItem(
                             modifier = Modifier,
                             prescription = prescription,
+                            index = prescriptionsIndices.getOrDefault(prescription.taskId, 1),
                             checked = remember(prescription, order) { prescription in order.prescriptions },
                             onCheckedChange = {
                                 if (it) {
@@ -141,10 +144,28 @@ fun PrescriptionSelection(
     }
 }
 
+fun processPrescriptionsDayIndicesForSelection(
+    prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>
+): Map<String, Int> {
+    var previousPrescription: PharmacyUseCaseData.PrescriptionOrder? = null
+    var dayIndex = 1
+    val indexedPrescriptions = mutableMapOf<String, Int>()
+
+    prescriptions.forEach {
+        val current = it.timestamp.toFormattedDate()
+        val prev = previousPrescription?.timestamp?.toFormattedDate()
+        if (current == prev) dayIndex++ else dayIndex = 1
+        previousPrescription = it
+        indexedPrescriptions[it.taskId] = dayIndex
+    }
+    return indexedPrescriptions
+}
+
 @Composable
 private fun PrescriptionItem(
     modifier: Modifier,
     prescription: PharmacyUseCaseData.PrescriptionOrder,
+    index: Int,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -165,8 +186,18 @@ private fun PrescriptionItem(
     ) {
         val dt = remember(prescription) { dateTimeShortText(prescription.timestamp) }
         Column(Modifier.weight(1f)) {
-            Text(prescription.title ?: scannedRxTxt, style = AppTheme.typography.body1)
-            Text(dt, style = AppTheme.typography.body2l)
+            Text(
+                prescription.title ?: if (index > 0) {
+                    "$scannedRxTxt $index"
+                } else {
+                    scannedRxTxt
+                },
+                style = AppTheme.typography.body1
+            )
+            Text(
+                dt,
+                style = AppTheme.typography.body2l
+            )
         }
         SpacerMedium()
         Box(

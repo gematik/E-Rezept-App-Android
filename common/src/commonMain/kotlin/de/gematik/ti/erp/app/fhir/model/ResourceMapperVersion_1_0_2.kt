@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.fhir.model
 import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedBoolean
-import de.gematik.ti.erp.app.fhir.parser.containedInt
+import de.gematik.ti.erp.app.fhir.parser.containedDouble
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
@@ -260,7 +260,8 @@ fun <MedicationRequest, MultiplePrescriptionInfo, Ratio, Quantity> extractMedica
         .first()
         .extractMultiplePrescriptionInfo(processMultiplePrescriptionInfo, ratioFn, quantityFn)
     val note = resource.containedOrNull("note")?.containedStringOrNull("text")
-    val quantity = resource.contained("dispenseRequest").contained("quantity").containedInt("value")
+    val quantity = resource.contained("dispenseRequest").contained("quantity")
+        .containedDouble("value").toInt()
     val bvg = resource
         .findAll("extension")
         .filterWith(

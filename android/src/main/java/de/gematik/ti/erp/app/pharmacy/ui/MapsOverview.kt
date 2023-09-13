@@ -644,7 +644,6 @@ private fun MapsContent(
     onClick: (PharmacyUseCaseData.Pharmacy) -> Unit
 ) {
     val markerIcon = remember { BitmapDescriptorFactory.fromResource(R.drawable.maps_marker) }
-    val markerIconGrey = remember { BitmapDescriptorFactory.fromResource(R.drawable.maps_marker_grey) }
     pharmacyMapsResult.mapNotNull { pharmacy ->
         pharmacy.location?.let { location ->
             val latLng = LatLng(location.latitude, location.longitude)
@@ -652,7 +651,7 @@ private fun MapsContent(
                 state = rememberMarkerState(
                     position = latLng
                 ),
-                icon = if (pharmacy.ready) markerIcon else markerIconGrey,
+                icon = markerIcon,
                 onClick = {
                     onClick(pharmacy)
                     false

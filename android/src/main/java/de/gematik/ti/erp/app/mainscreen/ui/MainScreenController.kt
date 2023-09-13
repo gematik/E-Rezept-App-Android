@@ -56,11 +56,14 @@ class MainScreenController(
         orderedEvent = null
     }
 
-    fun unreadMessagesAvailable(profileIdentifier: ProfileIdentifier) =
-        messageUseCase.unreadCommunicationsAvailable(profileIdentifier)
+    fun hasUnreadPrescriptionAvailable(profileIdentifier: ProfileIdentifier) =
+        messageUseCase.unreadPrescriptionAvailable(profileIdentifier)
 
-    fun numberOfMessagesAvailable(profileIdentifier: ProfileIdentifier) =
-        messageUseCase.numberOfOrdersAvailable(profileIdentifier)
+    fun unreadOrders(profileIdentifier: ProfileIdentifier) =
+        messageUseCase.unreadOrders(profileIdentifier)
+
+    fun unreadPrescriptionsInAllOrders(profileIdentifier: ProfileIdentifier) =
+        messageUseCase.unreadPrescriptionsInAllOrders(profileIdentifier)
 
     suspend fun onRefresh(event: PrescriptionServiceState) {
         _onRefreshEvent.emit(event)

@@ -23,7 +23,6 @@ package de.gematik.ti.erp.app.pharmacy.ui
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -85,9 +84,6 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
-import de.gematik.ti.erp.app.utils.compose.HintCard
-import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
-import de.gematik.ti.erp.app.utils.compose.HintSmallImage
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
@@ -232,76 +228,71 @@ private fun OrderSelection(
             directRedeemEnabled = orderState.profile.lastAuthenticated == null
         }
     }
+    val directPickUpServiceAvailable = directRedeemEnabled && pharmacy.contacts.pickUpUrl.isNotEmpty()
+    val pickUpServiceVisible =
+        pharmacy.pickupServiceAvailable() || directPickUpServiceAvailable
+    val pickupServiceEnabled = directPickUpServiceAvailable ||
+        !directRedeemEnabled && pharmacy.pickupServiceAvailable()
 
-    if (pharmacy.ready) {
-        val directPickUpServiceAvailable = directRedeemEnabled && pharmacy.contacts.pickUpUrl.isNotEmpty()
-        val pickUpServiceVisible =
-            pharmacy.pickupServiceAvailable() || directPickUpServiceAvailable
-        val pickupServiceEnabled = directPickUpServiceAvailable ||
-            !directRedeemEnabled && pharmacy.pickupServiceAvailable()
+    val directDeliveryServiceAvailable = directRedeemEnabled && pharmacy.contacts.deliveryUrl.isNotEmpty()
+    val deliveryServiceVisible =
+        directDeliveryServiceAvailable || pharmacy.deliveryServiceAvailable()
+    val deliveryServiceEnabled = directDeliveryServiceAvailable ||
+        !directRedeemEnabled && pharmacy.deliveryServiceAvailable()
 
-        val directDeliveryServiceAvailable = directRedeemEnabled && pharmacy.contacts.deliveryUrl.isNotEmpty()
-        val deliveryServiceVisible =
-            directDeliveryServiceAvailable || pharmacy.deliveryServiceAvailable()
-        val deliveryServiceEnabled = directDeliveryServiceAvailable ||
-            !directRedeemEnabled && pharmacy.deliveryServiceAvailable()
+    val directOnlineServiceAvailable = directRedeemEnabled && pharmacy.contacts.onlineServiceUrl.isNotEmpty()
+    val onlineServiceVisible =
+        pharmacy.onlineServiceAvailable() || directOnlineServiceAvailable
+    val onlineServiceEnabled = directOnlineServiceAvailable ||
+        !directRedeemEnabled && pharmacy.onlineServiceAvailable()
 
-        val directOnlineServiceAvailable = directRedeemEnabled && pharmacy.contacts.onlineServiceUrl.isNotEmpty()
-        val onlineServiceVisible =
-            pharmacy.onlineServiceAvailable() || directOnlineServiceAvailable
-        val onlineServiceEnabled = directOnlineServiceAvailable ||
-            !directRedeemEnabled && pharmacy.onlineServiceAvailable()
+    val nrOfServices = remember(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible) {
+        listOf(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible).count { it }
+    }
+    val isSingle = nrOfServices == 1
+    val isLarge = nrOfServices != NrOfAllOrderOptions
 
-        val nrOfServices = remember(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible) {
-            listOf(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible).count { it }
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
+        modifier = Modifier.height(IntrinsicSize.Min)
+    ) {
+        val orderModifier = Modifier.weight(weight = 0.5f).fillMaxHeight()
+        if (pickUpServiceVisible) {
+            OrderButton(
+                modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.PickUpOptionButton),
+                enabled = pickupServiceEnabled,
+                onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.PickupService) },
+                isLarge = isLarge,
+                text = stringResource(R.string.pharmacy_order_opt_collect),
+                image = painterResource(R.drawable.pharmacy_small)
+            )
         }
-        val isSingle = nrOfServices == 1
-        val isLarge = nrOfServices != NrOfAllOrderOptions
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium),
-            modifier = Modifier.height(IntrinsicSize.Min)
-        ) {
-            val orderModifier = Modifier.weight(weight = 0.5f).fillMaxHeight()
-            if (pickUpServiceVisible) {
-                OrderButton(
-                    modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.PickUpOptionButton),
-                    enabled = pickupServiceEnabled,
-                    onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.ReserveInPharmacy) },
-                    isLarge = isLarge,
-                    text = stringResource(R.string.pharmacy_order_opt_collect),
-                    image = painterResource(R.drawable.pharmacy_small)
-                )
-            }
-
-            if (deliveryServiceVisible) {
-                OrderButton(
-                    modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.CourierDeliveryOptionButton),
-                    enabled = deliveryServiceEnabled,
-                    onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.CourierDelivery) },
-                    isLarge = isLarge,
-                    text = stringResource(R.string.pharmacy_order_opt_delivery),
-                    image = painterResource(R.drawable.delivery_car_small)
-                )
-            }
-            if (onlineServiceVisible) {
-                OrderButton(
-                    modifier = orderModifier
-                        .testTag(TestTag.PharmacySearch.OrderOptions.OnlineDeliveryOptionButton),
-                    enabled = onlineServiceEnabled,
-                    onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.MailDelivery) },
-                    isLarge = isLarge,
-                    text = stringResource(R.string.pharmacy_order_opt_mail),
-                    image = painterResource(R.drawable.truck_small)
-                )
-            }
-
-            if (isSingle) {
-                Spacer(Modifier.weight(weight = 0.5f))
-            }
+        if (deliveryServiceVisible) {
+            OrderButton(
+                modifier = orderModifier.testTag(TestTag.PharmacySearch.OrderOptions.CourierDeliveryOptionButton),
+                enabled = deliveryServiceEnabled,
+                onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.CourierDelivery) },
+                isLarge = isLarge,
+                text = stringResource(R.string.pharmacy_order_opt_delivery),
+                image = painterResource(R.drawable.delivery_car_small)
+            )
         }
-    } else {
-        NotReadyHintCard()
+        if (onlineServiceVisible) {
+            OrderButton(
+                modifier = orderModifier
+                    .testTag(TestTag.PharmacySearch.OrderOptions.OnlineDeliveryOptionButton),
+                enabled = onlineServiceEnabled,
+                onClick = { onClickOrder(pharmacy, PharmacyScreenData.OrderOption.MailDelivery) },
+                isLarge = isLarge,
+                text = stringResource(R.string.pharmacy_order_opt_mail),
+                image = painterResource(R.drawable.truck_small)
+            )
+        }
+
+        if (isSingle) {
+            Spacer(Modifier.weight(weight = 0.5f))
+        }
     }
 }
 
@@ -355,25 +346,6 @@ private fun OrderButton(
         Text(text, modifier = txtModifier, style = AppTheme.typography.subtitle2)
     }
 }
-
-@Composable
-fun NotReadyHintCard() =
-    HintCard(
-        properties = HintCardDefaults.properties(
-            backgroundColor = AppTheme.colors.red100,
-            contentColor = AppTheme.colors.neutral999,
-            border = BorderStroke(0.0.dp, AppTheme.colors.neutral300),
-            elevation = 0.dp
-        ),
-        image = {
-            HintSmallImage(
-                painterResource(R.drawable.medical_hand_out_circle_red),
-                innerPadding = it
-            )
-        },
-        title = { Text(stringResource(R.string.pharmacy_detail_not_ready_header)) },
-        body = { Text(stringResource(R.string.pharmacy_detail_not_ready_info)) }
-    )
 
 @Composable
 private fun FavoriteStarButton(

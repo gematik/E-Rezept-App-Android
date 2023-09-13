@@ -170,8 +170,7 @@ fun extractPharmacyServices(
                 onlinePharmacyService,
                 pickUpPharmacyService
             ),
-            telematikId = telematikId,
-            ready = pharmacy.containedString("status") == "active"
+            telematikId = telematikId
         )
     }
 

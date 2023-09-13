@@ -65,7 +65,8 @@ class SettingsRepository constructor(
                     userHasAcceptedInsecureDevice = it.userHasAcceptedInsecureDevice,
                     authenticationFails = it.authenticationFails,
                     mainScreenTooltipsShown = it.mainScreenTooltipsShown,
-                    mlKitAccepted = it.mlKitAccepted
+                    mlKitAccepted = it.mlKitAccepted,
+                    screenShotsAllowed = it.screenshotsAllowed
                 )
             }
         }.flowOn(dispatchers.IO)
@@ -189,6 +190,12 @@ class SettingsRepository constructor(
     override suspend fun acceptMlKit() {
         writeToRealm {
             this.mlKitAccepted = true
+        }
+    }
+
+    override suspend fun saveAllowScreenshots(allow: Boolean) {
+        writeToRealm {
+            this.screenshotsAllowed = allow
         }
     }
 

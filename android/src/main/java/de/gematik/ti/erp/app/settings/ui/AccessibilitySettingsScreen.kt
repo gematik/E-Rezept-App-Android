@@ -38,9 +38,9 @@ import kotlinx.coroutines.launch
 fun AccessibilitySettingsScreen(onBack: () -> Unit) {
     val settingsController = rememberSettingsController()
     val zoomState by settingsController.zoomState
-    val screenshotState by settingsController.screenShotState
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
+    val screenShotState by settingsController.screenshotState
 
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.settings_accessibility_headline),
@@ -67,9 +67,16 @@ fun AccessibilitySettingsScreen(onBack: () -> Unit) {
             }
             item {
                 AllowScreenShotsSection(
-                    screenshotState.screenshotsAllowed
-                ) { screenShotsAllowed ->
-                    settingsController.onSwitchAllowScreenshots(screenShotsAllowed)
+                    screenShotsAllowed = screenShotState.screenshotsAllowed
+                ) { allow ->
+                    when (allow) {
+                        true -> scope.launch {
+                            settingsController.onAllowScreenshots()
+                        }
+                        false -> scope.launch {
+                            settingsController.onDisAllowScreenshots()
+                        }
+                    }
                 }
             }
         }
@@ -94,15 +101,15 @@ private fun ZoomSection(
 
 @Composable
 private fun AllowScreenShotsSection(
-    allowScreenshots: Boolean,
     modifier: Modifier = Modifier,
-    onAllowScreenshotsChange: (Boolean) -> Unit
+    screenShotsAllowed: Boolean,
+    onAllowScreenshots: (Boolean) -> Unit
 ) {
     LabeledSwitch(
         modifier = modifier,
-        checked = !allowScreenshots,
-        onCheckedChange = {
-            onAllowScreenshotsChange(!it)
+        checked = !screenShotsAllowed,
+        onCheckedChange = { checked ->
+            onAllowScreenshots(!checked)
         },
         icon = Icons.Rounded.Camera,
         header = stringResource(R.string.settings_screenshots_toggle_text),

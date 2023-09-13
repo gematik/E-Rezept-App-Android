@@ -62,7 +62,6 @@ const val NetworkSecurePreferencesTag = "NetworkSecurePreferences"
 )
 val allModules = DI.Module("allModules") {
     bindSingleton<DispatchProvider> { object : DispatchProvider {} }
-
     bindSingleton(ApplicationPreferencesTag) {
         val context = instance<Context>()
         context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)

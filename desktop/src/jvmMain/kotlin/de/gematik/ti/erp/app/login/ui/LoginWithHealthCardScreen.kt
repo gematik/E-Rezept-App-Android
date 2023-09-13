@@ -124,6 +124,7 @@ import de.gematik.ti.erp.app.common.SpacerMedium
 import de.gematik.ti.erp.app.common.SpacerSmall
 import de.gematik.ti.erp.app.common.theme.AppTheme
 import de.gematik.ti.erp.app.common.theme.PaddingDefaults
+import java.util.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -254,7 +255,12 @@ fun LoginWithHealthCard(
                                             triggerAuth = true
                                         }
                                     },
-                                    onRetry = { triggerAuth = true }
+                                    onRetry = { triggerAuth = true },
+                                    onSuccess = {
+                                        println("CAN $cardAccessNumber")
+                                        Arrays.fill(cardAccessNumber.toCharArray(), '\u0000')
+                                        println("CAN nulled $cardAccessNumber")
+                                    }
                                 )
                             }
                         }
@@ -845,7 +851,8 @@ private fun ReadHealthCardAndDownloadData(
     authState: AuthenticationState,
     onReenterPin: () -> Unit,
     onReenterCan: () -> Unit,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onSuccess: () -> Unit
 ) {
     Box(Modifier.fillMaxSize().padding(PaddingDefaults.Medium), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -944,6 +951,8 @@ private fun ReadHealthCardAndDownloadData(
                 }) {
                     Text(button)
                 }
+            } else {
+                onSuccess()
             }
         }
     }

@@ -18,50 +18,56 @@
 
 package de.gematik.ti.erp.app.cardwall.ui
 
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.Card
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.SimpleCheck
-import de.gematik.ti.erp.app.utils.compose.SpacerLarge
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.annotatedLinkStringLight
+import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.SpacerXLarge
 
 @Composable
 fun CardWallIntroScaffold(
     onNext: () -> Unit,
     onClickAlternateAuthentication: () -> Unit,
     onClickOrderNow: () -> Unit,
-    actions: @Composable RowScope.() -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {},
+    nfcEnabled: Boolean
 ) {
     val activity = LocalActivity.current
 
@@ -74,12 +80,7 @@ fun CardWallIntroScaffold(
         elevated = scrollState.value > 0,
         navigationMode = null,
         actions = actions,
-        bottomBar = {
-            CardWallIntroBottomBar(
-                onNext = onNext,
-                onClickAlternateAuthentication = onClickAlternateAuthentication
-            )
-        },
+        bottomBar = {},
         onBack = { activity.onBackPressed() }
     ) {
         Box(
@@ -88,7 +89,10 @@ fun CardWallIntroScaffold(
                 .padding(it)
         ) {
             AddCardContent(
-                onClickOrderNow = onClickOrderNow
+                onClickOrderNow = onClickOrderNow,
+                onClickHealthCardAuth = onNext,
+                onClickInsuranceAuth = onClickAlternateAuthentication,
+                nfcAvailable = nfcEnabled
             )
         }
     }
@@ -126,104 +130,134 @@ fun CardWallInfoScaffold(
     }
 }
 
-@Composable
-fun CardWallMissingCapabilities() {
-    val activity = LocalActivity.current
-    val scrollState = rememberScrollState()
+val CardPaddingModifier = Modifier
+    .padding(
+        bottom = PaddingDefaults.Medium
+    )
+    .fillMaxWidth()
 
-    AnimatedElevationScaffold(
-        modifier = Modifier.testTag("cardWall/intro")
-            .systemBarsPadding(),
-        topBarTitle = "",
-        elevated = scrollState.value > 0,
-        actions = @Composable {
-            TextButton(onClick = { activity.onBackPressed() }) {
-                Text(stringResource(R.string.cdw_missing_capabilities_close))
-            }
-        },
-        navigationMode = null,
-        onBack = {}
-    ) {
-        val uriHandler = LocalUriHandler.current
-        Column(
-            modifier = Modifier
-                .verticalScroll(scrollState)
-                .padding(it)
-                .padding(PaddingDefaults.Medium)
-                .fillMaxWidth()
-        ) {
-            Text(
-                stringResource(R.string.cdw_missing_capabilities_title),
-                style = AppTheme.typography.h5
-            )
-            SpacerSmall()
-            Text(
-                stringResource(R.string.cdw_missing_capabilities_info),
-                style = AppTheme.typography.body1
-            )
-            SpacerSmall()
-            ClickableTaggedText(
-                text = annotatedLinkStringLight(
-                    uri = stringResource(R.string.cdw_missing_capabilities_link_to_faq),
-                    text = stringResource(R.string.cdw_missing_capabilities_learn_more)
-                ),
-                onClick = {
-                    uriHandler.openUri(it.item)
-                },
-                style = AppTheme.typography.body2.merge(
-                    TextStyle(textAlign = TextAlign.End)
-                ),
-                modifier = Modifier.align(Alignment.End)
-            )
-        }
-    }
-}
-
+@Suppress("LongMethod")
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AddCardContent(
-    onClickOrderNow: () -> Unit
+    onClickOrderNow: () -> Unit,
+    onClickHealthCardAuth: () -> Unit,
+    onClickInsuranceAuth: () -> Unit,
+    nfcAvailable: Boolean
 ) {
-    Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
+    Column(
+        modifier = Modifier.padding(PaddingDefaults.Medium),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        HealthCardPhoneImage()
         Text(
             stringResource(R.string.cdw_intro_header),
             style = AppTheme.typography.h5,
+            color = AppTheme.colors.neutral900,
             modifier = Modifier.testTag("cdw_txt_intro_header_bottom")
         )
         SpacerSmall()
         Text(
             stringResource(R.string.cdw_intro_info),
-            style = AppTheme.typography.body1
+            style = AppTheme.typography.subtitle2,
+            textAlign = TextAlign.Center,
+            color = AppTheme.colors.neutral600,
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        SpacerLarge()
-        Text(
-            stringResource(R.string.cdw_intro_what_you_need),
-            style = AppTheme.typography.subtitle1
-        )
-        SpacerMedium()
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = PaddingDefaults.Medium),
-            verticalAlignment = Alignment.CenterVertically
+        SpacerXLarge()
+        Card(
+            modifier = CardPaddingModifier,
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),
+            elevation = 0.dp,
+            backgroundColor = AppTheme.colors.neutral050,
+            onClick = onClickInsuranceAuth
         ) {
-            Icon(Icons.Rounded.CheckCircle, null, tint = AppTheme.colors.green500)
-            SpacerMedium()
-            Text(
-                stringResource(R.string.cdw_intro_nfc_card_needed),
-                style = AppTheme.typography.body1,
-                modifier = Modifier.weight(1f)
-            )
+            Row(
+                modifier = Modifier.padding(
+                    PaddingDefaults.Medium
+                ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                ) {
+                    Text(
+                        stringResource(R.string.cdw_intro_auth_insurance_app),
+                        style = AppTheme.typography.subtitle1l,
+                        color = AppTheme.colors.neutral900
+                    )
+                    SpacerSmall()
+                }
+                Icon(
+                    Icons.Filled.KeyboardArrowRight,
+                    null,
+                    tint = AppTheme.colors.neutral400,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterVertically)
+                )
+            }
         }
-
-        SimpleCheck(stringResource(R.string.cdw_intro_pin_needed))
-        SpacerMedium()
-
+        Card(
+            modifier = CardPaddingModifier,
+            shape = RoundedCornerShape(16.dp),
+            border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),
+            elevation = 0.dp,
+            backgroundColor = AppTheme.colors.neutral050,
+            onClick = if (nfcAvailable) {
+                onClickHealthCardAuth
+            } else {
+                { }
+            }
+        ) {
+            Row(
+                Modifier.padding(PaddingDefaults.Medium)
+            ) {
+                Column(
+                    modifier = if (nfcAvailable) {
+                        Modifier.weight(1f)
+                    } else {
+                        Modifier.weight(1f).clickable { }
+                    }
+                ) {
+                    Text(
+                        stringResource(R.string.cdw_intro_auth_health_card),
+                        style = AppTheme.typography.subtitle1l,
+                        color = if (nfcAvailable) {
+                            AppTheme.colors.neutral900
+                        } else {
+                            AppTheme.colors.neutral400
+                        }
+                    )
+                    SpacerTiny()
+                    Text(
+                        stringResource(R.string.cdw_intro_auth_health_card_pin),
+                        style = AppTheme.typography.body2l,
+                        color = if (nfcAvailable) {
+                            AppTheme.colors.neutral600
+                        } else {
+                            AppTheme.colors.neutral400
+                        }
+                    )
+                    SpacerSmall()
+                }
+                Icon(
+                    Icons.Filled.KeyboardArrowRight,
+                    null,
+                    tint = if (nfcAvailable) AppTheme.colors.neutral400 else AppTheme.colors.neutral300,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .align(Alignment.CenterVertically)
+                )
+            }
+        }
+        SpacerSmall()
         Text(
             text = stringResource(R.string.cdw_have_no_card_with_pin),
             style = AppTheme.typography.body2l
         )
-
         HintTextActionButton(
             text = stringResource(R.string.cdw_intro_order_now),
             align = Alignment.End,
@@ -231,5 +265,17 @@ fun AddCardContent(
         ) {
             onClickOrderNow()
         }
+    }
+}
+
+@Composable
+fun HealthCardPhoneImage() {
+    Column(modifier = Modifier.wrapContentHeight()) {
+        Image(
+            painterResource(R.drawable.card_wall_card_hand),
+            contentDescription = null,
+            contentScale = ContentScale.FillWidth,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

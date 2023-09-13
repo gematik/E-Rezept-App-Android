@@ -123,6 +123,11 @@ val changeReferenceDataStatus = mapOf(
     0x6A88 to ResponseStatus.PASSWORD_NOT_FOUND
 )
 
+val getRandomValuesStatus = mapOf(
+    0x9000 to ResponseStatus.SUCCESS,
+    0x6982 to ResponseStatus.SECURITY_STATUS_NOT_SATISFIED
+)
+
 /**
  * All response status codes
  * @see "gemSpec_COS_16.2"

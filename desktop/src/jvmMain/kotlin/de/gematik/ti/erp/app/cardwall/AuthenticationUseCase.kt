@@ -18,8 +18,10 @@
 
 package de.gematik.ti.erp.app.cardwall
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.card.model.command.ResponseException
 import de.gematik.ti.erp.app.card.model.command.ResponseStatus
+import de.gematik.ti.erp.app.card.model.exchange.getRandom
 import de.gematik.ti.erp.app.card.model.exchange.retrieveCertificate
 import de.gematik.ti.erp.app.card.model.exchange.signChallenge
 import de.gematik.ti.erp.app.card.model.exchange.verifyPin
@@ -28,23 +30,26 @@ import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.nfc.model.card.NfcCardChannel
 import de.gematik.ti.erp.app.nfc.model.card.NfcCardSecureChannel
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ProducerScope
 import kotlinx.coroutines.channels.consume
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import java.io.IOException
+import kotlin.coroutines.cancellation.CancellationException
+
+private const val SEED_LENGTH = 256
 
 enum class AuthenticationState {
     None,
@@ -110,6 +115,13 @@ enum class AuthenticationState {
 class AuthenticationUseCase(
     private val idpUseCase: IdpUseCase
 ) {
+    @Requirement(
+        "GS-A_4367#1",
+        "GS-A_4368#1",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Random numbers are generated using the RNG of the health card." +
+            "This generator fulfills BSI-TR-03116#3.4 PTG.2 required by gemSpec_COS#14.9.5.1"
+    )
     fun authenticateWithHealthCard(
         can: String,
         pin: String,
@@ -139,7 +151,13 @@ class AuthenticationUseCase(
         } while (retry)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @Requirement(
+        "GS-A_4367#2",
+        "GS-A_4368#2",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Random numbers are generated using the RNG of the health card." +
+            "This generator fulfills BSI-TR-03116#3.4 PTG.2 required by gemSpec_COS#14.9.5.1"
+    )
     private fun authenticationFlowWithHealthCard(
         can: String,
         pin: String,
@@ -200,7 +218,13 @@ class AuthenticationUseCase(
         send(AuthenticationState.AuthenticationFlowFinished)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
+    @Requirement(
+        "GS-A_4367#3",
+        "GS-A_4368#3",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Random numbers are generated using the RNG of the health card." +
+            "This generator fulfills BSI-TR-03116#3.4 PTG.2 required by gemSpec_COS#14.9.5.1"
+    )
     private suspend fun ProducerScope<AuthenticationState>.healthCardCommunication(
         channel: NfcCardChannel,
         healthCardCertificateChannel: Channel<ByteArray>,
@@ -209,6 +233,8 @@ class AuthenticationUseCase(
         can: String,
         pin: String
     ) {
+        _seed.value = channel.getRandom(SEED_LENGTH)
+
         val paceKey = channel.establishTrustedChannel(can)
 
         val secChannel = NfcCardSecureChannel(
@@ -314,5 +340,9 @@ class AuthenticationUseCase(
         constructor(kind: AuthenticationExceptionKind) : super(kind.name) {
             this.kind = kind
         }
+    }
+    companion object {
+        private val _seed = MutableStateFlow(byteArrayOf())
+        val seed: StateFlow<ByteArray> = _seed.asStateFlow()
     }
 }

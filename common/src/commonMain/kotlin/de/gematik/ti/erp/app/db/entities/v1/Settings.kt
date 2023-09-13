@@ -89,6 +89,9 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var shippingContact: ShippingContactEntityV1? = null
     var mlKitAccepted: Boolean = false
 
+    // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
+    var screenshotsAllowed: Boolean = false // TODO this needs a if BuildKonfig.debug then true else false
+
     override fun objectsToFollow(): Iterator<Deleteable> =
         iterator {
             pharmacySearch?.let { yield(it) }

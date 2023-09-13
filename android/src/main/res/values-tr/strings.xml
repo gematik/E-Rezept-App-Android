@@ -430,7 +430,10 @@
     <string name="health_card_section_header">Sağlık kartı</string>
     <string name="health_card_section_order_card">PIN veya kart sipariş edin</string>
     <string name="cdw_intro_header">Oturum aç</string>
-    <string name="cdw_intro_info">Reçeteleri çevrim içi alın ve bir ezcaneye iletin.</string>
+    <string name="cdw_intro_info">Kimlik doğrulamasını nasıl yapmak istersiniz?</string>
+    <string name="cdw_intro_auth_insurance_app">sigorta uygulaması</string>
+    <string name="cdw_intro_auth_health_card">Sigorta kartı</string>
+    <string name="cdw_intro_auth_health_card_pin">İlişkili PIN gerekli</string>
     <string name="cdw_intro_nfc_card_needed">NFC özellikli sağlık kartı</string>
     <string name="cdw_intro_pin_needed">Sağlık kartının PIN\'i</string>
     <string name="cdw_have_no_card_with_pin">NFC özellikli sağlık kartına ve PIN\'e henüz sahip değil misiniz?</string>
@@ -850,4 +853,22 @@
     <string name="prescription_status_direct_assignment_ready">senin için kurtarılacak</string>
     <string name="prescription_status_direct_assignment_closed">Senin için kurtarıldı</string>
     <string name="connect_for_pharmacy_service">Bu hizmeti kullanmak için giriş yapmalısınız.</string>
+    <string name="server_return_code_200">Reçete(ler) başarıyla aktarıldı.</string>
+    <string name="server_return_code_400">Reçete işlenemez. Air tekrar deneyin. Farklı bir eczane seçmeniz gerekebilir.</string>
+    <string name="server_return_code_500">Reçete işlenemez. Eczane bilinmeyen bir hata bildirir. Gerekirse başka bir eczane deneyin.</string>
+    <string name="server_return_code_401">Reçete eczane tarafından reddedildi. Reçete geçersiz olabilir veya teslimat adresiniz veya iletişim bilgileriniz geçersiz olabilir.</string>
+    <string name="server_return_code_404">Kullanılamıyor, air internet bağlantınızı kontrol edin.</string>
+    <string name="server_return_code_408">Reçete başarıyla aktarıldı. Ancak eczane bir işleme hatası bildiriyor. Air eczane ile iletişime geçiniz.</string>
+    <string name="server_return_code_409">Reçete eczane tarafından reddedildi. Reçete zaten kullanıldı.</string>
+    <string name="server_return_code_410">Reçete eczane tarafından reddedildi. Tariff silindi.</string>
+    <string name="server_return_no_code">Reçete aktarılamadı. Air internet bağlantınızı kontrol edin ve tekrar deneyin.</string>
+    <string name="several_return_code">Bir veya daha fazla tarif aktarılamadı.</string>
+    <string name="server_return_code_200_title">Başarıyla gönderildi!</string>
+    <string name="server_return_code_400_title">eczane hatasi</string>
+    <string name="server_return_code_500_title">eczane hatasi</string>
+    <string name="server_return_code_408_title">Eczane ile iletişim kurun</string>
+    <string name="server_return_code_409_title">Reçete zaten kullanıldı</string>
+    <string name="server_return_code_410_title">tarif silindi</string>
+    <string name="server_return_no_code_title">İnternet yok</string>
+    <string name="server_return_code_title_failure">Gönderme hatası</string>
 </resources>

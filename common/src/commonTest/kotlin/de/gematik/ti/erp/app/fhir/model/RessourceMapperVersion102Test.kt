@@ -279,7 +279,7 @@ class RessourceMapperVersion102Test {
                 assertEquals(false, emergencyFee)
                 assertEquals(true, substitutionAllowed)
                 assertEquals("1-2-1-2-0", dosageInstruction)
-                assertEquals(12, quantity)
+                assertEquals(1, quantity)
                 assertEquals(ReturnType.MultiplePrescriptionInfo, multiplePrescriptionInfo)
                 assertEquals("Bitte laengliche Tabletten.", note)
                 assertEquals(true, bvg)

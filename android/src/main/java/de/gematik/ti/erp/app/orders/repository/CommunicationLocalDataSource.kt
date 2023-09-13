@@ -87,7 +87,7 @@ class CommunicationLocalDataSource(
                 }
             }
 
-    fun hasUnreadMessages(taskIds: List<String>, orderId: String): Flow<Boolean> =
+    fun hasUnreadPrescription(taskIds: List<String>, orderId: String): Flow<Boolean> =
         realm.query<CommunicationEntityV1>(
             orQuerySubstring("parent.taskId", taskIds.size),
             *taskIds.toTypedArray()
@@ -97,13 +97,19 @@ class CommunicationLocalDataSource(
             .asFlow()
             .map { it > 0 }
 
-    fun hasUnreadMessages(profileId: ProfileIdentifier): Flow<Boolean> =
+    fun hasUnreadPrescription(profileId: ProfileIdentifier): Flow<Boolean> =
         realm.query<CommunicationEntityV1>("consumed = false && parent.parent.id = $0", profileId)
             .count()
             .asFlow()
             .map { it > 0 }
 
-    fun numberOfUnreadOrders(profileId: ProfileIdentifier): Flow<Long> =
+    fun unreadOrders(profileId: ProfileIdentifier): Flow<Long> =
+        realm.query<CommunicationEntityV1>("consumed = false && parent.parent.id = $0", profileId)
+            .distinct("orderId")
+            .count()
+            .asFlow()
+
+    fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier): Flow<Long> =
         realm.query<CommunicationEntityV1>("consumed = false && parent.parent.id = $0", profileId)
             .count()
             .asFlow()

@@ -30,7 +30,8 @@ object SettingsData {
         val zoomEnabled: Boolean,
         val userHasAcceptedInsecureDevice: Boolean,
         val authenticationFails: Int,
-        val mlKitAccepted: Boolean
+        val mlKitAccepted: Boolean,
+        val screenShotsAllowed: Boolean
     )
 
     data class AppVersion(

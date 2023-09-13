@@ -155,6 +155,13 @@ fun MainScreen(
 ) {
     val settingsController = rememberSettingsController()
     val startDestination = checkFirstAppStart(settingsController)
+    LaunchedEffect(startDestination) {
+        // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
+        // (on debug builds should be allowed for testing)
+        if (BuildConfig.DEBUG && startDestination == "onboarding") {
+            settingsController.onAllowScreenshots()
+        }
+    }
     val analytics = LocalAnalytics.current
     val analyticsState by analytics.screenState
     TrackPopUps(analytics, analyticsState)
@@ -463,8 +470,6 @@ fun MainScreen(
 @Composable
 private fun checkFirstAppStart(settingsController: SettingsController) =
     if (settingsController.showOnboarding) {
-        // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
-        settingsController.onSwitchAllowScreenshots(false)
         MainNavigationScreens.Onboarding.route
     } else {
         MainNavigationScreens.Prescriptions.route
@@ -773,26 +778,9 @@ private fun MainScreenBottomBar(
     val currentRoute = navBackStackEntry?.destination?.route
     val profileHandler = LocalProfileHandler.current
     val profileId = profileHandler.activeProfile.id
-    var prescriptionCount = 0
-    var refreshEvent by remember { mutableStateOf<PrescriptionServiceState?>(null) }
+    var unreadPrescriptionCount = calculatePrescriptionCount(mainScreenController)
 
-    LaunchedEffect(Unit) {
-        mainScreenController.onRefreshEvent.collect {
-            refreshEvent = it
-        }
-    }
-    refreshEvent?.let {
-        when (it) {
-            is RefreshedState -> {
-                prescriptionCount = it.nrOfNewPrescriptions
-            }
-        }
-    }
-
-    val unreadMessagesAvailable by mainScreenController.unreadMessagesAvailable(profileId)
-        .collectAsState(initial = false)
-
-    val ordersCount by mainScreenController.numberOfMessagesAvailable(profileId)
+    val unreadOrdersCount by mainScreenController.unreadOrders(profileId)
         .collectAsState(initial = 0)
 
     BottomNavigation(
@@ -816,7 +804,7 @@ private fun MainScreenBottomBar(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         when (screen) {
                             MainNavigationScreens.Prescriptions ->
-                                if (prescriptionCount > 0) {
+                                if (unreadPrescriptionCount > 0) {
                                     BadgedBox(
                                         badge = {
                                             Badge(
@@ -826,7 +814,7 @@ private fun MainScreenBottomBar(
                                                 ),
                                                 backgroundColor = Red,
                                                 contentColor = White
-                                            ) { Text(prescriptionCount.toString()) }
+                                            ) { Text(unreadPrescriptionCount.toString()) }
                                         }
                                     ) {
                                         Icon(
@@ -850,7 +838,7 @@ private fun MainScreenBottomBar(
                             )
 
                             MainNavigationScreens.Orders ->
-                                if (ordersCount > 0) {
+                                if (unreadOrdersCount > 0) {
                                     BadgedBox(
                                         badge = {
                                             Badge(
@@ -860,7 +848,7 @@ private fun MainScreenBottomBar(
                                                 ),
                                                 backgroundColor = Red,
                                                 contentColor = White
-                                            ) { Text(ordersCount.toString()) }
+                                            ) { Text(unreadOrdersCount.toString()) }
                                         }
                                     ) {
                                         Icon(
@@ -916,6 +904,26 @@ private fun MainScreenBottomBar(
             )
         }
     }
+}
+
+@Composable
+fun calculatePrescriptionCount(mainScreenController: MainScreenController): Int {
+    var prescriptionCount = 0
+    var refreshEvent by remember { mutableStateOf<PrescriptionServiceState?>(null) }
+
+    LaunchedEffect(Unit) {
+        mainScreenController.onRefreshEvent.collect {
+            refreshEvent = it
+        }
+    }
+    refreshEvent?.let {
+        when (it) {
+            is RefreshedState -> {
+                prescriptionCount = it.nrOfNewPrescriptions
+            }
+        }
+    }
+    return prescriptionCount
 }
 
 @Composable

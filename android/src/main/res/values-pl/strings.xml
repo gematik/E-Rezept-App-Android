@@ -444,7 +444,10 @@
     <string name="health_card_section_header">Karta zdrowia</string>
     <string name="health_card_section_order_card">Zamów PIN lub kartę</string>
     <string name="cdw_intro_header">Zaloguj się</string>
-    <string name="cdw_intro_info">Odbieraj recepty online i przesyłaj je do apteki.</string>
+    <string name="cdw_intro_info">Jak chcesz się uwierzytelnić?</string>
+    <string name="cdw_intro_auth_insurance_app">Aplikacja ubezpieczeniowa</string>
+    <string name="cdw_intro_auth_health_card">Karta ubezpieczeniowa</string>
+    <string name="cdw_intro_auth_health_card_pin">Wymagany powiązany kod PIN</string>
     <string name="cdw_intro_nfc_card_needed">Karta zdrowia obsługująca funkcję NFC</string>
     <string name="cdw_intro_pin_needed">PIN do karty zdrowia</string>
     <string name="cdw_have_no_card_with_pin">Nie masz jeszcze karty zdrowia obsługującej funkcję NFC i kodu PIN?</string>
@@ -870,4 +873,22 @@
     <string name="prescription_status_direct_assignment_ready">Zostanie dla ciebie odkupiony</string>
     <string name="prescription_status_direct_assignment_closed">Został odkupiony dla ciebie</string>
     <string name="connect_for_pharmacy_service">Aby korzystać z tej usługi, musisz być zalogowany.</string>
+    <string name="server_return_code_200">" Recepty zostały pomyślnie przeniesione."</string>
+    <string name="server_return_code_400">Recepta never może zostać zrealizowana. Proszę sprobuj ponownie. Być może będziesz musiał wybrać inną aptekę.</string>
+    <string name="server_return_code_500">Recepta never może zostać zrealizowana. Apteka zgłasza nieznany błąd. W razie potrzeby spróbuj w innej aptece.</string>
+    <string name="server_return_code_401">Recepta została odrzucona przez aptekę. Recepta może być nieważna lub Twój address dostawy lub dane kontaktowe mogą być nieprawidłowe.</string>
+    <string name="server_return_code_404">Never można wykorzystać, sprawdź swoje połączenie internetowe.</string>
+    <string name="server_return_code_408">Recepta została pomyślnie przeniesiona. Jednak apteka zgłasza błąd przzweirzania. Prosimy o contact z apteką.</string>
+    <string name="server_return_code_409">Recepta została odrzucona przez aptekę. Recepta została już zrealizowana.</string>
+    <string name="server_return_code_410">Recepta została odrzucona przez aptekę. Przepis został usunięty.</string>
+    <string name="server_return_no_code">Recepta never mogła zostać przeniesiona. Sprawdź połączenie internetowe i spróbuj ponownie.</string>
+    <string name="several_return_code">Nie można przenieść jednego lub więcej przepisów.</string>
+    <string name="server_return_code_200_title">Wyslano pomyślnie!</string>
+    <string name="server_return_code_400_title">Błąd w aptece</string>
+    <string name="server_return_code_500_title">Błąd w aptece</string>
+    <string name="server_return_code_408_title">Skontaktuj się z apteką</string>
+    <string name="server_return_code_409_title">Recepta już zrealizowana</string>
+    <string name="server_return_code_410_title">Przepis usunięty</string>
+    <string name="server_return_no_code_title">Brak internetu</string>
+    <string name="server_return_code_title_failure">Błąd wysyłania</string>
 </resources>

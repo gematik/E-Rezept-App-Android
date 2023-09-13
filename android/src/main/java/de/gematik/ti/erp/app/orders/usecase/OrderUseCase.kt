@@ -78,7 +78,7 @@ class OrderUseCase(
         pharmacyName: String?
     ): OrderUseCaseData.Order {
         val taskIds = repository.taskIdsByOrder(communication.orderId).first()
-        val hasUnreadMessages = repository.hasUnreadMessages(taskIds, communication.orderId).first()
+        val hasUnreadMessages = repository.hasUnreadPrescription(taskIds, communication.orderId).first()
         val medicationNames = if (withMedicationNames) {
             taskIds.map {
                 repository.loadPrescriptionName(it).first() ?: ""
@@ -109,11 +109,13 @@ class OrderUseCase(
                 }
         }
 
-    fun unreadCommunicationsAvailable(profileId: ProfileIdentifier) =
-        repository.hasUnreadMessages(profileId).flowOn(dispatchers.IO)
+    fun unreadPrescriptionAvailable(profileId: ProfileIdentifier) =
+        repository.hasUnreadPrescription(profileId).flowOn(dispatchers.IO)
 
-    fun numberOfOrdersAvailable(profileId: ProfileIdentifier) =
-        repository.numberOfUnreadMessages(profileId).flowOn(dispatchers.IO)
+    fun unreadOrders(profileId: ProfileIdentifier) =
+        repository.unreadOrders(profileId).flowOn(dispatchers.IO)
+    fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier) =
+        repository.unreadPrescriptionsInAllOrders(profileId).flowOn(dispatchers.IO)
 
     suspend fun consumeCommunication(communicationId: String) {
         withContext(dispatchers.IO) {

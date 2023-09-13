@@ -85,8 +85,7 @@ class PharmacyMapperTest {
                 name = "Heide-Apotheke"
             )
         ),
-        telematikId = "3-05.2.1007600000.080",
-        ready = true
+        telematikId = "3-05.2.1007600000.080"
     )
 
     private val expectedDirectRedeemPharmacy =
@@ -117,8 +116,7 @@ class PharmacyMapperTest {
                 OnlinePharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY"),
                 PickUpPharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY")
             ),
-            telematikId = "3-SMC-B-Testkarte-883110000116948",
-            ready = true
+            telematikId = "3-SMC-B-Testkarte-883110000116948"
         )
 
     @Test

@@ -63,11 +63,14 @@ class RedeemPrescriptionsController(
     private val authenticator: Authenticator
 ) {
     sealed interface State : PrescriptionServiceState {
-        class Ordered(val orderId: String, val results: Map<PharmacyUseCaseData.PrescriptionOrder, Error?>) : State
+        class Ordered(val orderId: String, val results: Map<PharmacyUseCaseData.PrescriptionOrder, State?>) : State
 
+        sealed interface Success : State {
+            object Ok : Success
+        }
         sealed interface Error : State, PrescriptionServiceErrorState {
             object Unknown : Error
-            object TaskIdDoesNotExist : Error
+            object UnableToRedeem : Error
             object IncorrectDataStructure : Error
             object JsonViolated : Error
             object Timeout : Error
@@ -130,7 +133,7 @@ class RedeemPrescriptionsController(
                         val message = DirectCommunicationMessage(
                             version = "2",
                             supplyOptionsType = when (redeemOption) {
-                                PharmacyScreenData.OrderOption.ReserveInPharmacy -> RemoteRedeemOption.Local.type
+                                PharmacyScreenData.OrderOption.PickupService -> RemoteRedeemOption.Local.type
                                 PharmacyScreenData.OrderOption.CourierDelivery -> RemoteRedeemOption.Delivery.type
                                 PharmacyScreenData.OrderOption.MailDelivery -> RemoteRedeemOption.Shipment.type
                             },
@@ -152,7 +155,7 @@ class RedeemPrescriptionsController(
                                     url = when (redeemOption) {
                                         PharmacyScreenData.OrderOption.CourierDelivery
                                         -> pharmacy.contacts.deliveryUrl
-                                        PharmacyScreenData.OrderOption.ReserveInPharmacy
+                                        PharmacyScreenData.OrderOption.PickupService
                                         -> pharmacy.contacts.pickUpUrl
                                         PharmacyScreenData.OrderOption.MailDelivery
                                         -> pharmacy.contacts.onlineServiceUrl
@@ -174,20 +177,21 @@ class RedeemPrescriptionsController(
                     result?.fold(
                         onSuccess = {
                             orderUseCase.saveLocalCommunication(order.taskId, pharmacy.id, transactionId)
-                            null
+                            State.Success.Ok
                         },
                         onFailure = {
                             if (it is ApiCallException) {
                                 when (it.response.code()) {
-                                    HttpURLConnection.HTTP_BAD_REQUEST -> State.Error.IncorrectDataStructure
-                                    HttpURLConnection.HTTP_INTERNAL_ERROR -> State.Error.Unknown
-                                    HttpURLConnection.HTTP_UNAUTHORIZED -> State.Error.JsonViolated
-                                    HttpURLConnection.HTTP_CLIENT_TIMEOUT -> State.Error.Timeout
-                                    HttpURLConnection.HTTP_CONFLICT -> State.Error.Conflict
-                                    HttpURLConnection.HTTP_GONE -> State.Error.Gone
-                                    HttpURLConnection.HTTP_NOT_FOUND -> State.Error.NotFound
-
-                                    else -> State.Error.Unknown
+                                    HttpURLConnection.HTTP_BAD_REQUEST -> State.Error.IncorrectDataStructure // 400
+                                    HttpURLConnection.HTTP_UNAUTHORIZED -> State.Error.JsonViolated // 401
+                                    HttpURLConnection.HTTP_NOT_FOUND -> State.Error.UnableToRedeem // 404
+                                    HttpURLConnection.HTTP_CLIENT_TIMEOUT -> State.Error.Timeout // 408
+                                    HttpURLConnection.HTTP_CONFLICT -> State.Error.Conflict // 409
+                                    HttpURLConnection.HTTP_GONE -> State.Error.Gone // 410
+                                    HttpURLConnection.HTTP_INTERNAL_ERROR -> State.Error.Unknown // 500
+                                    else -> {
+                                        State.Error.Unknown
+                                    }
                                 }
                             } else {
                                 State.Error.Unknown
@@ -219,7 +223,7 @@ class RedeemPrescriptionsController(
                                 orderId = orderId,
                                 profileId = profileId,
                                 redeemOption = when (redeemOption) {
-                                    PharmacyScreenData.OrderOption.ReserveInPharmacy -> RemoteRedeemOption.Local
+                                    PharmacyScreenData.OrderOption.PickupService -> RemoteRedeemOption.Local
                                     PharmacyScreenData.OrderOption.CourierDelivery -> RemoteRedeemOption.Delivery
                                     PharmacyScreenData.OrderOption.MailDelivery -> RemoteRedeemOption.Shipment
                                 },
@@ -237,16 +241,23 @@ class RedeemPrescriptionsController(
                 results.mapValues { (_, result) ->
                     result.fold(
                         onSuccess = {
-                            null
+                            State.Success.Ok
                         },
                         onFailure = {
                             if (it is ApiCallException) {
                                 when (it.response.code()) {
-                                    HttpURLConnection.HTTP_BAD_REQUEST -> State.Error.TaskIdDoesNotExist
-                                    else -> State.Error.Unknown // TODO: better error handling
+                                    HttpURLConnection.HTTP_BAD_REQUEST -> State.Error.IncorrectDataStructure // 400
+                                    HttpURLConnection.HTTP_UNAUTHORIZED -> State.Error.JsonViolated // 401
+                                    HttpURLConnection.HTTP_CLIENT_TIMEOUT -> State.Error.Timeout // 408
+                                    HttpURLConnection.HTTP_CONFLICT -> State.Error.Conflict // 409
+                                    HttpURLConnection.HTTP_GONE -> State.Error.Gone // 410
+                                    HttpURLConnection.HTTP_INTERNAL_ERROR -> State.Error.Unknown // 500
+                                    else -> {
+                                        throw it
+                                    }
                                 }
                             } else {
-                                State.Error.Unknown
+                                throw it
                             }
                         }
                     )

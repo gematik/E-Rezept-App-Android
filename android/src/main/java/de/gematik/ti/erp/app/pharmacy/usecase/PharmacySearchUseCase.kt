@@ -282,7 +282,6 @@ fun List<Pharmacy>.mapToUseCasePharmacies(): List<PharmacyUseCaseData.Pharmacy> 
             contacts = pharmacy.contacts,
             provides = pharmacy.provides,
             openingHours = (pharmacy.provides.find { it is LocalPharmacyService } as LocalPharmacyService).openingHours,
-            telematikId = pharmacy.telematikId,
-            ready = pharmacy.ready
+            telematikId = pharmacy.telematikId
         )
     }

@@ -444,7 +444,10 @@
     <string name="health_card_section_header">Картка здоров\'я</string>
     <string name="health_card_section_order_card">Замовити ПІН або картку</string>
     <string name="cdw_intro_header">Вхід</string>
-    <string name="cdw_intro_info">Отримуйте рецепти онлайн і переадресовуйте їх в аптеку.</string>
+    <string name="cdw_intro_info">Як би ви хотіли пройти автентифікацію?</string>
+    <string name="cdw_intro_auth_insurance_app">страховий додаток</string>
+    <string name="cdw_intro_auth_health_card">страхова картка</string>
+    <string name="cdw_intro_auth_health_card_pin">Потрібен пов\'язаний PIN-код</string>
     <string name="cdw_intro_nfc_card_needed">Картка здоров’я з підтримкою NFC</string>
     <string name="cdw_intro_pin_needed">PIN-код картки здоров’я</string>
     <string name="cdw_have_no_card_with_pin">У вас ще немає картки здоров’я з підтримкою NFC та PIN-коду до неї?</string>
@@ -870,4 +873,22 @@
     <string name="prescription_status_direct_assignment_ready">Буде викуплено для вас</string>
     <string name="prescription_status_direct_assignment_closed">Був викуплений для вас</string>
     <string name="connect_for_pharmacy_service">Ви повинні увійти в систему, щоб скористатися цією послугою.</string>
+    <string name="server_return_code_200">Рецепт(и) успішно передано.</string>
+    <string name="server_return_code_400">Рецепт не підлягає обробці. Будь ласка спробуйте ще раз. Можливо, вам доведеться вибрати іншу аптеку.</string>
+    <string name="server_return_code_500">Рецепт не підлягає обробці. Аптека повідомляє про невідому помилку. Якщо потрібно, спробуйте іншу аптеку.</string>
+    <string name="server_return_code_401">Рецепт був відхилений аптекою. Рецепт може бути недійсним, або ваша адреса доставки чи контактні дані можуть бути недійсними.</string>
+    <string name="server_return_code_404">No activation is required, then the next step is to enter the center.</string>
+    <string name="server_return_code_408">Рецепт успішно передано. Однак аптека повідомляє про помилку обробки. Будь ласка, зверніться в аптеку.</string>
+    <string name="server_return_code_409">Рецепт був відхилений аптекою. Рецепт вже погашений.</string>
+    <string name="server_return_code_410">Рецепт був відхилений аптекою. Рецепт видалено.</string>
+    <string name="server_return_no_code">Рецепт не можна було передати. Перевірте підключення до Інтернету та повторіть спробу.</string>
+    <string name="several_return_code">Не вдалося передати один або кілька рецептів.</string>
+    <string name="server_return_code_200_title">Успішно відправлено!</string>
+    <string name="server_return_code_400_title">Помилка аптеки</string>
+    <string name="server_return_code_500_title">Помилка аптеки</string>
+    <string name="server_return_code_408_title">Зверніться в аптеку</string>
+    <string name="server_return_code_409_title">Рецепт уже погашений</string>
+    <string name="server_return_code_410_title">Рецепт видалено</string>
+    <string name="server_return_no_code_title">Немає Інтернету</string>
+    <string name="server_return_code_title_failure">Помилка відправки</string>
 </resources>

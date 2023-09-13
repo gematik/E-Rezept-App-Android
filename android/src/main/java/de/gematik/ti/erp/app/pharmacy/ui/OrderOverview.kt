@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -61,6 +62,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -83,14 +85,15 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
+import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerShortMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import java.util.UUID
 
@@ -116,15 +119,12 @@ fun OrderOverview(
     val selectedOrderOption = remember { orderState.selectedOrderOption!! }
 
     val listState = rememberLazyListState()
-    val videoHeightPx = remember { mutableStateOf(0f) }
+    val videoHeightPx = remember { mutableFloatStateOf(0f) }
 
     val contact = order.contact
     val shippingContactCompleted = remember(contact) {
-        if (selectedOrderOption == PharmacyScreenData.OrderOption.ReserveInPharmacy) {
-            !contact.addressIsMissing()
-        } else {
+        selectedOrderOption == PharmacyScreenData.OrderOption.PickupService ||
             !contact.phoneOrAddressMissing()
-        }
     }
 
     val scaffoldState = rememberScaffoldState()
@@ -160,7 +160,7 @@ fun OrderOverview(
                                 .statusBarsPadding()
                                 .fillMaxWidth(),
                             source = when (selectedOrderOption) {
-                                PharmacyScreenData.OrderOption.ReserveInPharmacy -> R.raw.animation_local
+                                PharmacyScreenData.OrderOption.PickupService -> R.raw.animation_local
                                 PharmacyScreenData.OrderOption.CourierDelivery -> R.raw.animation_courier
                                 PharmacyScreenData.OrderOption.MailDelivery -> R.raw.animation_mail
                             },
@@ -248,6 +248,22 @@ private fun RedeemButton(
 
     var uploadInProgress by remember { mutableStateOf(false) }
 
+    var showDialog by remember { mutableStateOf(false) }
+    var dialogTitle by remember { mutableStateOf("") }
+    var dialogDescription by remember { mutableStateOf("") }
+
+    if (showDialog) {
+        PrescriptionRedeemAlertDialog(
+            title = dialogTitle,
+            description = dialogDescription,
+            showDialog = showDialog,
+            onDismiss = {
+                showDialog = false
+                onFinish(true)
+            }
+        )
+    }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         elevation = 4.dp
@@ -290,8 +306,34 @@ private fun RedeemButton(
                                 }
 
                                 is RedeemPrescriptionsController.State.Ordered -> {
-                                    val hasError = redeemState.results.any { it.value != null }
-                                    onFinish(hasError)
+                                    val responseCodeMessagesMap = responseCodeMessagesMap(context)
+
+                                    val results = redeemState.results.values
+                                    when {
+                                        results.size == 1 -> {
+                                            // case 1: When one prescription is transferred.
+                                            val responseMessagesPairedList: List<Pair<String, String>> =
+                                                results.mapNotNull {
+                                                    responseCodeMessagesMap[it as PrescriptionServiceState]
+                                                }
+                                            dialogTitle = responseMessagesPairedList.joinToString { it.first ?: "" }
+                                            dialogDescription =
+                                                responseMessagesPairedList.joinToString { it.second ?: "" }
+                                        }
+
+                                        results.contains<Any?>(RedeemPrescriptionsController.State.Success.Ok) -> {
+                                            // case 2.1: When multiple prescriptions are transferred Successfully.
+                                            dialogTitle = context.getString(R.string.server_return_code_200_title)
+                                            dialogDescription = context.getString(R.string.server_return_code_200)
+                                        }
+
+                                        else -> {
+                                            // case 2.2: When any multiple prescription are transferred Unsuccessfully. Show a generic error message.
+                                            dialogTitle = context.getString(R.string.server_return_code_title_failure)
+                                            dialogDescription = context.getString(R.string.several_return_code)
+                                        }
+                                    }
+                                    showDialog = true
                                 }
                             }
                         } finally {
@@ -306,13 +348,70 @@ private fun RedeemButton(
     }
 }
 
+fun responseCodeMessagesMap(context: Context): Map<Any, Pair<String, String>> {
+    // Mapping server code responses to the Title & Description used in Alert Dialog.
+    return mapOf(
+        RedeemPrescriptionsController.State.Success.Ok to Pair(
+            context.getString(R.string.server_return_code_200_title),
+            context.getString(R.string.server_return_code_200)
+        ), // 200, 201
+        RedeemPrescriptionsController.State.Error.IncorrectDataStructure to Pair(
+            context.getString(R.string.server_return_code_400_title),
+            context.getString(R.string.server_return_code_400)
+        ), // 400
+        RedeemPrescriptionsController.State.Error.JsonViolated to Pair(
+            context.getString(R.string.server_return_code_title_failure),
+            context.getString(R.string.server_return_code_401)
+        ), // 401
+        RedeemPrescriptionsController.State.Error.UnableToRedeem to Pair(
+            context.getString(R.string.server_return_code_title_failure),
+            context.getString(R.string.server_return_code_404)
+        ), // 404
+        RedeemPrescriptionsController.State.Error.Timeout to Pair(
+            context.getString(R.string.server_return_code_408_title),
+            context.getString(R.string.server_return_code_408)
+        ), // 408
+        RedeemPrescriptionsController.State.Error.Conflict to Pair(
+            context.getString(R.string.server_return_code_409_title),
+            context.getString(R.string.server_return_code_409)
+        ), // 409
+        RedeemPrescriptionsController.State.Error.Gone to Pair(
+            context.getString(R.string.server_return_code_410_title),
+            context.getString(R.string.server_return_code_410)
+        ), // 410
+        RedeemPrescriptionsController.State.Error.Unknown to Pair(
+            context.getString(R.string.server_return_no_code_title),
+            context.getString(R.string.server_return_no_code)
+        ) // No error
+    )
+}
+
+@Composable
+fun PrescriptionRedeemAlertDialog(
+    title: String,
+    description: String,
+    showDialog: Boolean,
+    onDismiss: () -> Unit
+) {
+    if (showDialog) {
+        AcceptDialog(
+            header = title,
+            info = description,
+            onClickAccept = {
+                onDismiss()
+            },
+            acceptText = stringResource(R.string.pharmacy_search_apovz_call_failed_accept)
+        )
+    }
+}
+
 @Composable
 private fun VanishingTopBar(
     listState: LazyListState,
     videoHeightPx: State<Float>,
     onBack: () -> Unit
 ) {
-    var topBarHeightPx by remember { mutableStateOf(0f) }
+    var topBarHeightPx by remember { mutableFloatStateOf(0f) }
 
     val showTopBar by remember {
         derivedStateOf {
@@ -545,7 +644,7 @@ private fun ServiceOption(
     option: PharmacyScreenData.OrderOption
 ) {
     val text = when (option) {
-        PharmacyScreenData.OrderOption.ReserveInPharmacy -> stringResource(R.string.pharmacy_order_collect)
+        PharmacyScreenData.OrderOption.PickupService -> stringResource(R.string.pharmacy_order_collect)
         PharmacyScreenData.OrderOption.CourierDelivery -> stringResource(R.string.pharmacy_order_delivery)
         PharmacyScreenData.OrderOption.MailDelivery -> stringResource(R.string.pharmacy_order_mail)
     }

@@ -1,3 +1,7 @@
+# Release 1.14.0
+- Allow devices without NFC to authenticate using 3rd party health insurance apps
+- Lots of bugfixes
+
 # Release 1.13.0-RC1
 - Fasttrack authentication with external insurance apps works again
 - Bugfixes

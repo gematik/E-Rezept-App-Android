@@ -23,7 +23,7 @@ import androidx.compose.runtime.Immutable
 object PharmacyScreenData {
     @Immutable
     enum class OrderOption {
-        ReserveInPharmacy,
+        PickupService,
         CourierDelivery,
         MailDelivery
     }

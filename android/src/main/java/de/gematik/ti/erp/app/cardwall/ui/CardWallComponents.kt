@@ -119,10 +119,7 @@ fun CardWallScreen(
     val cardWallController = rememberCardWallController()
     val navController = rememberNavController()
 
-    val startDestination = when {
-        cardWallController.hardwareRequirementsFulfilled -> CardWallNavigation.Intro.path()
-        else -> CardWallNavigation.MissingCapabilities.path()
-    }
+    val startDestination = CardWallNavigation.Intro.path()
 
     val context = LocalContext.current
     val biometricMode = remember { deviceStrongBiometricStatus(context) }
@@ -197,17 +194,14 @@ fun CardWallScreen(
                     onClickAlternateAuthentication = {
                         navController.navigate(CardWallNavigation.ExternalAuthenticator.path())
                     },
-                    onClickOrderNow = { navController.navigate(CardWallNavigation.OrderHealthCard.path()) }
+                    onClickOrderNow = { navController.navigate(CardWallNavigation.OrderHealthCard.path()) },
+                    nfcEnabled = cardWallController.isNFCEnabled()
                 )
             }
         }
 
         composable(CardWallNavigation.OrderHealthCard.route) {
             HealthCardContactOrderScreen(onBack = onBack)
-        }
-
-        composable(CardWallNavigation.MissingCapabilities.route) {
-            CardWallMissingCapabilities()
         }
 
         composable(

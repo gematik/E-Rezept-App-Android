@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">E-Rezept</string>
     <string name="ok">Okay</string>
     <string name="cancel">Abbrechen</string>
@@ -25,7 +25,7 @@
     <string name="cam_cancel_msg">Scannen abbrechen?</string>
     <string name="cam_cancel_ok">okay</string>
     <string name="cam_cancel_resume">Nicht abbrechen</string>
-    <string name="cdw_next">Los geht’s</string>
+    <string name="cdw_next">Los geht\'s</string>
     <string name="cdw_intro_what_you_need">Was Sie benötigen:</string>
     <string name="cdw_can_headline">Kartenzugangsnummer eingeben</string>
     <string name="cdw_pin_title">PIN eingeben</string>
@@ -451,7 +451,10 @@
     <string name="health_card_section_header">Gesundheitskarte</string>
     <string name="health_card_section_order_card">PIN oder Karte bestellen</string>
     <string name="cdw_intro_header">Anmelden</string>
-    <string name="cdw_intro_info">Rezepte online empfangen und an eine Apotheke weiterleiten.</string>
+    <string name="cdw_intro_info">Wie möchten Sie sich authentifizieren?</string>
+    <string name="cdw_intro_auth_insurance_app">Versicherungs-App</string>
+    <string name="cdw_intro_auth_health_card">Gesundheitskarte</string>
+    <string name="cdw_intro_auth_health_card_pin">Zugehörige PIN benötigt</string>
     <string name="cdw_intro_nfc_card_needed">NFC-fähige Gesundheitskarte</string>
     <string name="cdw_intro_pin_needed">PIN zur Gesundheitskarte</string>
     <string name="cdw_have_no_card_with_pin">Sie verfügen noch nicht über eine NFC-fähige Gesundheitskarte und PIN?</string>
@@ -882,4 +885,22 @@
     <string name="prescription_status_direct_assignment_ready">Wird für Sie eingelöst</string>
     <string name="prescription_status_direct_assignment_closed">Wurde für Sie eingelöst</string>
     <string name="connect_for_pharmacy_service">Sie müssen angemeldet sein, um diesen Service zu nutzen.</string>
+    <string name="server_return_code_200">Das Rezept/die Rezepte wurden erfolgreich übertragen.</string>
+    <string name="server_return_code_400">Das Rezept kann nicht verarbeitet werden. Bitte versuchen Sie es erneut. Eventuell müssen Sie eine andere Apotheke auswählen.</string>
+    <string name="server_return_code_500">Das Rezept kann nicht verarbeitet werden. Die Apotheke meldet einen unbekannten Fehler. Probieren Sie ggf. eine andere Apotheke.</string>
+    <string name="server_return_code_401">Das Rezept wurde durch die Apotheke abgelehnt. Möglicherweise ist das Rezept ungültig, oder Ihre Lieferadresse bzw. Kontaktdaten ungültig.</string>
+    <string name="server_return_code_404">Einlösen nicht möglich, bitte überprüfen Sie Ihre Internetverbindung.</string>
+    <string name="server_return_code_408">Das Rezept wurde erfolgreich übertragen. Die Apotheke meldet aber einen Verarbeitungsfehler. Bitte kontaktieren Sie die Apotheke.</string>
+    <string name="server_return_code_409">Das Rezept wurde durch die Apotheke abgelehnt. Das Rezept wurde bereits eingelöst.</string>
+    <string name="server_return_code_410">Das Rezept wurde durch die Apotheke abgelehnt. Das Rezept wurde gelöscht.</string>
+    <string name="server_return_no_code">Das Rezept konnte nicht übertragen werden. Bitte prüfen Sie Ihre Internetverbindung und versuchen  Sie es erneut.</string>
+    <string name="several_return_code">Ein oder mehr Rezepte konnten nicht übertragen werden.</string>
+    <string name="server_return_code_title_failure">Fehler beim Senden</string>
+    <string name="server_return_code_200_title">Erfolgreich versendet!</string>
+    <string name="server_return_code_400_title">Fehler bei der Apotheke</string>
+    <string name="server_return_code_500_title">Fehler bei der Apotheke</string>
+    <string name="server_return_code_408_title">Apotheke kontaktieren</string>
+    <string name="server_return_code_409_title">Rezept bereits eingelöst</string>
+    <string name="server_return_code_410_title">Rezept gelöscht</string>
+    <string name="server_return_no_code_title">Kein Internet</string>
 </resources>

@@ -458,7 +458,10 @@
     <string name="health_card_section_header">البطاقة الصحية</string>
     <string name="health_card_section_order_card">اطلب رقم التعريف الشخصي أو البطاقة</string>
     <string name="cdw_intro_header">التسجيل</string>
-    <string name="cdw_intro_info">استقبل الوصفات الطبية أونلاين وأرسلها إلى الصيدلية.</string>
+    <string name="cdw_intro_info">كيف ترغب في تسجيل نفسك؟</string>
+    <string name="cdw_intro_auth_insurance_app">APP من التأمين الصحي</string>
+    <string name="cdw_intro_auth_health_card">بطاقة صحية</string>
+    <string name="cdw_intro_auth_health_card_pin">مطلوب رقم التعريف الشخصي المرتبط</string>
     <string name="cdw_intro_nfc_card_needed">بطاقة صحية مزودة بتقنية الإتصال اللاسلكية</string>
     <string name="cdw_intro_pin_needed">رقم التعريف الشخصي للبطاقة الصحية</string>
     <string name="cdw_have_no_card_with_pin">ليس لديك حتى الآن بطاقة صحية مزودة بتقنية الإتصال اللاسلكية ورقم تعريف شخصي؟</string>
@@ -890,4 +893,22 @@
     <string name="prescription_status_direct_assignment_ready">سيتم استبدالها لك</string>
     <string name="prescription_status_direct_assignment_closed">تم استبدالها من أجلك</string>
     <string name="connect_for_pharmacy_service">يجب عليك تسجيل الدخول لاستخدام هذه الخدمة.</string>
+    <string name="server_return_code_200">تم تحويل الوصفة (الوصفات) بنجاح.</string>
+    <string name="server_return_code_400">لا يمكن معالجة الوصفة الطبية. حاول مرة اخرى. قد تضطر إلى اختيار صيدلية مختلفة.</string>
+    <string name="server_return_code_500">لا يمكن معالجة الوصفة الطبية. أبلغت الصيدلية عن خطأ غير معروف. إذا لزم الأمر ، جرب صيدلية أخرى.</string>
+    <string name="server_return_code_401">تم رفض الوصفة الطبية من قبل الصيدلية. ، أو قد يكون عنوان التسليم أو تفاصي ل الاتصال الخاصة بك غير صالحة.</string>
+    <string name="server_return_code_404">غير قادر على الاسترداد ، يرجى التحقق من اتصالك بالإنترنت.</string>
+    <string name="server_return_code_408">تم تحويل الوصفة بنجاح. ومع ذلك ، أبلغت الصيدلية عن خطأ في المعالجة. الرجاء الاتصال بالصيدلية.</string>
+    <string name="server_return_code_409">تم رفض الوصفة الطبية من قبل الصيدلية. تم بالفعل استرداد الوصفة الطبية.</string>
+    <string name="server_return_code_410">تم رفض الوصفة الطبية من قبل الصيدلية. تم حذف الوصفة.</string>
+    <string name="server_return_no_code">لا يمكن نقل الوصفة. يرجى التحقق من اتصالك بالإنترنت وحاول مرة أخرى.</string>
+    <string name="several_return_code">لا يمكن نقل وصفة واحدة أو أكثر.</string>
+    <string name="server_return_code_200_title">أرسل بنجاح!</string>
+    <string name="server_return_code_400_title">خطأ في الصيدلة</string>
+    <string name="server_return_code_500_title">خطأ في الصيدلة</string>
+    <string name="server_return_code_408_title">اتصل بالصيدلية</string>
+    <string name="server_return_code_409_title">الوصفة الطبية استردت بالفعل</string>
+    <string name="server_return_code_410_title">الوصفة محذوفة</string>
+    <string name="server_return_no_code_title">لا انترنت</string>
+    <string name="server_return_code_title_failure">خطأ في الإرسال</string>
 </resources>

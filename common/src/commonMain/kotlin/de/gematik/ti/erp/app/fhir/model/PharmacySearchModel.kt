@@ -93,8 +93,7 @@ data class Pharmacy(
     val location: Location,
     val contacts: PharmacyContacts,
     val provides: List<PharmacyService>,
-    val telematikId: String,
-    val ready: Boolean
+    val telematikId: String
 )
 
 sealed interface PharmacyService
