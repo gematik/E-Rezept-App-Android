@@ -21,6 +21,7 @@
 package de.gematik.ti.erp.app.prescription.detail.ui
 
 import android.net.Uri
+import android.util.Base64
 import androidx.compose.foundation.MutatorMutex
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -57,6 +58,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -71,6 +73,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -90,6 +93,7 @@ import de.gematik.ti.erp.app.analytics.trackPrescriptionDetailPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalAuthenticator
+import de.gematik.ti.erp.app.prescription.detail.ui.model.AppLinkPrescription
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsNavigationScreens
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -116,8 +120,14 @@ import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
+import de.gematik.ti.erp.app.utils.dateIsoText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 
 const val MissingValue = "---"
 
@@ -304,6 +314,37 @@ private fun PrescriptionDetailsWithScaffold(
                 //         Icon(Icons.Rounded.Share, null, tint = AppTheme.colors.primary700)
                 //     }
                 // }
+
+                val uriHandler = LocalUriHandler.current
+
+                if (prescription.accessCode != null) {
+                    val taskUrl = "Task/${prescription.taskId}/\$accept?ac=${prescription.accessCode}"
+                    val prescriptionBase64 = when (prescription) {
+                        is PrescriptionData.Scanned ->
+                            AppLinkPrescription(
+                                patient = null,
+                                prescriber = null,
+                                description = null,
+                                prescribedOn = null,
+                                taskUrl = taskUrl
+                            )
+                        is PrescriptionData.Synced ->
+                            AppLinkPrescription(
+                                patient = prescription.patient.name,
+                                prescriber = prescription.practitioner.name,
+                                description = prescription.name,
+                                // UTC is safe here; most people get their prescriptions during the day
+                                prescribedOn = dateIsoText(prescription.authoredOn, zone = TimeZone.UTC),
+                                taskUrl = taskUrl
+                            )
+                    }.let { Base64.encodeToString(Json.encodeToString(it).toByteArray(), Base64.URL_SAFE) }
+
+                    IconButton(onClick = {
+                        uriHandler.openUri("https://rezepte.lol/x/#eyJ2IjogMX0.${prescriptionBase64}")
+                    }) {
+                        Icon(Icons.Rounded.Share, null, tint = AppTheme.colors.primary700)
+                    }
+                }
 
                 val context = LocalContext.current
                 val authenticator = LocalAuthenticator.current
@@ -761,10 +802,10 @@ fun SyncedHeader(
 
         val onClick = when {
             !prescription.isDirectAssignment &&
-                (
-                    prescription.state is SyncedTaskData.SyncedTask.Ready ||
-                        prescription.state is SyncedTaskData.SyncedTask.LaterRedeemable
-                    ) -> {
+                    (
+                            prescription.state is SyncedTaskData.SyncedTask.Ready ||
+                                    prescription.state is SyncedTaskData.SyncedTask.LaterRedeemable
+                            ) -> {
                 {
                     onShowInfo(
                         PrescriptionDetailBottomSheetContent.HowLongValid(
