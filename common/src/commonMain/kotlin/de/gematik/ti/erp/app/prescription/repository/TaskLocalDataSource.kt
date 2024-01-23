@@ -51,10 +51,12 @@ import de.gematik.ti.erp.app.fhir.model.extractKBVBundle
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispense
 import de.gematik.ti.erp.app.fhir.model.extractTask
 import de.gematik.ti.erp.app.fhir.model.extractTaskAndKBVBundle
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.prescription.model.Communication
+import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.toRealmList
@@ -532,6 +534,7 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
             communication.toCommunication()
         }
     )
+
 fun MedicationEntityV1?.toMedication(): SyncedTaskData.Medication? =
     when (this?.medicationProfile) {
         MedicationProfileV1.PZN -> SyncedTaskData.MedicationPZN(
@@ -624,16 +627,16 @@ fun CommunicationEntityV1.toCommunication() =
     if (this.profile == CommunicationProfileV1.Unknown) {
         null
     } else {
-        SyncedTaskData.Communication(
+        Communication(
             taskId = this.taskId,
             communicationId = this.communicationId,
             orderId = this.orderId,
             profile = when (this.profile) {
                 CommunicationProfileV1.ErxCommunicationDispReq ->
-                    SyncedTaskData.CommunicationProfile.ErxCommunicationDispReq
+                    CommunicationProfile.ErxCommunicationDispReq
 
                 CommunicationProfileV1.ErxCommunicationReply ->
-                    SyncedTaskData.CommunicationProfile.ErxCommunicationReply
+                    CommunicationProfile.ErxCommunicationReply
 
                 else -> error("should not happen")
             },
@@ -649,8 +652,10 @@ fun ScannedTaskEntityV1.toScannedTask() =
     ScannedTaskData.ScannedTask(
         profileId = this.parent!!.id,
         taskId = this.taskId,
+        name = this.name,
+        index = this.index,
         accessCode = this.accessCode,
         scannedOn = this.scannedOn.toInstant(),
         redeemedOn = this.redeemedOn?.toInstant(),
-        communications = this.communications
+        communications = this.communications.mapNotNull { it.toCommunication() }
     )

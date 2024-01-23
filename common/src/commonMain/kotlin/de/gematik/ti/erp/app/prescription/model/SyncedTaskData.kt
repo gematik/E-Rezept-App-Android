@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
@@ -36,18 +35,6 @@ const val DIRECT_ASSIGNMENT_INDICATOR_PKV = "209" // pkv direct assignment taskI
 object SyncedTaskData {
     enum class TaskStatus {
         Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed;
-    }
-
-    enum class CommunicationProfile {
-        ErxCommunicationDispReq, ErxCommunicationReply;
-
-        fun toEntityValue() = when (this) {
-            ErxCommunicationDispReq ->
-                CommunicationProfileV1.ErxCommunicationDispReq
-
-            ErxCommunicationReply ->
-                CommunicationProfileV1.ErxCommunicationReply
-        }.name
     }
 
     data class SyncedTask(
@@ -380,18 +367,6 @@ object SyncedTaskData {
     ) : Medication {
         override fun name() = text
     }
-
-    data class Communication(
-        val taskId: String,
-        val communicationId: String,
-        val orderId: String,
-        val profile: CommunicationProfile,
-        val sentOn: Instant,
-        val sender: String,
-        val recipient: String,
-        val payload: String?,
-        val consumed: Boolean
-    )
 
     fun joinIngredientNames(ingredients: List<Ingredient>) =
         ingredients.joinToString(", ") { ingredient ->

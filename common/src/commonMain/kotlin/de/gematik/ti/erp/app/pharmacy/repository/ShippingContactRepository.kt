@@ -41,10 +41,10 @@ class ShippingContactRepository(
             .map {
                 it.obj?.toShippingContact()
             }
-            .flowOn(dispatchers.IO)
+            .flowOn(dispatchers.io)
 
     suspend fun saveShippingContact(contact: PharmacyData.ShippingContact) {
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             realm.write {
                 queryFirst<SettingsEntityV1>()?.let { settings ->
                     val shippingContact = settings.shippingContact

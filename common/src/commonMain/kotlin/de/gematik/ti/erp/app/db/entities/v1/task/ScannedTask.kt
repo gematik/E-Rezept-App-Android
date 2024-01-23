@@ -29,6 +29,8 @@ import io.realm.kotlin.types.RealmObject
 class ScannedTaskEntityV1 : RealmObject, Cascading {
     var taskId: String = ""
     var accessCode: String = ""
+    var name: String? = null
+    var index: Int = 0
     var scannedOn: RealmInstant = RealmInstant.MIN
     var redeemedOn: RealmInstant? = null
     var communications: RealmList<CommunicationEntityV1> = realmListOf()

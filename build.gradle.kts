@@ -1,39 +1,46 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
-buildscript {
-    dependencies {
-        classpath("com.karumi:shot:6.0.0")
-    }
-}
 // NOTE: Only pre-include plugins (apply false) required by the modules android, common
 // and desktop within this block to keep them excluded from the root module.
 // If the plugin can't be resolved add a custom resolution strategy to `settings.gradle.kts`.
 plugins {
-    // reports versions of dependencies
-    // e.g. `gradle dependencyUpdates`
-    id("com.github.ben-manes.versions") version "0.45.0"
+
+    // Running `./gradlew dependencyUpdates` looks for the latest libs that are available
+    id("com.github.ben-manes.versions") version "0.48.0"
 
     id("org.owasp.dependencycheck") version "8.0.2" apply false
 
     // generates licence report
     id("com.jaredsburrows.license") version "0.8.90" apply false
 
-    kotlin("multiplatform") version "1.8.10" apply false
+    id("com.android.application") version "8.1.0" apply false
+
+    id("com.android.library") version "8.1.0" apply false
+
+    kotlin("multiplatform") version "1.9.10" apply false
+
     kotlin("plugin.serialization") version "1.8.10" apply false
+
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1" apply false
+
     id("io.realm.kotlin") version "1.7.1" apply false
-    id("org.jetbrains.kotlin.android") version "1.8.10" apply false
-    id("com.android.application") version "7.4.1" apply false
-    id("com.android.library") version "7.4.1" apply false
-    id("org.jetbrains.compose") version "1.4.0" apply false
+
+    // TODO: Update to latest version : https://github.com/JetBrains/compose-multiplatform/blob/master/VERSIONING.md
+    id("org.jetbrains.kotlin.android") version "1.9.10" apply false
+
+    id("org.jetbrains.compose") version "1.5.3" apply false
+
     id("com.codingfeline.buildkonfig") version "0.13.3" apply false
+
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
+
     id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
+    id("org.jetbrains.kotlin.jvm") version "1.9.0" apply false
 
 }
 
-val ktlintMain by configurations.creating
-val ktlintRules by configurations.creating
+val ktlintMain: Configuration by configurations.creating
+val ktlintRules: Configuration by configurations.creating
 
 dependencies {
     ktlintMain("com.pinterest:ktlint:0.46.1") {
@@ -45,7 +52,8 @@ dependencies {
 }
 
 val sourcesKt = listOf(
-    "android/src/**/de/gematik/**/*.kt",
+    "app/android/src/**/de/gematik/**/*.kt",
+    "app/features/src/**/de/gematik/**/*.kt",
     "common/src/**/de/gematik/**/*.kt",
     "desktop/src/**/de/gematik/**/*.kt",
     "rules/src/**/de/gematik/**/*.kt",
@@ -100,8 +108,8 @@ tasks.register("clean", Delete::class) {
 
 fun isUnstable(version: String): Boolean =
     version.contains("alpha", ignoreCase = true)
-            || version.contains("rc", ignoreCase = true)
-            || version.contains("beta", ignoreCase = true)
+        || version.contains("rc", ignoreCase = true)
+        || version.contains("beta", ignoreCase = true)
 
 tasks.withType<DependencyUpdatesTask> {
     outputFormatter = "txt,html"

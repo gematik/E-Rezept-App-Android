@@ -1,3 +1,11 @@
+# Release 1.17.2
+- Added Demo mode function
+- Added function to change the name of scanned prescriptions 
+- Increased minimum SDK version to 26 and build version to 34
+- UX improvements
+- Bug fixes
+
+
 # Release 1.16.1
 - Added Invoice correction function for private health insurance customers
 - Optimized performance 

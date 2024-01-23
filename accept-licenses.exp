@@ -1,0 +1,12 @@
+#!/usr/bin/expect -f
+
+set timeout -1
+spawn $env(ANDROID_SDK)/cmdline-tools/tools/bin/sdkmanager --licenses
+
+expect {
+    "Accept? (y/N): " {
+        send "y\r"
+        exp_continue
+    }
+    eof
+}

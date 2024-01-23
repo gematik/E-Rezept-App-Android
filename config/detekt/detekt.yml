@@ -118,8 +118,8 @@ complexity:
     threshold: 120
   LongParameterList:
     active: true
-    functionThreshold: 12
-    constructorThreshold: 7
+    functionThreshold: 15
+    constructorThreshold: 15
     ignoreDefaultParameters: true
     ignoreDataClasses: true
     ignoreAnnotatedParameter: []
@@ -150,7 +150,7 @@ complexity:
     thresholdInObjects: 15
     thresholdInEnums: 15
     ignoreDeprecated: false
-    ignorePrivate: false
+    ignorePrivate: true
     ignoreOverridden: false
 
 coroutines:
@@ -554,7 +554,7 @@ style:
   MandatoryBracesLoops:
     active: true
   MaxLineLength:
-    active: true
+    active: false
     maxLineLength: 120
     excludePackageStatements: true
     excludeImportStatements: true

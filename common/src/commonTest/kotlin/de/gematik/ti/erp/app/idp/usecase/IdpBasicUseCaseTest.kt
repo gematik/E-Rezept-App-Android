@@ -29,16 +29,14 @@ import io.mockk.coVerifyOrder
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.spyk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Clock
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.hours
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class IdpBasicUseCaseTest {
     @get:Rule
     val coroutineRule = CoroutineTestRule()

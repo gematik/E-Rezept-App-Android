@@ -20,13 +20,17 @@ package de.gematik.ti.erp.app.protocol
 
 import de.gematik.ti.erp.app.protocol.repository.AuditEventRemoteDataSource
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
+import de.gematik.ti.erp.app.protocol.repository.DefaultAuditEventsRepository
 import de.gematik.ti.erp.app.protocol.usecase.AuditEventsUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val protocolModule = DI.Module("protocolModule") {
-    bindProvider { AuditEventsRepository(instance()) }
     bindProvider { AuditEventRemoteDataSource(instance()) }
     bindProvider { AuditEventsUseCase(instance(), instance()) }
+}
+
+val protocolRepositoryModule = DI.Module("protocolRepositoryModule", allowSilentOverride = true) {
+    bindProvider<AuditEventsRepository> { DefaultAuditEventsRepository(instance()) }
 }

@@ -8,9 +8,6 @@ pluginManagement {
     }
     resolutionStrategy {
         eachPlugin {
-            if (requested.id.id == "dagger.hilt.android") {
-                useModule("com.google.dagger:hilt-android-gradle-plugin:${requested.version}")
-            }
             if (requested.id.id == "com.codingfeline.buildkonfig") {
                 useModule("com.codingfeline.buildkonfig:buildkonfig-gradle-plugin:${requested.version}")
             }
@@ -51,6 +48,13 @@ includeBuild("smartcard-wrapper") {
 //    }
 //}
 
-include("android", "desktop", "common", "plugins:technical-requirements-plugin")
+include(":app:android")
+include(":app:android-mock")
+include(":app:features")
+include(":app:shared-test")
+include(":app:demo-mode")
+include(":common")
+include(":desktop")
+include(":plugins:technical-requirements-plugin")
 
 rootProject.name = "E-Rezept"

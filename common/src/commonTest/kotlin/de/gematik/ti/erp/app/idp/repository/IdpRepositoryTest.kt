@@ -52,7 +52,8 @@ import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.fhir.model.ResourceBasePath
 import de.gematik.ti.erp.app.idp.EllipticCurvesExtending
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
+import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -124,7 +125,7 @@ class CommonIdpRepositoryTest : TestDB() {
     lateinit var remoteDataSource: IdpRemoteDataSource
 
     lateinit var idpLocalDataSource: IdpLocalDataSource
-    lateinit var profileRepository: ProfilesRepository
+    lateinit var profileRepository: ProfileRepository
 
     @BeforeTest
     fun setUp() {
@@ -173,7 +174,7 @@ class CommonIdpRepositoryTest : TestDB() {
             localDataSource = idpLocalDataSource
         )
 
-        profileRepository = ProfilesRepository(
+        profileRepository = DefaultProfilesRepository(
             dispatchers = coroutineRule.dispatchers,
             realm = realm
         )

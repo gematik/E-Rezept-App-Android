@@ -56,7 +56,7 @@ class VauChannelInterceptor(
 
     override fun intercept(chain: Interceptor.Chain): Response {
         try {
-            val encryptedRequest = runBlocking(dispatchProvider.IO) {
+            val encryptedRequest = runBlocking(dispatchProvider.io) {
                 truststore.withValidVauPublicKey { publicKey ->
                     VauChannelSpec.V1.encryptHttpRequest(
                         chain.request(),

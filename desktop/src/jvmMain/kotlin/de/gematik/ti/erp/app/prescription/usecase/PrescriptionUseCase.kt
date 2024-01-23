@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.prescription.usecase
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.common.BitMatrix
 import com.google.zxing.datamatrix.DataMatrixWriter
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.DesktopPrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.model.SimpleAuditEvent
 import de.gematik.ti.erp.app.prescription.repository.model.SimpleMedicationDispense
 import de.gematik.ti.erp.app.prescription.repository.model.SimpleTask
@@ -35,7 +35,7 @@ import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.putJsonArray
 
 class PrescriptionUseCase(
-    private val repository: PrescriptionRepository,
+    private val repository: DesktopPrescriptionRepository,
     private val mapper: PrescriptionMapper
 ) {
     enum class PrescriptionType {

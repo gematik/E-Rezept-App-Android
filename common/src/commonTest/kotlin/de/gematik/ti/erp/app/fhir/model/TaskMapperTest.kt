@@ -35,10 +35,10 @@ class TaskMapperTest {
             process = { taskId, accessCode, lastModified, expiresOn, acceptUntil, authoredOn, status ->
                 assertEquals("160.000.000.029.982.30", taskId)
                 assertEquals("dd23212d35d14ccde351f9a1077f3d9508dcb8629882627ec16a22ea86144290", accessCode)
-                assertEquals(Instant.parse("2022-06-09T11:57:37.923Z").asFhirTemporal(), lastModified)
+                assertEquals(Instant.parse("2022-06-09T11:57:37.923Z"), lastModified.toInstant())
                 assertEquals(LocalDate.parse("2022-09-09").asFhirTemporal(), expiresOn)
                 assertEquals(LocalDate.parse("2022-07-07").asFhirTemporal(), acceptUntil)
-                assertEquals(Instant.parse("2022-06-09T11:50:23.223Z").asFhirTemporal(), authoredOn)
+                assertEquals(Instant.parse("2022-06-09T11:50:23.223Z"), authoredOn.toInstant())
                 assertEquals(TaskStatus.Completed, status)
             }
         )
@@ -52,10 +52,10 @@ class TaskMapperTest {
             process = { taskId, accessCode, lastModified, expiresOn, acceptUntil, authoredOn, status ->
                 assertEquals("160.000.033.491.280.78", taskId)
                 assertEquals("777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea", accessCode)
-                assertEquals(Instant.parse("2022-03-18T15:29:00Z").asFhirTemporal(), lastModified)
+                assertEquals(Instant.parse("2022-03-18T15:29:00Z"), lastModified.toInstant())
                 assertEquals(LocalDate.parse("2022-06-02").asFhirTemporal(), expiresOn)
                 assertEquals(LocalDate.parse("2022-04-02").asFhirTemporal(), acceptUntil)
-                assertEquals(Instant.parse("2022-03-18T15:26:00Z").asFhirTemporal(), authoredOn)
+                assertEquals(Instant.parse("2022-03-18T15:26:00Z"), authoredOn.toInstant())
                 assertEquals(TaskStatus.Completed, status)
             }
         )

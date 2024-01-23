@@ -29,7 +29,7 @@ class ConsentRepository(
 ) {
     suspend fun getConsent(
         profileId: ProfileIdentifier
-    ): Result<JsonElement> = withContext(dispatchers.IO) {
+    ): Result<JsonElement> = withContext(dispatchers.io) {
         remoteDataSource.getConsent(
             profileId = profileId
         )
@@ -38,7 +38,7 @@ class ConsentRepository(
     suspend fun grantConsent(
         profileId: ProfileIdentifier,
         consent: JsonElement
-    ): Result<Unit> = withContext(dispatchers.IO) {
+    ): Result<Unit> = withContext(dispatchers.io) {
         remoteDataSource.grantConsent(
             profileId = profileId,
             consent = consent
@@ -46,7 +46,7 @@ class ConsentRepository(
     }
     suspend fun deleteChargeConsent(
         profileId: ProfileIdentifier
-    ): Result<Unit> = withContext(dispatchers.IO) {
+    ): Result<Unit> = withContext(dispatchers.io) {
         remoteDataSource.deleteChargeConsent(
             profileId = profileId
         )

@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.prescription.ui
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.layout.Arrangement
@@ -81,7 +80,6 @@ import java.util.Locale
 
 private const val missingValue = "---"
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun PrescriptionDetailsScreen(
     navigation: Navigation,

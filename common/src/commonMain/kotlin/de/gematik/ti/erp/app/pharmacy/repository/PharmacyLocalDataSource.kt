@@ -18,119 +18,17 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.db.tryWrite
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
-import io.realm.kotlin.query.Sort
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
-import kotlinx.datetime.Clock
 
-class PharmacyLocalDataSource(
-    private val realm: Realm
-) {
-    suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
-        realm.tryWrite {
-            queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", overviewPharmacy.telematikId)?.let {
-                delete(it)
-            }
-            queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", overviewPharmacy.telematikId)?.let {
-                delete(it)
-            }
-        }
-    }
-
-    fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> =
-        realm.query<OftenUsedPharmacyEntityV1>().sort("lastUsed", Sort.DESCENDING).asFlow().map {
-            it.list.map { pharmacy ->
-                pharmacy.toOverviewPharmacy()
-            }
-        }
-
-    suspend fun saveOrUpdateOftenUsedPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        realm.tryWrite<Unit> {
-            queryFirst<OftenUsedPharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)?.apply {
-                this.lastUsed = Clock.System.now().toRealmInstant()
-                this.usageCount += 1
-            } ?: copyToRealm(pharmacy.toOftenUsedPharmacyEntityV1())
-        }
-    }
-
-    fun PharmacyUseCaseData.Pharmacy.toOftenUsedPharmacyEntityV1() =
-        OftenUsedPharmacyEntityV1().apply {
-            this.address = this@toOftenUsedPharmacyEntityV1.singleLineAddress()
-            this.pharmacyName = this@toOftenUsedPharmacyEntityV1.name
-            this.telematikId = this@toOftenUsedPharmacyEntityV1.telematikId
-        }
-
-    fun OftenUsedPharmacyEntityV1.toOverviewPharmacy() =
-        OverviewPharmacyData.OverviewPharmacy(
-            lastUsed = this.lastUsed.toInstant(),
-            usageCount = this.usageCount,
-            isFavorite = false,
-            telematikId = this.telematikId,
-            pharmacyName = this.pharmacyName,
-            address = this.address
-        )
-
-    suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) {
-        realm.tryWrite {
-            queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", favoritePharmacy.telematikId)?.let { delete(it) }
-        }
-    }
-
-    fun loadFavoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> =
-        realm.query<FavoritePharmacyEntityV1>().sort("lastUsed", Sort.DESCENDING).asFlow().map {
-            it.list.map { favorite ->
-                favorite.toOverviewPharmacy()
-            }
-        }
-
-    suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        realm.tryWrite<Unit> {
-            queryFirst<FavoritePharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)?.apply {
-                this.lastUsed = Clock.System.now().toRealmInstant()
-            } ?: copyToRealm(pharmacy.toFavoritePharmacyEntityV1())
-        }
-    }
-
-    fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
-        realm.query<FavoritePharmacyEntityV1>("telematikId = $0", pharmacy.telematikId)
-            .asFlow()
-            .map {
-                it.list.isNotEmpty()
-            }
-
-    fun PharmacyUseCaseData.Pharmacy.toFavoritePharmacyEntityV1() =
-        FavoritePharmacyEntityV1().apply {
-            this.address = this@toFavoritePharmacyEntityV1.singleLineAddress()
-            this.pharmacyName = this@toFavoritePharmacyEntityV1.name
-            this.telematikId = this@toFavoritePharmacyEntityV1.telematikId
-        }
-
-    fun FavoritePharmacyEntityV1.toOverviewPharmacy() =
-        OverviewPharmacyData.OverviewPharmacy(
-            lastUsed = this.lastUsed.toInstant(),
-            telematikId = this.telematikId,
-            pharmacyName = this.pharmacyName,
-            address = this.address,
-            isFavorite = true,
-            usageCount = 0
-        )
-
-    suspend fun markAsRedeemed(taskId: String) {
-        realm.tryWrite<Unit> {
-            queryFirst<ScannedTaskEntityV1>("taskId = $0", taskId)?.apply {
-                this.redeemedOn = Clock.System.now().toRealmInstant()
-            }
-        }
-    }
+interface PharmacyLocalDataSource {
+    suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy)
+    fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
+    suspend fun saveOrUpdateOftenUsedPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy)
+    suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy)
+    fun loadFavoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
+    suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy)
+    fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean>
+    suspend fun markAsRedeemed(taskId: String)
 }

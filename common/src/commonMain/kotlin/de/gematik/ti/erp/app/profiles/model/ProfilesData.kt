@@ -24,7 +24,7 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
 
 object ProfilesData {
-    enum class AvatarFigure {
+    enum class Avatar {
         PersonalizedImage,
         FemaleDoctor,
         WomanWithHeadScarf,
@@ -40,16 +40,16 @@ object ProfilesData {
         FemaleDoctorWithPhone,
         FemaleDeveloper
     }
-    class Profile(
+    data class Profile(
         val id: ProfileIdentifier,
         val color: ProfileColorNames,
-        val avatarFigure: AvatarFigure,
+        val avatar: Avatar,
         val personalizedImage: ByteArray? = null,
         val name: String,
         val insurantName: String? = null,
         val insuranceIdentifier: String? = null,
         val insuranceName: String? = null,
-        val insuranceType: InsuranceTypeV1,
+        val insuranceType: InsuranceTypeV1, // TODO: Map to domain insurance type
         val lastAuthenticated: Instant? = null,
         val lastAuditEventSynced: Instant? = null,
         val lastTaskSynced: Instant? = null,
@@ -68,7 +68,7 @@ object ProfilesData {
             other as Profile
 
             if (id != other.id) return false
-            if (avatarFigure != other.avatarFigure) return false
+            if (avatar != other.avatar) return false
             if (personalizedImage != null) {
                 if (other.personalizedImage == null) return false
                 if (!personalizedImage.contentEquals(other.personalizedImage)) return false
@@ -88,7 +88,7 @@ object ProfilesData {
         override fun hashCode(): Int {
             var result = id.hashCode()
             result = 31 * result + color.hashCode()
-            result = 31 * result + avatarFigure.hashCode()
+            result = 31 * result + avatar.hashCode()
             result = 31 * result + (personalizedImage?.contentHashCode() ?: 0)
             result = 31 * result + name.hashCode()
             result = 31 * result + (insurantName?.hashCode() ?: 0)

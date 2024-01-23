@@ -69,8 +69,9 @@ class SettingsRepository constructor(
                     screenShotsAllowed = it.screenshotsAllowed
                 )
             }
-        }.flowOn(dispatchers.IO)
+        }.flowOn(dispatchers.io)
 
+    // TODO: Not used
     override val authenticationMode: Flow<SettingsData.AuthenticationMode>
         get() = realm.query<SettingsEntityV1>().first().asFlow().mapNotNull { query ->
             query.obj?.let {
@@ -87,9 +88,10 @@ class SettingsRepository constructor(
                     else -> SettingsData.AuthenticationMode.Unspecified
                 }
             }
-        }.flowOn(dispatchers.IO)
+        }.flowOn(dispatchers.io)
 
-    override val pharmacySearch: Flow<SettingsData.PharmacySearch> // TODO move to PharmacySearch
+    // TODO: Not used
+    override val pharmacySearch: Flow<SettingsData.PharmacySearch>
         get() = settings.mapNotNull { settings ->
             settings?.pharmacySearch?.let {
                 SettingsData.PharmacySearch(
@@ -100,8 +102,9 @@ class SettingsRepository constructor(
                     openNow = it.filterOpenNow
                 )
             }
-        }.flowOn(dispatchers.IO)
+        }.flowOn(dispatchers.io)
 
+    // TODO move to PharmacySearch
     override suspend fun savePharmacySearch(search: SettingsData.PharmacySearch) {
         writeToRealm {
             this.pharmacySearch?.apply {
@@ -148,7 +151,7 @@ class SettingsRepository constructor(
         profileName: String,
         now: Instant
     ) {
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             realm.writeToRealm<SettingsEntityV1, Unit> { settings ->
                 copyToRealm(
                     ProfileEntityV1().apply {
@@ -221,7 +224,7 @@ class SettingsRepository constructor(
     }
 
     private suspend fun writeToRealm(block: SettingsEntityV1.() -> Unit) {
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             realm.writeToRealm<SettingsEntityV1, Unit> {
                 it.block()
             }

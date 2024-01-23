@@ -10,7 +10,7 @@ tasks.withType<KotlinCompile>() {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:7.2.0")
+    implementation("com.android.tools.build:gradle:8.1.2")
 }
 
 gradlePlugin {

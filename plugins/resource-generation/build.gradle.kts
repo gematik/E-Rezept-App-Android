@@ -2,7 +2,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `kotlin-dsl`
-    kotlin("jvm") version "1.8.0"
+    kotlin("jvm") version "1.7.0"
     kotlin("plugin.serialization") version "1.8.0"
     `java-gradle-plugin`
 }

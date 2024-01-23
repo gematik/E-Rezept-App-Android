@@ -49,7 +49,8 @@ import de.gematik.ti.erp.app.db.entities.v1.task.RatioEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.fhir.model.chargeItem_freetext
-import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
+import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.realm.kotlin.Realm
@@ -70,7 +71,7 @@ class InvoiceRepositoryTest : TestDB() {
     lateinit var invoiceLocalDataSource: InvoiceLocalDataSource
     lateinit var invoiceRemoteDataSource: InvoiceRemoteDataSource
     lateinit var invoiceRepository: InvoiceRepository
-    lateinit var profileRepository: ProfilesRepository
+    lateinit var profileRepository: ProfileRepository
 
     lateinit var realm: Realm
 
@@ -124,7 +125,7 @@ class InvoiceRepositoryTest : TestDB() {
             invoiceLocalDataSource,
             coroutineRule.dispatchers
         )
-        profileRepository = ProfilesRepository(coroutineRule.dispatchers, realm)
+        profileRepository = DefaultProfilesRepository(coroutineRule.dispatchers, realm)
     }
 
     @Test

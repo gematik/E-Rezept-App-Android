@@ -19,13 +19,14 @@ package de.gematik.ti.erp.app.pharmacy.usecase.mapper
 
 import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
 import de.gematik.ti.erp.app.fhir.model.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 
 // can't be modified; the backend will always return 80 entries on the first page
 const val PharmacyInitialResultsPerPage = 80
 const val PharmacyNextResultsPerPage = 10
 
-fun List<Pharmacy>.mapToUseCasePharmacies(): List<PharmacyUseCaseData.Pharmacy> =
+fun List<Pharmacy>.toModel(): List<PharmacyUseCaseData.Pharmacy> =
     map { pharmacy ->
         PharmacyUseCaseData.Pharmacy(
             id = pharmacy.id,
@@ -37,7 +38,23 @@ fun List<Pharmacy>.mapToUseCasePharmacies(): List<PharmacyUseCaseData.Pharmacy> 
             distance = null,
             contacts = pharmacy.contacts,
             provides = pharmacy.provides,
-            openingHours = (pharmacy.provides.find { it is LocalPharmacyService } as LocalPharmacyService).openingHours,
+            openingHours = (
+                pharmacy.provides.find {
+                    it is LocalPharmacyService
+                } as? LocalPharmacyService
+                )?.openingHours,
             telematikId = pharmacy.telematikId
         )
     }
+
+fun PharmacyData.ShippingContact.toModel() =
+    PharmacyUseCaseData.ShippingContact(
+        name = name,
+        line1 = line1,
+        line2 = line2,
+        postalCode = postalCode,
+        city = city,
+        telephoneNumber = telephoneNumber,
+        mail = mail,
+        deliveryInformation = deliveryInformation
+    )

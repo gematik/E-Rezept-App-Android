@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription
 
+import de.gematik.ti.erp.app.prescription.repository.DefaultTaskRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskLocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.TaskRemoteDataSource
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
@@ -26,7 +27,10 @@ import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val taskModule = DI.Module("taskModule") {
-    bindProvider { TaskRepository(instance(), instance(), instance()) }
     bindProvider { TaskRemoteDataSource(instance()) }
     bindProvider { TaskLocalDataSource(instance()) }
+}
+
+val taskRepositoryModule = DI.Module("taskRepositoryModule", allowSilentOverride = true) {
+    bindProvider<TaskRepository> { DefaultTaskRepository(instance(), instance(), instance()) }
 }

@@ -21,9 +21,14 @@ package de.gematik.ti.erp.app
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 
+// TODO: Remove this, serves no real purpose
+@Deprecated(
+    message = "This is an overkill, use CoroutineDispatcher",
+    replaceWith = ReplaceWith("kotlinx.coroutines.CoroutineDispatcher")
+)
 interface DispatchProvider {
-    val Main: CoroutineDispatcher get() = Dispatchers.Main
-    val Default: CoroutineDispatcher get() = Dispatchers.Default
-    val IO: CoroutineDispatcher get() = Dispatchers.IO
-    val Unconfined: CoroutineDispatcher get() = Dispatchers.Unconfined
+    val main: CoroutineDispatcher get() = Dispatchers.Main
+    val default: CoroutineDispatcher get() = Dispatchers.Default
+    val io: CoroutineDispatcher get() = Dispatchers.IO
+    val unconfined: CoroutineDispatcher get() = Dispatchers.Unconfined
 }

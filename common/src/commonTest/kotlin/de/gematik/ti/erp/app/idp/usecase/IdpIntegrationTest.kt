@@ -29,7 +29,7 @@ import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
+import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -69,7 +69,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalCoroutinesApi::class)
 class IdpIntegrationTest {
     @MockK(relaxed = true)
-    private lateinit var profilesRepository: ProfilesRepository
+    private lateinit var profilesRepository: DefaultProfilesRepository
 
     @MockK
     private lateinit var truststoreUseCase: TruststoreUseCase
@@ -143,7 +143,7 @@ class IdpIntegrationTest {
             truststoreUseCase = truststoreUseCase
         )
 
-        useCase = IdpUseCase(
+        useCase = DefaultIdpUseCase(
             repository = idpRepository,
             pairingRepository = idpPairingRepository,
             altAuthUseCase = IdpAlternateAuthenticationUseCase(

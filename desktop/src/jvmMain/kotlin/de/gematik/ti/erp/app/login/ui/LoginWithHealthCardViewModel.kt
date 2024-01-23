@@ -91,7 +91,7 @@ class LoginWithHealthCardViewModel(
                     emit(state)
                 }
             }
-            .flowOn(dispatchProvider.IO)
+            .flowOn(dispatchProvider.io)
 
     override fun close() {
         executor.shutdownNow()

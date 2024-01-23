@@ -25,12 +25,10 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-
 import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-
 import kotlinx.coroutines.withContext
 import kotlin.math.max
 
@@ -52,10 +50,10 @@ class AuditEventsUseCase(
                 maxSize = AuditEventsInitialResultsPerPage * 2
             ),
             pagingSourceFactory = { AuditEventPagingSource(profileId) }
-        ).flow.flowOn(dispatchers.IO)
+        ).flow.flowOn(dispatchers.io)
     }
     suspend fun loadAuditEvents(profileId: ProfileIdentifier): List<AuditEventData.AuditEvent> =
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             val initialResult = auditRepository.downloadAuditEvents(
                 profileId,
                 null,

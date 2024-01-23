@@ -42,7 +42,7 @@ class PrescriptionViewModel(
     private val dispatchProvider: DispatchProvider,
     private val prescriptionUseCase: PrescriptionUseCase
 ) : ScopeCloseable {
-    private val deleteScope = CoroutineScope(dispatchProvider.IO)
+    private val deleteScope = CoroutineScope(dispatchProvider.io)
     private val deleteResult = MutableSharedFlow<Result<Unit>>()
     private val selectedPrescription = MutableSharedFlow<String?>()
     private val prescriptionType = MutableStateFlow(PrescriptionUseCase.PrescriptionType.NotDispensed)
@@ -106,7 +106,7 @@ class PrescriptionViewModel(
         prescriptionType.emit(PrescriptionUseCase.PrescriptionType.NotDispensed)
     }
 
-    suspend fun update() = withContext(dispatchProvider.IO) {
+    suspend fun update() = withContext(dispatchProvider.io) {
         prescriptionUseCase.update()
     }
 

@@ -18,97 +18,14 @@
 
 package de.gematik.ti.erp.app.protocol.repository
 
-import de.gematik.ti.erp.app.fhir.model.mapCatching
-import de.gematik.ti.erp.app.fhir.parser.contained
-import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
-import de.gematik.ti.erp.app.fhir.parser.containedString
-import de.gematik.ti.erp.app.fhir.parser.filterWith
-import de.gematik.ti.erp.app.fhir.parser.findAll
-import de.gematik.ti.erp.app.fhir.parser.stringValue
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.protocol.model.AuditEventData
-import de.gematik.ti.erp.app.utils.asFhirInstant
-import io.github.aakira.napier.Napier
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.jsonPrimitive
 
-/**
- *
- */
-class AuditEventsRepository(
-    private val remoteDataSource: AuditEventRemoteDataSource
-) {
+interface AuditEventsRepository {
 
     suspend fun downloadAuditEvents(
         profileId: ProfileIdentifier,
         count: Int?,
         offset: Int?
-    ) =
-        remoteDataSource.getAuditEvents(
-            profileId = profileId,
-            count = count,
-            offset = offset
-        ).map {
-            extractAuditEvents(
-                bundle = it,
-                onError = { element, cause ->
-                    Napier.e(cause) {
-                        element.toString()
-                    }
-                }
-            )
-        }
-
-    private fun extractAuditEvents(
-        bundle: JsonElement,
-        onError: (JsonElement, Exception) -> Unit = { _, _ -> }
-    ): AuditEventData.AuditEventMappingResult {
-        val bundleTotal = bundle.containedArrayOrNull("entry")?.size ?: 0
-        val bundleId = bundle.containedString("id")
-        val resources = bundle
-            .findAll(listOf("entry", "resource"))
-
-        val auditEvents = resources.mapCatching(onError) { resource ->
-            val id = resource.containedString("id")
-            val text = resource.contained("text").containedString("div")
-            val taskId = resource
-                .findAll(listOf("entity", "what", "identifier"))
-                .filterWith(
-                    "system",
-                    stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID")
-                )
-                .firstOrNull()
-                ?.containedString("value")
-                ?: resource
-                    .findAll(listOf("entity", "what", "identifier"))
-                    .filterWith(
-                        "system",
-                        stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId")
-                    )
-                    .firstOrNull()
-                    ?.containedString("value")
-
-            val timestamp = requireNotNull(resource.contained("recorded").jsonPrimitive.asFhirInstant()) {
-                "Audit event field `recorded` missing"
-            }
-
-            val description = text.removeSurrounding(
-                "<div xmlns=\"http://www.w3.org/1999/xhtml\">",
-                "</div>"
-            )
-
-            AuditEventData.AuditEvent(
-                auditId = id,
-                taskId = taskId,
-                description = description,
-                timestamp = timestamp.value
-            )
-        }
-
-        return AuditEventData.AuditEventMappingResult(
-            auditEvents = auditEvents.toList(),
-            bundleId = bundleId,
-            bundleResultCount = bundleTotal
-        )
-    }
+    ): Result<AuditEventData.AuditEventMappingResult>
 }

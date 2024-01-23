@@ -2,9 +2,9 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.LONG
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
-import de.gematik.ti.erp.app
+import de.gematik.ti.erp.Dependencies
+import de.gematik.ti.erp.inject
 import de.gematik.ti.erp.overriding
-import org.jetbrains.compose.compose
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import java.io.ByteArrayOutputStream
 
@@ -18,7 +18,6 @@ plugins {
     id("de.gematik.ti.erp.dependencies")
     id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
 }
-
 fun getGitHash() =
     if (File("${rootDir.path}/.git").exists()) {
         val stdout = ByteArrayOutputStream()
@@ -30,23 +29,18 @@ fun getGitHash() =
     } else {
         "n/a"
     }
-
 val USER_AGENT: String by overriding()
 val DATA_PROTECTION_LAST_UPDATED: String by overriding()
-
 val VERSION_CODE: String by overriding()
 val VERSION_NAME: String by overriding()
-
 val DEBUG_TEST_IDS_ENABLED: String by overriding()
 val VAU_OCSP_RESPONSE_MAX_AGE: String by overriding()
-
 val APP_TRUST_ANCHOR_BASE64: String by overriding()
 val APP_TRUST_ANCHOR_BASE64_TEST: String by overriding()
 val PHARMACY_SERVICE_URI: String by overriding()
 val PHARMACY_SERVICE_URI_TEST: String by overriding()
 val PHARMACY_API_KEY: String by overriding()
 val PHARMACY_API_KEY_TEST: String by overriding()
-
 val BASE_SERVICE_URI_PU: String by overriding()
 val BASE_SERVICE_URI_TU: String by overriding()
 val BASE_SERVICE_URI_RU: String by overriding()
@@ -57,7 +51,6 @@ val IDP_SERVICE_URI_TU: String by overriding()
 val IDP_SERVICE_URI_RU: String by overriding()
 val IDP_SERVICE_URI_RU_DEV: String by overriding()
 val IDP_SERVICE_URI_TR: String by overriding()
-
 val ERP_API_KEY_GOOGLE_PU: String by overriding()
 val ERP_API_KEY_GOOGLE_TU: String by overriding()
 val ERP_API_KEY_GOOGLE_RU: String by overriding()
@@ -69,35 +62,36 @@ val ERP_API_KEY_HUAWEI_TR: String by overriding()
 val ERP_API_KEY_DESKTOP_PU: String by overriding()
 val ERP_API_KEY_DESKTOP_TU: String by overriding()
 val ERP_API_KEY_DESKTOP_RU: String by overriding()
-
 val INTEGRITY_API_KEY: String by overriding()
 val INTEGRITY_VERIFICATION_KEY: String by overriding()
 val CLOUD_PROJECT_NUMBER: String by overriding()
 val DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE: String by overriding()
 val DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY: String by overriding()
-
 val DEBUG_VISUAL_TEST_TAGS: String? by project
-
 kotlin {
-    android()
-    jvm("desktop") {
+    androidTarget {
         compilations.all {
-            kotlinOptions.jvmTarget = "17"
+            kotlinOptions {
+                jvmTarget = Dependencies.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
+            }
         }
     }
+    jvm("desktop")
     sourceSets {
         val commonMain by getting {
             dependencies {
                 implementation(kotlin("reflect"))
-                app {
+                inject {
                     androidX {
-                        implementation(paging("common-ktx")) {
+                        implementation(multiplatformPaging) {
                             // remove coroutine dependency; otherwise intellij will be confused with "duplicated class import"
                             exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
                         }
                     }
-                    kotlinX {
-                        implementation(coroutines("core"))
+                    coroutines {
+                        implementation(coroutinesCore)
+                    }
+                    dateTime {
                         implementation(datetime)
                     }
                     database {
@@ -105,8 +99,8 @@ kotlin {
                     }
                     crypto {
                         implementation(jose4j)
-                        compileOnly(bouncyCastle("bcprov"))
-                        compileOnly(bouncyCastle("bcpkix"))
+                        compileOnly(bouncycastleBcprov)
+                        compileOnly(bouncycastleBcpkix)
                     }
                     serialization {
                         implementation(kotlinXJson)
@@ -115,13 +109,13 @@ kotlin {
                         implementation(napier)
                     }
                     network {
-                        implementation(retrofit2("retrofit"))
-                        implementation(okhttp3("okhttp"))
+                        implementation(retrofit)
+                        implementation(okhttp3)
                         implementation(retrofit2KotlinXSerialization)
-                        implementation(okhttp3("logging-interceptor"))
+                        implementation(okhttpLogging)
                     }
                     dependencyInjection {
-                        implementation(kodein("di-framework-compose"))
+                        implementation(kodeinCompose)
                     }
                 }
                 implementation(compose.runtime)
@@ -133,28 +127,34 @@ kotlin {
         }
         val commonTest by getting {
             dependencies {
-                implementation(kotlin("reflect"))
-                implementation(kotlin("test-common"))
-                implementation(kotlin("test"))
-                app {
+                inject {
                     database {
                         implementation(realm)
                     }
+                    coroutinesTest {
+                        implementation(coroutinesTest)
+                    }
+                    serialization {
+                        implementation(kotlinXJson)
+                    }
                     test {
+                        implementation(kotlinTest)
+                        implementation(kotlinTestCommon)
+                        implementation(kotlinReflect)
                         implementation(junit4)
-                        implementation(mockk("mockk"))
+                        implementation(mockkOld)
                         implementation(snakeyaml)
                     }
                     crypto {
                         implementation(jose4j)
-                        implementation(bouncyCastle("bcprov"))
-                        implementation(bouncyCastle("bcpkix"))
-                    }
-                    kotlinXTest {
-                        implementation(coroutinesTest)
+                        implementation(bouncycastleBcprov)
+                        implementation(bouncycastleBcpkix)
                     }
                     networkTest {
                         implementation(mockWebServer)
+                    }
+                    dateTime {
+                        implementation(datetime)
                     }
                 }
             }
@@ -162,23 +162,19 @@ kotlin {
         val androidMain by getting {
             dependsOn(commonMain)
             dependencies {
-                app {
-                    android {
+                inject {
+                    androidX {
                         implementation(coreKtx)
                     }
                     crypto {
-                        implementation(bouncyCastle("bcprov"))
-                        implementation(bouncyCastle("bcpkix"))
+                        implementation(bouncycastleBcprov)
+                        implementation(bouncycastleBcpkix)
                     }
                     dependencyInjection {
-                        implementation(kodein("di-framework-android-x-viewmodel"))
-                        implementation(kodein("di-framework-android-x-viewmodel-savedstate"))
+                        implementation(kodeinViewModel)
+                        implementation(kodeinSavedState)
                     }
                 }
-            }
-        }
-        val androidTest by getting {
-            dependencies {
             }
         }
         val desktopMain by getting {
@@ -189,48 +185,41 @@ kotlin {
         }
         val desktopTest by getting {
             dependencies {
-                app {
+                inject {
                     crypto {
-                        implementation(bouncyCastle("bcprov"))
-                        implementation(bouncyCastle("bcpkix"))
+                        implementation(bouncycastleBcprov)
+                        implementation(bouncycastleBcpkix)
                     }
                 }
             }
         }
     }
 }
-
 android {
     buildToolsVersion = "33.0.1"
-    compileSdk = 33
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+    compileSdk = Dependencies.Versions.SdkVersions.COMPILE_SDK_VERSION
     defaultConfig {
-        minSdk = 24
-        targetSdk = 33
+        minSdk = Dependencies.Versions.SdkVersions.MIN_SDK_VERSION
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = Dependencies.Versions.JavaVersion.PROJECT_JAVA_VERSION
+        targetCompatibility = Dependencies.Versions.JavaVersion.PROJECT_JAVA_VERSION
     }
     namespace = "de.gematik.ti.erp.lib"
 }
-
 enum class Platforms {
     Google, Huawei, Konnektathon, Desktop
 }
-
 enum class Environments {
     PU, TU, RU, DEVRU, TR
 }
-
 enum class Types {
     Internal, External
 }
-
 buildkonfig {
     packageName = "de.gematik.ti.erp.app"
     exposeObjectWithName = "BuildKonfig"
-
     // default config is required
     defaultConfigs {
         buildConfigField(STRING, "GIT_HASH", getGitHash())
@@ -241,7 +230,6 @@ buildkonfig {
         buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY", DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY)
         buildConfigField(STRING, "BUILD_FLAVOR", project.property("buildkonfig.flavor") as String)
     }
-
     fun defaultConfigs(
         flavor: String,
         isInternal: Boolean,
@@ -263,27 +251,21 @@ buildkonfig {
                 buildConfigField(STRING, "BASE_SERVICE_URI_TU", BASE_SERVICE_URI_TU)
                 buildConfigField(STRING, "BASE_SERVICE_URI_RU_DEV", BASE_SERVICE_URI_RU_DEV)
                 buildConfigField(STRING, "BASE_SERVICE_URI_TR", BASE_SERVICE_URI_TR)
-
                 buildConfigField(STRING, "IDP_SERVICE_URI_PU", IDP_SERVICE_URI_PU)
                 buildConfigField(STRING, "IDP_SERVICE_URI_TU", IDP_SERVICE_URI_TU)
                 buildConfigField(STRING, "IDP_SERVICE_URI_RU", IDP_SERVICE_URI_RU)
                 buildConfigField(STRING, "IDP_SERVICE_URI_RU_DEV", IDP_SERVICE_URI_RU_DEV)
                 buildConfigField(STRING, "IDP_SERVICE_URI_TR", IDP_SERVICE_URI_TR)
-
                 buildConfigField(STRING, "PHARMACY_SERVICE_URI_PU", PHARMACY_SERVICE_URI)
                 buildConfigField(STRING, "PHARMACY_SERVICE_URI_RU", PHARMACY_SERVICE_URI_TEST)
-
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_PU", ERP_API_KEY_GOOGLE_PU)
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_RU", ERP_API_KEY_GOOGLE_RU)
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_TU", ERP_API_KEY_GOOGLE_TU)
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_TR", ERP_API_KEY_GOOGLE_TR)
-
                 buildConfigField(STRING, "PHARMACY_API_KEY_PU", PHARMACY_API_KEY)
                 buildConfigField(STRING, "PHARMACY_API_KEY_RU", PHARMACY_API_KEY_TEST)
-
                 buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64_PU", APP_TRUST_ANCHOR_BASE64)
                 buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64_TU", APP_TRUST_ANCHOR_BASE64_TEST)
-
                 buildConfigField(STRING, "IDP_SCOPE_DEVRU", "e-rezept-dev openid")
             }
             buildConfigField(STRING, "BASE_SERVICE_URI", baseServiceUri)
@@ -293,10 +275,8 @@ buildkonfig {
             buildConfigField(STRING, "PHARMACY_API_KEY", pharmacyServiceApiKey)
             buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64", trustAnchor)
             buildConfigField(LONG, "VAU_OCSP_RESPONSE_MAX_AGE", ocspResponseMaxAge)
-
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false")
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_IDP_INTEGRATION", "false")
-
             buildConfigField(
                 STRING,
                 "IDP_DEFAULT_SCOPE",
@@ -308,21 +288,16 @@ buildkonfig {
             )
         }
     }
-
     val platforms = Platforms.values()
     val environments = Environments.values()
     val types = Types.values()
-
     platforms.forEach { platform ->
         environments.forEach { environment ->
             types.forEach { type ->
-                val plat = platform.name.toLowerCase()
-                val env = environment.name.toLowerCase().capitalizeAsciiOnly()
-                val typ = type.name.toLowerCase().capitalizeAsciiOnly()
+                val plat = platform.name.lowercase()
+                val env = environment.name.lowercase().capitalizeAsciiOnly()
+                val typ = type.name.lowercase().capitalizeAsciiOnly()
                 val flavor = plat + env + typ
-
-                println("Flavor: $flavor")
-
                 defaultConfigs(
                     flavor = flavor,
                     isInternal = type == Types.Internal,
@@ -389,7 +364,6 @@ buildkonfig {
             }
         }
     }
-
     targetConfigs {
         create("desktop") {
             buildConfigField(STRING, "USER_AGENT", USER_AGENT)
@@ -397,13 +371,10 @@ buildkonfig {
         create("android") {
             buildConfigField(STRING, "USER_AGENT", USER_AGENT)
             buildConfigField(STRING, "DATA_PROTECTION_LAST_UPDATED", DATA_PROTECTION_LAST_UPDATED)
-
             // test tag config
             buildConfigField(BOOLEAN, "DEBUG_VISUAL_TEST_TAGS", DEBUG_VISUAL_TEST_TAGS ?: "false")
-
             // test configs
             buildConfigField(BOOLEAN, "DEBUG_TEST_IDS_ENABLED", DEBUG_TEST_IDS_ENABLED)
-
             // VAU feature toggles for development
             buildConfigField(BOOLEAN, "VAU_ENABLE_INTERCEPTOR", "true")
         }

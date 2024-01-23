@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+    <string name="desktop_menu_info">Info</string>
+    <string name="desktop_menu_terms">Nutzungsbedingungen</string>
+    <string name="desktop_menu_data">Datenschutz</string>
+
+    <string name="desktop_main_welcome_title">E-Rezept</string>
+    <string name="desktop_main_welcome_subtitle">Die App für Desktop</string>
+    <string name="desktop_main_login_with_healthcard">Mit Gesundheitskarte anmelden</string>
+
+    <string name="desktop_main_prescriptions">Rezepte</string>
+    <string name="desktop_main_communications">Apotheken</string>
+    <string name="desktop_main_redeemable_prescriptions">Einlösbar</string>
+    <string name="desktop_main_redeemed_prescriptions">Bereits eingelöst</string>
+    <string name="desktop_main_pharmacy_communications">Benachrichtigungen</string>
+    <string name="desktop_main_pharmacy_protocol">Protokoll</string>
+
+    <string name="desktop_main_refresh">Aktualisieren</string>
+    <string name="desktop_main_zoom_in">Vergrößern</string>
+    <string name="desktop_main_zoom_out">Verkleinern</string>
+    <string name="desktop_main_help">Hilfe</string>
+    <string name="desktop_main_logout">Abmelden</string>
+
+    <string name="desktop_prescription_no_data">Keine Angabe</string>
+
+    <string name="desktop_login_page_data_terms">Nutzungsbedingungen &amp; Datenschutz</string>
+    <string name="desktop_login_page_connect_reader">Kartenlesegerät anschließen</string>
+    <string name="desktop_login_page_enter_can">Kartenzugangsnummer eingeben</string>
+    <string name="desktop_login_page_enter_pin">PIN eingeben</string>
+    <string name="desktop_login_page_connect_healthcard">Mit Gesundheitskarte anmelden</string>
+
+    <string name="desktop_login_page_reader_search_healthcard">Suche nach Kartenlesegerät</string>
+    <string name="desktop_login_page_reader_found_healthcard">Kartenlesegerät gefunden</string>
+    <string name="desktop_login_page_reader_error">Treiber des Kartenlesegeräts möglicherweise nicht geladen. Bitte verbinden Sie das Kartenlesegerät vor dem Start der E-Rezept-Anwendung.</string>
+
+    <string name="desktop_login_page_connect_healthcard_error_io_title">Lesen der Gesundheitskarte fehlgeschlagen.</string>
+    <string name="desktop_login_page_connect_healthcard_error_io_subtitle">Legen Sie die Gesundheitskarte erneut auf das Lesegerät.</string>
+
+    <plurals name="desktop_prescription_expires_on">
+        <item quantity="zero">Nur noch heute als Selbstzahlender einlösbar</item>
+        <item quantity="one">Noch %s Tag als Selbstzahlender einlösbar</item>
+        <item quantity="other">Noch %s Tage als Selbstzahlender einlösbar</item>
+    </plurals>
+    <plurals name="desktop_prescription_accept_until">
+        <item quantity="zero">Nur noch heute gültig</item>
+        <item quantity="one">Noch %s Tag gültig</item>
+        <item quantity="other">Noch %s Tage gültig</item>
+    </plurals>
+    <string name="desktop_prescription_expired">Nicht mehr gültig</string>
+    <string name="desktop_prescription_prescribed_on">Ausgestellt am %s</string>
+    <string name="desktop_prescription_show_dmc">Rezeptcode anzeigen</string>
+
+    <string name="desktop_communication_on_premise">Abholung</string>
+    <string name="desktop_communication_delivery">Botendienst</string>
+    <string name="desktop_communication_shipment">Versand</string>
+
+    <string name="desktop_terms_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/app/datenschutz</string>
+    <string name="desktop_data_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/app/datenschutz</string>
+    <string name="desktop_help_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/faq</string>
+    <string name="desktop_contact_link" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/kontakt</string>
+</resources>

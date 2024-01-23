@@ -43,7 +43,7 @@ class InvoiceUseCase(
     private val dispatchers: DispatchProvider
 ) {
     fun invoicesFlow(profileId: ProfileIdentifier): Flow<List<InvoiceData.PKVInvoice>> =
-        invoiceRepository.invoices(profileId).flowOn(dispatchers.IO)
+        invoiceRepository.invoices(profileId).flowOn(dispatchers.io)
 
     fun invoices(profileId: ProfileIdentifier): Flow<Map<Int, List<InvoiceData.PKVInvoice>>> =
         invoicesFlow(profileId).map { invoices ->
@@ -65,7 +65,7 @@ class InvoiceUseCase(
         val forProfileId: ProfileIdentifier
     )
 
-    private val scope = CoroutineScope(dispatchers.IO)
+    private val scope = CoroutineScope(dispatchers.io)
 
     private val requestChannel =
         Channel<Request>(onUndeliveredElement = { it.resultChannel.close(CancellationException()) })

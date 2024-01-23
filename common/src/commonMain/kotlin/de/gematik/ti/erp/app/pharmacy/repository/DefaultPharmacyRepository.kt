@@ -55,7 +55,7 @@ class DefaultPharmacyRepository(
         offset: Int,
         count: Int
     ): Result<PharmacyServices> =
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             remoteDataSource.searchPharmaciesContinued(
                 bundleId = bundleId,
                 offset = offset,
@@ -75,7 +75,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchBinaryCerts(
         locationId: String
     ): Result<List<String>> =
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             remoteDataSource.searchBinaryCert(
                 locationId = locationId
             ).map {
@@ -99,31 +99,31 @@ class DefaultPharmacyRepository(
         )
 
     override fun loadOftenUsedPharmacies() =
-        localDataSource.loadOftenUsedPharmacies().flowOn(dispatchers.IO)
+        localDataSource.loadOftenUsedPharmacies().flowOn(dispatchers.io)
 
     override fun loadFavoritePharmacies() =
-        localDataSource.loadFavoritePharmacies().flowOn(dispatchers.IO)
+        localDataSource.loadFavoritePharmacies().flowOn(dispatchers.io)
 
     override suspend fun saveOrUpdateOftenUsedPharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             localDataSource.saveOrUpdateOftenUsedPharmacy(pharmacy)
         }
     }
 
     override suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             localDataSource.deleteOverviewPharmacy(overviewPharmacy)
         }
     }
 
     override suspend fun saveOrUpdateFavoritePharmacy(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             localDataSource.saveOrUpdateFavoritePharmacy(pharmacy)
         }
     }
 
     override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) {
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             localDataSource.deleteFavoritePharmacy(favoritePharmacy)
         }
     }
@@ -131,7 +131,7 @@ class DefaultPharmacyRepository(
     override suspend fun searchPharmacyByTelematikId(
         telematikId: String
     ): Result<PharmacyServices> =
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             remoteDataSource.searchPharmacyByTelematikId(telematikId)
                 .map {
                     extractPharmacyServices(
@@ -144,7 +144,7 @@ class DefaultPharmacyRepository(
         }
 
     override fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean> =
-        localDataSource.isPharmacyInFavorites(pharmacy).flowOn(dispatchers.IO)
+        localDataSource.isPharmacyInFavorites(pharmacy).flowOn(dispatchers.io)
 
     override suspend fun markAsRedeemed(taskId: String) {
         localDataSource.markAsRedeemed(taskId)

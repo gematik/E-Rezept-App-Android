@@ -58,6 +58,14 @@ object PharmacyUseCaseData {
         val openingHours: OpeningHours?,
         val telematikId: String
     ) {
+        val isPickupService
+            get() = provides.any { it is PickUpPharmacyService }
+
+        val isDeliveryService
+            get() = provides.any { it is DeliveryPharmacyService }
+
+        val isOnlineService
+            get() = provides.any { it is OnlinePharmacyService }
 
         @Stable
         fun singleLineAddress(): String =
@@ -66,18 +74,6 @@ object PharmacyUseCaseData {
             } else {
                 address.replace("\n", ", ")
             }
-
-        @Stable
-        fun pickupServiceAvailable(): Boolean =
-            provides.any { it is PickUpPharmacyService }
-
-        @Stable
-        fun deliveryServiceAvailable(): Boolean =
-            provides.any { it is DeliveryPharmacyService }
-
-        @Stable
-        fun onlineServiceAvailable(): Boolean =
-            provides.any { it is OnlinePharmacyService }
     }
 
     sealed class LocationMode {
@@ -85,10 +81,10 @@ object PharmacyUseCaseData {
          * We only store the information if gps was enabled and not the actual position.
          */
         @Immutable
-        object EnabledWithoutPosition : LocationMode()
+        data object EnabledWithoutPosition : LocationMode()
 
         @Immutable
-        object Disabled : LocationMode()
+        data object Disabled : LocationMode()
 
         @Immutable
         data class Enabled(val location: Location, val radiusInMeter: Double = DefaultRadiusInMeter) : LocationMode()
@@ -110,6 +106,7 @@ object PharmacyUseCaseData {
         val taskId: String,
         val accessCode: String,
         val title: String?,
+        val index: Int?,
         val timestamp: Instant,
         val substitutionsAllowed: Boolean
     )
@@ -159,7 +156,7 @@ object PharmacyUseCaseData {
         fun addressIsMissing() = name.isBlank() || line1.isBlank() || postalCode.isBlank() || city.isBlank()
 
         companion object {
-            val Empty = ShippingContact(
+            val EmptyShippingContact = ShippingContact(
                 name = "",
                 line1 = "",
                 line2 = "",
@@ -174,13 +171,13 @@ object PharmacyUseCaseData {
 
     @Immutable
     data class OrderState(
-        val prescriptions: List<PrescriptionOrder>,
+        val orders: List<PrescriptionOrder>,
         val contact: ShippingContact
     ) {
         companion object {
             val Empty = OrderState(
-                prescriptions = emptyList(),
-                contact = ShippingContact.Empty
+                orders = emptyList(),
+                contact = ShippingContact.EmptyShippingContact
             )
         }
     }

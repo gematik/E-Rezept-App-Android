@@ -219,7 +219,7 @@ class MedicationDispenseMapperTest {
                 assertEquals("06491772", uniqueIdentifier)
                 assertEquals(listOf(), ingredients)
                 assertEquals("8521037577", lotNumber)
-                assertEquals(Instant.parse("2023-05-02T06:26:06Z").asFhirTemporal(), expirationDate)
+                assertEquals(Instant.parse("2023-05-02T06:26:06Z"), expirationDate?.toInstant())
                 ReturnType.Medication
             },
             processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,

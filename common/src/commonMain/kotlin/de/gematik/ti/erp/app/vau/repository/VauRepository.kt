@@ -35,7 +35,7 @@ class VauRepository(
      * rethrows the exception.
      */
     suspend fun <R> withUntrusted(block: suspend (UntrustedCertList, UntrustedOCSPList) -> R) =
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             val (untrustedCertList, untrustedOCSPList) = localDataSource.loadUntrusted() ?: run {
                 Napier.d("GET cert & ocsp from backend...")
 

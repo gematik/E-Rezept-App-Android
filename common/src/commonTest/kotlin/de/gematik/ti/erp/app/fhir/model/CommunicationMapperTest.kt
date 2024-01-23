@@ -20,14 +20,13 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.asFhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
+import org.junit.Test
 import java.io.File
-import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private const val JsonSymbols = "\"{}[]:"
@@ -167,7 +166,7 @@ class CommunicationMapperTest {
                 assertEquals(com.communicationId, communicationId)
                 assertEquals(com.orderId, orderId)
                 assertEquals(com.profile, profile)
-                assertEquals(com.sentOn.asFhirTemporal(), sentOn)
+                assertEquals(sentOn.toInstant(), com.sentOn)
                 assertEquals(com.sender, sender)
                 assertEquals(com.recipient, recipient)
                 assertEquals(com.payload, payload)

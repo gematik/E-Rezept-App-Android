@@ -37,5 +37,5 @@ class CommunicationViewModel(
     fun screenState(): Flow<CommunicationScreenData.State> =
         communicationUseCase.pharmacyCommunications().map {
             CommunicationScreenData.State(it)
-        }.flowOn(dispatchProvider.Unconfined)
+        }.flowOn(dispatchProvider.unconfined)
 }

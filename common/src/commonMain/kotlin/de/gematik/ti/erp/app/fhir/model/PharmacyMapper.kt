@@ -113,15 +113,20 @@ fun extractPharmacyServices(
                 .containedString("value")
 
         var isMobilePharmacy = false
+        var isOutpatientPharmacy = false
 
         pharmacy.findAll(TypeCodingCode).forEach {
             when (it.containedString()) {
                 "MOBL" -> isMobilePharmacy = true
+                "OUTPHARM" -> isOutpatientPharmacy = true
             }
         }
 
-        // All pharmacies offer pickup service
-        val pickUpPharmacyService = PickUpPharmacyService(name = locationName)
+        val pickUpPharmacyService = if (isOutpatientPharmacy) {
+            PickUpPharmacyService(name = locationName)
+        } else {
+            null
+        }
 
         val onlinePharmacyService = if (isMobilePharmacy) {
             OnlinePharmacyService(name = locationName)
@@ -151,6 +156,8 @@ fun extractPharmacyServices(
                     city = address.containedString("city")
                 )
             },
+            // contacts have preference over provides!
+            // When Pharmacy NOT connected to TI
             contacts = pharmacy.containedArrayOrNull("telecom")?.let { contacts(it) } ?: PharmacyContacts(
                 "",
                 "",
@@ -159,6 +166,7 @@ fun extractPharmacyServices(
                 "",
                 ""
             ),
+            // When Pharmacy connected to TI
             provides = listOfNotNull(
                 localService,
                 deliveryPharmacyService,

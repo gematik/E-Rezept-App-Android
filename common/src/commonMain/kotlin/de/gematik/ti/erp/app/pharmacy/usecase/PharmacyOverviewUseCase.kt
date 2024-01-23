@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
-import de.gematik.ti.erp.app.pharmacy.usecase.mapper.mapToUseCasePharmacies
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.Flow
@@ -32,10 +32,10 @@ class PharmacyOverviewUseCase(
     private val dispatchers: DispatchProvider
 ) {
     fun oftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> =
-        repository.loadOftenUsedPharmacies().flowOn(dispatchers.IO)
+        repository.loadOftenUsedPharmacies().flowOn(dispatchers.io)
 
     fun favoritePharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>> =
-        repository.loadFavoritePharmacies().flowOn(dispatchers.IO)
+        repository.loadFavoritePharmacies().flowOn(dispatchers.io)
 
     suspend fun saveOrUpdateUsedPharmacies(pharmacy: PharmacyUseCaseData.Pharmacy) {
         repository.saveOrUpdateOftenUsedPharmacy(pharmacy)
@@ -47,8 +47,8 @@ class PharmacyOverviewUseCase(
 
     suspend fun searchPharmacyByTelematikId(
         telematikId: String
-    ): Result<PharmacyUseCaseData.Pharmacy?> = withContext(dispatchers.IO) {
+    ): Result<PharmacyUseCaseData.Pharmacy?> = withContext(dispatchers.io) {
         repository.searchPharmacyByTelematikId(telematikId)
-            .map { it.pharmacies.mapToUseCasePharmacies().firstOrNull() }
+            .map { it.pharmacies.toModel().firstOrNull() }
     }
 }

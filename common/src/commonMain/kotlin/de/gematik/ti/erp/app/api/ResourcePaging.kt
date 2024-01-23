@@ -41,14 +41,14 @@ abstract class ResourcePaging<T>(
 
     protected suspend fun downloadPaged(profileId: ProfileIdentifier): Result<Unit> =
         lock.withLock {
-            withContext(dispatchers.IO) {
+            withContext(dispatchers.io) {
                 downloadAll(profileId)
             }
         }
 
     protected suspend fun downloadPaged(profileId: ProfileIdentifier, fold: (prev: T?, next: T) -> T): Result<T?> =
         lock.withLock {
-            withContext(dispatchers.IO) {
+            withContext(dispatchers.io) {
                 downloadAll(profileId, fold)
             }
         }
@@ -61,7 +61,7 @@ abstract class ResourcePaging<T>(
         while (condition && pages < maxPages) {
             val r = downloadResource(
                 profileId = profileId,
-                timestamp = toTimestampString(syncedUpTo(profileId)),
+                timestamp = syncedUpTo(profileId).toTimestampString(),
                 count = maxPageSize
             ).fold(
                 onSuccess = {
@@ -97,7 +97,7 @@ abstract class ResourcePaging<T>(
         while (condition && pages < maxPages) {
             val r = downloadResource(
                 profileId = profileId,
-                timestamp = toTimestampString(syncedUpTo(profileId)),
+                timestamp = syncedUpTo(profileId).toTimestampString(),
                 count = maxPageSize
             ).fold(
                 onSuccess = {
@@ -130,16 +130,6 @@ abstract class ResourcePaging<T>(
         return Result.success(result)
     }
 
-    private fun toTimestampString(timestamp: Instant?) =
-        timestamp?.let {
-            // TODO: remove java date time stuff
-            val tm = it.toJavaInstant().atOffset(ZoneOffset.UTC)
-                .truncatedTo(ChronoUnit.SECONDS)
-                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
-
-            "gt$tm"
-        }
-
     class ResourceResult<T>(val count: Int, val data: T)
 
     /**
@@ -152,4 +142,16 @@ abstract class ResourcePaging<T>(
     ): Result<ResourceResult<T>>
 
     protected abstract suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant?
+
+    companion object {
+        fun Instant?.toTimestampString() =
+            this?.let {
+                // TODO: remove java date time stuff
+                val tm = it.toJavaInstant().atOffset(ZoneOffset.UTC)
+                    .truncatedTo(ChronoUnit.SECONDS)
+                    .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME)
+
+                "gt$tm"
+            }
+    }
 }

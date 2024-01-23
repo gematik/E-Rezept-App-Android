@@ -37,7 +37,7 @@ class CheckVersionUseCase(
     private val okHttp: OkHttpClient,
     private val dispatchers: DispatchProvider
 ) {
-    suspend fun isUpdateRequired(): Boolean = withContext(dispatchers.IO) {
+    suspend fun isUpdateRequired(): Boolean = withContext(dispatchers.io) {
         if (BuildKonfig.INTERNAL) {
             return@withContext false
         }

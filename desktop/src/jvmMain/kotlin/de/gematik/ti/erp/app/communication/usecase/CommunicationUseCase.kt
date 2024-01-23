@@ -18,20 +18,20 @@
 
 package de.gematik.ti.erp.app.communication.usecase
 
-import de.gematik.ti.erp.app.communication.repository.CommunicationRepository
+import de.gematik.ti.erp.app.communication.repository.DesktopCommunicationRepository
 import de.gematik.ti.erp.app.communication.usecase.model.CommunicationUseCaseData
 import de.gematik.ti.erp.app.communication.usecase.model.CommunicationUseCaseData.Communication.SupplyOption
 import de.gematik.ti.erp.app.prescription.repository.CommunicationProfile.Reply
 import de.gematik.ti.erp.app.prescription.repository.CommunicationSupplyOption
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.prescription.repository.DesktopPrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.SimpleCommunicationWithPharmacy
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 class CommunicationUseCase(
-    private val communicationRepository: CommunicationRepository,
-    private val prescriptionRepository: PrescriptionRepository
+    private val communicationRepository: DesktopCommunicationRepository,
+    private val prescriptionRepository: DesktopPrescriptionRepository
 ) {
     fun pharmacyCommunications(): Flow<List<CommunicationUseCaseData.Communication>> =
         communicationRepository.communications().map {

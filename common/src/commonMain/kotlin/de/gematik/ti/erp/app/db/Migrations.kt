@@ -55,7 +55,7 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
 import kotlinx.datetime.Instant
 
-const val ACTUAL_SCHEMA_VERSION = 26L
+const val ACTUAL_SCHEMA_VERSION = 27L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -164,6 +164,16 @@ val appSchemas = setOf(
                     it.lastModified = Instant.parse("2023-06-01T00:00:00Z").toRealmInstant()
                     it.isIncomplete = false
                     it.failureToReport = ""
+                }
+            }
+
+            if (migrationStartedFrom < 27) {
+                query<ScannedTaskEntityV1>().find().groupBy {
+                    it.scannedOn
+                }.forEach {
+                    it.value.mapIndexed { index, scannedTaskEntityV1 ->
+                        scannedTaskEntityV1.index = index + 1
+                    }
                 }
             }
         }

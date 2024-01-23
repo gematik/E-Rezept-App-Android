@@ -74,7 +74,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     lateinit var realm: Realm
 
-    lateinit var repo: ProfilesRepository
+    lateinit var repo: DefaultProfilesRepository
 
     @BeforeTest
     fun setUp() {
@@ -114,7 +114,7 @@ class ProfilesRepositoryTest : TestDB() {
                 .build()
         )
 
-        repo = ProfilesRepository(
+        repo = DefaultProfilesRepository(
             dispatchers = coroutineRule.dispatchers,
             realm = realm
         )
@@ -315,12 +315,12 @@ class ProfilesRepositoryTest : TestDB() {
     @Test
     fun `save avatar figure`() = runTest {
         repo.saveProfile(defaultProfileName, true)
-        ProfilesData.AvatarFigure.values().forEach { figure ->
+        ProfilesData.Avatar.values().forEach { figure ->
             repo.profiles().first().also {
                 repo.saveAvatarFigure(it[0].id, figure)
             }
             repo.profiles().first().also {
-                assertEquals(figure, it[0].avatarFigure)
+                assertEquals(figure, it[0].avatar)
             }
         }
     }

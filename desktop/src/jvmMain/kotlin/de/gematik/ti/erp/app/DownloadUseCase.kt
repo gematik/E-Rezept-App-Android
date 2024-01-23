@@ -18,15 +18,15 @@
 
 package de.gematik.ti.erp.app
 
-import de.gematik.ti.erp.app.communication.repository.CommunicationRepository
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
+import de.gematik.ti.erp.app.communication.repository.DesktopCommunicationRepository
+import de.gematik.ti.erp.app.prescription.repository.DesktopPrescriptionRepository
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
 
 class DownloadUseCase(
-    private val prescriptionRepository: PrescriptionRepository,
-    private val communicationRepository: CommunicationRepository
+    private val prescriptionRepository: DesktopPrescriptionRepository,
+    private val communicationRepository: DesktopCommunicationRepository
 ) {
     suspend fun update() =
         supervisorScope {

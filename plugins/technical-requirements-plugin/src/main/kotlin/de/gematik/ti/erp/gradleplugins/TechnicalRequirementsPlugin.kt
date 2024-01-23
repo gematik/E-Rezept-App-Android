@@ -24,16 +24,16 @@ import org.gradle.api.Project
 import java.io.File
 
 class TechnicalRequirementsPlugin : Plugin<Project> {
-    var project: Project? = null
+    private var project: Project? = null
     override fun apply(project: Project) {
         this.project = project
         project.tasks.register("generateTechnicalRequirementsMarkdown") {
             doLast {
                 val sourceDirs = setOf(
-                    File(project.rootDir.path + "/android/src/main/java/de/gematik/ti/erp/app"),
+                    File(project.rootDir.path + "/app/android/src/main/java/de/gematik/ti/erp/app"),
+                    File(project.rootDir.path + "/app/feature/src/main/kotlin/de/gematik/ti/erp/app"),
                     File(project.rootDir.path + "/common/src/commonMain/kotlin/de/gematik/ti/erp/app")
                 )
-                // println(sourceDirs)
                 processSourceDirectory(sourceDirs)
             }
         }
@@ -47,13 +47,9 @@ class TechnicalRequirementsPlugin : Plugin<Project> {
 
             files.forEach { file ->
                 val annotationData = findAnnotationsInFile(file)
-                annotationData.forEach {
-                    // println(it)
-                }
                 allAnnotations.addAll(annotationData)
             }
         }
-
         generateHtmlReport(allAnnotations)
     }
 
@@ -68,7 +64,6 @@ class TechnicalRequirementsPlugin : Plugin<Project> {
         val matches = ANNOTATION_REGEX.findAll(content)
         for (match in matches) {
             val annotationText = match.value
-            // println(annotationText)
             val startLine = content.substring(0, match.range.first).count { it == '\n' } + 1
 
             val requirements = parseRequirements(annotationText)
@@ -128,7 +123,6 @@ class TechnicalRequirementsPlugin : Plugin<Project> {
         val match = RATIONALE_REGEX.find(annotationText)
         println(annotationText)
         println(match?.value ?: "_________")
-
         return match?.value ?: ""
     }
 
@@ -166,7 +160,7 @@ class TechnicalRequirementsPlugin : Plugin<Project> {
             htmlBuilder.append("<h2 class=\"toggle-line\" onclick=\"toggleNextLine(this)\">$specification</h2>")
             htmlBuilder.append("<ul class=\"hidden\">")
             val annotationDataList = annotationList.filter { it.specification == specification }
-                .sortedWith(compareBy<AnnotationData> { it.requirement }.thenBy { it.extractSuffixNumber() ?: 0 })
+                .sortedWith(compareBy<AnnotationData> { it.requirement }.thenBy { it.extractSuffixNumber() })
             for (data in annotationDataList) {
                 htmlBuilder.append("<li>")
                 htmlBuilder.append(

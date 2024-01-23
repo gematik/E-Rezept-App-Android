@@ -20,8 +20,6 @@ package de.gematik.ti.erp.app.utils
 
 import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.fhir.parser.YearMonth
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.contentOrNull
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -31,9 +29,10 @@ import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
-import kotlin.jvm.JvmInline
 
 /**
  * The Fhir documentation mentions the following formats:
@@ -94,6 +93,14 @@ sealed interface FhirTemporal {
         .toFormattedDate()
 }
 
+fun Instant.asFhirTemporal(): FhirTemporal.Instant {
+    val desiredFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+    val updatedInstant = toLocalDateTime(TimeZone.currentSystemDefault())
+        .toJavaLocalDateTime().format(desiredFormatter)
+        .toInstant()
+    return FhirTemporal.Instant(updatedInstant)
+}
+
 fun Instant.toFormattedDateTime(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
     .toJavaLocalDateTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.SHORT))
 fun Instant.toStartOfDayInUTC(): Instant {
@@ -102,7 +109,6 @@ fun Instant.toStartOfDayInUTC(): Instant {
 }
 fun Instant.toFormattedDate(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
     .toJavaLocalDateTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
-fun Instant.asFhirTemporal() = FhirTemporal.Instant(this)
 fun LocalDateTime.asFhirTemporal() = FhirTemporal.LocalDateTime(this)
 fun LocalDate.asFhirTemporal() = FhirTemporal.LocalDate(this)
 fun YearMonth.asFhirTemporal() = FhirTemporal.YearMonth(this)

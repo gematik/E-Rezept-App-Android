@@ -48,10 +48,10 @@ class InvoiceRepository(
     }
 
     fun invoices(profileId: ProfileIdentifier) =
-        localDataSource.loadInvoices(profileId).flowOn(dispatchers.IO)
+        localDataSource.loadInvoices(profileId).flowOn(dispatchers.io)
 
     fun invoiceById(taskId: String) =
-        localDataSource.loadInvoiceById(taskId).flowOn(dispatchers.IO)
+        localDataSource.loadInvoiceById(taskId).flowOn(dispatchers.io)
 
     suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: JsonElement) {
         localDataSource.saveInvoice(profileId, bundle)
@@ -69,7 +69,7 @@ class InvoiceRepository(
             lastUpdated = timestamp,
             count = count
         ).mapCatching { fhirBundle ->
-            withContext(dispatchers.IO) {
+            withContext(dispatchers.io) {
                 val (total, taskIds) = extractTaskIdsFromChargeItemBundle(fhirBundle)
 
                 supervisorScope {
@@ -87,7 +87,7 @@ class InvoiceRepository(
     private suspend fun downloadInvoiceWithBundle(
         taskId: String,
         profileId: ProfileIdentifier
-    ) = withContext(dispatchers.IO) {
+    ) = withContext(dispatchers.io) {
         remoteDataSource.getChargeItemBundleById(profileId, taskId).mapCatching { bundle ->
             requireNotNull(localDataSource.saveInvoice(profileId, bundle))
         }
@@ -96,7 +96,7 @@ class InvoiceRepository(
     suspend fun deleteInvoiceById(
         taskId: String,
         profileId: ProfileIdentifier
-    ) = withContext(dispatchers.IO) {
+    ) = withContext(dispatchers.io) {
         val result = remoteDataSource.deleteChargeItemById(profileId, taskId)
             .onSuccess {
                 localDataSource.deleteInvoiceById(taskId)

@@ -35,10 +35,10 @@ class CoroutineTestRule(
 ) : TestWatcher() {
 
     val dispatchers = object : DispatchProvider {
-        override val Default: CoroutineDispatcher get() = testDispatcher
-        override val IO: CoroutineDispatcher get() = testDispatcher
-        override val Main: CoroutineDispatcher get() = testDispatcher
-        override val Unconfined: CoroutineDispatcher get() = testDispatcher
+        override val default: CoroutineDispatcher get() = testDispatcher
+        override val io: CoroutineDispatcher get() = testDispatcher
+        override val main: CoroutineDispatcher get() = testDispatcher
+        override val unconfined: CoroutineDispatcher get() = testDispatcher
     }
 
     override fun starting(description: Description?) {

@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyInitialResultsPerPage
-import de.gematik.ti.erp.app.pharmacy.usecase.mapper.mapToUseCasePharmacies
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.settings.model.SettingsData
@@ -38,7 +38,7 @@ class PharmacyMapsUseCase(
     suspend fun searchPharmacies(
         searchData: PharmacyUseCaseData.SearchData
     ): List<PharmacyUseCaseData.Pharmacy> =
-        withContext(dispatchers.IO) {
+        withContext(dispatchers.io) {
             settingsRepository.savePharmacySearch(
                 SettingsData.PharmacySearch(
                     name = searchData.name,
@@ -71,7 +71,7 @@ class PharmacyMapsUseCase(
             ).getOrThrow()
 
             if (initialResult.bundleResultCount == PharmacyInitialResultsPerPage) {
-                val pharmacies = initialResult.pharmacies.mapToUseCasePharmacies().toMutableList()
+                val pharmacies = initialResult.pharmacies.toModel().toMutableList()
 
                 var offset = initialResult.bundleResultCount
                 loop@ while (true) {
@@ -85,13 +85,13 @@ class PharmacyMapsUseCase(
                         break@loop
                     }
 
-                    pharmacies += result.pharmacies.mapToUseCasePharmacies()
+                    pharmacies += result.pharmacies.toModel()
                     offset += result.bundleResultCount
                 }
 
                 pharmacies
             } else {
-                initialResult.pharmacies.mapToUseCasePharmacies()
+                initialResult.pharmacies.toModel()
             }
         }
 }

@@ -1,7 +1,7 @@
-import de.gematik.ti.erp.app
+import de.gematik.ti.erp.Dependencies
+import de.gematik.ti.erp.inject
 import de.gematik.ti.erp.networkSecurityConfigGen.AndroidNetworkConfigGeneratorTask
 import de.gematik.ti.erp.stringResGen.AndroidStringResourceGeneratorTask
-import org.jetbrains.compose.compose
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import java.util.Locale
 
@@ -58,7 +58,7 @@ fun networkConfigPath(name: String): String {
 kotlin {
     jvm {
         compilations.all {
-            kotlinOptions.jvmTarget = "17"
+            kotlinOptions.jvmTarget = Dependencies.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
             kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
         }
         withJava()
@@ -76,16 +76,18 @@ kotlin {
 
                 implementation(compose.materialIconsExtended)
 
-                app {
+                inject {
                     androidX {
-                        compileOnly(paging("common-ktx"))
+                        compileOnly(multiplatformPaging)
                     }
-                    kotlinX {
-                        implementation(coroutines("swing"))
+                    coroutines {
+                        implementation(coroutinesSwing)
+                    }
+                    dateTime {
                         implementation(datetime)
                     }
                     dependencyInjection {
-                        compileOnly(kodein("di-framework-compose"))
+                        compileOnly(kodeinCompose)
                     }
                     dataMatrix {
                         implementation(zxing)
@@ -100,14 +102,14 @@ kotlin {
                     }
                     crypto {
                         implementation(jose4j)
-                        implementation(bouncyCastle("bcprov"))
-                        implementation(bouncyCastle("bcpkix"))
+                        implementation(bouncycastleBcprov)
+                        implementation(bouncycastleBcpkix)
                     }
                     network {
-                        implementation(retrofit2("retrofit"))
+                        implementation(retrofit)
                         implementation(retrofit2KotlinXSerialization)
-                        implementation(okhttp3("okhttp"))
-                        implementation(okhttp3("logging-interceptor"))
+                        implementation(okhttp3)
+                        implementation(okhttpLogging)
                         // Work around vulnerable Okio version 3.1.0 (CVE-2023-3635).
                         // Can be removed when Retrofit releases a new version >2.9.0.
                         implementation(okio)
@@ -132,19 +134,23 @@ compose.desktop {
             modules("java.smartcardio")
 
             macOS {
-                // iconFile.set(rootProject.file("resources/icon/ERezept.icns"))
+                iconFile.set(rootProject.file("resources/icon/ERezept.icns"))
             }
             windows {
-                val path = if ((project.property("buildkonfig.flavor") as String).endsWith("Internal")) {
-                    "E-Rezept-Dev.ico"
-                } else {
-                    "E-Rezept.ico"
-                }
-                iconFile.set(project.file(path))
+                iconFile.set(
+                    project.file(
+                        when {
+                            (project.property("buildkonfig.flavor") as? String)
+                                ?.endsWith("Internal") == true -> "E-Rezept-Dev.ico"
+
+                            else -> "E-Rezept.ico"
+                        }
+                    )
+                )
                 menuGroup = "gematik"
             }
             linux {
-                // iconFile.set(rootProject.file("resources/icon/ERezept.png"))
+                iconFile.set(rootProject.file("resources/icon/ERezept.png"))
             }
         }
     }
