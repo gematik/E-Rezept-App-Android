@@ -1,5 +1,10 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
+buildscript {
+    dependencies {
+        classpath("com.karumi:shot:6.0.0")
+    }
+}
 // NOTE: Only pre-include plugins (apply false) required by the modules android, common
 // and desktop within this block to keep them excluded from the root module.
 // If the plugin can't be resolved add a custom resolution strategy to `settings.gradle.kts`.
@@ -23,6 +28,8 @@ plugins {
     id("org.jetbrains.compose") version "1.4.0" apply false
     id("com.codingfeline.buildkonfig") version "0.13.3" apply false
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
+    id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
+
 }
 
 val ktlintMain by configurations.creating

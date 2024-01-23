@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">E-prescription</string>
+<resources>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
     <string name="back">Back</string>
@@ -9,7 +8,7 @@
     <string name="task_id">Task ID</string>
     <string name="access_code">Access code</string>
     <string name="onb_terms_of_use">Terms of Use</string>
-    <string name="onb_data_consent">Privacy Policy</string>
+    <string name="onb_data_consent">Privacy policy</string>
     <string name="pres_bottombar_prescriptions">Prescriptions</string>
     <string name="cam_access_denied_headline">Access to camera denied</string>
     <string name="cam_access_denied_description">To use the scanner, you must allow the app to access your camera in the system settings.</string>
@@ -25,7 +24,7 @@
     <string name="cam_cancel_msg">Cancel scanning of prescription codes?</string>
     <string name="cam_cancel_ok">Cancel scanning</string>
     <string name="cam_cancel_resume">Continue</string>
-    <string name="cdw_next">Let\'s get started</string>
+    <string name="cdw_next">Let\'s go</string>
     <string name="cdw_intro_what_you_need">What you need:</string>
     <string name="cdw_can_headline">Enter card access number</string>
     <string name="cdw_pin_title">Enter PIN</string>
@@ -73,7 +72,7 @@
     <string name="settings_appprotection_headline">Security</string>
     <string name="settings_legal_headline">Legal information</string>
     <string name="settings_legal_imprint">Imprint</string>
-    <string name="settings_legal_dataprotection">Privacy Policy</string>
+    <string name="settings_legal_dataprotection">Privacy policy</string>
     <string name="settings_legal_tos">Terms of Use</string>
     <string name="prescription_details">Details</string>
     <string name="scanned_prescription_details_mark_as_redeemed">Mark as redeemed</string>
@@ -173,14 +172,6 @@
     <string name="search_pharmacies_location_na_header">No location available</string>
     <string name="understand">Agreed</string>
     <string name="consistent_password">Repeated password matches</string>
-    <plurals name="prescription_item_expiration_days_new">
-        <item quantity="one">Can still be redeemed for %s day as a self-paying customer</item>
-        <item quantity="other">Can still be redeemed for %s days as a self-paying customer</item>
-    </plurals>
-    <plurals name="prescription_item_accept_days">
-        <item quantity="one">Still valid for %s day</item>
-        <item quantity="other">Still valid for %s days</item>
-    </plurals>
     <string name="cdw_nfc_error_title_invalid_certificate">Error 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Your medical card\'s certificate is invalid. Your card may have expired. Please contact your health insurance company.</string>
     <string name="auth_error_failed_auths_headline">Unsuccessful login attempts</string>
@@ -205,7 +196,7 @@
     <string name="settings_show_token">Show tokens</string>
     <string name="on_boarding_secure_app_page_header">How would you like to secure this app?</string>
     <string name="insecure_device_title">Note</string>
-    <string name="insecure_device_header">No device security has been set up for this device</string>
+    <string name="insecure_device_header">No device backup has been set up for this device</string>
     <string name="insecure_device_info">We recommend that you add additional protection for your medical data by securing your device for instance with a code or biometrics.</string>
     <string name="insecure_device_accept">Do not show this message in future.</string>
     <string name="error_message_network_not_available">Connection failed. A network connection could not be created.</string>
@@ -252,9 +243,9 @@
     <string name="cdw_nfc_error_body_invalid_ocsp_response_of_health_card_certificate">The register of medical cards could not be reached. Please try again.</string>
     <string name="pres_detail_health_portal_description">You can find professionally verified information on illnesses, ICD codes and issues around prevention and healthcare in the National Health Portal.</string>
     <string name="pres_detail_health_portal_description_url_info">Open gesund.bund.de</string>
-    <string name="data_terms_update_header">We have amended the Privacy Policy</string>
-    <string name="data_terms_update_info">The e-prescription app has evolved, so we have had to update our Privacy Policy.</string>
-    <string name="data_terms_update_open_data_terms">Open Privacy Policy</string>
+    <string name="data_terms_update_header">We have amended the Privacy policy</string>
+    <string name="data_terms_update_info">The e-prescription app has evolved, so we have had to update our Privacy policy.</string>
+    <string name="data_terms_update_open_data_terms">Open Privacy policy</string>
     <string name="data_terms_update_updates">This has changed since %s:</string>
     <string name="data_terms_first_update_header">What happens when you open the app?</string>
     <string name="data_terms_second_update_header">What happens if I use the camera function/read prescriptions using the camera?</string>
@@ -272,9 +263,7 @@
     <string name="settings_show_token_info">This relates to access keys for the prescription service</string>
     <string name="autitEvents_headline">Access logs</string>
     <string name="no_audit_events_header">No access logs</string>
-    <string name="no_audit_events_not_authenticated_info">Log into the prescription service to receive access logs.</string>
     <string name="no_audit_events_empty_protocol_list_info">No access logs are available yet.</string>
-    <string name="audit_events_updated_at">Last updated on %s</string>
     <string name="logout_delete_in_progress">The prescription is currently being processed and cannot be deleted</string>
     <string name="data_terms_accept_update">Accept</string>
     <string name="cdw_troubleshooting_no_success_title">That didn\'t seem to work</string>
@@ -338,7 +327,7 @@
     <string name="cdw_no_pin_received">PIN not received</string>
     <string name="cdw_pin_label">PIN</string>
     <string name="cdw_idp_error_time_and_connection">Check your connection to the Internet and your device\'s time/date setting.</string>
-    <string name="auth_information">Press \"Unlock\" to authenticate yourself.</string>
+    <string name="auth_information">To log in, press “Unlock”.</string>
     <string name="auth_failed_biometry_info">Locked out? Please review your biometric access data on this device.</string>
     <string name="auth_failed_password_info">Forgotten password? Please delete and reinstall the app. Find out why in our %s.</string>
     <string name="auth_link_to_gematik_helptext">Help zone</string>
@@ -352,7 +341,7 @@
     <string name="settings_tracking_allow_button">Accept</string>
     <string name="onb_undo_description">Undo</string>
     <string name="settings_biometric_dialog_headline">Note</string>
-    <string name="onb_page_5_header">Would you like to help us improve the app?</string>
+    <string name="onb_page_5_header">Help us make this app better</string>
     <string name="settings_password_enter">Select own password</string>
     <string name="settings_password_length_hint">The password needs to be at least eight characters long</string>
     <string name="settings_password_strength_not_sufficient">Password strength not sufficient</string>
@@ -430,10 +419,7 @@
     <string name="health_card_section_header">Medical card</string>
     <string name="health_card_section_order_card">Order PIN or card</string>
     <string name="cdw_intro_header">Log in</string>
-    <string name="cdw_intro_info">How would you like to authenticate?</string>
-    <string name="cdw_intro_auth_insurance_app">Insurance app</string>
-    <string name="cdw_intro_auth_health_card">Insurance card</string>
-    <string name="cdw_intro_auth_health_card_pin">Associated PIN required</string>
+    <string name="cdw_intro_info">How do you want to sign in?</string>
     <string name="cdw_intro_nfc_card_needed">NFC-enabled medical card</string>
     <string name="cdw_intro_pin_needed">Medical card PIN</string>
     <string name="cdw_have_no_card_with_pin">Don\'t have an NFC-enabled medical card and PIN yet?</string>
@@ -572,7 +558,7 @@
     <string name="settings_product_improvement_headline">product improvements</string>
     <string name="settings_allow_analytics_header">Anonymous Analysis</string>
     <string name="settings_allow_analytics_info">Help us make this app better. All user data is collected anonymously and is only used to improve the user experience.</string>
-    <string name="settings_device_security_header">device security</string>
+    <string name="settings_device_security_header">Device security</string>
     <string name="settings_personal_settings_header">personal settings</string>
     <string name="settings_accessibility_header">Accessibility aids</string>
     <string name="settings_product_improvement_header">product improvements</string>
@@ -588,7 +574,7 @@
         <item quantity="other">%s Prescriptions</item>
     </plurals>
     <string name="onboarding_data_terms_info">I have read and accept the privacy policy and terms of use.</string>
-    <string name="onboarding_data_button">Privacy Policy</string>
+    <string name="onboarding_data_button">Privacy policy</string>
     <string name="onboarding_terms_button">Terms of Use</string>
     <string name="onboarding_analytics_we_want">We would like:</string>
     <string name="onboarding_analytics_ww_usability">Improve usability.</string>
@@ -631,8 +617,7 @@
     <string name="pres_details_exp_add_fee_info">Those with statutory health insurance must pay a co-payment of up to ten euros for prescription drugs. \n\n The amount of the co-payment depends on the price of your medication. You have to pay for medicines that cost less than €5 yourself.\n For medicines that are more expensive, you have to pay ten percent of the price, but at least €5 and a maximum of €10. \n\n Children and young people under the age of 18 are generally exempt from co-payment. \n\n If your annual costs for medication exceed your financial limit, you can be exempted from the co-payment. Talk to your health insurer about this.</string>
     <string name="pres_details_exp_no_add_fee_info">You are exempt from the co-payment of this drug. Your health insurance will cover the cost of the medication.</string>
     <string name="pres_details_exp_valid_title">How long is this prescription valid?</string>
-    <string name="pres_details_exp_valid_info_accept">During this period, you can redeem your prescription in any pharmacy with an additional payment.</string>
-    <string name="pres_details_exp_valid_info_expires">During this period, you can still redeem the prescription in a pharmacy, but you have to pay the purchase price yourself. Alternatively, you can ask your practice to issue the prescription again.</string>
+    <string name="pres_details_exp_valid_info_accept">During this period, you can redeem your prescription in any pharmacy with a maximum additional payment of €10.</string>
     <string name="pres_details_exp_sub_allowed_title">Substitute medication possible</string>
     <string name="pres_details_exp_sub_allowed_info">Due to the legal requirements of your health insurance company, you can be given an alternative with the same active ingredient. \n\n Medicines can look and be called differently, have different prices and manufacturers, but still contain the same active ingredient. The active ingredient itself and the dosage are particularly important for the effect of drugs in the body. Patients in the pharmacy often get a different drug than the one prescribed by the doctor on the prescription - provided the drugs are comparable. There can be therapeutic and economic reasons for the change.</string>
     <string name="pres_details_exp_scanned_title">Scanned prescription</string>
@@ -703,11 +688,11 @@
     <string name="mainscreen_empty_content_header">No prescriptions</string>
     <string name="mainscreen_empty_not_connected_info">Add prescriptions using the + button in the top right corner.</string>
     <string name="mainscreen_login">log in</string>
-    <string name="archived_prescriptions_button">Redeemed prescriptions</string>
+    <string name="archived_prescriptions_button">prescription archive</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Vielleicht später</string>
     <string name="mainscreen_connect_bottomsheet_connect">log in</string>
     <string name="mainscreen_bottom_sheet_edit_profile_image">Edit profile picture</string>
-    <string name="archive_screen_title">Redeemed prescriptions</string>
+    <string name="archive_screen_title">prescription archive</string>
     <string name="bottom_sheet_edit_profile_name_title">Enter name</string>
     <string name="profile_bottom_sheet_save">Save</string>
     <string name="pharmacy_order_title">My order</string>
@@ -729,7 +714,7 @@
     <string name="pharmacy_order_no_prescriptions_title">No prescription</string>
     <string name="pharmacy_order_no_prescriptions_desc">You currently have no redeemable prescriptions</string>
     <string name="pharmacy_order_opt_collect">pickup</string>
-    <string name="pharmacy_order_opt_delivery">delivery boy</string>
+    <string name="pharmacy_order_opt_delivery">courier</string>
     <string name="pharmacy_order_opt_mail">Mail order</string>
     <string name="pharmacy_order_select_prescriptions">choose prescriptions</string>
     <string name="main_screen_tooltip_1_content">Tap here to scan prescriptions</string>
@@ -853,23 +838,15 @@
     <string name="prescription_status_direct_assignment_ready">Will be redeemed for you</string>
     <string name="prescription_status_direct_assignment_closed">Was redeemed for you</string>
     <string name="connect_for_pharmacy_service">You must be logged in to use this service.</string>
-    <string name="server_return_code_200">The prescription(s) have been transferred successfully.</string>
-    <string name="server_return_code_400">The prescription cannot be processed. Please try again. You may have to select a different pharmacy.</string>
-    <string name="server_return_code_500">The prescription cannot be processed. The pharmacy reports an unknown error. If necessary, try another pharmacy.</string>
-    <string name="server_return_code_401">The prescription was rejected by the pharmacy. The prescription may be invalid, or your delivery address or contact details may be invalid.</string>
-    <string name="server_return_code_404">Unable to redeem, please check your internet connection.</string>
-    <string name="server_return_code_408">The prescription was successfully transferred. However, the pharmacy reports a processing error. Please contact the pharmacy.</string>
-    <string name="server_return_code_409">The prescription was rejected by the pharmacy. The prescription has already been redeemed.</string>
-    <string name="server_return_code_410">The prescription was rejected by the pharmacy. The prescription has been deleted.</string>
-    <string name="server_return_no_code">"The prescription could not be transferred. Please check your internet connection and try again. "</string>
-    <string name="several_return_code">One or more recipes could not be transferred.</string>
-    <string name="server_return_code_200_title">Send successfully!</string>
-    <string name="server_return_code_400_title">Pharmacy mistake</string>
-    <string name="server_return_code_500_title">Pharmacy mistake</string>
-    <string name="server_return_code_408_title">Contact pharmacy</string>
-    <string name="server_return_code_409_title">Prescription already redeemed</string>
-    <string name="server_return_code_410_title">Prescription deleted</string>
-    <string name="server_return_no_code_title">No Internet</string>
-    <string name="server_return_code_title_failure">Error sending</string>
-
+    <string name="cdw_intro_auth_insurance_app">Insurance app</string>
+    <string name="cdw_intro_auth_health_card">Insurance card</string>
+    <string name="cdw_intro_auth_health_card_pin">Associated PIN required</string>
+    <string name="audit_events_connect_info">To receive access logs, you must be connected to the server.</string>
+    <string name="pres_details_exp_valid_info_expiry_time">You can still fill the prescription at a pharmacy within this period, but you will have to pay the entire purchase price for the medication yourself. Alternatively, you can ask your practice to have the prescription reissued.</string>
+    <string name="invoice_correct_done">Done</string>
+    <string name="invoice_menu_correct_invoice">Request correction</string>
+    <string name="invoice_menu_correct_invoice_locally">At the pharmacy</string>
+    <string name="invoice_menu_correct_invoice_online">In the app</string>
+    <string name="invoice_correction_info">Have this code scanned at your pharmacy.</string>
+    <string name="invoice_correction">Billing correction request</string>
 </resources>

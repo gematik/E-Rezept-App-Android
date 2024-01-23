@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -43,7 +43,6 @@ import androidx.compose.foundation.lazy.LazyItemScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Button
 import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
@@ -54,6 +53,7 @@ import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.pullrefresh.PullRefreshIndicator
 import androidx.compose.material.pullrefresh.pullRefresh
@@ -90,6 +90,7 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.ConnectBottomBar
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -104,14 +105,12 @@ import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 
-@Suppress("LongMethod")
 @Composable
 fun InvoicesScreen(
     onBack: () -> Unit,
     selectedProfile: ProfilesUseCaseData.Profile,
     onShowCardWall: () -> Unit,
     onClickInvoice: (String) -> Unit,
-    onClickShare: (String) -> Unit,
     invoicesController: InvoicesController
 ) {
     val listState = rememberLazyListState()
@@ -191,7 +190,9 @@ fun InvoicesScreen(
         },
         bottomBar = {
             if (!ssoTokenValid) {
-                ConnectBottomBar {
+                ConnectBottomBar(
+                    infoText = stringResource(R.string.invoices_connect_info)
+                ) {
                     scope.launch {
                         refreshPrescriptionsController.refresh(
                             profileId = selectedProfile.id,
@@ -227,12 +228,7 @@ fun InvoicesScreen(
                     scaffoldState.snackbarHostState.showSnackbar(it)
                 }
             },
-            onDeleteInvoice = {
-                invoiceToDeleteTaskID = it
-                showDeleteInvoiceAlert = true
-            },
-            onClickInvoice = onClickInvoice,
-            onClickShare = onClickShare
+            onClickInvoice = onClickInvoice
         )
     }
 }
@@ -338,9 +334,7 @@ private fun RefreshInvoicesContent(
     ssoTokenValid: Boolean,
     consentGranted: Boolean,
     onRefreshInvoicesError: (String) -> Unit,
-    onDeleteInvoice: (String) -> Unit,
-    onClickInvoice: (String) -> Unit,
-    onClickShare: (String) -> Unit
+    onClickInvoice: (String) -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -380,9 +374,7 @@ private fun RefreshInvoicesContent(
         Invoices(
             listState = listState,
             invoicesController = invoicesController,
-            onDeleteInvoice = onDeleteInvoice,
-            onClickInvoice = onClickInvoice,
-            onClickShare = onClickShare
+            onClickInvoice = onClickInvoice
         )
     }
 }
@@ -421,54 +413,10 @@ fun InvoicesHeaderThreeDotMenu(consentGranted: Boolean, onClickRevokeConsent: ()
 }
 
 @Composable
-fun InvoiceThreeDotMenu(
-    taskId: String,
-    onClickShareInvoice: (String) -> Unit,
-    onClickRemoveInvoice: (String) -> Unit
-) {
-    var expanded by remember { mutableStateOf(false) }
-
-    IconButton(
-        onClick = { expanded = true }
-    ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
-    }
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false },
-        offset = DpOffset(24.dp, 0.dp)
-    ) {
-        DropdownMenuItem(
-            onClick = {
-                onClickShareInvoice(taskId)
-                expanded = false
-            }
-        ) {
-            Text(
-                text = stringResource(R.string.invoice_header_share)
-            )
-        }
-        DropdownMenuItem(
-            onClick = {
-                onClickRemoveInvoice(taskId)
-                expanded = false
-            }
-        ) {
-            Text(
-                text = stringResource(R.string.invoice_header_delete),
-                color = AppTheme.colors.red600
-            )
-        }
-    }
-}
-
-@Composable
 fun Invoices(
     listState: LazyListState,
     invoicesController: InvoicesController,
-    onClickInvoice: (String) -> Unit,
-    onDeleteInvoice: (String) -> Unit,
-    onClickShare: (String) -> Unit
+    onClickInvoice: (String) -> Unit
 ) {
     val invoiceState by invoicesController.state
 
@@ -514,8 +462,6 @@ fun Invoices(
                             Invoice(
                                 invoice = invoice,
                                 formattedDate = formattedDate,
-                                onDeleteInvoice = onDeleteInvoice,
-                                onClickShare = onClickShare,
                                 onClickInvoice = onClickInvoice
                             )
                             Divider(modifier = Modifier.padding(start = PaddingDefaults.Medium))
@@ -532,8 +478,6 @@ fun Invoices(
 private fun Invoice(
     invoice: InvoiceData.PKVInvoice,
     formattedDate: String,
-    onDeleteInvoice: (String) -> Unit,
-    onClickShare: (String) -> Unit,
     onClickInvoice: (String) -> Unit
 ) {
     Row(
@@ -572,12 +516,8 @@ private fun Invoice(
                 text = invoice.invoice.totalBruttoAmount.currencyString() + " " + invoice.invoice.currency
             )
         }
-        Row(modifier = Modifier, horizontalArrangement = Arrangement.End) {
-            InvoiceThreeDotMenu(
-                invoice.taskId,
-                onClickShareInvoice = onClickShare,
-                onClickRemoveInvoice = onDeleteInvoice
-            )
+        Row(modifier = Modifier.padding(horizontal = PaddingDefaults.Medium), horizontalArrangement = Arrangement.End) {
+            Icon(Icons.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
         }
     }
 }
@@ -650,32 +590,5 @@ fun LazyItemScope.InvoicesEmptyScreen() {
             textAlign = TextAlign.Center,
             modifier = Modifier.offset(y = -(PaddingDefaults.Large))
         )
-    }
-}
-
-@Composable
-fun ConnectBottomBar(onClickConnect: () -> Unit) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(
-                color = AppTheme.colors.primary100
-            ),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = stringResource(R.string.invoices_connect_info),
-            modifier = Modifier
-                .padding(PaddingDefaults.Medium)
-                .weight(1f),
-            style = AppTheme.typography.body2
-        )
-        Button(
-            onClick = onClickConnect,
-            modifier = Modifier.padding(end = PaddingDefaults.Medium)
-        ) {
-            Text(text = stringResource(R.string.invoices_connect_btn))
-        }
     }
 }

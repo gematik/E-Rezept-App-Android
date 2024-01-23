@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,8 +20,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
-import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import kotlinx.datetime.Instant
@@ -45,7 +45,7 @@ class CommunicationMapperTest {
             accessCode = "accessCode$JsonSymbols",
             recipientTID = "recipientTID$JsonSymbols",
             payload = CommunicationPayload(
-                version = "1",
+                version = 1,
                 supplyOptionsType = "onPremise",
                 name = "Anton Miller",
                 address = listOf("Some Street", "1234", JsonSymbols),
@@ -79,7 +79,7 @@ class CommunicationMapperTest {
 
         @Suppress("MaxLineLength")
         assertEquals(
-            "{\"version\":\"1\",\"supplyOptionsType\":\"onPremise\",\"name\":\"Anton Miller\",\"address\":[\"Some Street\",\"1234\",\"$JsonSymbolsEscaped\"],\"hint\":\"Oh no\",\"phone\":\"132342546547\"}",
+            "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"name\":\"Anton Miller\",\"address\":[\"Some Street\",\"1234\",\"$JsonSymbolsEscaped\"],\"hint\":\"Oh no\",\"phone\":\"132342546547\"}",
             payload
         )
     }

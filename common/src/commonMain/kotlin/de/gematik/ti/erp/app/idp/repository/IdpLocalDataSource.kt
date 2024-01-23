@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -89,6 +89,11 @@ class IdpLocalDataSource constructor(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Save the SSO token to database."
     )
+    @Requirement(
+        "O.Tokn_1#1",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Save the SSO token to realm database."
+    )
     suspend fun saveSingleSignOnToken(
         profileId: ProfileIdentifier,
         tokenScope: IdpData.SingleSignOnTokenScope
@@ -145,6 +150,11 @@ class IdpLocalDataSource constructor(
         }
     }
 
+    @Requirement(
+        "O.Tokn_6#5",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "invalidate authentication data from keystore "
+    )
     suspend fun invalidateAuthenticationData(profileId: ProfileIdentifier) {
         writeToRealm(profileId) { profile ->
             getOrInsertAuthData(profile)?.apply {

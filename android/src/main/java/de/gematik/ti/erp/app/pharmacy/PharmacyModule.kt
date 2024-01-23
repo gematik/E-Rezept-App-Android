@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,13 +18,14 @@
 
 package de.gematik.ti.erp.app.pharmacy
 
+import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRemoteDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
+import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -33,7 +34,7 @@ import org.kodein.di.instance
 val pharmacyModule = DI.Module("pharmacyModule") {
     bindProvider { PharmacyRemoteDataSource(instance(), instance()) }
     bindProvider { PharmacyLocalDataSource(instance()) }
-    bindProvider { PharmacyRepository(instance(), instance(), instance()) }
+    bindProvider<PharmacyRepository> { DefaultPharmacyRepository(instance(), instance(), instance()) }
     bindProvider { ShippingContactRepository(instance(), instance()) }
     bindProvider { PharmacyDirectRedeemUseCase(instance()) }
     bindProvider { PharmacyMapsUseCase(instance(), instance(), instance()) }

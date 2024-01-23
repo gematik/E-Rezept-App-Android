@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,14 +23,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.paging.PagingData
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.ProfileAvatarUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesWithPairedDevicesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.kodein.di.compose.rememberInstance
@@ -57,6 +56,11 @@ class ProfilesController(
     fun decryptedAccessToken(profile: ProfilesUseCaseData.Profile) =
         profilesUseCase.decryptedAccessToken(profile.id)
 
+    @Requirement(
+        "O.Tokn_6#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "invalidate config and token "
+    )
     suspend fun logout(profile: ProfilesUseCaseData.Profile) {
         profilesUseCase.logout(profile)
     }
@@ -72,9 +76,6 @@ class ProfilesController(
             profilesUseCase.removeProfile(profile)
         }
     }
-
-    fun loadAuditEventsForProfile(profileId: ProfileIdentifier): Flow<PagingData<AuditEventData.AuditEvent>> =
-        profilesUseCase.auditEvents(profileId)
 
     override suspend fun switchActiveProfile(profile: ProfilesUseCaseData.Profile) {
         profilesUseCase.switchActiveProfile(profile)

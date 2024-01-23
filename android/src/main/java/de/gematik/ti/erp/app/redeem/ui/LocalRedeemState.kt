@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -29,8 +29,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import org.json.JSONArray
-import org.json.JSONObject
+import de.gematik.ti.erp.app.utils.createDMPayload
 
 @Stable
 class LocalRedeemState(
@@ -79,7 +78,7 @@ class LocalRedeemState(
                 .map { codes ->
                     val prescriptions = codes.map { it.first }
                     val urls = codes.map { it.second }
-                    val json = createPayload(urls).toString().replace("\\", "")
+                    val json = createDMPayload(urls)
                     DMCode(
                         payload = json,
                         nrOfCodes = urls.size,
@@ -88,16 +87,6 @@ class LocalRedeemState(
                     )
                 }
         }
-
-    private fun createPayload(data: List<String>): JSONObject {
-        val rootObject = JSONObject()
-        val urls = JSONArray()
-        for (d in data) {
-            urls.put(d)
-        }
-        rootObject.put("urls", urls)
-        return rootObject
-    }
 }
 
 @Composable

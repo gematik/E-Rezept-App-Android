@@ -1,3 +1,9 @@
+# Release 1.16.1
+- Added Invoice correction function for private health insurance customers
+- Optimized performance 
+- UX improvements
+- Bug fixes
+
 # Release 1.14.0
 - Allow devices without NFC to authenticate using 3rd party health insurance apps
 - Lots of bugfixes

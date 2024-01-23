@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.settings.usecase
 import android.app.KeyguardManager
 import android.content.Context
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.profiles.usecase.sanitizedProfileName
 import de.gematik.ti.erp.app.settings.GeneralSettings
 import de.gematik.ti.erp.app.settings.PharmacySettings
@@ -45,6 +46,11 @@ class SettingsUseCase(
     PharmacySettings by settingsRepository {
 
     // tag::ShowInsecureDevicePrompt[]
+    @Requirement(
+        "O.Plat_1#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Check for insecure Devices."
+    )
     val showInsecureDevicePrompt =
         settingsRepository.general.map {
             val deviceSecured =

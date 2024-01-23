@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,8 +18,9 @@
 
 package de.gematik.ti.erp.app.invoice.model
 
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.utils.createDMPayload
 import kotlinx.datetime.Instant
 
 object InvoiceData {
@@ -41,6 +42,7 @@ object InvoiceData {
     data class PKVInvoice(
         val profileId: String,
         val taskId: String,
+        val accessCode: String,
         val timestamp: Instant,
         val pharmacyOrganization: SyncedTaskData.Organization,
         val practitionerOrganization: SyncedTaskData.Organization,
@@ -48,7 +50,8 @@ object InvoiceData {
         var patient: SyncedTaskData.Patient,
         val medicationRequest: SyncedTaskData.MedicationRequest,
         val whenHandedOver: FhirTemporal?,
-        val invoice: Invoice
+        val invoice: Invoice,
+        val dmcPayload: String = createDMPayload(listOf("ChargeItem/$taskId?ac=$accessCode"))
     )
 
     data class Invoice(

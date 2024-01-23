@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -112,21 +112,16 @@ fun extractPharmacyServices(
                 .first()
                 .containedString("value")
 
-        var isOutpatientPharmacy = false
         var isMobilePharmacy = false
 
         pharmacy.findAll(TypeCodingCode).forEach {
             when (it.containedString()) {
-                "OUTPHARM" -> isOutpatientPharmacy = true
                 "MOBL" -> isMobilePharmacy = true
             }
         }
 
-        val pickUpPharmacyService = if (isOutpatientPharmacy) {
-            PickUpPharmacyService(name = locationName)
-        } else {
-            null
-        }
+        // All pharmacies offer pickup service
+        val pickUpPharmacyService = PickUpPharmacyService(name = locationName)
 
         val onlinePharmacyService = if (isMobilePharmacy) {
             OnlinePharmacyService(name = locationName)
@@ -196,7 +191,7 @@ fun extractBinaryCertificatesAsBase64(
     return resourceStrings.toList()
 }
 
-private fun <R : Any> Sequence<JsonElement>.mapCatching(
+fun <R : Any> Sequence<JsonElement>.mapCatching(
     onError: (JsonElement, Exception) -> Unit,
     transform: (JsonElement) -> R?
 ): Sequence<R> =

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,9 +18,9 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
-import de.gematik.ti.erp.app.fhir.parser.asFhirInstant
-import de.gematik.ti.erp.app.fhir.parser.asFhirLocalDate
+import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirInstant
+import de.gematik.ti.erp.app.utils.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
@@ -30,8 +30,6 @@ import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
 
 enum class TaskStatus {
     Ready,
@@ -61,18 +59,25 @@ fun extractTaskIds(
             .contained("profile")
             .contained()
 
+        val status = mapTaskStatus(resource.containedString("status"))
         when {
-            profileString.isProfileValue("https://gematik.de/fhir/StructureDefinition/ErxTask", "1.1.1") ->
+            profileString.isProfileValue(
+                "https://gematik.de/fhir/StructureDefinition/ErxTask",
+                "1.1.1"
+            ) && status != TaskStatus.Canceled ->
                 resource
                     .findAll("identifier")
-                    .filterWith("system", stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID"))
+                    .filterWith(
+                        "system",
+                        stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID")
+                    )
                     .first()
                     .containedString("value")
 
             profileString.isProfileValue(
                 "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
                 "1.2"
-            ) ->
+            ) && status != TaskStatus.Canceled ->
                 resource
                     .findAll("identifier")
                     .filterWith(
@@ -192,8 +197,7 @@ fun extractTaskVersion111(
         .firstOrNull()
         ?.containedString("value")
 
-    val status = mapTaskstatus(task.containedString("status"))
-
+    val status = mapTaskStatus(task.containedString("status"))
     val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asFhirInstant()) {
         "Couldn't parse `authoredOn`"
     }
@@ -250,7 +254,7 @@ fun extractTaskVersion12(
         .firstOrNull()
         ?.containedString("value")
 
-    val status = mapTaskstatus(task.containedString("status"))
+    val status = mapTaskStatus(task.containedString("status"))
 
     val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asFhirInstant()) {
         "Couldn't parse `authoredOn`"
@@ -284,11 +288,11 @@ fun extractTaskVersion12(
     )
 }
 
-private fun mapTaskstatus(status: String): TaskStatus = when (status) {
+private fun mapTaskStatus(status: String): TaskStatus = when (status) {
     "ready" -> TaskStatus.Ready
     "in-progress" -> TaskStatus.InProgress
     "completed" -> TaskStatus.Completed
-    "canceled" -> TaskStatus.Canceled
+    "cancelled" -> TaskStatus.Canceled
     "accepted" -> TaskStatus.Accepted
     "draft" -> TaskStatus.Draft
     "failed" -> TaskStatus.Failed

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.net.Uri
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -180,7 +181,7 @@ fun PharmacyOverviewScreen(
                         )
 
                     is PharmacySearchSheetContentState.PharmacySelected ->
-                        PharmacyDetailsSheetContent(
+                        PharmacyBottomSheetDetails(
                             orderState = orderState,
                             pharmacy = (sheetState.content as PharmacySearchSheetContentState.PharmacySelected)
                                 .pharmacy,
@@ -215,7 +216,8 @@ private fun OverviewContent(
     val context = LocalContext.current
     val isGoogleApiAvailable by remember {
         mutableStateOf(
-            GoogleApiAvailability.getInstance()
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
+                GoogleApiAvailability.getInstance()
                 .isGooglePlayServicesAvailable(context) == ConnectionResult.SUCCESS
         )
     }

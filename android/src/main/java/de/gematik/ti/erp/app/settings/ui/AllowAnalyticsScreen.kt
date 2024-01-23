@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -40,11 +40,10 @@ import de.gematik.ti.erp.app.onboarding.ui.OnboardingBottomBar
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import de.gematik.ti.erp.app.utils.compose.createToastShort
+import de.gematik.ti.erp.app.utils.compose.shortToast
 
 @Requirement(
     "A_19087",
@@ -72,7 +71,7 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit
         topBarTitle = stringResource(R.string.settings_tracking_allow_title),
         onBack = {
             onAllowAnalytics(false)
-            createToastShort(context, disAllowToast)
+            context.shortToast(disAllowToast)
             onBack()
         },
         listState = lazyListState,
@@ -86,7 +85,7 @@ fun AllowAnalyticsScreen(onAllowAnalytics: (Boolean) -> Unit, onBack: () -> Unit
                 buttonText = stringResource(R.string.settings_tracking_allow_button),
                 onButtonClick = {
                     onAllowAnalytics(true)
-                    createToastShort(context, allowText)
+                    context.shortToast(allowText)
                     onBack()
                 },
                 buttonEnabled = true,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.db
 
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.AuditEventEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
@@ -56,7 +55,7 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
 import kotlinx.datetime.Instant
 
-const val ACTUAL_SCHEMA_VERSION = 24L
+const val ACTUAL_SCHEMA_VERSION = 26L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -77,7 +76,6 @@ val appSchemas = setOf(
             PractitionerEntityV1::class,
             ScannedTaskEntityV1::class,
             SyncedTaskEntityV1::class,
-            AuditEventEntityV1::class,
             IdpAuthenticationDataEntityV1::class,
             AddressEntityV1::class,
             InsuranceInformationEntityV1::class,

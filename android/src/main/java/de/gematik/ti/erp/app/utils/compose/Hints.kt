@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -454,7 +454,7 @@ fun HintCardWithActionButton() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun HintCardWithTextActionButton() {
     AppTheme {
@@ -469,7 +469,7 @@ fun HintCardWithTextActionButton() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun ClosableHintCardWithActionButtonAndLargeImage() {
     AppTheme {
@@ -485,7 +485,7 @@ fun ClosableHintCardWithActionButtonAndLargeImage() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun ClosableHintCardWithTextActionButtonAndLargeImage() {
     AppTheme {
@@ -501,7 +501,7 @@ fun ClosableHintCardWithTextActionButtonAndLargeImage() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun ClosableHintCardWithActionButton() {
     AppTheme {
@@ -517,7 +517,7 @@ fun ClosableHintCardWithActionButton() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun ClosableHintCardWithTextActionButton() {
     AppTheme {
@@ -533,7 +533,7 @@ fun ClosableHintCardWithTextActionButton() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun ClosableHintCardWithActionButtonAndColors() {
     AppTheme {
@@ -560,7 +560,7 @@ fun ClosableHintCardWithActionButtonAndColors() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun ClosableHintCardWithActionButtonAndColorsAndShortTitle() {
     AppTheme {
@@ -587,7 +587,7 @@ fun ClosableHintCardWithActionButtonAndColorsAndShortTitle() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun HintCardWithNoTitle() {
     AppTheme {
@@ -611,7 +611,7 @@ fun HintCardWithNoTitle() {
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun ClosableHintCardWithNoTitle() {
     AppTheme {
@@ -641,8 +641,7 @@ fun ClosableHintCardWithNoTitle() {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
-@Preview
+@LightDarkPreview
 @Composable
 fun AnimatedHintCardPreview() {
     AppTheme {

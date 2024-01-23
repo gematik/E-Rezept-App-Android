@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -17,6 +17,9 @@
  */
 
 package de.gematik.ti.erp.app.fhir.parser
+
+import de.gematik.ti.erp.app.utils.FhirYearMonthRegex
+import de.gematik.ti.erp.app.utils.FhirYearRegex
 
 // just support sane values
 private const val YearMin = 1000

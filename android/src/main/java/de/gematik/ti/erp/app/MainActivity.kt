@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -262,6 +262,11 @@ class MainActivity : AppCompatActivity(), DIAware {
         }
     }
 
+    @Requirement(
+        "O.Arch_10#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "If an update is required, the user is prompted to update via Google´s InAppUpdate function"
+    )
     private suspend fun checkAppUpdate() {
         if (checkVersionUseCase.isUpdateRequired()) {
             val appUpdateManager = AppUpdateManagerFactory.create(this)

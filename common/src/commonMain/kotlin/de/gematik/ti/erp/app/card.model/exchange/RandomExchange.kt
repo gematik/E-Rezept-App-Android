@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -27,7 +27,7 @@ import de.gematik.ti.erp.app.card.model.command.getRandomValues
 import de.gematik.ti.erp.app.card.model.command.select
 
 @Requirement(
-    "GS-A_4367#4",
+    "GS-A_4367#5",
     "GS-A_4368#4",
     sourceSpecification = "gemSpec_Krypt",
     rationale = "Random numbers are generated using the RNG of the health card." +

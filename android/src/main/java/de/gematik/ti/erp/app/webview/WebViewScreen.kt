@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -46,12 +46,20 @@ import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
 import androidx.webkit.WebViewAssetLoader
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 
 const val URI_TERMS_OF_USE = "file:///android_asset/terms_of_use.html"
 const val URI_DATA_TERMS = "file:///android_asset/data_terms.html"
 
+@Requirement(
+    "O.Arch_8#1",
+    "O.Plat_11#1",
+    "O.Plat_14",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Webview containing local html without javascript. No cookies are created."
+)
 @Composable
 fun WebViewScreen(
     modifier: Modifier = Modifier,
@@ -192,6 +200,11 @@ fun createWebViewClient(colors: Colors, typo: Typography) = object : WebViewClie
         return cssLoader.shouldInterceptRequest(request.url)
     }
 
+    @Requirement(
+        "O.Plat_13",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Disables unused schemes"
+    )
     override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
         val isAllowedScheme = request.url.scheme == "https" || request.url.scheme == "mailto"
         return if (isAllowedScheme && request.url.host != "localhost") {

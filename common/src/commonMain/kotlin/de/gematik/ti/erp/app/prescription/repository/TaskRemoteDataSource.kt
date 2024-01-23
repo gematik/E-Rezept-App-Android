@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -54,7 +54,7 @@ class TaskRemoteDataSource(
     ) = safeApiCall(
         errorMessage = "Error getting medication dispenses"
     ) {
-        val id = "https://gematik.de/fhir/NamingSystem/PrescriptionID|$taskId"
+        val id = "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId|$taskId"
         service.bundleOfMedicationDispenses(profileId, id = id)
     }
 }

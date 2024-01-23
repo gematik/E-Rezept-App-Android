@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -79,6 +79,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.nulabinc.zxcvbn.Zxcvbn
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -190,6 +191,13 @@ fun SecureAppWithPassword(navController: NavController, settingsController: Sett
     }
 }
 
+@Requirement(
+    "O.Data_10#1",
+    "O.Data_11#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Password field using the  keyboard type password. Copying the content is not possible " +
+        "with this type. Autocorrect is disallowed. It`s not possible to disable third party keyboards."
+)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun PasswordTextField(
@@ -244,7 +252,7 @@ fun PasswordTextField(
                 }
             },
         singleLine = true,
-        keyboardOptions = KeyboardOptions(autoCorrect = true, keyboardType = KeyboardType.Password),
+        keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Password),
         keyboardActions = KeyboardActions {
             onSubmit()
         },
@@ -337,7 +345,14 @@ fun ConfirmationPasswordTextField(
 }
 
 // tag::PasswordStrength[]
-
+@Requirement(
+    "O.Pass_1",
+    "O.Pass_2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "To determine the strength of the password, we use Zxcvbn. " +
+        "The strength of the password is shown with bars and colors. " +
+        "The minimum acceptable value of the score must be > 2."
+)
 @Composable
 fun PasswordStrength(
     modifier: Modifier,

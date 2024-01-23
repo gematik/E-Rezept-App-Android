@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.ui
 
+import de.gematik.ti.erp.app.Requirement
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -43,6 +44,11 @@ data class Tasks(
  * The [TwoDCodeValidator] validates a [ScannedCode] and returns, if the containing json is valid,
  * a [ValidScannedCode] or otherwise null.
  */
+@Requirement(
+    "O.Source_1#3",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Validate the data matrix code structure"
+)
 class TwoDCodeValidator {
     fun validate(code: ScannedCode): ValidScannedCode? {
         try {

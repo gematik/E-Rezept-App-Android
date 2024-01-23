@@ -108,6 +108,9 @@ kotlin {
                         implementation(retrofit2KotlinXSerialization)
                         implementation(okhttp3("okhttp"))
                         implementation(okhttp3("logging-interceptor"))
+                        // Work around vulnerable Okio version 3.1.0 (CVE-2023-3635).
+                        // Can be removed when Retrofit releases a new version >2.9.0.
+                        implementation(okio)
                     }
                     database {
                         compileOnly(realm)

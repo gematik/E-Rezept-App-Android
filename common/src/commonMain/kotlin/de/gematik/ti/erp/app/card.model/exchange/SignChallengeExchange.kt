@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -40,6 +40,12 @@ import de.gematik.ti.erp.app.card.model.identifier.ApplicationIdentifier
     "A_20700-07#1",
     sourceSpecification = "gemF_Tokenverschlüsselung",
     rationale = "Sign challenge using the health card certificate."
+)
+@Requirement(
+    "O.Cryp_1#1",
+    "O.Cryp_4#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Signature via ecdh ephemeral-static (one time usage)"
 )
 fun ICardChannel.signChallenge(challenge: ByteArray): ByteArray {
     HealthCardCommand.select(ApplicationIdentifier(Df.Esign.AID)).executeSuccessfulOn(this)

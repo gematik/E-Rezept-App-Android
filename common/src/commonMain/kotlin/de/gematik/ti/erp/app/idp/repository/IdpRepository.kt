@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -238,7 +238,15 @@ class IdpRepository constructor(
         "A_20499-01",
         "A_21603",
         sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Invalidate/delete session data upon logout."
+        rationale = "Invalidate/delete session data upon logout. " +
+            "since we have automatic memory management, we can't delete the token. " +
+            "Due to the use of frameworks we have sensitive data as immutable objects and hence " +
+            "cannot override it"
+    )
+    @Requirement(
+        "O.Tokn_6#4",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "invalidate config and token "
     )
     suspend fun invalidate(profileId: ProfileIdentifier) {
         invalidateConfig()

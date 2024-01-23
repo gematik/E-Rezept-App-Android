@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="app_name">E-Rezept</string>
     <string name="ok">Tamam</string>
     <string name="cancel">İptal et</string>
     <string name="back">Geri</string>
@@ -173,14 +172,6 @@
     <string name="search_pharmacies_location_na_header">Herhangi bir konum mevcut değil</string>
     <string name="understand">Anladım</string>
     <string name="consistent_password">Tekrarlanan şifre eşleşiyor</string>
-    <plurals name="prescription_item_expiration_days_new">
-        <item quantity="one">Kendiniz ödeyerek %s gün daha geçerli</item>
-        <item quantity="other">Kendiniz ödeyerek %s gün daha geçerli</item>
-    </plurals>
-    <plurals name="prescription_item_accept_days">
-        <item quantity="one">%s gün daha geçerli</item>
-        <item quantity="other">%s gün daha geçerli</item>
-    </plurals>
     <string name="cdw_nfc_error_title_invalid_certificate">Hata 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Sağlık kartınızın sertifikası geçerli değil. Kartınızın süresi dolmuş olabilir mi? Lütfen sağlık sigortanız ile iletişime geçin.</string>
     <string name="auth_error_failed_auths_headline">Başarısız oturum açma denemesi</string>
@@ -272,9 +263,7 @@
     <string name="settings_show_token_info">Burada reçete hizmetine olan erişim anahtarı söz konusudur</string>
     <string name="autitEvents_headline">Erişim protokolleri</string>
     <string name="no_audit_events_header">Herhangi bir erişim protokolü yok</string>
-    <string name="no_audit_events_not_authenticated_info">Reçete hizmetlerine kaydolduysanız erişim protokolleri alırsınız.</string>
     <string name="no_audit_events_empty_protocol_list_info">Halihazırda erişim protokolleri bulunmuyor.</string>
-    <string name="audit_events_updated_at">Son güncelleme tarihi: %s</string>
     <string name="logout_delete_in_progress">Reçete şu an düzenlenmekte ve silinemez</string>
     <string name="data_terms_accept_update">Kabul et</string>
     <string name="cdw_troubleshooting_no_success_title">Bu maalesef başarılı olmadı</string>
@@ -338,7 +327,7 @@
     <string name="cdw_no_pin_received">PIN alınmadı</string>
     <string name="cdw_pin_label">PIN</string>
     <string name="cdw_idp_error_time_and_connection">Lütfen internet bağlantınızı ve cihazınızın saat ile tarih ayarlarını kontrol edin.</string>
-    <string name="auth_information">Kimliğinizi doğrulamak için \"Blokeyi kaldır\" üzerine basın.</string>
+    <string name="auth_information">Giriş yapmak için “Kilidi Aç”a basın.</string>
     <string name="auth_failed_biometry_info">Engellendiniz mi? Lütfen bu cihazdaki biyometrik erişim verilerinizi tekrar kontrol edin.</string>
     <string name="auth_failed_password_info">Şifreyi mi unuttunuz? Lütfen uygulamayı silin ve ardından yeniden yükleyin. Bunun neden böyle olduğunu şuradan öğrenebilirsiniz: %s.</string>
     <string name="auth_link_to_gematik_helptext">Yardım alanı</string>
@@ -352,7 +341,7 @@
     <string name="settings_tracking_allow_button">Kabul et</string>
     <string name="onb_undo_description">Geri al</string>
     <string name="settings_biometric_dialog_headline">Not</string>
-    <string name="onb_page_5_header">Bu uygulamayı daha iyi hale getirmek için bize yardımcı olur musunuz?</string>
+    <string name="onb_page_5_header">Bu uygulamayı daha iyi hale getirmemize yardımcı olun</string>
     <string name="settings_password_enter">Kendi parolanızı seçin</string>
     <string name="settings_password_length_hint">Parola en az sekiz basamaklı olmalıdır</string>
     <string name="settings_password_strength_not_sufficient">Parola yeterince güçlü değil</string>
@@ -430,10 +419,7 @@
     <string name="health_card_section_header">Sağlık kartı</string>
     <string name="health_card_section_order_card">PIN veya kart sipariş edin</string>
     <string name="cdw_intro_header">Oturum aç</string>
-    <string name="cdw_intro_info">Kimlik doğrulamasını nasıl yapmak istersiniz?</string>
-    <string name="cdw_intro_auth_insurance_app">sigorta uygulaması</string>
-    <string name="cdw_intro_auth_health_card">Sigorta kartı</string>
-    <string name="cdw_intro_auth_health_card_pin">İlişkili PIN gerekli</string>
+    <string name="cdw_intro_info">Nasıl oturum açmak istiyorsunuz?</string>
     <string name="cdw_intro_nfc_card_needed">NFC özellikli sağlık kartı</string>
     <string name="cdw_intro_pin_needed">Sağlık kartının PIN\'i</string>
     <string name="cdw_have_no_card_with_pin">NFC özellikli sağlık kartına ve PIN\'e henüz sahip değil misiniz?</string>
@@ -631,8 +617,7 @@
     <string name="pres_details_exp_add_fee_info">Yasal sağlık sigortası olanlar, reçeteli ilaçlar için on Euro\'ya kadar katkı payı ödemek zorundadır. \n\n Katkı payı miktarı, ilacınızın fiyatına bağlıdır. Maliyeti 5 €\'dan az olan ilaçlar için kendiniz ödeme yapmanız gerekir.\n Daha pahalı ilaçlar için fiyatın yüzde onunu, ancak en az 5 € ve maksimum 10 € ödemeniz gerekir. \n\n 18 yaşın altındaki çocuklar ve gençler genellikle katkı payından muaftır. \n\n Yıllık ilaç masraflarınız mali limitinizi aşarsa, katkı payından muaf olabilirsiniz. Bu konuda sağlık sigortanız ile konuşun.</string>
     <string name="pres_details_exp_no_add_fee_info">Bu ilacın katkı payından muafsınız. Sağlık sigortanız ilacın maliyetini karşılayacaktır.</string>
     <string name="pres_details_exp_valid_title">Bu reçete ne kadar süreyle geçerlidir?</string>
-    <string name="pres_details_exp_valid_info_accept">Bu süre zarfında reçetenizi herhangi bir eczanede ek bir ödeme ile kullanabilirsiniz.</string>
-    <string name="pres_details_exp_valid_info_expires">Bu süre zarfında reçeteyi eczaneden almaya devam edebilirsiniz, ancak satın alma fiyatını kendiniz ödemeniz gerekir. Alternatif olarak, muayenehanenizden reçeteyi yeniden vermesini isteyebilirsiniz.</string>
+    <string name="pres_details_exp_valid_info_accept">Bu süre zarfında reçetenizi herhangi bir eczaneden maksimum 10 € ek ödemeyle alabilirsiniz.</string>
     <string name="pres_details_exp_sub_allowed_title">Muadil mümkün</string>
     <string name="pres_details_exp_sub_allowed_info">Sağlık sigortanızın yasal zorunlulukları nedeniyle, aynı etken maddeye sahip bir alternatif sunulabilir. \n\n İlaçlar farklı görünebilir ve farklı adlandırılabilir, farklı fiyatlara ve üreticilere sahip olabilir, ancak yine de aynı etken maddeyi içerir. Aktif bileşenin kendisi ve dozajı, ilaçların vücuttaki etkisi için özellikle önemlidir. Eczanedeki hastalar, ilaçların karşılaştırılabilir olması koşuluyla, genellikle doktorun reçetede yazdığından farklı bir ilaç alırlar. Değişimin terapötik ve ekonomik nedenleri olabilir.</string>
     <string name="pres_details_exp_scanned_title">Taranmış reçete</string>
@@ -703,11 +688,11 @@
     <string name="mainscreen_empty_content_header">Reçete yok</string>
     <string name="mainscreen_empty_not_connected_info">Sağ üst köşedeki + düğmesini kullanarak reçete ekleyin.</string>
     <string name="mainscreen_login">Giriş yapmak</string>
-    <string name="archived_prescriptions_button">Kullanılan reçeteler</string>
+    <string name="archived_prescriptions_button">reçete arşivi</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Belki sonra</string>
     <string name="mainscreen_connect_bottomsheet_connect">Giriş yapmak</string>
     <string name="mainscreen_bottom_sheet_edit_profile_image">Profil resmini düzenle</string>
-    <string name="archive_screen_title">Kullanılmış reçeteler</string>
+    <string name="archive_screen_title">reçete arşivi</string>
     <string name="bottom_sheet_edit_profile_name_title">İsim giriniz</string>
     <string name="profile_bottom_sheet_save">Kaydet</string>
     <string name="pharmacy_order_title">Siparişim</string>
@@ -853,22 +838,15 @@
     <string name="prescription_status_direct_assignment_ready">senin için kurtarılacak</string>
     <string name="prescription_status_direct_assignment_closed">Senin için kurtarıldı</string>
     <string name="connect_for_pharmacy_service">Bu hizmeti kullanmak için giriş yapmalısınız.</string>
-    <string name="server_return_code_200">Reçete(ler) başarıyla aktarıldı.</string>
-    <string name="server_return_code_400">Reçete işlenemez. Air tekrar deneyin. Farklı bir eczane seçmeniz gerekebilir.</string>
-    <string name="server_return_code_500">Reçete işlenemez. Eczane bilinmeyen bir hata bildirir. Gerekirse başka bir eczane deneyin.</string>
-    <string name="server_return_code_401">Reçete eczane tarafından reddedildi. Reçete geçersiz olabilir veya teslimat adresiniz veya iletişim bilgileriniz geçersiz olabilir.</string>
-    <string name="server_return_code_404">Kullanılamıyor, air internet bağlantınızı kontrol edin.</string>
-    <string name="server_return_code_408">Reçete başarıyla aktarıldı. Ancak eczane bir işleme hatası bildiriyor. Air eczane ile iletişime geçiniz.</string>
-    <string name="server_return_code_409">Reçete eczane tarafından reddedildi. Reçete zaten kullanıldı.</string>
-    <string name="server_return_code_410">Reçete eczane tarafından reddedildi. Tariff silindi.</string>
-    <string name="server_return_no_code">Reçete aktarılamadı. Air internet bağlantınızı kontrol edin ve tekrar deneyin.</string>
-    <string name="several_return_code">Bir veya daha fazla tarif aktarılamadı.</string>
-    <string name="server_return_code_200_title">Başarıyla gönderildi!</string>
-    <string name="server_return_code_400_title">eczane hatasi</string>
-    <string name="server_return_code_500_title">eczane hatasi</string>
-    <string name="server_return_code_408_title">Eczane ile iletişim kurun</string>
-    <string name="server_return_code_409_title">Reçete zaten kullanıldı</string>
-    <string name="server_return_code_410_title">tarif silindi</string>
-    <string name="server_return_no_code_title">İnternet yok</string>
-    <string name="server_return_code_title_failure">Gönderme hatası</string>
+    <string name="cdw_intro_auth_insurance_app">sigorta uygulaması</string>
+    <string name="cdw_intro_auth_health_card">Sigorta kartı</string>
+    <string name="cdw_intro_auth_health_card_pin">İlişkili PIN gerekli</string>
+    <string name="audit_events_connect_info">Erişim günlüklerini almak için sunucuya bağlı olmanız gerekir.</string>
+    <string name="pres_details_exp_valid_info_expiry_time">Bu süre içinde reçeteyi yine eczanede doldurabilirsiniz, ancak ilacın satın alma bedelinin tamamını kendiniz ödemek zorunda kalacaksınız. Alternatif olarak muayenehanenizden reçetenin yeniden düzenlenmesini isteyebilirsiniz.</string>
+    <string name="invoice_correct_done">Hazır</string>
+    <string name="invoice_menu_correct_invoice">Düzeltme iste</string>
+    <string name="invoice_menu_correct_invoice_locally">Eczanede</string>
+    <string name="invoice_menu_correct_invoice_online">Uygulamada</string>
+    <string name="invoice_correction_info">Bu kodu eczanenizde tarattırın.</string>
+    <string name="invoice_correction">Faturalandırma düzeltme talebi</string>
 </resources>

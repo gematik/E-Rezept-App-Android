@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -256,6 +256,14 @@ class IdpBasicUseCase(
             sourceSpecification = "gemSpec_IDP_Frontend",
             rationale = "Returns the AUTHORIZATION_CODE (accessToken) and the SSO token."
         )
+        @Requirement(
+            "A_21327#1",
+            sourceSpecification = "gemSpec_IDP_Frontend",
+            rationale = "Usage of idToken Payload / idToken is not persisted / " +
+                "since we have automatic memory management, we can't delete the token. " +
+                "Due to the use of frameworks we have sensitive data as immutable objects and hence " +
+                "cannot override it"
+        )
         return IdpAuthFlowResult(
             accessToken = idpTokenResult.decryptedAccessToken,
             ssoToken = redirectSsoToken,
@@ -347,6 +355,7 @@ class IdpBasicUseCase(
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Fetch and check challenge."
     )
+
     suspend fun fetchAndCheckUnsignedChallenge(
         url: String,
         codeChallenge: String,
@@ -401,6 +410,17 @@ class IdpBasicUseCase(
         pukSigKey: JWSPublicKey,
         redirectUri: String
     ): IdpTokenResult {
+        @Requirement(
+            "O.Cryp_3#2",
+            "O.Cryp_4#2",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "AES Key-Generation and one time usage"
+        )
+        @Requirement(
+            "GS-A_4389#1",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "AES Key-Generation and one time usage"
+        )
         val symmetricalKey = generateRandomAES256Key()
 
         val keyVerifier = buildKeyVerifier(

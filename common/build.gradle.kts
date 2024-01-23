@@ -16,6 +16,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.codingfeline.buildkonfig")
     id("de.gematik.ti.erp.dependencies")
+    id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
 }
 
 fun getGitHash() =

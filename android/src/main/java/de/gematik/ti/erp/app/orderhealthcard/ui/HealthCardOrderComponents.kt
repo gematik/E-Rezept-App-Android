@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -450,9 +450,9 @@ private fun ContactInsurance(
                     else ->
                         item {
                             ContactMethodRow(
-                                phone = null,
+                                phone = it.healthCardAndPinPhone,
                                 url = it.pinUrl,
-                                mail = it.healthCardAndPinMail,
+                                mail = if (!it.subjectPinMail.isNullOrEmpty()) it.healthCardAndPinMail else null,
                                 company = it,
                                 option = healthCardOrderState.selectedOption
                             )

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.idp.repository
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,12 +38,25 @@ class IdpPairingRepository constructor(
     fun decryptedAccessToken(profileId: ProfileIdentifier) =
         decryptedAccessTokenMap.map { it[profileId] }.distinctUntilChanged()
 
+    @Requirement(
+        "O.Tokn_1#2",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Save the access token token to mutable state."
+    )
     fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: String) {
         decryptedAccessTokenMap.update {
             it + (profileId to accessToken)
         }
     }
 
+    @Requirement(
+        "A_21326#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "removing decrypted access token from map" +
+            "since we have automatic memory management, we can't delete the token. " +
+            "Due to the use of frameworks we have sensitive data as immutable objects and hence " +
+            "cannot override it"
+    )
     fun invalidateDecryptedAccessToken(profileId: ProfileIdentifier) {
         decryptedAccessTokenMap.update {
             it - profileId

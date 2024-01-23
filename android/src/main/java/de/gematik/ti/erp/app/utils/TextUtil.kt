@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -25,8 +25,11 @@ private fun Int.isEmoticon() = this in 0x1F600..0xE007F
 
 private val r = """[\p{L}\p{M}\p{N}\u200d -]""".toRegex()
 
-fun sanitizeProfileName(name: String): String =
-    name.codePoints()
+/**
+ * Take the String and map the characters that are characters or emoticon and return the string back
+ */
+fun String.sanitizeProfileName() =
+    codePoints()
         .asSequence()
         .mapNotNull { letter ->
             val s = Character.toChars(letter).concatToString()
@@ -37,4 +40,3 @@ fun sanitizeProfileName(name: String): String =
             }
         }
         .joinToString("")
-        .replaceFirstChar { it.uppercase() }

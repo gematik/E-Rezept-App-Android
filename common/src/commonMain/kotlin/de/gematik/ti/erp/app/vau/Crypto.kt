@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.vau
 
+import de.gematik.ti.erp.app.Requirement
 import org.bouncycastle.crypto.digests.SHA256Digest
 import org.bouncycastle.crypto.generators.HKDFBytesGenerator
 import org.bouncycastle.crypto.params.HKDFParameters
@@ -63,6 +64,11 @@ class VauEciesSpec constructor(
      */
     val aesSize: Int
 ) {
+    @Requirement(
+        "GS-A_4389#2",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "AES key generation defaults for initialization vector and key size."
+    )
     companion object {
         @JvmField
         val V1 = VauEciesSpec(
@@ -77,6 +83,11 @@ class VauEciesSpec constructor(
 /**
  * Refer to gemSpec_Krypt `A_20161-01`
  */
+@Requirement(
+    "GS-A_4389#4",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "AES key generation"
+)
 object Ecies {
     internal fun generateCipher(
         ivSpec: IvParameterSpec,

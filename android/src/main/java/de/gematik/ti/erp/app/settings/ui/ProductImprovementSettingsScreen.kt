@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -129,6 +129,17 @@ private fun SurveySection() {
     "A_19181-01#2",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "User can opt-in and opt-out of analytics"
+)
+@Requirement(
+    "O.Purp_5#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Toggle within Settings to enable and disable usage analytics."
+)
+@Requirement(
+    "O.Purp_6#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Current Analytics state is inspectable by the user, as most of the user deciscions are client side " +
+        "no history is available. Only the current state can be inspected."
 )
 @Composable
 private fun AnalyticsSection(

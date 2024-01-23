@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -51,7 +51,7 @@ import de.gematik.ti.erp.app.fhir.model.extractKBVBundle
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispense
 import de.gematik.ti.erp.app.fhir.model.extractTask
 import de.gematik.ti.erp.app.fhir.model.extractTaskAndKBVBundle
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier

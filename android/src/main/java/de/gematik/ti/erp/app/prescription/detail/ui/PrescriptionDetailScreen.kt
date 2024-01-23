@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -91,6 +91,7 @@ import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData.scannedPrescriptionIndex
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsNavigationScreens
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.DirectAssignmentChip
@@ -624,9 +625,9 @@ private fun onClickEmergencyFee(
 private fun emergencyFeeText(emergencyFee: Boolean) = if (emergencyFee) {
     // false - emergencyFee fee is to be paid by the insured (default value)
     // true - emergencyFee fee is not to be paid by the insured but by the payer
-    stringResource(R.string.pres_detail_no)
+    stringResource(R.string.pres_detail_noctu_no)
 } else {
-    stringResource(R.string.pres_detail_yes)
+    stringResource(R.string.pres_detail_noctu_yes)
 }
 
 @Composable
@@ -851,7 +852,7 @@ private fun ScannedPrescriptionOverview(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    stringResource(R.string.pres_details_scanned_prescription),
+                    stringResource(R.string.pres_details_scanned_prescription) + " " + scannedPrescriptionIndex,
                     style = AppTheme.typography.h5,
                     textAlign = TextAlign.Center
                 )

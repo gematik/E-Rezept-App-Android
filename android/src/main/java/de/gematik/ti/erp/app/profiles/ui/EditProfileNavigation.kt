@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -38,10 +38,12 @@ import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.pkv.ui.InvoiceDetailsScreen
 import de.gematik.ti.erp.app.pkv.ui.InvoiceInformationScreen
+import de.gematik.ti.erp.app.pkv.ui.InvoiceLocalCorrectionScreen
 import de.gematik.ti.erp.app.pkv.ui.InvoicesScreen
 import de.gematik.ti.erp.app.pkv.ui.ShareInformationScreen
 import de.gematik.ti.erp.app.pkv.ui.rememberInvoicesController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.settings.rememberAuditEventsController
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import kotlinx.coroutines.launch
@@ -71,6 +73,14 @@ object ProfileDestinations {
         fun path(taskId: String) = path("taskId" to taskId)
     }
 
+    object InvoiceLocalCorrection :
+        Route(
+            "chargeItem_correct_locally",
+            navArgument("taskId") { type = NavType.StringType }
+        ) {
+        fun path(taskId: String) = path("taskId" to taskId)
+    }
+
     object ShareInformation :
         Route(
             "chargeItem_share",
@@ -95,11 +105,14 @@ fun EditProfileNavGraph(
     TrackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val scope = rememberCoroutineScope()
     val invoicesController = rememberInvoicesController(profileId = selectedProfile.id)
+    val auditEventsController = rememberAuditEventsController()
     NavHost(navController = navController, startDestination = ProfileDestinations.Profile.route) {
         composable(ProfileDestinations.Profile.route) {
             EditProfileScreenContent(
                 onClickToken = { navController.navigate(ProfileDestinations.Token.path()) },
-                onClickAuditEvents = { navController.navigate(ProfileDestinations.AuditEvents.path()) },
+                onClickAuditEvents = {
+                    navController.navigate(ProfileDestinations.AuditEvents.path())
+                },
                 onClickLogIn = {
                     scope.launch {
                         profilesController.switchActiveProfile(selectedProfile)
@@ -182,8 +195,15 @@ fun EditProfileNavGraph(
             NavigationAnimation(mode = NavigationMode.Closed) {
                 AuditEventsScreen(
                     profileId = selectedProfile.id,
-                    profilesController = profilesController,
-                    lastAuthenticated = selectedProfile.lastAuthenticated,
+                    onShowCardWall = {
+                        scope.launch {
+                            profilesController.switchActiveProfile(selectedProfile)
+                        }
+                        mainNavController.navigate(
+                            MainNavigationScreens.CardWall.path(selectedProfile.id)
+                        )
+                    },
+                    auditEventsController = auditEventsController,
                     tokenValid = selectedProfile.ssoTokenValid()
                 ) { navController.popBackStack() }
             }
@@ -207,11 +227,6 @@ fun EditProfileNavGraph(
                     onClickInvoice = { taskId ->
                         navController.navigate(
                             ProfileDestinations.InvoiceInformation.path(taskId)
-                        )
-                    },
-                    onClickShare = { taskId ->
-                        navController.navigate(
-                            ProfileDestinations.ShareInformation.path(taskId)
                         )
                     },
                     onShowCardWall = {
@@ -238,9 +253,14 @@ fun EditProfileNavGraph(
                             ProfileDestinations.InvoiceDetails.path(taskId)
                         )
                     },
+                    onClickCorrectInvoiceLocally = {
+                        navController.navigate(
+                            ProfileDestinations.InvoiceLocalCorrection.path(it)
+                        )
+                    },
                     onClickSubmit = {
                         navController.navigate(
-                            ProfileDestinations.ShareInformation.path(taskId)
+                            ProfileDestinations.ShareInformation.path(it)
                         )
                     },
                     onBack = { navController.popBackStack() }
@@ -256,6 +276,21 @@ fun EditProfileNavGraph(
 
             NavigationAnimation(mode = NavigationMode.Closed) {
                 InvoiceDetailsScreen(
+                    invoicesController = invoicesController,
+                    taskId = taskId,
+                    onBack = { navController.popBackStack() }
+                )
+            }
+        }
+
+        composable(
+            ProfileDestinations.InvoiceLocalCorrection.route,
+            ProfileDestinations.InvoiceLocalCorrection.arguments
+        ) {
+            val taskId = remember { requireNotNull(it.arguments?.getString("taskId")) }
+
+            NavigationAnimation(mode = NavigationMode.Closed) {
+                InvoiceLocalCorrectionScreen(
                     invoicesController = invoicesController,
                     taskId = taskId,
                     onBack = { navController.popBackStack() }

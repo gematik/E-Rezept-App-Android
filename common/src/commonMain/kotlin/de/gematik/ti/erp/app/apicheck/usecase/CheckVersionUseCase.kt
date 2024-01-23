@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,10 +23,16 @@ import okhttp3.Request
 import java.net.HttpURLConnection
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.withContext
 import java.io.IOException
-
+@Requirement(
+    "O.Arch_10#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Currently only implemented via APIKey usage against the FD. " +
+        "All requests against the backends may respond with an 403 status code."
+)
 class CheckVersionUseCase(
     private val okHttp: OkHttpClient,
     private val dispatchers: DispatchProvider

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -26,6 +26,8 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
 
 object PrescriptionData {
+    var scannedPrescriptionIndex: Int = 0
+
     sealed interface Prescription {
         val profileId: ProfileIdentifier
         val taskId: String

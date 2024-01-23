@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -30,6 +30,9 @@ import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -45,6 +48,8 @@ import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
+import androidx.compose.material.LocalContentAlpha
+import androidx.compose.material.LocalContentColor
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
@@ -53,7 +58,11 @@ import androidx.compose.material.icons.outlined.CloudQueue
 import androidx.compose.material.icons.outlined.Done
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.VpnKey
+import androidx.compose.material.icons.rounded.AddAPhoto
+import androidx.compose.material.icons.rounded.EuroSymbol
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Refresh
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -65,10 +74,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -88,18 +100,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.compose.foundation.layout.imePadding
-import androidx.compose.foundation.layout.navigationBars
-import androidx.compose.foundation.layout.only
-import androidx.compose.material.LocalContentAlpha
-import androidx.compose.material.LocalContentColor
-import androidx.compose.material.icons.rounded.AddAPhoto
-import androidx.compose.material.icons.rounded.EuroSymbol
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.rememberScaffoldState
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.vector.ImageVector
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
@@ -273,6 +273,11 @@ fun EditProfileScreenContent(
                     ProfileEditPairedDeviceSection(onShowPairedDevices = onClickPairedDevices)
                 }
             }
+            @Requirement(
+                "O.Tokn_5#1",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Section for Access and SSO Token display"
+            )
             item { SecuritySection(onClickToken, onClickAuditEvents) }
         }
 
@@ -343,6 +348,11 @@ fun ThreeDotMenu(
         onDismissRequest = { expanded = false },
         offset = DpOffset(24.dp, 0.dp)
     ) {
+        @Requirement(
+            "O.Tokn_6",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "A logout button is available within each user profile."
+        )
         DropdownMenuItem(
             modifier = Modifier.testTag(
                 if (selectedProfile.ssoTokenScope != null) {
@@ -407,6 +417,11 @@ fun SecuritySection(
     "A_19177",
     "A_19185",
     sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Button to display audit events for profile."
+)
+@Requirement(
+    "O.Auth_5#1",
+    sourceSpecification = "BSI-eRp-ePA",
     rationale = "Button to display audit events for profile."
 )
 @Composable
@@ -605,7 +620,7 @@ fun ProfileEditBasicTextField(
     BasicTextField(
         value = profileNameState,
         onValueChange = {
-            val name = sanitizeProfileName(it.text.trimStart())
+            val name = it.text.trimStart().sanitizeProfileName()
             profileNameState = TextFieldValue(
                 text = name,
                 selection = it.selection,
@@ -625,7 +640,7 @@ fun ProfileEditBasicTextField(
         cursorBrush = SolidColor(color),
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
-            capitalization = KeyboardCapitalization.None,
+            capitalization = KeyboardCapitalization.Sentences,
             imeAction = ImeAction.Done
         ),
         keyboardActions = KeyboardActions(onDone = { onDone() })

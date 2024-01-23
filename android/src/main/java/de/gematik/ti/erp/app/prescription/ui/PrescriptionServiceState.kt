@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,9 +20,18 @@ package de.gematik.ti.erp.app.prescription.ui
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import de.gematik.ti.erp.app.Requirement
 
 interface PrescriptionServiceState
 
+@Requirement(
+    "O.Source_3",
+    "O.Source_4",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Error messages are localized using the `PrescriptionServiceErrorState " +
+        "Search for `PrescriptionServiceErrorState`or State.Error to see all instances." +
+        "Most errors are localized with static text. Logging is only active on debug builds."
+)
 interface PrescriptionServiceErrorState : PrescriptionServiceState
 
 @Stable

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -28,7 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.utils.compose.createToastShort
+import de.gematik.ti.erp.app.utils.compose.shortToast
 
 // tag::BiometricPromptAndBestSecureOption[]
 
@@ -76,7 +76,7 @@ fun BiometricPrompt(
                 ) {
                     onCancel()
                 } else {
-                    createToastShort(context, errString.toString())
+                    context.shortToast(errString.toString())
                     onAuthenticationError()
                 }
             }

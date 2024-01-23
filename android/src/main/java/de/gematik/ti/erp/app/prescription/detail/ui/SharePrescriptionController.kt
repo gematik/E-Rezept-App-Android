@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -34,7 +34,7 @@ import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationModeAndMethod
-import de.gematik.ti.erp.app.utils.compose.createToastShort
+import de.gematik.ti.erp.app.utils.compose.shortToast
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collectLatest
@@ -170,13 +170,13 @@ fun SharePrescriptionHandler(
                 intentHandler.shareIntent.collect { intent ->
                     when (controller.handle(intent)) {
                         SharePrescriptionController.HandleResult.TaskAlreadyExists ->
-                            createToastShort(context, taskExists)
+                            context.shortToast(taskExists)
 
                         SharePrescriptionController.HandleResult.TaskSaved ->
-                            createToastShort(context, taskAdded)
+                            context.shortToast(taskAdded)
 
                         SharePrescriptionController.HandleResult.Failure ->
-                            createToastShort(context, otherFailure)
+                            context.shortToast(otherFailure)
                     }
                 }
             }

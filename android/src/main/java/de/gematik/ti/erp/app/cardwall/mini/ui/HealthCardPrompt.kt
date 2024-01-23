@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -212,8 +212,12 @@ class HealthCardPromptAuthenticator(
         "A_19937",
         "A_20079",
         "A_20605#1",
-        "GS-A_5542",
         sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Propagates IDP auth states to the user."
+    )
+    @Requirement(
+        "GS-A_5542#1",
+        sourceSpecification = "gemSpec_Krypt",
         rationale = "Propagates IDP auth states to the user."
     )
     private fun AuthenticationState.emitAuthState() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
@@ -35,6 +35,7 @@ import io.realm.kotlin.types.annotations.Ignore
 class PKVInvoiceEntityV1 : RealmObject, Cascading {
 
     var taskId: String = ""
+    var accessCode: String = ""
 
     var timestamp: RealmInstant = RealmInstant.MIN
 

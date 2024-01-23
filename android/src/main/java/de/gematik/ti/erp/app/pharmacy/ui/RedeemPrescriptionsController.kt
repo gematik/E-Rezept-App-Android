@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.core.LocalAuthenticator
@@ -97,6 +98,12 @@ class RedeemPrescriptionsController(
             contact = contact
         ).cancellable().first()
 
+    @Requirement(
+        "A_22778",
+        "A_22779",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Start Redeem without TI."
+    )
     suspend fun orderPrescriptionsDirectly(
         orderId: UUID,
         prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>,
@@ -112,6 +119,11 @@ class RedeemPrescriptionsController(
             contact = contact
         ).cancellable().first()
 
+    @Requirement(
+        "GS-A_5542#2",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Errors from the protocol are handled and delegated."
+    )
     private fun orderPrescriptionsDirectlyFlow(
         orderId: UUID,
         prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>,
@@ -131,7 +143,7 @@ class RedeemPrescriptionsController(
                     .map { prescription ->
 
                         val message = DirectCommunicationMessage(
-                            version = "2",
+                            version = 2,
                             supplyOptionsType = when (redeemOption) {
                                 PharmacyScreenData.OrderOption.PickupService -> RemoteRedeemOption.Local.type
                                 PharmacyScreenData.OrderOption.CourierDelivery -> RemoteRedeemOption.Delivery.type
@@ -206,6 +218,11 @@ class RedeemPrescriptionsController(
             State.Ordered(orderId.toString(), results)
         }.flowOn(dispatchers.IO)
 
+    @Requirement(
+        "GS-A_5542#3",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Errors from the protocol are handled and delegated."
+    )
     private fun orderPrescriptionsFlow(
         profileId: ProfileIdentifier,
         orderId: UUID,

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
@@ -95,10 +96,20 @@ class SettingsController(
         settingsUseCase.saveZoomPreference(false)
     }
 
+    @Requirement(
+        "O.Purp_5#3",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Enable usage analytics."
+    )
     fun onTrackingAllowed() {
         analytics.allowAnalytics()
     }
 
+    @Requirement(
+        "O.Purp_5#4",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Disable usage analytics."
+    )
     fun onTrackingDisallowed() {
         analytics.disallowAnalytics()
     }

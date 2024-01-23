@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -32,7 +32,7 @@ private const val NO_MEANING = 0x00
  * Use case Get Random gemSpec_COS#14.9.5.1
  */
 @Requirement(
-    "GS-A_4367#5",
+    "GS-A_4367#6",
     "GS-A_4368#5",
     sourceSpecification = "gemSpec_Krypt",
     rationale = "Random numbers are generated using the RNG of the health card." +

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -27,6 +27,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
@@ -44,6 +45,11 @@ class FastTrackHandler(
     /**
      * Handles an incoming intent. Returns `true` if the intent could be handled.
      */
+    @Requirement(
+        "O.Plat_10#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "handle incoming intent"
+    )
     @Suppress("TooGenericExceptionCaught")
     suspend fun handle(value: String): Boolean =
         try {

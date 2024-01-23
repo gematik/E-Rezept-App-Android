@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -31,12 +31,29 @@ import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import de.gematik.ti.erp.app.Requirement
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import io.github.aakira.napier.Napier
 
 private const val DEFAULT_SCAN_TIME = 250L
 
+@Requirement(
+    "O.Source_1#2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "analyse the camera input"
+)
+@Requirement(
+    "O.Data_8",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "This controller uses the camera as an input device. Frames are processed but never " +
+        "stored, metadata is never created here."
+)
+@Requirement(
+    "O.Data_9",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "The device camera is exclusively used for scanning data matrix codes, no picture files are created."
+)
 class TwoDCodeScanner(
 
     private val context: Context

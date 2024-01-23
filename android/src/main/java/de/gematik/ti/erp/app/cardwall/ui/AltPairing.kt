@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -78,12 +78,22 @@ class AltPairingProvider(
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Initialize biometric authentication for strongbox backed devices."
     )
+    @Requirement(
+        "O.Biom_1#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Initialize biometric authentication for strongbox backed devices."
+    )
     @RequiresApi(Build.VERSION_CODES.P)
     suspend fun initializeAndPrompt(): AuthResult = suspendCancellableCoroutine { continuation ->
         val aliasOfSecureElementEntry = ByteArray(KeyStoreAliasKeySize).apply {
             secureRandomInstance().nextBytes(this)
         }
 
+        @Requirement(
+            "O.Biom_7",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "The app uses the Android keystore to evaluate the biometric authentication"
+        )
         val keyPairGenerator = KeyPairGenerator.getInstance(
             KeyProperties.KEY_ALGORITHM_EC,
             "AndroidKeyStore"
@@ -93,6 +103,12 @@ class AltPairingProvider(
             Base64.toBase64String(aliasOfSecureElementEntry),
             KeyProperties.PURPOSE_SIGN
         ).apply {
+            @Requirement(
+                "O.Biom_6",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Biometric secured private keys are invalid whenever the biometrics setup changes. " +
+                    "Invalidates biometry after changes"
+            )
             setInvalidatedByBiometricEnrollment(true)
             setUserAuthenticationRequired(true)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -101,6 +117,12 @@ class AltPairingProvider(
                 // Android will throw a `KeyPermanentlyInvalidatedException`. Later on if the user restarts
                 // the phone, the key is permanently invalidated and the actual `UserNotAuthenticatedException`
                 // is thrown.
+                @Requirement(
+                    "O.Biom_2#3",
+                    "O.Biom_3#3",
+                    sourceSpecification = "BSI-eRp-ePA",
+                    rationale = "Require Biometric STRONG."
+                )
                 setUserAuthenticationParameters(KeyTimeout, KeyProperties.AUTH_BIOMETRIC_STRONG)
             }
             setIsStrongBoxBacked(true)

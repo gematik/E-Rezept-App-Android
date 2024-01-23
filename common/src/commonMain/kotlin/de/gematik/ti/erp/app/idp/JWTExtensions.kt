@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -81,6 +81,12 @@ suspend fun buildJsonWebSignatureWithHealthCard(
     return "$headerAndPayload.${Base64Url().base64UrlEncode(signed)}"
 }
 
+@Requirement(
+    "O.Cryp_1#5",
+    "O.Cryp_4#5",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Signature via ecdh ephemeral-static (one time usage)"
+)
 fun buildJsonWebSignatureWithSecureElement(
     builder: JsonWebSignature.() -> Unit,
     privateKey: PrivateKey,

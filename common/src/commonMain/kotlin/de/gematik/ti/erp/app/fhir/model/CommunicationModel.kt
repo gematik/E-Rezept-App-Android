@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,7 +22,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class CommunicationPayload(
-    val version: String = "1",
+    val version: Int = 1,
     val supplyOptionsType: String,
     val name: String,
     val address: List<String>,
@@ -32,7 +32,7 @@ data class CommunicationPayload(
 
 @Serializable
 data class DirectCommunicationMessage(
-    val version: String = "2",
+    val version: Int = 2,
     val supplyOptionsType: String,
     val name: String,
     val address: List<String>,

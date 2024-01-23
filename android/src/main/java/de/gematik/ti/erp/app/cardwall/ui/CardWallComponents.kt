@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -78,6 +78,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
 import de.gematik.ti.erp.app.cardwall.domain.biometric.deviceStrongBiometricStatus
@@ -234,6 +235,14 @@ fun CardWallScreen(
                     onClickNoPinReceived = { navController.navigate(CardWallNavigation.OrderHealthCard.path()) }
                 ) {
                     val deviceSupportsBiometric = isDeviceSupportsBiometric(biometricMode)
+
+                    @Requirement(
+                        "O.Biom_2#1",
+                        "O.Biom_3#1",
+                        sourceSpecification = "BSI-eRp-ePA",
+                        rationale = "Only if device has strongbox, the user can select authentication with " +
+                            "biometric prompt"
+                    )
                     val deviceSupportsStrongbox = hasDeviceStrongBox(context)
                     if (deviceSupportsBiometric &&
                         deviceSupportsStrongbox
@@ -276,6 +285,13 @@ fun CardWallScreen(
             }
 
             NavigationAnimation(mode = navigationMode) {
+                @Requirement(
+                    "O.Biom_1",
+                    "O.Biom_8",
+                    sourceSpecification = "BSI-eRp-ePA",
+                    rationale = "Authentication via biometrics is only possible in combination with " +
+                        "successful authentication via eGK + PIN."
+                )
                 AlternativeOptionInfoScreen(
                     onCancel = onBack,
                     onAccept = {
@@ -369,6 +385,12 @@ fun CardWallScreen(
     }
 }
 
+@Requirement(
+    "O.Purp_2#3",
+    "O.Data_6#3",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "PIN is used for eGK connection."
+)
 @Composable
 fun PersonalIdentificationNumberScreen(
     navMode: NavigationMode,

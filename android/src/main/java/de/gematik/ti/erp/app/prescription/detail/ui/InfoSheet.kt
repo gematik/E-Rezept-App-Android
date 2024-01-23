@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -152,7 +152,7 @@ fun PrescriptionDetailInfoSheetContent(
                     infoContent.prescription.authoredOn
                 }
                 Column {
-                    DateRange(start = start, end = infoContent.prescription.acceptUntil ?: start)
+                    DateRange(start = start, end = infoContent.prescription.acceptUntil?.minus(1.days) ?: start)
                     SpacerSmall()
                     Text(
                         stringResource(R.string.pres_details_exp_valid_info_accept),
@@ -162,13 +162,13 @@ fun PrescriptionDetailInfoSheetContent(
                         SpacerMedium()
                         DateRange(
                             start = remember {
-                                infoContent.prescription.acceptUntil?.plus(1.days) ?: start
+                                infoContent.prescription.acceptUntil ?: start
                             },
-                            end = infoContent.prescription.expiresOn ?: start
+                            end = infoContent.prescription.expiresOn?.minus(1.days) ?: start
                         )
                         SpacerSmall()
                         Text(
-                            stringResource(R.string.pres_details_exp_valid_info_expires),
+                            stringResource(R.string.pres_details_exp_valid_info_expiry_time),
                             style = AppTheme.typography.body2l
                         )
                     }

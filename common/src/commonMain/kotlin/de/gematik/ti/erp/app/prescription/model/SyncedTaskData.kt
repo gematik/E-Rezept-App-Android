@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,10 +19,12 @@
 package de.gematik.ti.erp.app.prescription.model
 
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 val CommunicationWaitStateDelta: Duration = 10.minutes
@@ -88,7 +90,9 @@ object SyncedTaskData {
                     LaterRedeemable(medicationRequest.multiplePrescriptionInfo.start)
                 }
 
-                expiresOn != null && expiresOn < now && status != TaskStatus.Completed -> Expired(expiresOn)
+                // expiration date is issue day + 3 months until 0:00 AM on that day
+                expiresOn != null && expiresOn <= now.toStartOfDayInUTC() && status != TaskStatus.Completed ->
+                    Expired(expiresOn)
 
                 status == TaskStatus.Ready && accessCode != null &&
                     communications.any { it.profile == CommunicationProfile.ErxCommunicationDispReq } &&
@@ -104,8 +108,12 @@ object SyncedTaskData {
                 }
 
                 status == TaskStatus.Ready -> Ready(
-                    expiresOn = requireNotNull(expiresOn),
-                    acceptUntil = requireNotNull(acceptUntil)
+                    // Expires on "expiresOn"-day at 0:00 AM.
+                    // Minus 1 day to use it as the last possible day of redeemability
+                    expiresOn = requireNotNull(expiresOn?.minus(1.days)),
+                    // Not Redeemable at the cost of the healthinsurancecompany (HI) on this day at 0:00 AM
+                    // Minus 1 day to use it as the last possible day of redeemability at the cost of the HI
+                    acceptUntil = requireNotNull(acceptUntil?.minus(1.days))
                 )
 
                 status == TaskStatus.InProgress -> InProgress(lastModified = this.lastModified)
@@ -132,7 +140,7 @@ object SyncedTaskData {
          * See [isActive] for a decision it this prescription should be shown in the "Active" or "Archive" tab.
          */
         fun redeemState(now: Instant = Clock.System.now(), delta: Duration = CommunicationWaitStateDelta): RedeemState {
-            val expired = (expiresOn != null && expiresOn <= now)
+            val expired = (expiresOn != null && expiresOn <= now.toStartOfDayInUTC())
             val redeemableLater = medicationRequest.multiplePrescriptionInfo.indicator &&
                 medicationRequest.multiplePrescriptionInfo.start?.let {
                 it > now
@@ -156,9 +164,9 @@ object SyncedTaskData {
         }
 
         fun isActive(now: Instant = Clock.System.now()): Boolean {
-            val notExpired = (expiresOn != null && now <= expiresOn) || expiresOn == null
+            val expired = expiresOn != null && expiresOn <= now.toStartOfDayInUTC()
             val allowedStatus = status == TaskStatus.Ready || status == TaskStatus.InProgress
-            return notExpired && allowedStatus
+            return !expired && allowedStatus
         }
 
         fun isDirectAssignment() =

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -40,6 +40,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.license.model.License
 import de.gematik.ti.erp.app.license.model.LicenseEntry
 import de.gematik.ti.erp.app.license.model.parseLicenses
@@ -62,6 +63,17 @@ fun rememberLicenses(): List<LicenseEntry> {
     }
 }
 
+@Requirement(
+    "O.Purp_7#1",
+    "O.Arch_7",
+    "O.Source_10",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Dependencies are only included if really necessary. " +
+        "We think about including only sub packages, but as most dependencies are very small, " +
+        "this is hardly used. We are using proguard for removing unused dependency functionality." +
+        "By default, Stack Smashing Protection is active." +
+        "A vulnerability analysis on 3rd party libraries is carried out using Owasp Dependency Check."
+)
 @Composable
 fun LicenseScreen(
     navigationMode: NavigationBarMode = NavigationBarMode.Back,

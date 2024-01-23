@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.consent.model
 
 import de.gematik.ti.erp.app.fhir.model.json
-import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.findAll

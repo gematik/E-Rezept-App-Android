@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -50,6 +50,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -61,6 +62,11 @@ import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerXLarge
 
+@Requirement(
+    "O.Auth_3#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Selection of Authentication with health card or insurance App"
+)
 @Composable
 fun CardWallIntroScaffold(
     onNext: () -> Unit,

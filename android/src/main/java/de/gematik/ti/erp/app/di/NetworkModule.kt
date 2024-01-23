@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -60,11 +60,7 @@ class AuditEventFilteredHttpLoggingInterceptor(
     private val loggingInterceptor: HttpLoggingInterceptor
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response =
-        if ("AuditEvent" in chain.request().url.encodedPath) {
-            chain.proceed(chain.request())
-        } else {
-            loggingInterceptor.intercept(chain)
-        }
+        loggingInterceptor.intercept(chain)
 }
 
 class NapierLogger(tagSuffix: String? = null) : HttpLoggingInterceptor.Logger {
@@ -93,14 +89,18 @@ const val JsonFhirConverterFactoryTag = "JsonFhirConverterFactoryTag"
     "A_20529-01",
     "A_20606",
     "A_20608",
-    "GS-A_5035",
-    "GS-A_4387",
-    "GS-A_4385",
     "A_20607",
     "A_20609",
     "A_20617-01#1",
     "A_20618",
     sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Any connection to the IDP or the ERP service uses this configuration."
+)
+@Requirement(
+    "GS-A_5035",
+    "GS-A_4387",
+    "GS-A_4385",
+    sourceSpecification = "gemSpec_Krypt",
     rationale = "Any connection to the IDP or the ERP service uses this configuration."
 )
 @OptIn(ExperimentalSerializationApi::class)
@@ -115,6 +115,23 @@ val networkModule = DI.Module("Network Module") {
     bindSingleton(JsonFhirConverterFactoryTag) {
         instance<Json>().asConverterFactory("application/json+fhir".toMediaType())
     }
+    @Requirement(
+        "O.Ntwk_1#2",
+        "O.Ntwk_2#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Bind the connection specification."
+    )
+    @Requirement(
+        "O.Ntwk_3",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "We use OkHttp for network communication"
+    )
+    @Requirement(
+        "GS-A_5322",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "We initialize our okhttp client as singleton. Thus, we support TLS resumption, it is handled by " +
+            "okhttp. See https://square.github.io/okhttp/4.x/okhttp/okhttp3/-connection/ for more details."
+    )
     bindSingleton {
         OkHttpClient.Builder()
             .connectTimeout(
@@ -275,13 +292,32 @@ val networkModule = DI.Module("Network Module") {
 }
 
 @Requirement(
-    "A_20206",
+    "A_20206-01",
     "A_17322",
     "A_18464",
     "A_18467",
     "A_21332",
     "A_21275-01",
     sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
+)
+@Requirement(
+    "GS-A_4357-2#1",
+    "GS-A_4361-2#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Cipher Suites regarding sha256WithRsaEncryption are listed below, see RSA specific cipher suites."
+)
+@Requirement(
+    "O.Ntwk_1#1",
+    "O.Ntwk_2#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
+)
+@Requirement(
+    "GS-A_5035#1",
+    "GS-A_4385#1",
+    "GS-A_4387#1",
+    sourceSpecification = "gemSpec_Krypt",
     rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
 )
 private fun getConnectionSpec(): List<ConnectionSpec> = ConnectionSpec

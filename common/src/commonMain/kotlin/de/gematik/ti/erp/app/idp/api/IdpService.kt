@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -54,6 +54,11 @@ const val CLIENT_ID = "eRezeptApp"
 const val REDIRECT_URI = "https://redirect.gematik.de/erezept"
 const val EXT_AUTH_REDIRECT_URI: String = "https://das-e-rezept-fuer-deutschland.de/extauth"
 
+@Requirement(
+    "O.Purp_8#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Interface of external idp service"
+)
 interface IdpService {
 
     @Headers(

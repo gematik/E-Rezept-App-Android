@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -136,6 +136,7 @@ class AppDependenciesPlugin : Plugin<Project> {
 
             object Test {
                 const val runner = "androidx.test:runner:1.5.2"
+                const val shotRunner = "com.karumi.shot.ShotTestRunner:6.0.0"
                 const val orchestrator = "androidx.test:orchestrator:1.4.2"
                 const val services = "androidx.test.services:test-services:1.4.2"
                 const val archCore = "androidx.arch.core:core-testing:2.1.0"
@@ -174,6 +175,11 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val retrofit2KotlinXSerialization =
                 "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:0.8.0"
             fun okhttp3(module: String) = "com.squareup.okhttp3:$module:4.10.0"
+
+            // To work around a vulnerable Okio version 3.1.0 (CVE-2023-3635) we include a newer, non-vulnerable version
+            // to be selected by Gradle instead instead of the old one. Can be removed as soon as Retrofit releases a
+            // new version >2.9.0.
+            const val okio = "com.squareup.okio:okio:3.4.0"
             object Test {
                 val mockWebServer = okhttp3("mockwebserver")
             }
@@ -203,6 +209,7 @@ class AppDependenciesPlugin : Plugin<Project> {
 
             object Test {
                 const val ui = "androidx.compose.ui:ui-test:$composeVersion"
+                const val uiManifest = "androidx.compose.ui:ui-test-manifest:$composeVersion"
                 const val junit4 = "androidx.compose.ui:ui-test-junit4:$composeVersion"
             }
         }
@@ -220,6 +227,7 @@ class AppDependenciesPlugin : Plugin<Project> {
             const val junit4 = "junit:junit:4.13.2"
             const val snakeyaml = "org.yaml:snakeyaml:1.30"
             const val json = "org.json:json:20220924"
+            const val shotTests = "com.karumi:shot:6.0.0"
         }
     }
 }

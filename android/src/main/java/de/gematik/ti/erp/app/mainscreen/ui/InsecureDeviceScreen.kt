@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -67,6 +67,15 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import kotlinx.coroutines.launch
 import java.util.Locale
+@Requirement(
+    "O.Arch_6#3",
+    "O.Resi_2#3",
+    "O.Resi_3#3",
+    "O.Resi_4#3",
+    "O.Resi_5#3",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Show integrity warning."
+)
 @Requirement(
     "A_21574",
     sourceSpecification = "gemSpec_IDP_Frontend",

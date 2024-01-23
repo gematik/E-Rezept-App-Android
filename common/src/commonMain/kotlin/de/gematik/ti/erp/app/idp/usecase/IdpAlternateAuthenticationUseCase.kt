@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -216,6 +216,13 @@ class IdpAlternateAuthenticationUseCase(
             deviceInformation,
             authenticationMethod
         )
+
+        @Requirement(
+            "O.Cryp_1#3",
+            "O.Cryp_4#3",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Signature via ecdh ephemeral-static (one time usage)"
+        )
         val signedAuthData =
             buildSignedAuthenticationData(authData, privateKeyOfSecureElementEntry, signatureObjectOfSecureElementEntry)
         val encryptedAuthData =
@@ -384,6 +391,12 @@ class IdpAlternateAuthenticationUseCase(
         )
     }
 
+    @Requirement(
+        "O.Cryp_1#4",
+        "O.Cryp_4#4",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Signature via ecdh ephemeral-static (one time usage)"
+    )
     fun buildSignedAuthenticationData(
         authenticationData: AuthenticationData,
         privateKey: PrivateKey,

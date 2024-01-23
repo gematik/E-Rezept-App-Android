@@ -371,6 +371,7 @@
     <ID>TooManyFunctions:IdpRepository.kt$IdpRepository</ID>
     <ID>TooManyFunctions:PrescriptionDetailScreen.kt$de.gematik.ti.erp.app.prescription.ui.PrescriptionDetailScreen.kt</ID>
     <ID>TooManyFunctions:SettingsScreen.kt$de.gematik.ti.erp.app.settings.ui.SettingsScreen.kt</ID>
+    <ID>TooManyFunctions:TemporalConverter.kt$de.gematik.ti.erp.app.utils.TemporalConverter.kt</ID>
     <ID>TopLevelPropertyNaming:ClientCrypto.kt$private const val byteSpace: Byte = 32</ID>
     <ID>TopLevelPropertyNaming:HeadersInterceptor.kt$private const val invalidAccessTokenHeader = "Www-Authenticate"</ID>
     <ID>TopLevelPropertyNaming:HeadersInterceptor.kt$private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"</ID>

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="app_name">E-Rezept</string>
     <string name="ok">Ok</string>
     <string name="cancel">Скасувати</string>
     <string name="back">Назад</string>
@@ -177,18 +176,6 @@
     <string name="search_pharmacies_location_na_header">Жодна локація не доступна</string>
     <string name="understand">Зрозуміло</string>
     <string name="consistent_password">Паролі не збігаються</string>
-    <plurals name="prescription_item_expiration_days_new">
-        <item quantity="one">Залишається ще %s день, щоб погасити рецепт, якщо ви оплачуєте самостійно.</item>
-        <item quantity="few">Залишається ще %s дні, щоб погасити рецепт, якщо ви оплачуєте самостійно.</item>
-        <item quantity="many">Залишається ще %s днів, щоб погасити рецепт, якщо ви оплачуєте самостійно.</item>
-        <item quantity="other"></item>
-    </plurals>
-    <plurals name="prescription_item_accept_days">
-        <item quantity="one">Діє ще %s день</item>
-        <item quantity="few">Діє ще %s дні</item>
-        <item quantity="many">Діє ще %s днів</item>
-        <item quantity="other"></item>
-    </plurals>
     <string name="cdw_nfc_error_title_invalid_certificate">Помилка 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Сертифікат вашої картка здоров\'я недійсний. Можливо, термін дії вашої картки закінчився? Зв’яжіться зі своєю медичною страховою компанією.</string>
     <string name="auth_error_failed_auths_headline">Невдалі спроби входу</string>
@@ -284,9 +271,7 @@
     <string name="settings_show_token_info">Мова про ключ доступу до сервісу рецептів</string>
     <string name="autitEvents_headline">Протоколи доступу</string>
     <string name="no_audit_events_header">Протоколи доступу відсутні</string>
-    <string name="no_audit_events_not_authenticated_info">Ви отримаєте протоколи доступу, якщо ви увійшли в службу рецептів.</string>
     <string name="no_audit_events_empty_protocol_list_info">Протоколів доступу ще немає.</string>
-    <string name="audit_events_updated_at">Останнє оновлення: %s</string>
     <string name="logout_delete_in_progress">Наразі рецепт обробляється, і його неможливо видалити.</string>
     <string name="data_terms_accept_update">Прийняти</string>
     <string name="cdw_troubleshooting_no_success_title">Мабуть, спроба невдала.</string>
@@ -352,7 +337,7 @@
     <string name="cdw_no_pin_received">PIN-код не отримано</string>
     <string name="cdw_pin_label">PIN</string>
     <string name="cdw_idp_error_time_and_connection">Перевірте підключення до Інтернету та налаштування часу/дати на вашому пристрої.</string>
-    <string name="auth_information">Для автентифікації натисніть \"Розблокувати\".</string>
+    <string name="auth_information">Для входу натисніть «Розблокувати».</string>
     <string name="auth_failed_biometry_info">Заблоковано? Перевірте свої біометричні облікові дані на цьому пристрої.</string>
     <string name="auth_failed_password_info">Забули пароль? Видаліть застосунок, а потім повторно встановіть його. Чому це так, ви можете дізнатися в %s</string>
     <string name="auth_link_to_gematik_helptext">Довідка</string>
@@ -366,7 +351,7 @@
     <string name="settings_tracking_allow_button">Прийняти</string>
     <string name="onb_undo_description">Скасувати</string>
     <string name="settings_biometric_dialog_headline">Указівка</string>
-    <string name="onb_page_5_header">Допоможете нам покращити цей застосунок?</string>
+    <string name="onb_page_5_header">Допоможіть нам зробити цю програму кращою</string>
     <string name="settings_password_enter">Вибрати власний пароль</string>
     <string name="settings_password_length_hint">Пароль повинен містити не менше восьми символів</string>
     <string name="settings_password_strength_not_sufficient">Надійність пароля не достатня</string>
@@ -444,10 +429,7 @@
     <string name="health_card_section_header">Картка здоров\'я</string>
     <string name="health_card_section_order_card">Замовити ПІН або картку</string>
     <string name="cdw_intro_header">Вхід</string>
-    <string name="cdw_intro_info">Як би ви хотіли пройти автентифікацію?</string>
-    <string name="cdw_intro_auth_insurance_app">страховий додаток</string>
-    <string name="cdw_intro_auth_health_card">страхова картка</string>
-    <string name="cdw_intro_auth_health_card_pin">Потрібен пов\'язаний PIN-код</string>
+    <string name="cdw_intro_info">Як ви хочете ввійти?</string>
     <string name="cdw_intro_nfc_card_needed">Картка здоров’я з підтримкою NFC</string>
     <string name="cdw_intro_pin_needed">PIN-код картки здоров’я</string>
     <string name="cdw_have_no_card_with_pin">У вас ще немає картки здоров’я з підтримкою NFC та PIN-коду до неї?</string>
@@ -649,8 +631,7 @@
     <string name="pres_details_exp_add_fee_info">Ті, хто має державне медичне страхування, повинні сплачувати доплату в розмірі до десяти євро за рецептурні ліки. \n\n Сума співоплати залежить від вартості ваших ліків. За ліки, які коштують менше 5 євро, ви повинні платити самі.\n За ліки, які коштують дорожче, потрібно заплатити десять відсотків від ціни, але не менше 5 євро, а максимум 10 євро. \n\n Діти та молодь віком до 18 років, як правило, звільнені від співоплати. \n\n Якщо ваші річні витрати на ліки перевищують ваш фінансовий ліміт, ви можете бути звільнені від співоплати. Поговоріть про це зі своїм медичним страхувальником.</string>
     <string name="pres_details_exp_no_add_fee_info">Ви звільнені від спільної оплати цього препарату. Ваше медичне страхування покриває вартість ліків.</string>
     <string name="pres_details_exp_valid_title">Скільки дійсний цей рецепт?</string>
-    <string name="pres_details_exp_valid_info_accept">У цей період ви можете отримати рецепт в будь-якій аптеці з доплатою.</string>
-    <string name="pres_details_exp_valid_info_expires">Протягом цього періоду ви все ще можете придбати рецепт в аптеці, але ви повинні заплатити вартість покупки самостійно. Крім того, ви можете попросити свою практику виписати рецепт повторно.</string>
+    <string name="pres_details_exp_valid_info_accept">Протягом цього періоду ви можете отримати рецепт у будь-якій аптеці з максимальною додатковою оплатою 10 євро.</string>
     <string name="pres_details_exp_sub_allowed_title">Можливий замінник</string>
     <string name="pres_details_exp_sub_allowed_info">Відповідно до юридичних вимог вашої страхової компанії, вам можуть надати альтернативу з тим самим діючим інгредієнтом. \n\n Ліки можуть виглядати і називатися по-різному, мати різні ціни та виробників, але містити однакову діючу речовину. Сам активний інгредієнт і дозування особливо важливі для впливу ліків на організм. Пацієнти в аптеці часто отримують інший препарат, ніж той, який виписав лікар за рецептом – за умови, що препарати порівнювані. Для зміни можуть бути терапевтичні та економічні причини.</string>
     <string name="pres_details_exp_scanned_title">Відсканований рецепт</string>
@@ -721,11 +702,11 @@
     <string name="mainscreen_empty_content_header">Кожних рецептів</string>
     <string name="mainscreen_empty_not_connected_info">Додайте рецепти за допомогою кнопки + у верхньому правому куті.</string>
     <string name="mainscreen_login">Увійти</string>
-    <string name="archived_prescriptions_button">Викуплені рецепти</string>
+    <string name="archived_prescriptions_button">архів рецептів</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Можливо пізніше</string>
     <string name="mainscreen_connect_bottomsheet_connect">Увійти</string>
     <string name="mainscreen_bottom_sheet_edit_profile_image">Редагувати зображення профілю</string>
-    <string name="archive_screen_title">Викуплені рецепти</string>
+    <string name="archive_screen_title">архів рецептів</string>
     <string name="bottom_sheet_edit_profile_name_title">Введіть ім\'я</string>
     <string name="profile_bottom_sheet_save">Зберегти</string>
     <string name="pharmacy_order_title">Моє замовлення</string>
@@ -873,22 +854,15 @@
     <string name="prescription_status_direct_assignment_ready">Буде викуплено для вас</string>
     <string name="prescription_status_direct_assignment_closed">Був викуплений для вас</string>
     <string name="connect_for_pharmacy_service">Ви повинні увійти в систему, щоб скористатися цією послугою.</string>
-    <string name="server_return_code_200">Рецепт(и) успішно передано.</string>
-    <string name="server_return_code_400">Рецепт не підлягає обробці. Будь ласка спробуйте ще раз. Можливо, вам доведеться вибрати іншу аптеку.</string>
-    <string name="server_return_code_500">Рецепт не підлягає обробці. Аптека повідомляє про невідому помилку. Якщо потрібно, спробуйте іншу аптеку.</string>
-    <string name="server_return_code_401">Рецепт був відхилений аптекою. Рецепт може бути недійсним, або ваша адреса доставки чи контактні дані можуть бути недійсними.</string>
-    <string name="server_return_code_404">No activation is required, then the next step is to enter the center.</string>
-    <string name="server_return_code_408">Рецепт успішно передано. Однак аптека повідомляє про помилку обробки. Будь ласка, зверніться в аптеку.</string>
-    <string name="server_return_code_409">Рецепт був відхилений аптекою. Рецепт вже погашений.</string>
-    <string name="server_return_code_410">Рецепт був відхилений аптекою. Рецепт видалено.</string>
-    <string name="server_return_no_code">Рецепт не можна було передати. Перевірте підключення до Інтернету та повторіть спробу.</string>
-    <string name="several_return_code">Не вдалося передати один або кілька рецептів.</string>
-    <string name="server_return_code_200_title">Успішно відправлено!</string>
-    <string name="server_return_code_400_title">Помилка аптеки</string>
-    <string name="server_return_code_500_title">Помилка аптеки</string>
-    <string name="server_return_code_408_title">Зверніться в аптеку</string>
-    <string name="server_return_code_409_title">Рецепт уже погашений</string>
-    <string name="server_return_code_410_title">Рецепт видалено</string>
-    <string name="server_return_no_code_title">Немає Інтернету</string>
-    <string name="server_return_code_title_failure">Помилка відправки</string>
+    <string name="cdw_intro_auth_insurance_app">страховий додаток</string>
+    <string name="cdw_intro_auth_health_card">страхова картка</string>
+    <string name="cdw_intro_auth_health_card_pin">Потрібен пов\'язаний PIN-код</string>
+    <string name="audit_events_connect_info">Щоб отримати журнали доступу, ви повинні бути підключені до сервера.</string>
+    <string name="pres_details_exp_valid_info_expiry_time">Ви все ще можете виписати рецепт в аптеці протягом цього терміну, але вам доведеться заплатити всю вартість ліків самостійно. Крім того, ви можете попросити свою практику повторно виписати рецепт.</string>
+    <string name="invoice_correct_done">Готово</string>
+    <string name="invoice_menu_correct_invoice">Запит на виправлення</string>
+    <string name="invoice_menu_correct_invoice_locally">В аптеці</string>
+    <string name="invoice_menu_correct_invoice_online">У додатку</string>
+    <string name="invoice_correction_info">Відскануйте цей код у своїй аптеці.</string>
+    <string name="invoice_correction">Запит на виправлення рахунку</string>
 </resources>

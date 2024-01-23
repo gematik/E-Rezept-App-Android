@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -19,8 +19,8 @@
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
-import de.gematik.ti.erp.app.fhir.parser.asFhirInstant
+import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirInstant
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
@@ -35,7 +35,13 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
 
-private fun template(
+/**
+ * Template version 1.2
+ * Changes
+ * - profile
+ * - recipient.system
+ */
+private fun templateVersion12(
     orderId: String,
     reference: String,
     payload: String,
@@ -45,7 +51,7 @@ private fun template(
   "resourceType": "Communication",
   "meta": {
     "profile": [
-      "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.2"
     ]
   },
   "identifier": [
@@ -63,7 +69,7 @@ private fun template(
   "recipient": [
     {
       "identifier": {
-        "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+        "system": "https://gematik.de/fhir/sid/telematik-id",
         "value": $recipientTID
       }
     }
@@ -75,47 +81,6 @@ private fun template(
   ]
 }
 """.trimIndent()
-
-// private fun templateVersion1_2(
-//    orderId: String,
-//    reference: String,
-//    payload: String,
-//    recipientTID: String
-// ) = """
-// {
-//  "resourceType": "Communication",
-//  "meta": {
-//    "profile": [
-//      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.2"
-//    ]
-//  },
-//  "identifier": [
-//    {
-//      "system": "https://gematik.de/fhir/NamingSystem/OrderID",
-//      "value": $orderId
-//    }
-//  ],
-//  "status": "unknown",
-//  "basedOn": [
-//    {
-//      "reference": $reference
-//    }
-//  ],
-//  "recipient": [
-//    {
-//      "identifier": {
-//        "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
-//        "value": $recipientTID
-//      }
-//    }
-//  ],
-//  "payload": [
-//    {
-//      "contentString": $payload
-//    }
-//  ]
-// }
-// """.trimIndent()
 
 val json = Json {
     encodeDefaults = true
@@ -132,12 +97,11 @@ fun createCommunicationDispenseRequest(
     val payloadString = json.encodeToString(payload)
     val reference = "Task/$taskId/\$accept?ac=$accessCode"
 
-    // Todo: use template Version 1.2 if supported
-    val templateString = template(
+    val templateString = templateVersion12(
         orderId = JsonPrimitive(orderId).toString(),
         reference = JsonPrimitive(reference).toString(),
-        recipientTID = JsonPrimitive(recipientTID).toString(),
-        payload = JsonPrimitive(payloadString).toString()
+        payload = JsonPrimitive(payloadString).toString(),
+        recipientTID = JsonPrimitive(recipientTID).toString()
     )
 
     return json.parseToJsonElement(templateString)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -116,6 +116,11 @@ class VauChannelSpec constructor(
     /**
      * Encrypt raw request data as the inner request.
      */
+    @Requirement(
+        "A_20161-01",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Request encryption"
+    )
     fun encryptRawVauRequest(
         innerHttp: ByteArray,
 
@@ -193,7 +198,6 @@ class VauChannelSpec constructor(
         userpseudonym: String,
         publicKey: ECPublicKey,
         baseUrl: HttpUrl,
-
         cryptoConfig: VauCryptoConfig = defaultCryptoConfig
     ): Pair<Request, RawRequestData> {
         val bearer = requireNotNull(

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -47,6 +47,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -163,6 +164,7 @@ fun MainScreenBottomSheetContentState(
                                     }
                                 }
                             )
+
                         is MainScreenBottomSheetContentState.EditProfileName ->
                             ProfileSheetContent(
                                 profilesController = profilesController,
@@ -170,6 +172,7 @@ fun MainScreenBottomSheetContentState(
                                 profileToEdit = profileToRename,
                                 onCancel = onCancel
                             )
+
                         is MainScreenBottomSheetContentState.AddProfile ->
                             ProfileSheetContent(
                                 profilesController = profilesController,
@@ -238,15 +241,17 @@ fun ProfileSheetContent(
             value = textValue,
             singleLine = true,
             onValueChange = {
-                val name = sanitizeProfileName(it.trimStart())
+                val isNotExistingText = textValue.trim() != profileToEdit?.name
+                val isNotExistingName = profilesState.containsProfileWithName(textValue)
+                val name = it.trimStart().sanitizeProfileName()
                 textValue = name
-                duplicated = textValue.trim() != profileToEdit?.name &&
-                    profilesState.containsProfileWithName(textValue)
+                duplicated = isNotExistingText && isNotExistingName
             },
             keyboardOptions = KeyboardOptions(
                 autoCorrect = true,
                 keyboardType = KeyboardType.Text,
-                imeAction = ImeAction.Done
+                imeAction = ImeAction.Done,
+                capitalization = KeyboardCapitalization.Sentences
             ),
             keyboardActions = KeyboardActions {
                 if (!duplicated && textValue.isNotEmpty()) {

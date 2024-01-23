@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -54,6 +54,7 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -156,6 +157,13 @@ fun CardWallSecretScreen(
     }
 }
 
+@Requirement(
+    "O.Data_10",
+    "O.Data_11",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Password fields using the  keyboard type numberPassword. Copying the content is not possible " +
+        "with this type. Autocorrect is disallowed. It`s not possible to disable third party keyboards."
+)
 @Composable
 fun SecretInputField(
     modifier: Modifier,
@@ -166,7 +174,8 @@ fun SecretInputField(
     label: String,
     next: (String) -> Unit
 ) {
-    val secretRegex = """^\d{0,${secretRange.last}}$""".toRegex()
+    val secretRegexString = "^\\d{0,${secretRange.last}}$"
+    val secretRegex = secretRegexString.toRegex()
     var secretVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
@@ -228,7 +237,8 @@ fun ConformationSecretInputField(
     isConsistent: Boolean,
     next: (String) -> Unit
 ) {
-    val secretRegex = """^\d{0,${secretRange.last}}$""".toRegex()
+    val secretRegexString = "^\\d{0,${secretRange.last}}$"
+    val secretRegex = secretRegexString.toRegex()
     var secretVisible by remember { mutableStateOf(false) }
 
     OutlinedTextField(
@@ -266,7 +276,7 @@ fun ConformationSecretInputField(
             }
         },
         keyboardActions = KeyboardActions {
-            if (isConsistent) {
+            if (isConsistent && secret.length in secretRange) {
                 next(secret)
             }
         },

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -90,7 +90,7 @@ class InvoiceLocalDataSource(
 
                 extractInvoiceKBVAndErpPrBundle(
                     bundle,
-                    process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+                    process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
                         extractInvoiceBundle(
                             invoiceBundle,
                             processDispense = { whenHandedOver ->
@@ -132,7 +132,7 @@ class InvoiceLocalDataSource(
                                     }
                                 }
                             },
-                            save = { taskId, timeStamp, pharmacy, invoice, whenHandedOver ->
+                            save = { _, timeStamp, pharmacy, invoice, whenHandedOver ->
                                 invoiceEntity = queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId) ?: run {
                                     copyToRealm(PKVInvoiceEntityV1()).also {
                                         profile.invoices += it
@@ -148,6 +148,7 @@ class InvoiceLocalDataSource(
                                         invoiceEntity.apply {
                                             this.parent = profile
                                             this.taskId = taskId
+                                            this.accessCode = accessCode
                                             this.timestamp = timeStamp.toRealmInstant()
                                             this.pharmacyOrganization = pharmacy
                                             this.invoice = invoice
@@ -364,7 +365,7 @@ class InvoiceLocalDataSource(
         }
     }
 
-    fun PKVInvoiceEntityV1.toPKVInvoice(): InvoiceData.PKVInvoice =
+    private fun PKVInvoiceEntityV1.toPKVInvoice(): InvoiceData.PKVInvoice =
         InvoiceData.PKVInvoice(
             profileId = this.parent?.id ?: "",
             timestamp = this.timestamp.toInstant(),
@@ -446,6 +447,7 @@ class InvoiceLocalDataSource(
                 bvg = this.medicationRequest?.bvg
             ),
             taskId = this.taskId,
+            accessCode = this.accessCode,
             whenHandedOver = this.whenHandedOver,
             invoice = InvoiceData.Invoice(
                 totalAdditionalFee = this.invoice?.totalAdditionalFee ?: 0.0,
@@ -493,7 +495,7 @@ class InvoiceLocalDataSource(
         }
     }
 
-    fun ChargeableItemV1.toChargeableItem() = InvoiceData.ChargeableItem(
+    private fun ChargeableItemV1.toChargeableItem() = InvoiceData.ChargeableItem(
         description = when (this.descriptionTypeV1) {
             DescriptionTypeV1.PZN -> InvoiceData.ChargeableItem.Description.PZN(this.description)
             DescriptionTypeV1.HMNR -> InvoiceData.ChargeableItem.Description.HMNR(this.description)

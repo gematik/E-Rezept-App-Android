@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -24,6 +24,8 @@ import de.gematik.ti.erp.app.prescription.repository.RemoteDataSource
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeProcessor
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeScanner
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
+import de.gematik.ti.erp.app.prescription.usecase.GetActivePrescriptionsUseCase
+import de.gematik.ti.erp.app.prescription.usecase.GetArchivedPrescriptionsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RefreshPrescriptionUseCase
 import org.kodein.di.DI
@@ -39,5 +41,7 @@ val prescriptionModule = DI.Module("prescriptionModule") {
     bindSingleton { PrescriptionRepository(instance(), instance(), instance()) }
     bindSingleton { RemoteDataSource(instance()) }
     bindSingleton { PrescriptionUseCase(instance(), instance(), instance()) }
-    bindSingleton { RefreshPrescriptionUseCase(instance(), instance(), instance(), instance()) }
+    bindSingleton { RefreshPrescriptionUseCase(instance(), instance(), instance()) }
+    bindProvider { GetActivePrescriptionsUseCase(instance()) }
+    bindProvider { GetArchivedPrescriptionsUseCase(instance()) }
 }

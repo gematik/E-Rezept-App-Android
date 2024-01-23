@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -46,6 +46,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -58,6 +59,12 @@ import de.gematik.ti.erp.app.utils.compose.annotatedLinkStringLight
 
 const val EXPECTED_CAN_LENGTH = 6
 
+@Requirement(
+    "O.Purp_2#2",
+    "O.Data_6#2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "CAN is used for eGK connection."
+)
 @Composable
 fun CardAccessNumber(
     onClickLearnMore: () -> Unit,

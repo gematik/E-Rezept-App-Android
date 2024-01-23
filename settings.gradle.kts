@@ -16,8 +16,10 @@ pluginManagement {
             }
         }
     }
+
     includeBuild("plugins/dependencies")
     includeBuild("plugins/resource-generation")
+    includeBuild("plugins/technical-requirements-plugin")
 }
 
 dependencyResolutionManagement {
@@ -28,7 +30,6 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         maven ("https://jitpack.io")
-        jcenter()
     }
 }
 
@@ -50,6 +51,6 @@ includeBuild("smartcard-wrapper") {
 //    }
 //}
 
-include(":android", ":desktop", ":common")
+include("android", "desktop", "common", "plugins:technical-requirements-plugin")
 
 rootProject.name = "E-Rezept"

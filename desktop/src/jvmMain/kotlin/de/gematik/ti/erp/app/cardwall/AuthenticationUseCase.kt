@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -49,6 +49,13 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import kotlin.coroutines.cancellation.CancellationException
 
+@Requirement(
+    "GS-A_4368#6",
+    "GS-A_4367#7",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "Seed length is defined with 256 Bits"
+    // TODO Update this req. when using the health card for random number generation is also implemented for Android.
+)
 private const val SEED_LENGTH = 256
 
 enum class AuthenticationState {
@@ -116,7 +123,7 @@ class AuthenticationUseCase(
     private val idpUseCase: IdpUseCase
 ) {
     @Requirement(
-        "GS-A_4367#1",
+        "GS-A_4367#2",
         "GS-A_4368#1",
         sourceSpecification = "gemSpec_Krypt",
         rationale = "Random numbers are generated using the RNG of the health card." +
@@ -152,7 +159,7 @@ class AuthenticationUseCase(
     }
 
     @Requirement(
-        "GS-A_4367#2",
+        "GS-A_4367#3",
         "GS-A_4368#2",
         sourceSpecification = "gemSpec_Krypt",
         rationale = "Random numbers are generated using the RNG of the health card." +
@@ -219,7 +226,7 @@ class AuthenticationUseCase(
     }
 
     @Requirement(
-        "GS-A_4367#3",
+        "GS-A_4367#4",
         "GS-A_4368#3",
         sourceSpecification = "gemSpec_Krypt",
         rationale = "Random numbers are generated using the RNG of the health card." +

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.db.entities.v1
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.db.entities.Cascading
 import de.gematik.ti.erp.app.db.entities.byteArrayBase64
 import de.gematik.ti.erp.app.db.entities.enumName
@@ -62,6 +63,17 @@ class PharmacySearchEntityV1 : RealmObject {
     var filterOpenNow: Boolean = false
 }
 
+@Requirement(
+    "O.Data_1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "The settings of the app offer maximum data protection and security on first app start." +
+        "User preferences are asked without discrimination within the onboarding process"
+)
+@Requirement(
+    "O.Data_13",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "default settings are not allow screenshots"
+)
 class SettingsEntityV1 : RealmObject, Cascading {
     var _authenticationMethod: String = Unspecified.toString()
 
@@ -90,7 +102,7 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var mlKitAccepted: Boolean = false
 
     // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
-    var screenshotsAllowed: Boolean = false // TODO this needs a if BuildKonfig.debug then true else false
+    var screenshotsAllowed: Boolean = false
 
     override fun objectsToFollow(): Iterator<Deleteable> =
         iterator {

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="app_name">E-Rezept</string>
     <string name="ok">OK</string>
     <string name="cancel">Отмена</string>
     <string name="back">Назад</string>
@@ -177,18 +176,6 @@
     <string name="search_pharmacies_location_na_header">Местоположение недоступно</string>
     <string name="understand">Понятно</string>
     <string name="consistent_password">Пароли совпадают</string>
-    <plurals name="prescription_item_expiration_days_new">
-        <item quantity="one">Можно выкупить в качестве самостоятельного плательщика еще в течение %s дня</item>
-        <item quantity="few">Можно выкупить в качестве самостоятельного плательщика еще в течение %s дней</item>
-        <item quantity="many">Можно выкупить в качестве самостоятельного плательщика еще в течение %s дней</item>
-        <item quantity="other">Можно выкупить в качестве самостоятельного плательщика еще в течение %s дней</item>
-    </plurals>
-    <plurals name="prescription_item_accept_days">
-        <item quantity="one">Действует еще %s день</item>
-        <item quantity="few">Действует еще %s дня</item>
-        <item quantity="many">Действует еще %s дней</item>
-        <item quantity="other">Действует еще %s дней</item>
-    </plurals>
     <string name="cdw_nfc_error_title_invalid_certificate">Ошибка 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Сертификат вашей медицинской карточки недействителен. Может быть, срок действия вашей карточки истек? Обратитесь в свою организацию медицинского страхования.</string>
     <string name="auth_error_failed_auths_headline">Безуспешные попытки входа</string>
@@ -284,9 +271,7 @@
     <string name="settings_show_token_info">Это ключ для доступа к службе рецептов</string>
     <string name="autitEvents_headline">Протоколы доступа</string>
     <string name="no_audit_events_header">Нет протоколов доступа</string>
-    <string name="no_audit_events_not_authenticated_info">Вы получите протоколы доступа, когда войдете в службу рецептов.</string>
     <string name="no_audit_events_empty_protocol_list_info">Протоколов доступа еще нет.</string>
-    <string name="audit_events_updated_at">Дата последнего обновления %s</string>
     <string name="logout_delete_in_progress">Рецепт в настоящее время обрабатывается и не может быть удален</string>
     <string name="data_terms_accept_update">Принять</string>
     <string name="cdw_troubleshooting_no_success_title">Видимо, что-то пошло не так</string>
@@ -352,7 +337,7 @@
     <string name="cdw_no_pin_received">PIN-код не получен</string>
     <string name="cdw_pin_label">PIN-код</string>
     <string name="cdw_idp_error_time_and_connection">Проверьте соединение с Интернетом и настройки времени/даты на вашем устройстве.</string>
-    <string name="auth_information">Для аутентификации нажмите \"Разблокировать\".</string>
+    <string name="auth_information">Для входа нажмите «Разблокировать».</string>
     <string name="auth_failed_biometry_info">Блокировка? Проверьте свои биометрические данные доступа на этом устройстве.</string>
     <string name="auth_failed_password_info">Забыли пароль? Удалите приложение и затем установите его заново. Причины мы объясняем в %s.</string>
     <string name="auth_link_to_gematik_helptext">Раздел справки</string>
@@ -366,7 +351,7 @@
     <string name="settings_tracking_allow_button">Принять</string>
     <string name="onb_undo_description">Отменить</string>
     <string name="settings_biometric_dialog_headline">Указание</string>
-    <string name="onb_page_5_header">Поможете нам сделать это приложение лучше?</string>
+    <string name="onb_page_5_header">Помогите нам сделать это приложение лучше</string>
     <string name="settings_password_enter">Установить собственный пароль</string>
     <string name="settings_password_length_hint">Пароль должен состоять как минимум из восьми символов</string>
     <string name="settings_password_strength_not_sufficient">Надежность пароля недостаточная</string>
@@ -444,10 +429,7 @@
     <string name="health_card_section_header">Медицинская карточка</string>
     <string name="health_card_section_order_card">Заказать PIN-код или карту</string>
     <string name="cdw_intro_header">Войти</string>
-    <string name="cdw_intro_info">Как вы хотите пройти аутентификацию?</string>
-    <string name="cdw_intro_auth_insurance_app">страховое приложение</string>
-    <string name="cdw_intro_auth_health_card">страховой полис</string>
-    <string name="cdw_intro_auth_health_card_pin">Требуется соответствующий PIN-код</string>
+    <string name="cdw_intro_info">Как вы хотите войти в систему?</string>
     <string name="cdw_intro_nfc_card_needed">Медицинская карточка с поддержкой NFC</string>
     <string name="cdw_intro_pin_needed">PIN-код медицинской карточки</string>
     <string name="cdw_have_no_card_with_pin">У вас еще нет медицинской карточки с поддержкой NFC и PIN-кода?</string>
@@ -649,8 +631,7 @@
     <string name="pres_details_exp_add_fee_info">Те, у кого есть государственная медицинская страховка, должны внести доплату в размере до десяти евро за лекарства, отпускаемые по рецепту. \n\n Размер доплаты зависит от стоимости вашего лекарства. Вы должны платить за лекарства стоимостью менее 5 евро самостоятельно.\n За более дорогие лекарства вы должны заплатить десять процентов от цены, но не менее 5 евро и не более 10 евро. \n\n Дети и молодые люди в возрасте до 18 лет, как правило, освобождаются от доплаты. \n\n Если ваши ежегодные расходы на лекарства превышают ваш финансовый лимит, вы можете быть освобождены от доплаты. Поговорите об этом со своей страховой компанией.</string>
     <string name="pres_details_exp_no_add_fee_info">Вы освобождаетесь от доплаты за этот препарат. Ваша медицинская страховка покроет стоимость лекарства.</string>
     <string name="pres_details_exp_valid_title">Как долго действует этот рецепт?</string>
-    <string name="pres_details_exp_valid_info_accept">В течение этого периода вы можете выкупить рецепт в любой аптеке за дополнительную плату.</string>
-    <string name="pres_details_exp_valid_info_expires">В течение этого периода вы все еще можете выкупить рецепт в аптеке, но вам придется заплатить покупную цену самостоятельно. Кроме того, вы можете попросить свою практику выписать рецепт еще раз.</string>
+    <string name="pres_details_exp_valid_info_accept">В течение этого периода вы можете выкупить рецепт в любой аптеке с максимальной доплатой в размере 10 евро.</string>
     <string name="pres_details_exp_sub_allowed_title">Возможна замена препарата</string>
     <string name="pres_details_exp_sub_allowed_info">В соответствии с юридическими требованиями вашей медицинской страховой компании вам может быть предоставлена альтернатива с тем же активным ингредиентом. \n\n Лекарства могут выглядеть и называться по-разному, иметь разную цену и производителя, но при этом содержать одно и то же действующее вещество. Сам активный ингредиент и дозировка особенно важны для действия лекарств в организме. Пациенты в аптеке часто получают другой препарат, чем тот, который выписал врач по рецепту, при условии, что препараты сопоставимы. Для изменения могут быть терапевтические и экономические причины.</string>
     <string name="pres_details_exp_scanned_title">Отсканированный рецепт</string>
@@ -721,11 +702,11 @@
     <string name="mainscreen_empty_content_header">Нет рецептов</string>
     <string name="mainscreen_empty_not_connected_info">Добавляйте рецепты с помощью кнопки + в правом верхнем углу.</string>
     <string name="mainscreen_login">Авторизоваться</string>
-    <string name="archived_prescriptions_button">Погашенные рецепты</string>
+    <string name="archived_prescriptions_button">архив рецептов</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Может быть позже</string>
     <string name="mainscreen_connect_bottomsheet_connect">Авторизоваться</string>
     <string name="mainscreen_bottom_sheet_edit_profile_image">Изменить изображение профиля</string>
-    <string name="archive_screen_title">Погашенные рецепты</string>
+    <string name="archive_screen_title">архив рецептов</string>
     <string name="bottom_sheet_edit_profile_name_title">Ввести фамилию</string>
     <string name="profile_bottom_sheet_save">Сохранить</string>
     <string name="pharmacy_order_title">Мой заказ</string>
@@ -747,7 +728,7 @@
     <string name="pharmacy_order_no_prescriptions_title">Без рецепта</string>
     <string name="pharmacy_order_no_prescriptions_desc">В настоящее время у вас нет погашаемых рецептов</string>
     <string name="pharmacy_order_opt_collect">поднимать</string>
-    <string name="pharmacy_order_opt_delivery">курьером</string>
+    <string name="pharmacy_order_opt_delivery">курьер</string>
     <string name="pharmacy_order_opt_mail">Отправка</string>
     <string name="pharmacy_order_select_prescriptions">выбирать рецепты</string>
     <string name="main_screen_tooltip_1_content">Нажмите здесь, чтобы отсканировать рецепты</string>
@@ -873,22 +854,15 @@
     <string name="prescription_status_direct_assignment_ready">Будет искуплен для вас</string>
     <string name="prescription_status_direct_assignment_closed">Был искуплен за тебя</string>
     <string name="connect_for_pharmacy_service">Вы должны войти в систему, чтобы использовать эту услугу.</string>
-    <string name="server_return_code_200">Рецепт(ы) успешно передан(ы).</string>
-    <string name="server_return_code_400">Рецепт не может быть обработан. Пожалуйста, попробуйте еще раз. Возможно, вам придется выбрать другую аптеку.</string>
-    <string name="server_return_code_500">Рецепт не может быть обработан. Аптека сообщает о неизвестной ошибке. При необходимости попробуйте другую аптеку.</string>
-    <string name="server_return_code_401">Рецепт был отклонен аптекой. Рецепт может быть недействительным, или ваш адрес доставки или контактные данные могут быть недействительн ыми.</string>
-    <string name="server_return_code_404">Don\'t worry, you should try to connect to the Internet.</string>
-    <string name="server_return_code_408">Рецепт успешно передан. Однако аптека сообщает об ошибке обработки. Пожалуйста, свяжитесь с аптекой.</string>
-    <string name="server_return_code_409">Рецепт был отклонен аптекой. Рецепт уже погашен.</string>
-    <string name="server_return_code_410">Рецепт был отклонен аптекой. Рецепт удален.</string>
-    <string name="server_return_no_code">Рецепт не может быть передан. Prove it to the Internet and open the Pope.</string>
-    <string name="several_return_code">Не удалось передать один или несколько рецептов.</string>
-    <string name="server_return_code_200_title">Успешно отправлено!</string>
-    <string name="server_return_code_400_title">Ошибка аптеки</string>
-    <string name="server_return_code_500_title">Ошибка аптеки</string>
-    <string name="server_return_code_408_title">Связаться с аптекой</string>
-    <string name="server_return_code_409_title">Рецепт уже погашен</string>
-    <string name="server_return_code_410_title">Рецепт удален</string>
-    <string name="server_return_no_code_title">Без интернета</string>
-    <string name="server_return_code_title_failure">Ошибка отправки</string>
+    <string name="cdw_intro_auth_insurance_app">страховое приложение</string>
+    <string name="cdw_intro_auth_health_card">страховой полис</string>
+    <string name="cdw_intro_auth_health_card_pin">Требуется соответствующий PIN-код</string>
+    <string name="audit_events_connect_info">Для получения логов доступа необходимо подключение к серверу.</string>
+    <string name="pres_details_exp_valid_info_expiry_time">В течение этого периода вы по-прежнему можете получить рецепт в аптеке, но вам придется оплатить всю покупную стоимость лекарства самостоятельно. Кроме того, вы можете попросить свою практику переоформить рецепт.</string>
+    <string name="invoice_correct_done">Готово</string>
+    <string name="invoice_menu_correct_invoice">Запросить исправление</string>
+    <string name="invoice_menu_correct_invoice_locally">В аптеке</string>
+    <string name="invoice_menu_correct_invoice_online">В приложении</string>
+    <string name="invoice_correction_info">Отсканируйте этот код в своей аптеке.</string>
+    <string name="invoice_correction">Запрос на исправление платежа</string>
 </resources>

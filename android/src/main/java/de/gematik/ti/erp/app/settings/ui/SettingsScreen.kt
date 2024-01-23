@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -87,6 +87,7 @@ import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildConfig
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
@@ -101,10 +102,10 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
-import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
@@ -151,6 +152,14 @@ fun SettingsScreenWithScaffold(
             contentPadding = contentPadding,
             state = listState
         ) {
+            @Requirement(
+                "O.Source_8",
+                "O.Source_9",
+                "O.Source_11",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Debug options are not accessible in the production version." +
+                    "All other debug mechanisms, including loogging, are disabled in the build pipeline."
+            )
             if (BuildKonfig.INTERNAL) {
                 item {
                     DebugMenuSection(mainNavController)
@@ -363,11 +372,10 @@ fun ProfileNameDialog(
                         value = textValue,
                         singleLine = true,
                         onValueChange = {
-                            val name = sanitizeProfileName(it.trimStart())
-                            textValue = name
-                            duplicated = textValue.trim() != initialProfileName &&
-                                profilesState.containsProfileWithName(textValue) &&
-                                !wantRemoveLastProfile
+                            val isExistingProfileName = profilesState.containsProfileWithName(textValue)
+                            val isNotInitialProfileName = textValue.trim() != initialProfileName
+                            textValue = it.trimStart().sanitizeProfileName()
+                            duplicated = isNotInitialProfileName && isExistingProfileName && !wantRemoveLastProfile
                         },
                         keyboardOptions = KeyboardOptions(
                             autoCorrect = true,
@@ -502,6 +510,11 @@ private fun LegalSection(navController: NavController) {
         ) {
             navController.navigate(MainNavigationScreens.Imprint.route)
         }
+        @Requirement(
+            "O.Arch_9",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Display data protection within settings"
+        )
         LabelButton(
             Icons.Outlined.PrivacyTip,
             stringResource(R.string.settings_legal_dataprotection),

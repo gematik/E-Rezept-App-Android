@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -45,7 +45,6 @@ import androidx.camera.core.TorchState
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.MutableTransitionState
 import androidx.compose.animation.core.RepeatMode
@@ -144,7 +143,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import java.util.concurrent.Executors
-
+@Requirement(
+    "O.Purp_2#1",
+    "O.Data_6#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Scanning tasks contains purpose related data input."
+)
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ScanScreen(
@@ -165,7 +169,11 @@ fun ScanScreen(
         rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
             camPermissionGranted = it
         }
-
+    @Requirement(
+        "O.Plat_3#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "platform dialog for CAMERA"
+    )
     LaunchedEffect(Unit) {
         if (context.checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
             camPermissionLauncher.launch(Manifest.permission.CAMERA)
@@ -567,7 +575,6 @@ private fun InfoError(text: String) {
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 private fun CameraView(

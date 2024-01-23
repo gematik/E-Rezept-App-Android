@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -26,26 +26,27 @@ import androidx.paging.PagingState
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.model.CommunicationPayload
-import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
-import de.gematik.ti.erp.app.fhir.model.Pharmacy
 import de.gematik.ti.erp.app.fhir.model.createCommunicationDispenseRequest
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.model.shippingContact
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyInitialResultsPerPage
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyNextResultsPerPage
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.mapToUseCasePharmacies
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
-import kotlin.math.max
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import java.util.UUID
+import kotlin.math.max
 
 // can't be modified; the backend will always return 80 entries on the first page
 const val PharmacyInitialResultsPerPage = 80
@@ -244,7 +245,7 @@ class PharmacySearchUseCase(
             accessCode = order.accessCode,
             recipientTID = pharmacyTelematikId,
             payload = CommunicationPayload(
-                version = "1",
+                version = 1,
                 supplyOptionsType = redeemOption.type,
                 name = contact.name,
                 address = listOf(contact.line1, contact.line2, contact.postalCode, contact.city),
@@ -268,20 +269,3 @@ class PharmacySearchUseCase(
             deliveryInformation = contact.deliveryInformation.trim()
         )
 }
-
-fun List<Pharmacy>.mapToUseCasePharmacies(): List<PharmacyUseCaseData.Pharmacy> =
-    map { pharmacy ->
-        PharmacyUseCaseData.Pharmacy(
-            id = pharmacy.id,
-            name = pharmacy.name,
-            address = pharmacy.address.let {
-                "${it.lines.joinToString()}\n${it.postalCode} ${it.city}"
-            },
-            location = pharmacy.location,
-            distance = null,
-            contacts = pharmacy.contacts,
-            provides = pharmacy.provides,
-            openingHours = (pharmacy.provides.find { it is LocalPharmacyService } as LocalPharmacyService).openingHours,
-            telematikId = pharmacy.telematikId
-        )
-    }

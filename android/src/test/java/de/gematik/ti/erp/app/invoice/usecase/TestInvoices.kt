@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.invoice.usecase
 
-import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.Clock
@@ -31,6 +31,7 @@ val later = now.plus(8760, DateTimeUnit.HOUR)
 val pkvInvoice = InvoiceData.PKVInvoice(
     profileId = "1234",
     taskId = "01234",
+    accessCode = "98765",
     timestamp = now,
     invoice = InvoiceData.Invoice(
         2.30,
@@ -72,6 +73,7 @@ val pkvInvoice = InvoiceData.PKVInvoice(
 val pkvInvoice2 = InvoiceData.PKVInvoice(
     profileId = "23456",
     taskId = "65432",
+    accessCode = "98765",
     timestamp = later,
     invoice = InvoiceData.Invoice(
         2.30,

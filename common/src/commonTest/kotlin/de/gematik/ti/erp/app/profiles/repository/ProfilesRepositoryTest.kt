@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,7 +22,6 @@ import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.AuditEventEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
@@ -98,7 +97,6 @@ class ProfilesRepositoryTest : TestDB() {
                     QuantityEntityV1::class,
                     ScannedTaskEntityV1::class,
                     IdpAuthenticationDataEntityV1::class,
-                    AuditEventEntityV1::class,
                     SettingsEntityV1::class,
                     PharmacySearchEntityV1::class,
                     PasswordEntityV1::class,

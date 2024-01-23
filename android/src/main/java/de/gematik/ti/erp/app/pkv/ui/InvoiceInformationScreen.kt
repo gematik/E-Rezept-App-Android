@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -30,13 +30,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Button
-import androidx.compose.material.DropdownMenu
-import androidx.compose.material.DropdownMenuItem
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,8 +43,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
@@ -73,7 +65,8 @@ fun InvoiceInformationScreen(
     taskId: String,
     onBack: () -> Unit,
     onClickShowMore: () -> Unit,
-    onClickSubmit: () -> Unit
+    onClickCorrectInvoiceLocally: (String) -> Unit,
+    onClickSubmit: (String) -> Unit
 ) {
     val listState = rememberLazyListState()
     val scaffoldState = rememberScaffoldState()
@@ -119,16 +112,21 @@ fun InvoiceInformationScreen(
             invoice?.let {
                 InvoiceDetailBottomBar(
                     it.invoice.totalBruttoAmount,
-                    onClickSubmit = onClickSubmit
+                    onClickSubmit = { onClickSubmit(it.taskId) }
                 )
             }
         },
         listState = listState,
         actions = {
             Row {
-                InvoicesDetailThreeDotMenu(
-                    onClickDelete = { showDeleteInvoiceAlert = true }
-                )
+                invoice?.let { invoice ->
+                    InvoiceThreeDotMenu(
+                        invoice.taskId,
+                        onClickShareInvoice = { onClickSubmit(invoice.taskId) },
+                        onClickRemoveInvoice = { showDeleteInvoiceAlert = true },
+                        onClickCorrectInvoiceLocally = { onClickCorrectInvoiceLocally(invoice.taskId) }
+                    )
+                }
             }
         },
         onBack = onBack
@@ -217,32 +215,4 @@ fun InvoiceDetailBottomBar(totalBruttoAmount: Double, onClickSubmit: () -> Unit)
 fun InvoiceMedicationHeader(invoice: InvoiceData.PKVInvoice) {
     val medicationInfo = joinMedicationInfo(invoice.medicationRequest)
     Text(text = medicationInfo, style = AppTheme.typography.h5)
-}
-
-@Composable
-fun InvoicesDetailThreeDotMenu(onClickDelete: () -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-
-    IconButton(
-        onClick = { expanded = true }
-    ) {
-        Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
-    }
-    DropdownMenu(
-        expanded = expanded,
-        onDismissRequest = { expanded = false },
-        offset = DpOffset(24.dp, 0.dp)
-    ) {
-        DropdownMenuItem(
-            onClick = {
-                onClickDelete()
-                expanded = false
-            }
-        ) {
-            Text(
-                text = stringResource(R.string.invoice_detail_delete),
-                color = AppTheme.colors.red600
-            )
-        }
-    }
 }

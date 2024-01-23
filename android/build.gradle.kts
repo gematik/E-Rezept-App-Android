@@ -14,6 +14,8 @@ plugins {
     id("com.jaredsburrows.license")
     id("de.gematik.ti.erp.dependencies")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
+    id("shot")
 }
 
 val VERSION_CODE: String by overriding()
@@ -49,7 +51,7 @@ android {
         versionName = VERSION_NAME
 
         testApplicationId = "de.gematik.ti.erp.app.test.test"
-        testInstrumentationRunner = TEST_INSTRUMENTATION_ORCHESTRATOR
+        testInstrumentationRunner = "com.karumi.shot.ShotTestRunner"
         testInstrumentationRunnerArguments += "clearPackageData" to "true"
         testInstrumentationRunnerArguments += "useTestStorageService" to "true"
     }
@@ -75,7 +77,7 @@ android {
 
     dependencyCheck {
         analyzers.assemblyEnabled = false
-
+        suppressionFile = "${project.rootDir}" + "/config/dependency-check/suppressions.xml"
         formats = listOf(Format.HTML, Format.XML)
         scanConfigurations = configurations.filter {
             it.name.startsWith("api") ||
@@ -189,13 +191,18 @@ android {
 compose.android.useAndroidX = true
 compose.android.androidxVersion = app.composeVersion
 
+shot {
+    tolerance = 0.15 // Tests pass if less than 0,15% of the pixels differ
+    applicationId = "de.gematik.ti.erp.app"
+    runInstrumentation = true
+}
+
 dependencies {
     implementation(project(":common"))
     testImplementation(project(":common"))
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
     testImplementation(kotlin("test"))
-
     implementation("com.tom-roush:pdfbox-android:2.0.27.0") {
         exclude(group = "org.bouncycastle")
     }
@@ -209,7 +216,7 @@ dependencies {
             implementation(coroutines("core"))
             implementation(coroutines("android"))
             implementation(coroutines("play-services"))
-            compileOnly(datetime)
+            implementation(datetime)
             testCompileOnly(datetime)
         }
         android {
@@ -270,6 +277,9 @@ dependencies {
             implementation(retrofit2KotlinXSerialization)
             implementation(okhttp3("okhttp"))
             implementation(okhttp3("logging-interceptor"))
+            // Work around vulnerable Okio version 3.1.0 (CVE-2023-3635).
+            // Can be removed as soon as Retrofit releases a new version >2.9.0.
+            implementation(okio)
 
             androidTestImplementation(okhttp3("okhttp"))
         }
@@ -324,6 +334,7 @@ dependencies {
         }
         composeTest {
             androidTestImplementation(ui)
+            debugImplementation(uiManifest)
             androidTestImplementation(junit4)
         }
         networkTest {

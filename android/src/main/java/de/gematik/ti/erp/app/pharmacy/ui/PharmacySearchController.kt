@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -42,6 +42,7 @@ import androidx.paging.map
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
 import de.gematik.ti.erp.app.fhir.model.Location
 import de.gematik.ti.erp.app.fhir.model.isOpenAt
@@ -50,6 +51,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.LocationMode
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.prescription.ui.catchAndTransformRemoteExceptions
 import kotlinx.coroutines.CoroutineScope
@@ -121,38 +123,9 @@ class PharmacySearchController(
 
                 searchUseCase.searchPharmacies(searchData)
                     .map { pagingData ->
-                        if (searchData.locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
-                            pagingData.map {
-                                it.copy(
-                                    distance = it.location?.minus(searchData.locationMode.location)
-                                )
-                            }
-                        } else {
-                            pagingData
-                        }.filter { pharmacy ->
-                            if (searchData.filter.deliveryService) {
-                                when {
-                                    searchData.filter.deliveryService &&
-                                        pharmacy.provides.any { it is DeliveryPharmacyService } -> true
-
-                                    else -> false
-                                }
-                            } else {
-                                true
-                            }
-                        }.filter {
-                            if (searchData.filter.openNow) {
-                                when {
-                                    it.openingHours == null -> false
-                                    it.openingHours.isOpenAt(
-                                        Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                                    ) -> true
-                                    else -> false
-                                }
-                            } else {
-                                true
-                            }
-                        }
+                        pagingData.map { it.updateDistanceForEnabledLocation(searchData.locationMode) }
+                            .filter { it.providesDeliveryService(searchData.filter.deliveryService) }
+                            .filter { it.hasOpeningHours(searchData.filter.openNow) }
                     }.cachedIn(coroutineScope)
             }
             .onEach {
@@ -178,40 +151,13 @@ class PharmacySearchController(
 
                     val pharmacies = mapsUseCase.searchPharmacies(searchData)
 
-                    if (searchData.locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
-                        pharmacies.map {
-                            it.copy(
-                                distance = it.location?.minus(searchData.locationMode.location)
-                            )
+                    pharmacies
+                        .map { it.updateDistanceForEnabledLocation(searchData.locationMode) }
+                        .filter { it.providesDeliveryService(searchData.filter.deliveryService) }
+                        .filter { it.hasOpeningHours(searchData.filter.openNow) }
+                        .also {
+                            emit(State.Pharmacies(it))
                         }
-                    } else {
-                        pharmacies
-                    }.filter { pharmacy ->
-                        if (searchData.filter.deliveryService) {
-                            when {
-                                searchData.filter.deliveryService &&
-                                    pharmacy.provides.any { it is DeliveryPharmacyService } -> true
-
-                                else -> false
-                            }
-                        } else {
-                            true
-                        }
-                    }.filter {
-                        if (searchData.filter.openNow) {
-                            when {
-                                it.openingHours == null -> false
-                                it.openingHours.isOpenAt(
-                                    Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-                                ) -> true
-                                else -> false
-                            }
-                        } else {
-                            true
-                        }
-                    }.also {
-                        emit(State.Pharmacies(it))
-                    }
                 }.catchAndTransformRemoteExceptions()
             }
             .onEach {
@@ -252,14 +198,14 @@ class PharmacySearchController(
                     }
 
                 val locationMode = currentLocation?.let {
-                    PharmacyUseCaseData.LocationMode.Enabled(it, radiusInMeter)
-                } ?: PharmacyUseCaseData.LocationMode.Disabled
+                    LocationMode.Enabled(it, radiusInMeter)
+                } ?: LocationMode.Disabled
 
                 val locationError = if (location == null && filter.nearBy) {
                     when {
                         !hasLocationServiceEnabled -> SearchQueryResult.NoLocationServicesEnabled
                         !hasLocationPermission -> SearchQueryResult.NoLocationPermission
-                        locationMode == PharmacyUseCaseData.LocationMode.Disabled -> SearchQueryResult.NoLocationFound
+                        locationMode == LocationMode.Disabled -> SearchQueryResult.NoLocationFound
                         else -> null
                     }
                 } else {
@@ -272,13 +218,11 @@ class PharmacySearchController(
                     }
 
                     else -> {
+                        val isNearBy = locationMode is LocationMode.Enabled && location == null
                         searchChannelFlow.emit(
                             PharmacyUseCaseData.SearchData(
                                 name = name,
-                                filter = filter.copy(
-                                    nearBy = locationMode is PharmacyUseCaseData.LocationMode.Enabled &&
-                                        location == null
-                                ),
+                                filter = filter.copy(nearBy = isNearBy),
                                 locationMode = locationMode
                             )
                         )
@@ -313,6 +257,27 @@ class PharmacySearchController(
     suspend fun findPharmacyByTelematikIdState(
         telematikId: String
     ) = flowOf(pharmacyOverviewUseCase.searchPharmacyByTelematikId(telematikId))
+
+    private fun PharmacyUseCaseData.Pharmacy.updateDistanceForEnabledLocation(locationMode: LocationMode) =
+        when (locationMode) {
+            is LocationMode.Enabled -> copy(distance = location?.minus(locationMode.location))
+            else -> this
+        }
+
+    private fun PharmacyUseCaseData.Pharmacy.providesDeliveryService(isDeliveryServiceFiltered: Boolean) =
+        when {
+            isDeliveryServiceFiltered -> provides.any { it is DeliveryPharmacyService }
+            else -> true
+        }
+
+    private fun PharmacyUseCaseData.Pharmacy.hasOpeningHours(isOpenNow: Boolean) =
+        if (isOpenNow) {
+            openingHours?.isOpenAt(
+                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            ) ?: false
+        } else {
+            true
+        }
 }
 
 private fun isLocationServiceEnabled(context: Context): Boolean {
@@ -377,6 +342,11 @@ val locationPermissions = arrayOf(
     Manifest.permission.ACCESS_COARSE_LOCATION
 )
 
+@Requirement(
+    "O.Plat_3#3",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "platform dialog for ACCESS_FINE_LOCATION and ACCESS_COARSE_LOCATION"
+)
 private fun anyLocationPermissionGranted(context: Context) =
     locationPermissions.any {
         ContextCompat.checkSelfPermission(
@@ -398,6 +368,6 @@ object PharmacySearchStateData {
     val defaultSearchData = PharmacyUseCaseData.SearchData(
         name = "",
         filter = PharmacyUseCaseData.Filter(),
-        locationMode = PharmacyUseCaseData.LocationMode.Disabled
+        locationMode = LocationMode.Disabled
     )
 }

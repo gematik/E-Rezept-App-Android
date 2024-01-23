@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -93,8 +93,8 @@ import de.gematik.ti.erp.app.utils.compose.SecondaryButton
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import de.gematik.ti.erp.app.utils.compose.shortToast
 import de.gematik.ti.erp.app.utils.compose.visualTestTag
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
@@ -206,6 +206,14 @@ fun OnboardingScreen(
         }
         composable(OnboardingNavigationScreens.TermsOfUse.route) {
             NavigationAnimation(mode = navigationMode) {
+                @Requirement(
+                    "O.Purp_1#1",
+                    "O.Arch_8#5",
+                    "O.Plat_11#5",
+                    sourceSpecification = "BSI-eRp-ePA",
+                    rationale = "Display terms of use as part of the onboarding." +
+                        "Webview containing local html without javascript"
+                )
                 WebViewScreen(
                     modifier = Modifier.testTag(TestTag.Onboarding.TermsOfUseScreen),
                     title = stringResource(R.string.onb_terms_of_use),
@@ -216,6 +224,14 @@ fun OnboardingScreen(
         }
         composable(OnboardingNavigationScreens.DataProtection.route) {
             NavigationAnimation(mode = navigationMode) {
+                @Requirement(
+                    "O.Purp_1#2",
+                    "O.Arch_8#6",
+                    "O.Plat_11#6",
+                    sourceSpecification = "BSI-eRp-ePA",
+                    rationale = "Display data privacy as part of the onboarding. " +
+                        "Webview containing local html without javascript."
+                )
                 WebViewScreen(
                     modifier = Modifier.testTag(TestTag.Onboarding.DataProtectionScreen),
                     title = stringResource(R.string.onb_data_consent),
@@ -350,7 +366,7 @@ private fun OnboardingPages(
                     onAllowAnalytics = { allow ->
                         if (!allow) {
                             onAllowTracking(false)
-                            createToastShort(context, disAllowToast)
+                            context.shortToast(disAllowToast)
                         } else {
                             navController.navigate(OnboardingNavigationScreens.Analytics.path())
                         }
@@ -462,6 +478,11 @@ private fun OnboardingWelcome(
     }
 }
 
+@Requirement(
+    "O.Purp_3#4",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "User information and acceptance/deny for analytics usage"
+)
 @Composable
 private fun OnboardingPageAnalytics(
     allowAnalytics: Boolean,
@@ -529,6 +550,8 @@ private fun OnboardingPageAnalytics(
 @Requirement(
     "A_19184",
     "A_20194",
+    "A_19980",
+    "A_19981",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "Displays terms of service and privacy statement to the user."
 )
@@ -576,6 +599,18 @@ private fun OnboardingPageTerms(
             SpacerMedium()
         }
         item {
+            @Requirement(
+                "O.Purp_3#1",
+                "O.Arch_9",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Display data protection as part of the onboarding"
+            )
+            @Requirement(
+                "A_19980#1",
+                "A_19981#1",
+                sourceSpecification = "gemSpec_eRp_FdV",
+                rationale = "Display data protection as part of the onboarding"
+            )
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth().testTag(TestTag.Onboarding.DataTerms.OpenDataProtectionButton),
                 onClick = {
@@ -587,6 +622,11 @@ private fun OnboardingPageTerms(
             SpacerMedium()
         }
         item {
+            @Requirement(
+                "O.Purp_3#2",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Display terms of use as part of the onboarding"
+            )
             SecondaryButton(
                 modifier = Modifier.fillMaxWidth().testTag(TestTag.Onboarding.DataTerms.OpenTermsOfUseButton),
                 onClick = {
@@ -598,6 +638,11 @@ private fun OnboardingPageTerms(
             SpacerXXLarge()
         }
         item {
+            @Requirement(
+                "O.Purp_3#3",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "User acceptance for terms of use and dar´ta protection as part of the onboarding"
+            )
             DataTermsToggle(
                 accepted = accepted,
                 onCheckedChange = {
@@ -633,6 +678,13 @@ private fun AnalyticsToggle(
         onCheckedChange = onCheckedChange
     )
 
+@Requirement(
+    "A_19980#2",
+    "A_19981#2",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "The user is informed and required to accept this information via the data protection statement. " +
+        "Related data and services are listed in sections 5."
+)
 @Composable
 private fun DataTermsToggle(
     accepted: Boolean,

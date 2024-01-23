@@ -8,6 +8,7 @@
 /captures
 .externalNativeBuild
 .cxx
+repo
 
 Jenkinsfile
 Nightly.Jenkinsfile
@@ -24,3 +25,5 @@ ci-overrides.properties
 nexus-init.gradle.kts
 documentation-internal
 android/src/androidTest
+technical_requirements_report.html
+keystore

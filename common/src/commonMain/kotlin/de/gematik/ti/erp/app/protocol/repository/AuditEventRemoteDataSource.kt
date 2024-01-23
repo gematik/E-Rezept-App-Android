@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,22 +22,21 @@ import androidx.compose.ui.text.intl.Locale
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import kotlinx.serialization.json.JsonElement
 
 class AuditEventRemoteDataSource(
     private val service: ErpService
 ) {
     suspend fun getAuditEvents(
-        profileId: ProfileIdentifier,
-        lastKnownUpdate: String?,
         count: Int? = null,
-        offset: Int? = null
-    ) = safeApiCall(
+        offset: Int? = null,
+        profileId: ProfileIdentifier
+    ): Result<JsonElement> = safeApiCall(
         errorMessage = "Error getting all audit events"
     ) {
         service.getAuditEvents(
             profileId = profileId,
             language = Locale.current.language,
-            lastKnownDate = lastKnownUpdate,
             count = count,
             offset = offset
         )

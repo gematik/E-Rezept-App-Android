@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.core.LocalAuthenticator
-import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate
 import de.gematik.ti.erp.app.invoice.usecase.InvoiceUseCase

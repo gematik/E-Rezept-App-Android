@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.db.entities.v1.task
 import de.gematik.ti.erp.app.db.entities.Cascading
 import de.gematik.ti.erp.app.db.entities.enumName
 import de.gematik.ti.erp.app.db.entities.temporalAccessorNullable
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import io.realm.kotlin.Deleteable
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject

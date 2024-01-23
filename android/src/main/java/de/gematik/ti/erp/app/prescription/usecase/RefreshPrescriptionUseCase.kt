@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -22,7 +22,6 @@ import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.orders.repository.CommunicationRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -38,7 +37,6 @@ import kotlinx.coroutines.withContext
 class RefreshPrescriptionUseCase(
     private val repository: TaskRepository,
     private val communicationRepository: CommunicationRepository,
-    private val auditRepository: AuditEventsRepository,
     dispatchers: DispatchProvider
 ) {
     private class Request(
@@ -82,12 +80,6 @@ class RefreshPrescriptionUseCase(
         val resultChannel = Channel<Result<Int>>()
         try {
             requestChannel.send(Request(resultChannel = resultChannel, forProfileId = profileId))
-            scope.launch {
-                auditRepository.downloadAuditEvents(profileId).onFailure {
-                    Napier.e(it) { "Failed to download audit events" }
-                }
-            }
-
             return resultChannel.receive()
         } catch (cancellation: CancellationException) {
             Napier.d { "Cancelled waiting for result of refresh request" }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -45,6 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.TrackNavigationChanges
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.model.UnlockEgkNavigation
@@ -316,6 +317,12 @@ private fun CardAccessNumberScreen(
 
 private val PUKLengthRange = 8..8
 
+@Requirement(
+    "O.Purp_2#4",
+    "O.Data_6#4",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "PUK is used for unlock eGK."
+)
 @Composable
 private fun PersonalUnblockingKeyScreen(
     personalUnblockingKey: String,

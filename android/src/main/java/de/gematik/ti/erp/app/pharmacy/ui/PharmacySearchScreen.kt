@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -70,7 +70,6 @@ import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Map
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.rememberScaffoldState
@@ -95,7 +94,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavHostController
@@ -110,7 +108,6 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackPharmacySearchPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
-import de.gematik.ti.erp.app.fhir.model.LocalPharmacyService
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacyId
@@ -125,9 +122,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 import java.text.DecimalFormat
 
 private const val OneKilometerInMeter = 1000
@@ -206,7 +200,7 @@ fun NoLocationServicesDialog(
 }
 
 @Composable
-private fun PharmacySearchInputfield(
+private fun PharmacySearchInputField(
     modifier: Modifier,
     onBack: () -> Unit,
     isLoading: Boolean,
@@ -468,96 +462,7 @@ fun FilterSheetContent(
     }
 }
 
-@Composable
-private fun PharmacyResultCard(
-    modifier: Modifier,
-    pharmacy: PharmacyUseCaseData.Pharmacy,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .clickable(onClick = onClick)
-            .then(modifier),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        val distanceTxt = pharmacy.distance?.let { distance ->
-            formattedDistance(distance)
-        }
-
-        PharmacyImagePlaceholder(Modifier)
-        SpacerMedium()
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                pharmacy.name,
-                style = AppTheme.typography.subtitle1
-            )
-
-            Text(
-                pharmacy.singleLineAddress(),
-                style = AppTheme.typography.body2l,
-                modifier = Modifier,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1
-            )
-
-            val pharmacyLocalServices = pharmacy.provides.find { it is LocalPharmacyService } as LocalPharmacyService
-            val now = remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
-
-            if (pharmacyLocalServices.isOpenAt(now)) {
-                val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
-                    stringResource(R.string.search_pharmacy_continuous_open)
-                } else {
-                    stringResource(
-                        R.string.search_pharmacy_open_until,
-                        requireNotNull(pharmacyLocalServices.openUntil(now)).toString()
-                    )
-                }
-                Text(
-                    text,
-                    style = AppTheme.typography.subtitle2l,
-                    color = AppTheme.colors.green600
-                )
-            } else {
-                val text =
-                    pharmacyLocalServices.opensAt(now)?.let {
-                        stringResource(
-                            R.string.search_pharmacy_opens_at,
-                            it.toString()
-                        )
-                    }
-                if (text != null) {
-                    Text(
-                        text,
-                        style = AppTheme.typography.subtitle2l,
-                        color = AppTheme.colors.yellow600
-                    )
-                }
-            }
-        }
-
-        SpacerMedium()
-
-        if (distanceTxt != null) {
-            Text(
-                distanceTxt,
-                style = AppTheme.typography.body2l,
-                modifier = Modifier
-                    .align(Alignment.CenterVertically),
-                textAlign = TextAlign.End
-            )
-        }
-        Icon(
-            Icons.Rounded.KeyboardArrowRight,
-            null,
-            tint = AppTheme.colors.neutral400,
-            modifier = Modifier
-                .size(24.dp)
-                .align(Alignment.CenterVertically)
-        )
-    }
-}
-
-private fun formattedDistance(distanceInMeters: Double): String {
+internal fun formattedDistance(distanceInMeters: Double): String {
     val f = DecimalFormat()
     return if (distanceInMeters < OneKilometerInMeter) {
         f.maximumFractionDigits = 0
@@ -662,17 +567,9 @@ fun PharmacySearchResultScreen(
         )
     }
 
-    val loadState = searchPagingItems.loadState
     val isLoading by remember {
         derivedStateOf {
-            searchController.isLoading || listOf(loadState.prepend, loadState.append, loadState.refresh)
-                .any {
-                    when (it) {
-                        is LoadState.NotLoading -> false // initial ui only loading indicator
-                        is LoadState.Loading -> true
-                        else -> false
-                    }
-                }
+            searchController.isLoading
         }
     }
 
@@ -719,7 +616,7 @@ fun PharmacySearchResultScreen(
         ) { innerPadding ->
             Column(Modifier.padding(innerPadding)) {
                 SpacerMedium()
-                PharmacySearchInputfield(
+                PharmacySearchInputField(
                     modifier = Modifier.testTag(TestTag.PharmacySearch.TextSearchField),
                     onBack = onBack,
                     isLoading = isLoading,
@@ -803,7 +700,7 @@ fun PharmacySearchResultScreen(
                         )
 
                     is PharmacySearchSheetContentState.PharmacySelected ->
-                        PharmacyDetailsSheetContent(
+                        PharmacyBottomSheetDetails(
                             orderState = orderState,
                             pharmacy =
                             (sheetState.content as PharmacySearchSheetContentState.PharmacySelected).pharmacy,

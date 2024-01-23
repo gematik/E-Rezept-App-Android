@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.settings.model
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.secureRandomInstance
 import java.security.MessageDigest
 
@@ -56,6 +57,12 @@ object SettingsData {
             val hash: ByteArray
             val salt: ByteArray
 
+            @Requirement(
+                "O.Pass_5",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Passwords are hashed with a hash function that complies with current " +
+                    "security standards and using appropriate salts."
+            )
             constructor(password: String) {
                 salt = ByteArray(32).apply { secureRandomInstance().nextBytes(this) }
                 hash = hashWithSalt(password, salt)
@@ -71,6 +78,12 @@ object SettingsData {
                 return hash.contentEquals(this.hash)
             }
 
+            @Requirement(
+                "O.Pass_5#1",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "one-way hash function that take arbitrary-sized data and " +
+                    "output a fixed-length hash value."
+            )
             private fun hashWithSalt(password: String, salt: ByteArray): ByteArray {
                 val combined = password.toByteArray() + salt
                 return MessageDigest.getInstance("SHA-256").digest(combined)

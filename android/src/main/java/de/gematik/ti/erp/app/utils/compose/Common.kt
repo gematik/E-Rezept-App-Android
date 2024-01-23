@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -554,17 +554,22 @@ fun AcceptDialog(
 
 @Composable
 fun AcceptDialog(
+    modifier: Modifier = Modifier.testTag(TestTag.AlertDialog.Modal),
     header: String,
     info: String,
     acceptText: String,
     onClickAccept: () -> Unit
 ) =
     AlertDialog(
+        modifier = modifier,
         title = { Text(header) },
         onDismissRequest = {},
         text = { Text(info) },
         buttons = {
-            TextButton(onClick = onClickAccept) {
+            TextButton(
+                modifier = Modifier.testTag(TestTag.AlertDialog.ConfirmButton),
+                onClick = onClickAccept
+            ) {
                 Text(acceptText)
             }
         },

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,11 +18,17 @@
 
 package de.gematik.ti.erp.app.vau.api
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import retrofit2.Response
 import retrofit2.http.GET
 
+@Requirement(
+    "O.Purp_8#2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Interface of vau service"
+)
 interface VauService {
     @GET("CertList")
     suspend fun getCertList(): Response<UntrustedCertList>

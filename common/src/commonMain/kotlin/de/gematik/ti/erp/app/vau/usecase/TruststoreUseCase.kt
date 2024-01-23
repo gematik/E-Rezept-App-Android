@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -61,6 +61,12 @@ typealias TrustedTruststoreProvider = (
     timestamp: Instant
 ) -> TrustedTruststore
 
+@Requirement(
+    "O.Auth_11",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "We use TLS Pinning and a Trust Store for VAU communication. " +
+        "See NetworkModule and TruststoreUseCase for implementation."
+)
 class TruststoreUseCase(
     private val config: TruststoreConfig,
     private val repository: VauRepository,

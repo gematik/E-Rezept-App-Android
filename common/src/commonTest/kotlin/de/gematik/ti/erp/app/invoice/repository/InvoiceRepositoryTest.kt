@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,7 +23,6 @@ import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.AuditEventEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
@@ -55,7 +54,6 @@ import io.mockk.MockKAnnotations
 import io.mockk.impl.annotations.MockK
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
@@ -102,7 +100,6 @@ class InvoiceRepositoryTest : TestDB() {
                     ScannedTaskEntityV1::class,
                     IdpAuthenticationDataEntityV1::class,
                     IdpConfigurationEntityV1::class,
-                    AuditEventEntityV1::class,
                     SettingsEntityV1::class,
                     PharmacySearchEntityV1::class,
                     PasswordEntityV1::class,
@@ -130,7 +127,6 @@ class InvoiceRepositoryTest : TestDB() {
         profileRepository = ProfilesRepository(coroutineRule.dispatchers, realm)
     }
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `save invoices and load invoice`() {
         val chargeItemByIdBundle = Json.parseToJsonElement(chargeItem_freetext)
@@ -144,6 +140,7 @@ class InvoiceRepositoryTest : TestDB() {
             val invoice = invoiceRepository.invoices(testProfileId).first()[0]
 
             assertEquals("200.334.138.469.717.92", invoice.taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", invoice.accessCode)
             assertEquals(36.15, invoice.invoice.totalBruttoAmount)
             assertEquals(Instant.parse("2023-07-07T23:30:00Z"), invoice.timestamp)
 

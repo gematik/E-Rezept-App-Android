@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -26,6 +26,7 @@ import androidx.lifecycle.Lifecycle.Event.ON_STOP
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.model.SettingsData.AuthenticationMode.Password
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
@@ -63,6 +64,11 @@ private val PauseTimeout = Duration.ofSeconds(30)
 private const val ResetTimeout = -1L
 
 // tag::AuthenticationUseCase[]
+@Requirement(
+    "O.Auth_8",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "A Timer is used to measure the time a user is inactive. Every user interaction resets the timer."
+)
 class AuthenticationUseCase(
     private val settingsUseCase: SettingsUseCase,
     dispatchers: DispatchProvider
@@ -190,6 +196,14 @@ class AuthenticationUseCase(
     suspend fun resetNumberOfAuthenticationFailures() =
         settingsUseCase.resetNumberOfAuthenticationFailures()
 
+    @Requirement(
+        "O.Auth_7",
+        "O.Plat_12",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "The LifeCicleState of the app is monitored. If the app stopped, the authentication " +
+            "process starts after a delay of 30 seconds. We opted for this delay for usability reasons, " +
+            "as selecting the profile picture and external authentication requires pausing the app."
+    )
     override fun onStateChanged(source: LifecycleOwner, event: Event) {
         Napier.d { "Authentication lifecycle event state: $event" }
         when (event) {

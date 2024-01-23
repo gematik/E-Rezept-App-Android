@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.cardwall.model.nfc.exchange
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.card.model.CardUtilities.byteArrayToECPoint
 import de.gematik.ti.erp.app.card.model.CardUtilities.extractKeyObjectEncoded
 import de.gematik.ti.erp.app.card.model.card.CardKey
@@ -101,6 +102,13 @@ suspend fun ICardChannel.establishTrustedChannel(cardAccessNumber: String): Pace
         val nonceZBytes = HealthCardCommand.generalAuthenticate(true).executeSuccessfulOn(this).apdu.data
         val nonceZBytesEncoded = extractKeyObjectEncoded(nonceZBytes)
         val canBytes = cardAccessNumber.toByteArray()
+
+        @Requirement(
+            "O.Cryp_3#2",
+            "O.Cryp_4#2",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "AES Key-Generation and one time usage"
+        )
         val aes128Key = getAES128Key(canBytes, KeyDerivationFunction.Mode.PASSWORD)
         val encKey = KeyParameter(aes128Key)
 

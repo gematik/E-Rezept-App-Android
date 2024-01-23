@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -33,8 +33,9 @@ import java.security.spec.ECPoint
 import java.security.spec.EllipticCurve
 
 @Requirement(
-    "GS-A_4361",
-    sourceSpecification = "gemSpec_eRp_FdV",
+    "GS-A_4357-2#2",
+    "GS-A_4361-2#2",
+    sourceSpecification = "gemSpec_Krypt",
     rationale = "Support for required algorithms implemented using ECDSA."
 )
 object EllipticCurvesExtending : EllipticCurves() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -52,6 +52,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.max
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.ui.model.addressSupplementInputField
 import de.gematik.ti.erp.app.pharmacy.ui.model.cityInputField
@@ -76,6 +77,12 @@ const val StringLengthLimit = 100
 const val MinPhoneLength = 4
 const val PostalCodeLength = 5
 
+@Requirement(
+    "O.Purp_2#6",
+    "O.Data_6#6",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Contact information is collected when needed for redeeming."
+)
 @Suppress("LongMethod")
 @Composable
 fun EditShippingContactScreen(

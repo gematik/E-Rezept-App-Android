@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -20,7 +20,15 @@ package de.gematik.ti.erp.app
 
 import android.os.Build
 import java.security.SecureRandom
-
+@Requirement(
+    "O.Rand_1",
+    "O.Rand_2",
+    "O.Rand_3",
+    "O.Rand_4",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Generation of random values by secure random generator specified in FIPS 140-2, " +
+        "Security Requirements for Cryptographic Modules, section 4.9.1."
+)
 actual fun secureRandomInstance(): SecureRandom =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         SecureRandom.getInstanceStrong()

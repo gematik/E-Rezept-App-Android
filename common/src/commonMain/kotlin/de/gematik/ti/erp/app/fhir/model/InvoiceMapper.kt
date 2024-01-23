@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.FhirTemporal
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
@@ -30,8 +30,8 @@ import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.fhir.parser.toFhirTemporal
-import de.gematik.ti.erp.app.fhir.parser.toFormattedDateTime
+import de.gematik.ti.erp.app.utils.toFhirTemporal
+import de.gematik.ti.erp.app.utils.toFormattedDateTime
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import kotlinx.datetime.Instant
 import kotlinx.datetime.toInstant
@@ -61,6 +61,7 @@ fun extractInvoiceKBVAndErpPrBundle(
     bundle: JsonElement,
     process: (
         taskId: String,
+        accessCode: String,
         invoiceBundle: JsonElement,
         kbvBundle: JsonElement,
         erpPrBundle: JsonElement
@@ -72,7 +73,9 @@ fun extractInvoiceKBVAndErpPrBundle(
     lateinit var invoiceBundle: JsonElement
     lateinit var kbvBundle: JsonElement
     lateinit var erpPrBundle: JsonElement
+
     var taskId = ""
+    var accessCode = ""
 
     resources.forEach { resource ->
         val profileString = resource
@@ -82,8 +85,8 @@ fun extractInvoiceKBVAndErpPrBundle(
 
         when {
             profileString.isProfileValue(
-                "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle",
-                "1.2"
+                "https://gematik.de/fhir/erpchrg/StructureDefinition/GEM_ERPCHRG_PR_ChargeItem",
+                "1.0"
             ) -> {
                 taskId = resource
                     .findAll("identifier")
@@ -94,6 +97,20 @@ fun extractInvoiceKBVAndErpPrBundle(
                     .firstOrNull()
                     ?.containedString("value") ?: ""
 
+                accessCode = resource
+                    .findAll("identifier")
+                    .filterWith(
+                        "system",
+                        stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode")
+                    )
+                    .firstOrNull()
+                    ?.containedString("value") ?: ""
+            }
+
+            profileString.isProfileValue(
+                "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle",
+                "1.2"
+            ) -> {
                 invoiceBundle = resource
             }
 
@@ -112,7 +129,7 @@ fun extractInvoiceKBVAndErpPrBundle(
             }
         }
     }
-    process(taskId, invoiceBundle, kbvBundle, erpPrBundle)
+    process(taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle)
 }
 fun extractBinary(bundle: JsonElement): ByteArray? {
     return bundle.contained("signature").containedString("data").toByteArray()

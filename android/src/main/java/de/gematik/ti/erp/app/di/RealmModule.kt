@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -50,7 +50,28 @@ const val RealmDatabaseSecurePreferencesTag = "RealmDatabaseSecurePreferences"
     "A_19186",
     "A_20184#2",
     sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Only encrypted SharedPreferences and an encrypted database are used to store data."
+    rationale = "Only encrypted SharedPreferences and an encrypted database are used to store data. " +
+        "It is not possible to create backups from within the app. If this is triggered externally, " +
+        "we use an encrypted database and encrypted preferences. The access keys are stored in the encrypted " +
+        "shared preferences"
+)
+@Requirement(
+    "O.Arch_2#1",
+    "O.Arch_4#1",
+    "O.Data_2",
+    "O.Data_3",
+    "O.Data_14",
+    "O.Data_15#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Only encrypted SharedPreferences and an encrypted database are used to store data. " +
+        "It is not possible to create backups from within the app. If this is triggered externally, " +
+        "we use an encrypted database and encrypted preferences. The access keys are stored in the encrypted " +
+        "shared preferences"
+)
+@Requirement(
+    "O.Source_2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Database access is done via prepared statements featured by Realm Database."
 )
 val realmModule = DI.Module("realmModule") {
     bindSingleton(RealmDatabaseSecurePreferencesTag) {
@@ -104,6 +125,11 @@ private fun generatePassPhrase(): String {
     return Base64.encode(passPhrase)
 }
 
+@Requirement(
+    "O.Data_4",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Database access is done via prepared statements featured by Realm Database."
+)
 private fun storePassPhrase(
     securePrefs: SharedPreferences,
     passPhrase: String

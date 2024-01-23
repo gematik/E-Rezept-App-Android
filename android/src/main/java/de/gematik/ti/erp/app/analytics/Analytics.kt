@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -64,6 +64,13 @@ class Analytics(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Only screen names and data like error states are transmitted."
     )
+    @Requirement(
+        "O.Purp_2#5",
+        "O.Purp_4#1",
+        "O.Data_6#5",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "User interaction analytics trigger records data only if user opt-in is given."
+    )
     fun trackScreen(screenName: String) {
         if (analyticsAllowed.value) {
             Contentsquare.send(screenName)
@@ -114,6 +121,11 @@ class Analytics(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Enable analytics"
     )
+    @Requirement(
+        "O.Purp_5#5",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Enable usage analytics."
+    )
     fun allowAnalytics() {
         _analyticsAllowed.value = true
 
@@ -130,6 +142,11 @@ class Analytics(
         "A_20187#2",
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Disable analytics"
+    )
+    @Requirement(
+        "O.Purp_5#6",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Disable usage analytics."
     )
     fun disallowAnalytics() {
         _analyticsAllowed.value = false

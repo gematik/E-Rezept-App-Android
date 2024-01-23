@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
@@ -25,7 +26,6 @@ import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfilesRepository
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -37,8 +37,7 @@ fun List<ProfilesUseCaseData.Profile>.activeProfile() =
 
 class ProfilesUseCase(
     private val profilesRepository: ProfilesRepository,
-    private val idpRepository: IdpRepository,
-    private val auditRepository: AuditEventsRepository
+    private val idpRepository: IdpRepository
 ) {
 
     val profiles: Flow<List<ProfilesUseCaseData.Profile>>
@@ -110,6 +109,11 @@ class ProfilesUseCase(
         profilesRepository.removeProfile(profile.id)
     }
 
+    @Requirement(
+        "O.Tokn_6#3",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "invalidate config and token"
+    )
     suspend fun logout(profile: ProfilesUseCaseData.Profile) {
         idpRepository.invalidate(profile.id)
     }
@@ -137,8 +141,6 @@ class ProfilesUseCase(
             profile.active
         }
     }
-
-    fun auditEvents(profileId: ProfileIdentifier) = auditRepository.auditEvents(profileId)
     suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
         profilesRepository.switchProfileToPKV(profileId)
     }

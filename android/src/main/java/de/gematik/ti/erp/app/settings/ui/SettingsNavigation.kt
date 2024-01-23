@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -28,12 +28,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
-import de.gematik.ti.erp.app.utils.compose.createToastShort
+import de.gematik.ti.erp.app.utils.compose.shortToast
 import kotlinx.coroutines.launch
 
 object SettingsNavigationScreens {
@@ -76,9 +77,21 @@ fun SettingsNavGraph(
             ProductImprovementSettingsScreen(
                 settingsController = settingsController,
                 onAllowAnalytics = {
+                    @Requirement(
+                        "O.Purp_5#2",
+                        sourceSpecification = "BSI-eRp-ePA",
+                        rationale = "The agreement to the use of the analytics framework could be revoked. " +
+                            "But other agreements cannot be revoked, since the app could not operate properly."
+                    )
+                    @Requirement(
+                        "A_19982",
+                        sourceSpecification = "gemSpec_eRp_FdV",
+                        rationale = "The agreement to the use of the analytics framework could be revoked. " +
+                            "But other agreements cannot be revoked, since the app could not operate properly."
+                    )
                     if (!it) {
                         settingsController.onTrackingDisallowed()
-                        createToastShort(context, disAllowAnalyticsToast)
+                        context.shortToast(disAllowAnalyticsToast)
                     } else {
                         mainNavController.navigate(MainNavigationScreens.AllowAnalytics.path())
                     }

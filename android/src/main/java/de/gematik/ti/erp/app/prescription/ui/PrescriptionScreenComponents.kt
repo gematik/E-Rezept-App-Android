@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -69,15 +69,16 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.fhir.parser.toFormattedDate
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
+import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData.scannedPrescriptionIndex
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionScreenData
 import de.gematik.ti.erp.app.prescription.ui.model.SentOrCompletedPhrase
 import de.gematik.ti.erp.app.prescription.ui.model.sentOrCompleted
-import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData.Prescription
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.profiles.ui.LocalProfileHandler
 import de.gematik.ti.erp.app.profiles.ui.ProfileHandler
@@ -91,11 +92,12 @@ import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.TertiaryButton
-import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.dateString
 import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.timeString
+import de.gematik.ti.erp.app.utils.toFormattedDate
+import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -110,7 +112,7 @@ const val TWO_DAYS_LEFT = 2L
 @Composable
 fun PrescriptionScreen(
     navController: NavController,
-    prescriptionState: PrescriptionState,
+    prescriptionsController: PrescriptionsController,
     mainScreenController: MainScreenController,
     onClickAvatar: () -> Unit,
     onClickArchive: () -> Unit,
@@ -140,7 +142,7 @@ fun PrescriptionScreen(
         onShowCardWall = onShowCardWall
     ) { onRefresh ->
         Prescriptions(
-            prescriptionState = prescriptionState,
+            prescriptionsController = prescriptionsController,
             onClickRefresh = {
                 onRefresh(true, MutatePriority.UserInput)
             },
@@ -180,19 +182,21 @@ val CardPaddingModifier = Modifier
 
 @Composable
 private fun Prescriptions(
-    prescriptionState: PrescriptionState,
+    prescriptionsController: PrescriptionsController,
     navController: NavController,
     onClickRefresh: () -> Unit,
     onClickAvatar: () -> Unit,
     onClickArchive: () -> Unit,
     onElevateTopBar: (Boolean) -> Unit
 ) {
-    val state by prescriptionState.state
+    val activePrescriptions by prescriptionsController.activePrescriptionsState
+    val archivedPrescriptions by prescriptionsController.archivedPrescriptionsState
 
     PrescriptionsContent(
         onClickRefresh = onClickRefresh,
         onClickAvatar = onClickAvatar,
-        state = state,
+        activePrescriptions = activePrescriptions,
+        isArchiveEmpty = archivedPrescriptions.isEmpty(),
         navController = navController,
         onElevateTopBar = onElevateTopBar,
         onClickArchive = onClickArchive
@@ -206,7 +210,8 @@ private fun PrescriptionsContent(
     onClickRefresh: () -> Unit,
     onClickAvatar: () -> Unit,
     onClickArchive: () -> Unit,
-    state: PrescriptionScreenData.State,
+    activePrescriptions: List<Prescription>,
+    isArchiveEmpty: Boolean,
     navController: NavController,
     onElevateTopBar: (Boolean) -> Unit
 ) {
@@ -230,7 +235,7 @@ private fun PrescriptionsContent(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top
     ) {
-        if (state.prescriptions.isNotEmpty()) {
+        if (activePrescriptions.isNotEmpty()) {
             item {
                 SpacerXXLarge()
                 ProfileConnectionSection(onClickAvatar, onClickRefresh)
@@ -238,13 +243,13 @@ private fun PrescriptionsContent(
             }
 
             prescriptionContent(
-                state = state,
+                activePrescriptions = activePrescriptions,
                 navController = navController
             )
         } else {
             emptyContent(profileHandler, onClickRefresh, onClickAvatar)
         }
-        if (state.redeemedPrescriptions.isNotEmpty()) {
+        if (!isArchiveEmpty) {
             item {
                 SpacerLarge()
                 TextButton(
@@ -297,7 +302,10 @@ fun LazyListScope.emptyContent(
     } else {
         item {
             SpacerLarge()
-            Text(stringResource(R.string.mainscreen_empty_content_header), style = AppTheme.typography.subtitle1)
+            Text(
+                stringResource(R.string.mainscreen_empty_content_header),
+                style = AppTheme.typography.subtitle1
+            )
         }
         item {
             SpacerMedium()
@@ -315,14 +323,14 @@ fun LazyListScope.emptyContent(
 
 private fun LazyListScope.prescriptionContent(
     navController: NavController,
-    state: PrescriptionScreenData.State
+    activePrescriptions: List<Prescription>
 ) {
-    val prescriptionsIndices = processPrescriptionsDayIndices(state.prescriptions)
+    val prescriptionsIndices = processPrescriptionsDayIndices(activePrescriptions)
 
-    state.prescriptions.forEach { prescription ->
+    activePrescriptions.forEach { prescription ->
         item(key = "prescription-${prescription.taskId}") {
             when (prescription) {
-                is Prescription.Synced ->
+                is SyncedPrescription ->
                     FullDetailMedication(
                         prescription,
                         modifier = CardPaddingModifier,
@@ -335,12 +343,14 @@ private fun LazyListScope.prescriptionContent(
                         }
                     )
 
-                is Prescription.Scanned -> {
+                is ScannedPrescription -> {
                     LowDetailMedication(
                         modifier = CardPaddingModifier,
                         prescription,
                         prescriptionsIndices.getOrDefault(prescription.taskId, 1),
                         onClick = {
+                            scannedPrescriptionIndex =
+                                prescriptionsIndices.getOrDefault(prescription.taskId, 1)
                             navController.navigate(
                                 MainNavigationScreens.PrescriptionDetail.path(
                                     taskId = prescription.taskId
@@ -355,11 +365,11 @@ private fun LazyListScope.prescriptionContent(
 }
 
 private fun processPrescriptionsDayIndices(prescriptions: List<Prescription>): Map<String, Int> {
-    var previousPrescription: Prescription.Scanned? = null
+    var previousPrescription: ScannedPrescription? = null
     var dayIndex = 1
     val indexedPrescriptions = mutableMapOf<String, Int>()
 
-    prescriptions.filterIsInstance<Prescription.Scanned>().forEach {
+    prescriptions.filterIsInstance<ScannedPrescription>().forEach {
         val current = it.scannedOn.toFormattedDate()
         val prev = previousPrescription?.scannedOn?.toFormattedDate()
         if (current == prev) dayIndex++ else dayIndex = 1
@@ -390,44 +400,58 @@ fun readyPrescriptionStateInfo(
         append(stringResource(R.string.prescription_item_expiration_only_today))
     }
 
-    acceptDaysLeft in ONE_DAY_LEFT..TWO_DAYS_LEFT -> buildAnnotatedString {
+    acceptDaysLeft == ONE_DAY_LEFT -> buildAnnotatedString {
+        appendInlineContent(
+            id = "warningAmber",
+            alternateText = stringResource(R.string.prescription_item_warning_amber)
+        )
+        append(stringResource(R.string.prescription_item_accept_only_tomorrow))
+    }
+
+    expiryDaysLeft == ONE_DAY_LEFT -> buildAnnotatedString {
         appendInlineContent(
             id = "warningAmber",
             alternateText = stringResource(R.string.prescription_item_warning_amber)
         )
         append(
-            annotatedPluralsResource(
-                R.plurals.prescription_item_accept_days,
-                acceptDaysLeft.toInt(),
+            stringResource(R.string.prescription_item_expiration_only_tomorrow)
+        )
+    }
+
+    acceptDaysLeft == TWO_DAYS_LEFT -> buildAnnotatedString {
+        appendInlineContent(
+            id = "warningAmber",
+            alternateText = stringResource(R.string.prescription_item_warning_amber)
+        )
+        append(
+            annotatedStringResource(
+                R.string.prescription_item_two_accept_days_left,
                 AnnotatedString(acceptDaysLeft.toString())
             )
         )
     }
 
-    expiryDaysLeft in ONE_DAY_LEFT..TWO_DAYS_LEFT -> buildAnnotatedString {
+    expiryDaysLeft == TWO_DAYS_LEFT -> buildAnnotatedString {
         appendInlineContent(
             id = "warningAmber",
             alternateText = stringResource(R.string.prescription_item_warning_amber)
         )
         append(
-            annotatedPluralsResource(
-                R.plurals.prescription_item_expiration_days_new,
-                expiryDaysLeft.toInt(),
+            annotatedStringResource(
+                R.string.prescription_item_two_expiration_days_left,
                 AnnotatedString(expiryDaysLeft.toString())
             )
         )
     }
 
-    acceptDaysLeft > TWO_DAYS_LEFT -> annotatedPluralsResource(
-        R.plurals.prescription_item_accept_days,
-        1 + acceptDaysLeft.toInt(),
-        AnnotatedString((1 + acceptDaysLeft).toString())
+    acceptDaysLeft > TWO_DAYS_LEFT -> annotatedStringResource(
+        R.string.prescription_item_accept_days_left,
+        AnnotatedString((acceptDaysLeft).toString())
     )
 
-    expiryDaysLeft > TWO_DAYS_LEFT -> annotatedPluralsResource(
-        R.plurals.prescription_item_expiration_days_new,
-        1 + expiryDaysLeft.toInt(),
-        AnnotatedString((1 + expiryDaysLeft).toString())
+    expiryDaysLeft > TWO_DAYS_LEFT -> annotatedStringResource(
+        R.string.prescription_item_expiration_days_left,
+        AnnotatedString((expiryDaysLeft).toString())
     )
 
     else -> null
@@ -469,8 +493,10 @@ fun PrescriptionStateInfo(
         }
 
         is SyncedTaskData.SyncedTask.Ready -> {
-            val expiryDaysLeft = remember { (state.expiresOn - now).inWholeDays }
-            val acceptDaysLeft = remember { (state.acceptUntil - now).inWholeDays }
+            val expiryDaysLeft =
+                remember { (state.expiresOn - now.toStartOfDayInUTC()).inWholeDays }
+            val acceptDaysLeft =
+                remember { (state.acceptUntil - now.toStartOfDayInUTC()).inWholeDays }
 
             val text = readyPrescriptionStateInfo(acceptDaysLeft, expiryDaysLeft)
 
@@ -507,7 +533,10 @@ fun PrescriptionStateInfo(
 
         is SyncedTaskData.SyncedTask.Expired -> {
             Text(
-                dateWithIntroductionString(R.string.pres_detail_medication_expired_on, state.expiredOn),
+                dateWithIntroductionString(
+                    R.string.pres_detail_medication_expired_on,
+                    state.expiredOn
+                ),
                 style = AppTheme.typography.body2,
                 textAlign = textAlign
             )
@@ -523,8 +552,19 @@ fun PrescriptionStateInfo(
 }
 
 @Composable
-private fun sentOrCompletedPhrase(lastModified: Instant, now: Instant, completed: Boolean = false): String =
-    when (val phrase = sentOrCompleted(lastModified = lastModified, now = now, completed = completed)) {
+private fun sentOrCompletedPhrase(
+    lastModified: Instant,
+    now: Instant,
+    completed: Boolean = false
+): String =
+    when (
+        val phrase =
+            sentOrCompleted(
+                lastModified = lastModified,
+                now = now,
+                completed = completed
+            )
+    ) {
         SentOrCompletedPhrase.RedeemedJustNow -> stringResource(R.string.received_now)
         SentOrCompletedPhrase.SentJustNow -> stringResource(R.string.sent_now)
 
@@ -568,7 +608,7 @@ private fun sentOrCompletedPhrase(lastModified: Instant, now: Instant, completed
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun FullDetailMedication(
-    prescription: Prescription.Synced,
+    prescription: SyncedPrescription,
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
@@ -596,7 +636,8 @@ fun FullDetailMedication(
         Row(modifier = Modifier.padding(PaddingDefaults.Medium)) {
             Column(modifier = Modifier.weight(1f)) {
                 val medicationName =
-                    prescription.name ?: stringResource(R.string.prescription_medication_default_name)
+                    prescription.name
+                        ?: stringResource(R.string.prescription_medication_default_name)
 
                 Text(
                     modifier = Modifier.testTag(TestTag.Prescriptions.FullDetailPrescriptionName),
@@ -633,9 +674,9 @@ fun FullDetailMedication(
                             }
                         }
                     }
-                    if (prescription.multiplePrescriptionState.isPartOfMultiplePrescription) {
-                        prescription.multiplePrescriptionState.numerator?.let { numerator ->
-                            prescription.multiplePrescriptionState.denominator?.let { denominator ->
+                    if (prescription.prescriptionChipInformation.isPartOfMultiplePrescription) {
+                        prescription.prescriptionChipInformation.numerator?.let { numerator ->
+                            prescription.prescriptionChipInformation.denominator?.let { denominator ->
                                 SpacerSmall()
                                 NumeratorChip(numerator, denominator)
                             }
@@ -660,7 +701,7 @@ fun FullDetailMedication(
 @Composable
 fun LowDetailMedication(
     modifier: Modifier = Modifier,
-    prescription: Prescription.Scanned,
+    prescription: ScannedPrescription,
     index: Int,
     onClick: () -> Unit
 ) {

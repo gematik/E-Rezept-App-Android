@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -50,7 +50,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.fhir.parser.toFormattedDate
+import de.gematik.ti.erp.app.utils.toFormattedDate
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.prescriptionIds

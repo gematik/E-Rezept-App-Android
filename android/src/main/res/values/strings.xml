@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <string name="app_name">E-Rezept</string>
+<resources>
+    <string name="app_name" translatable="false">E-Rezept</string>
     <string name="ok">Okay</string>
     <string name="cancel">Abbrechen</string>
     <string name="back">Zurück</string>
@@ -184,14 +184,6 @@
     <string name="search_pharmacies_location_na_header">Kein Standort verfügbar</string>
     <string name="understand">Verstanden</string>
     <string name="consistent_password">Wiederholtes Passwort stimmt überein</string>
-    <plurals name="prescription_item_expiration_days_new">
-        <item quantity="one">Noch %s Tag als Selbstzahlender einlösbar</item>
-        <item quantity="other">Noch %s Tage als Selbstzahlender einlösbar</item>
-    </plurals>
-    <plurals name="prescription_item_accept_days">
-        <item quantity="one">Noch %s Tag gültig</item>
-        <item quantity="other">Noch %s Tage gültig</item>
-    </plurals>
     <string name="cdw_nfc_error_title_invalid_certificate">Fehler 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Das Zertifikat Ihrer Gesundheitskarte ist ungültig. Ist Ihre Karte möglicherweise abgelaufen? Bitte kontaktieren Sie Ihre Krankenversicherung.</string>
     <string name="auth_error_failed_auths_headline">Erfolglose Anmeldeversuche</string>
@@ -288,9 +280,7 @@
     <string name="settings_show_token_info">Zugangsschlüssel zum Rezeptdienst</string>
     <string name="autitEvents_headline">Zugriffsprotokolle</string>
     <string name="no_audit_events_header">Keine Zugriffsprotokolle</string>
-    <string name="no_audit_events_not_authenticated_info">Sie erhalten Zugriffsprotokolle, wenn Sie am Rezeptdienst angemeldet sind.</string>
     <string name="no_audit_events_empty_protocol_list_info">Es liegen noch keine Zugriffsprotokolle vor.</string>
-    <string name="audit_events_updated_at">Zuletzt aktualisiert am %s</string>
     <string name="logout_delete_in_progress">Das Rezept ist derzeit in Bearbeitung und kann nicht gelöscht werden</string>
     <string name="data_terms_accept_update">Akzeptieren</string>
     <string name="cdw_troubleshooting_no_success_title">Das hat anscheinend nicht geklappt</string>
@@ -358,7 +348,7 @@
     <string name="cdw_no_pin_received">Keine PIN erhalten</string>
     <string name="cdw_pin_label">PIN</string>
     <string name="cdw_idp_error_time_and_connection">Überprüfen Sie die Verbindung mit dem Internet und die Uhrzeit-/Datumseinstellung Ihres Geräts.</string>
-    <string name="auth_information">Um sich zu authentifizieren, drücken Sie auf “Entsperren”.</string>
+    <string name="auth_information">Um sich anzumelden, drücken Sie auf “Entsperren”.</string>
     <string name="auth_failed_biometry_info">Ausgesperrt? Bitte überprüfen Sie Ihre biometrischen Zugangsdaten auf diesem Gerät.</string>
     <string name="auth_failed_password_info">Passwort vergessen? Bitte löschen Sie die App und installieren sie anschließend erneut. Weshalb das so ist, erfahren Sie in unserem %s.</string>
     <string name="auth_link_to_gematik_q_and_a" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/faq</string>
@@ -373,7 +363,7 @@
     <string name="settings_tracking_allow_button">Akzeptieren</string>
     <string name="onb_undo_description">Rückgängig</string>
     <string name="settings_biometric_dialog_headline">Hinweis</string>
-    <string name="onb_page_5_header">Helfen Sie uns, diese App besser zu machen?</string>
+    <string name="onb_page_5_header">Helfen Sie uns, diese App besser zu machen</string>
     <string name="settings_password_enter">Kennwort eingeben</string>
     <string name="settings_password_length_hint">Das Kennwort muss mindestens acht Zeichen lang sein</string>
     <string name="settings_password_strength_not_sufficient">Kennwortstärke nicht ausreichend</string>
@@ -451,10 +441,7 @@
     <string name="health_card_section_header">Gesundheitskarte</string>
     <string name="health_card_section_order_card">PIN oder Karte bestellen</string>
     <string name="cdw_intro_header">Anmelden</string>
-    <string name="cdw_intro_info">Wie möchten Sie sich authentifizieren?</string>
-    <string name="cdw_intro_auth_insurance_app">Versicherungs-App</string>
-    <string name="cdw_intro_auth_health_card">Gesundheitskarte</string>
-    <string name="cdw_intro_auth_health_card_pin">Zugehörige PIN benötigt</string>
+    <string name="cdw_intro_info">Wie möchten Sie sich anmelden?</string>
     <string name="cdw_intro_nfc_card_needed">NFC-fähige Gesundheitskarte</string>
     <string name="cdw_intro_pin_needed">PIN zur Gesundheitskarte</string>
     <string name="cdw_have_no_card_with_pin">Sie verfügen noch nicht über eine NFC-fähige Gesundheitskarte und PIN?</string>
@@ -658,8 +645,7 @@
     <string name="pres_details_exp_add_fee_info">Gesetzlich Versicherte müssen für verschreibungspflichtige Medikamente eine Zuzahlung von bis zu zehn Euro leisten.\n\nDie Höhe der Zuzahlung ist abhängig von dem Preis Ihres Medikaments. Medikamente, die weniger als 5€ kosten müssen Sie selbst zahlen.\nBei Medikamenten die teurer sind, müssen Sie zehn Prozent des Preises zuzahlen, mindestens aber 5€ und höchstens 10€.\n\nGrundsätzlich befreit von einer Zuzahlung sind Kinder und Jugendliche unter 18 Jahren. \n\nSollten Ihre jährlichen Kosten für Medikamente Ihre finanzielle Belastungsgrenzt überschreiten können Sie sich von der Zuzahlung befreien lassen. Sprechen Sie dazu mit Ihrer Krankenversicherung.</string>
     <string name="pres_details_exp_no_add_fee_info">Sie sind von der Zuzahlung von diesem Medikament befreit. Die Kosten für das Medikament übernimmt Ihre Krankenkasse.</string>
     <string name="pres_details_exp_valid_title">Wie lange ist dieses Rezept gültig?</string>
-    <string name="pres_details_exp_valid_info_accept">Innerhalb dieses Zeitraums können Sie Ihr Rezept in einer beliebigen Apotheke mit einer Zuzahlung einlösen.</string>
-    <string name="pres_details_exp_valid_info_expires">Innerhalb dieses Zeitraums können Sie das Rezept nach wie vor in einer Apotheke einlösen, müssen jedoch die Kaufsumme selbst übernehmen. Alternativ können Sie in Ihrer Praxis im eine erneute Ausstellung des Rezepts bitten.</string>
+    <string name="pres_details_exp_valid_info_accept">Innerhalb dieses Zeitraums können Sie Ihr Rezept in einer beliebigen Apotheke mit einer Zuzahlung von maximal 10€ einlösen.</string>
     <string name="pres_details_exp_sub_allowed_title">Ersatzpräparat möglich</string>
     <string name="pres_details_exp_sub_allowed_info">Aufgrund gesetzlicher Vorgaben Ihrer Krankenkasse kann Ihnen eine Alternative mit dem selben Wirkstoff ausgehändigt werden.\n\nMedikamente können unterschiedlich aussehen und heißen, andere Preise und Hersteller haben, aber dennoch den gleichen Wirkstoff beinhalten. Für die Wirkung von Arzneimitteln im Körper sind vor allem der Wirkstoff selbst und die Dosierung ausschlaggebend. Oft bekommen Patienten und Patientinnen in der Apotheke ein anderes Medikament als das vom Arzt oder der Ärztin auf dem Rezept verordnete – vorausgesetzt, die Medikamente sind vergleichbar. Für den Wechsel kann es therapeutische und wirtschaftliche Gründe geben.</string>
     <string name="pres_details_exp_scanned_title">Gescanntes Rezept</string>
@@ -730,11 +716,11 @@
     <string name="mainscreen_empty_content_header">Keine Rezepte</string>
     <string name="mainscreen_empty_not_connected_info">Fügen Sie Rezepte über den + Button in der rechten oberen Ecke hinzu.</string>
     <string name="mainscreen_login">Anmelden</string>
-    <string name="archived_prescriptions_button">Eingelöste Rezepte</string>
+    <string name="archived_prescriptions_button">Rezeptarchiv</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Vielleicht später</string>
     <string name="mainscreen_connect_bottomsheet_connect">Anmelden</string>
     <string name="mainscreen_bottom_sheet_edit_profile_image">Profilbild bearbeiten</string>
-    <string name="archive_screen_title">Eingelöste Rezepte</string>
+    <string name="archive_screen_title">Rezeptarchiv</string>
     <string name="bottom_sheet_edit_profile_name_title">Name eingeben</string>
     <string name="profile_bottom_sheet_save">Speichern</string>
     <string name="pharmacy_order_title">Meine Bestellung</string>
@@ -885,6 +871,17 @@
     <string name="prescription_status_direct_assignment_ready">Wird für Sie eingelöst</string>
     <string name="prescription_status_direct_assignment_closed">Wurde für Sie eingelöst</string>
     <string name="connect_for_pharmacy_service">Sie müssen angemeldet sein, um diesen Service zu nutzen.</string>
+    <string name="cdw_intro_auth_insurance_app">Versicherungs-App</string>
+    <string name="cdw_intro_auth_health_card">Gesundheitskarte</string>
+    <string name="cdw_intro_auth_health_card_pin">Zugehörige PIN benötigt</string>
+    <string name="prescription_item_expiration_only_tomorrow">Nur noch morgen als Selbstzahlender einlösbar</string>
+    <string name="prescription_item_two_expiration_days_left">Nur noch %s Tage als Selbstzahlender einlösbar</string>
+    <string name="prescription_item_expiration_days_left">\n        Noch %s Tage als Selbstzahlender einlösbar\n    </string>
+    <string name="prescription_item_two_accept_days_left">Nur noch %s Tage gültig</string>
+    <string name="prescription_item_accept_days_left">\n        Noch %s Tage gültig\n    </string>
+    <string name="prescription_item_accept_only_tomorrow">Nur noch morgen gültig</string>
+    <string name="pres_detail_noctu_yes">Gebührenpflichtig</string>
+    <string name="pres_detail_noctu_no">Übernimmt Versicherung</string>
     <string name="server_return_code_200">Das Rezept/die Rezepte wurden erfolgreich übertragen.</string>
     <string name="server_return_code_400">Das Rezept kann nicht verarbeitet werden. Bitte versuchen Sie es erneut. Eventuell müssen Sie eine andere Apotheke auswählen.</string>
     <string name="server_return_code_500">Das Rezept kann nicht verarbeitet werden. Die Apotheke meldet einen unbekannten Fehler. Probieren Sie ggf. eine andere Apotheke.</string>
@@ -903,4 +900,12 @@
     <string name="server_return_code_409_title">Rezept bereits eingelöst</string>
     <string name="server_return_code_410_title">Rezept gelöscht</string>
     <string name="server_return_no_code_title">Kein Internet</string>
+    <string name="audit_events_connect_info">Um Zugriffsprotokolle zu empfangen, müssen Sie mit dem Server verbunden sein.</string>
+    <string name="pres_details_exp_valid_info_expiry_time">Innerhalb dieses Zeitraums können Sie das Rezept nach wie vor in einer Apotheke einlösen, müssen jedoch die gesamte Kaufsumme des Medikaments selbst übernehmen. Alternativ können Sie in Ihrer Praxis um eine erneute Ausstellung des Rezepts bitten.</string>
+    <string name="invoice_correct_done">Fertig</string>
+    <string name="invoice_menu_correct_invoice">Korrektur anfragen</string>
+    <string name="invoice_menu_correct_invoice_locally">In der Apotheke</string>
+    <string name="invoice_menu_correct_invoice_online">In der App</string>
+    <string name="invoice_correction_info">Lassen Sie diesen Code in Ihrer Apotheke abscannen.</string>
+    <string name="invoice_correction">Korrekturanfrage der Abrechnung</string>
 </resources>

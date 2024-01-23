@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,6 +23,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
+import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -40,6 +41,11 @@ class IntentHandler(private val context: Context) {
 
     val shareIntent = shareChannel.receiveAsFlow()
 
+    @Requirement(
+        "O.Source_1#5",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "External application calls via Universal Linking"
+    )
     suspend fun propagateIntent(intent: Intent) {
         intent.data?.let {
             val value = it.toString()

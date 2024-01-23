@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
-    <string name="app_name">E-recepta</string>
     <string name="ok">OK</string>
     <string name="cancel">Anuluj</string>
     <string name="back">Powrót</string>
@@ -177,18 +176,6 @@
     <string name="search_pharmacies_location_na_header">Brak dostępnych lokalizacji</string>
     <string name="understand">Rozumiem</string>
     <string name="consistent_password">Ponownie wprowadzone hasło zgadza się</string>
-    <plurals name="prescription_item_expiration_days_new">
-        <item quantity="one">Możliwość zrealizowania jeszcze przez %s dzień jako płatnik indywidualny</item>
-        <item quantity="few">Możliwość zrealizowania jeszcze przez %s dni jako płatnik indywidualny</item>
-        <item quantity="many"></item>
-        <item quantity="other"></item>
-    </plurals>
-    <plurals name="prescription_item_accept_days">
-        <item quantity="one">Ważne jeszcze %s dzień</item>
-        <item quantity="few">Ważne jeszcze %s dni</item>
-        <item quantity="many"></item>
-        <item quantity="other"></item>
-    </plurals>
     <string name="cdw_nfc_error_title_invalid_certificate">Błąd 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Certyfikat Twojej karty zdrowia jest nieważny. Być może termin ważności Twojej karty już upłynął. Skontaktuj się ze swoją kasą chorych.</string>
     <string name="auth_error_failed_auths_headline">Bezskuteczne próby zalogowania się</string>
@@ -284,9 +271,7 @@
     <string name="settings_show_token_info">To jest kod dostępu do aplikacji E-recepta</string>
     <string name="autitEvents_headline">Protokoły dostępu</string>
     <string name="no_audit_events_header">Brak protokołów dostępu</string>
-    <string name="no_audit_events_not_authenticated_info">Otrzymasz protokoły dostępu, jeśli jesteś zalogowany na serwerze z receptami.</string>
     <string name="no_audit_events_empty_protocol_list_info">Brak jeszcze protokołów dostępu.</string>
-    <string name="audit_events_updated_at">Ostatnia aktualizacja dnia %s</string>
     <string name="logout_delete_in_progress">Recepta jest teraz edytowana i nie można jej usunąć</string>
     <string name="data_terms_accept_update">Zaakceptuj</string>
     <string name="cdw_troubleshooting_no_success_title">Wygląda na to, że operacja nie powiodła się</string>
@@ -352,7 +337,7 @@
     <string name="cdw_no_pin_received">Nie otrzymałem(am) kodu PIN</string>
     <string name="cdw_pin_label">PIN</string>
     <string name="cdw_idp_error_time_and_connection">Sprawdź połączenie z internetem oraz ustawienie godziny/daty na swoim urządzeniu.</string>
-    <string name="auth_information">Aby przeprowadzić uwierzytelnienie, naciśnij \"Odblokuj\".</string>
+    <string name="auth_information">Aby się zalogować, naciśnij „Odblokuj”.</string>
     <string name="auth_failed_biometry_info">Nie możesz uzyskać dostępu? Sprawdź swoje biometryczne dane dostępowe na tym urządzeniu.</string>
     <string name="auth_failed_password_info">Nie pamiętasz hasła? Usuń aplikację i następnie zainstaluj ją ponownie. Z naszego %s dowiesz się, dlaczego tak się dzieje.</string>
     <string name="auth_link_to_gematik_helptext">Pomoc</string>
@@ -366,7 +351,7 @@
     <string name="settings_tracking_allow_button">Zaakceptuj</string>
     <string name="onb_undo_description">Cofnij</string>
     <string name="settings_biometric_dialog_headline">Wskazówka</string>
-    <string name="onb_page_5_header">Pomożesz nam ulepszyć tę aplikację?</string>
+    <string name="onb_page_5_header">Pomóż nam ulepszyć tę aplikację</string>
     <string name="settings_password_enter">Wybierz własne hasło</string>
     <string name="settings_password_length_hint">Hasło musi zawierać co najmniej osiem znaków</string>
     <string name="settings_password_strength_not_sufficient">Niewystarczająca siła hasła</string>
@@ -444,10 +429,7 @@
     <string name="health_card_section_header">Karta zdrowia</string>
     <string name="health_card_section_order_card">Zamów PIN lub kartę</string>
     <string name="cdw_intro_header">Zaloguj się</string>
-    <string name="cdw_intro_info">Jak chcesz się uwierzytelnić?</string>
-    <string name="cdw_intro_auth_insurance_app">Aplikacja ubezpieczeniowa</string>
-    <string name="cdw_intro_auth_health_card">Karta ubezpieczeniowa</string>
-    <string name="cdw_intro_auth_health_card_pin">Wymagany powiązany kod PIN</string>
+    <string name="cdw_intro_info">Jak chcesz się zalogować?</string>
     <string name="cdw_intro_nfc_card_needed">Karta zdrowia obsługująca funkcję NFC</string>
     <string name="cdw_intro_pin_needed">PIN do karty zdrowia</string>
     <string name="cdw_have_no_card_with_pin">Nie masz jeszcze karty zdrowia obsługującej funkcję NFC i kodu PIN?</string>
@@ -649,8 +631,7 @@
     <string name="pres_details_exp_add_fee_info">Osoby posiadające ustawowe ubezpieczenie zdrowotne muszą zapłacić do dziesięciu euro za leki na receptę. \n\n Wysokość dopłaty zależy od ceny leku. Sam musisz zapłacić za leki, które kosztują mniej niż 5 euro.\n W przypadku droższych leków trzeba zapłacić dziesięć procent ceny, ale co najmniej 5 euro, a maksymalnie 10 euro. \n\n Dzieci i młodzież poniżej 18 roku życia są z reguły zwolnione ze współpłacenia. \n\n Jeśli Twoje roczne koszty leków przekraczają Twój limit finansowy, możesz zostać zwolniony ze współpłacenia. Porozmawiaj o tym ze swoim ubezpieczycielem zdrowotnym.</string>
     <string name="pres_details_exp_no_add_fee_info">Jesteś zwolniony ze współpłacenia tego leku. Twoje ubezpieczenie zdrowotne pokryje koszty leków.</string>
     <string name="pres_details_exp_valid_title">Jak długo ta recepta jest ważna?</string>
-    <string name="pres_details_exp_valid_info_accept">W tym okresie możesz zrealizować receptę w dowolnej aptece za dodatkową opłatą.</string>
-    <string name="pres_details_exp_valid_info_expires">W tym okresie możesz jeszcze zrealizować receptę w aptece, ale musisz sam zapłacić cenę zakupu. Możesz też poprosić swoją praktykę o ponowne wystawienie recepty.</string>
+    <string name="pres_details_exp_valid_info_accept">W tym okresie możesz zrealizować receptę w dowolnej aptece za maksymalną dopłatą w wysokości 10 €.</string>
     <string name="pres_details_exp_sub_allowed_title">Możliwość wyboru preparatu zastępczego</string>
     <string name="pres_details_exp_sub_allowed_info">Ze względu na wymagania prawne Twojej firmy ubezpieczeniowej, możesz otrzymać alternatywę z tą samą substancją czynną. \n\n Leki mogą wyglądać i nazywać się inaczej, mieć różne ceny i producentów, a mimo to zawierają ten sam składnik aktywny. Sam składnik aktywny i dawkowanie są szczególnie ważne dla działania leków na organizm. Pacjenci w aptece często otrzymują inny lek niż ten przepisany przez lekarza na receptę – pod warunkiem, że leki są porównywalne. Zmiana może mieć przyczyny terapeutyczne i ekonomiczne.</string>
     <string name="pres_details_exp_scanned_title">Zeskanowana recepta</string>
@@ -721,11 +702,11 @@
     <string name="mainscreen_empty_content_header">Brak recept</string>
     <string name="mainscreen_empty_not_connected_info">Dodaj recepty za pomocą przycisku + w prawym górnym rogu.</string>
     <string name="mainscreen_login">Zaloguj sie</string>
-    <string name="archived_prescriptions_button">Realizowane recepty</string>
+    <string name="archived_prescriptions_button">archiwum recept</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Może później</string>
     <string name="mainscreen_connect_bottomsheet_connect">Zaloguj sie</string>
     <string name="mainscreen_bottom_sheet_edit_profile_image">Edytuj zdjęcie profilowe</string>
-    <string name="archive_screen_title">Realizowane recepty</string>
+    <string name="archive_screen_title">archiwum recept</string>
     <string name="bottom_sheet_edit_profile_name_title">Podaj nazwę</string>
     <string name="profile_bottom_sheet_save">Zapisz</string>
     <string name="pharmacy_order_title">Moje zamówienie</string>
@@ -747,7 +728,7 @@
     <string name="pharmacy_order_no_prescriptions_title">Bez recepty</string>
     <string name="pharmacy_order_no_prescriptions_desc">Obecnie nie masz żadnych recept do zrealizowania</string>
     <string name="pharmacy_order_opt_collect">ulec poprawie</string>
-    <string name="pharmacy_order_opt_delivery">dostawca</string>
+    <string name="pharmacy_order_opt_delivery">kurier</string>
     <string name="pharmacy_order_opt_mail">Wysyłka</string>
     <string name="pharmacy_order_select_prescriptions">wybieraj recepty</string>
     <string name="main_screen_tooltip_1_content">Kliknij tutaj, aby zeskanować recepty</string>
@@ -873,22 +854,15 @@
     <string name="prescription_status_direct_assignment_ready">Zostanie dla ciebie odkupiony</string>
     <string name="prescription_status_direct_assignment_closed">Został odkupiony dla ciebie</string>
     <string name="connect_for_pharmacy_service">Aby korzystać z tej usługi, musisz być zalogowany.</string>
-    <string name="server_return_code_200">" Recepty zostały pomyślnie przeniesione."</string>
-    <string name="server_return_code_400">Recepta never może zostać zrealizowana. Proszę sprobuj ponownie. Być może będziesz musiał wybrać inną aptekę.</string>
-    <string name="server_return_code_500">Recepta never może zostać zrealizowana. Apteka zgłasza nieznany błąd. W razie potrzeby spróbuj w innej aptece.</string>
-    <string name="server_return_code_401">Recepta została odrzucona przez aptekę. Recepta może być nieważna lub Twój address dostawy lub dane kontaktowe mogą być nieprawidłowe.</string>
-    <string name="server_return_code_404">Never można wykorzystać, sprawdź swoje połączenie internetowe.</string>
-    <string name="server_return_code_408">Recepta została pomyślnie przeniesiona. Jednak apteka zgłasza błąd przzweirzania. Prosimy o contact z apteką.</string>
-    <string name="server_return_code_409">Recepta została odrzucona przez aptekę. Recepta została już zrealizowana.</string>
-    <string name="server_return_code_410">Recepta została odrzucona przez aptekę. Przepis został usunięty.</string>
-    <string name="server_return_no_code">Recepta never mogła zostać przeniesiona. Sprawdź połączenie internetowe i spróbuj ponownie.</string>
-    <string name="several_return_code">Nie można przenieść jednego lub więcej przepisów.</string>
-    <string name="server_return_code_200_title">Wyslano pomyślnie!</string>
-    <string name="server_return_code_400_title">Błąd w aptece</string>
-    <string name="server_return_code_500_title">Błąd w aptece</string>
-    <string name="server_return_code_408_title">Skontaktuj się z apteką</string>
-    <string name="server_return_code_409_title">Recepta już zrealizowana</string>
-    <string name="server_return_code_410_title">Przepis usunięty</string>
-    <string name="server_return_no_code_title">Brak internetu</string>
-    <string name="server_return_code_title_failure">Błąd wysyłania</string>
+    <string name="cdw_intro_auth_insurance_app">Aplikacja ubezpieczeniowa</string>
+    <string name="cdw_intro_auth_health_card">Karta ubezpieczeniowa</string>
+    <string name="cdw_intro_auth_health_card_pin">Wymagany powiązany kod PIN</string>
+    <string name="audit_events_connect_info">Aby otrzymać logi dostępowe musisz być połączony z serwerem.</string>
+    <string name="pres_details_exp_valid_info_expiry_time">W tym okresie nadal możesz zrealizować receptę w aptece, ale całą cenę zakupu leku będziesz musiał sam zapłacić. Alternatywnie możesz poprosić swoją praktykę o ponowne wystawienie recepty.</string>
+    <string name="invoice_correct_done">Gotowe</string>
+    <string name="invoice_menu_correct_invoice">Poproś o korektę</string>
+    <string name="invoice_menu_correct_invoice_locally">W aptece</string>
+    <string name="invoice_menu_correct_invoice_online">W aplikacji</string>
+    <string name="invoice_correction_info">Zeskanuj ten kod w swojej aptece.</string>
+    <string name="invoice_correction">Żądanie korekty płatności</string>
 </resources>

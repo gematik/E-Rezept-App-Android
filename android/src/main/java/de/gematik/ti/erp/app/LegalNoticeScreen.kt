@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -52,11 +52,10 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.canHandleIntent
-import de.gematik.ti.erp.app.utils.compose.createToastShort
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
-import java.util.*
+import de.gematik.ti.erp.app.utils.compose.shortToast
 
 @Composable
 fun LegalNoticeWithScaffold(navigation: NavHostController) {
@@ -212,7 +211,7 @@ fun EmailContact(
                         if (canHandleIntent(intent, context.packageManager)) {
                             context.startActivity(intent)
                         } else {
-                            createToastShort(context, noEmailClientText)
+                            context.shortToast(noEmailClientText)
                         }
                     }
             }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -24,6 +24,7 @@ import android.graphics.Rect
 import android.util.Size
 import androidx.core.graphics.minus
 import com.google.mlkit.vision.barcode.common.Barcode
+import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
 import kotlin.math.absoluteValue
 import kotlin.math.max
@@ -105,6 +106,11 @@ class TwoDCodeProcessor {
 
     private var codeHist = listOf<Pair<FilteredDMCode, Long>>()
 
+    @Requirement(
+        "O.Source_1#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Scanning data matrix codes"
+    )
     fun process(batch: TwoDCodeScanner.Batch): Pair<String, FloatArray>? {
         if (batch.cameraRotation != metrics.camRotation || batch.cameraSize != metrics.camImageSize) {
             val cs = batch.cameraSize

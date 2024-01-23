@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -384,6 +384,11 @@ class IdpUseCase(
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "External authentication (fast track)"
     )
+    @Requirement(
+        "O.Plat_10#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Follow redirect"
+    )
     suspend fun authenticateWithExternalAppAuthorization(
         uri: URI
     ) {
@@ -576,7 +581,26 @@ class IdpUseCase(
 
         lateinit var privateKeyOfSecureElementEntry: PrivateKey
         lateinit var signatureObjectOfSecureElementEntry: Signature
-
+        @Requirement(
+            "O.Cryp_1#2",
+            "O.Cryp_4#2",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Signature via ecdh ephemeral-static (one time usage)"
+        )
+        @Requirement(
+            "O.Cryp_6",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Persisted cryptographic keys are created within the devices key store. " +
+                "Temporal keys are discarded as soon as usage is no longer needed."
+        )
+        @Requirement(
+            "O.Cryp_7",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "As Brainpool256R1 is not available within key store but enforced by BSI where possible, " +
+                "we use secure enclave encryption only for biometric authentication. " +
+                "Everywhere else, cryptographic operations are ephemeral or use the eGK " +
+                "as a secure execution environment."
+        )
         try {
             privateKeyOfSecureElementEntry = (
                 cryptoProvider.keyStoreInstance()

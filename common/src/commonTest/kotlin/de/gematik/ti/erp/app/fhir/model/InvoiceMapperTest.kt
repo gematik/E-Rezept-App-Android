@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.asFhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
@@ -35,7 +35,7 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 1`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_1)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.424.187.927.272.20", taskId)
             val erpBinary = extractBinary(erpPrBundle)
@@ -118,9 +118,11 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 2`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_2)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.457.180.497.994.96", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)
@@ -201,9 +203,11 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 3`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_3)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.279.187.481.423.80", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)
@@ -298,9 +302,11 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 5`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_5)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.625.688.123.368.48", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)
@@ -381,9 +387,11 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 6`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_6)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.280.604.133.110.12", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)
@@ -464,9 +472,11 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 7`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_7)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.339.908.107.779.64", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)
@@ -561,9 +571,11 @@ class InvoiceMapperTest {
     fun `process chargeItem pzn 8`() {
         val bundle = Json.parseToJsonElement(chargeItem_pzn_8)
 
-        extractInvoiceKBVAndErpPrBundle(bundle) { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle) { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.108.757.032.088.60", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)
@@ -659,9 +671,11 @@ class InvoiceMapperTest {
     fun `process chargeItem compounding`() {
         val bundle = Json.parseToJsonElement(chargeItem_compounding)
 
-        extractInvoiceKBVAndErpPrBundle(bundle) { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle) { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.858.310.624.061.76", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)
@@ -759,9 +773,11 @@ class InvoiceMapperTest {
     fun `process chargeItem freetext`() {
         val bundle = Json.parseToJsonElement(chargeItem_freetext)
 
-        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, invoiceBundle, kbvBundle, erpPrBundle ->
+        extractInvoiceKBVAndErpPrBundle(bundle, process = { taskId, accessCode, invoiceBundle, kbvBundle, erpPrBundle ->
 
             assertEquals("200.334.138.469.717.92", taskId)
+            assertEquals("abd4afed9f3f458114fc3407878213e110f238d1afa919fbed7282abbef68bfd", accessCode)
+
             val erpBinary = extractBinary(erpPrBundle)
             val invoiceBinary = extractBinary(invoiceBundle)
             val kbvBinary = extractBinary(kbvBundle)

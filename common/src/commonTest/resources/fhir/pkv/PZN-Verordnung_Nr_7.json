@@ -12,7 +12,8 @@
         },
         "identifier": [
           {
-            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId"
+            "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+            "value": "200.339.908.107.779.64"
           },
           {
             "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode",

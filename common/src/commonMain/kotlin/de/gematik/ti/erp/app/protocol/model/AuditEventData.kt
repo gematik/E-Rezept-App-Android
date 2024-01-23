@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -23,8 +23,14 @@ import kotlinx.datetime.Instant
 object AuditEventData {
     data class AuditEvent(
         val auditId: String,
-        val medicationText: String?,
+        val taskId: String?,
         val description: String,
         val timestamp: Instant
+    )
+
+    data class AuditEventMappingResult(
+        val auditEvents: List<AuditEvent>,
+        val bundleId: String,
+        val bundleResultCount: Int
     )
 }

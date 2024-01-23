@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -54,6 +54,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
 import com.canhub.cropper.CropImageView
 import de.gematik.ti.erp.app.R
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 
@@ -79,7 +80,11 @@ fun ProfileImageCropper(onSaveCroppedImage: (Bitmap) -> Unit, onBack: () -> Unit
 
     val readStoragePermissionRequired =
         Build.VERSION.SDK_INT <= Build.VERSION_CODES.Q
-
+    @Requirement(
+        "O.Plat_3#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "platform dialog for READ_EXTERNAL_STORAGE"
+    )
     LaunchedEffect(readStoragePermissionRequired, readStoragePermissionGranted) {
         if (readStoragePermissionRequired && !readStoragePermissionGranted) {
             readStoragePermissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)

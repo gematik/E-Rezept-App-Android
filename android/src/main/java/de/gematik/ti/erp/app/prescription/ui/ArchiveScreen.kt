@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -34,7 +34,8 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.R
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.ui.MainNavigationScreens
-import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -45,7 +46,11 @@ import kotlinx.datetime.toLocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun ArchiveScreen(prescriptionState: PrescriptionState, navController: NavController, onBack: () -> Unit) {
+fun ArchiveScreen(
+    prescriptionsController: PrescriptionsController,
+    navController: NavController,
+    onBack: () -> Unit
+) {
     val listState = rememberLazyListState()
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.archive_screen_title),
@@ -53,73 +58,73 @@ fun ArchiveScreen(prescriptionState: PrescriptionState, navController: NavContro
         onBack = onBack,
         navigationMode = NavigationBarMode.Back
     ) {
-        val state by prescriptionState.state
+        val archivedPrescriptions by prescriptionsController.archivedPrescriptionsState
 
         LazyColumn(
-            modifier = Modifier.fillMaxSize().testTag(TestTag.Prescriptions.Archive.Content),
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag(TestTag.Prescriptions.Archive.Content),
             state = listState,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item { SpacerXXLarge() }
 
-            state?.let {
-                it.redeemedPrescriptions.forEachIndexed { index, prescription ->
-                    item(key = "prescription-${prescription.taskId}") {
-                        val previousPrescriptionRedeemedOn =
-                            it.redeemedPrescriptions.getOrNull(index - 1)
-                                ?.redeemedOrExpiredOn()
-                                ?.toLocalDateTime(TimeZone.currentSystemDefault())
+            archivedPrescriptions.forEachIndexed { index, prescription ->
+                item(key = "prescription-${prescription.taskId}") {
+                    val previousPrescriptionRedeemedOn =
+                        archivedPrescriptions.getOrNull(index - 1)
+                            ?.redeemedOrExpiredOn()
+                            ?.toLocalDateTime(TimeZone.currentSystemDefault())
 
-                        val redeemedOn = prescription.redeemedOrExpiredOn()
-                            .toLocalDateTime(TimeZone.currentSystemDefault())
+                    val redeemedOn = prescription.redeemedOrExpiredOn()
+                        .toLocalDateTime(TimeZone.currentSystemDefault())
 
-                        val yearChanged = remember {
-                            previousPrescriptionRedeemedOn?.year != redeemedOn.year
+                    val yearChanged = remember {
+                        previousPrescriptionRedeemedOn?.year != redeemedOn.year
+                    }
+
+                    if (yearChanged) {
+                        val instantOfArchivedPrescription = remember {
+                            val dateFormatter = DateTimeFormatter.ofPattern("yyyy")
+                            redeemedOn.toJavaLocalDateTime().format(dateFormatter)
                         }
 
-                        if (yearChanged) {
-                            val instantOfArchivedPrescription = remember {
-                                val dateFormatter = DateTimeFormatter.ofPattern("yyyy")
-                                redeemedOn.toJavaLocalDateTime().format(dateFormatter)
-                            }
+                        Text(
+                            text = instantOfArchivedPrescription,
+                            style = AppTheme.typography.h6,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(CardPaddingModifier)
+                        )
+                    }
 
-                            Text(
-                                text = instantOfArchivedPrescription,
-                                style = AppTheme.typography.h6,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .then(CardPaddingModifier)
+                    when (prescription) {
+                        is ScannedPrescription ->
+                            LowDetailMedication(
+                                modifier = CardPaddingModifier,
+                                prescription,
+                                0,
+                                onClick = {
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            taskId = prescription.taskId
+                                        )
+                                    )
+                                }
                             )
-                        }
 
-                        when (prescription) {
-                            is PrescriptionUseCaseData.Prescription.Scanned ->
-                                LowDetailMedication(
-                                    modifier = CardPaddingModifier,
-                                    prescription,
-                                    0,
-                                    onClick = {
-                                        navController.navigate(
-                                            MainNavigationScreens.PrescriptionDetail.path(
-                                                taskId = prescription.taskId
-                                            )
+                        is SyncedPrescription ->
+                            FullDetailMedication(
+                                prescription,
+                                modifier = CardPaddingModifier,
+                                onClick = {
+                                    navController.navigate(
+                                        MainNavigationScreens.PrescriptionDetail.path(
+                                            taskId = prescription.taskId
                                         )
-                                    }
-                                )
-
-                            is PrescriptionUseCaseData.Prescription.Synced ->
-                                FullDetailMedication(
-                                    prescription,
-                                    modifier = CardPaddingModifier,
-                                    onClick = {
-                                        navController.navigate(
-                                            MainNavigationScreens.PrescriptionDetail.path(
-                                                taskId = prescription.taskId
-                                            )
-                                        )
-                                    }
-                                )
-                        }
+                                    )
+                                }
+                            )
                     }
                 }
             }

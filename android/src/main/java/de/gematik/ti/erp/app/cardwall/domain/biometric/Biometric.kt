@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 gematik GmbH
+ * Copyright (c) 2024 gematik GmbH
  * 
  * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
  * the European Commission - subsequent versions of the EUPL (the Licence);
@@ -37,6 +37,11 @@ fun isDeviceSupportsBiometric(biometricMode: Int) = when (biometricMode) {
     sourceSpecification = "gemSpec_IDP_Frontend",
     rationale = "Check for support of BIOMETRIC_STRONG."
 )
+@Requirement(
+    "O.Biom_5",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Check whether at least one biometric reference is available."
+)
 fun deviceStrongBiometricStatus(context: Context): Int {
     val biometricManager = BiometricManager.from(context)
     return biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG)
@@ -48,6 +53,12 @@ fun deviceStrongBiometricStatus(context: Context): Int {
     "A_21580#2",
     "A_21580#2",
     sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Check for availability of strongbox."
+)
+@Requirement(
+    "O.Biom_2#2",
+    "O.Biom_3#2",
+    sourceSpecification = "BSI-eRp-ePA",
     rationale = "Check for availability of strongbox."
 )
 fun hasDeviceStrongBox(context: Context) =
