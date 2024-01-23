@@ -24,8 +24,8 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
-import de.gematik.ti.erp.app.prescription.ui.catchAndTransformRemoteExceptions
-import de.gematik.ti.erp.app.prescription.ui.retryWithAuthenticator
+import de.gematik.ti.erp.app.prescription.presentation.catchAndTransformRemoteExceptions
+import de.gematik.ti.erp.app.prescription.presentation.retryWithAuthenticator
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.cancellable
@@ -76,7 +76,9 @@ class DeletePrescriptions(
                     if (it is ApiCallException) {
                         when (it.response.code()) {
                             HttpURLConnection.HTTP_FORBIDDEN -> State.Error.PrescriptionWorkflowBlocked
-                            HttpURLConnection.HTTP_GONE -> State.Error.PrescriptionNotFound
+                            HttpURLConnection.HTTP_GONE,
+                            HttpURLConnection.HTTP_NOT_FOUND -> State.Error.PrescriptionNotFound
+
                             else -> throw it
                         }
                     } else {

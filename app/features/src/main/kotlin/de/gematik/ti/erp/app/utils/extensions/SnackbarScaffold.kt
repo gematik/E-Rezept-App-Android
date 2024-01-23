@@ -21,14 +21,20 @@ package de.gematik.ti.erp.app.utils.extensions
 import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.platform.LocalContext
+import com.google.android.material.snackbar.Snackbar
 import de.gematik.ti.erp.app.features.R
 
+@Stable
 interface SnackbarScaffold {
     fun show(
         text: String,
+        actionTextId: Int? = null,
+        length: Int = Snackbar.LENGTH_SHORT,
+        onClickAction: () -> Unit? = {},
         @DrawableRes icon: Int = R.drawable.ic_logo_outlined,
-        @ColorRes backgroundTint: Int = R.color.primary_600
+        @ColorRes backgroundTint: Int = R.color.neutral_900
     )
 }
 

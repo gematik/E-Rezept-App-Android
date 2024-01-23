@@ -72,7 +72,7 @@ class SettingsUseCase(
         now: Instant = Clock.System.now()
     ) {
         sanitizedProfileName(defaultProfileName)?.also { name ->
-            settingsRepository.saveOnboardingSucceededData(authenticationMode, name, now)
+            settingsRepository.saveOnboardingData(authenticationMode, name, now)
         }
     }
 

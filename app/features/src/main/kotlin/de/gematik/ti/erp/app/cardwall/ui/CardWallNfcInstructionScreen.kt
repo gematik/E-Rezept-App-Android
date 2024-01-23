@@ -122,10 +122,9 @@ fun CardWallNfcInstructionScreen(
 ) {
     val nfcPositionState = rememberCardWallNfcPositionState()
     val state = nfcPositionState.state
-
     val dialogState = rememberCardWallAuthenticationDialogState()
 
-    if (!cardWallController.isNFCEnabled()) {
+    if (!cardWallController.checkNfcEnabled()) {
         EnableNfcDialog {
             onBack()
         }
@@ -148,7 +147,7 @@ fun CardWallNfcInstructionScreen(
     NFCInstructionScreen(onBack, onClickTroubleshooting, state)
 }
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "ComplexMethod")
 @Composable
 fun NFCInstructionScreen(
     onBack: () -> Unit,

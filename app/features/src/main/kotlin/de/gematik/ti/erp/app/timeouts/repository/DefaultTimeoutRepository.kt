@@ -19,12 +19,7 @@
 package de.gematik.ti.erp.app.timeouts.repository
 
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutsLocalDataSource
-import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultInactivityMetric
-import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultInactivityValue
-import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultPauseMetric
-import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultPauseValue
 import kotlin.time.Duration
-import kotlin.time.toDuration
 
 class DefaultTimeoutRepository(
     private val localDataSource: TimeoutsLocalDataSource
@@ -33,8 +28,7 @@ class DefaultTimeoutRepository(
         localDataSource.setDefaultTimeouts()
     }
 
-    override fun areTimeoutsExisting(): Boolean =
-        (localDataSource.getPauseTimeout() != null && localDataSource.getInactivityTimeout() != null)
+    override fun areTimeoutsExisting(): Boolean = localDataSource.checkForExistingTimeouts()
 
     override fun changeInactivityTimeout(duration: Duration) {
         localDataSource.setInactivityTimer(duration)
@@ -45,8 +39,8 @@ class DefaultTimeoutRepository(
     }
 
     override fun getInactivityTimeout(): Duration =
-        localDataSource.getInactivityTimeout() ?: defaultInactivityValue.toDuration(defaultInactivityMetric)
+        localDataSource.getInactivityTimeout()
 
     override fun getPauseTimeout(): Duration =
-        localDataSource.getPauseTimeout() ?: defaultPauseValue.toDuration(defaultPauseMetric)
+        localDataSource.getPauseTimeout()
 }

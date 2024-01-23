@@ -29,11 +29,27 @@ object OrderUseCaseData {
 
     data class Order(
         val orderId: String,
+        // TODO: List<Task-id> is a duplicate here, we need to refactor it since it is inside the List<Prescription>
         val taskIds: List<String>,
         val prescriptions: List<Prescription?>,
         val sentOn: Instant,
         val pharmacy: Pharmacy,
         val hasUnreadMessages: Boolean
+    )
+
+    data class OrderDetail(
+        val orderId: String,
+        val taskDetailedBundles: List<TaskDetailedBundle>,
+        val sentOn: Instant,
+        val pharmacy: Pharmacy,
+        val hasUnreadMessages: Boolean
+    )
+
+    data class TaskDetailedBundle(
+        // TODO: Task-id is a duplicate here, we need to refactor it
+        val taskId: String,
+        val hasInvoice: Boolean = false,
+        val prescription: Prescription?
     )
 
     data class Message(
@@ -42,7 +58,8 @@ object OrderUseCaseData {
         val message: String?,
         val code: String?,
         val link: String?,
-        val consumed: Boolean
+        val consumed: Boolean,
+        val hasInvoice: Boolean
     ) {
         enum class Type {
             All,

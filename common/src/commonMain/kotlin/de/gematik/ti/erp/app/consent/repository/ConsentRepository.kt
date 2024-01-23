@@ -18,37 +18,26 @@
 
 package de.gematik.ti.erp.app.consent.repository
 
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
 
-class ConsentRepository(
-    private val remoteDataSource: ConsentRemoteDataSource,
-    private val dispatchers: DispatchProvider
-) {
+interface ConsentRepository {
     suspend fun getConsent(
         profileId: ProfileIdentifier
-    ): Result<JsonElement> = withContext(dispatchers.io) {
-        remoteDataSource.getConsent(
-            profileId = profileId
-        )
-    }
+    ): Result<JsonElement>
 
     suspend fun grantConsent(
         profileId: ProfileIdentifier,
         consent: JsonElement
-    ): Result<Unit> = withContext(dispatchers.io) {
-        remoteDataSource.grantConsent(
-            profileId = profileId,
-            consent = consent
-        )
-    }
-    suspend fun deleteChargeConsent(
+    ): Result<Unit>
+
+    suspend fun revokeChargeConsent(
         profileId: ProfileIdentifier
-    ): Result<Unit> = withContext(dispatchers.io) {
-        remoteDataSource.deleteChargeConsent(
-            profileId = profileId
-        )
-    }
+    ): Result<Unit>
+
+    suspend fun saveGrantConsentDrawerShown(profileId: ProfileIdentifier)
+
+    fun isConsentDrawerShown(profileId: ProfileIdentifier): Boolean
+
+    fun isConsentGranted(it: JsonElement): Boolean
 }

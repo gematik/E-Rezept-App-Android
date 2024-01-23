@@ -19,10 +19,7 @@
 package de.gematik.ti.erp.app.idp.repository
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationIdList
 import de.gematik.ti.erp.app.idp.api.models.Challenge
-import de.gematik.ti.erp.app.idp.api.models.ExternalAuthorizationData
 import de.gematik.ti.erp.app.idp.api.models.IdpDiscoveryInfo
 import de.gematik.ti.erp.app.idp.api.models.IdpNonce
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
@@ -30,35 +27,36 @@ import de.gematik.ti.erp.app.idp.api.models.IdpState
 import de.gematik.ti.erp.app.idp.api.models.JWSPublicKey
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntries
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
+import de.gematik.ti.erp.app.idp.api.models.RemoteFederationIdp
+import de.gematik.ti.erp.app.idp.api.models.RemoteFederationIdps
 import de.gematik.ti.erp.app.idp.api.models.TokenResponse
+import de.gematik.ti.erp.app.idp.api.models.UniversalLinkToken
+import de.gematik.ti.erp.app.idp.extension.extractNullableQueryParameter
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
+import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.parseToError
+import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.parsedUriToError
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.vau.extractECPublicKey
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.datetime.Instant
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64
 import org.jose4j.jws.JsonWebSignature
+import java.net.HttpURLConnection
+import java.net.URI
 import java.security.PublicKey
 
-@JvmInline
-value class JWSDiscoveryDocument(val jws: JsonWebSignature)
-
-class IdpRepository constructor(
+class IdpRepository(
     private val remoteDataSource: IdpRemoteDataSource,
-    private val localDataSource: IdpLocalDataSource
+    private val localDataSource: IdpLocalDataSource,
+    private val accessTokenDataSource: AccessTokenDataSource
 ) {
     private val json = Json { ignoreUnknownKeys = true }
-    private val decryptedAccessTokenMap: MutableStateFlow<Map<String, String>> = MutableStateFlow(mutableMapOf())
 
-    fun decryptedAccessToken(profileId: ProfileIdentifier) =
-        decryptedAccessTokenMap.map { it[profileId] }.distinctUntilChanged()
+    fun decryptedAccessToken(profileId: ProfileIdentifier) = accessTokenDataSource.get(profileId)
 
     @Requirement(
         "A_21328#1",
@@ -66,9 +64,7 @@ class IdpRepository constructor(
         rationale = "Store access token in data structure only."
     )
     fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: String) {
-        decryptedAccessTokenMap.update {
-            it + (profileId to accessToken)
-        }
+        accessTokenDataSource.save(profileId, accessToken)
     }
 
     suspend fun saveSingleSignOnToken(profileId: ProfileIdentifier, token: IdpData.SingleSignOnTokenScope) {
@@ -134,13 +130,12 @@ class IdpRepository constructor(
             redirectUri = redirectUri
         )
 
-    suspend fun fetchExternalAuthorizationIDList(
+    suspend fun fetchFederationIDList(
         url: String,
         idpPukSigKey: PublicKey
-    ): List<AuthenticationId> {
+    ): List<RemoteFederationIdp> {
         val jwtResult = remoteDataSource.fetchExternalAuthorizationIDList(url).getOrThrow()
-
-        return extractAuthenticationIDList(jwtResult.apply { key = idpPukSigKey }.payload)
+        return extractFederationIdpList(jwtResult.apply { key = idpPukSigKey }.payload)
     }
 
     suspend fun fetchIdpPukSig(url: String): Result<JWSPublicKey> =
@@ -152,8 +147,8 @@ class IdpRepository constructor(
     private fun parseDiscoveryDocumentBody(body: String): IdpDiscoveryInfo =
         json.decodeFromString(body)
 
-    private fun extractAuthenticationIDList(payload: String): List<AuthenticationId> {
-        return json.decodeFromString<AuthenticationIdList>(payload).authenticationList
+    private fun extractFederationIdpList(payload: String): List<RemoteFederationIdp> {
+        return json.decodeFromString<RemoteFederationIdps>(payload).items
     }
 
     private fun extractUncheckedIdpConfiguration(discoveryDocument: JWSDiscoveryDocument): IdpData.IdpConfiguration {
@@ -167,18 +162,20 @@ class IdpRepository constructor(
         val discoveryDocumentBody = parseDiscoveryDocumentBody(discoveryDocument.jws.payload)
 
         return IdpData.IdpConfiguration(
-            authorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.authorizationURL),
-            ssoEndpoint = overwriteEndpoint(discoveryDocumentBody.ssoURL),
-            tokenEndpoint = overwriteEndpoint(discoveryDocumentBody.tokenURL),
-            pairingEndpoint = discoveryDocumentBody.pairingURL,
-            authenticationEndpoint = overwriteEndpoint(discoveryDocumentBody.authenticationURL),
+            authorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.authorizationUrl),
+            ssoEndpoint = overwriteEndpoint(discoveryDocumentBody.ssoUrl),
+            tokenEndpoint = overwriteEndpoint(discoveryDocumentBody.tokenUrl),
+            pairingEndpoint = discoveryDocumentBody.pairingUrl,
+            authenticationEndpoint = overwriteEndpoint(discoveryDocumentBody.authenticationUrl),
             pukIdpEncEndpoint = overwriteEndpoint(discoveryDocumentBody.uriPukIdpEnc),
             pukIdpSigEndpoint = overwriteEndpoint(discoveryDocumentBody.uriPukIdpSig),
             expirationTimestamp = Instant.fromEpochSeconds(discoveryDocumentBody.expirationTime),
             issueTimestamp = Instant.fromEpochSeconds(discoveryDocumentBody.issuedAt),
             certificate = certificateHolder,
-            externalAuthorizationIDsEndpoint = overwriteEndpoint(discoveryDocumentBody.krankenkassenAppURL),
-            thirdPartyAuthorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.thirdPartyAuthorizationURL)
+            externalAuthorizationIDsEndpoint = overwriteEndpoint(discoveryDocumentBody.healthInsuranceAppV1Url),
+            thirdPartyAuthorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.thirdPartyAuthorizationV1Url),
+            federationAuthorizationIDsEndpoint = overwriteEndpoint(discoveryDocumentBody.healthInsuranceAppV2Url),
+            federationAuthorizationEndpoint = overwriteEndpoint(discoveryDocumentBody.thirdPartyAuthorizationV2Url)
         )
     }
 
@@ -222,13 +219,14 @@ class IdpRepository constructor(
     ): Result<String> =
         remoteDataSource.authorizeBiometric(url, encryptedSignedAuthenticationData)
 
-    suspend fun postExternAppAuthorizationData(
+    suspend fun authorizeExternalHealthInsuranceAppDataAsGiD(
         url: String,
-        externalAuthorizationData: ExternalAuthorizationData
+        token: UniversalLinkToken
     ): Result<String> =
-        remoteDataSource.authorizeExtern(
+        remoteDataSource.authorizeExternalAppDataWithGid(
             url = url,
-            externalAuthorizationData = externalAuthorizationData
+            code = token.code,
+            state = token.state
         )
 
     @Requirement(
@@ -264,26 +262,61 @@ class IdpRepository constructor(
     }
 
     fun invalidateDecryptedAccessToken(profileId: ProfileIdentifier) {
-        decryptedAccessTokenMap.update {
-            it - profileId
-        }
+        accessTokenDataSource.delete(profileId)
     }
 
-    suspend fun getAuthorizationRedirect(
+    /**
+     * @return URI as a result object
+     * @throws GematikResponseError as a result object
+     * @param url authentication url
+     * @param state initial state
+     * @param codeChallenge initial code challenge
+     * @param nonce initial nonce
+     * @param externalAppId universalLinkIdp authenticatorId
+     * @param idpScope default scope
+     */
+    suspend fun getGidAuthorizationRedirect(
         url: String,
         state: IdpState,
         codeChallenge: String,
         nonce: IdpNonce,
-        kkAppId: String,
-        scope: IdpScope
-    ): String {
-        return remoteDataSource.requestAuthorizationRedirect(
-            url = url,
-            externalAppId = kkAppId,
-            codeChallenge = codeChallenge,
-            nonce = nonce.nonce,
-            state = state.state,
-            isPairingScope = scope == IdpScope.BiometricPairing
-        ).getOrThrow()
+        externalAppId: String,
+        idpScope: IdpScope
+    ): Result<URI> {
+        try {
+            val response = remoteDataSource.getGidAuthorizationRedirectUrl(
+                url = url,
+                externalAppId = externalAppId,
+                codeChallenge = codeChallenge,
+                nonce = nonce.nonce,
+                state = state.state,
+                isPairingScope = idpScope == IdpScope.BiometricPairing
+            )
+            if (response.code() == HttpURLConnection.HTTP_MOVED_TEMP) {
+                val headers = response.headers()
+                val redirectUri = requireNotNull(headers["Location"]) {
+                    "Missing parameters to get redirect uri"
+                }
+                val parsedUri = URI(redirectUri)
+                return if (parsedUri.extractNullableQueryParameter("error") != null) {
+                    val error = parsedUri.parsedUriToError()
+                    Napier.e { "error on gid response ${error.gematikErrorText}" }
+                    Result.failure(error)
+                } else {
+                    Napier.d { "success on gid response $parsedUri" }
+                    Result.success(parsedUri)
+                }
+            } else {
+                Napier.e { "error on gid response, wrong response code ${response.code()}" }
+                val error = response.body().toString()
+                return Result.failure(error.parseToError())
+            }
+        } catch (e: Throwable) {
+            Napier.e { "failure on gid response ${e.message}" }
+            return Result.failure(GematikResponseError.emptyResponseError(e.message))
+        }
     }
 }
+
+@JvmInline
+value class JWSDiscoveryDocument(val jws: JsonWebSignature)

@@ -21,8 +21,8 @@ package de.gematik.ti.erp.app.idp.repository
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
+import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
@@ -56,28 +56,29 @@ import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwx.JsonWebStructure
+import org.junit.Before
 import org.junit.Rule
+import org.junit.Test
 import java.io.File
 import java.security.Security
-import kotlin.test.BeforeTest
-import kotlin.test.Test
 import kotlin.test.assertEquals
 
 const val EXPECTED_EXPIRATION_TIME = 1616143876L
 const val EXPECTED_ISSUE_TIME = 1616057476L
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class CommonIdpRepositoryTest : TestDB() {
 
     init {
@@ -95,7 +96,7 @@ class CommonIdpRepositoryTest : TestDB() {
 
     lateinit var realm: Realm
 
-    lateinit var repo: IdpRepository
+    private lateinit var repo: IdpRepository
     private val testDiscoveryDocument by lazy { File("$ResourceBasePath/idp/discovery-doc.jwt").readText() }
     private val testCertificateDocument by lazy { File("$ResourceBasePath/idp/idpCertificate.txt").readText() }
     private val ssoToken by lazy { File("$ResourceBasePath/idp/sso-token.txt").readText() }
@@ -118,16 +119,22 @@ class CommonIdpRepositoryTest : TestDB() {
         expirationTimestamp = Instant.fromEpochSeconds(EXPECTED_EXPIRATION_TIME),
         issueTimestamp = Instant.fromEpochSeconds(EXPECTED_ISSUE_TIME),
         externalAuthorizationIDsEndpoint = "http://localhost:8888/appList",
-        thirdPartyAuthorizationEndpoint = "http://localhost:8888/thirdPartyAuth"
+        federationAuthorizationIDsEndpoint = "", // not found in test data
+        thirdPartyAuthorizationEndpoint = "http://localhost:8888/thirdPartyAuth",
+        federationAuthorizationEndpoint = "" // not found in test data
     )
 
     @MockK
     lateinit var remoteDataSource: IdpRemoteDataSource
 
+    @MockK
     lateinit var idpLocalDataSource: IdpLocalDataSource
-    lateinit var profileRepository: ProfileRepository
 
-    @BeforeTest
+    private lateinit var profileRepository: ProfileRepository
+
+    private val accessTokenDataSource: AccessTokenDataSource = mockk()
+
+    @Before
     fun setUp() {
         MockKAnnotations.init(this)
         realm = Realm.open(
@@ -171,17 +178,20 @@ class CommonIdpRepositoryTest : TestDB() {
 
         repo = IdpRepository(
             remoteDataSource = remoteDataSource,
-            localDataSource = idpLocalDataSource
+            localDataSource = idpLocalDataSource,
+            accessTokenDataSource = accessTokenDataSource
         )
 
         profileRepository = DefaultProfilesRepository(
-            dispatchers = coroutineRule.dispatchers,
             realm = realm
         )
     }
 
     @Test
     fun `save and get access token`() = runTest {
+        every { accessTokenDataSource.save(profileId, accessToken) } returns Unit
+        every { accessTokenDataSource.get(profileId) } returns flowOf(accessToken)
+
         repo.saveDecryptedAccessToken(profileId, accessToken)
         assertEquals(accessToken, repo.decryptedAccessToken(profileId).first())
     }
@@ -197,9 +207,10 @@ class CommonIdpRepositoryTest : TestDB() {
         )
 
         profileRepository.saveProfile(defaultProfileName1, true)
-        val testprofile =
-            profileRepository.profiles().first()[0]
-        repo.saveSingleSignOnToken(testprofile.id, ssoToken)
+
+        val testProfile = profileRepository.profiles().first()[0]
+
+        repo.saveSingleSignOnToken(testProfile.id, ssoToken)
 
         val savedSsoToken = profileRepository.profiles().first()[0].singleSignOnTokenScope
         assertEquals(ssoToken, savedSsoToken)

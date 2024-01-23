@@ -86,7 +86,7 @@ class DemoModeDataSource {
      * Data sources for the [oftenUsedPharmacies] created in the demo-mode
      */
     val oftenUsedPharmacies: MutableStateFlow<MutableList<OverviewPharmacyData.OverviewPharmacy>> =
-        MutableStateFlow(mutableListOf<OverviewPharmacyData.OverviewPharmacy>())
+        MutableStateFlow(mutableListOf())
 
     /**
      * Data sources for the [auditEvents] created in the demo-mode
@@ -114,7 +114,7 @@ class DemoModeDataSource {
      * this is used as the source for communication between the user, pharmacy and the doctor
      */
     val communications: MutableStateFlow<MutableList<DemoModeProfileLinkedCommunication>> =
-        MutableStateFlow(mutableListOf<DemoModeProfileLinkedCommunication>())
+        MutableStateFlow(mutableListOf())
 
     /**
      * Data source for the a [profileCommunicationLog] communication log that a particular profile has downloaded the information

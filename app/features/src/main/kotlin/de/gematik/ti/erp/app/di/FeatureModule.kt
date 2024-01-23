@@ -18,18 +18,20 @@
 
 package de.gematik.ti.erp.app.di
 
+import de.gematik.ti.erp.app.analytics.di.analyticsModule
 import de.gematik.ti.erp.app.appsecurity.appSecurityModule
 import de.gematik.ti.erp.app.authentication.di.authenticationModule
-import de.gematik.ti.erp.app.timeouts.di.timeoutsSharedPrefsModule
 import de.gematik.ti.erp.app.cardunlock.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
+import de.gematik.ti.erp.app.mlkit.mlKitModule
 import de.gematik.ti.erp.app.orderhealthcard.orderHealthCardModule
 import de.gematik.ti.erp.app.orders.messageRepositoryModule
 import de.gematik.ti.erp.app.orders.messagesModule
 import de.gematik.ti.erp.app.pharmacy.di.pharmacyModule
 import de.gematik.ti.erp.app.pharmacy.di.pharmacyRepositoryModule
+import de.gematik.ti.erp.app.pkv.consentRepositoryModule
 import de.gematik.ti.erp.app.pkv.pkvModule
 import de.gematik.ti.erp.app.prescription.prescriptionModule
 import de.gematik.ti.erp.app.prescription.prescriptionRepositoryModule
@@ -41,6 +43,7 @@ import de.gematik.ti.erp.app.protocol.protocolModule
 import de.gematik.ti.erp.app.protocol.protocolRepositoryModule
 import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
+import de.gematik.ti.erp.app.timeouts.di.timeoutsSharedPrefsModule
 import de.gematik.ti.erp.app.vau.vauModule
 import org.kodein.di.DI
 
@@ -70,11 +73,14 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         authenticationModule,
         profileRepositoryModule,
         prescriptionRepositoryModule,
+        consentRepositoryModule,
         protocolRepositoryModule,
         pharmacyRepositoryModule,
         messageRepositoryModule,
         taskRepositoryModule,
         timeoutsSharedPrefsModule,
+        analyticsModule,
+        mlKitModule,
         allowOverride = true
     )
 }

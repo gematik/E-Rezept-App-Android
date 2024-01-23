@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.test.test.core.prescription
 
 import android.util.Log
 import de.gematik.ti.erp.app.test.test.TestConfig
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient

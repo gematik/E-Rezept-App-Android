@@ -18,7 +18,9 @@
 
 package de.gematik.ti.erp.app.profiles.ui
 
+import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -27,18 +29,25 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddAPhoto
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -95,7 +104,7 @@ fun Avatar(
 }
 
 @Composable
-fun CircleBox(
+private fun CircleBox(
     backgroundColor: Color,
     modifier: Modifier,
     border: BorderStroke? = null
@@ -162,6 +171,110 @@ private fun AvatarWithSSOPreview() {
             active = false,
             iconModifier = Modifier.size(20.dp),
             emptyIcon = Icons.Rounded.AddAPhoto
+        )
+    }
+}
+
+@Composable
+fun ChooseAvatar(
+    modifier: Modifier = Modifier,
+    useSmallImages: Boolean? = false,
+    profile: ProfilesUseCaseData.Profile,
+    emptyIcon: ImageVector,
+    showPersonalizedImage: Boolean = true,
+    avatar: ProfilesData.Avatar
+) {
+    val imageResource = extractImageResource(useSmallImages, avatar)
+
+    when (avatar) {
+        ProfilesData.Avatar.PersonalizedImage -> {
+            if (showPersonalizedImage) {
+                if (profile.image != null) {
+                    BitmapImage(profile)
+                } else {
+                    Icon(
+                        emptyIcon,
+                        modifier = modifier,
+                        contentDescription = null,
+                        tint = AppTheme.colors.neutral600
+                    )
+                }
+            }
+        }
+
+        else -> {
+            if (imageResource == 0) {
+                Icon(
+                    emptyIcon,
+                    modifier = modifier,
+                    contentDescription = null,
+                    tint = AppTheme.colors.neutral600
+                )
+            } else {
+                Image(
+                    painterResource(id = imageResource),
+                    null,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+        }
+    }
+}
+
+@Suppress("ComplexMethod")
+@Composable
+private fun extractImageResource(
+    useSmallImages: Boolean? = false,
+    figure: ProfilesData.Avatar
+) = if (useSmallImages == true) {
+    when (figure) {
+        ProfilesData.Avatar.FemaleDoctor -> R.drawable.femal_doctor_small_portrait
+        ProfilesData.Avatar.WomanWithHeadScarf -> R.drawable.woman_with_head_scarf_small_portrait
+        ProfilesData.Avatar.Grandfather -> R.drawable.grand_father_small_portrait
+        ProfilesData.Avatar.BoyWithHealthCard -> R.drawable.boy_with_health_card_small_portrait
+        ProfilesData.Avatar.OldManOfColor -> R.drawable.old_man_of_color_small_portrait
+        ProfilesData.Avatar.WomanWithPhone -> R.drawable.woman_with_phone_small_portrait
+        ProfilesData.Avatar.Grandmother -> R.drawable.grand_mother_small_portrait
+        ProfilesData.Avatar.ManWithPhone -> R.drawable.man_with_phone_small_portrait
+        ProfilesData.Avatar.WheelchairUser -> R.drawable.wheel_chair_user_small_portrait
+        ProfilesData.Avatar.Baby -> R.drawable.baby_small_portrait
+        ProfilesData.Avatar.MaleDoctorWithPhone -> R.drawable.doctor_with_phone_small_portrait
+        ProfilesData.Avatar.FemaleDoctorWithPhone -> R.drawable.femal_doctor_with_phone_small_portrait
+        ProfilesData.Avatar.FemaleDeveloper -> R.drawable.femal_developer_small_portrait
+        else -> 0
+    }
+} else {
+    when (figure) {
+        ProfilesData.Avatar.FemaleDoctor -> R.drawable.femal_doctor_portrait
+        ProfilesData.Avatar.WomanWithHeadScarf -> R.drawable.woman_with_head_scarf_portrait
+        ProfilesData.Avatar.Grandfather -> R.drawable.grand_father_portrait
+        ProfilesData.Avatar.BoyWithHealthCard -> R.drawable.boy_with_health_card_portrait
+        ProfilesData.Avatar.OldManOfColor -> R.drawable.old_man_of_color_portrait
+        ProfilesData.Avatar.WomanWithPhone -> R.drawable.woman_with_phone_portrait
+        ProfilesData.Avatar.Grandmother -> R.drawable.grand_mother_portrait
+        ProfilesData.Avatar.ManWithPhone -> R.drawable.man_with_phone_portrait
+        ProfilesData.Avatar.WheelchairUser -> R.drawable.wheel_chair_user_portrait
+        ProfilesData.Avatar.Baby -> R.drawable.baby_portrait
+        ProfilesData.Avatar.MaleDoctorWithPhone -> R.drawable.doctor_with_phone_portrait
+        ProfilesData.Avatar.FemaleDoctorWithPhone -> R.drawable.femal_doctor_with_phone_portrait
+        ProfilesData.Avatar.FemaleDeveloper -> R.drawable.femal_developer_portrait
+        else -> 0
+    }
+}
+
+@Composable
+private fun BitmapImage(profile: ProfilesUseCaseData.Profile) {
+    val bitmap by produceState<ImageBitmap?>(initialValue = null, profile) {
+        value = profile.image?.let {
+            BitmapFactory.decodeByteArray(profile.image, 0, it.size).asImageBitmap()
+        }
+    }
+
+    bitmap?.let {
+        Image(
+            bitmap = it,
+            contentDescription = null,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

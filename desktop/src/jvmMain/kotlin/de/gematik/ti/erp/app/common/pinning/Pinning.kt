@@ -26,7 +26,10 @@ package de.gematik.ti.erp.app.common.pinning
 import okhttp3.CertificatePinner
 
 public fun buildCertificatePinner(): CertificatePinner = CertificatePinner.Builder()
-    // expires on 2030-09-23T00:00
+    .add("erp-ref.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
+    .add("erp-test.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
+    .add("erp.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
+    .add("apovzd.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
     .add("erp-ref.app.ti-dienste.de", "sha256/RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=")
     // expires on 2030-09-23T00:00
     .add("erp-ref.app.ti-dienste.de", "sha256/e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=")
@@ -54,10 +57,18 @@ public fun buildCertificatePinner(): CertificatePinner = CertificatePinner.Build
     .add("erp.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
     // expires on 2024-07-07
     .add("apovzd.app.ti-dienste.de", "sha256/qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=")
-    // expires on TODO
+    // expires on 2028-11-21
     .add("idp-ref.app.ti-dienste.de", "sha256/OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=")
-    // expires on TODO
+    // expires on 2028-11-21
     .add("idp-test.app.ti-dienste.de", "sha256/OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=")
-    // expires on TODO
+    // expires on 2028-11-21
     .add("idp.app.ti-dienste.de", "sha256/OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=")
+    // expired on 2030-07-02
+    .add("erp-dev.app.ti-dienste.de", "sha256/w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=")
+    // expired on 2030-07-02
+    .add("erp-ref.app.ti-dienste.de", "sha256/w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=")
+    // expired on 2030-07-02
+    .add("erp-test.app.ti-dienste.de", "sha256/w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=")
+    // expired on 2030-07-02
+    .add("erp.app.ti-dienste.de", "sha256/w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=")
     .build()

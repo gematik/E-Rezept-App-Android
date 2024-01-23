@@ -189,10 +189,6 @@ class Analytics(
     fun trackAuthenticationProblem(kind: AuthenticationProblem) {
         trackScreen("auth_error_${kind.event}")
     }
-
-    fun trackSaveScannedPrescriptions() {
-        trackScreen("pres_scanned_saved")
-    }
 }
 
 @Suppress("ComposableNaming")
@@ -350,6 +346,10 @@ fun Analytics.trackMainScreenBottomPopUps(content: MainScreenBottomSheetContentS
             }
 
             is MainScreenBottomSheetContentState.EditProfilePicture -> {
+                onPopUpShown(content.popUp.name)
+            }
+
+            is MainScreenBottomSheetContentState.GrantConsent -> {
                 onPopUpShown(content.popUp.name)
             }
         }

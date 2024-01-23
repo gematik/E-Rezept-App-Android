@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.demomode.usecase.idp
 
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
@@ -31,7 +30,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
-import java.net.URI
 import java.security.PublicKey
 
 class DemoIdpUseCase(
@@ -51,29 +49,6 @@ class DemoIdpUseCase(
         healthCardCertificate: suspend () -> ByteArray,
         sign: suspend (hash: ByteArray) -> ByteArray
     ) {
-        // no implementation for demo mode
-    }
-
-    override suspend fun loadExternAuthenticatorIDs(): List<AuthenticationId> =
-        listOf(
-            AuthenticationId(
-                name = "Demo pharmacy 01",
-                id = "Demo pharmacy id 01"
-            ),
-            AuthenticationId(
-                name = "Demo pharmacy 02",
-                id = "Demo pharmacy id 02"
-            )
-        )
-
-    override suspend fun getUniversalLinkForExternalAuthorization(
-        profileId: ProfileIdentifier,
-        authenticatorId: String,
-        authenticatorName: String,
-        scope: IdpScope
-    ): URI = URI("https://www.google.com/")
-
-    override suspend fun authenticateWithExternalAppAuthorization(uri: URI) {
         // no implementation for demo mode
     }
 

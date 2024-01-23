@@ -105,11 +105,15 @@ dependencies {
         compose {
             implementation(runtime)
             implementation(foundation)
-            implementation(material)
-            implementation(materialIconsExtended)
             implementation(animation)
             implementation(uiTooling)
             implementation(preview)
+        }
+        material {
+            implementation(material)
+            implementation(material3)
+            implementation(materialIcons)
+            implementation(materialIconsExtended)
         }
         tracking {
             implementation(contentSquare)

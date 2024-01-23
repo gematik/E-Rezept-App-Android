@@ -190,7 +190,6 @@ fun CardWallScreen(
         composable(CardWallNavigation.Intro.route) {
             NavigationAnimation(mode = navigationMode) {
                 CardWallIntroScaffold(
-                    nfcEnabled = cardWallController.isNFCEnabled(),
                     onNext = { navController.navigate(CardWallNavigation.CardAccessNumber.path()) },
                     actions = {
                         TextButton(onClick = { onResumeCardWall() }) {

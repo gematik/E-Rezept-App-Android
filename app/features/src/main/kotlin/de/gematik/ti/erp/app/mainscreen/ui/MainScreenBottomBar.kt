@@ -50,28 +50,29 @@ import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomNavigationItems
 import de.gematik.ti.erp.app.mainscreen.navigation.calculatePrescriptionCount
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
 
 private const val BottomBarBadgeOffsetX = -5
 private const val BottomBarBadgeOffsetY = 5
 
-@Suppress("LongMethod")
+@Suppress("LongMethod", "ComplexMethod")
 @Composable
 internal fun MainScreenBottomBar(
     navController: NavController,
     bottomNavController: NavController,
-    profilesController: ProfilesController,
+    profileController: ProfileController,
     mainScreenController: MainScreenController
 ) {
     val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-    val activeProfile by profilesController.getActiveProfileState()
 
-    var unreadPrescriptionCount = calculatePrescriptionCount(mainScreenController)
+    val activeProfile by profileController.getActiveProfileState()
 
-    val unreadOrdersCount by mainScreenController.unreadOrders(activeProfile).collectAsStateWithLifecycle(0)
+    val unreadPrescriptionCount = calculatePrescriptionCount(mainScreenController)
+    val unreadOrdersCount by mainScreenController.updateUnreadOrders(activeProfile)
+        .collectAsStateWithLifecycle(0)
 
     BottomNavigation(
         backgroundColor = MaterialTheme.colors.surface,

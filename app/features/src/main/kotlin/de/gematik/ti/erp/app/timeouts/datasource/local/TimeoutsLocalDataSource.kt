@@ -21,14 +21,20 @@ package de.gematik.ti.erp.app.timeouts.datasource.local
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.DEFAULT_INACTIVITY_DURATION
+import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.DEFAULT_PAUSE_DURATION
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.INACTIVITY_TIMER_ENUM
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.INACTIVITY_TIMER_VALUE
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.PAUSE_TIMER_ENUM
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.PAUSE_TIMER_VALUE
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultInactivityMetric
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultInactivityValue
+import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultPauseMetric
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.defaultPauseValue
+import io.github.aakira.napier.Napier
 import kotlin.time.Duration
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.ExperimentalTime
 import kotlin.time.toDuration
@@ -42,64 +48,103 @@ object TimeoutConstant {
     const val defaultPauseValue = 30
     val defaultInactivityMetric = DurationUnit.MINUTES
     val defaultPauseMetric = DurationUnit.SECONDS
+    val DEFAULT_INACTIVITY_DURATION = 10.minutes
+    val DEFAULT_PAUSE_DURATION = 30.seconds
 }
 
 class TimeoutsLocalDataSource(
     private val sharedPreferences: SharedPreferences
 ) {
     fun setDefaultTimeouts() {
-        sharedPreferences.edit {
-            putInt(INACTIVITY_TIMER_VALUE, defaultInactivityValue)
-            apply()
-        }
-        sharedPreferences.edit {
-            putInt(PAUSE_TIMER_VALUE, defaultPauseValue)
-            apply()
-        }
-        sharedPreferences.edit {
-            putString(INACTIVITY_TIMER_ENUM, defaultInactivityMetric.name)
-            apply()
-        }
-        sharedPreferences.edit {
-            putString(INACTIVITY_TIMER_ENUM, defaultInactivityMetric.name)
-            apply()
+        try {
+            sharedPreferences.edit {
+                putInt(INACTIVITY_TIMER_VALUE, defaultInactivityValue)
+                apply()
+            }
+            sharedPreferences.edit {
+                putInt(PAUSE_TIMER_VALUE, defaultPauseValue)
+                apply()
+            }
+            sharedPreferences.edit {
+                putString(INACTIVITY_TIMER_ENUM, defaultInactivityMetric.name)
+                apply()
+            }
+            sharedPreferences.edit {
+                putString(PAUSE_TIMER_ENUM, defaultPauseMetric.name)
+                apply()
+            }
+        } catch (e: Throwable) {
+            Napier.e { "error on setDefaultTimeouts" }
         }
     }
 
     fun setInactivityTimer(duration: Duration) {
-        val (value, enum) = "$duration".durationEnumPair()
-        sharedPreferences.edit {
-            putInt(INACTIVITY_TIMER_VALUE, value.toInt())
-            apply()
-        }
-        sharedPreferences.edit {
-            putString(INACTIVITY_TIMER_ENUM, enum.name)
-            apply()
+        try {
+            val (value, enum) = "$duration".durationEnumPair()
+            sharedPreferences.edit {
+                putInt(INACTIVITY_TIMER_VALUE, value.toInt())
+                apply()
+            }
+            sharedPreferences.edit {
+                putString(INACTIVITY_TIMER_ENUM, enum.name)
+                apply()
+            }
+        } catch (e: Throwable) {
+            Napier.e { "error on setInactivityTimer" }
         }
     }
 
     fun setPauseTimer(duration: Duration) {
-        val (value, enum) = "$duration".durationEnumPair()
-        sharedPreferences.edit().apply {
-            putInt(PAUSE_TIMER_VALUE, value.toInt())
-            apply()
-        }
-        sharedPreferences.edit().apply {
-            putString(PAUSE_TIMER_ENUM, enum.name)
-            apply()
+        try {
+            val (value, enum) = "$duration".durationEnumPair()
+            sharedPreferences.edit().apply {
+                putInt(PAUSE_TIMER_VALUE, value.toInt())
+                apply()
+            }
+            sharedPreferences.edit().apply {
+                putString(PAUSE_TIMER_ENUM, enum.name)
+                apply()
+            }
+        } catch (e: Throwable) {
+            Napier.e { "error on setPauseTimer" }
         }
     }
 
-    fun getInactivityTimeout(): Duration? {
-        val enum = sharedPreferences.getString(INACTIVITY_TIMER_ENUM, null)
-        val value = sharedPreferences.getInt(INACTIVITY_TIMER_VALUE, 0)
-        return (value to enum).toDuration()
+    fun checkForExistingTimeouts(): Boolean {
+        return try {
+            val inactivityEnum = sharedPreferences.getString(INACTIVITY_TIMER_ENUM, null)
+            val inactivityValue = sharedPreferences.getInt(INACTIVITY_TIMER_VALUE, 0)
+            val hasInactivityTimer = (inactivityValue to inactivityEnum).toDuration() != null
+
+            val pauseEnum = sharedPreferences.getString(PAUSE_TIMER_ENUM, null)
+            val pauseValue = sharedPreferences.getInt(PAUSE_TIMER_VALUE, 0)
+            val hasPauseTimer = (pauseValue to pauseEnum).toDuration() != null
+            (hasInactivityTimer && hasPauseTimer)
+        } catch (e: Throwable) {
+            false
+        }
     }
 
-    fun getPauseTimeout(): Duration? {
-        val enum = sharedPreferences.getString(PAUSE_TIMER_ENUM, null)
-        val value = sharedPreferences.getInt(PAUSE_TIMER_VALUE, 0)
-        return (value to enum).toDuration()
+    fun getInactivityTimeout(): Duration {
+        return try {
+            val enum = sharedPreferences.getString(INACTIVITY_TIMER_ENUM, null)
+            val value = sharedPreferences.getInt(INACTIVITY_TIMER_VALUE, 0)
+            (value to enum).toDuration() ?: DEFAULT_INACTIVITY_DURATION
+        } catch (e: Throwable) {
+            Napier.e { "exception on getInactivityTimeout $e" }
+            DEFAULT_INACTIVITY_DURATION
+        }
+    }
+
+    fun getPauseTimeout(): Duration {
+        return try {
+            val enum = sharedPreferences.getString(PAUSE_TIMER_ENUM, null)
+            val value = sharedPreferences.getInt(PAUSE_TIMER_VALUE, 0)
+            (value to enum).toDuration() ?: DEFAULT_PAUSE_DURATION
+        } catch (e: Throwable) {
+            Napier.e { "exception on getPauseTimeout $e" }
+            DEFAULT_PAUSE_DURATION
+        }
     }
 
     companion object {

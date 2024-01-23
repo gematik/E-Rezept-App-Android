@@ -26,17 +26,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import de.gematik.ti.erp.app.MainActivity
-import de.gematik.ti.erp.app.NfcNotEnabledException
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.authentication.model.HealthCard
 import de.gematik.ti.erp.app.authentication.model.PromptAuthenticator
+import de.gematik.ti.erp.app.base.onNfcNotEnabled
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filter
@@ -116,12 +115,7 @@ class HealthCardPromptAuthenticator(
                         is Request.CredentialsEntered -> {
                             state = State.ReadState.Searching
 
-                            tagFlow
-                                .catch {
-                                    if (it is NfcNotEnabledException) {
-                                        state = State.ReadState.Error.NfcDisabled
-                                    }
-                                }
+                            tagFlow.onNfcNotEnabled { state = State.ReadState.Error.NfcDisabled }
                                 .collectLatest { tag ->
                                     bridge.doHealthCardAuthentication(
                                         profileId = profileId,

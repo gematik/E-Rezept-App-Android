@@ -30,11 +30,11 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Clock
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.hours
 
 class IdpBasicUseCaseTest {
@@ -62,7 +62,9 @@ class IdpBasicUseCaseTest {
         expirationTimestamp = now + 24.hours,
         issueTimestamp = now,
         externalAuthorizationIDsEndpoint = "",
-        thirdPartyAuthorizationEndpoint = ""
+        federationAuthorizationIDsEndpoint = "",
+        thirdPartyAuthorizationEndpoint = "",
+        federationAuthorizationEndpoint = ""
     )
 
     @Before

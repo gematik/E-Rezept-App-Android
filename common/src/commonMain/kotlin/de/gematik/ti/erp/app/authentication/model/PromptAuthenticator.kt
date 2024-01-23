@@ -28,7 +28,8 @@ interface PromptAuthenticator {
         Authenticated,
         Cancelled,
         NoneEnrolled,
-        UserNotAuthenticated
+        UserNotAuthenticated,
+        RedirectLinkNotRight
     }
 
     enum class AuthScope {

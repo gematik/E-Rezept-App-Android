@@ -35,7 +35,7 @@ import de.gematik.ti.erp.app.ErezeptApp
 import de.gematik.ti.erp.app.VisibleDebugTree
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.data.DebugSettingsData
-import de.gematik.ti.erp.app.data.Environment
+import de.gematik.ti.erp.app.debugsettings.data.Environment
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
@@ -100,7 +100,7 @@ class DebugSettingsViewModel(
         pharmacyServiceActive = endpointHelper.isUriOverridden(EndpointHelper.EndpointUri.PHARMACY_SERVICE_URI),
         bearerToken = "",
         bearerTokenIsSet = true,
-        fakeNFCCapabilities = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher,
+        fakeNFCCapabilities = false,
         cardAccessNumberIsSet = false,
         multiProfile = false,
         activeProfileId = "",
@@ -258,7 +258,7 @@ class DebugSettingsViewModel(
     fun getCurrentEnvironment() = endpointHelper.getCurrentEnvironment()
 
     fun allowNfc(value: Boolean) {
-        cardWallUseCase.deviceHasNFCAndAndroidMOrHigher = value
+        cardWallUseCase.updateDeviceNFCCapability(value)
         updateState(debugSettingsData.copy(fakeNFCCapabilities = value))
     }
 

@@ -68,6 +68,9 @@ val CLOUD_PROJECT_NUMBER: String by overriding()
 val DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE: String by overriding()
 val DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY: String by overriding()
 val DEBUG_VISUAL_TEST_TAGS: String? by project
+val APP_CENTER_SECRET: String by overriding()
+val BUILD_TYPE_MINIFIED_DEBUG: String by overriding()
+
 kotlin {
     androidTarget {
         compilations.all {
@@ -237,6 +240,8 @@ buildkonfig {
         buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE", DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
         buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY", DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY)
         buildConfigField(STRING, "BUILD_FLAVOR", project.property("buildkonfig.flavor") as String)
+        buildConfigField(STRING, "APP_CENTER_SECRET", APP_CENTER_SECRET)
+        buildConfigField(STRING, "BUILD_TYPE_MINIFIED_DEBUG", BUILD_TYPE_MINIFIED_DEBUG)
     }
     fun defaultConfigs(
         flavor: String,

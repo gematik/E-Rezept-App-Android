@@ -53,8 +53,15 @@ import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController.Companion.DEFAULT_EMPTY_PROFILE
-import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
+import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
+import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
+import de.gematik.ti.erp.app.pkv.ui.GrantConsentDialog
+import de.gematik.ti.erp.app.pkv.ui.HandleConsentErrorState
+import de.gematik.ti.erp.app.pkv.ui.HandleConsentState
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController.Companion.DEFAULT_EMPTY_PROFILE
+import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
+import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -69,12 +76,23 @@ internal fun MainScreenScaffoldContainer(
 
     val showToolTips by mainScreenController.canStartToolTipsState
     var startToolTips by remember { mutableStateOf(false) }
+    var startGetConsentBottomSheet by remember { mutableStateOf(false) }
+    val dialog = LocalDialog.current
+    val snackbar = LocalSnackbar.current
 
-    val profilesController = rememberProfilesController()
+    val profileController = rememberProfileController()
+    val activeProfile by profileController.getActiveProfileState()
+
+    val consentController = rememberConsentController(profile = activeProfile)
+
+    val consentState by consentController.consentState.collectAsStateWithLifecycle()
+    val consentErrorState by consentController.consentErrorState.collectAsStateWithLifecycle()
+
     val bottomNavController = rememberNavController()
     val scaffoldState = rememberScaffoldState()
 
     val showWelcomeDrawer by mainScreenController.showWelcomeDrawerState
+    val showGetConsentDrawer by mainScreenController.showGiveConsentDrawerState
 
     var mainScreenBottomSheetContentState: MainScreenBottomSheetContentState? by remember { mutableStateOf(null) }
 
@@ -95,6 +113,26 @@ internal fun MainScreenScaffoldContainer(
         }
     }
 
+    val onClickGoToInvoicesAction = {
+        mainNavController.navigate(PkvRoutes.InvoiceListScreen.path(activeProfile.id))
+    }
+
+    HandleConsentState(
+        consentState = consentState,
+        snackbar = snackbar,
+        onClickSnackbarAction = onClickGoToInvoicesAction
+    )
+    HandleConsentErrorState(
+        consentErrorState = consentErrorState,
+        onRetry = {
+            consentController.grantChargeConsent()
+        },
+        onClickToInvoices = onClickGoToInvoicesAction,
+        onShowCardWall = {
+            mainNavController.navigate(MainNavigationScreens.CardWall.path(activeProfile.id))
+        }
+    )
+
     MainScreenSnackbar(
         mainScreenController = mainScreenController,
         scaffoldState = scaffoldState
@@ -105,9 +143,19 @@ internal fun MainScreenScaffoldContainer(
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
             onDispose {
-                mainScreenController.welcomeDrawerShown()
-                if (showToolTips) {
-                    startToolTips = true
+                when (mainScreenBottomSheetContentState) {
+                    is MainScreenBottomSheetContentState.Welcome -> {
+                        mainScreenController.welcomeDrawerShown()
+                        if (showToolTips) {
+                            startToolTips = true
+                        }
+                    }
+
+                    is MainScreenBottomSheetContentState.GrantConsent -> {
+                        mainScreenController.giveConsentDrawerShown(activeProfile.id)
+                    }
+
+                    else -> {}
                 }
             }
         }
@@ -138,6 +186,16 @@ internal fun MainScreenScaffoldContainer(
         mainScreenController.welcomeDrawerShown()
     }
 
+    if (showGetConsentDrawer) {
+        startGetConsentBottomSheet = true
+        mainScreenController.giveConsentDrawerShown(activeProfile.id)
+    }
+
+    if (startGetConsentBottomSheet && isInPrescriptionScreen) {
+        startGetConsentBottomSheet = false
+        mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.GrantConsent()
+    }
+
     LaunchedEffect(Unit) {
         val accessibilityManager =
             context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
@@ -145,7 +203,7 @@ internal fun MainScreenScaffoldContainer(
         if (accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
             .isNotEmpty()
         ) {
-            mainScreenController.toolTippsShown()
+            mainScreenController.toolTipsShown()
         }
     }
     var profileToRename by remember {
@@ -160,7 +218,7 @@ internal fun MainScreenScaffoldContainer(
             toolTipBounds
         ) {
             startToolTips = false
-            mainScreenController.toolTippsShown()
+            mainScreenController.toolTipsShown()
         }
     }
 
@@ -168,6 +226,7 @@ internal fun MainScreenScaffoldContainer(
     BackHandler(enabled = sheetState.isVisible) {
         coroutineScope.launch {
             sheetState.hide()
+            mainScreenBottomSheetContentState = null
         }
     }
     ModalBottomSheetLayout(
@@ -180,9 +239,25 @@ internal fun MainScreenScaffoldContainer(
             MainScreenBottomSheetContentState(
                 mainNavController = mainNavController,
                 mainScreenController = mainScreenController,
-                profilesController = profilesController,
+                profileController = profileController,
                 infoContentState = mainScreenBottomSheetContentState,
                 profileToRename = profileToRename,
+                onGrantConsent = {
+                    coroutineScope.launch {
+                        sheetState.hide()
+                    }
+                    dialog.show { dialog ->
+                        GrantConsentDialog(
+                            onGrantConsent = {
+                                consentController.grantChargeConsent()
+                                dialog.dismiss()
+                            },
+                            onCancel = {
+                                dialog.dismiss()
+                            }
+                        )
+                    }
+                },
                 onCancel = {
                     coroutineScope.launch {
                         sheetState.hide()
@@ -195,7 +270,7 @@ internal fun MainScreenScaffoldContainer(
         ExternalAuthenticationDialog()
         MainScreenScaffold(
             mainScreenController = mainScreenController,
-            profilesController = profilesController,
+            profileController = profileController,
             mainNavController = mainNavController,
             bottomNavController = bottomNavController,
             showToolTipps = startToolTips,

@@ -21,14 +21,55 @@ package de.gematik.ti.erp.app.analytics.mapper
 import de.gematik.ti.erp.app.navigation.NavigationRouteNames
 
 class ContentSquareMapper {
-    fun map(routeNames: NavigationRouteNames): String =
+    @Suppress("ComplexMethod")
+    fun map(routeNames: NavigationRouteNames): String? =
         when (routeNames) {
             NavigationRouteNames.DeviceCheckLoadingScreen -> "appsecurity:loading"
-            NavigationRouteNames.InsecureDeviceScreen -> "main_deviceSecurity"
-            NavigationRouteNames.IntegrityWarningScreen -> "main_integrityWarning"
-            NavigationRouteNames.ProfileDetailsScreen -> ""
-            NavigationRouteNames.ProfileColorAndImagePickerScreen -> ""
-            NavigationRouteNames.ProfileImageCropperScreen -> ""
-            NavigationRouteNames.ProfileTokenScreen -> ""
+            NavigationRouteNames.InsecureDeviceScreen -> "main:deviceSecurity"
+            NavigationRouteNames.IntegrityWarningScreen -> "main:integrityWarning"
+
+            NavigationRouteNames.PrescriptionDetailScreen -> "prescriptionDetail"
+            NavigationRouteNames.PrescriptionDetailMedicationScreen -> "prescriptionDetail:medication"
+            NavigationRouteNames.PrescriptionDetailPatientScreen -> "prescriptionDetail:patient"
+            NavigationRouteNames.PrescriptionDetailPractitionerScreen -> "prescriptionDetail:practitioner"
+            NavigationRouteNames.PrescriptionDetailOrganizationScreen -> "prescriptionDetail:organization"
+            NavigationRouteNames.PrescriptionDetailMedicationOverviewScreen -> "prescriptionDetail:medicationOverview"
+            NavigationRouteNames.PrescriptionDetailMedicationIngredientsScreen ->
+                "prescriptionDetail:medication_ingredients"
+            NavigationRouteNames.PrescriptionDetailAccidentInfoScreen -> "prescriptionDetail:accidentInfo"
+            NavigationRouteNames.PrescriptionDetailTechnicalInfoScreen -> "prescriptionDetail:technicalInfo"
+
+            NavigationRouteNames.ProfileScreen -> "profile"
+            NavigationRouteNames.ProfileEditPictureScreen -> "profile:editPicture"
+            NavigationRouteNames.ProfileImageCropperScreen -> "profile:editPicture:imageCropper"
+            NavigationRouteNames.ProfileTokenScreen -> "profile:token"
+            NavigationRouteNames.ProfileAuditEventsScreen -> "profile:auditEvents"
+            NavigationRouteNames.ProfilePairedDevicesScreen -> "profile:registeredDevices"
+
+            NavigationRouteNames.InvoiceListScreen -> "chargeItem:list"
+            NavigationRouteNames.InvoiceDetailsScreen -> "chargeItem:details"
+            NavigationRouteNames.InvoiceExpandedDetailsScreen -> "chargeItem:details:expanded"
+            NavigationRouteNames.InvoiceLocalCorrectionScreen -> "chargeItem:localCorrection"
+            NavigationRouteNames.InvoiceShareScreen -> "chargeItem:share"
+
+            NavigationRouteNames.OnboardingWelcomeScreen -> ""
+            NavigationRouteNames.AllowAnalyticsScreen -> ""
+            NavigationRouteNames.BiometricScreen -> ""
+            NavigationRouteNames.TermsOfUseScreen -> ""
+            NavigationRouteNames.DataProtectionScreen -> ""
+            NavigationRouteNames.OnboardingSelectAppLoginScreen -> ""
+            NavigationRouteNames.OnboardingDataProtectionAndTermsOfUseOverviewScreen -> ""
+            NavigationRouteNames.OnboardingAnalyticsPreviewScreen -> ""
+
+            NavigationRouteNames.MlKit -> "mlKit"
+            NavigationRouteNames.MlKitInformationScreen -> "mlKit:information"
+
+            NavigationRouteNames.PrescriptionScanScreen -> "main:scanner"
+
+            NavigationRouteNames.SampleOverviewScreen -> null
+            NavigationRouteNames.BottomSheetSampleScreen -> null
+            NavigationRouteNames.BottomSheetSampleLargeScreen -> null
+            NavigationRouteNames.BottomSheetSampleSmallScreen -> null
+            NavigationRouteNames.DemoTrackerScreen -> null
         }
 }

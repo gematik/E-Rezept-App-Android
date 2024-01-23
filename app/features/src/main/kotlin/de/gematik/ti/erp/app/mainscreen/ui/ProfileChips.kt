@@ -69,7 +69,7 @@ import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
-import de.gematik.ti.erp.app.prescription.ui.rememberRefreshPrescriptionsController
+import de.gematik.ti.erp.app.prescription.presentation.rememberRefreshPrescriptionsController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults

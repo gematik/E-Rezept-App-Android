@@ -20,6 +20,12 @@ package de.gematik.ti.erp.app.utils
 
 import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.fhir.parser.YearMonth
+import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalInstant
+import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalLocalDate
+import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalLocalDateTime
+import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalLocalTime
+import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalYear
+import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalYearMonth
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -27,10 +33,19 @@ import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.toInstant
+import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 
@@ -52,24 +67,63 @@ val FhirYearMonthRegex = """(?<year>\d\d\d\d)-(?<month>\d\d)""".toRegex()
 val FhirYearRegex = """(?<year>\d\d\d\d)""".toRegex()
 // val FhirLocalTimeRegex = """(\d\d:\d\d(:\d\d)?)""".toRegex()
 
+/*
+  Since kotlinx.serialization does not support PolymorphicSerializer of nullable types
+  out of the box we need to add a type to let the serializer know the difference if it is
+  a sealed class or sealed interface.
+*/
+enum class FhirTemporalSerializationType {
+    FhirTemporalInstant,
+    FhirTemporalLocalDateTime,
+    FhirTemporalLocalDate,
+    FhirTemporalLocalTime,
+    FhirTemporalYearMonth,
+    FhirTemporalYear,
+}
+
+@Serializable(with = FhirTemporalSerializer::class)
 sealed interface FhirTemporal {
-    @JvmInline
-    value class Instant(val value: kotlinx.datetime.Instant) : FhirTemporal
+    @Serializable
+    @SerialName("Instant")
+    data class Instant(
+        val value: kotlinx.datetime.Instant,
+        val type: FhirTemporalSerializationType = FhirTemporalInstant
+    ) : FhirTemporal
 
-    @JvmInline
-    value class LocalDateTime(val value: kotlinx.datetime.LocalDateTime) : FhirTemporal
+    @Serializable
+    @SerialName("LocalDateTime")
+    data class LocalDateTime(
+        val value: kotlinx.datetime.LocalDateTime,
+        val type: FhirTemporalSerializationType = FhirTemporalLocalDateTime
+    ) : FhirTemporal
 
-    @JvmInline
-    value class LocalDate(val value: kotlinx.datetime.LocalDate) : FhirTemporal
+    @Serializable
+    @SerialName("LocalDate")
+    data class LocalDate(
+        val value: kotlinx.datetime.LocalDate,
+        val type: FhirTemporalSerializationType = FhirTemporalLocalDate
+    ) : FhirTemporal
 
-    @JvmInline
-    value class YearMonth(val value: de.gematik.ti.erp.app.fhir.parser.YearMonth) : FhirTemporal
+    @Serializable
+    @SerialName("YearMonth")
+    data class YearMonth(
+        val value: de.gematik.ti.erp.app.fhir.parser.YearMonth,
+        val type: FhirTemporalSerializationType = FhirTemporalYearMonth
+    ) : FhirTemporal
 
-    @JvmInline
-    value class Year(val value: de.gematik.ti.erp.app.fhir.parser.Year) : FhirTemporal
+    @Serializable
+    @SerialName("Year")
+    data class Year(
+        val value: de.gematik.ti.erp.app.fhir.parser.Year,
+        val type: FhirTemporalSerializationType = FhirTemporalYear
+    ) : FhirTemporal
 
-    @JvmInline
-    value class LocalTime(val value: kotlinx.datetime.LocalTime) : FhirTemporal
+    @Serializable
+    @SerialName("LocalTime")
+    data class LocalTime(
+        val value: kotlinx.datetime.LocalTime,
+        val type: FhirTemporalSerializationType = FhirTemporalLocalTime
+    ) : FhirTemporal
 
     fun formattedString(): String =
         when (this) {
@@ -93,6 +147,24 @@ sealed interface FhirTemporal {
         .toFormattedDate()
 }
 
+object FhirTemporalSerializer : JsonContentPolymorphicSerializer<FhirTemporal>(FhirTemporal::class) {
+    override fun selectDeserializer(element: JsonElement): KSerializer<out FhirTemporal> {
+        element.jsonObject["type"]?.jsonPrimitive?.content?.let { classType ->
+            return when (FhirTemporalSerializationType.valueOf(classType)) {
+                FhirTemporalInstant -> FhirTemporal.Instant.serializer()
+                FhirTemporalLocalDateTime -> FhirTemporal.LocalDateTime.serializer()
+                FhirTemporalLocalDate -> FhirTemporal.LocalDate.serializer()
+                FhirTemporalLocalTime -> FhirTemporal.LocalTime.serializer()
+                FhirTemporalYearMonth -> FhirTemporal.YearMonth.serializer()
+                FhirTemporalYear -> FhirTemporal.Year.serializer()
+            }
+        }
+            ?: throw SerializationException(
+                "FhirTemporalSerializer: key 'type' not found or does not matches any module type"
+            )
+    }
+}
+
 fun Instant.asFhirTemporal(): FhirTemporal.Instant {
     val desiredFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
     val updatedInstant = toLocalDateTime(TimeZone.currentSystemDefault())
@@ -103,12 +175,18 @@ fun Instant.asFhirTemporal(): FhirTemporal.Instant {
 
 fun Instant.toFormattedDateTime(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
     .toJavaLocalDateTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT, FormatStyle.SHORT))
+
 fun Instant.toStartOfDayInUTC(): Instant {
     val currentLocalDateTime = this.toLocalDateTime(TimeZone.currentSystemDefault())
     return currentLocalDateTime.date.atStartOfDayIn(TimeZone.UTC)
 }
-fun Instant.toFormattedDate(): String? = this.toLocalDateTime(TimeZone.currentSystemDefault())
-    .toJavaLocalDateTime().format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT))
+
+fun Instant.toFormattedDate(): String? {
+    val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    return this.toLocalDateTime(TimeZone.currentSystemDefault())
+        .date.toJavaLocalDate().format(dateFormatter)
+}
+
 fun LocalDateTime.asFhirTemporal() = FhirTemporal.LocalDateTime(this)
 fun LocalDate.asFhirTemporal() = FhirTemporal.LocalDate(this)
 fun YearMonth.asFhirTemporal() = FhirTemporal.YearMonth(this)

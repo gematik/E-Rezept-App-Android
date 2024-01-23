@@ -19,23 +19,30 @@
 package de.gematik.ti.erp.app.idp
 
 import de.gematik.ti.erp.app.di.EndpointHelper
+import de.gematik.ti.erp.app.idp.repository.AccessTokenDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import de.gematik.ti.erp.app.idp.usecase.AuthenticateWithExternalHealthInsuranceAppUseCase
 import de.gematik.ti.erp.app.idp.usecase.DefaultIdpUseCase
+import de.gematik.ti.erp.app.idp.usecase.GetHealthInsuranceAppIdpsUseCase
+import de.gematik.ti.erp.app.idp.usecase.GetUniversalLinkForHealthInsuranceAppsUseCase
 import de.gematik.ti.erp.app.idp.usecase.IdpAlternateAuthenticationUseCase
 import de.gematik.ti.erp.app.idp.usecase.IdpBasicUseCase
 import de.gematik.ti.erp.app.idp.usecase.IdpCryptoProvider
 import de.gematik.ti.erp.app.idp.usecase.IdpDeviceInfoProvider
 import de.gematik.ti.erp.app.idp.usecase.IdpPreferenceProvider
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.idp.usecase.RemoveAuthenticationUseCase
+import kotlinx.coroutines.sync.Mutex
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 const val NetworkSecurePreferencesTag = "NetworkSecurePreferences"
+private const val IdpLockTag = "IdpLockTag"
 
 val idpModule = DI.Module("idpModule") {
     bindProvider { IdpLocalDataSource(instance()) }
@@ -51,11 +58,13 @@ val idpModule = DI.Module("idpModule") {
             sharedPreferences = instance(NetworkSecurePreferencesTag)
         }
     }
-    bindSingleton { IdpRepository(instance(), instance()) }
+    bindSingleton { AccessTokenDataSource() }
+    bindProvider { IdpRepository(instance(), instance(), instance()) }
 }
 
 val idpUseCaseModule = DI.Module("idpUseCaseModule", allowSilentOverride = true) {
-    bindProvider { IdpAlternateAuthenticationUseCase(instance(), instance(), instance()) }
+    bindSingleton(IdpLockTag) { Mutex() }
+    bindSingleton { IdpBasicUseCase(instance(), instance()) }
     bindSingleton<IdpUseCase> {
         DefaultIdpUseCase(
             repository = instance(),
@@ -63,9 +72,22 @@ val idpUseCaseModule = DI.Module("idpUseCaseModule", allowSilentOverride = true)
             altAuthUseCase = instance(),
             profilesRepository = instance(),
             basicUseCase = instance(),
-            preferences = instance(),
-            cryptoProvider = instance()
+            cryptoProvider = instance(),
+            lock = instance(IdpLockTag)
         )
     }
-    bindSingleton { IdpBasicUseCase(instance(), instance()) }
+    bindProvider { IdpAlternateAuthenticationUseCase(instance(), instance(), instance()) }
+    bindProvider { GetHealthInsuranceAppIdpsUseCase(instance(), instance()) }
+    bindProvider { GetUniversalLinkForHealthInsuranceAppsUseCase(instance(), instance(), instance()) }
+    bindProvider {
+        AuthenticateWithExternalHealthInsuranceAppUseCase(
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(IdpLockTag)
+        )
+    }
+    bindProvider { RemoveAuthenticationUseCase(instance()) }
 }

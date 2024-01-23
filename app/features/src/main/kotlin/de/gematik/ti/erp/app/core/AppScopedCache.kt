@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.core
 
 import androidx.compose.runtime.saveable.Saver
 import de.gematik.ti.erp.app.ErezeptApp
-import io.github.aakira.napier.Napier
 import java.util.UUID
 
 class AppScopedCache {
@@ -42,18 +41,17 @@ class AppScopedCache {
 fun <T : Any?> complexAutoSaver(): Saver<T, *> = complexAutoSaver(init = {})
 
 fun <T : Any?> complexAutoSaver(
+    key: String = UUID.randomUUID().toString(),
     init: T.() -> Unit
 ): Saver<T, *> = Saver(
     save = { state ->
-        val key = UUID.randomUUID().toString()
         ErezeptApp.cache.store(key, state)
         key
     },
-    restore = { key ->
+    restore = { restoreKey ->
         @Suppress("UNCHECKED_CAST")
-        (ErezeptApp.cache.recover(key) as T).apply {
-            Napier.d { "AppScopeData cache value $this" }
-            init()
+        (ErezeptApp.cache.recover(restoreKey) as? T).apply {
+            this?.init()
         }
     }
 )

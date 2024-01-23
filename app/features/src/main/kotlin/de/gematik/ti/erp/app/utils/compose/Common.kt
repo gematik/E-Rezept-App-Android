@@ -467,6 +467,11 @@ fun annotatedStringBold(text: String) =
         }
     }
 
+@Deprecated(
+    "Use material3, will soon be changed to DeprecationLevel.ERROR",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog"),
+    level = DeprecationLevel.WARNING
+)
 @Composable
 fun CommonAlertDialog(
     icon: ImageVector? = null,
@@ -508,6 +513,11 @@ fun CommonAlertDialog(
         }
     )
 
+@Deprecated(
+    "Use material3, will soon be changed to DeprecationLevel.ERROR",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog"),
+    level = DeprecationLevel.WARNING
+)
 @Composable
 fun CommonAlertDialog(
     icon: ImageVector? = null,
@@ -533,6 +543,11 @@ fun CommonAlertDialog(
         }
     )
 
+@Deprecated(
+    "Use material3, will soon be changed to DeprecationLevel.ERROR",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog"),
+    level = DeprecationLevel.WARNING
+)
 @Composable
 fun AcceptDialog(
     header: AnnotatedString,
@@ -552,6 +567,11 @@ fun AcceptDialog(
         properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
     )
 
+@Deprecated(
+    "Use material3, will soon be changed to DeprecationLevel.ERROR",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog"),
+    level = DeprecationLevel.WARNING
+)
 @Composable
 fun AcceptDialog(
     modifier: Modifier = Modifier.testTag(TestTag.AlertDialog.Modal),

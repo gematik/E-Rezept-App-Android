@@ -27,13 +27,13 @@ import de.gematik.ti.erp.app.vau.filterByOIDAndOCSPResponse
 import de.gematik.ti.erp.app.vau.filterBySignature
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import de.gematik.ti.erp.app.vau.validateSubjectDN
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.cert.ocsp.BasicOCSPResp
 import org.bouncycastle.jcajce.provider.asymmetric.ec.KeyFactorySpi
-import io.github.aakira.napier.Napier
-import kotlinx.datetime.Instant
 import java.security.cert.X509Certificate
 import java.security.interfaces.ECPublicKey
 import kotlin.time.Duration
@@ -85,29 +85,32 @@ class TruststoreUseCase(
     suspend fun checkIdpCertificate(
         idpCertificate: X509CertificateHolder,
         invalidateStoreOnFailure: Boolean = false
-    ) = lock.withLock {
-        val timestamp = timeSourceProvider()
+    ) {
+        lock.withLock {
+            val timestamp = timeSourceProvider()
 
-        Napier.d("Check IDP certificate with truststore")
+            Napier.d("Check IDP certificate with truststore")
 
-        val exception = withLoadedStore(timestamp) { store ->
-            try {
-                requireNotNull(store.idpCertificates.find { it == idpCertificate }) {
-                    "IDP certificate could not be validated"
-                }
+            val exception = withLoadedStore(timestamp) { store ->
+                try {
+                    requireNotNull(store.idpCertificates.find { it == idpCertificate }) {
+                        "IDP certificate could not be validated"
+                    }
 
-                null
-            } catch (e: Exception) {
-                if (invalidateStoreOnFailure) {
-                    throw e
-                } else {
-                    e
+                    null
+                } catch (e: Exception) {
+                    if (invalidateStoreOnFailure) {
+                        throw e
+                    } else {
+                        e
+                    }
                 }
             }
-        }
 
-        if (exception != null) {
-            throw exception
+            if (exception != null) {
+                Napier.e { "checkIdpCertificate exception $exception" }
+                throw exception
+            }
         }
     }
 

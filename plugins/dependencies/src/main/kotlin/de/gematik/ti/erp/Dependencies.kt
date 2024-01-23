@@ -40,6 +40,7 @@ object Dependencies {
 
         private fun accompanist(module: String) = "com.google.accompanist:accompanist-$module:$accompanist_version"
 
+        val navigationMaterial = accompanist("navigation-material")
         val swipeRefresh = accompanist("swiperefresh")
         val flowLayout = accompanist("flowlayout")
         val pager = accompanist("pager")
@@ -129,19 +130,24 @@ object Dependencies {
         }
     }
 
+    object AppCenterSdk {
+        private const val appCenterSdkVersion = "4.4.5"
+
+        const val appCenterAnalytics = "com.microsoft.appcenter:appcenter-analytics:$appCenterSdkVersion"
+        const val appCenterCrashes = "com.microsoft.appcenter:appcenter-crashes:$appCenterSdkVersion"
+    }
+
     object Compose {
-        private const val compose_version = "1.5.0-beta02"
+        const val compose_version = "1.5.0-beta02"
 
         const val compiler = "androidx.compose.compiler:compiler:$compose_version"
         const val animation = "androidx.compose.animation:animation:$compose_version"
         const val foundation = "androidx.compose.foundation:foundation:$compose_version"
-        const val material = "androidx.compose.material:material:$compose_version"
+
         const val runtime = "androidx.compose.runtime:runtime:$compose_version"
         const val ui = "androidx.compose.ui:ui:$compose_version"
         const val uiTooling = "androidx.compose.ui:ui-tooling:$compose_version"
         const val preview = "androidx.compose.ui:ui-tooling-preview:$compose_version"
-        const val materialIcons = "androidx.compose.material:material-icons-core:$compose_version"
-        const val materialIconsExtended = "androidx.compose.material:material-icons-extended:$compose_version"
 
         object Test {
             const val ui = "androidx.compose.ui:ui-test:$compose_version"
@@ -162,6 +168,11 @@ object Dependencies {
         object Test {
             val coroutinesTest = coroutines("test")
         }
+    }
+
+    object Coil {
+        private const val coil_version = "2.5.0"
+        const val coil = "io.coil-kt:coil-compose:$coil_version"
     }
 
     object Crypto {
@@ -243,6 +254,15 @@ object Dependencies {
         const val lottie = "com.airbnb.android:lottie-compose:$lottie_version"
     }
 
+    object ComposeMaterial {
+        private const val material3_version = "1.1.2"
+
+        const val material = "androidx.compose.material:material:${Compose.compose_version}"
+        const val materialIcons = "androidx.compose.material:material-icons-core:${Compose.compose_version}"
+        const val materialIconsExtended = "androidx.compose.material:material-icons-extended:${Compose.compose_version}"
+        const val material3 = "androidx.compose.material3:material3:$material3_version"
+    }
+
     object Network {
         private const val retrofit_version = "2.9.0"
         private const val retrofit_serialization_version = "1.0.0"
@@ -285,10 +305,21 @@ object Dependencies {
         const val fhir = "ca.uhn.hapi.fhir:hapi-fhir-structures-r4:$fhir_serialization_version"
     }
 
+    object Shimmer {
+        private const val shimmer_version = "1.2.0"
+        const val shimmer = "com.valentinilk.shimmer:compose-shimmer:$shimmer_version"
+    }
+
     object PasswordStrength {
         private const val zxcvbn_version = "1.8.2"
 
         const val zxcvbn = "com.nulab-inc:zxcvbn:$zxcvbn_version"
+    }
+
+    object StateManagement {
+        private const val reactive_state_version = "5.6.0"
+
+        const val reactiveState = "com.ensody.reactivestate:reactivestate:$reactive_state_version"
     }
 
     object Tracking {

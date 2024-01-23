@@ -19,12 +19,10 @@
 
 package de.gematik.ti.erp.app.idp.usecase
 
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import java.net.URI
 import java.security.PublicKey
 
 private typealias ProfileId = ProfileIdentifier
@@ -44,17 +42,6 @@ interface IdpUseCase {
         healthCardCertificate: suspend () -> ByteArray,
         sign: suspend (hash: ByteArray) -> ByteArray
     )
-
-    suspend fun loadExternAuthenticatorIDs(): List<AuthenticationId>
-
-    suspend fun getUniversalLinkForExternalAuthorization(
-        profileId: ProfileId,
-        authenticatorId: String,
-        authenticatorName: String,
-        scope: IdpScope = IdpScope.Default
-    ): URI
-
-    suspend fun authenticateWithExternalAppAuthorization(uri: URI)
 
     /**
      * Pairing flow fetching the sso & access token requiring the health card and generated key material.

@@ -19,8 +19,10 @@
 package de.gematik.ti.erp.app.demomode.di
 
 import de.gematik.ti.erp.app.authentication.mapper.PromptAuthenticationProvider
+import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.mapper.authentication.DemoPromptAuthenticationProvider
+import de.gematik.ti.erp.app.demomode.repository.consent.DemoConsentRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoCommunicationRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoDownloadCommunicationResource
 import de.gematik.ti.erp.app.demomode.repository.pharmacy.DemoPharmacyLocalDataSource
@@ -49,6 +51,7 @@ val demoModeModule = DI.Module("demoModeModule") {
 
 fun DI.MainBuilder.demoModeOverrides() {
     bindProvider<ProfileRepository>(overrides = true) { DemoProfilesRepository(instance()) }
+    bindProvider<ConsentRepository>(overrides = true) { DemoConsentRepository() }
     bindProvider<PrescriptionRepository>(overrides = true) { DemoPrescriptionsRepository(instance()) }
     bindProvider<AuditEventsRepository>(overrides = true) { DemoAuditEventsRepository(instance()) }
     bindProvider<PharmacyLocalDataSource>(overrides = true) { DemoPharmacyLocalDataSource(instance()) }

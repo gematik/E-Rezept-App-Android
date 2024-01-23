@@ -34,6 +34,7 @@ import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.putJsonArray
 
+// TODO: Break into smaller usecases
 class PrescriptionUseCase(
     private val repository: DesktopPrescriptionRepository,
     private val mapper: PrescriptionMapper

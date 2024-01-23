@@ -47,6 +47,7 @@ class InvoiceRepository(
         it ?: 0
     }
 
+// todo: Dipachers should not to be used here!
     fun invoices(profileId: ProfileIdentifier) =
         localDataSource.loadInvoices(profileId).flowOn(dispatchers.io)
 

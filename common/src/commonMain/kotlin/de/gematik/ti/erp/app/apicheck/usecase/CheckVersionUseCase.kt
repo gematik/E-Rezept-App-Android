@@ -18,15 +18,17 @@
 
 package de.gematik.ti.erp.app.apicheck.usecase
 
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import java.net.HttpURLConnection
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
 import java.io.IOException
+import java.net.HttpURLConnection
+
 @Requirement(
     "O.Arch_10#1",
     sourceSpecification = "BSI-eRp-ePA",
@@ -35,9 +37,9 @@ import java.io.IOException
 )
 class CheckVersionUseCase(
     private val okHttp: OkHttpClient,
-    private val dispatchers: DispatchProvider
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend fun isUpdateRequired(): Boolean = withContext(dispatchers.io) {
+    suspend fun isUpdateRequired(): Boolean = withContext(dispatcher) {
         if (BuildKonfig.INTERNAL) {
             return@withContext false
         }

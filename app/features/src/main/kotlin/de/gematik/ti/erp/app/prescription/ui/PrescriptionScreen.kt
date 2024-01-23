@@ -72,6 +72,7 @@ import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData.scannedPrescriptionIndex
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.prescription.presentation.PrescriptionsController
 import de.gematik.ti.erp.app.prescription.ui.model.SentOrCompletedPhrase
 import de.gematik.ti.erp.app.prescription.ui.model.sentOrCompleted
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription

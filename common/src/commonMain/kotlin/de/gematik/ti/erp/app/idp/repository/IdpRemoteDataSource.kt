@@ -22,13 +22,13 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.safeApiCall
 import de.gematik.ti.erp.app.api.safeApiCallRaw
 import de.gematik.ti.erp.app.idp.api.IdpService
-import de.gematik.ti.erp.app.idp.api.models.ExternalAuthorizationData
 import okhttp3.ResponseBody
 import retrofit2.Response
 import java.net.HttpURLConnection
 
 private const val pairingScope = "pairing openid"
 
+@Suppress("TooManyFunctions")
 class IdpRemoteDataSource(
     private val service: IdpService,
     private val defaultScope: () -> String
@@ -50,7 +50,7 @@ class IdpRemoteDataSource(
             )
         }
 
-    suspend fun requestAuthorizationRedirect(
+    suspend fun getFastTrackAuthorizationRedirectUrl(
         url: String,
         externalAppId: String,
         nonce: String,
@@ -58,7 +58,7 @@ class IdpRemoteDataSource(
         codeChallenge: String,
         isPairingScope: Boolean
     ) = postToEndpointExpectingLocationRedirect {
-        service.requestAuthenticationRedirect(
+        service.requestFastTrackAuthenticationRedirect(
             url = url,
             externalAppId = externalAppId,
             codeChallenge = codeChallenge,
@@ -67,6 +67,22 @@ class IdpRemoteDataSource(
             scope = if (isPairingScope) pairingScope else defaultScope()
         )
     }
+
+    suspend fun getGidAuthorizationRedirectUrl(
+        url: String,
+        externalAppId: String,
+        nonce: String,
+        state: String,
+        codeChallenge: String,
+        isPairingScope: Boolean
+    ) = service.requestGidAuthenticationRedirect(
+        url = url,
+        externalAppId = externalAppId,
+        codeChallenge = codeChallenge,
+        nonce = nonce,
+        state = state,
+        scope = if (isPairingScope) pairingScope else defaultScope()
+    )
 
     suspend fun fetchChallenge(
         url: String,
@@ -132,15 +148,29 @@ class IdpRemoteDataSource(
     /**
      * Authorization with External App
      */
-    suspend fun authorizeExtern(
+    suspend fun authorizeExternalAppDataWithFastTrack(
         url: String,
-        externalAuthorizationData: ExternalAuthorizationData
+        code: String,
+        state: String,
+        redirectUri: String
     ) = postToEndpointExpectingLocationRedirect {
-        service.externalAuthorization(
+        service.externalFastTrackAuthorization(
             url = url,
-            code = externalAuthorizationData.code,
-            state = externalAuthorizationData.state,
-            redirectUri = externalAuthorizationData.kkAppRedirectUri
+            code = code,
+            state = state,
+            redirectUri = redirectUri
+        )
+    }
+
+    suspend fun authorizeExternalAppDataWithGid(
+        url: String,
+        code: String,
+        state: String
+    ) = postToEndpointExpectingLocationRedirect {
+        service.externalGidAuthorization(
+            url = url,
+            code = code,
+            state = state
         )
     }
 

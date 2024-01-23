@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name" translatable="false">E-Rezept</string>
     <string name="ok">Okay</string>
     <string name="cancel">Abbrechen</string>
@@ -116,6 +116,7 @@
     <string name="cdw_enable_nfc_header">NFC aktivieren</string>
     <string name="cdw_enable_nfc_info">Bitte aktivieren Sie die NFC-Funktion Ihres Geräts, um sich mit Ihrer Gesundheitskarte anzumelden.</string>
     <string name="cdw_enable_nfc_btn_text">Aktivieren</string>
+    <string name="cdw_enable_nfc_abort_button_text">Jetzt nicht</string>
     <string name="cdw_auth_retry_pin_can">Korrigieren</string>
     <string name="redeem_prescriptions_dialog_header">Rezepte eingelöst?</string>
     <string name="redeem_prescriptions_dialog_info">Möchten Sie die Rezepte als eingelöst markieren?</string>
@@ -515,6 +516,7 @@
     <string name="edit_profile_avatar">Ändern</string>
     <string name="edit_profile_picture">Profilbild bearbeiten</string>
     <string name="mini_cdw_fasttrack_next">Weiter</string>
+    <string name="mini_cdw_fasttrack_search">Suche</string>
     <string name="cdw_fasttrack_error_title">Server antwortet nicht</string>
     <string name="cdw_fasttrack_error_info">Bitte probieren Sie es zu einem späteren Zeitpunkt erneut.</string>
     <string name="cdw_fasttrack_try_again">Erneut versuchen</string>
@@ -548,6 +550,8 @@
     <string name="orders_show_general_message">Nachricht anzeigen</string>
     <string name="orders_timestamp" formatted="false">%s um %s Uhr</string>
     <string name="orders_prescription_sent_to">Rezept an %s gesandt.</string>
+    <string name="cost_receipt_is_ready" translatable="false">Sie haben einen Kostenbeleg zu Ihrem Medikament %s erhalten.</string>
+    <string name="show_cost_receipt" translatable="false">"Kostenbeleg anzeigen"</string>
     <string name="orders_details_title">Bestellübersicht</string>
     <string name="orders_label_new">Neu</string>
     <string name="orders_history_title">Verlauf</string>
@@ -873,6 +877,7 @@
     <string name="cdw_intro_auth_insurance_app">Versicherungs-App</string>
     <string name="cdw_intro_auth_health_card">Gesundheitskarte</string>
     <string name="cdw_intro_auth_health_card_pin">Zugehörige PIN benötigt</string>
+    <string name="cdw_intro_auth_health_card_no_nfc_device">NFC-fähiges Smartphone erforderlich</string>
     <string name="prescription_item_expiration_only_tomorrow">Nur noch morgen als Selbstzahlender einlösbar</string>
     <string name="prescription_item_two_expiration_days_left">Nur noch %s Tage als Selbstzahlender einlösbar</string>
     <string name="prescription_item_expiration_days_left">\n        Noch %s Tage als Selbstzahlender einlösbar\n    </string>
@@ -916,5 +921,64 @@
     <string name="demo_mode_text">Demo-Modus aktiviert</string>
     <string name="demo_mode_cancel_button_text">Hier Beenden</string>
     <string name="demo_mode_settings_title">Demo-Modus aktivieren</string>
+    <string name="invoice_card_no_consent_title">Kostenbelege digital erhalten</string>
+    <string name="invoice_card_no_consent_body">Nach Aktivierung der Kostenbelege finden Sie diese nach der Einlösung Ihres Rezepts hier.</string>
+    <string name="invoice_card_no_consent_button_text">Aktivieren</string>
+    <string name="invoice_card_consent_no_invoice_title">Digitaler Kostenbeleg</string>
+    <string name="invoice_card_consent_no_invoice_body">Sobald die Apotheke den Kostenbeleg hinterlegt hat, wird er hier erscheinen.</string>
+    <string name="invoice_card_consent_invoice_button_text">Kostenbeleg</string>
+    <string name="lightbulb" translatable="false">\uD83D\uDCA1</string>
+    <string name="give_consent_bottom_sheet_header">Kostenbelege digital erhalten</string>
+    <string name="give_consent_bottom_sheet_info">Hinweis: Sie erhalten Ihre Kostenbelege nicht mehr als Ausdruck in der
+        Apotheke.
+    </string>
+    <string name="give_consent_bottom_sheet_activate">Aktivieren</string>
+    <string name="give_consent_bottom_sheet_activate_later">Vielleicht später</string>
+    <string name="get_consent_info_dialog_header">Einverständnis</string>
+    <string name="get_consent_info_dialog_info">Mit Ihrem Einverständnis verzichten Sie auf den Ausdruck in der Apotheke
+        und reichen Ihre Kostenbelege künftig digital ein.
+    </string>
+    <string name="get_consent_info_dialog_cancel">Abbrechen</string>
+    <string name="get_consent_info_dialog_accept">Einverstanden</string>
     <string name="demo_mode_settings_end_title">Demo-Modus Beenden</string>
+    <string name="link_to_invoice_list">Zur Übersicht der Kostenbelege</string>
+    <string name="consent_action_to_invoices">Zu den Kostenbelegen</string>
+    <string name="consent_granted_info">Sie erhalten Kostenbelege jetzt digital</string>
+    <string name="consent_already_granted_info">Sie erhalten Kostenbelege bereits digital</string>
+    <string name="consent_error_dialog_cancel">Okay</string>
+    <string name="consent_error_dialog_retry">Erneut probieren</string>
+    <string name="consent_error_already_granted_header">Funktion aktiviert</string>
+    <string name="consent_error_already_granted_info">Sie können Kostenbelege bereits digital empfangen.</string>
+    <string name="consent_error_no_internet_header">Kein Internet</string>
+    <string name="consent_error_no_internet_info">Es besteht keine Verbindung zum Internet.</string>
+    <string name="consent_error_bad_request_header">Fehlerhafte Anfrage</string>
+    <string name="consent_error_bad_request_info">Es gab ein Problem mit der Anfrage. Wir arbeiten an einer Lösung.
+    </string>
+    <string name="consent_error_server_timeout_header">Server antwortet nicht</string>
+    <string name="consent_error_server_timeout_info">Bitte probieren Sie es in einigen Minuten erneut.</string>
+    <string name="consent_error_internal_error_header">Herstellen der Verbindung fehlgeschlagen</string>
+    <string name="consent_error_internal_error_info">Derzeit können keine Informationen abgerufen werden. Bitte
+        probieren Sie es später erneut.
+    </string>
+    <string name="consent_error_too_many_requests_header">Abgelehnt</string>
+    <string name="consent_error_too_many_requests_info">Der Server hat Ihre Anfrage abgelehnt. Bitte probieren Sie es
+        später erneut.
+    </string>
+    <string name="consent_error_forbidden_header">App aktualisieren</string>
+    <string name="consent_error_forbidden_info">Um diese Funktion nutzen zu können, aktualisieren Sie bitte Ihre App.
+    </string>
+    <string name="consent_error_unauthorized_header">Anmeldung fehlgeschlagen</string>
+    <string name="consent_error_unauthorized_info">Der Server hatte ein Problem bei der Anmeldung. Bitte melden Sie sich
+        erneut an.
+    </string>
+    <string name="consent_error_connect">Anmelden</string>
+    <string name="debug_copy_text">Copy URL</string>
+    <string name="connecting_universal_link">Verbindung mit externer Krankenversicherungs-App herstellen.</string>
+    <string name="gid_external_app_missing_title">Die Krankenversicherungs-App kann nicht gefunden werden</string>
+    <string name="gid_external_app_missing_description">Die Krankenversicherungs-App war nicht errichbar. Die Authentifizierung war nicht erfolgreich.</string>
+    <string name="gid_gematik_error_subtitle" translatable="false">Error</string>
+    <string name="gid_gematik_error_code" translatable="false">Code</string>
+    <string name="gid_gematik_error_uuid" translatable="false">Uuid</string>
+    <string name="gid_gematik_error_timestamp" translatable="false">Timestamp</string>
+    <string name="gid_fast_track_closed_error">Für diese Krankenversicherung nicht möglich</string>
 </resources>

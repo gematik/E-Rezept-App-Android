@@ -34,6 +34,9 @@ object DependencyInjector {
     fun androidXTest(init: Dependencies.AndroidX.Test.() -> Unit) =
         Dependencies.AndroidX.Test.init()
 
+    fun appCenterSdk(init: Dependencies.AppCenterSdk.() -> Unit) =
+        Dependencies.AppCenterSdk.init()
+
     fun compose(init: Dependencies.Compose.() -> Unit) =
         Dependencies.Compose.init()
 
@@ -64,9 +67,14 @@ object DependencyInjector {
     fun serialization(init: Dependencies.Serialization.() -> Unit) =
         Dependencies.Serialization.init()
 
+    fun shimmer(init: Dependencies.Shimmer.() -> Unit) =
+        Dependencies.Shimmer.init()
+
     fun crypto(init: Dependencies.Crypto.() -> Unit) =
         Dependencies.Crypto.init()
 
+    fun material(init: Dependencies.ComposeMaterial.() -> Unit) =
+        Dependencies.ComposeMaterial.init()
     fun network(init: Dependencies.Network.() -> Unit) =
         Dependencies.Network.init()
 
@@ -76,8 +84,14 @@ object DependencyInjector {
     fun database(init: Dependencies.Database.() -> Unit) =
         Dependencies.Database.init()
 
+    fun imageLoad(init: Dependencies.Coil.() -> Unit) =
+        Dependencies.Coil.init()
+
     fun passwordStrength(init: Dependencies.PasswordStrength.() -> Unit) =
         Dependencies.PasswordStrength.init()
+
+    fun stateManagement(init: Dependencies.StateManagement.() -> Unit) =
+        Dependencies.StateManagement.init()
 
     fun tracking(init: Dependencies.Tracking.() -> Unit) =
         Dependencies.Tracking.init()

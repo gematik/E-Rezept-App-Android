@@ -1,3 +1,9 @@
+# Release 1.19.1
+- Added gID (HealthID) authentication function
+- Language settings can now be changed within the app, not just via the Android settings
+- UX improvements
+- Bug fixes
+
 # Release 1.18.1
 - Optimized performance 
 - UX improvements

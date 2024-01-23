@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.core
 
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -29,7 +30,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import java.net.URI
 
-const val FastTrackBaseUri = "https://das-e-rezept-fuer-deutschland.de/extauth"
+const val ExternalAppAuthenticationBaseUri = "https://das-e-rezept-fuer-deutschland.de/extauth"
+const val WwwExternalAppAuthenticationBaseUri = "https://www.das-e-rezept-fuer-deutschland.de/extauth"
 const val ShareBaseUri = "https://das-e-rezept-fuer-deutschland.de/prescription"
 
 @Stable
@@ -52,17 +54,29 @@ class IntentHandler(private val context: Context) {
             Napier.d("Received new intent: $value")
 
             when {
-                value.startsWith(FastTrackBaseUri) ->
+                value.startsWith(ExternalAppAuthenticationBaseUri) ||
+                    value.startsWith(WwwExternalAppAuthenticationBaseUri) ->
                     extAuthChannel.send(value)
+
                 value.startsWith(ShareBaseUri) ->
                     shareChannel.send(value)
             }
         }
     }
 
-    fun startFastTrackApp(redirect: URI) {
-        clear() // clear possible cached values
-        context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(redirect.toString())))
+    fun tryStartingExternalHealthInsuranceAuthenticationApp(
+        redirect: URI,
+        onSuccess: () -> Unit,
+        onFailure: () -> Unit
+    ) {
+        try {
+            clear() // clear possible cached values
+            context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(redirect.toString())))
+            onSuccess()
+        } catch (e: ActivityNotFoundException) {
+            Napier.e { "Activity missing, user needs to install the other app" }
+            onFailure()
+        }
     }
 
     private fun clear() {

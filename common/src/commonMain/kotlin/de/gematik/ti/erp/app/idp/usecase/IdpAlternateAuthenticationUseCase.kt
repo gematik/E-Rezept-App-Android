@@ -34,10 +34,12 @@ import de.gematik.ti.erp.app.idp.api.models.RegistrationData
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithHealthCard
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithSecureElement
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import kotlinx.serialization.decodeFromString
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
-import java.net.URI
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.bouncycastle.asn1.ASN1Sequence
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo
 import org.bouncycastle.cert.X509CertificateHolder
@@ -47,10 +49,7 @@ import org.jose4j.jwe.JsonWebEncryption
 import org.jose4j.jwe.KeyManagementAlgorithmIdentifiers
 import org.jose4j.jws.JsonWebSignature
 import org.jose4j.jwx.JsonWebStructure
-import io.github.aakira.napier.Napier
-import kotlinx.serialization.json.int
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
+import java.net.URI
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.Signature
@@ -172,7 +171,7 @@ class IdpAlternateAuthenticationUseCase(
     }
     // end::DeletePairedDevicesUseCase[]
 
-    fun buildEncryptedAccessToken(
+    private fun buildEncryptedAccessToken(
         accessToken: String,
         idpPukSigKey: PublicKey,
         idpPukEncKey: PublicKey
@@ -269,7 +268,7 @@ class IdpAlternateAuthenticationUseCase(
         )
     }
 
-    suspend fun postAlternateSignedChallengeAndGetRedirect(
+    private suspend fun postAlternateSignedChallengeAndGetRedirect(
         url: String,
         codeChallenge: JsonWebEncryption,
         state: IdpState
@@ -283,7 +282,7 @@ class IdpAlternateAuthenticationUseCase(
         return redirect
     }
 
-    fun buildDeviceType(): DeviceType =
+    private fun buildDeviceType(): DeviceType =
         DeviceType(
             manufacturer = deviceInfo.manufacturer,
             productName = deviceInfo.productName,
@@ -292,14 +291,14 @@ class IdpAlternateAuthenticationUseCase(
             operatingSystemVersion = deviceInfo.operatingSystemVersion
         )
 
-    fun buildDeviceInformation(userChosenName: String): DeviceInformation {
+    private fun buildDeviceInformation(userChosenName: String): DeviceInformation {
         return DeviceInformation(
             name = userChosenName, // Settings.System.getString(context.contentResolver, Settings.Global.DEVICE_NAME),
             deviceType = buildDeviceType()
         )
     }
 
-    fun buildPairingData(
+    private fun buildPairingData(
         keyAliasOfSecureElement: ByteArray,
         subjectPublicKeyInfoOfSecureElement: SubjectPublicKeyInfo,
         healthCardCertificate: X509CertificateHolder
@@ -324,7 +323,7 @@ class IdpAlternateAuthenticationUseCase(
         )
     }
 
-    suspend fun buildSignedPairingData(
+    private suspend fun buildSignedPairingData(
         pairingData: PairingData,
         sign: suspend (hash: ByteArray) -> ByteArray
     ): String =
@@ -337,7 +336,7 @@ class IdpAlternateAuthenticationUseCase(
             sign
         )
 
-    fun buildRegistrationData(
+    private fun buildRegistrationData(
         signedPairingData: String,
         healthCardCertificate: ByteArray,
         deviceInformation: DeviceInformation
@@ -371,7 +370,7 @@ class IdpAlternateAuthenticationUseCase(
         DeviceCredentials(listOf("mfa", "hwk", "kba"))
     }
 
-    fun buildAuthenticationData(
+    private fun buildAuthenticationData(
         challengeToken: String,
         healthCardCertificate: ByteArray,
         keyAliasOfSecureElement: ByteArray,

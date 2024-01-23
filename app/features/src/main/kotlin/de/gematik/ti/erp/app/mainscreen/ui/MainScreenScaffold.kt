@@ -38,14 +38,14 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenContentNavHost
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 
 @Composable
 internal fun MainScreenScaffold(
     modifier: Modifier = Modifier,
     mainScreenController: MainScreenController,
-    profilesController: ProfilesController,
+    profileController: ProfileController,
     mainNavController: NavController,
     bottomNavController: NavHostController,
     showToolTipps: Boolean,
@@ -57,7 +57,7 @@ internal fun MainScreenScaffold(
     scaffoldState: ScaffoldState
 ) {
     val currentBottomNavigationRoute by bottomNavController.currentBackStackEntryFlow.collectAsStateWithLifecycle(null)
-    val activeProfile by profilesController.getActiveProfileState()
+    val activeProfile by profileController.getActiveProfileState()
 
     val isInPrescriptionScreen by remember {
         derivedStateOf {
@@ -72,7 +72,7 @@ internal fun MainScreenScaffold(
             if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
                 MultiProfileTopAppBar(
                     mainScreenController = mainScreenController,
-                    profilesController = profilesController,
+                    profileController = profileController,
                     isInPrescriptionScreen = isInPrescriptionScreen,
                     showToolTipps = showToolTipps,
                     tooltipBounds = tooltipBounds,
@@ -87,7 +87,7 @@ internal fun MainScreenScaffold(
             MainScreenBottomBar(
                 navController = mainNavController,
                 mainScreenController = mainScreenController,
-                profilesController = profilesController,
+                profileController = profileController,
                 bottomNavController = bottomNavController
             )
         },

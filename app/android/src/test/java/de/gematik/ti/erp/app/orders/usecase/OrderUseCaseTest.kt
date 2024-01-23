@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.orders.usecase
 
 import de.gematik.ti.erp.app.CoroutineTestRule
+import de.gematik.ti.erp.app.orders.mappers.toMessage
 import de.gematik.ti.erp.app.orders.usecase.model.OrderUseCaseData
 import de.gematik.ti.erp.app.prescription.model.Communication
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
@@ -57,7 +58,8 @@ class OrderUseCaseTest {
             message = "Hi!",
             code = null,
             link = "https://example.org",
-            consumed = false
+            consumed = false,
+            hasInvoice = false
         )
         assertEquals(expected, communication.toMessage())
     }
@@ -81,7 +83,8 @@ class OrderUseCaseTest {
             message = null,
             code = null,
             link = null,
-            consumed = false
+            consumed = false,
+            hasInvoice = false
         )
         assertEquals(expected, communication.toMessage())
     }
@@ -105,7 +108,8 @@ class OrderUseCaseTest {
             message = null,
             code = null,
             link = null,
-            consumed = false
+            consumed = false,
+            hasInvoice = false
         )
         assertEquals(expected, communication.toMessage())
     }
@@ -129,7 +133,8 @@ class OrderUseCaseTest {
             message = null,
             code = null,
             link = null,
-            consumed = false
+            consumed = false,
+            hasInvoice = false
         )
         assertEquals(expected, communication.toMessage())
     }

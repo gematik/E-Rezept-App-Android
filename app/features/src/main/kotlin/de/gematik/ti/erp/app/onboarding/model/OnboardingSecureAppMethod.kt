@@ -20,8 +20,10 @@ package de.gematik.ti.erp.app.onboarding.model
 
 import android.os.Parcelable
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.settings.ui.checkPassword
+import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.ui.validatePassword
 import kotlinx.parcelize.Parcelize
+
 @Immutable
 sealed class OnboardingSecureAppMethod {
     @Immutable
@@ -31,10 +33,9 @@ sealed class OnboardingSecureAppMethod {
         Parcelable {
         val checkedPassword: String?
             get() =
-                if (checkPassword(password, repeatedPassword, score)) {
-                    password
-                } else {
-                    null
+                when {
+                    validatePassword(password, repeatedPassword, score) -> password
+                    else -> null
                 }
     }
 
@@ -43,4 +44,15 @@ sealed class OnboardingSecureAppMethod {
 
     @Parcelize
     object None : OnboardingSecureAppMethod(), Parcelable
+
+    companion object {
+        fun OnboardingSecureAppMethod.toAuthenticationMode() =
+            when (this) {
+                DeviceSecurity -> SettingsData.AuthenticationMode.DeviceSecurity
+                is Password -> SettingsData.AuthenticationMode.Password(
+                    password = requireNotNull(checkedPassword)
+                )
+                None -> SettingsData.AuthenticationMode.Unspecified
+            }
+    }
 }

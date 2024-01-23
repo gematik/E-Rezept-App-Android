@@ -20,8 +20,6 @@ package de.gematik.ti.erp.app.ui
 
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -35,7 +33,7 @@ import de.gematik.ti.erp.app.ErezeptApp
 import de.gematik.ti.erp.app.VisibleDebugTree
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.data.DebugSettingsData
-import de.gematik.ti.erp.app.data.Environment
+import de.gematik.ti.erp.app.debugsettings.data.Environment
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
@@ -100,7 +98,7 @@ class DebugSettingsViewModel(
         pharmacyServiceActive = endpointHelper.isUriOverridden(EndpointHelper.EndpointUri.PHARMACY_SERVICE_URI),
         bearerToken = "",
         bearerTokenIsSet = true,
-        fakeNFCCapabilities = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher,
+        fakeNFCCapabilities = false,
         cardAccessNumberIsSet = false,
         multiProfile = false,
         activeProfileId = "",
@@ -128,10 +126,10 @@ class DebugSettingsViewModel(
     }
 
     fun selectEnvironment(environment: Environment) {
-        updateState(getDebugSettingsdataForEnvironment(environment))
+        updateState(getDebugSettingsDataForEnvironment(environment))
     }
 
-    private fun getDebugSettingsdataForEnvironment(environment: Environment): DebugSettingsData {
+    private fun getDebugSettingsDataForEnvironment(environment: Environment): DebugSettingsData {
         return when (environment) {
             Environment.PU -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_PU,
@@ -185,7 +183,6 @@ class DebugSettingsViewModel(
         updateState(debugSettingsData.copy(bearerTokenIsSet = true))
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     suspend fun breakSSOToken() {
         withContext(dispatchers.io) {
             val activeProfileId = profilesUseCase.activeProfileId().first()
@@ -224,7 +221,6 @@ class DebugSettingsViewModel(
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     private fun IdpData.SingleSignOnToken.breakToken(): IdpData.SingleSignOnToken {
         val (_, rest) = this.token.split('.', limit = 2)
         val someHoursBeforeNow = Instant.now().minus(48, ChronoUnit.HOURS).epochSecond
@@ -258,7 +254,7 @@ class DebugSettingsViewModel(
     fun getCurrentEnvironment() = endpointHelper.getCurrentEnvironment()
 
     fun allowNfc(value: Boolean) {
-        cardWallUseCase.deviceHasNFCAndAndroidMOrHigher = value
+        cardWallUseCase.updateDeviceNFCCapability(value)
         updateState(debugSettingsData.copy(fakeNFCCapabilities = value))
     }
 

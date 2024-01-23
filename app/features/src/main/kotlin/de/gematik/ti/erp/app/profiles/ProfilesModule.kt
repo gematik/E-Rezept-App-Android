@@ -50,10 +50,10 @@ val profilesModule = DI.Module("profilesModule") {
     bindProvider { SwitchProfileToPKVUseCase(instance()) }
     bindProvider { GetSelectedProfileUseCase(instance()) }
 
-    bindProvider { ProfilesWithPairedDevicesUseCase(instance(), instance()) }
+    bindProvider { ProfilesWithPairedDevicesUseCase(instance()) }
     bindProvider { ProfilesUseCase(instance(), instance()) }
 }
 
 val profileRepositoryModule = DI.Module("profileRepositoryModule", allowSilentOverride = true) {
-    bindProvider<ProfileRepository> { DefaultProfilesRepository(instance(), instance()) }
+    bindProvider<ProfileRepository> { DefaultProfilesRepository(instance()) }
 }

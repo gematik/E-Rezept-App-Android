@@ -31,7 +31,7 @@ import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController.Companion.DEFAULT_EMPTY_PROFILE
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController.Companion.DEFAULT_EMPTY_PROFILE
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi

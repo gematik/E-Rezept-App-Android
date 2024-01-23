@@ -29,13 +29,14 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.orders.ui.OrderScreen
+import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionsScreen
-import de.gematik.ti.erp.app.prescription.ui.rememberPrescriptionsController
-import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
+import de.gematik.ti.erp.app.prescription.presentation.rememberPrescriptionsController
+import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
 
 @Composable
-internal fun MainScreenContentNavHost(
+fun MainScreenContentNavHost(
     modifier: Modifier,
     mainScreenController: MainScreenController,
     mainNavController: NavController,
@@ -54,7 +55,7 @@ internal fun MainScreenContentNavHost(
         ) {
             composable(MainNavigationScreens.Prescriptions.route) {
                 val prescriptionsController = rememberPrescriptionsController()
-                val profilesController = rememberProfilesController()
+                val profilesController = rememberProfileController()
                 val activeProfile by profilesController.getActiveProfileState()
                 PrescriptionsScreen(
                     controller = prescriptionsController,
@@ -70,7 +71,7 @@ internal fun MainScreenContentNavHost(
                     },
                     onClickPrescription = { taskId ->
                         mainNavController.navigate(
-                            MainNavigationScreens.PrescriptionDetail.path(
+                            PrescriptionDetailRoutes.PrescriptionDetailScreen.path(
                                 taskId = taskId
                             )
                         )

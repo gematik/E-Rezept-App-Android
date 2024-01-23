@@ -27,10 +27,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
+import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacyOrderController
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyNavigation
 import de.gematik.ti.erp.app.pharmacy.ui.PrescriptionSelection
-import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacyOrderController
-import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
+import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
 import de.gematik.ti.erp.app.redeem.ui.model.RedeemNavigation
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
@@ -70,7 +70,7 @@ fun RedeemNavigation(
             }
         }
         composable(RedeemNavigation.LocalRedeem.route) {
-            val profilesController = rememberProfilesController()
+            val profilesController = rememberProfileController()
             val activeProfile by profilesController.getActiveProfileState()
             NavigationAnimation(mode = navigationMode) {
                 LocalRedeemScreen(

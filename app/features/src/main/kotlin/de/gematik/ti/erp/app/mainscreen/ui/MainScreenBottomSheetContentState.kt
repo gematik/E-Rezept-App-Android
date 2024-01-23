@@ -33,10 +33,10 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -49,7 +49,8 @@ import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomPopUpNames
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
+import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController
 import de.gematik.ti.erp.app.profiles.ui.AvatarPicker
 import de.gematik.ti.erp.app.profiles.ui.ColorPicker
 import de.gematik.ti.erp.app.profiles.ui.ProfileImage
@@ -61,7 +62,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import kotlinx.coroutines.launch
 
 @Stable
 sealed class MainScreenBottomSheetContentState {
@@ -77,6 +77,7 @@ sealed class MainScreenBottomSheetContentState {
 
     @Stable
     class AddProfile(
+
         val popUp: MainScreenBottomPopUpNames.AddProfile = MainScreenBottomPopUpNames.AddProfile
     ) : MainScreenBottomSheetContentState()
 
@@ -84,18 +85,24 @@ sealed class MainScreenBottomSheetContentState {
     class Welcome(
         val popUp: MainScreenBottomPopUpNames.Welcome = MainScreenBottomPopUpNames.Welcome
     ) : MainScreenBottomSheetContentState()
+
+    @Stable
+    class GrantConsent(
+        val popUp: MainScreenBottomPopUpNames.GrantConsent = MainScreenBottomPopUpNames.GrantConsent
+    ) : MainScreenBottomSheetContentState()
 }
 
 @Composable
 fun MainScreenBottomSheetContentState(
     mainNavController: NavController,
     mainScreenController: MainScreenController,
-    profilesController: ProfilesController,
+    profileController: ProfileController,
     infoContentState: MainScreenBottomSheetContentState?,
     profileToRename: ProfilesUseCaseData.Profile,
+    onGrantConsent: () -> Unit,
     onCancel: () -> Unit
 ) {
-    val profile by profilesController.getActiveProfileState()
+    val profile by profileController.getActiveProfileState()
 
     val title = when (infoContentState) {
         is MainScreenBottomSheetContentState.EditProfilePicture ->
@@ -109,8 +116,6 @@ fun MainScreenBottomSheetContentState(
 
         else -> null
     }
-
-    val scope = rememberCoroutineScope()
 
     Column(
         Modifier
@@ -135,32 +140,28 @@ fun MainScreenBottomSheetContentState(
                             EditProfileAvatar(
                                 profile = profile,
                                 clearPersonalizedImage = {
-                                    scope.launch {
-                                        profilesController.clearPersonalizedImage(profile.id)
-                                    }
+                                    profileController.clearPersonalizedImage(profile.id)
                                 },
                                 onPickPersonalizedImage = {
                                     mainNavController.navigate(
-                                        MainNavigationScreens.ProfileImageCropper.path(
+                                        ProfileRoutes.ProfileImageCropperScreen.path(
                                             profileId = profile.id
                                         )
                                     )
                                 },
                                 onSelectAvatar = { avatar ->
-                                    scope.launch {
-                                        profilesController.saveAvatarFigure(profile.id, avatar)
-                                    }
+
+                                    profileController.saveAvatarFigure(profile.id, avatar)
                                 },
                                 onSelectProfileColor = { color ->
-                                    scope.launch {
-                                        profilesController.updateProfileColor(profile, color)
-                                    }
+
+                                    profileController.updateProfileColor(profile, color)
                                 }
                             )
 
                         is MainScreenBottomSheetContentState.EditProfileName ->
                             ProfileSheetContent(
-                                profilesController = profilesController,
+                                profileController = profileController,
                                 addProfile = false,
                                 profileToEdit = profileToRename,
                                 onCancel = onCancel
@@ -168,7 +169,7 @@ fun MainScreenBottomSheetContentState(
 
                         is MainScreenBottomSheetContentState.AddProfile ->
                             ProfileSheetContent(
-                                profilesController = profilesController,
+                                profileController = profileController,
                                 addProfile = true,
                                 profileToEdit = null,
                                 onCancel = onCancel
@@ -184,6 +185,16 @@ fun MainScreenBottomSheetContentState(
                                 },
                                 onCancel = {
                                     mainScreenController.welcomeDrawerShown()
+                                    onCancel()
+                                }
+                            )
+
+                        is MainScreenBottomSheetContentState.GrantConsent ->
+                            GrantConsentBottomSheetContent(
+                                onClickGrantConsent = {
+                                    onGrantConsent()
+                                },
+                                onCancel = {
                                     onCancel()
                                 }
                             )
@@ -264,6 +275,40 @@ private fun ProfileColorAndImagePickerContent(
 
 @Composable
 private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -> Unit) {
+    ConnectBottomSheet(
+        header = stringResource(R.string.mainscreen_welcome_drawer_header),
+        info = stringResource(R.string.mainscreen_welcome_drawer_info),
+        image = painterResource(R.drawable.man_phone_blue_circle),
+        connectButtonText = stringResource(R.string.mainscreen_connect_bottomsheet_connect),
+        cancelButtonText = stringResource(R.string.mainscreen_connect_bottomsheet_connect_later),
+        onClickConnect = onClickConnect,
+        onCancel = onCancel
+    )
+}
+
+@Composable
+private fun GrantConsentBottomSheetContent(onClickGrantConsent: () -> Unit, onCancel: () -> Unit) {
+    ConnectBottomSheet(
+        header = stringResource(R.string.give_consent_bottom_sheet_header),
+        info = stringResource(R.string.give_consent_bottom_sheet_info),
+        image = painterResource(R.drawable.pharmacist_circle_blue),
+        connectButtonText = stringResource(R.string.give_consent_bottom_sheet_activate),
+        cancelButtonText = stringResource(R.string.give_consent_bottom_sheet_activate_later),
+        onClickConnect = onClickGrantConsent,
+        onCancel = onCancel
+    )
+}
+
+@Composable
+private fun ConnectBottomSheet(
+    header: String,
+    info: String,
+    image: Painter,
+    connectButtonText: String,
+    cancelButtonText: String,
+    onClickConnect: () -> Unit,
+    onCancel: () -> Unit
+) {
     Column(
         Modifier
             .fillMaxWidth(),
@@ -271,24 +316,24 @@ private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -
     ) {
         SpacerSmall()
         Image(
-            painterResource(R.drawable.man_phone_blue_circle),
+            image,
             null
         )
         Text(
-            stringResource(R.string.mainscreen_welcome_drawer_header),
+            header,
             style = AppTheme.typography.subtitle1,
             textAlign = TextAlign.Center
         )
         SpacerSmall()
         Text(
-            stringResource(R.string.mainscreen_welcome_drawer_info),
+            info,
             style = AppTheme.typography.body2l,
             textAlign = TextAlign.Center
         )
         SpacerLarge()
         PrimaryButton(
             modifier = Modifier
-                .testTag(TestTag.Main.MainScreenBottomSheet.LoginButton),
+                .testTag(TestTag.Main.MainScreenBottomSheet.GetConsentButton),
             onClick = onClickConnect,
             contentPadding = PaddingValues(
                 vertical = 13.dp,
@@ -296,7 +341,7 @@ private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -
             )
         ) {
             Text(
-                stringResource(R.string.mainscreen_connect_bottomsheet_connect)
+                connectButtonText
             )
         }
         SpacerMedium()
@@ -310,7 +355,7 @@ private fun ConnectBottomSheetContent(onClickConnect: () -> Unit, onCancel: () -
             )
         ) {
             Text(
-                stringResource(R.string.mainscreen_connect_bottomsheet_connect_later)
+                cancelButtonText
             )
         }
     }

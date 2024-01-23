@@ -27,7 +27,7 @@ interface GeneralSettings {
     val general: Flow<SettingsData.General>
 
     suspend fun acceptUpdatedDataTerms(now: Instant = Clock.System.now())
-    suspend fun saveOnboardingSucceededData(
+    suspend fun saveOnboardingData(
         authenticationMode: SettingsData.AuthenticationMode,
         profileName: String,
         now: Instant = Clock.System.now()

@@ -28,7 +28,7 @@ import org.kodein.di.instance
 
 val protocolModule = DI.Module("protocolModule") {
     bindProvider { AuditEventRemoteDataSource(instance()) }
-    bindProvider { AuditEventsUseCase(instance(), instance()) }
+    bindProvider { AuditEventsUseCase(instance()) }
 }
 
 val protocolRepositoryModule = DI.Module("protocolRepositoryModule", allowSilentOverride = true) {

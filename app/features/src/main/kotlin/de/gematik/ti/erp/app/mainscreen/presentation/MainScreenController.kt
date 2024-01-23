@@ -26,10 +26,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
+import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
+import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentUseCase
+import de.gematik.ti.erp.app.orders.usecase.GetUnreadOrdersUseCase
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.usecase.AcceptMLKitUseCase
 import de.gematik.ti.erp.app.settings.usecase.AllowAnalyticsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
@@ -47,18 +49,19 @@ import org.kodein.di.compose.rememberInstance
 
 @Suppress("LongParameterList")
 class MainScreenController(
-    private val messageUseCase: OrderUseCase,
+    private val getUnreadOrdersUseCase: GetUnreadOrdersUseCase,
     private val saveToolTipsShownUseCase: SaveToolTippsShownUseCase,
     private val saveWelcomeDrawerShownUseCase: SaveWelcomeDrawerShownUseCase,
-    private val acceptMLKitUseCase: AcceptMLKitUseCase,
     private val allowAnalyticsUseCase: AllowAnalyticsUseCase,
     private val savePasswordUseCase: SavePasswordUseCase,
-    private val scope: CoroutineScope,
-    getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
-    getOnboardingSucceededUseCase: GetOnboardingSucceededUseCase,
-    getCanStartToolTipsUseCase: GetCanStartToolTipsUseCase,
-    getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase,
-    getMLKitAcceptedUseCase: GetMLKitAcceptedUseCase
+    private val saveGrantConsentDrawerShownUseCase: SaveGrantConsentDrawerShownUseCase,
+    private val getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
+    private val getOnboardingSucceededUseCase: GetOnboardingSucceededUseCase,
+    private val getCanStartToolTipsUseCase: GetCanStartToolTipsUseCase,
+    private val getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase,
+    private val showGrantConsentUseCase: ShowGrantConsentUseCase,
+    private val getMLKitAcceptedUseCase: GetMLKitAcceptedUseCase,
+    private val scope: CoroutineScope
 ) {
 
     enum class OrderedEvent {
@@ -92,7 +95,7 @@ class MainScreenController(
         @Composable
         get() = canStartToolTips.collectAsStateWithLifecycle(false)
 
-    fun toolTippsShown() = scope.launch {
+    fun toolTipsShown() = scope.launch {
         saveToolTipsShownUseCase()
     }
 
@@ -107,8 +110,18 @@ class MainScreenController(
         saveWelcomeDrawerShownUseCase()
     }
 
-    fun unreadOrders(profile: ProfilesUseCaseData.Profile) =
-        messageUseCase.unreadOrders(profile)
+    private val showGiveConsentDrawer =
+        showGrantConsentUseCase.invoke()
+
+    val showGiveConsentDrawerState
+        @Composable
+        get() = showGiveConsentDrawer.collectAsStateWithLifecycle(false)
+
+    fun giveConsentDrawerShown(profileId: ProfileIdentifier) = scope.launch {
+        saveGrantConsentDrawerShownUseCase(profileId)
+    }
+
+    fun updateUnreadOrders(profile: ProfilesUseCaseData.Profile) = getUnreadOrdersUseCase.invoke(profile.id)
 
     suspend fun onRefresh(event: PrescriptionServiceState) {
         _onRefreshEvent.emit(event)
@@ -124,10 +137,6 @@ class MainScreenController(
     val mlKitAcceptedState
         @Composable
         get() = mlKitAccepted.collectAsStateWithLifecycle(false)
-
-    fun acceptMLKit() = scope.launch {
-        acceptMLKitUseCase()
-    }
 
     @Requirement(
         "O.Purp_5#3",
@@ -145,10 +154,9 @@ class MainScreenController(
 
 @Composable
 fun rememberMainScreenController(): MainScreenController {
-    val messageUseCase by rememberInstance<OrderUseCase>()
+    val getUnreadOrdersUseCase by rememberInstance<GetUnreadOrdersUseCase>()
     val getScreenShotsAllowedUseCase by rememberInstance<GetScreenShotsAllowedUseCase>()
     val shouldShowOnboardingUseCase by rememberInstance<GetOnboardingSucceededUseCase>()
-    val acceptMLKitUseCase by rememberInstance<AcceptMLKitUseCase>()
     val getMLKitAcceptedUseCase by rememberInstance<GetMLKitAcceptedUseCase>()
     val allowAnalyticsUseCase by rememberInstance<AllowAnalyticsUseCase>()
     val savePasswordUseCase by rememberInstance<SavePasswordUseCase>()
@@ -156,20 +164,23 @@ fun rememberMainScreenController(): MainScreenController {
     val saveToolTipsShownUseCase by rememberInstance<SaveToolTippsShownUseCase>()
     val getShowWelcomeDrawerUseCase by rememberInstance<GetShowWelcomeDrawerUseCase>()
     val saveWelcomeDrawerShownUseCase by rememberInstance<SaveWelcomeDrawerShownUseCase>()
+    val getShowGiveConsentDrawerUseCase by rememberInstance<ShowGrantConsentUseCase>()
+    val saveGrantConsentDrawerShownUseCase by rememberInstance<SaveGrantConsentDrawerShownUseCase>()
     val scope = rememberCoroutineScope()
 
     return remember {
         MainScreenController(
-            messageUseCase = messageUseCase,
+            getUnreadOrdersUseCase = getUnreadOrdersUseCase,
             getScreenShotsAllowedUseCase = getScreenShotsAllowedUseCase,
             getOnboardingSucceededUseCase = shouldShowOnboardingUseCase,
-            acceptMLKitUseCase = acceptMLKitUseCase,
             getMLKitAcceptedUseCase = getMLKitAcceptedUseCase,
             allowAnalyticsUseCase = allowAnalyticsUseCase,
             savePasswordUseCase = savePasswordUseCase,
             getCanStartToolTipsUseCase = getShowToolTipsUseCase,
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
             getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
+            showGrantConsentUseCase = getShowGiveConsentDrawerUseCase,
+            saveGrantConsentDrawerShownUseCase = saveGrantConsentDrawerShownUseCase,
             saveWelcomeDrawerShownUseCase = saveWelcomeDrawerShownUseCase,
             scope = scope
         )

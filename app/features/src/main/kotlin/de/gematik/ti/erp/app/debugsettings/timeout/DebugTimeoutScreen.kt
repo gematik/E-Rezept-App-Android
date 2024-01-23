@@ -79,7 +79,7 @@ object DebugTimeoutScreen {
         val error by viewmodel.error.collectAsStateWithLifecycle(NoError)
 
         AnimatedElevationScaffold(
-            topBarTitle = "Biometric settings",
+            topBarTitle = "Timeout settings",
             actions = {},
             elevated = elevated,
             onBack = onBack

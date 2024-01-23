@@ -36,10 +36,3 @@ class MessageConversionException(private val throwable: Throwable) : Throwable(c
         }
     }
 }
-
-fun installMessageConversionExceptionHandler() {
-    val defaultExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
-    Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
-        defaultExceptionHandler!!.uncaughtException(thread, MessageConversionException(throwable))
-    }
-}

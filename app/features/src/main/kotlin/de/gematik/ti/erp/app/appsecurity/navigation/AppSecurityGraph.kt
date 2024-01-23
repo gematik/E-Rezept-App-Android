@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.appsecurity.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
@@ -31,19 +30,13 @@ import de.gematik.ti.erp.app.navigation.toNavigationString
 import io.github.aakira.napier.Napier
 
 fun NavGraphBuilder.appSecurityGraph(
-    startDestination: String = DeviceCheckLoadingScreen.route,
     navController: NavController,
+    startDestination: String = DeviceCheckLoadingScreen.route,
     onAppSecurityPassed: () -> Unit
 ) {
     navigation(startDestination = startDestination, route = AppSecurityRoutes.subGraphName()) {
         renderComposable(
-            route = DeviceCheckLoadingScreen.route,
-            enterTransition = {
-                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up)
-            },
-            exitTransition = {
-                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down)
-            }
+            route = DeviceCheckLoadingScreen.route
         ) {
             DeviceCheckLoadingStartScreen(
                 navController = navController,
@@ -77,13 +70,7 @@ fun NavGraphBuilder.appSecurityGraph(
         }
         renderComposable(
             route = AppSecurityRoutes.IntegrityWarningScreen.route,
-            arguments = AppSecurityRoutes.IntegrityWarningScreen.arguments,
-            enterTransition = {
-                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up)
-            },
-            exitTransition = {
-                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down)
-            }
+            arguments = AppSecurityRoutes.IntegrityWarningScreen.arguments
         ) {
             Napier.d(
                 tag = "AppSecurity check",
@@ -104,13 +91,7 @@ fun NavGraphBuilder.appSecurityGraph(
             )
         }
         renderComposable(
-            route = AppSecurityRoutes.InsecureDeviceScreen.route,
-            enterTransition = {
-                slideIntoContainer(AnimatedContentTransitionScope.SlideDirection.Up)
-            },
-            exitTransition = {
-                slideOutOfContainer(AnimatedContentTransitionScope.SlideDirection.Down)
-            }
+            route = AppSecurityRoutes.InsecureDeviceScreen.route
         ) {
             Napier.d(
                 tag = "AppSecurity check",

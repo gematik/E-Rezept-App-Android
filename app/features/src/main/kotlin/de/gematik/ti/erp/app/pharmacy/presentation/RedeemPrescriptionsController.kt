@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.fhir.model.DirectCommunicationMessage
 import de.gematik.ti.erp.app.fhir.model.json
-import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
+import de.gematik.ti.erp.app.orders.usecase.SaveLocalCommunicationUseCase
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
@@ -37,8 +37,8 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
-import de.gematik.ti.erp.app.prescription.ui.catchAndTransformRemoteExceptions
-import de.gematik.ti.erp.app.prescription.ui.retryWithAuthenticator
+import de.gematik.ti.erp.app.prescription.presentation.catchAndTransformRemoteExceptions
+import de.gematik.ti.erp.app.prescription.presentation.retryWithAuthenticator
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.async
@@ -59,7 +59,7 @@ import java.util.UUID
 class RedeemPrescriptionsController(
     private val searchUseCase: PharmacySearchUseCase,
     private val pharmacyDirectRedeemUseCase: PharmacyDirectRedeemUseCase,
-    private val orderUseCase: OrderUseCase,
+    private val saveLocalCommunicationUseCase: SaveLocalCommunicationUseCase,
     private val overviewUseCase: PharmacyOverviewUseCase,
     private val dispatchers: DispatchProvider,
     private val authenticator: Authenticator
@@ -71,6 +71,7 @@ class RedeemPrescriptionsController(
         sealed interface Success : State {
             object Ok : Success
         }
+
         sealed interface Error : State, PrescriptionServiceErrorState {
             object Unknown : Error
             object UnableToRedeem : Error
@@ -169,8 +170,10 @@ class RedeemPrescriptionsController(
                                     url = when (redeemOption) {
                                         PharmacyScreenData.OrderOption.CourierDelivery
                                         -> pharmacy.contacts.deliveryUrl
+
                                         PharmacyScreenData.OrderOption.PickupService
                                         -> pharmacy.contacts.pickUpUrl
+
                                         PharmacyScreenData.OrderOption.MailDelivery
                                         -> pharmacy.contacts.onlineServiceUrl
                                     },
@@ -190,7 +193,7 @@ class RedeemPrescriptionsController(
                 results.mapValues { (order, result) ->
                     result?.fold(
                         onSuccess = {
-                            orderUseCase.saveLocalCommunication(order.taskId, pharmacy.id, transactionId)
+                            saveLocalCommunicationUseCase.invoke(order.taskId, pharmacy.id, transactionId)
                             State.Success.Ok
                         },
                         onFailure = {
@@ -308,7 +311,7 @@ class RedeemPrescriptionsController(
 fun rememberRedeemPrescriptionsController(): RedeemPrescriptionsController {
     val searchUseCase by rememberInstance<PharmacySearchUseCase>()
     val pharmacyDirectRedeemUseCase by rememberInstance<PharmacyDirectRedeemUseCase>()
-    val orderUseCase by rememberInstance<OrderUseCase>()
+    val saveLocalCommunicationUseCase by rememberInstance<SaveLocalCommunicationUseCase>()
     val overviewUseCase by rememberInstance<PharmacyOverviewUseCase>()
     val dispatchers by rememberInstance<DispatchProvider>()
     val authenticator = LocalAuthenticator.current
@@ -316,7 +319,7 @@ fun rememberRedeemPrescriptionsController(): RedeemPrescriptionsController {
         RedeemPrescriptionsController(
             searchUseCase = searchUseCase,
             pharmacyDirectRedeemUseCase = pharmacyDirectRedeemUseCase,
-            orderUseCase = orderUseCase,
+            saveLocalCommunicationUseCase = saveLocalCommunicationUseCase,
             overviewUseCase = overviewUseCase,
             dispatchers = dispatchers,
             authenticator = authenticator

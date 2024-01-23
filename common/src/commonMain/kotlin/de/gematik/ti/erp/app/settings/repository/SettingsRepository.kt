@@ -157,7 +157,7 @@ class SettingsRepository constructor(
         }
     }
 
-    override suspend fun saveOnboardingSucceededData(
+    override suspend fun saveOnboardingData(
         authenticationMode: SettingsData.AuthenticationMode,
         profileName: String,
         now: Instant

@@ -36,11 +36,12 @@ interface PrescriptionServiceErrorState : PrescriptionServiceState
 
 @Stable
 sealed interface GeneralErrorState : PrescriptionServiceErrorState {
-    object NetworkNotAvailable : GeneralErrorState
+    data object NetworkNotAvailable : GeneralErrorState
     class ServerCommunicationFailedWhileRefreshing(val code: Int) : GeneralErrorState
-    object FatalTruststoreState : GeneralErrorState
-    object NoneEnrolled : GeneralErrorState
-    object UserNotAuthenticated : GeneralErrorState
+    data object FatalTruststoreState : GeneralErrorState
+    data object NoneEnrolled : GeneralErrorState
+    data object UserNotAuthenticated : GeneralErrorState
+    data object RedirectUrlForExternalAuthenticationWrong : GeneralErrorState
 }
 
 @Immutable

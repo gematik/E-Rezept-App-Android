@@ -31,7 +31,7 @@ import de.gematik.ti.erp.app.authentication.model.PromptAuthenticator
 import de.gematik.ti.erp.app.authentication.model.SecureElement
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.IntentHandler
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
+import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emitAll
@@ -42,6 +42,7 @@ import java.net.URI
 
 class NoneEnrolledException : IllegalStateException()
 class UserNotAuthenticatedException : IllegalStateException()
+class RedirectUrlWrongException : IllegalStateException()
 
 interface AuthenticationBridge {
     suspend fun authenticateFor(
@@ -61,7 +62,7 @@ interface AuthenticationBridge {
         tag: Tag
     ): Flow<AuthenticationState>
 
-    suspend fun loadExternalAuthenticators(): List<AuthenticationId>
+    suspend fun loadExternalAuthenticators(): List<HealthInsuranceData>
 
     suspend fun doExternalAuthentication(
         profileId: ProfileIdentifier,

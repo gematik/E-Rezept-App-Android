@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.profiles.model
 
-import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
@@ -49,13 +48,15 @@ object ProfilesData {
         val insurantName: String? = null,
         val insuranceIdentifier: String? = null,
         val insuranceName: String? = null,
-        val insuranceType: InsuranceTypeV1, // TODO: Map to domain insurance type
+        val insuranceType: InsuranceType,
+        val isConsentDrawerShown: Boolean,
         val lastAuthenticated: Instant? = null,
         val lastAuditEventSynced: Instant? = null,
         val lastTaskSynced: Instant? = null,
         val active: Boolean = false,
         val singleSignOnTokenScope: IdpData.SingleSignOnTokenScope?
     ) {
+
         @Suppress("ktlint:max-line-length")
         override fun toString(): String {
             return "Profile(id='$id', color=$color, name='$name', insurantName=$insurantName, insuranceIdentifier=$insuranceIdentifier, insuranceName=$insuranceName, lastAuthenticated=$lastAuthenticated, lastAuditEventSynced=$lastAuditEventSynced, lastTaskSynced=$lastTaskSynced, active=$active, singleSignOnTokenScope=$singleSignOnTokenScope)"
@@ -109,5 +110,11 @@ object ProfilesData {
         PINK,
         TREE,
         BLUE_MOON
+    }
+
+    enum class InsuranceType {
+        GKV,
+        PKV,
+        None
     }
 }

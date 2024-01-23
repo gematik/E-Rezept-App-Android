@@ -35,7 +35,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
+import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
+import de.gematik.ti.erp.app.prescription.presentation.PrescriptionsController
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -108,7 +109,7 @@ fun ArchiveScreen(
                                 prescription,
                                 onClick = {
                                     navController.navigate(
-                                        MainNavigationScreens.PrescriptionDetail.path(
+                                        PrescriptionDetailRoutes.PrescriptionDetailScreen.path(
                                             taskId = prescription.taskId
                                         )
                                     )
@@ -121,7 +122,7 @@ fun ArchiveScreen(
                                 modifier = CardPaddingModifier,
                                 onClick = {
                                     navController.navigate(
-                                        MainNavigationScreens.PrescriptionDetail.path(
+                                        PrescriptionDetailRoutes.PrescriptionDetailScreen.path(
                                             taskId = prescription.taskId
                                         )
                                     )

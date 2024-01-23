@@ -20,7 +20,6 @@
 
 package de.gematik.ti.erp.app.idp.api.models
 
-import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.secureRandomInstance
 import kotlinx.serialization.SerialName
@@ -30,44 +29,41 @@ import org.jose4j.base64url.Base64Url
 import org.jose4j.jwk.JsonWebKey
 import org.jose4j.jwk.PublicJsonWebKey
 import org.jose4j.jws.JsonWebSignature
-import java.net.URI
 
 @Serializable
 data class IdpDiscoveryInfo(
-    @SerialName("authorization_endpoint") val authorizationURL: String,
-    @SerialName("sso_endpoint") val ssoURL: String,
-    @SerialName("token_endpoint") val tokenURL: String,
-    @SerialName("uri_pair") val pairingURL: String,
-    @SerialName("auth_pair_endpoint") val authenticationURL: String,
+    @SerialName("authorization_endpoint") val authorizationUrl: String,
+    @SerialName("sso_endpoint") val ssoUrl: String,
+    @SerialName("token_endpoint") val tokenUrl: String,
+    @SerialName("uri_pair") val pairingUrl: String,
+    @SerialName("auth_pair_endpoint") val authenticationUrl: String,
     @SerialName("uri_puk_idp_enc") val uriPukIdpEnc: String,
     @SerialName("uri_puk_idp_sig") val uriPukIdpSig: String,
     @SerialName("exp") val expirationTime: Long,
     @SerialName("iat") val issuedAt: Long,
-    @SerialName("kk_app_list_uri") val krankenkassenAppURL: String? = null,
-    @SerialName("third_party_authorization_endpoint") val thirdPartyAuthorizationURL: String? = null
+    @SerialName("kk_app_list_uri") val healthInsuranceAppV1Url: String? = null,
+    @SerialName("fed_idp_list_uri") val healthInsuranceAppV2Url: String? = null,
+    @SerialName("third_party_authorization_endpoint") val thirdPartyAuthorizationV1Url: String? = null,
+    @SerialName("federation_authorization_endpoint") val thirdPartyAuthorizationV2Url: String? = null
 )
 
 @Serializable
-data class AuthenticationId(
+data class RemoteFastTrackIdp(
     @SerialName("kk_app_name") val name: String,
     @SerialName("kk_app_id") val id: String
 )
 
 @Serializable
-data class AuthenticationIdList(
-    @SerialName("kk_app_list") val authenticationList: List<AuthenticationId>
+data class RemoteFederationIdp(
+    @SerialName("idp_name") val name: String,
+    @SerialName("idp_iss") val id: String,
+    @SerialName("idp_sek_2") val isGid: Boolean,
+    @SerialName("idp_logo") val logo: String?
 )
 
 @Serializable
-data class AuthorizationRedirectInfo(
-    @SerialName("client_id") val clientId: String,
-    @SerialName("state") val state: String,
-    @SerialName("redirect_uri") val redirectUri: String,
-    @SerialName("code_challenge") val codeChallenge: String,
-    @SerialName("code_challenge_method") val codeChallengeMethod: String,
-    @SerialName("response_type") val responseType: String,
-    @SerialName("nonce") val nonce: String,
-    @SerialName("scope") val scope: String
+data class RemoteFederationIdps(
+    @SerialName("fed_idp_list") val items: List<RemoteFederationIdp>
 )
 
 // TODO https://youtrack.jetbrains.com/issue/KT-50649 conflicts with result class of Kotlin
@@ -169,9 +165,4 @@ internal fun generateRandomUrlSafeStringSecure(outLength: Int = 32): String {
         }
     )
     return chars.substring(0 until outLength)
-}
-class ExternalAuthorizationData(uri: URI) {
-    val code = IdpService.extractQueryParameter(uri, "code")
-    val state = IdpService.extractQueryParameter(uri, "state")
-    val kkAppRedirectUri = IdpService.extractQueryParameter(uri, "kk_app_redirect_uri")
 }

@@ -41,6 +41,8 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
         AppColorsThemeLight
     }
 
+    val sizes = remember { SizeDefaults }
+
     val fontFamily = remember {
         FontFamily(
             Font(R.font.noto_sans_bold, weight = FontWeight.Bold),
@@ -173,6 +175,7 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
                 LocalAppColors provides colors,
                 LocalAppTypographyColors provides typoColors,
                 LocalAppTypography provides typo,
+                LocalSizes provides sizes,
                 content = content
             )
         }
@@ -201,4 +204,8 @@ private val LocalAppTypographyColors = staticCompositionLocalOf<AppTypographyCol
 
 private val LocalAppTypography = staticCompositionLocalOf<AppTypography> {
     error("No AppTypography provided")
+}
+
+private val LocalSizes = staticCompositionLocalOf<SizeDefaults> {
+    error("No sized provided")
 }

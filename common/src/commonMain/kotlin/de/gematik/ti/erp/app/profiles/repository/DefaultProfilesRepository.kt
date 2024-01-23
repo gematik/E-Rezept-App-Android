@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.profiles.repository
 
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.db.entities.deleteAll
 import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
 import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
@@ -31,6 +30,8 @@ import de.gematik.ti.erp.app.idp.repository.toSingleSignOnTokenScope
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
@@ -49,9 +50,9 @@ class KVNRAlreadyAssignedException(
     val insuranceIdentifier: String
 ) : IllegalStateException(message)
 
-class DefaultProfilesRepository constructor(
-    private val dispatchers: DispatchProvider,
-    private val realm: Realm
+class DefaultProfilesRepository(
+    private val realm: Realm,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ProfileRepository {
     private val lock = Mutex()
 
@@ -90,7 +91,12 @@ class DefaultProfilesRepository constructor(
                     insurantName = profile.insurantName ?: "",
                     insuranceIdentifier = profile.insuranceIdentifier,
                     insuranceName = profile.insuranceName,
-                    insuranceType = profile.insuranceType,
+                    insuranceType = when (profile.insuranceType) {
+                        InsuranceTypeV1.GKV -> ProfilesData.InsuranceType.GKV
+                        InsuranceTypeV1.PKV -> ProfilesData.InsuranceType.PKV
+                        InsuranceTypeV1.None -> ProfilesData.InsuranceType.None
+                    },
+                    isConsentDrawerShown = profile.isConsentDrawerShown,
                     lastAuthenticated = profile.lastAuthenticated?.toInstant(),
                     lastAuditEventSynced = profile.lastAuditEventSynced?.toInstant(),
                     lastTaskSynced = profile.lastTaskSynced?.toInstant(),
@@ -104,7 +110,7 @@ class DefaultProfilesRepository constructor(
 
                 )
             }
-        }.flowOn(dispatchers.main)
+        }.flowOn(dispatcher)
 
     override fun activeProfile(): Flow<ProfilesData.Profile> =
         profiles().mapNotNull {
@@ -283,7 +289,7 @@ class DefaultProfilesRepository constructor(
     }
 
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean =
-        getProfileById(profileId).first().insuranceType == InsuranceTypeV1.PKV
+        getProfileById(profileId).first().insuranceType == ProfilesData.InsuranceType.PKV
 
     private fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> =
         profiles().mapNotNull { profiles ->

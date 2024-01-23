@@ -82,6 +82,7 @@ class IdpPairingRepository constructor(
                             authenticatorName = originalToken.authenticatorName
                         )
                     }
+
                 is IdpData.AlternateAuthenticationToken ->
                     pairingToken?.let {
                         IdpData.AlternateAuthenticationToken(
@@ -91,6 +92,7 @@ class IdpPairingRepository constructor(
                             healthCardCertificate = originalToken.healthCardCertificate
                         )
                     }
+
                 is IdpData.AlternateAuthenticationWithoutToken ->
                     if (pairingToken == null) {
                         originalToken
@@ -102,6 +104,7 @@ class IdpPairingRepository constructor(
                             healthCardCertificate = originalToken.healthCardCertificate
                         )
                     }
+
                 is IdpData.DefaultToken ->
                     pairingToken?.let {
                         IdpData.DefaultToken(
@@ -110,13 +113,16 @@ class IdpPairingRepository constructor(
                             healthCardCertificate = originalToken.healthCardCertificate
                         )
                     }
+
                 null -> null
             }
         }
 
-    fun saveSingleSignOnToken(profileId: ProfileIdentifier, token: IdpData.SingleSignOnToken) {
-        singleSignOnTokenMap.update {
-            it + (profileId to token)
+    fun saveSingleSignOnToken(profileId: ProfileIdentifier, token: IdpData.SingleSignOnToken?) {
+        token?.let { nonNullToken ->
+            singleSignOnTokenMap.update {
+                it + (profileId to nonNullToken)
+            }
         }
     }
 

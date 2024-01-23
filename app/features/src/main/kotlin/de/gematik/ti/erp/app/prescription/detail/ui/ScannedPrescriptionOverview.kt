@@ -42,8 +42,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsNavigationScreens
 import de.gematik.ti.erp.app.prescription.ui.SentStatusChip
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -126,7 +126,9 @@ fun ScannedPrescriptionOverview(
             Label(
                 text = stringResource(R.string.pres_detail_technical_information),
                 onClick = {
-                    navController.navigate(PrescriptionDetailsNavigationScreens.TechnicalInformation.path())
+                    navController.navigate(
+                        PrescriptionDetailRoutes.PrescriptionDetailTechnicalInformationScreen.path(prescription.taskId)
+                    )
                 }
             )
         }

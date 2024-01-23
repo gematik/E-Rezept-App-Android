@@ -50,7 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -65,7 +65,7 @@ import kotlinx.coroutines.delay
 @Composable
 internal fun MultiProfileTopAppBar(
     mainScreenController: MainScreenController,
-    profilesController: ProfilesController,
+    profileController: ProfileController,
     isInPrescriptionScreen: Boolean,
     elevated: Boolean,
     onClickAddProfile: () -> Unit,
@@ -74,8 +74,8 @@ internal fun MultiProfileTopAppBar(
     showToolTipps: Boolean,
     tooltipBounds: MutableState<Map<Int, Rect>>
 ) {
-    val profiles by profilesController.getProfilesState()
-    val activeProfile by profilesController.getActiveProfileState()
+    val profiles by profileController.getProfilesState()
+    val activeProfile by profileController.getActiveProfileState()
     val accScan = stringResource(R.string.main_scan_acc)
     val elevation = remember(elevated) { if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp }
 
@@ -118,7 +118,7 @@ internal fun MultiProfileTopAppBar(
                 onClickChangeProfileName = onClickChangeProfileName,
                 onClickAddProfile = onClickAddProfile,
                 onClickChangeActiveProfile = { profile ->
-                    profilesController.switchActiveProfile(profile.id)
+                    profileController.switchActiveProfile(profile.id)
                 }
             )
         }

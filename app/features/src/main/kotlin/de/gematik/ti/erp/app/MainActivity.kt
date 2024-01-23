@@ -21,6 +21,8 @@ package de.gematik.ti.erp.app
 import android.os.Bundle
 import android.view.WindowManager
 import androidx.activity.compose.setContent
+import androidx.annotation.RestrictTo
+import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -32,6 +34,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +48,8 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
+import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
 import de.gematik.ti.erp.app.authentication.ui.ExternalAuthPrompt
 import de.gematik.ti.erp.app.authentication.ui.HealthCardPrompt
 import de.gematik.ti.erp.app.authentication.ui.SecureHardwarePrompt
@@ -55,44 +60,46 @@ import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.utils.compose.DebugOverlay
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeEnded
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeStarted
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenNavigation
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberMainScreenController
-import de.gematik.ti.erp.app.prescription.detail.ui.SharePrescriptionHandler
-import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
+import de.gematik.ti.erp.app.prescription.detail.presentation.SharePrescriptionHandler
+import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod.Authenticated
 import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
+import de.gematik.ti.erp.app.utils.compose.DebugOverlay
 import de.gematik.ti.erp.app.utils.compose.DialogHost
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 
-class NfcNotEnabledException : IllegalStateException()
-
 class MainActivity : BaseActivity() {
 
-    // @VisibleForTesting(otherwise = VisibleForTesting.NONE) // Only visible for testing, otherwise shows a warning
+    @VisibleForTesting(otherwise = VisibleForTesting.NONE) // Only visible for testing, otherwise shows a warning
     val testWrapper: TestWrapper by instance()
 
-    // @RestrictTo(RestrictTo.Scope.TESTS)
+    @RestrictTo(RestrictTo.Scope.TESTS)
     @Stable
     class ElementForTest(
         val bounds: Rect,
         val tag: String
     )
 
-    // @RestrictTo(RestrictTo.Scope.TESTS)
+    @RestrictTo(RestrictTo.Scope.TESTS)
     val elementsUsedInTests: SnapshotStateMap<String, ElementForTest> = mutableStateMapOf()
 
+    @OptIn(ExperimentalMaterialNavigationApi::class)
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        collectCrashOnlyForDebug()
+        catchAllUnCaughtExceptions()
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -115,10 +122,6 @@ class MainActivity : BaseActivity() {
             }
         }
 
-        if (!BuildConfig.DEBUG) {
-            installMessageConversionExceptionHandler()
-        }
-
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         setContent {
@@ -136,7 +139,7 @@ class MainActivity : BaseActivity() {
                 ) {
                     val authenticator = LocalAuthenticator.current
                     AppContent {
-                        val profilesController = rememberProfilesController()
+                        val profilesController = rememberProfileController()
                         val mainScreenController = rememberMainScreenController()
                         val screenshotsAllowed by mainScreenController.screenshotsState
 
@@ -158,9 +161,15 @@ class MainActivity : BaseActivity() {
                                 value = it
                             }
                         }
-                        val navController = rememberNavController()
+
+                        val bottomSheetNavigator = rememberBottomSheetNavigator()
+                        val navController = rememberNavController(bottomSheetNavigator)
+
                         val noDrawModifier = Modifier.graphicsLayer(alpha = 0f)
                         val activeProfile by profilesController.getActiveProfileState()
+                        val isSsoTokenValid = rememberSaveable(activeProfile, activeProfile.ssoTokenScope) {
+                            activeProfile.isSSOTokenValid()
+                        }
 
                         Box {
                             if (authentication !is Authenticated) {
@@ -175,20 +184,15 @@ class MainActivity : BaseActivity() {
                                 Box(
                                     if (authentication is Authenticated) Modifier else noDrawModifier
                                 ) {
-                                    // mini card wall
-                                    HealthCardPrompt(
-                                        authenticator = authenticator.authenticatorHealthCard
-                                    )
-
-                                    ExternalAuthPrompt(
-                                        authenticator = authenticator.authenticatorExternal
-                                    )
-
-                                    SecureHardwarePrompt(
-                                        authenticator = authenticator.authenticatorSecureElement
-                                    )
+                                    // show mini card wall only when we have a invalid sso token
+                                    if (!isSsoTokenValid) {
+                                        HealthCardPrompt(authenticator.authenticatorHealthCard)
+                                        ExternalAuthPrompt(authenticator.authenticatorExternal)
+                                    }
+                                    SecureHardwarePrompt(authenticator.authenticatorSecureElement)
 
                                     MainScreenNavigation(
+                                        bottomSheetNavigator = bottomSheetNavigator,
                                         navController = navController
                                     )
 

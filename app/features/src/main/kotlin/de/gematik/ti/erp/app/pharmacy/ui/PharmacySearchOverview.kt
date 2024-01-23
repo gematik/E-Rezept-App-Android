@@ -113,7 +113,6 @@ fun PharmacyOverviewScreen(
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
     val sheetState = rememberPharmacySheetState()
-
     val analytics = LocalAnalytics.current
     val analyticsState by analytics.screenState
     LaunchedEffect(sheetState.isVisible) {

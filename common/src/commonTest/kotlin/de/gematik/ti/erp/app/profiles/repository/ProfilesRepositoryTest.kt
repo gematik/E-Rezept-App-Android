@@ -115,7 +115,6 @@ class ProfilesRepositoryTest : TestDB() {
         )
 
         repo = DefaultProfilesRepository(
-            dispatchers = coroutineRule.dispatchers,
             realm = realm
         )
     }

@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
-class ProfilesController(
+class ProfileController(
     private val addProfileUseCase: AddProfileUseCase,
     private val decryptAccessTokenUseCase: DecryptAccessTokenUseCase,
     private val deleteProfileUseCase: DeleteProfileUseCase,
@@ -173,7 +173,7 @@ class ProfilesController(
 }
 
 @Composable
-fun rememberProfilesController(): ProfilesController {
+fun rememberProfileController(): ProfileController {
     val addProfileUseCase by rememberInstance<AddProfileUseCase>()
     val decryptAccessTokenUseCase by rememberInstance<DecryptAccessTokenUseCase>()
     val deleteProfileUseCase by rememberInstance<DeleteProfileUseCase>()
@@ -188,7 +188,7 @@ fun rememberProfilesController(): ProfilesController {
     val scope = rememberCoroutineScope()
 
     return remember {
-        ProfilesController(
+        ProfileController(
             addProfileUseCase = addProfileUseCase,
             decryptAccessTokenUseCase = decryptAccessTokenUseCase,
             deleteProfileUseCase = deleteProfileUseCase,

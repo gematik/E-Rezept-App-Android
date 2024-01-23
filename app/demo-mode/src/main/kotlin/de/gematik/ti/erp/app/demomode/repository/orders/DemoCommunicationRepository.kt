@@ -142,6 +142,13 @@ class DemoCommunicationRepository(
                 .map { it.toSyncedTaskDataCommunication() }
         }.flowOn(dispatcher)
 
+    override fun loadCommunicationsWithTaskId(taskIds: List<String>): Flow<List<Communication>> =
+        dataSource.communications.mapNotNull { communications ->
+            taskIds.mapNotNull { taskId ->
+                communications.find { it.taskId == taskId }
+            }.map { it.toSyncedTaskDataCommunication() }
+        }
+
     override fun hasUnreadPrescription(taskIds: List<String>, orderId: String): Flow<Boolean> =
         dataSource.communications.mapNotNull { communications ->
             val booleans = taskIds.map { taskId ->
@@ -157,7 +164,11 @@ class DemoCommunicationRepository(
 
     override fun unreadOrders(profileId: ProfileIdentifier): Flow<Long> =
         dataSource.communications.mapNotNull { communications ->
-            communications.filter { it.profileId == profileId && !it.consumed }
+            communications.filter {
+                it.profileId == profileId &&
+                    !it.consumed &&
+                    it.profile == ErxCommunicationDispReq
+            }
                 .distinctBy { it.orderId }
                 .size.toLong()
         }

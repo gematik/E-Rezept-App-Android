@@ -36,11 +36,11 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.fhir.model.OpeningHours
 import de.gematik.ti.erp.app.fhir.model.isOpenToday
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.utils.compose.ErezeptText
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
-import de.gematik.ti.erp.app.utils.compose.Title
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalTime
@@ -71,7 +71,7 @@ internal fun PharmacyContact(
             SpacerMedium()
         }
         if (phone.isNotEmpty() || mail.isNotEmpty() || url.isNotEmpty()) {
-            Title(text = stringResource(id = R.string.legal_notice_contact_header))
+            ErezeptText.Title(text = stringResource(id = R.string.legal_notice_contact_header))
             SpacerMedium()
         }
         if (phone.isNotEmpty()) {

@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.cardunlock.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,8 +43,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -55,9 +52,11 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.MainActivity
-import de.gematik.ti.erp.app.NfcNotEnabledException
+import de.gematik.ti.erp.app.base.onNfcNotEnabled
+import de.gematik.ti.erp.app.base.retryOnNfcEnabled
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.usecase.UnlockEgkState
 import de.gematik.ti.erp.app.cardwall.ui.CardAnimationBox
@@ -73,7 +72,6 @@ import de.gematik.ti.erp.app.settings.ui.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
-import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 import io.github.aakira.napier.Napier
@@ -86,7 +84,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -148,13 +145,9 @@ fun UnlockEgkDialog(
                                 puk = personalUnblockingKey,
                                 oldSecret = oldSecret,
                                 newSecret = newSecret,
-                                tag = activity
-                                    .nfcTagFlow
-                                    .catch {
-                                        if (it is NfcNotEnabledException) {
-                                            showEnableNfcDialog = true
-                                        }
-                                    }
+                                tag = activity.nfcTagFlow.onNfcNotEnabled {
+                                    showEnableNfcDialog = true
+                                }
                             )
                         )
                     } else {
@@ -202,14 +195,8 @@ fun UnlockEgkDialog(
 
     LaunchedEffect(Unit) {
         activity.nfcTagFlow
-            .retryWhen { cause, _ ->
-                cause !is NfcNotEnabledException
-            }
-            .catch { cause ->
-                if (cause is NfcNotEnabledException) {
-                    showEnableNfcDialog = true
-                }
-            }
+            .retryOnNfcEnabled()
+            .onNfcNotEnabled { showEnableNfcDialog = true }
             .filter {
                 !(state.isFailure() && state != UnlockEgkState.HealthCardCommunicationInterrupted)
             }
@@ -442,12 +429,16 @@ fun CardCommunicationDialog(
 ) {
     Dialog(
         onDismissRequest = { onCancel() },
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
         Box(
             Modifier
                 .fillMaxSize()
-                .background(SolidColor(Color.Black), alpha = 0.5f)
                 .systemBarsPadding(),
             contentAlignment = Alignment.BottomCenter
         ) {

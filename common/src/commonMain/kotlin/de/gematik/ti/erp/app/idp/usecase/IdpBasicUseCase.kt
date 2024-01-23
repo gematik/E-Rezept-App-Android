@@ -42,14 +42,15 @@ import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import de.gematik.ti.erp.app.vau.usecase.checkIdpCertificate
-import java.net.URI
-import java.security.MessageDigest
-import java.security.PublicKey
-import java.security.Security
-import java.security.interfaces.ECPublicKey
-import javax.crypto.SecretKey
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.long
 import org.jose4j.base64url.Base64
 import org.jose4j.base64url.Base64Url
 import org.jose4j.jwe.ContentEncryptionAlgorithmIdentifiers
@@ -61,13 +62,12 @@ import org.jose4j.jwt.NumericDate
 import org.jose4j.jwt.consumer.JwtContext
 import org.jose4j.jwt.consumer.NumericDateValidator
 import org.jose4j.jwx.JsonWebStructure
-import io.github.aakira.napier.Napier
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.long
+import java.net.URI
+import java.security.MessageDigest
+import java.security.PublicKey
+import java.security.Security
+import java.security.interfaces.ECPublicKey
+import javax.crypto.SecretKey
 import kotlin.time.Duration.Companion.hours
 
 private val discoveryDocumentMaxValidityMinutes: Int = 24.hours.inWholeMinutes.toInt()
@@ -355,7 +355,6 @@ class IdpBasicUseCase(
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Fetch and check challenge."
     )
-
     suspend fun fetchAndCheckUnsignedChallenge(
         url: String,
         codeChallenge: String,

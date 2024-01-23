@@ -40,7 +40,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionDetailsPopUpNames
+import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailsPopUpNames
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium

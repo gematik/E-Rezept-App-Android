@@ -20,12 +20,6 @@ package de.gematik.ti.erp.app.pharmacy.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -36,17 +30,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHost
@@ -55,12 +45,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Phone
-import androidx.compose.material.icons.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -101,7 +88,13 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 private const val OrderSuccessVideoAspectRatio = 1.69f
-private val TopBarColor = Color(0xffd6e9fb)
+val TopBarColor = Color(0xffd6e9fb)
+
+/*
+   TODO: Change screen layout
+   - Column is not needed and so is the box
+   - putting columns inside lay-column is not a writing code without understanding compose or android
+ */
 
 @Requirement(
     "A_19183#2",
@@ -217,11 +210,12 @@ fun OrderOverview(
                         }
                     }
                 }
-
-                VanishingTopBar(
-                    listState = listState,
-                    videoHeightPx = videoHeightPx,
-                    onBack = onBack
+                Text(
+                    text = stringResource(R.string.pharmacy_order_title),
+                    textAlign = TextAlign.Center,
+                    style = AppTheme.typography.h6,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
             RedeemButton(
@@ -410,80 +404,6 @@ fun PrescriptionRedeemAlertDialog(
         },
         acceptText = stringResource(R.string.pharmacy_search_apovz_call_failed_accept)
     )
-}
-
-@Composable
-private fun VanishingTopBar(
-    listState: LazyListState,
-    videoHeightPx: State<Float>,
-    onBack: () -> Unit
-) {
-    var topBarHeightPx by remember { mutableFloatStateOf(0f) }
-
-    val showTopBar by remember {
-        derivedStateOf {
-            when {
-                listState.firstVisibleItemIndex > 0 -> true
-                listState.firstVisibleItemScrollOffset - videoHeightPx.value > -topBarHeightPx -> true
-                else -> false
-            }
-        }
-    }
-    val showTopBarText by remember {
-        derivedStateOf {
-            when {
-                listState.firstVisibleItemIndex > 0 -> true
-                else -> false
-            }
-        }
-    }
-    val topBarAlpha by animateFloatAsState(if (showTopBar) 1f else 0f, tween())
-    val topBarElevation by animateDpAsState(if (showTopBar) 4.dp else 0.dp, tween())
-
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .onPlaced {
-                topBarHeightPx = it.size.height.toFloat()
-            },
-        color = TopBarColor.copy(alpha = topBarAlpha),
-        elevation = topBarElevation
-    ) {
-        Row(Modifier.statusBarsPadding(), verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                modifier = Modifier.padding(PaddingDefaults.Tiny),
-                onClick = onBack
-            ) {
-                Box(
-                    Modifier
-                        .size(32.dp)
-                        .background(AppTheme.colors.neutral000, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Rounded.ArrowBack,
-                        contentDescription = null,
-                        tint = AppTheme.colors.primary600,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-            SpacerMedium()
-            AnimatedVisibility(
-                showTopBarText,
-                enter = fadeIn(tween()),
-                exit = fadeOut(tween())
-            ) {
-                Text(
-                    text = stringResource(R.string.pharmacy_order_title),
-                    textAlign = TextAlign.Center,
-                    style = AppTheme.typography.h6,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
-        }
-    }
 }
 
 @Composable

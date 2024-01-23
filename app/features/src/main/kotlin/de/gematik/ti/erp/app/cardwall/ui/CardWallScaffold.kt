@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.cardwall.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -40,6 +39,10 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -72,7 +75,6 @@ import de.gematik.ti.erp.app.utils.compose.SpacerXLarge
 )
 @Composable
 fun CardWallIntroScaffold(
-    nfcEnabled: Boolean,
     actions: @Composable RowScope.() -> Unit = {},
     onNext: () -> Unit,
     onClickAlternateAuthentication: () -> Unit,
@@ -80,8 +82,10 @@ fun CardWallIntroScaffold(
     onClickDemoMode: () -> Unit
 ) {
     val activity = LocalActivity.current
-
+    var showEnableNFCDialog by remember { mutableStateOf(false) }
     val scrollState = rememberScrollState()
+    val cardWallController = rememberCardWallController()
+    val nfcIsAvailable by cardWallController.isNFCAvailable
 
     AnimatedElevationScaffold(
         modifier = Modifier.testTag(TestTag.CardWall.Intro.IntroScreen)
@@ -99,13 +103,23 @@ fun CardWallIntroScaffold(
                 .padding(it)
         ) {
             AddCardContent(
-                nfcAvailable = nfcEnabled,
+                nfcIsAvailable = nfcIsAvailable,
+                checkNfcEnabled = { cardWallController.checkNfcEnabled() },
+                showEnableNFCDialog = { showEnableNFCDialog = true },
                 onClickOrderNow = onClickOrderNow,
                 onClickHealthCardAuth = onNext,
                 onClickInsuranceAuth = onClickAlternateAuthentication,
                 onClickDemoMode = onClickDemoMode
             )
         }
+    }
+    if (showEnableNFCDialog) {
+        EnableNfcDialog(
+            onClickAction = { showEnableNFCDialog = false },
+            onCancel = {
+                showEnableNFCDialog = false
+            }
+        )
     }
 }
 
@@ -151,7 +165,9 @@ val CardPaddingModifier = Modifier
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AddCardContent(
-    nfcAvailable: Boolean,
+    nfcIsAvailable: Boolean,
+    checkNfcEnabled: () -> Boolean,
+    showEnableNFCDialog: () -> Unit,
     onClickHealthCardAuth: () -> Unit,
     onClickInsuranceAuth: () -> Unit,
     onClickOrderNow: () -> Unit,
@@ -218,26 +234,25 @@ fun AddCardContent(
             border = BorderStroke(1.dp, color = AppTheme.colors.neutral300),
             elevation = 0.dp,
             backgroundColor = AppTheme.colors.neutral050,
-            onClick = if (nfcAvailable) {
-                onClickHealthCardAuth
-            } else {
-                { }
+            enabled = nfcIsAvailable,
+            onClick = {
+                if (checkNfcEnabled()) {
+                    onClickHealthCardAuth()
+                } else {
+                    showEnableNFCDialog()
+                }
             }
         ) {
             Row(
                 Modifier.padding(PaddingDefaults.Medium)
             ) {
                 Column(
-                    modifier = if (nfcAvailable) {
-                        Modifier.weight(1f)
-                    } else {
-                        Modifier.weight(1f).clickable { }
-                    }
+                    modifier = Modifier.weight(1f)
                 ) {
                     Text(
                         stringResource(R.string.cdw_intro_auth_health_card),
                         style = AppTheme.typography.subtitle1l,
-                        color = if (nfcAvailable) {
+                        color = if (nfcIsAvailable) {
                             AppTheme.colors.neutral900
                         } else {
                             AppTheme.colors.neutral400
@@ -245,9 +260,13 @@ fun AddCardContent(
                     )
                     SpacerTiny()
                     Text(
-                        stringResource(R.string.cdw_intro_auth_health_card_pin),
+                        if (nfcIsAvailable) {
+                            stringResource(R.string.cdw_intro_auth_health_card_pin)
+                        } else {
+                            stringResource(R.string.cdw_intro_auth_health_card_no_nfc_device)
+                        },
                         style = AppTheme.typography.body2l,
-                        color = if (nfcAvailable) {
+                        color = if (nfcIsAvailable) {
                             AppTheme.colors.neutral600
                         } else {
                             AppTheme.colors.neutral400
@@ -258,7 +277,7 @@ fun AddCardContent(
                 Icon(
                     Icons.Filled.KeyboardArrowRight,
                     null,
-                    tint = if (nfcAvailable) AppTheme.colors.neutral400 else AppTheme.colors.neutral300,
+                    tint = if (nfcIsAvailable) AppTheme.colors.neutral400 else AppTheme.colors.neutral300,
                     modifier = Modifier
                         .size(24.dp)
                         .align(Alignment.CenterVertically)

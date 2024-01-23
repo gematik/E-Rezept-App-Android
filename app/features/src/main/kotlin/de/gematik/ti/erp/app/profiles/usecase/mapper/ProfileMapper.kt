@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.profiles.usecase.mapper
 
-import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -32,9 +31,9 @@ fun ProfilesData.Profile.toModel() =
             insuranceIdentifier = insuranceIdentifier ?: "",
             insuranceName = insuranceName ?: "",
             insuranceType = when (insuranceType) {
-                InsuranceTypeV1.None -> ProfilesUseCaseData.InsuranceType.NONE
-                InsuranceTypeV1.GKV -> ProfilesUseCaseData.InsuranceType.GKV
-                InsuranceTypeV1.PKV -> ProfilesUseCaseData.InsuranceType.PKV
+                ProfilesData.InsuranceType.None -> ProfilesUseCaseData.InsuranceType.NONE
+                ProfilesData.InsuranceType.GKV -> ProfilesUseCaseData.InsuranceType.GKV
+                ProfilesData.InsuranceType.PKV -> ProfilesUseCaseData.InsuranceType.PKV
             }
         ),
         active = active,

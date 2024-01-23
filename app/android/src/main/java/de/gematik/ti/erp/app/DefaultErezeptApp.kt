@@ -16,8 +16,6 @@
  * 
  */
 
-@file:Suppress("MagicNumber")
-
 package de.gematik.ti.erp.app
 
 import androidx.lifecycle.ProcessLifecycleOwner

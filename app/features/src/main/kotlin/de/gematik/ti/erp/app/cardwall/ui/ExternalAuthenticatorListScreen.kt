@@ -18,9 +18,11 @@
 
 package de.gematik.ti.erp.app.cardwall.ui
 
+import android.app.Dialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
@@ -49,12 +51,9 @@ import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAlignment
@@ -62,25 +61,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
-import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
+import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
+import de.gematik.ti.erp.app.idp.model.HealthInsuranceData.Companion.isPkv
+import de.gematik.ti.erp.app.mainscreen.ui.LoadingDialog
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.launch
-import org.kodein.di.compose.rememberViewModel
+import de.gematik.ti.erp.app.utils.compose.UiStateMachine
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
+import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
+import de.gematik.ti.erp.app.utils.uistate.UiState
 
 @Composable
 fun ExternalAuthenticatorListScreen(
@@ -89,9 +88,85 @@ fun ExternalAuthenticatorListScreen(
     onCancel: () -> Unit,
     onBack: () -> Unit
 ) {
-    val viewModel by rememberViewModel<ExternalAuthenticatorListViewModel>()
-    val controller = rememberProfilesController()
+    val dialog = LocalDialog.current
+
+    var loadingDialog: Dialog? = remember { null }
+
+    val intentHandler = LocalIntentHandler.current
+
     val listState = rememberLazyListState()
+
+    val controller = rememberExternalAuthenticatorListController()
+
+    val healthInsuranceAppIdps by controller
+        .healthInsuranceDataList.collectAsStateWithLifecycle()
+
+    val authorizationWithExternalAppEvent = controller.authorizationWithExternalAppInBackgroundEvent
+
+    val redirectUriEvent = controller.redirectUriEvent
+
+    val redirectErrorEvent = controller.redirectUriErrorEvent
+
+    val redirectGematikErrorEvent = controller.redirectUriGematikErrorEvent
+
+    LaunchedEffect(Unit) {
+        controller.getHealthInsuranceAppList()
+    }
+
+    authorizationWithExternalAppEvent.listen { isStarted ->
+        if (isStarted) {
+            dialog.show {
+                loadingDialog = it
+                LoadingDialog { it.dismiss() }
+            }
+        } else {
+            loadingDialog?.dismiss()
+        }
+    }
+
+    redirectUriEvent.listen { (redirectUri, healthInsuranceData) ->
+        intentHandler.tryStartingExternalHealthInsuranceAuthenticationApp(
+            redirect = redirectUri,
+            onSuccess = {
+                if (healthInsuranceData.isPkv()) {
+                    controller.switchToPKV(profileId)
+                }
+                onNext()
+            },
+            onFailure = {
+                dialog.show {
+                    AcceptDialog(
+                        header = stringResource(R.string.gid_external_app_missing_title),
+                        info = stringResource(R.string.gid_external_app_missing_description),
+                        acceptText = stringResource(R.string.ok)
+                    ) {
+                        it.dismiss()
+                    }
+                }
+            }
+        )
+    }
+
+    redirectErrorEvent.listen {
+        dialog.show {
+            AcceptDialog(
+                header = stringResource(R.string.main_fasttrack_error_title),
+                info = stringResource(R.string.main_fasttrack_error_info),
+                acceptText = stringResource(R.string.ok)
+            ) {
+                it.dismiss()
+            }
+        }
+    }
+
+    redirectGematikErrorEvent.listen { responseError ->
+        dialog.show {
+            GematikErrorDialog(error = responseError) {
+                it.dismiss()
+            }
+        }
+    }
+
     AnimatedElevationScaffold(
         navigationMode = NavigationBarMode.Back,
         topBarTitle = stringResource(R.string.cdw_fasttrack_title),
@@ -105,153 +180,134 @@ fun ExternalAuthenticatorListScreen(
     ) {
         AuthenticatorList(
             profileId = profileId,
-            controller = controller,
-            viewModel = viewModel,
-            onNext = onNext,
-            listState = listState
+            listState = listState,
+            healthInsuranceAppIdps = healthInsuranceAppIdps,
+            onSearch = { searchWord ->
+                if (searchWord.isNotEmpty()) {
+                    controller.filterList(searchWord)
+                } else {
+                    controller.unFilterList()
+                }
+            },
+            onClickRetry = {
+                controller.getHealthInsuranceAppList()
+            },
+            onClickHealthInsuranceIdp = { profileId, heathInsuranceIdp ->
+                controller
+                    .startAuthorizationWithExternal(
+                        profileId = profileId,
+                        healthInsuranceData = heathInsuranceIdp
+                    )
+            }
         )
     }
-}
-
-private val WhitespaceRegex = "\\s+".toRegex()
-
-@Composable
-private fun rememberFilteredAuthenticatorsList(
-    source: List<AuthenticationId>,
-    keywords: String
-): State<List<AuthenticationId>> {
-    val result = remember(source) { mutableStateOf(source) }
-    LaunchedEffect(source, keywords) {
-        result.value = if (keywords.isNotBlank()) {
-            val kw = keywords.split(WhitespaceRegex)
-            source.filter { src ->
-                kw.all { src.name.contains(it, ignoreCase = true) }
-            }
-        } else {
-            source
-        }
-    }
-    return result
-}
-
-@Stable
-private sealed interface RefreshState {
-    @Stable
-    object Loading : RefreshState
-
-    @Stable
-    class WithResults(val result: List<AuthenticationId>) : RefreshState
-
-    @Stable
-    class Error(val throwable: Throwable) : RefreshState
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AuthenticatorList(
     profileId: ProfileIdentifier,
-    viewModel: ExternalAuthenticatorListViewModel,
-    controller: ProfilesController,
-    onNext: () -> Unit,
-    listState: LazyListState
+    listState: LazyListState,
+    onSearch: (String) -> Unit,
+    healthInsuranceAppIdps: UiState<List<HealthInsuranceData>>,
+    onClickHealthInsuranceIdp: (ProfileIdentifier, HealthInsuranceData) -> Unit,
+    onClickRetry: () -> Unit
 ) {
-    val refreshFlow = remember { MutableSharedFlow<Unit>() }
-    var state by remember { mutableStateOf<RefreshState>(RefreshState.Loading) }
-    LaunchedEffect(Unit) {
-        refreshFlow
-            .onStart { emit(Unit) } // emit once to start the flow directly
-            .collectLatest {
-                state = RefreshState.Loading
-                state = try {
-                    RefreshState.WithResults(viewModel.externalAuthenticatorIDList())
-                } catch (expected: Throwable) {
-                    RefreshState.Error(expected)
-                }
-            }
-    }
-
-    val coroutineScope = rememberCoroutineScope()
-
+    val fastTrackClosedString = stringResource(R.string.gid_fast_track_closed_error)
     var search by remember { mutableStateOf("") }
-    val externalAuthenticatorListFiltered by rememberFilteredAuthenticatorsList(
-        source = (state as? RefreshState.WithResults)?.result ?: emptyList(),
-        keywords = search
-    )
+    val snackbar = LocalSnackbar.current
 
-    val intentHandler = LocalIntentHandler.current
-
-    Column(Modifier.fillMaxSize()) {
-        Column(Modifier.padding(PaddingDefaults.Medium)) {
-            Text(stringResource(R.string.cdw_fasttrack_choose_insurance), style = MaterialTheme.typography.h6)
-            SpacerSmall()
-            Text(
-                stringResource(R.string.cdw_fasttrack_help_info),
-                style = AppTheme.typography.body2l
-            )
-        }
-        when (state) {
-            is RefreshState.Loading -> {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(PaddingDefaults.Medium)
+    ) {
+        Text(stringResource(R.string.cdw_fasttrack_choose_insurance), style = MaterialTheme.typography.h6)
+        SpacerSmall()
+        Text(
+            stringResource(R.string.cdw_fasttrack_help_info),
+            style = AppTheme.typography.body2l
+        )
+        UiStateMachine(
+            state = healthInsuranceAppIdps,
+            onLoading = {
                 Box(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxSize()
                         .padding(PaddingDefaults.Medium)
                 ) {
                     CircularProgressIndicator(
-                        Modifier
-                            .size(32.dp)
+                        modifier = Modifier
+                            .size(PaddingDefaults.XLarge)
                             .align(Alignment.Center)
                     )
                 }
-            }
-            is RefreshState.Error -> {
-                ErrorScreen(
-                    onClickRetry = {
-                        coroutineScope.launch {
-                            refreshFlow.emit(Unit)
-                        }
-                    }
-                )
-            }
-            is RefreshState.WithResults -> {
-                SpacerLarge()
-                SearchField(
-                    value = search,
+            },
+            onError = {
+                ErrorScreen(onClickRetry = onClickRetry)
+            },
+            onEmpty = {
+                ListSearchField(
+                    searchValue = search,
                     onValueChange = {
+                        onSearch(it)
                         search = it
                     }
                 )
-                SpacerMedium()
+            },
+            onContent = { healthInsuranceAppIdps ->
+                ListSearchField(
+                    searchValue = search,
+                    onValueChange = {
+                        onSearch(it)
+                        search = it
+                    }
+                )
                 LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     state = listState,
                     contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
                 ) {
-                    items(externalAuthenticatorListFiltered) {
+                    items(healthInsuranceAppIdps) {
                         Surface(
                             modifier = Modifier.fillMaxWidth(),
                             onClick = {
-                                coroutineScope.launch {
-                                    val redirectUri =
-                                        viewModel.startAuthorizationWithExternal(
-                                            profileId = profileId,
-                                            auth = it
-                                        )
-                                    intentHandler.startFastTrackApp(redirectUri)
-                                    if (it.id.endsWith("pkv")) {
-                                        controller.switchToPrivateInsurance(profileId)
-                                    }
-                                    onNext()
+                                if (it.isGid) {
+                                    onClickHealthInsuranceIdp(profileId, it)
+                                } else {
+                                    snackbar.show(fastTrackClosedString)
                                 }
                             }
                         ) {
-                            Text(text = it.name, modifier = Modifier.padding(PaddingDefaults.Medium))
+                            Row {
+                                Text(
+                                    text = it.name,
+                                    modifier = Modifier
+                                        .padding(PaddingDefaults.Medium)
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
+        )
     }
+}
+
+// Needs ColumnScope
+@Composable
+private fun ListSearchField(
+    searchValue: String,
+    onValueChange: (String) -> Unit
+) {
+    SpacerLarge()
+    SearchField(
+        value = searchValue,
+        onValueChange = {
+            onValueChange(it)
+        }
+    )
+    SpacerMedium()
 }
 
 @Composable
@@ -272,7 +328,7 @@ private fun SearchField(
                 style = AppTheme.typography.body1l
             )
         },
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(PaddingDefaults.Medium),
         leadingIcon = { Icon(Icons.Rounded.Search, null) },
         colors = TextFieldDefaults.outlinedTextFieldColors(
             backgroundColor = AppTheme.colors.neutral100,

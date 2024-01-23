@@ -27,39 +27,10 @@ import java.util.Locale
 
 private const val DARK_THEME_ON = "an"
 private const val DARK_THEME_OFF = "aus"
-private const val RELEASE_CANDIDATE = "RC"
-private const val SEPARATOR = "-"
-private const val SPACE = " "
 
 class MockBuildConfigInformation : BuildConfigInformation {
 
-    override fun versionName(): String {
-        BuildConfig.VERSION_NAME.split(RELEASE_CANDIDATE)
-            .takeIf {
-                it.size > 1
-            }?.let { splits ->
-                val secondSplit = splits[1].split(SEPARATOR)
-                if (secondSplit.size > 1) {
-                    // Removes the R from R1.20.23 and makes it 1.20.23
-                    val tag = splits[0].drop(1)
-                    // Takes a 6z&hj4f58dzf9j0890hfj4938that509z97h and makes it 6z&hj4f58
-                    val truncatedCommitHash = secondSplit[1].take(9)
-                    // RC-1 or RC-2
-                    val releaseCandidateNumber = secondSplit[0]
-                    return listOf(
-                        tag,
-                        RELEASE_CANDIDATE,
-                        SEPARATOR,
-                        releaseCandidateNumber,
-                        SEPARATOR,
-                        truncatedCommitHash,
-                        SPACE,
-                        "(${BuildConfig.VERSION_CODE})"
-                    ).joinToString(separator = "")
-                }
-            }
-        return "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
-    }
+    override fun versionName(): String = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
 
     override fun versionCode(): String = "${BuildConfig.VERSION_CODE}"
     override fun model(): String = "${Build.MANUFACTURER} ${Build.MODEL} (${Build.PRODUCT})"

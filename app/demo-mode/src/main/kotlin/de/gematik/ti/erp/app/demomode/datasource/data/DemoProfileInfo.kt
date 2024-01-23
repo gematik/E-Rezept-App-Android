@@ -21,7 +21,6 @@
 package de.gematik.ti.erp.app.demomode.datasource.data
 
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.EXPIRY_DATE
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.START_DATE
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
@@ -71,7 +70,7 @@ object DemoProfileInfo {
         profileName = "Erika Mustermann",
         isActive = true,
         color = ProfilesData.ProfileColorNames.SUN_DEW,
-        insuranceType = InsuranceTypeV1.PKV, // Note: Private insurance account
+        insuranceType = ProfilesData.InsuranceType.PKV, // Note: Private insurance account
         avatar = listOf(
             ProfilesData.Avatar.FemaleDoctor,
             ProfilesData.Avatar.FemaleDoctorWithPhone,
@@ -89,7 +88,7 @@ object DemoProfileInfo {
     internal val demoProfile02 = profile(
         profileName = "Max Mustermann",
         isActive = false,
-        insuranceType = InsuranceTypeV1.GKV,
+        insuranceType = ProfilesData.InsuranceType.GKV,
         avatar = listOf(
             ProfilesData.Avatar.OldManOfColor,
             ProfilesData.Avatar.Grandfather,
@@ -105,7 +104,7 @@ object DemoProfileInfo {
         isActive: Boolean = true,
         color: ProfilesData.ProfileColorNames = ProfilesData.ProfileColorNames.values().random(),
         avatar: ProfilesData.Avatar = ProfilesData.Avatar.values().random(),
-        insuranceType: InsuranceTypeV1 = InsuranceTypeV1.GKV,
+        insuranceType: ProfilesData.InsuranceType = ProfilesData.InsuranceType.GKV,
         lastAuthenticated: Instant? = null,
         singleSignOnTokenScope: IdpData.SingleSignOnTokenScope? = cardToken
     ): DemoModeProfile {

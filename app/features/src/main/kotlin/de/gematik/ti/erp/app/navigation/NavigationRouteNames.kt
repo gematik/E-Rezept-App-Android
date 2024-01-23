@@ -24,9 +24,59 @@ enum class NavigationRouteNames {
     InsecureDeviceScreen,
     IntegrityWarningScreen,
 
-    // Edit-profile
-    ProfileDetailsScreen,
-    ProfileColorAndImagePickerScreen,
+    // Profile
+    ProfileScreen,
+    ProfileEditPictureScreen,
     ProfileImageCropperScreen,
     ProfileTokenScreen,
+    ProfileAuditEventsScreen,
+    ProfilePairedDevicesScreen,
+
+    // Invoices/ pkv
+    InvoiceListScreen,
+    InvoiceDetailsScreen,
+    InvoiceExpandedDetailsScreen,
+    InvoiceLocalCorrectionScreen,
+    InvoiceShareScreen,
+
+    // Prescription-detail
+    PrescriptionDetailScreen,
+    PrescriptionDetailMedicationScreen,
+    PrescriptionDetailPatientScreen,
+    PrescriptionDetailPractitionerScreen,
+    PrescriptionDetailOrganizationScreen,
+    PrescriptionDetailMedicationOverviewScreen,
+    PrescriptionDetailMedicationIngredientsScreen,
+    PrescriptionDetailAccidentInfoScreen,
+    PrescriptionDetailTechnicalInfoScreen,
+
+    // Onboarding
+    OnboardingWelcomeScreen,
+    OnboardingSelectAppLoginScreen,
+    OnboardingDataProtectionAndTermsOfUseOverviewScreen,
+    TermsOfUseScreen,
+    DataProtectionScreen,
+    OnboardingAnalyticsPreviewScreen,
+
+    // Biometric
+    BiometricScreen,
+
+    // Analytics
+    AllowAnalyticsScreen,
+
+    // MlKit
+    MlKit,
+    MlKitInformationScreen,
+
+    // Main
+    PrescriptionScanScreen,
+
+    // sample screen
+    SampleOverviewScreen,
+    BottomSheetSampleScreen,
+    BottomSheetSampleSmallScreen,
+    BottomSheetSampleLargeScreen,
+
+    // tracker
+    DemoTrackerScreen,
 }

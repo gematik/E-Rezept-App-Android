@@ -39,7 +39,8 @@ class IdpConfigurationEntityV1 : RealmObject {
 
     var expirationTimestamp: RealmInstant = RealmInstant.MIN
     var issueTimestamp: RealmInstant = RealmInstant.MIN
-
+    var federationAuthorizationIDsEndpoint: String? = null
+    var federationAuthorizationEndpoint: String? = null
     var externalAuthorizationIDsEndpoint: String? = null
     var thirdPartyAuthorizationEndpoint: String? = null
 }

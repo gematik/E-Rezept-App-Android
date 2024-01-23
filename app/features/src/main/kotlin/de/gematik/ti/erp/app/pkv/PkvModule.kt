@@ -18,25 +18,42 @@
 
 package de.gematik.ti.erp.app.pkv
 
+import de.gematik.ti.erp.app.consent.repository.ConsentLocalDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRemoteDataSource
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.consent.usecase.ConsentUseCase
+import de.gematik.ti.erp.app.consent.repository.DefaultConsentRepository
+import de.gematik.ti.erp.app.consent.usecase.GetConsentUseCase
+import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
+import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
+import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
+import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentUseCase
 import de.gematik.ti.erp.app.invoice.repository.InvoiceLocalDataSource
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRemoteDataSource
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.invoice.usecase.GetInvoiceByTaskIdUseCase
 import de.gematik.ti.erp.app.invoice.usecase.InvoiceUseCase
-
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val pkvModule = DI.Module("pkvModule") {
-    bindProvider { ConsentUseCase(instance()) }
-    bindProvider { ConsentRepository(instance(), instance()) }
+    bindProvider { GetConsentUseCase(instance()) }
+    bindProvider { GrantConsentUseCase(instance()) }
+    bindProvider { RevokeConsentUseCase(instance()) }
+    bindProvider { ShowGrantConsentUseCase(instance(), instance()) }
+    bindProvider { SaveGrantConsentDrawerShownUseCase(instance()) }
+
+    bindProvider { DefaultConsentRepository(instance(), instance()) }
+    bindProvider { ConsentLocalDataSource(instance()) }
     bindProvider { ConsentRemoteDataSource(instance()) }
 
     bindProvider { InvoiceUseCase(instance(), instance()) }
     bindProvider { InvoiceRepository(instance(), instance(), instance()) }
     bindProvider { InvoiceRemoteDataSource(instance()) }
     bindProvider { InvoiceLocalDataSource(instance()) }
+    bindProvider { GetInvoiceByTaskIdUseCase(instance()) }
+}
+
+val consentRepositoryModule = DI.Module("consentRepositoryModule", allowSilentOverride = true) {
+    bindProvider<ConsentRepository> { DefaultConsentRepository(instance(), instance()) }
 }

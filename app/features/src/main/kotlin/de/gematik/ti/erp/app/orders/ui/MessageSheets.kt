@@ -68,7 +68,7 @@ import java.time.format.FormatStyle
 
 @Composable
 fun MessageSheetContent(
-    order: OrderUseCaseData.Order?,
+    order: OrderUseCaseData.OrderDetail?,
     message: OrderUseCaseData.Message?,
     onClickClose: () -> Unit
 ) {

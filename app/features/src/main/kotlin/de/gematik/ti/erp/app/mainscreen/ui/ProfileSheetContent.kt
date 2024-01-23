@@ -44,7 +44,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.containsProfileWithName
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -57,25 +57,25 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun ProfileSheetContent(
-    profilesController: ProfilesController,
+    profileController: ProfileController,
     profileToEdit: ProfilesUseCaseData.Profile?,
     addProfile: Boolean = false,
     onCancel: () -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val scope = rememberCoroutineScope()
-    val profilesState by profilesController.getProfilesState()
+    val profilesState by profileController.getProfilesState()
     var textValue by remember { mutableStateOf(profileToEdit?.name ?: "") }
     var duplicated by remember { mutableStateOf(false) }
 
     val onEdit = {
         if (!addProfile) {
             profileToEdit?.let {
-                scope.launch { profilesController.updateProfileName(it.id, textValue) }
+                scope.launch { profileController.updateProfileName(it.id, textValue) }
             }
         } else {
             scope.launch {
-                profilesController.addProfile(textValue)
+                profileController.addProfile(textValue)
             }
         }
         onCancel()

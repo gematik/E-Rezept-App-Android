@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.model
 
+import de.gematik.ti.erp.app.analytics.PopUpName
 import de.gematik.ti.erp.app.navigation.Routes
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PopUpName
 
 object PharmacyNavigationScreens {
     object StartSearch : Routes("pharmacySearch")

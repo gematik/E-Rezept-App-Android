@@ -60,8 +60,8 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import org.junit.Rule
-import kotlin.test.BeforeTest
-import kotlin.test.Test
+import org.junit.Before
+import org.junit.Test
 import kotlin.test.assertEquals
 class InvoiceRepositoryTest : TestDB() {
 
@@ -78,7 +78,7 @@ class InvoiceRepositoryTest : TestDB() {
     @MockK
     lateinit var erpService: ErpService
 
-    @BeforeTest
+    @Before
     fun setUp() {
         MockKAnnotations.init(this)
         realm = Realm.open(
@@ -125,7 +125,7 @@ class InvoiceRepositoryTest : TestDB() {
             invoiceLocalDataSource,
             coroutineRule.dispatchers
         )
-        profileRepository = DefaultProfilesRepository(coroutineRule.dispatchers, realm)
+        profileRepository = DefaultProfilesRepository(realm)
     }
 
     @Test

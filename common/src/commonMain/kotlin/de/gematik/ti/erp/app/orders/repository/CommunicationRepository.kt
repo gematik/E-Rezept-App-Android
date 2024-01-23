@@ -47,6 +47,7 @@ interface CommunicationRepository {
     fun loadDispReqCommunications(orderId: String): Flow<List<Communication>>
     fun loadFirstDispReqCommunications(profileId: ProfileIdentifier): Flow<List<Communication>>
     fun loadRepliedCommunications(taskIds: List<String>): Flow<List<Communication>>
+    fun loadCommunicationsWithTaskId(taskIds: List<String>): Flow<List<Communication>>
     fun hasUnreadPrescription(taskIds: List<String>, orderId: String): Flow<Boolean>
     fun hasUnreadPrescription(profileId: ProfileIdentifier): Flow<Boolean>
     fun unreadOrders(profileId: ProfileIdentifier): Flow<Long>

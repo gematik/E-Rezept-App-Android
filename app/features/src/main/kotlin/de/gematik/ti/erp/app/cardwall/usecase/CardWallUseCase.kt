@@ -26,20 +26,21 @@ import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 open class CardWallUseCase(
     private val idpRepository: IdpRepository,
     private val cardWallRepository: CardWallRepository
 ) {
-    var deviceHasNFCAndAndroidMOrHigher: Boolean
-        get() = applicationModule.androidContext().deviceHasNFC() || cardWallRepository.hasFakeNFCEnabled
-        set(value) {
-            cardWallRepository.hasFakeNFCEnabled = value
-        }
-
-    val deviceHasNFCEnabled
-        get() = applicationModule.androidContext().nfcEnabled()
-
+    private val deviceHasNFCFlow =
+        MutableStateFlow(applicationModule.androidContext().deviceHasNFC() || cardWallRepository.hasFakeNFCEnabled)
+    val deviceHasNfcStateFlow: Flow<Boolean> = deviceHasNFCFlow.asStateFlow()
+    fun updateDeviceNFCCapability(value: Boolean) {
+        cardWallRepository.hasFakeNFCEnabled = value
+        deviceHasNFCFlow.value = value
+    }
+    fun checkNfcEnabled(): Boolean = applicationModule.androidContext().nfcEnabled()
     fun authenticationData(profileId: ProfileIdentifier): Flow<IdpData.AuthenticationData> =
         idpRepository.authenticationData(profileId)
 }

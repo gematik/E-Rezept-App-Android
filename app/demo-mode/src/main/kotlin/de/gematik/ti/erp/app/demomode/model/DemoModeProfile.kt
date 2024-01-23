@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.demomode.model
 
-import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -35,7 +34,7 @@ data class DemoModeProfile(
     val insurantName: String? = null,
     val insuranceIdentifier: String? = null,
     val insuranceName: String? = null,
-    val insuranceType: InsuranceTypeV1,
+    val insuranceType: ProfilesData.InsuranceType,
     val lastAuthenticated: Instant? = null,
     val lastAuditEventSynced: Instant? = null,
     val lastTaskSynced: Instant? = null,
@@ -59,5 +58,6 @@ fun DemoModeProfile.toProfile() = ProfilesData.Profile(
     lastAuditEventSynced = lastAuditEventSynced,
     lastTaskSynced = lastTaskSynced,
     active = active,
+    isConsentDrawerShown = true,
     singleSignOnTokenScope = singleSignOnTokenScope
 )

@@ -18,12 +18,62 @@
 
 package de.gematik.ti.erp.app.fhir.parser
 
+import de.gematik.ti.erp.app.navigation.fromNavigationString
+import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toFhirTemporal
-import kotlin.test.Test
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
+import org.junit.Test
 import kotlin.test.assertEquals
 
 class TemporalConverterTest {
+
+    @Test
+    fun `serialize FhirTemporal Instant correctly`() {
+        val localDateTimeInstant: Instant = LocalDateTime(2023, 12, 25, 14, 30, 45).toInstant(TimeZone.UTC)
+        val expectedValue = FhirTemporal.Instant(localDateTimeInstant)
+        assertEquals(expectedValue, expectedValue.getActualValue())
+    }
+
+    @Test
+    fun `serialize FhirTemporal LocalDateTime correctly`() {
+        val localDateTime = LocalDateTime(2023, 12, 25, 14, 30, 45)
+        val expectedValue = FhirTemporal.LocalDateTime(localDateTime)
+        assertEquals(expectedValue, expectedValue.getActualValue())
+    }
+
+    @Test
+    fun `serialize FhirTemporal LocalDate correctly`() {
+        val localDate = LocalDate(2023, 12, 25)
+        val expectedValue = FhirTemporal.LocalDate(localDate)
+        assertEquals(expectedValue, expectedValue.getActualValue())
+    }
+
+    @Test
+    fun `serialize FhirTemporal LocalTime correctly`() {
+        val localTime = LocalTime(14, 30, 45)
+        val expectedValue = FhirTemporal.LocalTime(localTime)
+        assertEquals(expectedValue, expectedValue.getActualValue())
+    }
+
+    @Test
+    fun `serialize FhirTemporal YearMonth correctly`() {
+        val yearMonth = YearMonth(year = 2023, monthNumber = 12)
+        val expectedValue = FhirTemporal.YearMonth(yearMonth)
+        assertEquals(expectedValue, expectedValue.getActualValue())
+    }
+
+    @Test
+    fun `serialize FhirTemporal Year correctly`() {
+        val year = Year(year = 2023)
+        val expectedValue = FhirTemporal.Year(year)
+        assertEquals(expectedValue, expectedValue.getActualValue())
+    }
 
     @Test
     fun `convert dates to string`() {
@@ -46,8 +96,15 @@ class TemporalConverterTest {
         assertEquals("13:28", "13:28:00".toFhirTemporal().formattedString())
 
         assertEquals(
-            kotlinx.datetime.Instant.parse("2022-01-13T15:44:15.816+00:00"),
+            Instant.parse("2022-01-13T15:44:15.816+00:00"),
             ("2022-01-13T15:44:15.816Z".toFhirTemporal() as FhirTemporal.Instant).value
         )
+        assertEquals("07.02.2015", "2015-02-07T11:28:17".toFhirTemporal().toFormattedDate())
+        assertEquals("03.02.2015", "2015-02-03".toFhirTemporal().toFormattedDate())
+    }
+
+    private fun FhirTemporal.getActualValue(): FhirTemporal {
+        val encodedString = this.toNavigationString()
+        return fromNavigationString<FhirTemporal>(encodedString)
     }
 }

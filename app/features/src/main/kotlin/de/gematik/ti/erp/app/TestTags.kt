@@ -347,6 +347,7 @@ object TestTag {
             val ProfileNameField by tagName()
             val ConnectLaterButton by tagName()
             val LoginButton by tagName()
+            val GetConsentButton by tagName()
             val SaveProfileNameButton by tagName()
         }
 

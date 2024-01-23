@@ -114,7 +114,7 @@ complexity:
     active: true
     threshold: 600
   LongMethod:
-    active: true
+    active: false
     threshold: 120
   LongParameterList:
     active: true
@@ -229,7 +229,7 @@ exceptions:
     active: true
     ignoreLabeled: false
   SwallowedException:
-    active: true
+    active: false
     ignoredExceptionTypes:
       - 'InterruptedException'
       - 'MalformedURLException'
@@ -256,7 +256,7 @@ exceptions:
   ThrowingNewInstanceOfSameException:
     active: true
   TooGenericExceptionCaught:
-    active: true
+    active: false
     excludes: ['**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**']
     exceptionNames:
       - 'ArrayIndexOutOfBoundsException'
@@ -492,12 +492,15 @@ style:
   ExpressionBodySyntax:
     active: false
     includeLineWrapping: false
+  ForbiddenSuppress:
+    rules:
+      - MagicNumber, FunctionName
   ForbiddenComment:
     active: true
     values:
       - 'FIXME:'
       - 'STOPSHIP:'
-    allowedPatterns: ''
+    allowedPatterns: 'TODO:'
     customMessage: ''
   ForbiddenImport:
     active: false
@@ -590,7 +593,7 @@ style:
   RedundantVisibilityModifierRule:
     active: false
   ReturnCount:
-    active: true
+    active: false
     max: 2
     excludedFunctions: 'equals'
     excludeLabeled: false

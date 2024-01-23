@@ -49,6 +49,9 @@ import de.gematik.ti.erp.app.appsecurity.ui.model.AppSecurityResult
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.fromNavigationString
+import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
+import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
+import de.gematik.ti.erp.app.onboarding.ui.SkipOnBoardingButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -57,6 +60,7 @@ import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.Toggle
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import io.github.aakira.napier.Napier
 import java.util.Locale
 
@@ -92,6 +96,9 @@ class IntegrityWarningScreen(
         var checked by rememberSaveable { mutableStateOf(false) }
         val scrollState = rememberScrollState()
         val integrityWarningController = rememberIntegrityWarningController()
+
+        // used here only for skip button
+        val onboardingController = rememberOnboardingController()
 
         AnimatedElevationScaffold(
             elevated = scrollState.value > 0,
@@ -170,6 +177,13 @@ class IntegrityWarningScreen(
                     onCheckedChange = { checked = it },
                     description = stringResource(id = R.string.insecure_device_accept_safetynet)
                 )
+
+                if (BuildConfigExtension.isNonReleaseMode) {
+                    SkipOnBoardingButton {
+                        onboardingController.createProfileOnSkipOnboarding()
+                        navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+                    }
+                }
             }
         }
     }

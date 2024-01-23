@@ -46,6 +46,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessibilityNew
+import androidx.compose.material.icons.outlined.ChecklistRtl
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.HelpOutline
 import androidx.compose.material.icons.outlined.Info
@@ -54,8 +55,10 @@ import androidx.compose.material.icons.outlined.LockOpen
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.PrivacyTip
 import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.SettingsInputComposite
 import androidx.compose.material.icons.outlined.Source
 import androidx.compose.material.icons.outlined.Timeline
+import androidx.compose.material.icons.outlined.TireRepair
 import androidx.compose.material.icons.outlined.Wysiwyg
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material.icons.rounded.Phone
@@ -88,23 +91,25 @@ import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.analytics.navigation.TrackingScreenRoutes
 import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
+import de.gematik.ti.erp.app.debugsettings.navigation.SampleScreenRoutes
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
-import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
-import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
-import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
+import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
+import de.gematik.ti.erp.app.profiles.presentation.ProfileController
+import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
 import de.gematik.ti.erp.app.profiles.ui.Avatar
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.containsProfileWithName
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
+import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -113,6 +118,8 @@ import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
+import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
 import de.gematik.ti.erp.app.utils.extensions.sanitizeProfileName
 import org.kodein.di.compose.rememberInstance
 import java.util.Locale
@@ -137,6 +144,7 @@ fun SettingsScreen(
     )
 }
 
+@Suppress("LongMethod")
 @Composable
 fun SettingsScreenWithScaffold(
     mainNavController: NavController,
@@ -146,10 +154,11 @@ fun SettingsScreenWithScaffold(
     onClickDemoMode: () -> Unit
 ) {
     val context = LocalContext.current
+    val snackbar = LocalSnackbar.current
     val demoModeObserver = LocalActivity.current as? DemoModeObserver
     val isDemomode = demoModeObserver?.isDemoMode() ?: false
 
-    val profilesController = rememberProfilesController()
+    val profilesController = rememberProfileController()
     val profilesState by profilesController.getProfilesState()
 
     val listState = rememberLazyListState()
@@ -171,7 +180,7 @@ fun SettingsScreenWithScaffold(
                 sourceSpecification = "BSI-eRp-ePA",
                 rationale = "Debug options are not accessible in the production version. All other debug mechanisms, including logging, are disabled in the build pipeline." // ktlint-disable max-line-length
             )
-            if (BuildKonfig.INTERNAL && BuildConfig.DEBUG) {
+            if (BuildConfigExtension.isInternalDebug) {
                 item {
                     DebugMenuSection(mainNavController)
                 }
@@ -226,6 +235,50 @@ fun SettingsScreenWithScaffold(
             }
             item {
                 LegalSection(mainNavController)
+            }
+            if (BuildConfigExtension.isInternalDebug) {
+                item {
+                    SettingsDivider()
+                }
+                item {
+                    Text(
+                        text = "Debug section",
+                        style = AppTheme.typography.h6,
+                        modifier = Modifier.padding(
+                            start = PaddingDefaults.Medium,
+                            end = PaddingDefaults.Medium,
+                            bottom = PaddingDefaults.Medium / 2,
+                            top = PaddingDefaults.Medium
+                        )
+                    )
+                }
+                item {
+                    LabelButton(
+                        Icons.Outlined.TireRepair,
+                        "Debug section",
+                        modifier = Modifier.testTag("debug-section")
+                    ) {
+                        snackbar.show("TODO: Debug section comes here")
+                    }
+                }
+                item {
+                    LabelButton(
+                        Icons.Outlined.SettingsInputComposite,
+                        "Ui Components",
+                        modifier = Modifier.testTag("ui-components")
+                    ) {
+                        mainNavController.navigate(SampleScreenRoutes.subGraphName())
+                    }
+                }
+                item {
+                    LabelButton(
+                        Icons.Outlined.ChecklistRtl,
+                        "Tracking Debug",
+                        modifier = Modifier.testTag("tracking-debug")
+                    ) {
+                        mainNavController.navigate(TrackingScreenRoutes.subGraphName())
+                    }
+                }
             }
             item {
                 AboutSection(
@@ -324,7 +377,7 @@ private fun ProfileSection(
         profiles.forEach { profile ->
             ProfileCard(
                 profile = profile,
-                onClickEdit = { navController.navigate(MainNavigationScreens.EditProfile.path(profileId = profile.id)) }
+                onClickEdit = { navController.navigate(ProfileRoutes.ProfileScreen.path(profileId = profile.id)) }
             )
         }
     }
@@ -368,12 +421,12 @@ private fun ProfileCard(
 @Composable
 fun ProfileNameDialog(
     initialProfileName: String = "",
-    profilesController: ProfilesController,
+    profileController: ProfileController,
     wantRemoveLastProfile: Boolean = false,
     onEdit: (text: String) -> Unit,
     onDismissRequest: () -> Unit
 ) {
-    val profiles by profilesController.getProfilesState()
+    val profiles by profileController.getProfilesState()
     var textValue by remember { mutableStateOf(initialProfileName) }
     var duplicated by remember { mutableStateOf(false) }
 

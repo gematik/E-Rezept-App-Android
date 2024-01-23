@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
@@ -46,8 +47,6 @@ class CardWallController(
     private val dispatchers: DispatchProvider,
     private val scope: CoroutineScope
 ) {
-    val hardwareRequirementsFulfilled = cardWallUseCase.deviceHasNFCAndAndroidMOrHigher
-
     fun doAuthentication(
         profileId: ProfileIdentifier,
         authenticationData: CardWallAuthenticationData,
@@ -90,8 +89,12 @@ class CardWallController(
         }
             .flowOn(dispatchers.io)
     }
-
-    fun isNFCEnabled() = cardWallUseCase.deviceHasNFCEnabled
+    fun checkNfcEnabled(): Boolean {
+        return cardWallUseCase.checkNfcEnabled()
+    }
+    val isNFCAvailable
+        @Composable
+        get() = cardWallUseCase.deviceHasNfcStateFlow.collectAsStateWithLifecycle(false)
 }
 
 @Composable

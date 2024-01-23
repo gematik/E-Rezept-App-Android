@@ -22,13 +22,10 @@ import android.content.Context
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.analytics.Analytics
-import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCase
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.info.mockBuildConfigurationModule
 import de.gematik.ti.erp.app.pkv.mockFileProviderAuthorityModule
 import org.kodein.di.DI
-import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
@@ -67,10 +64,6 @@ val appModules = DI.Module("appModules") {
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }
 
     bindSingleton { FeatureToggleManager(instance()) }
-
-    bindProvider { AnalyticsUseCase(instance()) }
-
-    bindSingleton { Analytics(instance(), instance(), instance(), instance()) }
 
     importAll(
         mockBuildConfigurationModule,

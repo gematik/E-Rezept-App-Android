@@ -54,7 +54,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.LocationMode
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
-import de.gematik.ti.erp.app.prescription.ui.catchAndTransformRemoteExceptions
+import de.gematik.ti.erp.app.prescription.presentation.catchAndTransformRemoteExceptions
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi

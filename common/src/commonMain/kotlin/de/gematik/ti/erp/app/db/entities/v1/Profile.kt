@@ -81,6 +81,8 @@ class ProfileEntityV1 : RealmObject, Cascading {
 
     var _insuranceType: String = InsuranceTypeV1.None.toString()
 
+    var isConsentDrawerShown: Boolean = false
+
     @delegate:Ignore
     var insuranceType: InsuranceTypeV1 by enumName(::_insuranceType)
 

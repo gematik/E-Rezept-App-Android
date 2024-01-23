@@ -25,6 +25,7 @@ import de.gematik.ti.erp.app.di.JWSConverterFactory
 import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.repository.AccessTokenDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpLocalDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
@@ -38,11 +39,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.spyk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
@@ -66,7 +66,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class IdpIntegrationTest {
     @MockK(relaxed = true)
     private lateinit var profilesRepository: DefaultProfilesRepository
@@ -80,6 +79,10 @@ class IdpIntegrationTest {
     @MockK
     private lateinit var cryptoProvider: IdpCryptoProvider
 
+    private val accessTokenDataSource: AccessTokenDataSource = mockk()
+
+    private val lock: Mutex = mockk(relaxed = true)
+
     private lateinit var idpRepository: IdpRepository
     private lateinit var idpPairingRepository: IdpPairingRepository
     private lateinit var basicUseCase: IdpBasicUseCase
@@ -92,7 +95,6 @@ class IdpIntegrationTest {
     private val cardAccessNumber = ""
 
     @Suppress("JSON_FORMAT_REDUNDANT")
-    @OptIn(ExperimentalSerializationApi::class)
     private val jsonConverterFactory = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
@@ -128,7 +130,8 @@ class IdpIntegrationTest {
         idpRepository = spyk(
             IdpRepository(
                 remoteDataSource = IdpRemoteDataSource(idpService) { BuildKonfig.IDP_DEFAULT_SCOPE },
-                localDataSource = localDataSource
+                localDataSource = localDataSource,
+                accessTokenDataSource = accessTokenDataSource
             )
         )
 
@@ -160,8 +163,8 @@ class IdpIntegrationTest {
             ),
             profilesRepository = profilesRepository,
             basicUseCase = basicUseCase,
-            preferences = mockk(relaxed = true),
-            cryptoProvider = cryptoProvider
+            cryptoProvider = cryptoProvider,
+            lock = lock
         )
     }
 

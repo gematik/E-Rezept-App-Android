@@ -45,6 +45,9 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.appsecurity.presentation.rememberInsecureDeviceController
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
+import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
+import de.gematik.ti.erp.app.onboarding.ui.SkipOnBoardingButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -53,6 +56,7 @@ import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.Toggle
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import java.util.Locale
 
 @Requirement(
@@ -72,6 +76,9 @@ class InsecureDeviceScreen(
         val scrollState = rememberScrollState()
 
         val insecureDeviceController = rememberInsecureDeviceController()
+
+        // used here only for skip button
+        val onboardingController = rememberOnboardingController()
 
         AnimatedElevationScaffold(
             elevated = scrollState.value > 0,
@@ -128,6 +135,13 @@ class InsecureDeviceScreen(
                     onCheckedChange = { checked = it },
                     description = stringResource(id = R.string.insecure_device_accept)
                 )
+            }
+        }
+
+        if (BuildConfigExtension.isNonReleaseMode) {
+            SkipOnBoardingButton {
+                onboardingController.createProfileOnSkipOnboarding()
+                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
             }
         }
     }

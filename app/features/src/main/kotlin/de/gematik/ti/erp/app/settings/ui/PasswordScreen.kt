@@ -112,7 +112,7 @@ fun SecureAppWithPassword(onSelectPasswordAsAuthenticationMode: (String) -> Unit
                         onSelectPasswordAsAuthenticationMode(password)
                         onBack()
                     },
-                    enabled = checkPassword(
+                    enabled = validatePassword(
                         password = password,
                         repeatedPassword = repeatedPassword,
                         score = passwordScore
@@ -168,7 +168,7 @@ fun SecureAppWithPassword(onSelectPasswordAsAuthenticationMode: (String) -> Unit
                 },
                 onSubmit = {
                     if (
-                        checkPassword(
+                        validatePassword(
                             password = password,
                             repeatedPassword = repeatedPassword,
                             score = passwordScore
@@ -295,7 +295,7 @@ fun ConfirmationPasswordTextField(
     }
 
     val isConsistent = remember(password, value) {
-        password.isNotBlank() && password == value && checkPasswordScore(passwordScore)
+        password.isNotBlank() && password == value && validatePasswordScore(passwordScore)
     }
 
     PasswordTextField(
@@ -360,7 +360,8 @@ fun PasswordStrength(
             3 -> 0.6f
             4 -> 1.0f
             else -> 0.05f
-        }
+        },
+        label = ""
     )
     val barColor by animateColorAsState(
         when (strength.score) {
@@ -369,7 +370,8 @@ fun PasswordStrength(
             3 -> AppTheme.colors.yellow500
             4 -> AppTheme.colors.green500
             else -> AppTheme.colors.red500
-        }
+        },
+        label = ""
     )
 
     DisposableEffect(strength) {
@@ -380,7 +382,7 @@ fun PasswordStrength(
     Column(
         modifier = modifier
             .semantics(true) {
-                stateDescription = if (checkPasswordScore(strength.score)) "sufficient" else "insufficient"
+                stateDescription = if (validatePasswordScore(strength.score)) "sufficient" else "insufficient"
             }
     ) {
         val suggestions = strength.feedback.suggestions.joinToString("\n").trim()
@@ -447,8 +449,8 @@ fun PasswordStrength(
 
 // end::PasswordStrength[]
 
-fun checkPasswordScore(score: Int): Boolean =
+fun validatePasswordScore(score: Int): Boolean =
     score > MinimalPasswordScore
 
-fun checkPassword(password: String, repeatedPassword: String, score: Int): Boolean =
-    password.isNotBlank() && password == repeatedPassword && checkPasswordScore(score)
+fun validatePassword(password: String, repeatedPassword: String, score: Int): Boolean =
+    password.isNotBlank() && password == repeatedPassword && validatePasswordScore(score)

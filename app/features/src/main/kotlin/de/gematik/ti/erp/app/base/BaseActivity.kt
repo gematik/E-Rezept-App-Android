@@ -30,7 +30,8 @@ import android.os.Handler
 import android.os.Looper
 import android.view.Gravity
 import android.widget.FrameLayout
-import androidx.activity.setViewTreeOnBackPressedDispatcherOwner
+import androidx.annotation.ColorRes
+import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
 import androidx.compose.runtime.Composable
@@ -39,20 +40,15 @@ import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.setViewTreeLifecycleOwner
-import androidx.lifecycle.setViewTreeViewModelStoreOwner
-import androidx.savedstate.setViewTreeSavedStateRegistryOwner
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.appupdate.AppUpdateOptions
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.NfcNotEnabledException
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.Analytics
 import de.gematik.ti.erp.app.apicheck.usecase.CheckVersionUseCase
-import de.gematik.ti.erp.app.cardwall.ui.ExternalAuthenticatorListViewModel
 import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.debugOverrides
 import de.gematik.ti.erp.app.demomode.DefaultDemoModeObserver
@@ -61,17 +57,18 @@ import de.gematik.ti.erp.app.demomode.di.demoModeModule
 import de.gematik.ti.erp.app.demomode.di.demoModeOverrides
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.timeouts.usecase.GetPauseMetricUseCase
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.SnackbarScaffold
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -99,8 +96,7 @@ open class BaseActivity :
                 fullContainerTreeOnError = true
             }
         }
-        bindProvider { ExternalAuthenticatorListViewModel(instance(), instance()) }
-        bindProvider { CheckVersionUseCase(instance(), instance()) }
+        bindProvider { CheckVersionUseCase(instance()) }
     }
 
     private val checkVersionUseCase: CheckVersionUseCase by instance()
@@ -138,7 +134,7 @@ open class BaseActivity :
     override fun onPause() {
         super.onPause()
         // cancel the dialog when pausing since it might show up security concerns
-        dialog?.cancel()
+        dialog?.remove()
 
         // this sets the app to require authentication after the pause-timeout
         val pauseTimeout = pauseTimeoutUseCase.invoke()
@@ -183,38 +179,37 @@ open class BaseActivity :
 
     override fun show(content: @Composable (Dialog) -> Unit) {
         dialog = Dialog(this, R.style.ThemeOverlay_MaterialAlertDialog_Rounded)
-        dialog?.window?.decorView?.let {
-            it.setViewTreeLifecycleOwner(this)
-            it.setViewTreeSavedStateRegistryOwner(this)
-            it.setViewTreeOnBackPressedDispatcherOwner(this)
-            it.setViewTreeViewModelStoreOwner(this)
-        }
         val composableView = ComposeView(this)
+        dialog?.remove()
+        dialog?.setDecorView(this)
         composableView.let {
-            it.setViewTreeViewModelStoreOwner(this)
-            it.setViewTreeLifecycleOwner(this)
-            it.setViewTreeSavedStateRegistryOwner(this)
-            it.setViewTreeOnBackPressedDispatcherOwner(this)
-            dialog?.let { dialogNotNull ->
-                it.setContent {
-                    AppTheme {
-                        content(dialogNotNull)
-                    }
-                }
-            }
+            it.setDecorView(this)
+            it.setDialogContent(dialog, content)
         }
-        dialog?.setContentView(composableView)
-        dialog?.setCancelable(true)
-        dialog?.show()
+        dialog?.setViewAndShow(composableView)
     }
 
-    override fun show(text: String, icon: Int, backgroundTint: Int) {
-        val snackbar = Snackbar.make(findViewById(android.R.id.content), text, Snackbar.LENGTH_SHORT)
+    override fun show(
+        text: String,
+        actionTextId: Int?,
+        length: Int,
+        onClickAction: () -> Unit?,
+        @DrawableRes icon: Int,
+        @ColorRes backgroundTint: Int
+    ) {
+        val snackbar = Snackbar.make(findViewById(android.R.id.content), text, length)
         val theme = ContextThemeWrapper(
             applicationContext,
             R.style.ThemeOverlay_MaterialAlertDialog_Rounded
         ).theme
         snackbar.setBackgroundTint(resources.getColor(backgroundTint, theme))
+        snackbar.setTextColor(resources.getColor(R.color.neutral_100, theme))
+        if (actionTextId != null) {
+            snackbar.setAction(actionTextId) {
+                onClickAction()
+            }
+        }
+        snackbar.setActionTextColor(resources.getColor(R.color.primary_700, theme))
         snackbar.view.updateLayoutParams<FrameLayout.LayoutParams> {
             width = CoordinatorLayout.LayoutParams.MATCH_PARENT
             height = CoordinatorLayout.LayoutParams.WRAP_CONTENT
@@ -262,10 +257,19 @@ open class BaseActivity :
         }
     }
 
+    // Flow on a non main thread to avoid ANR
     val nfcTagFlow: Flow<Tag>
         get() = _nfcTag.onStart {
-            if (!NfcAdapter.getDefaultAdapter(this@BaseActivity).isEnabled) {
-                throw NfcNotEnabledException()
+            throwExceptionOnNfcNotEnabled()
+        }.flowOn(Dispatchers.IO)
+
+    companion object {
+        private fun BaseActivity.isNfcNotEnabled() = !NfcAdapter.getDefaultAdapter(this).isEnabled
+
+        fun BaseActivity.throwExceptionOnNfcNotEnabled() {
+            if (isNfcNotEnabled()) {
+                throw NfcNotEnabledException("NFC not switched on")
             }
         }
+    }
 }

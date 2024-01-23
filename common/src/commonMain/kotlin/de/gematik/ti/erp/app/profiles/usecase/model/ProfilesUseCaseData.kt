@@ -46,7 +46,10 @@ object ProfilesUseCaseData {
         val lastAuthenticated: Instant? = null,
         val ssoTokenScope: IdpData.SingleSignOnTokenScope?
     ) {
-        fun ssoTokenValid(now: Instant = Clock.System.now()) = ssoTokenScope?.token?.isValid(now) ?: false
+        fun isBiometricPairing() = ssoTokenScope !is IdpData.ExternalAuthenticationToken
+
+        fun isSSOTokenValid(now: Instant = Clock.System.now()) = ssoTokenScope?.token?.isValid(now) ?: false
+
         fun hasNoImageSelected() = this.avatar == ProfilesData.Avatar.PersonalizedImage &&
             this.image == null
 

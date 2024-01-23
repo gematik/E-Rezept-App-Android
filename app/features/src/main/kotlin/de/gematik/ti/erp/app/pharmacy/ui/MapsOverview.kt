@@ -59,8 +59,6 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Scaffold
 import androidx.compose.material.ScaffoldState
 import androidx.compose.material.SnackbarHost
-import androidx.compose.material.SwipeableDefaults
-import androidx.compose.material.SwipeableState
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Tune
@@ -103,6 +101,7 @@ import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberMarkerState
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.analytics.PopUpName
 import de.gematik.ti.erp.app.analytics.trackPharmacySearchPopUps
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
@@ -116,7 +115,6 @@ import de.gematik.ti.erp.app.pharmacy.presentation.queryNativeLocation
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacySearchPopUpNames
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PopUpName
 import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -316,45 +314,6 @@ fun MapsOverview(
             },
             sheetShape = remember { RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp) }
         )
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Stable
-class PharmacySheetState(
-    content: PharmacySearchSheetContentState
-) : SwipeableState<ModalBottomSheetValue>(
-    initialValue = ModalBottomSheetValue.Hidden,
-    animationSpec = SwipeableDefaults.AnimationSpec,
-    confirmStateChange = { true }
-) {
-    lateinit var scope: CoroutineScope
-
-    var content: PharmacySearchSheetContentState by mutableStateOf(content)
-        private set
-
-    val isVisible: Boolean
-        get() = this.currentValue != ModalBottomSheetValue.Hidden
-
-    fun show(content: PharmacySearchSheetContentState, snap: Boolean = false) {
-        this.content = content
-        scope.launch {
-            val state = when (content) {
-                is PharmacySearchSheetContentState.FilterSelected -> ModalBottomSheetValue.Expanded
-                is PharmacySearchSheetContentState.PharmacySelected -> ModalBottomSheetValue.HalfExpanded
-            }
-            if (snap) {
-                snapTo(state)
-            } else {
-                animateTo(state)
-            }
-        }
-    }
-
-    fun hide() {
-        scope.launch {
-            animateTo(ModalBottomSheetValue.Hidden)
-        }
     }
 }
 

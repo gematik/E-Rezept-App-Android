@@ -18,40 +18,44 @@
 
 package de.gematik.ti.erp.app.navigation
 
-import androidx.compose.animation.EnterTransition
-import androidx.compose.animation.ExitTransition
+import androidx.compose.animation.AnimatedContentTransitionScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.slideOutVertically
 
-val enterTransition: EnterTransition by lazy {
-    slideInVertically(
-        initialOffsetY = { -300 },
-        animationSpec = tween(300)
-    ) + fadeIn(animationSpec = tween(300))
-}
+private const val TARGET_OFFSET = -300
+private const val INITIAL_OFFSET = 300
+private const val SLIDE_TIME = 450
+private const val TWEEN_DURATION = 770
 
-val exitTransition: ExitTransition by lazy {
-    slideOutVertically(
-        targetOffsetY = { -300 },
-        animationSpec = tween(300)
-    ) + fadeOut(animationSpec = tween(300))
-}
+fun <T> AnimatedContentTransitionScope<T>.slideInRight() = slideIntoContainer(
+    initialOffset = { INITIAL_OFFSET },
+    animationSpec = tween(SLIDE_TIME),
+    towards = AnimatedContentTransitionScope.SlideDirection.Right
+) + fadeInShort()
 
-val popEnterTransition: EnterTransition by lazy {
-    slideInHorizontally(
-        initialOffsetX = { -300 },
-        animationSpec = tween(300)
-    ) + fadeIn(animationSpec = tween(300))
-}
+fun <T> AnimatedContentTransitionScope<T>.slideOutLeft() = slideOutOfContainer(
+    targetOffset = { TARGET_OFFSET },
+    animationSpec = tween(SLIDE_TIME),
+    towards = AnimatedContentTransitionScope.SlideDirection.Left
+) + fadeOutShort()
 
-val popExitTransition: ExitTransition by lazy {
-    slideOutHorizontally(
-        targetOffsetX = { 300 },
-        animationSpec = tween(300)
-    ) + fadeOut(animationSpec = tween(300))
-}
+fun <T> AnimatedContentTransitionScope<T>.slideInDown() = slideIntoContainer(
+    initialOffset = { INITIAL_OFFSET },
+    animationSpec = tween(SLIDE_TIME),
+    towards = AnimatedContentTransitionScope.SlideDirection.Down
+) + fadeInShort()
+
+fun <T> AnimatedContentTransitionScope<T>.slideOutUp() = slideOutOfContainer(
+    targetOffset = { TARGET_OFFSET },
+    animationSpec = tween(SLIDE_TIME),
+    towards = AnimatedContentTransitionScope.SlideDirection.Up
+) + fadeOutShort()
+
+fun fadeInShort() = fadeIn(tween(durationMillis = SLIDE_TIME))
+
+fun fadeOutShort() = fadeOut(tween(durationMillis = SLIDE_TIME))
+
+fun fadeInLong() = fadeIn(tween(durationMillis = TWEEN_DURATION))
+
+fun fadeOutLong() = fadeOut(tween(durationMillis = TWEEN_DURATION))

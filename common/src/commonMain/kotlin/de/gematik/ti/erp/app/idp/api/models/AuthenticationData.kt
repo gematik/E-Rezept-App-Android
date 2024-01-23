@@ -50,15 +50,12 @@ data class DeviceInformation(
 @Serializable
 data class PairingData(
     @SerialName("pairing_data_version") val version: String = "1.0",
-
     @SerialName("se_subject_public_key_info") val subjectPublicKeyInfoOfSecureElement: String,
     @SerialName("key_identifier") val keyAliasOfSecureElement: String, // alias of the keystore entry
     @SerialName("product") val productName: String,
-
     @SerialName("serialnumber") val serialNumberOfHealthCard: String,
     @SerialName("issuer") val issuerOfHealthCard: String,
     @SerialName("not_after") val validityUntilOfHealthCard: Long,
-
     @SerialName("auth_cert_subject_public_key_info") val subjectPublicKeyInfoOfHealthCard: String
 )
 

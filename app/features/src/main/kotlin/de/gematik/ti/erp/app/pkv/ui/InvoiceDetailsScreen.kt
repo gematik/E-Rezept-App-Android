@@ -18,215 +18,294 @@
 
 package de.gematik.ti.erp.app.pkv.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Button
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
-import de.gematik.ti.erp.app.invoice.model.currencyString
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate.joinMedicationInfo
+import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.pkv.navigation.PkvNavigationArguments
+import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
+import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
+import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.profileById
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LabeledText
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
+import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.TertiaryButton
 import de.gematik.ti.erp.app.utils.compose.visualTestTag
 
-@Composable
-fun InvoiceDetailsScreen(
-    invoicesController: InvoicesController,
-    taskId: String,
-    onBack: () -> Unit
-) {
-    val listState = rememberLazyListState()
-    val scaffoldState = rememberScaffoldState()
+class InvoiceDetailsScreen(
+    override val navController: NavController,
+    override val navBackStackEntry: NavBackStackEntry
+) : Screen() {
+    @Composable
+    override fun Content() {
+        val pkvNavigationArguments = remember {
+            val arguments = requireNotNull(navBackStackEntry.arguments)
+            PkvNavigationArguments(
+                taskId = requireNotNull(arguments.getString(PkvRoutes.TaskId)),
+                profileId = requireNotNull(arguments.getString(PkvRoutes.ProfileId))
+            )
+        }
+        val invoiceController = rememberInvoiceController(pkvNavigationArguments.profileId)
+        val profiles by invoiceController.getProfilesState()
+        profiles.profileById(pkvNavigationArguments.profileId)?.let { selectedProfile ->
+            val listState = rememberLazyListState()
+            val scaffoldState = rememberScaffoldState()
+            val scope = rememberCoroutineScope()
+            val context = LocalContext.current
+            val invoice by produceState<InvoiceData.PKVInvoice?>(null) {
+                invoiceController.detailState(pkvNavigationArguments.taskId).collect {
+                    value = it
+                }
+            }
+            var showDeleteInvoiceAlert by remember { mutableStateOf(false) }
 
-    val invoice by produceState<InvoiceData.PKVInvoice?>(null) {
-        invoicesController.detailState(taskId).collect {
-            value = it
+            if (showDeleteInvoiceAlert) {
+                DeleteInvoiceDialog(
+                    onCancel = {
+                        showDeleteInvoiceAlert = false
+                    }
+                ) {
+                    onDeleteInvoice(
+                        scope,
+                        pkvNavigationArguments.taskId,
+                        invoiceController,
+                        selectedProfile,
+                        context,
+                        scaffoldState
+                    ) {
+                        showDeleteInvoiceAlert = false
+                        navController.popBackStack()
+                    }
+                }
+            }
+
+            AnimatedElevationScaffold(
+                modifier = Modifier
+                    .imePadding()
+                    .visualTestTag(TestTag.Profile.InvoicesDetailScreen),
+                topBarTitle = "",
+                navigationMode = NavigationBarMode.Back,
+                scaffoldState = scaffoldState,
+                bottomBar = {
+                    invoice?.let {
+                        InvoiceDetailBottomBar(
+                            it.invoice.totalBruttoAmount,
+                            onClickSubmit = {
+                                navController.navigate(
+                                    PkvRoutes.InvoiceShareScreen.path(
+                                        taskId = it.taskId,
+                                        profileId = selectedProfile.id
+                                    )
+                                )
+                            }
+                        )
+                    }
+                },
+                listState = listState,
+                actions = {
+                    Row {
+                        invoice?.let { invoice ->
+                            InvoiceThreeDotMenu(
+                                invoice.taskId,
+                                onClickShareInvoice = {
+                                    navController.navigate(
+                                        PkvRoutes.InvoiceShareScreen.path(
+                                            taskId = invoice.taskId,
+                                            profileId = selectedProfile.id
+                                        )
+                                    )
+                                },
+                                onClickRemoveInvoice = { showDeleteInvoiceAlert = true },
+                                onClickCorrectInvoiceLocally = {
+                                    navController.navigate(
+                                        PkvRoutes.InvoiceLocalCorrectionScreen.path(
+                                            taskId = invoice.taskId,
+                                            profileId = selectedProfile.id
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    }
+                },
+                onBack = { navController.popBackStack() }
+            ) { innerPadding ->
+                InvoiceDetailsScreenContent(
+                    navController,
+                    innerPadding,
+                    listState,
+                    invoice,
+                    selectedProfile
+                )
+            }
         }
     }
+}
 
-    AnimatedElevationScaffold(
+@Composable
+private fun InvoiceDetailsScreenContent(
+    navController: NavController,
+    innerPadding: PaddingValues,
+    listState: LazyListState,
+    invoice: InvoiceData.PKVInvoice?,
+    selectedProfile: ProfilesUseCaseData.Profile
+) {
+    LazyColumn(
         modifier = Modifier
-            .imePadding()
-            .visualTestTag(TestTag.Profile.InvoicesDetailScreen),
-        topBarTitle = "",
-        navigationMode = NavigationBarMode.Back,
-        scaffoldState = scaffoldState,
-        listState = listState,
-        actions = {},
-        onBack = onBack
-    ) { innerPadding ->
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(
-                    top = PaddingDefaults.Medium + innerPadding.calculateTopPadding(),
-                    bottom = PaddingDefaults.Medium + innerPadding.calculateBottomPadding(),
-                    start = PaddingDefaults.Medium,
-                    end = PaddingDefaults.Medium
-                ),
-            state = listState,
-            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
-        ) {
-            invoice?.let {
-                item {
-                    InvoiceMedicationHeader(it)
-                }
-                item {
-                    LabeledText(description = stringResource(R.string.invoice_task_id), content = it.taskId)
-                }
-                item {
-                    PatientLabel(it.patient)
-                }
-                item {
-                    PractitionerLabel(it.practitioner, it.practitionerOrganization)
-                }
-                item {
-                    PharmacyLabel(it.pharmacyOrganization)
-                }
-                item {
-                    LabeledText(
-                        description = stringResource(R.string.invoice_redeemed_on),
-                        content = it.whenHandedOver?.formattedString()
-                    )
-                }
-                item {
-                    PriceData(it.invoice)
+            .fillMaxSize()
+            .padding(
+                top = PaddingDefaults.Medium + innerPadding.calculateTopPadding(),
+                bottom = PaddingDefaults.Medium + innerPadding.calculateBottomPadding(),
+                start = PaddingDefaults.Medium,
+                end = PaddingDefaults.Medium
+            ),
+        state = listState,
+        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
+    ) {
+        invoice?.let {
+            item {
+                InvoiceMedicationHeader(it)
+            }
+            item {
+                LabeledText(
+                    description = stringResource(R.string.invoice_prescribed_by),
+                    content = it.practitioner.name
+                )
+            }
+            item {
+                LabeledText(
+                    description = stringResource(R.string.invoice_redeemed_in),
+                    content = it.pharmacyOrganization.name
+                )
+            }
+            item {
+                LabeledText(
+                    description = stringResource(R.string.invoice_redeemed_on),
+                    content = it.whenHandedOver?.formattedString()
+                )
+            }
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    TertiaryButton(onClick = {
+                        navController.navigate(
+                            PkvRoutes.InvoiceExpandedDetailsScreen.path(
+                                taskId = it.taskId,
+                                profileId = selectedProfile.id
+                            )
+                        )
+                    }) {
+                        Text(text = stringResource(R.string.invoice_show_more))
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun PriceData(invoice: InvoiceData.Invoice) {
-    val (fees, articles) = invoice.chargeableItems.partition {
-        (it.description as? InvoiceData.ChargeableItem.Description.PZN)?.isSpecialPZN() ?: false
-    }
-
-    articles.map {
-        val article = when (it.description) {
-            is InvoiceData.ChargeableItem.Description.HMNR ->
-                stringResource(
-                    R.string.invoice_description_hmknr,
-                    (it.description as InvoiceData.ChargeableItem.Description.HMNR).hmnr
-                )
-            is InvoiceData.ChargeableItem.Description.PZN ->
-                stringResource(
-                    R.string.invoice_description_pzn,
-                    (it.description as InvoiceData.ChargeableItem.Description.PZN).pzn
-                )
-            is InvoiceData.ChargeableItem.Description.TA1 ->
-                stringResource(
-                    R.string.invoice_description_ta1,
-                    (it.description as InvoiceData.ChargeableItem.Description.TA1).ta1
-                )
-        }
-
-        Text(stringResource(R.string.invoice_description_articel, article))
-        Text(stringResource(R.string.invoice_description_factor, it.factor))
-        Text(stringResource(R.string.invoice_description_tax, it.price.tax.currencyString()))
-        Text(stringResource(R.string.invoice_description_brutto_price, it.price.value))
-
-        SpacerMedium()
-    }
-
-    if (fees.isNotEmpty()) {
-        Text(stringResource(R.string.invoice_description_additional_fees))
-        fees.map {
-            require(it.description is InvoiceData.ChargeableItem.Description.PZN)
-            val article = when (
-                InvoiceData.SpecialPZN.valueOfPZN(
-                    (it.description as InvoiceData.ChargeableItem.Description.PZN).pzn
-                )
+        item {
+            if (
+                (navController.previousBackStackEntry?.id)
+                == PrescriptionDetailRoutes.PrescriptionDetailScreen.route
             ) {
-                InvoiceData.SpecialPZN.EmergencyServiceFee -> stringResource(R.string.invoice_details_emergency_fee)
-                InvoiceData.SpecialPZN.BTMFee -> stringResource(R.string.invoice_details_narcotic_fee)
-                InvoiceData.SpecialPZN.TPrescriptionFee -> stringResource(R.string.invoice_details_t_prescription_fee)
-                InvoiceData.SpecialPZN.ProvisioningCosts -> stringResource(R.string.invoice_details_provisioning_costs)
-                InvoiceData.SpecialPZN.DeliveryServiceCosts ->
-                    stringResource(R.string.invoice_details_delivery_service_costs)
-                null -> error("wrong mapping")
+                LinkToInvoiceList(navController, profileIdentifier = selectedProfile.id)
             }
-
-            Text(stringResource(R.string.invoice_description_articel, article))
-            Text(stringResource(R.string.invoice_description_brutto_price, it.price.value))
-
-            SpacerMedium()
         }
     }
-
-    Text(stringResource(R.string.invoice_description_total_brutto_amount, invoice.totalBruttoAmount))
-
-    Text(stringResource(R.string.invoice_detail_dispense), style = AppTheme.typography.body2l)
-    SpacerXXLarge()
 }
 
 @Composable
-fun PharmacyLabel(pharmacyOrganization: SyncedTaskData.Organization) {
-    LabeledTextItems(
-        label = stringResource(R.string.invoice_redeemed_in),
-        items = listOf(
-            pharmacyOrganization.name,
-            pharmacyOrganization.address?.joinToString(),
-            pharmacyOrganization.uniqueIdentifier?.let { stringResource(R.string.invoice_pharmacy_id, it) }
-        )
-    )
-}
+private fun InvoiceDetailBottomBar(totalBruttoAmount: Double, onClickSubmit: () -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .background(
+                color = AppTheme.colors.neutral100
+            ),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(modifier = Modifier.padding(PaddingDefaults.Medium)) {
+            Text(
+                stringResource(R.string.invoice_details_cost, totalBruttoAmount),
+                style = AppTheme.typography.h6,
+                fontWeight = FontWeight.Bold
+            )
+            Text(stringResource(R.string.invoice_detail_total_brutto_amount), style = AppTheme.typography.body2l)
+        }
 
-@Composable
-fun PractitionerLabel(
-    practitioner: SyncedTaskData.Practitioner,
-    practitionerOrganization: SyncedTaskData.Organization
-) {
-    LabeledTextItems(
-        label = stringResource(R.string.invoice_prescribed_by),
-        items = listOf(
-            practitioner.name,
-            practitionerOrganization.address?.joinToString(),
-            practitioner.practitionerIdentifier?.let { stringResource(R.string.invoice_practitioner_id, it) }
-        )
-    )
-}
-
-@Composable
-fun LabeledTextItems(label: String, items: List<String?>) {
-    val showLabel = items.any { it != null }
-    items.forEach {
-        it?.let {
-            Text(it, style = AppTheme.typography.body1)
+        Button(
+            onClick = onClickSubmit,
+            modifier = Modifier.padding(end = PaddingDefaults.Medium)
+        ) {
+            Text(text = stringResource(R.string.invoice_details_submit))
         }
     }
-    if (showLabel) {
-        Text(label, style = AppTheme.typography.body2l)
-    }
 }
 
 @Composable
-fun PatientLabel(patient: SyncedTaskData.Patient) {
-    LabeledTextItems(
-        label = stringResource(R.string.invoice_prescribed_for),
-        items = listOf(
-            patient.name,
-            patient.insuranceIdentifier?.let { stringResource(R.string.invoice_insurance_id, it) },
-            patient.address?.joinToString(),
-            patient.birthdate?.formattedString()?.let { stringResource(R.string.invoice_born_on, it) }
+fun InvoiceMedicationHeader(invoice: InvoiceData.PKVInvoice) {
+    val medicationInfo = joinMedicationInfo(invoice.medicationRequest)
+    Text(text = medicationInfo, style = AppTheme.typography.h5)
+}
+
+@Composable
+private fun LinkToInvoiceList(navController: NavController, profileIdentifier: ProfileIdentifier) {
+    Row(
+        modifier = Modifier
+            .clickable { navController.navigate(PkvRoutes.InvoiceListScreen.path(profileId = profileIdentifier)) }
+            .padding(PaddingDefaults.Medium)
+            .wrapContentWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.link_to_invoice_list),
+            style = AppTheme.typography.body2,
+            color = AppTheme.colors.primary600
         )
-    )
+        SpacerTiny()
+        Icon(Icons.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.primary600)
+    }
 }

@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.di
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.data.Environment
+import de.gematik.ti.erp.app.debugsettings.data.Environment
 
 class EndpointHelper(
     private val networkPrefs: SharedPreferences

@@ -22,6 +22,14 @@ import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
@@ -34,7 +42,7 @@ const val DIRECT_ASSIGNMENT_INDICATOR_PKV = "209" // pkv direct assignment taskI
 
 object SyncedTaskData {
     enum class TaskStatus {
-        Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed;
+        Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed
     }
 
     data class SyncedTask(
@@ -169,6 +177,7 @@ object SyncedTaskData {
         fun medicationName(): String? = medicationRequest.medication?.name()
     }
 
+    @Serializable
     data class Address(
         val line1: String,
         val line2: String,
@@ -194,6 +203,7 @@ object SyncedTaskData {
             }.joinToString("<br>")
     }
 
+    @Serializable
     data class Organization(
         val name: String? = null,
         val address: Address? = null,
@@ -202,12 +212,14 @@ object SyncedTaskData {
         val mail: String? = null
     )
 
+    @Serializable
     data class Practitioner(
         val name: String?,
         val qualification: String?,
         val practitionerIdentifier: String?
     )
 
+    @Serializable
     data class Patient(
         val name: String?,
         val address: Address?,
@@ -215,11 +227,13 @@ object SyncedTaskData {
         val insuranceIdentifier: String?
     )
 
+    @Serializable
     data class InsuranceInformation(
         val name: String? = null,
         val status: String? = null
     )
 
+    @Serializable
     enum class AdditionalFee(val value: String?) {
         None(null),
         NotExempt("0"),
@@ -228,12 +242,14 @@ object SyncedTaskData {
 
         companion object {
             fun valueOf(v: String?) =
-                values().find {
+                entries.find {
                     it.value == v
                 } ?: None
         }
     }
 
+    @Serializable
+    @SerialName("MedicationRequest")
     data class MedicationRequest(
         val medication: Medication? = null,
         val authoredOn: FhirTemporal? = null,
@@ -250,6 +266,7 @@ object SyncedTaskData {
         val additionalFee: AdditionalFee = AdditionalFee.valueOf(null)
     )
 
+    @Serializable
     data class MultiplePrescriptionInfo(
         val indicator: Boolean = false,
         val numbering: Ratio? = null,
@@ -257,6 +274,7 @@ object SyncedTaskData {
         val end: Instant? = null
     )
 
+    @Serializable
     enum class AccidentType {
         Unfall,
         Arbeitsunfall,
@@ -264,6 +282,8 @@ object SyncedTaskData {
         None
     }
 
+    @Serializable
+    @SerialName("MedicationDispense")
     data class MedicationDispense(
         val dispenseId: String?,
         val patientIdentifier: String,
@@ -274,24 +294,28 @@ object SyncedTaskData {
         val whenHandedOver: FhirTemporal?
     )
 
+    @Serializable
     enum class MedicationCategory {
         ARZNEI_UND_VERBAND_MITTEL,
         BTM,
         AMVV,
         SONSTIGES,
-        UNKNOWN;
+        UNKNOWN
     }
 
+    @Serializable
     data class Quantity(
         val value: String,
         val unit: String
     )
 
+    @Serializable
     data class Ratio(
         val numerator: Quantity?,
         val denominator: Quantity?
     )
 
+    @Serializable
     data class Ingredient(
         var text: String,
         var form: String?,
@@ -300,7 +324,21 @@ object SyncedTaskData {
         var strength: Ratio?
     )
 
+    /*
+       Since kotlinx.serialization does not support PolymorphicSerializer of nullable types
+        out of the box we need to add a type to let the serializer know the difference if it is
+        a sealed class or sealed interface.
+    */
+    enum class MedicationSerializationType {
+        MedicationFreeText,
+        MedicationIngredient,
+        MedicationCompounding,
+        MedicationPZN
+    }
+
+    @Serializable(with = MedicationSyncedTaskDataSerializer::class)
     sealed interface Medication {
+        val type: MedicationSerializationType
         fun name(): String
 
         val category: MedicationCategory
@@ -311,7 +349,10 @@ object SyncedTaskData {
         val expirationDate: FhirTemporal?
     }
 
+    @Serializable
+    @SerialName("MedicationFreeText")
     data class MedicationFreeText(
+        override val type: MedicationSerializationType = MedicationSerializationType.MedicationFreeText,
         override val category: MedicationCategory,
         override val vaccine: Boolean,
         override val text: String,
@@ -322,7 +363,10 @@ object SyncedTaskData {
         override fun name(): String = text
     }
 
+    @Serializable
+    @SerialName("MedicationIngredient")
     data class MedicationIngredient(
+        override val type: MedicationSerializationType = MedicationSerializationType.MedicationIngredient,
         override val category: MedicationCategory,
         override val vaccine: Boolean,
         override val text: String,
@@ -337,7 +381,10 @@ object SyncedTaskData {
         override fun name(): String = joinIngredientNames(ingredients)
     }
 
+    @Serializable
+    @SerialName("MedicationCompounding")
     data class MedicationCompounding(
+        override val type: MedicationSerializationType = MedicationSerializationType.MedicationCompounding,
         override val category: MedicationCategory,
         override val vaccine: Boolean,
         override val text: String,
@@ -353,7 +400,10 @@ object SyncedTaskData {
         override fun name(): String = joinIngredientNames(ingredients)
     }
 
+    @Serializable
+    @SerialName("MedicationPZN")
     data class MedicationPZN(
+        override val type: MedicationSerializationType = MedicationSerializationType.MedicationPZN,
         override val category: MedicationCategory,
         override val vaccine: Boolean,
         override val text: String,
@@ -372,4 +422,19 @@ object SyncedTaskData {
         ingredients.joinToString(", ") { ingredient ->
             ingredient.text
         }
+
+    object MedicationSyncedTaskDataSerializer : JsonContentPolymorphicSerializer<Medication>(Medication::class) {
+        override fun selectDeserializer(element: JsonElement): KSerializer<out Medication> {
+            element.jsonObject["type"]?.jsonPrimitive?.content?.let { classType ->
+                return when (MedicationSerializationType.valueOf(classType)) {
+                    MedicationSerializationType.MedicationFreeText -> MedicationFreeText.serializer()
+                    MedicationSerializationType.MedicationIngredient -> MedicationIngredient.serializer()
+                    MedicationSerializationType.MedicationCompounding -> MedicationCompounding.serializer()
+                    MedicationSerializationType.MedicationPZN -> MedicationPZN.serializer()
+                }
+            } ?: throw SerializationException(
+                "MedicationSyncedTaskDataSerializer: key 'type' not found or does not matches any module type"
+            )
+        }
+    }
 }

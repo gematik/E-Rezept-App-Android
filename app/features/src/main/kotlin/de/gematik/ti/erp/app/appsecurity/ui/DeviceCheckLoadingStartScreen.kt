@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -39,6 +40,12 @@ import de.gematik.ti.erp.app.appsecurity.presentation.rememberAppSecurityControl
 import de.gematik.ti.erp.app.appsecurity.ui.model.AppSecurityResult
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
+import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
+import de.gematik.ti.erp.app.onboarding.ui.SkipOnBoardingButton
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 private const val ANIMATION_TIME = 1000
 
@@ -51,6 +58,11 @@ class DeviceCheckLoadingStartScreen(
     @Composable
     override fun Content() {
         val appSecurityController = rememberAppSecurityController()
+
+        // used here only for skip button
+        val onboardingController = rememberOnboardingController()
+
+        val scope = rememberCoroutineScope()
 
         val infiniteTransition = rememberInfiniteTransition(label = "InfiniteTransition")
         val angle by infiniteTransition.animateFloat(
@@ -66,12 +78,22 @@ class DeviceCheckLoadingStartScreen(
             val isIntegritySecure = appSecurityController.checkIntegrityRisk()
             val isDeviceSecure = appSecurityController.checkDeviceSecurityRisk()
             // on obtaining results make a callback to use the results
-            onSecurityCheckResult(
-                AppSecurityResult(
-                    isIntegritySecure = isIntegritySecure,
-                    isDeviceSecure = isDeviceSecure
+            scope.launch {
+                onSecurityCheckResult(
+                    AppSecurityResult(
+                        isIntegritySecure = isIntegritySecure,
+                        isDeviceSecure = isDeviceSecure
+                    )
                 )
-            )
+            }
+        }
+
+        if (BuildConfigExtension.isNonReleaseMode) {
+            SkipOnBoardingButton {
+                scope.cancel()
+                onboardingController.createProfileOnSkipOnboarding()
+                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+            }
         }
 
         Box(modifier = Modifier.fillMaxSize()) {

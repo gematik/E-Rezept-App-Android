@@ -21,9 +21,9 @@ package de.gematik.ti.erp.app.mainscreen.navigation
 import android.os.Parcelable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import de.gematik.ti.erp.app.analytics.PopUpName
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.navigation.Routes
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PopUpName
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
@@ -35,16 +35,8 @@ data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 object MainNavigationScreens {
     object Onboarding : Routes("onboarding")
     object Settings : Routes("settings")
-    object Camera : Routes("main_scanner")
     object Prescriptions : Routes("main")
     object Archive : Routes("main_prescriptionArchive")
-    object PrescriptionDetail :
-        Routes(
-            "prescriptionDetail",
-            navArgument("taskId") { type = NavType.StringType }
-        ) {
-        fun path(taskId: String) = path("taskId" to taskId)
-    }
 
     object Orders : Routes("orders")
 
@@ -73,15 +65,7 @@ object MainNavigationScreens {
     ) {
         fun path(profileId: ProfileIdentifier) = path("profileId" to profileId)
     }
-
-    object MlKitIntroScreen : Routes("mlKit")
-    object MlKitInformationScreen : Routes("mlKit_information")
     object DataProtection : Routes("settings_dataProtection")
-
-    object EditProfile :
-        Routes("profile", navArgument("profileId") { type = NavType.StringType }) {
-        fun path(profileId: String) = path("profileId" to profileId)
-    }
 
     object Terms : Routes("settings_termsOfUse")
     object Imprint : Routes("settings_legalNotice")
@@ -112,4 +96,5 @@ object MainScreenBottomPopUpNames {
     object EditProfileName : PopUpName("main_editName")
     object AddProfile : PopUpName("main_createProfile")
     object Welcome : PopUpName("main_welcomeDrawer")
+    object GrantConsent : PopUpName("main_grantConsentDrawer")
 }

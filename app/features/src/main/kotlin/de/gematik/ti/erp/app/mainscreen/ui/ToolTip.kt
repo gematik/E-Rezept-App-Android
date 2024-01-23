@@ -51,10 +51,10 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
+import androidx.compose.ui.window.Dialog
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.Dialog
 
 enum class ArrowPosition {
     Top,

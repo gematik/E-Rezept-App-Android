@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -53,9 +52,9 @@ class ProfilesUseCase(
                         insuranceIdentifier = profile.insuranceIdentifier ?: "",
                         insuranceName = profile.insuranceName ?: "",
                         insuranceType = when (profile.insuranceType) {
-                            InsuranceTypeV1.None -> ProfilesUseCaseData.InsuranceType.NONE
-                            InsuranceTypeV1.GKV -> ProfilesUseCaseData.InsuranceType.GKV
-                            InsuranceTypeV1.PKV -> ProfilesUseCaseData.InsuranceType.PKV
+                            ProfilesData.InsuranceType.None -> ProfilesUseCaseData.InsuranceType.NONE
+                            ProfilesData.InsuranceType.GKV -> ProfilesUseCaseData.InsuranceType.GKV
+                            ProfilesData.InsuranceType.PKV -> ProfilesUseCaseData.InsuranceType.PKV
                         }
                     ),
                     active = profile.active,

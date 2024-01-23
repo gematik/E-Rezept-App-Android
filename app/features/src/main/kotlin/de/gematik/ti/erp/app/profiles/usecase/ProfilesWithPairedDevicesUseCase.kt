@@ -18,11 +18,12 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.PairedDevice
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
@@ -31,7 +32,7 @@ import kotlinx.datetime.Instant
 // TODO: Use the IdpUseCase and do this in the controller where it is called or do this in the IdpUseCase
 class ProfilesWithPairedDevicesUseCase(
     private val idpUseCase: IdpUseCase,
-    private val dispatchers: DispatchProvider
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     fun pairedDevices(profileId: ProfileIdentifier): Flow<ProfilesUseCaseData.PairedDevices> =
         flow {
@@ -48,7 +49,7 @@ class ProfilesWithPairedDevicesUseCase(
                     }
                 )
             )
-        }.flowOn(dispatchers.io)
+        }.flowOn(dispatcher)
 
     suspend fun deletePairedDevices(
         profileId: ProfileIdentifier,

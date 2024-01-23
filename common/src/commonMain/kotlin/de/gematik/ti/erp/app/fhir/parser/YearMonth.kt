@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.fhir.parser
 
 import de.gematik.ti.erp.app.utils.FhirYearMonthRegex
 import de.gematik.ti.erp.app.utils.FhirYearRegex
+import kotlinx.serialization.Serializable
 
 // just support sane values
 private const val YearMin = 1000
@@ -27,6 +28,7 @@ private const val YearMax = 9999
 private const val MonthMin = 1
 private const val MonthMax = 12
 
+@Serializable
 data class YearMonth(val year: Int, val monthNumber: Int) {
     init {
         require(year in YearMin..YearMax)
@@ -50,6 +52,7 @@ data class YearMonth(val year: Int, val monthNumber: Int) {
     }
 }
 
+@Serializable
 data class Year(val year: Int) {
     init {
         require(year in YearMin..YearMax)

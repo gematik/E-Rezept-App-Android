@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.authentication.ui
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,18 +33,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.cardwall.mini.ui.ExternalPromptAuthenticator
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mainscreen.ui.ExternalAuthenticationDialog
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import kotlinx.coroutines.launch
@@ -61,13 +58,17 @@ fun ExternalAuthPrompt(
     if (state is ExternalPromptAuthenticator.State.SelectInsurance) {
         Dialog(
             onDismissRequest = {},
-            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false
+            )
         ) {
             Box(
                 Modifier
                     .semantics(false) { }
                     .fillMaxSize()
-                    .background(SolidColor(Color.Black), alpha = 0.5f)
                     .imePadding()
                     .systemBarsPadding(),
                 contentAlignment = Alignment.BottomCenter
@@ -91,7 +92,7 @@ fun ExternalAuthPrompt(
                             onValueChange = {},
                             singleLine = true,
                             modifier = Modifier.fillMaxWidth(),
-                            label = { Text("Suche") },
+                            label = { Text(stringResource(R.string.mini_cdw_fasttrack_search)) },
                             shape = RoundedCornerShape(8.dp),
                             colors = TextFieldDefaults.outlinedTextFieldColors(
                                 unfocusedLabelColor = AppTheme.colors.neutral400,

@@ -66,6 +66,9 @@ android {
             it.name
         }
     }
+    androidResources {
+        generateLocaleConfig = true
+    }
     val rootPath = project.rootProject
     val signingPropsFile = rootPath.file("signing.properties")
     if (signingPropsFile.canRead()) {
@@ -124,14 +127,14 @@ android {
         }
         create("minifiedDebug") {
             initWith(debug)
-            applicationIdSuffix = ".debug"
+            applicationIdSuffix = ".minirelease"
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            resValue("string", "app_label", "E-Rezept DebugRelease")
+            resValue("string", "app_label", "E-Rezept MiniRelease")
         }
     }
     flavorDimensions += listOf("version")

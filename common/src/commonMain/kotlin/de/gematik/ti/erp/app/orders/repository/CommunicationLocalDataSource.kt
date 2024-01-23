@@ -88,6 +88,22 @@ class CommunicationLocalDataSource(
                 }
             }
 
+    fun loadCommunicationsWithTaskId(
+        taskIds: List<String>
+    ): Flow<List<Communication>> =
+        realm.query<CommunicationEntityV1>(
+            orQuerySubstring("parent.taskId", taskIds.size),
+            *taskIds.toTypedArray()
+        )
+            .sort("sentOn", Sort.DESCENDING)
+            .distinct("orderId")
+            .asFlow()
+            .map { communications ->
+                communications.list.mapNotNull {
+                    it.toCommunication()
+                }
+            }
+
     fun hasUnreadPrescription(taskIds: List<String>, orderId: String): Flow<Boolean> =
         realm.query<CommunicationEntityV1>(
             orQuerySubstring("parent.taskId", taskIds.size),
@@ -104,8 +120,21 @@ class CommunicationLocalDataSource(
             .asFlow()
             .map { it > 0 }
 
+    /**
+     * @param profileId is used to check for a particular profile.
+     *
+     * [[consumed]] which refers to if the order message was read is checked to be false.
+     *
+     * [[_profile]] which refers to reply or request reads only if there are request message.
+     *
+     * @return [flow<Long>] of the count of the unread messages
+     */
     fun unreadOrders(profileId: ProfileIdentifier): Flow<Long> =
-        realm.query<CommunicationEntityV1>("consumed = false && parent.parent.id = $0", profileId)
+        realm.query<CommunicationEntityV1>(
+            "consumed = false && parent.parent.id = $0 && _profile = $1",
+            profileId,
+            CommunicationProfile.ErxCommunicationDispReq.toEntityValue()
+        )
             .distinct("orderId")
             .count()
             .asFlow()

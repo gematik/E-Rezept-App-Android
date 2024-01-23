@@ -30,7 +30,7 @@ object IdpData {
     data class IdpConfiguration(
         var authorizationEndpoint: String,
         var ssoEndpoint: String,
-        var tokenEndpoint: String,
+        var tokenEndpoint: String, // access-token endpoint
         var pairingEndpoint: String,
         var authenticationEndpoint: String,
         var pukIdpEncEndpoint: String,
@@ -39,6 +39,8 @@ object IdpData {
         var expirationTimestamp: Instant,
         var issueTimestamp: Instant,
         var externalAuthorizationIDsEndpoint: String?,
+        var federationAuthorizationIDsEndpoint: String?,
+        var federationAuthorizationEndpoint: String?,
         var thirdPartyAuthorizationEndpoint: String?
     )
 

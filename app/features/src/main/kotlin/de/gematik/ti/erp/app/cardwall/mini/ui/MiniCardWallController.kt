@@ -33,12 +33,16 @@ import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.MiniCardWallUseCase
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
+import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
+import de.gematik.ti.erp.app.idp.model.UniversalLinkIdp
+import de.gematik.ti.erp.app.idp.usecase.AuthenticateWithExternalHealthInsuranceAppUseCase
+import de.gematik.ti.erp.app.idp.usecase.GetHealthInsuranceAppIdpsUseCase
+import de.gematik.ti.erp.app.idp.usecase.GetUniversalLinkForHealthInsuranceAppsUseCase
+import de.gematik.ti.erp.app.idp.usecase.RemoveAuthenticationUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
@@ -53,12 +57,15 @@ import java.net.URI
  * the biometric/alternate authentication uses the prompt provided by the system.
  */
 
+// TODO: Needs to be taken out of the bridge architecture
 @Stable
 class MiniCardWallController(
-    private val useCase: MiniCardWallUseCase,
+    private val miniCardWallUseCase: MiniCardWallUseCase,
     private val authenticationUseCase: AuthenticationUseCase,
-    private val idpUseCase: IdpUseCase,
-    private val idpRepository: IdpRepository,
+    private val getHealthInsuranceAppIdpsUseCase: GetHealthInsuranceAppIdpsUseCase,
+    private val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase,
+    private val authenticateWithExternalHealthInsuranceAppUseCase: AuthenticateWithExternalHealthInsuranceAppUseCase,
+    private val removeAuthenticationUseCase: RemoveAuthenticationUseCase,
     private val dispatchers: DispatchProvider
 ) : AuthenticationBridge {
     private fun PromptAuthenticator.AuthScope.toIdpScope() =
@@ -70,8 +77,11 @@ class MiniCardWallController(
     override suspend fun authenticateFor(
         profileId: ProfileIdentifier
     ): InitialAuthenticationData {
-        val profile = useCase.profileData(profileId).first()
-        return when (val ssoTokenScope = useCase.authenticationData(profileId).first().singleSignOnTokenScope) {
+        val profile = miniCardWallUseCase.profileData(profileId).first()
+        return when (
+            val ssoTokenScope = miniCardWallUseCase
+                .authenticationData(profileId).first().singleSignOnTokenScope
+        ) {
             is IdpData.ExternalAuthenticationToken -> External(
                 authenticatorId = ssoTokenScope.authenticatorId,
                 authenticatorName = ssoTokenScope.authenticatorName,
@@ -116,9 +126,9 @@ class MiniCardWallController(
         ).flowOn(dispatchers.io)
     }
 
-    override suspend fun loadExternalAuthenticators(): List<AuthenticationId> =
+    override suspend fun loadExternalAuthenticators(): List<HealthInsuranceData> =
         withContext(dispatchers.io) {
-            idpUseCase.loadExternAuthenticatorIDs()
+            getHealthInsuranceAppIdpsUseCase.invoke()
         }
 
     override suspend fun doExternalAuthentication(
@@ -126,45 +136,58 @@ class MiniCardWallController(
         scope: PromptAuthenticator.AuthScope,
         authenticatorId: String,
         authenticatorName: String
-    ): Result<URI> = withContext(dispatchers.io) {
-        runCatching {
-            idpUseCase.getUniversalLinkForExternalAuthorization(
-                profileId = profileId,
-                scope = scope.toIdpScope(),
-                authenticatorId = authenticatorId,
-                authenticatorName = authenticatorName
-            )
-        }
-    }
+    ): Result<URI> = getUniversalLinkUseCase.invoke(
+        universalLinkIdp = UniversalLinkIdp(
+            authenticatorId = authenticatorId,
+            authenticatorName = authenticatorName,
+            profileId = profileId,
+            isGid = true
+        ),
+        idpScope = scope.toIdpScope()
+    )
 
     override suspend fun doExternalAuthorization(redirect: URI): Result<Unit> = withContext(dispatchers.io) {
         runCatching {
-            idpUseCase.authenticateWithExternalAppAuthorization(redirect)
+            Napier.i { "call from minicard wall" }
+            authenticateWithExternalHealthInsuranceAppUseCase.invoke(redirect)
         }
     }
 
     override suspend fun doRemoveAuthentication(profileId: ProfileIdentifier) {
         withContext(dispatchers.io) {
-            idpRepository.invalidate(profileId)
+            removeAuthenticationUseCase(profileId)
         }
     }
 }
 
 @Composable
 fun rememberMiniCardWallController(): MiniCardWallController {
-    val useCase by rememberInstance<MiniCardWallUseCase>()
+    val miniCardWallUseCase by rememberInstance<MiniCardWallUseCase>()
+
     val authenticationUseCase by rememberInstance<AuthenticationUseCase>()
-    val idpUseCase by rememberInstance<IdpUseCase>()
-    val idpRepository by rememberInstance<IdpRepository>()
+
+    val getHealthInsuranceAppIdpsUseCase by
+    rememberInstance<GetHealthInsuranceAppIdpsUseCase>()
+
+    val getUniversalLinkForHealthInsuranceAppsUseCase by
+    rememberInstance<GetUniversalLinkForHealthInsuranceAppsUseCase>()
+
+    val authenticateWithExternalHealthInsuranceAppUseCase by
+    rememberInstance<AuthenticateWithExternalHealthInsuranceAppUseCase>()
+
+    val removeAuthenticationUseCase by rememberInstance<RemoveAuthenticationUseCase>()
+
     val dispatchers by rememberInstance<DispatchProvider>()
 
     return remember {
         MiniCardWallController(
-            useCase,
-            authenticationUseCase,
-            idpUseCase,
-            idpRepository,
-            dispatchers
+            miniCardWallUseCase = miniCardWallUseCase,
+            authenticationUseCase = authenticationUseCase,
+            getUniversalLinkUseCase = getUniversalLinkForHealthInsuranceAppsUseCase,
+            getHealthInsuranceAppIdpsUseCase = getHealthInsuranceAppIdpsUseCase,
+            authenticateWithExternalHealthInsuranceAppUseCase = authenticateWithExternalHealthInsuranceAppUseCase,
+            removeAuthenticationUseCase = removeAuthenticationUseCase,
+            dispatchers = dispatchers
         )
     }
 }

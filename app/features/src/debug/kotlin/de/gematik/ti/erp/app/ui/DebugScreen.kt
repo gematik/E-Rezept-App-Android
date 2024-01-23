@@ -20,14 +20,12 @@ package de.gematik.ti.erp.app.ui
 
 import android.content.Intent
 import android.net.Uri
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
@@ -36,7 +34,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -49,7 +46,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.RadioButton
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
@@ -78,10 +74,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.data.Environment
+import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
+import de.gematik.ti.erp.app.debugsettings.ui.DebugScreenPKV
+import de.gematik.ti.erp.app.debugsettings.ui.EnvironmentSelector
+import de.gematik.ti.erp.app.debugsettings.ui.LoadingButton
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.settings.ui.LabelButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -240,7 +238,7 @@ fun DebugScreen(
                             navController.navigate(DebugScreenNavigation.DebugPKV.path())
                         },
                         onClickBioMetricSettings = {
-                            navController.navigate(DebugScreenNavigation.DebugBiometric.path())
+                            navController.navigate(DebugScreenNavigation.DebugTimeout.path())
                         }
                     )
                 }
@@ -255,16 +253,19 @@ fun DebugScreen(
                 }
             }
             composable(DebugScreenNavigation.DebugPKV.route) {
+                val viewModel by rememberViewModel<DebugSettingsViewModel>()
                 NavigationAnimation(mode = navMode) {
                     DebugScreenPKV(
+                        onSaveInvoiceBundle = {
+                            viewModel.saveInvoice(it)
+                        },
                         onBack = {
                             navController.popBackStack()
                         }
                     )
                 }
             }
-
-            composable(DebugScreenNavigation.DebugBiometric.route) {
+            composable(DebugScreenNavigation.DebugTimeout.route) {
                 DebugTimeoutScreen.Content {
                     navController.popBackStack()
                 }
@@ -397,7 +398,7 @@ private fun RedeemButton(
     certificates: String,
     text: String
 ) =
-    DebugLoadingButton(
+    LoadingButton(
         onClick = { viewModel.redeemDirect(url = url, message = message, certificatesPEM = certificates) },
         enabled = url.isNotEmpty() && certificates.isNotEmpty(),
         text = text
@@ -703,7 +704,7 @@ private fun FeatureToggles(modifier: Modifier = Modifier, viewModel: DebugSettin
     }
 }
 
-@Composable
+/*@Composable
 fun EnvironmentSelector(
     currentSelectedEnvironment: Environment,
     onSelectEnvironment: (environment: Environment) -> Unit,
@@ -759,4 +760,4 @@ fun EnvironmentSelector(
             Spacer(modifier = Modifier.navigationBarsPadding())
         }
     }
-}
+}*/

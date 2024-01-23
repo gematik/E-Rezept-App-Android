@@ -30,7 +30,7 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.SwipeRefreshIndicator
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.prescription.ui.rememberRefreshPrescriptionsController
+import de.gematik.ti.erp.app.prescription.presentation.rememberRefreshPrescriptionsController
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import kotlinx.coroutines.Dispatchers

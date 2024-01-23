@@ -52,6 +52,9 @@ android {
             initWith(debug)
         }
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
@@ -81,6 +84,7 @@ dependencies {
             testCompileOnly(datetime)
         }
         accompanist {
+            implementation(navigationMaterial)
             implementation(swipeRefresh)
             implementation(flowLayout)
             implementation(pager)
@@ -110,10 +114,18 @@ dependencies {
             implementation(cameraxLifecycle)
             implementation(cameraxView)
         }
+        appCenterSdk {
+            implementation(appCenterAnalytics)
+            implementation(appCenterCrashes)
+        }
         dependencyInjection {
             compileOnly(kodeinCompose)
             implementation(kodeinCompose)
+            implementation(kodeinViewModel)
             androidTestImplementation(kodeinCompose)
+        }
+        imageLoad {
+            implementation(coil)
         }
         logging {
             implementation(napier)
@@ -148,14 +160,21 @@ dependencies {
         compose {
             implementation(runtime)
             implementation(foundation)
-            implementation(material)
-            implementation(materialIconsExtended)
             implementation(animation)
             implementation(uiTooling)
             implementation(preview)
         }
+        material {
+            implementation(material)
+            implementation(material3)
+            implementation(materialIcons)
+            implementation(materialIconsExtended)
+        }
         passwordStrength {
             implementation(zxcvbn)
+        }
+        stateManagement {
+            implementation(reactiveState)
         }
         tracking {
             implementation(contentSquare)
@@ -174,6 +193,9 @@ dependencies {
             implementation(appReview)
             implementation(appUpdate)
         }
+        shimmer {
+            implementation(shimmer)
+        }
         networkTest {
             testImplementation(mockWebServer)
         }
@@ -189,5 +211,9 @@ dependencies {
 
 secrets {
     defaultPropertiesFileName = if (project.rootProject.file("ci-overrides.properties").exists()
-    ) "ci-overrides.properties" else "gradle.properties"
+    ) {
+        "ci-overrides.properties"
+    } else {
+        "gradle.properties"
+    }
 }

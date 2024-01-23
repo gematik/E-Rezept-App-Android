@@ -23,6 +23,7 @@ import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
+import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
 
 @Composable
 fun RevokeConsentDialog(onCancel: () -> Unit, onRevokeConsent: () -> Unit) {
@@ -55,10 +56,10 @@ fun DeleteInvoiceDialog(onCancel: () -> Unit, onDeleteInvoice: () -> Unit) {
 @Composable
 fun GrantConsentDialog(onCancel: () -> Unit, onGrantConsent: () -> Unit) {
     CommonAlertDialog(
-        header = stringResource(R.string.profile_grant_consent_header),
-        info = stringResource(R.string.profile_grant_consent_info),
-        cancelText = stringResource(R.string.profile_invoices_cancel),
-        actionText = stringResource(R.string.profile_grant_consent),
+        header = stringResource(R.string.get_consent_info_dialog_header).toAnnotatedString(),
+        info = stringResource(R.string.get_consent_info_dialog_info).toAnnotatedString(),
+        cancelText = stringResource(R.string.get_consent_info_dialog_cancel),
+        actionText = stringResource(R.string.get_consent_info_dialog_accept),
         onCancel = onCancel,
         onClickAction = onGrantConsent
     )

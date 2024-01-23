@@ -382,8 +382,8 @@ fun createPkvHtmlInvoiceTemplate(
 
     </style>
     <body>
-    <h1>PDF für Privatversicherte zur Abrechnung Ihres E-Rezeptes</h1>
-    <sub>Bitte reichen Sie diesen Beleg als PDF bei Ihrem Kostenträger ein</sub>
+    <h1>Digitaler Beleg zur Abrechnung Ihres E-Rezeptes</h1>
+    <sub>Bitte leiten Sie diesen Beleg über die App an Ihre Versicherung weiter.</sub>
     <div class="frame">
         <h5>Patient</h5>
         <div class="content">

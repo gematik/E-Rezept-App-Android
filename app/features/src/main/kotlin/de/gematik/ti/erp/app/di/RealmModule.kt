@@ -25,7 +25,7 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.MessageConversionException
+import de.gematik.ti.erp.app.UncaughtException
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.db.appSchemas
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
@@ -104,7 +104,7 @@ val realmModule = DI.Module("realmModule") {
                 }
             }
         } catch (expected: Throwable) {
-            throw MessageConversionException(expected)
+            throw UncaughtException(expected)
         }
     }
 }

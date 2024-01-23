@@ -32,24 +32,24 @@ import de.gematik.ti.erp.app.interceptor.PharmacySearchInterceptor
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
 import de.gematik.ti.erp.app.vau.api.VauService
 import de.gematik.ti.erp.app.vau.interceptor.VauChannelInterceptor
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.CipherSuite
 import okhttp3.ConnectionSpec
+import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
+import okhttp3.Response
 import okhttp3.TlsVersion
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Retrofit
-import io.github.aakira.napier.Napier
-import okhttp3.Interceptor
-import okhttp3.Response
 import org.kodein.di.DI
 import org.kodein.di.bindInstance
 import org.kodein.di.bindMultiton
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
+import retrofit2.Retrofit
 import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECTION_TIMEOUT = 10000L

@@ -55,6 +55,8 @@ class IdpLocalDataSource constructor(
             entity.issueTimestamp = config.issueTimestamp.toRealmInstant()
             entity.externalAuthorizationIDsEndpoint = config.externalAuthorizationIDsEndpoint
             entity.thirdPartyAuthorizationEndpoint = config.thirdPartyAuthorizationEndpoint
+            entity.federationAuthorizationIDsEndpoint = config.federationAuthorizationIDsEndpoint
+            entity.federationAuthorizationEndpoint = config.federationAuthorizationEndpoint
         }
     }
 
@@ -72,7 +74,9 @@ class IdpLocalDataSource constructor(
                 expirationTimestamp = it.expirationTimestamp.toInstant(),
                 issueTimestamp = it.issueTimestamp.toInstant(),
                 externalAuthorizationIDsEndpoint = it.externalAuthorizationIDsEndpoint,
-                thirdPartyAuthorizationEndpoint = it.thirdPartyAuthorizationEndpoint
+                thirdPartyAuthorizationEndpoint = it.thirdPartyAuthorizationEndpoint,
+                federationAuthorizationIDsEndpoint = it.federationAuthorizationIDsEndpoint,
+                federationAuthorizationEndpoint = it.federationAuthorizationEndpoint
             )
         }
 

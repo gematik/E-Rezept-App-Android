@@ -34,7 +34,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -119,6 +118,9 @@ class DefaultCommunicationRepository(
 
     override fun loadRepliedCommunications(taskIds: List<String>): Flow<List<Communication>> =
         communicationLocalDataSource.loadRepliedCommunications(taskIds = taskIds).flowOn(dispatchers.io)
+
+    override fun loadCommunicationsWithTaskId(taskIds: List<String>): Flow<List<Communication>> =
+        communicationLocalDataSource.loadCommunicationsWithTaskId(taskIds = taskIds).flowOn(dispatchers.io)
 
     override fun hasUnreadPrescription(taskIds: List<String>, orderId: String): Flow<Boolean> =
         communicationLocalDataSource.hasUnreadPrescription(taskIds, orderId).flowOn(dispatchers.io)

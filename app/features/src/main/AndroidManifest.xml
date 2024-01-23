@@ -39,13 +39,19 @@
                 <category android:name="android.intent.category.BROWSABLE"/>
 
                 <data
+                    android:host="das-e-rezept-fuer-deutschland.de"
                     android:pathPrefix="/extauth"
-                    android:host="das-e-rezept-fuer-deutschland.de"
-                    android:scheme="https"/>
+                    android:scheme="https" />
+
                 <data
-                    android:pathPrefix="/prescription"
+                    android:host="www.das-e-rezept-fuer-deutschland.de"
+                    android:pathPrefix="/extauth"
+                    android:scheme="https" />
+
+                <data
                     android:host="das-e-rezept-fuer-deutschland.de"
-                    android:scheme="https"/>
+                    android:pathPrefix="/prescription"
+                    android:scheme="https" />
             </intent-filter>
         </activity>
     </application>

@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.authentication.ui
 
 import android.content.Intent
 import android.provider.Settings
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -44,13 +43,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.cardwall.mini.ui.HealthCardPromptAuthenticator
 import de.gematik.ti.erp.app.cardwall.ui.ReadingCardAnimation
@@ -59,7 +57,6 @@ import de.gematik.ti.erp.app.cardwall.ui.TagLostCard
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.Dialog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
@@ -81,13 +78,17 @@ fun HealthCardPrompt(
     if (state != HealthCardPromptAuthenticator.State.None && (!isError || isTagLost)) {
         Dialog(
             onDismissRequest = {},
-            properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false,
+                usePlatformDefaultWidth = false,
+                decorFitsSystemWindows = false
+            )
         ) {
             Box(
                 Modifier
                     .semantics(false) { }
                     .fillMaxSize()
-                    .background(SolidColor(Color.Black), alpha = 0.5f)
                     .verticalScroll(rememberScrollState())
                     .imePadding()
                     .systemBarsPadding(),

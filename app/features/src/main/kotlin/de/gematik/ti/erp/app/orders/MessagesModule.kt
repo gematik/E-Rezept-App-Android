@@ -23,7 +23,13 @@ import de.gematik.ti.erp.app.orders.repository.CommunicationRepository
 import de.gematik.ti.erp.app.orders.repository.DefaultCommunicationRepository
 import de.gematik.ti.erp.app.orders.repository.PharmacyCacheLocalDataSource
 import de.gematik.ti.erp.app.orders.repository.PharmacyCacheRemoteDataSource
-import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
+import de.gematik.ti.erp.app.orders.usecase.GetRepliedMessagesUseCase
+import de.gematik.ti.erp.app.orders.usecase.GetOrderUsingOrderIdUseCase
+import de.gematik.ti.erp.app.orders.usecase.GetOrdersUsingProfileIdUseCase
+import de.gematik.ti.erp.app.orders.usecase.GetUnreadOrdersUseCase
+import de.gematik.ti.erp.app.orders.usecase.SaveLocalCommunicationUseCase
+import de.gematik.ti.erp.app.orders.usecase.UpdateCommunicationByCommunicationIdUseCase
+import de.gematik.ti.erp.app.orders.usecase.UpdateCommunicationByOrderIdUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
@@ -32,7 +38,13 @@ val messagesModule = DI.Module("messagesModule") {
     bindProvider { PharmacyCacheLocalDataSource(instance()) }
     bindProvider { PharmacyCacheRemoteDataSource(instance()) }
     bindProvider { CommunicationLocalDataSource(instance()) }
-    bindProvider { OrderUseCase(instance(), instance()) }
+    bindProvider { GetRepliedMessagesUseCase(instance(), instance()) }
+    bindProvider { GetOrdersUsingProfileIdUseCase(instance()) }
+    bindProvider { GetOrderUsingOrderIdUseCase(instance(), instance()) }
+    bindProvider { GetUnreadOrdersUseCase(instance()) }
+    bindProvider { SaveLocalCommunicationUseCase(instance()) }
+    bindProvider { UpdateCommunicationByOrderIdUseCase(instance()) }
+    bindProvider { UpdateCommunicationByCommunicationIdUseCase(instance()) }
 }
 
 val messageRepositoryModule = DI.Module("messageRepositoryModule", allowSilentOverride = true) {

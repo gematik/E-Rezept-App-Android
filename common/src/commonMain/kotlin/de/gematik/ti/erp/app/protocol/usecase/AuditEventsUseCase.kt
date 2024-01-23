@@ -23,10 +23,11 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.withContext
@@ -37,7 +38,7 @@ const val AuditEventsNextResultsPerPage = 25
 
 class AuditEventsUseCase(
     private val auditRepository: AuditEventsRepository,
-    private val dispatchers: DispatchProvider
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
 
     fun loadAuditEventsPaged(
@@ -50,10 +51,10 @@ class AuditEventsUseCase(
                 maxSize = AuditEventsInitialResultsPerPage * 2
             ),
             pagingSourceFactory = { AuditEventPagingSource(profileId) }
-        ).flow.flowOn(dispatchers.io)
+        ).flow.flowOn(dispatcher)
     }
     suspend fun loadAuditEvents(profileId: ProfileIdentifier): List<AuditEventData.AuditEvent> =
-        withContext(dispatchers.io) {
+        withContext(dispatcher) {
             val initialResult = auditRepository.downloadAuditEvents(
                 profileId,
                 null,

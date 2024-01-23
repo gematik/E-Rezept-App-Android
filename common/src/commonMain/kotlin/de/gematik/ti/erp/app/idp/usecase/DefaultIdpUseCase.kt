@@ -22,13 +22,9 @@ package de.gematik.ti.erp.app.idp.usecase
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.idp.api.EXT_AUTH_REDIRECT_URI
-import de.gematik.ti.erp.app.idp.api.IdpService
 import de.gematik.ti.erp.app.idp.api.REDIRECT_URI
-import de.gematik.ti.erp.app.idp.api.models.AuthenticationId
-import de.gematik.ti.erp.app.idp.api.models.ExternalAuthorizationData
 import de.gematik.ti.erp.app.idp.api.models.IdpAuthFlowResult
 import de.gematik.ti.erp.app.idp.api.models.IdpInitialData
-import de.gematik.ti.erp.app.idp.api.models.IdpNonce
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
@@ -37,17 +33,12 @@ import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.vau.extractECPublicKey
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import org.bouncycastle.util.encoders.Base64
 import java.net.HttpURLConnection
-import java.net.URI
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -59,10 +50,9 @@ class DefaultIdpUseCase(
     private val altAuthUseCase: IdpAlternateAuthenticationUseCase,
     private val profilesRepository: ProfileRepository,
     private val basicUseCase: IdpBasicUseCase,
-    private val preferences: IdpPreferenceProvider,
-    private val cryptoProvider: IdpCryptoProvider
+    private val cryptoProvider: IdpCryptoProvider,
+    private val lock: Mutex
 ) : IdpUseCase {
-    private val lock = Mutex()
 
     /**
      * If no bearer token is set or [refresh] is true, this will trigger [IdpBasicUseCase.refreshAccessTokenWithSsoFlow].
@@ -127,12 +117,14 @@ class DefaultIdpUseCase(
         saveDecryptedAccessToken: suspend (decryptedAccessToken: String) -> Unit
     ): String {
         val ssoTokenScope = singleSignOnTokenScope()
+        val accessToken = decryptedAccessToken()
 
         Napier.d {
             """Loading access token with:
               |refresh: $refresh
               |profileId: $profileId
               |scope: $scope
+              |access-token: $accessToken
             """.trimMargin()
         }
 
@@ -146,9 +138,7 @@ class DefaultIdpUseCase(
                 )
             }
 
-            val accToken = decryptedAccessToken()
-
-            if (refresh || accToken == null) {
+            if (refresh || accessToken == null) {
                 invalidateDecryptedAccessToken()
 
                 val actualToken = ssoTokenScope.token!!.token
@@ -184,7 +174,7 @@ class DefaultIdpUseCase(
                     throw RefreshFlowException(false, null, e)
                 }
             } else {
-                accToken
+                accessToken
             }
                 .also {
                     saveDecryptedAccessToken(it)
@@ -281,156 +271,6 @@ class DefaultIdpUseCase(
             basicData,
             ssoToken
         )
-    }
-
-    /**
-     * Get all the information for the correct endpoints from the discovery document and request
-     * the external Health Insurance Companies which are capable of authenticate you with their app
-     */
-    @Requirement(
-        "A_22296-01#1",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Load list of external authenticators for Fast Track."
-    )
-    override suspend fun loadExternAuthenticatorIDs(): List<AuthenticationId> {
-        val initialData = basicUseCase.initializeConfigurationAndKeys()
-        return repository.fetchExternalAuthorizationIDList(
-            url = initialData.config.externalAuthorizationIDsEndpoint ?: error("Fasttrack is not available"),
-            idpPukSigKey = initialData.config.certificate.extractECPublicKey()
-        ).sortedBy {
-            it.name.lowercase()
-        }
-    }
-
-    /**
-     * With chosen Health Insurance Company, request IDP for Authentication information,
-     * sent as a redirect which is supposed to be fired as an Intent
-     * @param externalAuthorizationId identifier of the health insurance company
-     */
-    override suspend fun getUniversalLinkForExternalAuthorization(
-        profileId: ProfileIdentifier,
-        authenticatorId: String,
-        authenticatorName: String,
-        scope: IdpScope
-    ): URI {
-        val initialData = basicUseCase.initializeConfigurationAndKeys()
-
-        val redirectUri = repository.getAuthorizationRedirect(
-            url = initialData.config.thirdPartyAuthorizationEndpoint ?: error("Fasttrack is not available"),
-            state = initialData.state,
-            codeChallenge = initialData.codeChallenge,
-            nonce = initialData.nonce,
-            kkAppId = authenticatorId,
-            scope = scope
-        )
-
-        val parsedUri = URI(redirectUri)
-
-        preferences.externalAuthenticationPreferences =
-            ExternalAuthenticationPreferences(
-                extAuthCodeChallenge = initialData.codeChallenge,
-                extAuthCodeVerifier = initialData.codeVerifier,
-                extAuthState = IdpService.extractQueryParameter(parsedUri, "state"),
-                extAuthNonce = initialData.nonce.nonce,
-                extAuthId = authenticatorId,
-                extAuthScope = scope.name,
-                extAuthName = authenticatorName,
-                extAuthProfile = profileId
-            )
-
-        return parsedUri
-    }
-
-    /**
-     * The scope is determined by the previously saved value within the shared prefs as `EXT_AUTH_SCOPE`.
-     */
-    @Requirement(
-        "A_20527#2",
-        "A_20600#2",
-        "A_20601",
-        "A_20601-01",
-        "A_22301",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "External authentication (fast track)"
-    )
-    @Requirement(
-        "O.Plat_10#1",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Follow redirect"
-    )
-    override suspend fun authenticateWithExternalAppAuthorization(
-        uri: URI
-    ) {
-        lock.withLock {
-            val scope = preferences.externalAuthenticationPreferences.extAuthScope!!
-            val profileId = preferences.externalAuthenticationPreferences.extAuthProfile!!
-
-            val externalAuthorizationData = ExternalAuthorizationData(uri)
-
-            require(externalAuthorizationData.state == preferences.externalAuthenticationPreferences.extAuthState)
-
-            val initialData = basicUseCase.initializeConfigurationAndKeys()
-            val redirectStringResult = repository.postExternAppAuthorizationData(
-                url = initialData.config.thirdPartyAuthorizationEndpoint ?: error("Fasttrack is not available"),
-                externalAuthorizationData = externalAuthorizationData
-            )
-            val redirect = URI(redirectStringResult.getOrThrow())
-
-            val redirectCodeJwe = IdpService.extractQueryParameter(redirect, "code")
-            val redirectSsoToken = IdpService.extractQueryParameter(redirect, "ssotoken")
-
-            val idpTokenResult = basicUseCase.postCodeAndDecryptAccessToken(
-                url = initialData.config.tokenEndpoint,
-                nonce = IdpNonce(preferences.externalAuthenticationPreferences.extAuthNonce!!),
-                codeVerifier = preferences.externalAuthenticationPreferences.extAuthCodeVerifier!!,
-                code = redirectCodeJwe,
-                pukEncKey = initialData.pukEncKey,
-                pukSigKey = initialData.pukSigKey,
-                redirectUri = EXT_AUTH_REDIRECT_URI
-            )
-
-            val authId = preferences.externalAuthenticationPreferences.extAuthId!!
-            val authName = preferences.externalAuthenticationPreferences.extAuthName!!
-
-            preferences.clear()
-
-            when (scope) {
-                IdpScope.Default.name -> {
-                    val idTokenJson = Json.parseToJsonElement(idpTokenResult.idTokenPayload)
-
-                    val idTokenInsuranceIdentifier = idTokenJson.jsonObject["idNummer"]?.jsonPrimitive?.content ?: ""
-                    val idTokenInsuranceName = idTokenJson.jsonObject["organizationName"]?.jsonPrimitive?.content ?: ""
-                    val idTokenInsurantName = idTokenJson.jsonObject["given_name"]?.jsonPrimitive?.content
-                        ?.let {
-                            "$it ${idTokenJson.jsonObject["family_name"]?.jsonPrimitive?.content}"
-                        } ?: ""
-
-                    profilesRepository.saveInsuranceInformation(
-                        profileId = profileId,
-                        insurantName = idTokenInsurantName,
-                        insuranceIdentifier = idTokenInsuranceIdentifier,
-                        insuranceName = idTokenInsuranceName
-                    )
-
-                    repository.saveSingleSignOnToken(
-                        profileId,
-                        IdpData.ExternalAuthenticationToken(
-                            token = IdpData.SingleSignOnToken(redirectSsoToken),
-                            authenticatorId = authId,
-                            authenticatorName = authName
-                        )
-                    )
-                    repository.saveDecryptedAccessToken(profileId, idpTokenResult.decryptedAccessToken)
-                }
-
-                IdpScope.BiometricPairing.name -> {
-                    pairingRepository.saveSingleSignOnToken(
-                        profileId,
-                        IdpData.SingleSignOnToken(redirectSsoToken)
-                    )
-                }
-            }
-        }
     }
 
     /**

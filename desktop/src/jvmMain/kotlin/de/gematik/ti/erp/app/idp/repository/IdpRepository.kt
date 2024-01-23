@@ -21,13 +21,12 @@ package de.gematik.ti.erp.app.idp.repository
 import de.gematik.ti.erp.app.idp.api.models.Challenge
 import de.gematik.ti.erp.app.idp.api.models.IdpDiscoveryInfo
 import de.gematik.ti.erp.app.vau.extractECPublicKey
-import java.time.Instant
 import kotlinx.serialization.ExperimentalSerializationApi
-import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64
 import org.jose4j.jws.JsonWebSignature
+import java.time.Instant
 
 @JvmInline
 value class JWSDiscoveryDocument(val jws: JsonWebSignature)
@@ -49,7 +48,7 @@ class IdpRepository(
             field = if (v?.isBlank() == true) null else v
         }
 
-    var cardAccessNumber: String? = null
+    private var cardAccessNumber: String? = null
 
     suspend fun getSingleSignOnToken() = localDataSource.loadIdpAuthData().let { entity ->
         entity.singleSignOnToken?.let { token ->

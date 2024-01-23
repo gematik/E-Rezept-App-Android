@@ -22,8 +22,13 @@ import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-
 import kotlinx.datetime.Instant
+import kotlinx.serialization.KSerializer
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonContentPolymorphicSerializer
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.jsonObject
 
 object PrescriptionData {
     var scannedPrescriptionIndex: Int = 0
@@ -79,8 +84,22 @@ object PrescriptionData {
         val failureToReport = task.failureToReport
     }
 
+    @Serializable(with = MedicationInterfaceSerializer::class)
+    @SerialName("MedicationInterface")
     sealed interface Medication {
+        @Serializable
+        @SerialName("Request")
         class Request(val medicationRequest: SyncedTaskData.MedicationRequest) : Medication
+
+        @Serializable
+        @SerialName("Dispense")
         class Dispense(val medicationDispense: SyncedTaskData.MedicationDispense) : Medication
+    }
+
+    object MedicationInterfaceSerializer : JsonContentPolymorphicSerializer<Medication>(Medication::class) {
+        override fun selectDeserializer(element: JsonElement): KSerializer<out Medication> = when {
+            "medicationRequest" in element.jsonObject -> Medication.Request.serializer()
+            else -> Medication.Dispense.serializer()
+        }
     }
 }

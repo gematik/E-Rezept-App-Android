@@ -19,8 +19,8 @@
 package de.gematik.ti.erp.app.cardwall.ui
 
 import android.content.Intent
+import android.provider.Settings
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,8 +46,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -59,11 +57,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.MainActivity
-import de.gematik.ti.erp.app.NfcNotEnabledException
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackAuth
+import de.gematik.ti.erp.app.base.onNfcNotEnabled
+import de.gematik.ti.erp.app.base.retryOnNfcEnabled
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAnalytics
@@ -73,7 +73,6 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.troubleshooting.TroubleshootingInfo
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
-import de.gematik.ti.erp.app.utils.compose.Dialog
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
@@ -86,7 +85,6 @@ import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onCompletion
-import kotlinx.coroutines.flow.retryWhen
 import kotlinx.coroutines.flow.transformLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -130,7 +128,6 @@ fun CardWallAuthenticationDialog(
     val activity = LocalActivity.current as MainActivity
     val coroutineScope = rememberCoroutineScope()
     val toggleAuth = dialogState.toggleAuth
-
     var showEnableNfcDialog by remember { mutableStateOf(false) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
 
@@ -150,10 +147,8 @@ fun CardWallAuthenticationDialog(
                                 authenticationData = authenticationData,
                                 activity
                                     .nfcTagFlow
-                                    .catch {
-                                        if (it is NfcNotEnabledException) {
-                                            showEnableNfcDialog = true
-                                        }
+                                    .onNfcNotEnabled {
+                                        showEnableNfcDialog = true
                                     }
                             )
                         )
@@ -201,13 +196,9 @@ fun CardWallAuthenticationDialog(
 
     LaunchedEffect(Unit) {
         activity.nfcTagFlow
-            .retryWhen { cause, _ ->
-                cause !is NfcNotEnabledException
-            }
-            .catch { cause ->
-                if (cause is NfcNotEnabledException) {
-                    showEnableNfcDialog = true
-                }
+            .retryOnNfcEnabled()
+            .onNfcNotEnabled {
+                showEnableNfcDialog = true
             }
             .filter {
                 // only let interrupted communications through
@@ -271,7 +262,7 @@ fun CardWallAuthenticationDialog(
                     AuthenticationState.HealthCardPin2RetriesLeft,
                     AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
                     AuthenticationState.HealthCardBlocked -> onUnlockEgk()
-                    else -> if (cardWallController.isNFCEnabled()) {
+                    else -> if (cardWallController.checkNfcEnabled()) {
                         coroutineScope.launch {
                             toggleAuth.emit(ToggleAuth.ToggleByUser(true))
                         }
@@ -339,12 +330,12 @@ fun extractNextText(state: AuthenticationState): String =
     }
 
 @Composable
-fun EnableNfcDialog(onCancel: () -> Unit) {
+fun EnableNfcDialog(onClickAction: () -> Unit = {}, onCancel: () -> Unit) {
     val context = LocalContext.current
     val header = stringResource(R.string.cdw_enable_nfc_header)
     val info = stringResource(R.string.cdw_enable_nfc_info)
     val enableNfcButtonText = stringResource(R.string.cdw_enable_nfc_btn_text)
-    val cancelText = stringResource(R.string.cancel)
+    val cancelText = stringResource(R.string.cdw_enable_nfc_abort_button_text)
 
     CommonAlertDialog(
         header = header,
@@ -353,7 +344,8 @@ fun EnableNfcDialog(onCancel: () -> Unit) {
         actionText = enableNfcButtonText,
         onCancel = onCancel,
         onClickAction = {
-            context.handleIntent(Intent("android.settings.NFC_SETTINGS"))
+            context.handleIntent(Intent(Settings.ACTION_NFC_SETTINGS).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+            onClickAction()
         }
     )
 }
@@ -394,14 +386,18 @@ private fun AuthenticationDialog(
 ) {
     Dialog(
         onDismissRequest = {},
-        properties = DialogProperties(dismissOnBackPress = false, dismissOnClickOutside = false)
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
     ) {
         Box(
             Modifier
                 .testTag(TestTag.CardWall.Nfc.CardReadingDialog)
                 .semantics(false) { }
                 .fillMaxSize()
-                .background(SolidColor(Color.Black), alpha = 0.5f)
                 .systemBarsPadding(),
             contentAlignment = Alignment.BottomCenter
         ) {
