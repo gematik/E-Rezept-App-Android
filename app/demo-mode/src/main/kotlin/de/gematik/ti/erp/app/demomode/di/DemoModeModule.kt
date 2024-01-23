@@ -45,7 +45,6 @@ val demoModeModule = DI.Module("demoModeModule") {
     bindProvider { DemoDownloadCommunicationResource(instance()) }
     // only data source for demo mode
     bindSingleton { DemoModeDataSource() }
-
 }
 
 fun DI.MainBuilder.demoModeOverrides() {

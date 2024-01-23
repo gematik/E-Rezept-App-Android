@@ -63,7 +63,6 @@ import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.demomode.ui.DemoModeStatusBar
 import de.gematik.ti.erp.app.demomode.ui.checkForDemoMode
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import kotlinx.coroutines.Job
@@ -85,7 +84,7 @@ val LocalAnalytics =
 
 @Composable
 fun AppContent(
-    content: @Composable (settingsController: SettingsController) -> Unit
+    content: @Composable () -> Unit
 ) {
     val settingsController = rememberSettingsController()
     val zoomState by settingsController.zoomState
@@ -111,7 +110,7 @@ fun AppContent(
             },
             appContent = {
                 Box(modifier = Modifier.zoomable(enabled = zoomState.zoomEnabled)) {
-                    content(settingsController)
+                    content()
                 }
             }
         )

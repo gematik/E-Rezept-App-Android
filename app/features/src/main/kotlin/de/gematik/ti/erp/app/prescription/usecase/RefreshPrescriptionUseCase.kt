@@ -19,9 +19,11 @@
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.orders.repository.CommunicationRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -37,6 +39,8 @@ import kotlinx.coroutines.withContext
 class RefreshPrescriptionUseCase(
     private val repository: TaskRepository,
     private val communicationRepository: CommunicationRepository,
+    private val invoiceRepository: InvoiceRepository,
+    private val profilesRepository: ProfileRepository,
     dispatchers: DispatchProvider
 ) {
     private class Request(
@@ -64,6 +68,9 @@ class RefreshPrescriptionUseCase(
                 val result = runCatching {
                     val nrOfNewPrescriptions = repository.downloadTasks(profileId).getOrThrow()
                     communicationRepository.downloadCommunications(profileId).getOrThrow()
+                    if (profilesRepository.checkIsProfilePKV(profileId)) {
+                        invoiceRepository.downloadInvoices(profileId)
+                    }
                     nrOfNewPrescriptions
                 }
 

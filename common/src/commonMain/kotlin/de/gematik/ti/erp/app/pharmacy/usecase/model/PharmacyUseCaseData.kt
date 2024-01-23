@@ -67,6 +67,18 @@ object PharmacyUseCaseData {
         val isOnlineService
             get() = provides.any { it is OnlinePharmacyService }
 
+        val directRedeemUrlsNotPresent: Boolean
+            get() {
+                val hasNoPickupContact = contacts.pickUpUrl.isEmpty()
+                val hasNoDeliveryContact = contacts.deliveryUrl.isEmpty()
+                val hasNoOnlineServiceContact = contacts.onlineServiceUrl.isEmpty()
+                return listOf(
+                    hasNoPickupContact,
+                    hasNoDeliveryContact,
+                    hasNoOnlineServiceContact
+                ).all { it }
+            }
+
         @Stable
         fun singleLineAddress(): String =
             if (address.isNullOrEmpty()) {

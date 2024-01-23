@@ -66,10 +66,20 @@ class SettingsRepository constructor(
                     authenticationFails = it.authenticationFails,
                     mainScreenTooltipsShown = it.mainScreenTooltipsShown,
                     mlKitAccepted = it.mlKitAccepted,
-                    screenShotsAllowed = it.screenshotsAllowed
+                    screenShotsAllowed = it.screenshotsAllowed,
+                    trackingAllowed = it.trackingAllowed,
+                    userHasAcceptedIntegrityNotOk = it.userHasAcceptedIntegrityNotOk
                 )
             }
         }.flowOn(dispatchers.io)
+
+    fun isAnalyticsAllowed() = settings.mapNotNull { settings -> settings?.trackingAllowed }
+
+    suspend fun changeTrackingState(state: Boolean) {
+        writeToRealm {
+            this.trackingAllowed = state
+        }
+    }
 
     // TODO: Not used
     override val authenticationMode: Flow<SettingsData.AuthenticationMode>
@@ -85,6 +95,7 @@ class SettingsRepository constructor(
                             )
                         }
                     }
+
                     else -> SettingsData.AuthenticationMode.Unspecified
                 }
             }
@@ -202,9 +213,21 @@ class SettingsRepository constructor(
         }
     }
 
+    override suspend fun saveAllowTracking(allow: Boolean) {
+        writeToRealm {
+            this.trackingAllowed = allow
+        }
+    }
+
     override suspend fun acceptInsecureDevice() {
         writeToRealm {
             this.userHasAcceptedInsecureDevice = true
+        }
+    }
+
+    override suspend fun acceptIntegrityNotOk() {
+        writeToRealm {
+            this.userHasAcceptedIntegrityNotOk = true
         }
     }
 

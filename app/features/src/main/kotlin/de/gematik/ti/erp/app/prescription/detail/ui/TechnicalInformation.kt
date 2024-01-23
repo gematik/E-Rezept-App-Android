@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -45,8 +44,7 @@ fun TechnicalInformation(
     prescriptionDetailsController: PrescriptionDetailsController,
     onBack: () -> Unit
 ) {
-    val prescription by prescriptionDetailsController.prescriptionState
-    val syncedPrescription = prescription as? PrescriptionData.Synced
+    val prescriptionState by prescriptionDetailsController.prescriptionState
 
     val listState = rememberLazyListState()
     AnimatedElevationScaffold(
@@ -66,7 +64,7 @@ fun TechnicalInformation(
             item {
                 SpacerMedium()
             }
-            syncedPrescription?.accessCode?.let {
+            prescriptionState?.accessCode?.let {
                 item {
                     Label(
                         modifier = Modifier.testTag(TestTag.Prescriptions.Details.TechnicalInformation.AccessCode),
@@ -79,7 +77,7 @@ fun TechnicalInformation(
             item {
                 Label(
                     modifier = Modifier.testTag(TestTag.Prescriptions.Details.TechnicalInformation.TaskId),
-                    text = syncedPrescription?.taskId,
+                    text = taskId,
                     label = stringResource(R.string.task_id)
                 )
                 SpacerMedium()

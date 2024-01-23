@@ -1,3 +1,9 @@
+# Release 1.18.1
+- Optimized performance 
+- UX improvements
+- Bug fixes
+
+
 # Release 1.17.2
 - Added Demo mode function
 - Added function to change the name of scanned prescriptions 

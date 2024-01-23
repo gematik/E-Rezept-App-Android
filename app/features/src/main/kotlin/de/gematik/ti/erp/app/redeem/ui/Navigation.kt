@@ -26,7 +26,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyNavigation
 import de.gematik.ti.erp.app.pharmacy.ui.PrescriptionSelection
 import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacyOrderController
@@ -45,7 +45,7 @@ fun RedeemNavigation(
     val navigationMode by navController.navigationModeState(RedeemNavigation.MethodSelection.route)
 
     var previousNavEntry by remember { mutableStateOf("redeem_methodSelection") }
-    trackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
 
     NavHost(
         navController,

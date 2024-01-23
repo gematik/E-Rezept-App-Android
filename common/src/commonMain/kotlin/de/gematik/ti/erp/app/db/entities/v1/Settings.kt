@@ -88,6 +88,9 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var pharmacySearch: PharmacySearchEntityV1? = PharmacySearchEntityV1()
 
     var userHasAcceptedInsecureDevice: Boolean = false
+
+    var userHasAcceptedIntegrityNotOk: Boolean = false
+
     var dataProtectionVersionAccepted: RealmInstant = LocalDateTime(2021, 10, 15, 0, 0).toRealmInstant()
 
     var password: PasswordEntityV1? = PasswordEntityV1()
@@ -103,6 +106,8 @@ class SettingsEntityV1 : RealmObject, Cascading {
 
     // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
     var screenshotsAllowed: Boolean = false
+
+    var trackingAllowed: Boolean = false
 
     override fun objectsToFollow(): Iterator<Deleteable> =
         iterator {

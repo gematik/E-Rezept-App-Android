@@ -87,4 +87,3 @@ data class DemoModeCommunicationPayloadContent(
             )
         }
 }
-

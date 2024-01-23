@@ -299,30 +299,6 @@ object DemoPrescriptionInfo {
     }
 
     internal object DemoSyncedPrescription {
-        internal val demoSyncedPrescription01 = SyncedTaskData.SyncedTask(/**/
-            profileId = demoProfile01.id,
-            taskId = "${SYNCED_TASK_PRESET}.1",
-            isIncomplete = false,
-            pvsIdentifier = DEMO_MODE_IDENTIFIER,
-            accessCode = DEMO_MODE_IDENTIFIER,
-            lastModified = longerRandomTimeToday,
-            organization = ORGANIZATION,
-            practitioner = PRACTITIONER,
-            patient = PATIENT,
-            insuranceInformation = SyncedTaskData.InsuranceInformation(
-                name = null,
-                status = null
-            ),
-            expiresOn = EXPIRY_DATE,
-            acceptUntil = SHORT_EXPIRY_DATE,
-            authoredOn = NOW,
-            status = SyncedTaskData.TaskStatus.Ready,
-            medicationRequest = MEDICATION_REQUEST,
-            medicationDispenses = listOf(MEDICATION_DISPENSE),
-            communications = emptyList(),
-            failureToReport = ""
-        )
-
         internal fun syncedTask(
             profileIdentifier: ProfileIdentifier,
             status: SyncedTaskData.TaskStatus = SyncedTaskData.TaskStatus.Ready,

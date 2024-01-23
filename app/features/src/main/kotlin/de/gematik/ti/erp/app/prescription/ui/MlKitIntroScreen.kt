@@ -32,18 +32,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -52,7 +48,6 @@ import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.SecondaryButton
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import kotlinx.coroutines.launch
 
 @Requirement(
     "A_20194",
@@ -61,11 +56,11 @@ import kotlinx.coroutines.launch
 )
 @Composable
 fun MlKitIntroScreen(
-    navController: NavController,
-    settingsController: SettingsController
+    onClickReadMore: () -> Unit,
+    onAcceptMLKit: () -> Unit,
+    onBack: () -> Unit
 ) {
     val listState = rememberLazyListState()
-    val scope = rememberCoroutineScope()
 
     AnimatedElevationScaffold(
         modifier = Modifier
@@ -73,22 +68,13 @@ fun MlKitIntroScreen(
         topBarTitle = "",
         bottomBar = {
             MlKitBottomBar(
-                onAccept = {
-                    scope.launch {
-                        settingsController.acceptMlKit()
-                    }
-                    navController.navigate(MainNavigationScreens.Camera.path())
-                },
-                onClickReadMore = {
-                    navController.navigate(MainNavigationScreens.MlKitInformationScreen.path())
-                }
+                onAccept = onAcceptMLKit,
+                onClickReadMore = onClickReadMore
             )
         },
         listState = listState,
         navigationMode = NavigationBarMode.Close,
-        onBack = {
-            navController.popBackStack()
-        }
+        onBack = onBack
     ) {
         LazyColumn(
             modifier = Modifier

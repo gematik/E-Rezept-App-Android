@@ -19,18 +19,18 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.model
 
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.Route
+import de.gematik.ti.erp.app.navigation.Routes
 
 object PrescriptionDetailsNavigationScreens {
-    object Overview : Route("prescriptionDetail")
-    object MedicationOverview : Route("prescriptionDetail_medicationOverview")
-    object Medication : Route("prescriptionDetail_medication")
-    object Patient : Route("prescriptionDetail_patient")
-    object Prescriber : Route("prescriptionDetail_practitioner")
-    object Organization : Route("prescriptionDetail_organization")
-    object Accident : Route("prescriptionDetail_accidentInfo")
-    object TechnicalInformation : Route("prescriptionDetail_technicalInfo")
-    object Ingredient : Route("prescriptionDetail_medication_ingredients")
+    object Overview : Routes("prescriptionDetail")
+    object MedicationOverview : Routes("prescriptionDetail_medicationOverview")
+    object Medication : Routes("prescriptionDetail_medication")
+    object Patient : Routes("prescriptionDetail_patient")
+    object Prescriber : Routes("prescriptionDetail_practitioner")
+    object Organization : Routes("prescriptionDetail_organization")
+    object Accident : Routes("prescriptionDetail_accidentInfo")
+    object TechnicalInformation : Routes("prescriptionDetail_technicalInfo")
+    object Ingredient : Routes("prescriptionDetail_medication_ingredients")
 }
 
 object PrescriptionDetailsPopUpNames {

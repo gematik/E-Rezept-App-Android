@@ -18,10 +18,6 @@ plugins {
     id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
 }
 
-tasks.named("preBuild") {
-    dependsOn(":ktlint", ":detekt")
-}
-
 licenseReport {
     generateCsvReport = false
     generateHtmlReport = false
@@ -44,6 +40,9 @@ android {
                 it.name.startsWith("implementation") ||
                 it.name.startsWith("kapt")
         }.map { it.name }
+    }
+    buildTypes {
+        create("minifiedDebug")
     }
 }
 

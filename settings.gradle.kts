@@ -26,7 +26,7 @@ dependencyResolutionManagement {
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         google()
         mavenCentral()
-        maven ("https://jitpack.io")
+        maven("https://jitpack.io")
     }
 }
 
@@ -42,11 +42,11 @@ includeBuild("smartcard-wrapper") {
     }
 }
 
-//includeBuild("modules/fhir-parser") {
+// includeBuild("modules/fhir-parser") {
 //    dependencySubstitution {
 //        substitute(module("de.gematik.ti.erp.app:fhir-parser")).using(project(":"))
 //    }
-//}
+// }
 
 include(":app:android")
 include(":app:android-mock")

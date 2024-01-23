@@ -46,4 +46,6 @@ interface GeneralSettings {
     suspend fun saveMainScreenTooltipShown()
     suspend fun acceptMlKit()
     suspend fun saveAllowScreenshots(allow: Boolean)
+    suspend fun saveAllowTracking(allow: Boolean)
+    suspend fun acceptIntegrityNotOk()
 }

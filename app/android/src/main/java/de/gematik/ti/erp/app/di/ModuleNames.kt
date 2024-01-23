@@ -19,9 +19,6 @@
 package de.gematik.ti.erp.app.di
 
 object ModuleNames {
-    const val cardWallModule = "cardWallModule"
-    const val integrityModule = "integrityModule"
-    const val networkModule = "networkModule"
-    const val pharmacyModule = "pharmacyModule"
     const val buildConfigInformationModule = "buildConfigInformationModule"
+    const val fileProviderAuthorityModule = "fileProviderAuthorityModule"
 }

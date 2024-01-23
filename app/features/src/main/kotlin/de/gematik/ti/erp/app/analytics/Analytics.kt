@@ -19,31 +19,36 @@
 package de.gematik.ti.erp.app.analytics
 
 import android.content.Context
-import android.content.SharedPreferences
 import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.core.content.edit
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.contentsquare.android.Contentsquare
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCase
 import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCaseData
+import de.gematik.ti.erp.app.analytics.usecase.ChangeAnalyticsStateUseCase
+import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenBottomSheetContentState
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacySearchSheetContentState
 import de.gematik.ti.erp.app.prescription.detail.ui.PrescriptionDetailBottomSheetContent
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
-
-private const val PrefsName = "analyticsAllowed"
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 @Requirement(
     "A_19095",
@@ -52,12 +57,20 @@ private const val PrefsName = "analyticsAllowed"
 )
 class Analytics(
     private val context: Context,
-    private val prefs: SharedPreferences,
-    analyticsUseCase: AnalyticsUseCase
+    private val isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
+    private val changeAnalyticsStateUseCase: ChangeAnalyticsStateUseCase,
+    private val analyticsUseCase: AnalyticsUseCase,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    private val _analyticsAllowed = MutableStateFlow(false)
+
+    private val scope = CoroutineScope(dispatcher)
+
+    private val isAnalyticsAllowed by lazy {
+        isAnalyticsAllowedUseCase.invoke()
+    }
+
     val analyticsAllowed: StateFlow<Boolean>
-        get() = _analyticsAllowed
+        get() = isAnalyticsAllowed.stateIn(scope, SharingStarted.Eagerly, false)
 
     @Requirement(
         "A_19093",
@@ -84,11 +97,9 @@ class Analytics(
 
         Contentsquare.forgetMe()
 
-        _analyticsAllowed.value = prefs.getBoolean(PrefsName, false)
-        if (_analyticsAllowed.value) {
-            allowAnalytics()
-        } else {
-            disallowAnalytics()
+        scope.launch {
+            val isAllowed = isAnalyticsAllowed.first()
+            setAnalyticsPreference(isAllowed)
         }
     }
 
@@ -125,18 +136,20 @@ class Analytics(
     @Requirement(
         "O.Purp_5#5",
         sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Enable usage analytics."
+        rationale = "Enable/disable usage analytics."
     )
-    fun allowAnalytics() {
-        _analyticsAllowed.value = true
-
-        Contentsquare.optIn(context)
-
-        prefs.edit {
-            putBoolean(PrefsName, true)
+    fun setAnalyticsPreference(allow: Boolean) {
+        when (allow) {
+            true -> allowAnalytics()
+            else -> disallowAnalytics()
         }
-
-        Napier.d("Analytics allowed")
+    }
+    private fun allowAnalytics() {
+        scope.launch {
+            changeAnalyticsStateUseCase.invoke(true)
+        }
+        Contentsquare.optIn(context)
+        Napier.i("Analytics allowed")
     }
 
     @Requirement(
@@ -149,16 +162,12 @@ class Analytics(
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Disable usage analytics."
     )
-    fun disallowAnalytics() {
-        _analyticsAllowed.value = false
-
-        Contentsquare.optOut(context)
-
-        prefs.edit {
-            putBoolean(PrefsName, false)
+    private fun disallowAnalytics() {
+        scope.launch {
+            changeAnalyticsStateUseCase.invoke(false)
         }
-
-        Napier.d("Analytics disallowed")
+        Contentsquare.optOut(context)
+        Napier.i("Analytics disallowed")
     }
 
     fun trackIdentifiedWithIDP() {
@@ -188,7 +197,7 @@ class Analytics(
 
 @Suppress("ComposableNaming")
 @Composable
-fun trackNavigationChanges(
+fun trackNavigationChangesAsync(
     navController: NavHostController,
     previousNavEntry: String,
     onNavEntryChange: (String) -> Unit

@@ -33,6 +33,9 @@ import androidx.compose.material.icons.outlined.OpenInBrowser
 import androidx.compose.material.icons.rounded.Timeline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -49,14 +52,23 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.provideWebIntent
+import de.gematik.ti.erp.app.utils.compose.shortToast
 
 @Composable
 fun ProductImprovementSettingsScreen(
     settingsController: SettingsController,
-    onAllowAnalytics: (Boolean) -> Unit,
+    onAllowAnalytics: () -> Unit,
     onBack: () -> Unit
 ) {
+    val toastText = stringResource(R.string.settings_tracking_disallow_info)
+
+    val context = LocalContext.current
+
     val analyticsState by settingsController.analyticsState
+
+    var isAnalyticsAllowed by remember(
+        analyticsState.analyticsAllowed
+    ) { mutableStateOf(analyticsState.analyticsAllowed) }
 
     val listState = rememberLazyListState()
 
@@ -73,9 +85,17 @@ fun ProductImprovementSettingsScreen(
             item {
                 SpacerMedium()
                 AnalyticsSection(
-                    analyticsState.analyticsAllowed
-                ) { allow ->
-                    onAllowAnalytics(allow)
+                    isAnalyticsAllowed
+                ) { state ->
+                    isAnalyticsAllowed = !isAnalyticsAllowed
+
+                    if (!state) {
+                        settingsController.changeAnalyticsState(false)
+                        settingsController.onTrackingDisallowed()
+                        context.shortToast(toastText)
+                    } else {
+                        onAllowAnalytics()
+                    }
                 }
             }
             item {

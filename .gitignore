@@ -27,3 +27,5 @@ documentation-internal
 android/src/androidTest
 technical_requirements_report.html
 keystore
+CODEOWNERS
+local.cliactions.yaml

@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.mainscreen.ui
 
+import android.accessibilityservice.AccessibilityServiceInfo
+import android.content.Context
 import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.imePadding
@@ -44,83 +46,73 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navOptions
-import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackMainScreenBottomPopUps
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
 import de.gematik.ti.erp.app.core.LocalAnalytics
-import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.mainscreen.presentation.rememberMainScreenController
 import de.gematik.ti.erp.app.profiles.presentation.ProfilesController.Companion.DEFAULT_EMPTY_PROFILE
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
-import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterialApi::class)
 @Suppress("LongMethod")
 @Composable
 internal fun MainScreenScaffoldContainer(
     mainNavController: NavController,
-    onDeviceIsInsecure: () -> Unit
+    mainScreenController: MainScreenController,
+    onClickAddPrescription: () -> Unit
 ) {
-    val mainScreenController = rememberMainScreenController()
-    val settingsController = rememberSettingsController()
-    val profilesController = rememberProfilesController()
-
     val context = LocalContext.current
+
+    val showToolTips by mainScreenController.canStartToolTipsState
+    var startToolTips by remember { mutableStateOf(false) }
+
+    val profilesController = rememberProfilesController()
     val bottomNavController = rememberNavController()
+    val scaffoldState = rememberScaffoldState()
+
+    val showWelcomeDrawer by mainScreenController.showWelcomeDrawerState
+
+    var mainScreenBottomSheetContentState: MainScreenBottomSheetContentState? by remember { mutableStateOf(null) }
+
+    val sheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden,
+        skipHalfExpanded = true
+    )
+
     val currentBottomNavigationRoute by bottomNavController.currentBackStackEntryFlow.collectAsStateWithLifecycle(null)
+
     var previousNavEntry by remember { mutableStateOf("main") }
-    trackNavigationChanges(bottomNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+
+    trackNavigationChangesAsync(bottomNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+
     val isInPrescriptionScreen by remember {
         derivedStateOf {
             currentBottomNavigationRoute?.destination?.route == MainNavigationScreens.Prescriptions.route
         }
     }
-    @Requirement(
-        "O.Plat_1#2",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Check for insecure Devices on MainScreen."
-    )
-    CheckInsecureDevice(onDeviceIsInsecure)
-    @Requirement(
-        "O.Arch_6#2",
-        "O.Resi_2#2",
-        "O.Resi_3#2",
-        "O.Resi_4#2",
-        "O.Resi_5#2",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Check device integrity."
-    )
-    CheckDeviceIntegrity(mainScreenController, mainNavController)
-    val scaffoldState = rememberScaffoldState()
-    val scope = rememberCoroutineScope()
+
     MainScreenSnackbar(
         mainScreenController = mainScreenController,
         scaffoldState = scaffoldState
     )
+
     OrderSuccessHandler(mainScreenController)
-    var mainScreenBottomSheetContentState: MainScreenBottomSheetContentState? by remember { mutableStateOf(null) }
-    val sheetState = rememberModalBottomSheetState(
-        initialValue = ModalBottomSheetValue.Hidden,
-        skipHalfExpanded = true
-    )
+
     if (sheetState.currentValue != ModalBottomSheetValue.Hidden) {
         DisposableEffect(Unit) {
             onDispose {
-                scope.launch {
-                    settingsController.welcomeDrawerShown()
+                mainScreenController.welcomeDrawerShown()
+                if (showToolTips) {
+                    startToolTips = true
                 }
             }
         }
     }
+
     LaunchedEffect(mainScreenBottomSheetContentState) {
         if (mainScreenBottomSheetContentState != null) {
             sheetState.show()
@@ -140,22 +132,20 @@ internal fun MainScreenScaffoldContainer(
             trackScreenUsingNavEntry(route, analytics, analyticsState.screenNamesList)
         }
     }
-    LaunchedEffect(Unit) {
-        if (settingsController.showWelcomeDrawer.first()) {
-            mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Welcome()
-        }
+
+    if (showWelcomeDrawer) {
+        mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.Welcome()
+        mainScreenController.welcomeDrawerShown()
     }
-    LaunchedEffect(sheetState.isVisible) {
-        if (sheetState.targetValue == ModalBottomSheetValue.Hidden) {
-            if (mainScreenBottomSheetContentState == MainScreenBottomSheetContentState.Welcome()) {
-                settingsController.welcomeDrawerShown()
-            }
-            mainScreenBottomSheetContentState = null
-        }
-    }
+
     LaunchedEffect(Unit) {
-        if (settingsController.talkbackEnabled(context)) {
-            settingsController.mainScreenTooltipsShown()
+        val accessibilityManager =
+            context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
+
+        if (accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
+            .isNotEmpty()
+        ) {
+            mainScreenController.toolTippsShown()
         }
     }
     var profileToRename by remember {
@@ -164,7 +154,16 @@ internal fun MainScreenScaffoldContainer(
     val toolTipBounds = remember {
         mutableStateOf<Map<Int, Rect>>(emptyMap())
     }
-    ToolTips(settingsController, isInPrescriptionScreen, toolTipBounds)
+    if (startToolTips) {
+        ToolTips(
+            isInPrescriptionScreen,
+            toolTipBounds
+        ) {
+            startToolTips = false
+            mainScreenController.toolTippsShown()
+        }
+    }
+
     val coroutineScope = rememberCoroutineScope()
     BackHandler(enabled = sheetState.isVisible) {
         coroutineScope.launch {
@@ -180,6 +179,7 @@ internal fun MainScreenScaffoldContainer(
         sheetContent = {
             MainScreenBottomSheetContentState(
                 mainNavController = mainNavController,
+                mainScreenController = mainScreenController,
                 profilesController = profilesController,
                 infoContentState = mainScreenBottomSheetContentState,
                 profileToRename = profileToRename,
@@ -195,10 +195,10 @@ internal fun MainScreenScaffoldContainer(
         ExternalAuthenticationDialog()
         MainScreenScaffold(
             mainScreenController = mainScreenController,
-            settingsController = settingsController,
             profilesController = profilesController,
             mainNavController = mainNavController,
             bottomNavController = bottomNavController,
+            showToolTipps = startToolTips,
             tooltipBounds = toolTipBounds,
             onClickAddProfile = {
                 mainScreenBottomSheetContentState =
@@ -211,52 +211,8 @@ internal fun MainScreenScaffoldContainer(
             onClickAvatar = {
                 mainScreenBottomSheetContentState = MainScreenBottomSheetContentState.EditProfilePicture()
             },
+            onClickAddPrescription = onClickAddPrescription,
             scaffoldState = scaffoldState
         )
-    }
-}
-
-@Composable
-private fun CheckInsecureDevice(onDeviceIsInsecure: () -> Unit) {
-    val settingsController = rememberSettingsController()
-    LaunchedEffect(Unit) {
-        if (BuildConfig.DEBUG) {
-            return@LaunchedEffect
-        }
-        @Requirement(
-            "O.Plat_1#3",
-            sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Navigate to insecure Devices warning."
-        )
-        (
-            withContext(Dispatchers.Main) {
-                if (settingsController.showInsecureDevicePrompt.first()) {
-                    onDeviceIsInsecure()
-                }
-            }
-            )
-    }
-}
-
-@Composable
-private fun CheckDeviceIntegrity(
-    mainScreenController: MainScreenController,
-    mainNavController: NavController
-) {
-    LaunchedEffect(Unit) {
-        if (BuildConfig.DEBUG) {
-            return@LaunchedEffect
-        }
-        if (mainScreenController.checkDeviceIntegrity().first()) {
-            withContext(Dispatchers.Main) {
-                mainNavController.navigate(MainNavigationScreens.IntegrityNotOkScreen.route)
-                navOptions {
-                    launchSingleTop = true
-                    popUpTo(MainNavigationScreens.IntegrityNotOkScreen.path()) {
-                        inclusive = true
-                    }
-                }
-            }
-        }
     }
 }

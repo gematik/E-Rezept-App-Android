@@ -41,4 +41,5 @@ interface ProfileRepository {
     suspend fun savePersonalizedProfileImage(profileId: ProfileIdentifier, profileImage: ByteArray)
     suspend fun clearPersonalizedProfileImage(profileId: ProfileIdentifier)
     suspend fun switchProfileToPKV(profileId: ProfileIdentifier)
+    suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean
 }

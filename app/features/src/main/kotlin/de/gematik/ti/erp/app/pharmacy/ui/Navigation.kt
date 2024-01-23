@@ -30,7 +30,7 @@ import androidx.compose.runtime.setValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberMainScreenController
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyOrderController
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacySearchController
@@ -126,7 +126,7 @@ fun PharmacyNavigation(
         }
 
     var previousNavEntry by remember { mutableStateOf("pharmacySearch") }
-    trackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
 
     val handleSearchResultFn = { searchResult: PharmacySearchController.SearchQueryResult ->
         when (searchResult) {

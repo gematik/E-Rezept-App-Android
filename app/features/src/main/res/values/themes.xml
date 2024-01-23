@@ -9,4 +9,13 @@
         <item name="android:colorBackground">@color/neutral</item>
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>
+    <!--Needed to make the dialog rounded, otherwise it does not have it-->
+    <style name="ThemeOverlay.MaterialAlertDialog.Rounded" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">
+        <item name="dialogCornerRadius">16dp</item>
+    </style>
+    <!--To add margins to the Snackbar-->
+    <style name="Widget.MaterialComponents.Snackbar.Margins" parent="@style/Widget.MaterialComponents.Snackbar">
+        <item name="android:layout_margin">32dp</item>
+        <item name="cornerRadius">16dp</item>
+    </style>
 </resources>

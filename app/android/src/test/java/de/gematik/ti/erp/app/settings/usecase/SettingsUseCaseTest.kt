@@ -86,7 +86,9 @@ class SettingsUseCaseTest {
                 welcomeDrawerShown = false,
                 mainScreenTooltipsShown = true,
                 mlKitAccepted = false,
-                screenShotsAllowed = false
+                screenShotsAllowed = false,
+                trackingAllowed = false,
+                userHasAcceptedIntegrityNotOk = false
             )
         )
         initSettings()
@@ -106,7 +108,10 @@ class SettingsUseCaseTest {
                 welcomeDrawerShown = true,
                 mainScreenTooltipsShown = true,
                 mlKitAccepted = false,
-                screenShotsAllowed = false
+                screenShotsAllowed = false,
+                trackingAllowed = false,
+                userHasAcceptedIntegrityNotOk = false
+
             )
         )
         initSettings()

@@ -30,8 +30,10 @@ object SettingsData {
         val mainScreenTooltipsShown: Boolean,
         val zoomEnabled: Boolean,
         val userHasAcceptedInsecureDevice: Boolean,
+        val userHasAcceptedIntegrityNotOk: Boolean,
         val authenticationFails: Int,
         val mlKitAccepted: Boolean,
+        val trackingAllowed: Boolean,
         val screenShotsAllowed: Boolean
     )
 
@@ -52,7 +54,7 @@ object SettingsData {
     }
 
     sealed class AuthenticationMode {
-        object DeviceSecurity : AuthenticationMode()
+        data object DeviceSecurity : AuthenticationMode()
         class Password : AuthenticationMode {
             val hash: ByteArray
             val salt: ByteArray
@@ -90,6 +92,6 @@ object SettingsData {
             }
         }
 
-        object Unspecified : AuthenticationMode()
+        data object Unspecified : AuthenticationMode()
     }
 }

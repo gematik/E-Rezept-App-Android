@@ -56,7 +56,7 @@ val idpModule = DI.Module("idpModule") {
 
 val idpUseCaseModule = DI.Module("idpUseCaseModule", allowSilentOverride = true) {
     bindProvider { IdpAlternateAuthenticationUseCase(instance(), instance(), instance()) }
-    bindProvider<IdpUseCase> {
+    bindSingleton<IdpUseCase> {
         DefaultIdpUseCase(
             repository = instance(),
             pairingRepository = instance(),

@@ -56,10 +56,10 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import de.gematik.ti.erp.app.Route
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.info.BuildConfigInformation
+import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.settings.ui.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -79,10 +79,10 @@ import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import org.kodein.di.compose.rememberInstance
 
 object TroubleShootingNavigation {
-    object TroubleshootingPageA : Route("troubleShooting")
-    object TroubleshootingPageB : Route("troubleShooting_readCardHelp1")
-    object TroubleshootingPageC : Route("troubleShooting_readCardHelp2")
-    object TroubleshootingNoSuccessPage : Route("troubleShooting_readCardHelp3")
+    object TroubleshootingPageA : Routes("troubleShooting")
+    object TroubleshootingPageB : Routes("troubleShooting_readCardHelp1")
+    object TroubleshootingPageC : Routes("troubleShooting_readCardHelp2")
+    object TroubleshootingNoSuccessPage : Routes("troubleShooting_readCardHelp3")
 }
 
 @Composable
@@ -93,7 +93,7 @@ fun TroubleShootingScreen(
     val navController = rememberNavController()
     val buildConfig by rememberInstance<BuildConfigInformation>()
     var previousNavEntry by remember { mutableStateOf("troubleShooting") }
-    trackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     NavHost(
         navController,
         startDestination = TroubleShootingNavigation.TroubleshootingPageA.path()

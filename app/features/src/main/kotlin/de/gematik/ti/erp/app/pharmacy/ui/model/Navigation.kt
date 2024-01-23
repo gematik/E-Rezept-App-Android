@@ -18,16 +18,16 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.model
 
-import de.gematik.ti.erp.app.Route
+import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PopUpName
 
 object PharmacyNavigationScreens {
-    object StartSearch : Route("pharmacySearch")
-    object List : Route("pharmacySearch_detail")
-    object Maps : Route("pharmacySearch_map")
-    object OrderOverview : Route("redeem_viaTI") // TODO change when redeem_viaAVS is available
-    object EditShippingContact : Route("redeem_editContactInformation")
-    object PrescriptionSelection : Route("redeem_prescriptionChooseSubset")
+    object StartSearch : Routes("pharmacySearch")
+    object List : Routes("pharmacySearch_detail")
+    object Maps : Routes("pharmacySearch_map")
+    object OrderOverview : Routes("redeem_viaTI") // TODO change when redeem_viaAVS is available
+    object EditShippingContact : Routes("redeem_editContactInformation")
+    object PrescriptionSelection : Routes("redeem_prescriptionChooseSubset")
 }
 
 object PharmacySearchPopUpNames {

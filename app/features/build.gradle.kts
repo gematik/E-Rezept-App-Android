@@ -18,10 +18,6 @@ plugins {
     id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
 }
 
-tasks.named("preBuild") {
-    dependsOn(":ktlint", ":detekt")
-}
-
 licenseReport {
     generateCsvReport = false
     generateHtmlReport = false
@@ -48,11 +44,20 @@ android {
                 it.name.startsWith("kapt")
         }.map { it.name }
     }
+    buildTypes {
+        val debug by getting {
+            isJniDebuggable = true
+        }
+        create("minifiedDebug") {
+            initWith(debug)
+        }
+    }
 }
 
 dependencies {
     implementation(project(":common"))
     implementation(project(":app:demo-mode"))
+    implementation("com.google.android.material:material:1.10.0")
     testImplementation(project(":common"))
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
@@ -154,6 +159,8 @@ dependencies {
         }
         tracking {
             implementation(contentSquare)
+            implementation(contentSquareCompose)
+            implementation(contentSquareErrorAnalysis)
         }
         maps {
             implementation(location)

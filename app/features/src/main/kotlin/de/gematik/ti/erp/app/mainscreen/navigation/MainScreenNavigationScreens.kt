@@ -21,8 +21,8 @@ package de.gematik.ti.erp.app.mainscreen.navigation
 import android.os.Parcelable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
-import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
+import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PopUpName
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.parcelize.Parcelize
@@ -33,22 +33,22 @@ import kotlinx.serialization.Serializable
 data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 
 object MainNavigationScreens {
-    object Onboarding : Route("onboarding")
-    object Settings : Route("settings")
-    object Camera : Route("main_scanner")
-    object Prescriptions : Route("main")
-    object Archive : Route("main_prescriptionArchive")
+    object Onboarding : Routes("onboarding")
+    object Settings : Routes("settings")
+    object Camera : Routes("main_scanner")
+    object Prescriptions : Routes("main")
+    object Archive : Routes("main_prescriptionArchive")
     object PrescriptionDetail :
-        Route(
+        Routes(
             "prescriptionDetail",
             navArgument("taskId") { type = NavType.StringType }
         ) {
         fun path(taskId: String) = path("taskId" to taskId)
     }
 
-    object Orders : Route("orders")
+    object Orders : Routes("orders")
 
-    object Messages : Route(
+    object Messages : Routes(
         "orders_detail",
         navArgument("orderId") { type = NavType.StringType }
     ) {
@@ -56,43 +56,43 @@ object MainNavigationScreens {
             Messages.path("orderId" to orderId)
     }
 
-    object Pharmacies : Route("pharmacySearch")
+    object Pharmacies : Routes("pharmacySearch")
 
-    object Redeem : Route("redeem_methodSelection")
+    object Redeem : Routes("redeem_methodSelection")
 
-    object ProfileImageCropper : Route(
+    object ProfileImageCropper : Routes(
         "profile_editPicture_imageCropper",
         navArgument("profileId") { type = NavType.StringType }
     ) {
         fun path(profileId: String) = path("profileId" to profileId)
     }
 
-    object CardWall : Route(
+    object CardWall : Routes(
         "cardWall_introduction",
         navArgument("profileId") { type = NavType.StringType }
     ) {
         fun path(profileId: ProfileIdentifier) = path("profileId" to profileId)
     }
 
-    object InsecureDeviceScreen : Route("main_deviceSecurity")
-    object MlKitIntroScreen : Route("mlKit")
-    object MlKitInformationScreen : Route("mlKit_information")
-    object DataProtection : Route("settings_dataProtection")
-    object IntegrityNotOkScreen : Route("main_integrityWarning")
+    object MlKitIntroScreen : Routes("mlKit")
+    object MlKitInformationScreen : Routes("mlKit_information")
+    object DataProtection : Routes("settings_dataProtection")
+
     object EditProfile :
-        Route("profile", navArgument("profileId") { type = NavType.StringType }) {
+        Routes("profile", navArgument("profileId") { type = NavType.StringType }) {
         fun path(profileId: String) = path("profileId" to profileId)
     }
-    object Terms : Route("settings_termsOfUse")
-    object Imprint : Route("settings_legalNotice")
-    object OpenSourceLicences : Route("settings_openSourceLicence")
-    object AdditionalLicences : Route("settings_additionalLicence")
-    object AllowAnalytics : Route("settings_productImprovements_complyTracking")
-    object Password : Route("settings_authenticationMethods_setAppPassword")
-    object Debug : Route("debug")
-    object OrderHealthCard : Route("contactInsuranceCompany")
 
-    object UnlockEgk : Route(
+    object Terms : Routes("settings_termsOfUse")
+    object Imprint : Routes("settings_legalNotice")
+    object OpenSourceLicences : Routes("settings_openSourceLicence")
+    object AdditionalLicences : Routes("settings_additionalLicence")
+    object AllowAnalytics : Routes("settings_productImprovements_complyTracking")
+    object Password : Routes("settings_authenticationMethods_setAppPassword")
+    object Debug : Routes("debug")
+    object OrderHealthCard : Routes("contactInsuranceCompany")
+
+    object UnlockEgk : Routes(
         "healthCardPassword_introduction",
         navArgument("unlockMethod") { type = NavType.StringType }
     ) {

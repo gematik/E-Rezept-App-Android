@@ -101,7 +101,8 @@ class DemoPharmacyLocalDataSource(
         withContext(dispatcher) {
             dataSource.favoritePharmacies.value = dataSource.favoritePharmacies.updateAndGet {
                 val favoritePharmacies = it.toMutableList()
-                favoritePharmacies.indexOfFirst { existingPharmacy -> existingPharmacy.telematikId == pharmacy.telematikId }
+                favoritePharmacies
+                    .indexOfFirst { existingPharmacy -> existingPharmacy.telematikId == pharmacy.telematikId }
                     .takeIf { index -> index != INDEX_OUT_OF_BOUNDS }?.let { index ->
                         favoritePharmacies[index] = favoritePharmacies[index].copy(lastUsed = Clock.System.now())
                         favoritePharmacies
@@ -126,7 +127,6 @@ class DemoPharmacyLocalDataSource(
             val favoritePharmacy = it.find { it.telematikId == pharmacy.telematikId }
             favoritePharmacy != null
         }.flowOn(dispatcher)
-
 
     override suspend fun markAsRedeemed(taskId: String) {
         withContext(dispatcher) {

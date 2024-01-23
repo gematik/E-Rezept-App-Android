@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.userauthentication.ui
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -64,13 +65,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.PasswordTextField
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.PaddingDefaults.Medium
+import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
 import de.gematik.ti.erp.app.utils.compose.HintCard
@@ -87,23 +94,60 @@ import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import kotlinx.coroutines.launch
 import java.util.Locale
+
 @Suppress("LongMethod")
 @Composable
 fun UserAuthenticationScreen() {
-    val authentication = rememberAuthenticationController()
+    val activity = LocalActivity.current
+
+    val biometricPromptBuilder = remember { BiometricPromptBuilder(activity as AppCompatActivity) }
+
+    // clear underlying text input focus
+    val focusManager = LocalFocusManager.current
     val scope = rememberCoroutineScope()
+
+    val authentication = rememberAuthenticationController()
+    val authenticationState by authentication.authenticationState
+    val navBarInsetsPadding = WindowInsets.systemBars.asPaddingValues()
+
     var showAuthPrompt by remember { mutableStateOf(false) }
     var showError by remember { mutableStateOf(false) }
     var initiallyHandledAuthPrompt by rememberSaveable { mutableStateOf(false) }
-    val authenticationState by authentication.authenticationState
-    val navBarInsetsPadding = WindowInsets.systemBars.asPaddingValues()
-    val paddingModifier = if (navBarInsetsPadding.calculateBottomPadding() <= PaddingDefaults.Medium) {
-        Modifier.statusBarsPadding()
-    } else {
-        Modifier.systemBarsPadding()
+
+    val infoBuilder = biometricPromptBuilder.buildPromptInfo(
+        title = stringResource(R.string.auth_prompt_headline),
+        negativeButton = stringResource(R.string.auth_prompt_cancel)
+    )
+
+    val prompt = remember(biometricPromptBuilder) {
+        biometricPromptBuilder.buildBiometricPrompt(
+            onSuccess = {
+                scope.launch { authentication.onAuthenticated() }
+                showAuthPrompt = false
+            },
+            onFailure = {
+                showAuthPrompt = false
+            },
+            onError = {
+                scope.launch { authentication.onFailedAuthentication() }
+                showAuthPrompt = false
+                showError = true
+            }
+        )
     }
-    // clear underlying text input focus
-    val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(showAuthPrompt) {
+        activity.lifecycleScope.launch {
+            activity.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                if (authenticationState.authenticationMethod !is SettingsData.AuthenticationMode.Password &&
+                    showAuthPrompt
+                ) {
+                    prompt.authenticate(infoBuilder)
+                }
+            }
+        }
+    }
+
     LaunchedEffect(Unit) {
         focusManager.clearFocus(true)
         if (!initiallyHandledAuthPrompt && authenticationState.nrOfAuthFailures == 0) {
@@ -118,12 +162,17 @@ fun UserAuthenticationScreen() {
                 .padding(it)
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .then(paddingModifier)
+                .then(
+                    when {
+                        navBarInsetsPadding.calculateBottomPadding() <= Medium -> Modifier.statusBarsPadding()
+                        else -> Modifier.systemBarsPadding()
+                    }
+                )
         ) {
             Row(
                 modifier = Modifier
-                    .padding(top = PaddingDefaults.Medium)
-                    .padding(horizontal = PaddingDefaults.Medium)
+                    .padding(top = Medium)
+                    .padding(horizontal = Medium)
                     .align(Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -160,53 +209,29 @@ fun UserAuthenticationScreen() {
                     null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PaddingDefaults.Medium),
+                        .padding(horizontal = Medium),
                     contentScale = ContentScale.FillWidth
                 )
             }
         }
     }
 
-    if (showAuthPrompt) {
-        when (authenticationState.authenticationMethod) {
-            is SettingsData.AuthenticationMode.Password ->
-                PasswordPrompt(
-                    authentication,
-                    onAuthenticated = {
-                        showAuthPrompt = false
-                        scope.launch { authentication.onAuthenticated() }
-                    },
-                    onCancel = {
-                        showAuthPrompt = false
-                    },
-                    onAuthenticationError = {
-                        scope.launch { authentication.onFailedAuthentication() }
-                        showAuthPrompt = false
-                        showError = true
-                    }
-                )
-            else ->
-                BiometricPrompt(
-                    title = stringResource(R.string.auth_prompt_headline),
-                    description = "",
-                    negativeButton = stringResource(R.string.auth_prompt_cancel),
-                    onAuthenticated = {
-                        showAuthPrompt = false
-                        scope.launch { authentication.onAuthenticated() }
-                    },
-                    onCancel = {
-                        showAuthPrompt = false
-                    },
-                    onAuthenticationError = {
-                        scope.launch { authentication.onFailedAuthentication() }
-                        showAuthPrompt = false
-                        showError = true
-                    },
-                    onAuthenticationSoftError = {
-                        scope.launch { authentication.onFailedAuthentication() }
-                    }
-                )
-        }
+    if (showAuthPrompt && authenticationState.authenticationMethod is SettingsData.AuthenticationMode.Password) {
+        PasswordPrompt(
+            authentication,
+            onAuthenticated = {
+                showAuthPrompt = false
+                scope.launch { authentication.onAuthenticated() }
+            },
+            onCancel = {
+                showAuthPrompt = false
+            },
+            onAuthenticationError = {
+                scope.launch { authentication.onFailedAuthentication() }
+                showAuthPrompt = false
+                showError = true
+            }
+        )
     }
 }
 
@@ -217,7 +242,7 @@ private fun AuthenticationScreenErrorContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = PaddingDefaults.Medium),
+            .padding(horizontal = Medium),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(80.dp))
@@ -263,9 +288,9 @@ private fun AuthenticationScreenErrorBottomContent(state: AuthenticationStateDat
             .background(color = AppTheme.colors.neutral100)
             .padding(
                 bottom = PaddingDefaults.Large,
-                start = PaddingDefaults.Medium,
-                end = PaddingDefaults.Medium,
-                top = PaddingDefaults.Medium
+                start = Medium,
+                end = Medium,
+                top = Medium
             )
             .fillMaxWidth()
     ) {
@@ -301,12 +326,12 @@ private fun AuthenticationScreenContent(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = PaddingDefaults.Medium),
+            .padding(horizontal = Medium),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         if (state.nrOfAuthFailures > 0) {
             HintCard(
-                modifier = Modifier.padding(vertical = PaddingDefaults.Medium),
+                modifier = Modifier.padding(vertical = Medium),
                 properties = HintCardDefaults.flatProperties(
                     backgroundColor = AppTheme.colors.red100
                 ),

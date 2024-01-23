@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("MagicNumber")
+
 package de.gematik.ti.erp.app
 
 import androidx.lifecycle.ProcessLifecycleOwner
@@ -23,7 +25,8 @@ import com.contentsquare.android.Contentsquare
 import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import de.gematik.ti.erp.app.di.appModules
 import de.gematik.ti.erp.app.di.featureModule
-import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationUseCase
+import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
+import de.gematik.ti.erp.app.userauthentication.observer.ProcessLifecycleObserver
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.kodein.di.DI
@@ -38,11 +41,12 @@ class DefaultErezeptApp : ErezeptApp(), DIAware {
         import(androidXModule(this@DefaultErezeptApp))
         importAll(appModules)
         importAll(featureModule, allowOverride = true)
-        bindSingleton { AuthenticationUseCase(instance()) }
+        bindSingleton { InactivityTimeoutObserver(instance(), instance()) }
+        bindSingleton { ProcessLifecycleObserver(ProcessLifecycleOwner, instance()) }
         bindSingleton { VisibleDebugTree() }
     }
 
-    private val authUseCase: AuthenticationUseCase by instance()
+    private val processLifecycleObserver: ProcessLifecycleObserver by instance()
 
     private val visibleDebugTree: VisibleDebugTree by instance()
 
@@ -53,10 +57,10 @@ class DefaultErezeptApp : ErezeptApp(), DIAware {
             Napier.base(visibleDebugTree)
         }
 
-        ProcessLifecycleOwner.get().lifecycle.apply {
-            addObserver(authUseCase)
-        }
+        processLifecycleObserver.observeForInactivity()
+
         PDFBoxResourceLoader.init(this)
+
         Contentsquare.start(this)
     }
 }

@@ -16,12 +16,15 @@
  * 
  */
 
+@file:Suppress("MagicNumber")
+
 package de.gematik.ti.erp.app.demomode.datasource.data
 
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.EXPIRY_DATE
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.START_DATE
+import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import kotlinx.datetime.Instant
@@ -69,7 +72,14 @@ object DemoProfileInfo {
         isActive = true,
         color = ProfilesData.ProfileColorNames.SUN_DEW,
         insuranceType = InsuranceTypeV1.PKV, // Note: Private insurance account
-        avatar = ProfilesData.Avatar.FemaleDoctorWithPhone,
+        avatar = listOf(
+            ProfilesData.Avatar.FemaleDoctor,
+            ProfilesData.Avatar.FemaleDoctorWithPhone,
+            ProfilesData.Avatar.WomanWithHeadScarf,
+            ProfilesData.Avatar.WomanWithPhone,
+            ProfilesData.Avatar.Grandmother,
+            ProfilesData.Avatar.FemaleDeveloper
+        ).random(),
         lastAuthenticated = null
     )
 
@@ -80,31 +90,41 @@ object DemoProfileInfo {
         profileName = "Max Mustermann",
         isActive = false,
         insuranceType = InsuranceTypeV1.GKV,
-        avatar = ProfilesData.Avatar.OldManOfColor,
+        avatar = listOf(
+            ProfilesData.Avatar.OldManOfColor,
+            ProfilesData.Avatar.Grandfather,
+            ProfilesData.Avatar.ManWithPhone,
+            ProfilesData.Avatar.WheelchairUser,
+            ProfilesData.Avatar.MaleDoctorWithPhone
+        ).random(),
         lastAuthenticated = null
     )
 
     private fun profile(
         profileName: String,
         isActive: Boolean = true,
-        color: ProfilesData.ProfileColorNames = ProfilesData.ProfileColorNames.BLUE_MOON,
-        avatar: ProfilesData.Avatar = ProfilesData.Avatar.FemaleDeveloper,
+        color: ProfilesData.ProfileColorNames = ProfilesData.ProfileColorNames.values().random(),
+        avatar: ProfilesData.Avatar = ProfilesData.Avatar.values().random(),
         insuranceType: InsuranceTypeV1 = InsuranceTypeV1.GKV,
         lastAuthenticated: Instant? = null,
         singleSignOnTokenScope: IdpData.SingleSignOnTokenScope? = cardToken
-    ) = ProfilesData.Profile(
-        id = UUID.randomUUID().toString(),
-        name = profileName,
-        color = color,
-        avatar = avatar,
-        insuranceIdentifier = insuranceNumberGenerator(),
-        insuranceType = insuranceType,
-        insurantName = profileName,
-        insuranceName = HEALTH_INSURANCE_COMPANIES.random(),
-        singleSignOnTokenScope = singleSignOnTokenScope,
-        active = isActive,
-        lastAuthenticated = lastAuthenticated
-    )
+    ): DemoModeProfile {
+        val uuid = UUID.randomUUID()
+        return DemoModeProfile(
+            demoModeId = uuid,
+            id = uuid.toString(),
+            name = profileName,
+            color = color,
+            avatar = avatar,
+            insuranceIdentifier = insuranceNumberGenerator(),
+            insuranceType = insuranceType,
+            insurantName = profileName,
+            insuranceName = HEALTH_INSURANCE_COMPANIES.random(),
+            singleSignOnTokenScope = singleSignOnTokenScope,
+            active = isActive,
+            lastAuthenticated = lastAuthenticated
+        )
+    }
 
     internal fun String.create() = profile(profileName = this)
 }

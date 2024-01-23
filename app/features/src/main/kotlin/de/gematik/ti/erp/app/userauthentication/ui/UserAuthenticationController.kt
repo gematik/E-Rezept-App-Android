@@ -20,49 +20,54 @@ package de.gematik.ti.erp.app.userauthentication.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
+import de.gematik.ti.erp.app.userauthentication.ui.AuthenticationStateData.AuthenticationState
 import kotlinx.coroutines.flow.map
 import org.kodein.di.compose.rememberInstance
 
 class AuthenticationController(
-    private val authUseCase: AuthenticationUseCase
+    private val inactivityTimeoutObserver: InactivityTimeoutObserver
 ) {
     private val authenticationFlow =
-        authUseCase.authenticationModeAndMethod.map {
-            when (it) {
-                AuthenticationModeAndMethod.None,
-                AuthenticationModeAndMethod.Authenticated -> AuthenticationStateData.AuthenticationState(
-                    SettingsData.AuthenticationMode.Unspecified,
-                    0
-                )
-                is AuthenticationModeAndMethod.AuthenticationRequired -> AuthenticationStateData.AuthenticationState(
-                    it.method,
-                    it.nrOfFailedAuthentications
-                )
+        inactivityTimeoutObserver.authenticationModeAndMethod
+            .map {
+                when (it) {
+                    AuthenticationModeAndMethod.None,
+                    AuthenticationModeAndMethod.Authenticated -> AuthenticationState(
+                        SettingsData.AuthenticationMode.Unspecified,
+                        0
+                    )
+
+                    is AuthenticationModeAndMethod.AuthenticationRequired -> AuthenticationState(
+                        it.method,
+                        it.nrOfFailedAuthentications
+                    )
+                }
             }
-        }
 
     val authenticationState
         @Composable
-        get() = authenticationFlow.collectAsStateWithLifecycle(AuthenticationStateData.defaultAuthenticationState)
+        get() = authenticationFlow.collectAsState(AuthenticationStateData.defaultAuthenticationState)
 
     suspend fun isPasswordValid(password: String): Boolean =
-        authUseCase.isPasswordValid(password)
+        inactivityTimeoutObserver.isPasswordValid(password)
 
     suspend fun onAuthenticated() {
-        authUseCase.resetNumberOfAuthenticationFailures()
-        authUseCase.authenticated()
+        inactivityTimeoutObserver.resetNumberOfAuthenticationFailures()
+        inactivityTimeoutObserver.authenticated()
     }
 
-    suspend fun onFailedAuthentication() = authUseCase.incrementNumberOfAuthenticationFailures()
+    suspend fun onFailedAuthentication() = inactivityTimeoutObserver.incrementNumberOfAuthenticationFailures()
 }
 
 @Composable
 fun rememberAuthenticationController(): AuthenticationController {
-    val authenticationUseCase by rememberInstance<AuthenticationUseCase>()
-    return remember { AuthenticationController(authenticationUseCase) }
+    val inactivityTimeoutObserver by rememberInstance<InactivityTimeoutObserver>()
+    return remember { AuthenticationController(inactivityTimeoutObserver) }
 }
 
 object AuthenticationStateData {

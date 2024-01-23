@@ -77,7 +77,7 @@ fun Avatar(
                     profile = profile,
                     emptyIcon = emptyIcon,
                     modifier = iconModifier,
-                    figure = profile.avatar
+                    avatar = profile.avatar
                 )
             }
         }

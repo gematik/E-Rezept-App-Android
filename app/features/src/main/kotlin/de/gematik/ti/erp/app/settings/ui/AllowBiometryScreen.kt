@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.settings.ui
 
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -28,19 +29,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.onboarding.model.OnboardingSecureAppMethod
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingBottomBar
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.userauthentication.ui.BiometricPrompt
+import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 
@@ -50,8 +49,27 @@ fun AllowBiometryScreen(
     onNext: () -> Unit,
     onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit
 ) {
-    var showBiometricPrompt by remember { mutableStateOf(false) }
     val lazyListState = rememberLazyListState()
+
+    val activity = LocalActivity.current
+
+    val biometricPromptBuilder = remember { BiometricPromptBuilder(activity as AppCompatActivity) }
+
+    val infoBuilder = biometricPromptBuilder.buildPromptInfo(
+        title = stringResource(R.string.auth_prompt_headline),
+        negativeButton = stringResource(R.string.auth_prompt_cancel)
+    )
+
+    val prompt = remember(biometricPromptBuilder) {
+        biometricPromptBuilder.buildBiometricPrompt(
+            onSuccess = {
+                onSecureMethodChange(OnboardingSecureAppMethod.DeviceSecurity)
+                onNext()
+            },
+            onFailure = { onBack() },
+            onError = { onBack() }
+        )
+    }
 
     AnimatedElevationScaffold(
         modifier = Modifier.navigationBarsPadding(),
@@ -60,7 +78,7 @@ fun AllowBiometryScreen(
             OnboardingBottomBar(
                 buttonText = stringResource(R.string.settings_device_security_allow),
                 onButtonClick = {
-                    showBiometricPrompt = true
+                    prompt.authenticate(infoBuilder)
                 },
                 buttonEnabled = true,
                 info = null,
@@ -71,26 +89,6 @@ fun AllowBiometryScreen(
         listState = lazyListState,
         onBack = onBack
     ) {
-        if (showBiometricPrompt) {
-            BiometricPrompt(
-                title = stringResource(R.string.auth_prompt_headline),
-                description = "",
-                negativeButton = stringResource(R.string.auth_prompt_cancel),
-                onAuthenticated = {
-                    onSecureMethodChange(OnboardingSecureAppMethod.DeviceSecurity)
-                    onNext()
-                },
-                onCancel = {
-                    onBack()
-                },
-                onAuthenticationError = {
-                    onBack()
-                },
-                onAuthenticationSoftError = {
-                }
-            )
-        }
-
         LazyColumn(
             state = lazyListState,
             modifier = Modifier

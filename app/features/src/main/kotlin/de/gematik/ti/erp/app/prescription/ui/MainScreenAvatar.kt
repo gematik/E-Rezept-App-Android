@@ -81,7 +81,7 @@ fun SmallMainScreenAvatar(
                     modifier = Modifier.size(16.dp),
                     emptyIcon = Icons.Rounded.AddAPhoto,
                     profile = profile,
-                    figure = profile.avatar
+                    avatar = profile.avatar
                 )
             }
         }
@@ -157,7 +157,7 @@ fun MainScreenAvatar(
                     modifier = Modifier.size(24.dp),
                     emptyIcon = Icons.Rounded.AddAPhoto,
                     profile = profile,
-                    figure = profile.avatar
+                    avatar = profile.avatar
                 )
             }
         }

@@ -88,8 +88,11 @@ import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
+import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
+import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.info.BuildConfigInformation
@@ -102,7 +105,6 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
-import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -117,13 +119,13 @@ import java.util.Locale
 
 @Composable
 fun SettingsScreen(
-    mainNavController: NavController,
-    settingsController: SettingsController
+    mainNavController: NavController
 ) {
     val buildConfig by rememberInstance<BuildConfigInformation>()
     val settingsNavController = rememberNavController()
+    val settingsController = rememberSettingsController()
     var previousNavEntry by remember { mutableStateOf("settings") }
-    trackNavigationChanges(settingsNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(settingsNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val navigationMode by settingsNavController.navigationModeState(SettingsNavigationScreens.Settings.route)
 
     SettingsNavGraph(
@@ -140,9 +142,13 @@ fun SettingsScreenWithScaffold(
     mainNavController: NavController,
     navController: NavController,
     buildConfig: BuildConfigInformation,
+    onClickDemoModeEnd: () -> Unit,
     onClickDemoMode: () -> Unit
 ) {
     val context = LocalContext.current
+    val demoModeObserver = LocalActivity.current as? DemoModeObserver
+    val isDemomode = demoModeObserver?.isDemoMode() ?: false
+
     val profilesController = rememberProfilesController()
     val profilesState by profilesController.getProfilesState()
 
@@ -174,23 +180,26 @@ fun SettingsScreenWithScaffold(
                 ProfileSection(profilesState, mainNavController)
                 SettingsDivider()
             }
-            item {
-                HealthCardSection(
-                    onClickUnlockEgk = { unlockMethod ->
-                        mainNavController.navigate(
-                            MainNavigationScreens.UnlockEgk.path(
-                                unlockMethod = unlockMethod
+            if (!isDemomode) {
+                item {
+                    HealthCardSection(
+                        onClickUnlockEgk = { unlockMethod ->
+                            mainNavController.navigate(
+                                MainNavigationScreens.UnlockEgk.path(
+                                    unlockMethod = unlockMethod
+                                )
                             )
-                        )
-                    },
-                    onClickOrderHealthCard = {
-                        mainNavController.navigate(MainNavigationScreens.OrderHealthCard.path())
-                    }
-                )
-                SettingsDivider()
+                        },
+                        onClickOrderHealthCard = {
+                            mainNavController.navigate(MainNavigationScreens.OrderHealthCard.path())
+                        }
+                    )
+                    SettingsDivider()
+                }
             }
             item {
                 GlobalSettingsSection(
+                    isDemomode = isDemomode,
                     onClickAccessibilitySettings = {
                         navController.navigate(SettingsNavigationScreens.AccessibilitySettings.path())
                     },
@@ -200,6 +209,7 @@ fun SettingsScreenWithScaffold(
                     onClickDeviceSecuritySettings = {
                         navController.navigate(SettingsNavigationScreens.DeviceSecuritySettings.path())
                     },
+                    onClickDemoModeEnd = onClickDemoModeEnd,
                     onClickDemoMode = onClickDemoMode
                 )
                 SettingsDivider()
@@ -229,9 +239,11 @@ fun SettingsScreenWithScaffold(
 
 @Composable
 fun GlobalSettingsSection(
+    isDemomode: Boolean,
     onClickAccessibilitySettings: () -> Unit,
     onClickProductImprovementSettings: () -> Unit,
     onClickDeviceSecuritySettings: () -> Unit,
+    onClickDemoModeEnd: () -> Unit,
     onClickDemoMode: () -> Unit
 
 ) {
@@ -246,11 +258,20 @@ fun GlobalSettingsSection(
                 top = PaddingDefaults.Medium
             )
         )
-        LabelButton(
-            icon = painterResource(R.drawable.magic_wand_filled),
-            stringResource(R.string.demo_mode_settings_title)
-        ) {
-            onClickDemoMode()
+        if (isDemomode) {
+            LabelButton(
+                icon = painterResource(R.drawable.magic_wand_filled),
+                stringResource(R.string.demo_mode_settings_end_title)
+            ) {
+                onClickDemoModeEnd()
+            }
+        } else {
+            LabelButton(
+                icon = painterResource(R.drawable.magic_wand_filled),
+                stringResource(R.string.demo_mode_settings_title)
+            ) {
+                onClickDemoMode()
+            }
         }
         LabelButton(
             Icons.Outlined.AccessibilityNew,
@@ -594,7 +615,7 @@ private fun LabelButton(
 }
 
 @Composable
-private fun LabelButton(
+fun LabelButton(
     icon: Painter,
     text: String,
     modifier: Modifier = Modifier,

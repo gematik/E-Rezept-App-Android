@@ -54,7 +54,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -76,7 +75,6 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.nulabinc.zxcvbn.Zxcvbn
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.features.R
@@ -88,24 +86,22 @@ import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import kotlinx.coroutines.launch
 import java.util.Locale
 
 private const val MinimalPasswordScore = 2
 
 @Composable
-fun SecureAppWithPassword(navController: NavController, settingsController: SettingsController) {
+fun SecureAppWithPassword(onSelectPasswordAsAuthenticationMode: (String) -> Unit, onBack: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var repeatedPassword by remember { mutableStateOf("") }
     var passwordScore by remember { mutableStateOf(0) }
     val focusRequester = FocusRequester.Default
-    val coroutineScope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
 
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.settings_password_headline),
         navigationMode = NavigationBarMode.Back,
-        onBack = { navController.popBackStack() },
+        onBack = onBack,
         elevated = scrollState.value > 0,
         actions = {},
         bottomBar = {
@@ -113,10 +109,8 @@ fun SecureAppWithPassword(navController: NavController, settingsController: Sett
                 Spacer(modifier = Modifier.weight(1f))
                 Button(
                     onClick = {
-                        coroutineScope.launch {
-                            settingsController.onSelectPasswordAsAuthenticationMode(password)
-                            navController.popBackStack()
-                        }
+                        onSelectPasswordAsAuthenticationMode(password)
+                        onBack()
                     },
                     enabled = checkPassword(
                         password = password,
@@ -180,10 +174,8 @@ fun SecureAppWithPassword(navController: NavController, settingsController: Sett
                             score = passwordScore
                         )
                     ) {
-                        coroutineScope.launch {
-                            settingsController.onSelectPasswordAsAuthenticationMode(password)
-                            navController.popBackStack()
-                        }
+                        onSelectPasswordAsAuthenticationMode(password)
+                        onBack()
                     }
                 }
             )

@@ -78,6 +78,9 @@ android {
             resValue("string", "app_label", "E-Rezept Mock")
             versionNameSuffix = "-debug"
         }
+        create("minifiedDebug") {
+            initWith(debug)
+        }
     }
 
     packagingOptions {

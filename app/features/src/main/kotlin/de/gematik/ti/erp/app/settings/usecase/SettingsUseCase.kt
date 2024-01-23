@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.settings.usecase
 
 import android.app.KeyguardManager
 import android.content.Context
-import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.profiles.usecase.sanitizedProfileName
 import de.gematik.ti.erp.app.settings.GeneralSettings
@@ -32,13 +31,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.atStartOfDayIn
 
-val DATA_PROTECTION_LAST_UPDATED: Instant =
-    LocalDate.parse(BuildKonfig.DATA_PROTECTION_LAST_UPDATED).atStartOfDayIn(TimeZone.UTC)
-
+// TODO: Break into smaller usecases
 class SettingsUseCase(
     private val context: Context,
     private val settingsRepository: SettingsRepository
@@ -64,7 +58,6 @@ class SettingsUseCase(
         }
     // end::ShowInsecureDevicePrompt[]
 
-    val showOnboarding = settingsRepository.general.map { it.onboardingShownIn == null } // TODO Move to Mainscreen
     val showWelcomeDrawer = settingsRepository.general.map { !it.welcomeDrawerShown }
 
     suspend fun welcomeDrawerShown() {

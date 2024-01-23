@@ -119,6 +119,7 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.DynamicText
+import de.gematik.ti.erp.app.utils.compose.ErrorText
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
@@ -287,7 +288,10 @@ fun EditProfileScreenContent(
             ProfileNameDialog(
                 profilesController = profilesController,
                 wantRemoveLastProfile = true,
-                onEdit = { showAddDefaultProfileDialog = false; onRemoveProfile(it) },
+                onEdit = {
+                    showAddDefaultProfileDialog = false
+                    onRemoveProfile(it)
+                },
                 onDismissRequest = { showAddDefaultProfileDialog = false }
             )
         }
@@ -534,7 +538,7 @@ fun ProfileNameSection(
                     append(" ")
                     appendInlineContent("edit", "edit")
                 }
-                val c = mapOf(
+                val inlineContent = mapOf(
                     "edit" to InlineTextContent(
                         Placeholder(
                             width = 0.em,
@@ -548,7 +552,7 @@ fun ProfileNameSection(
                 DynamicText(
                     txt,
                     style = AppTheme.typography.h5,
-                    inlineContent = c,
+                    inlineContent = inlineContent,
                     modifier = Modifier
                         .clickable {
                             textFieldEnabled = true
@@ -587,10 +591,8 @@ fun ProfileNameSection(
                 stringResource(R.string.edit_profile_duplicated_profile_name)
             }
 
-            Text(
+            ErrorText(
                 text = errorText,
-                color = AppTheme.colors.red600,
-                style = AppTheme.typography.caption1,
                 modifier = Modifier.padding(start = PaddingDefaults.Medium)
             )
         }
@@ -679,7 +681,7 @@ fun ProfileAvatarSection(
                     emptyIcon = Icons.Rounded.AddAPhoto,
                     modifier = Modifier.size(24.dp),
                     profile = profile,
-                    figure = profile.avatar
+                    avatar = profile.avatar
                 )
             }
         }
@@ -702,11 +704,11 @@ fun ChooseAvatar(
     profile: ProfilesUseCaseData.Profile,
     emptyIcon: ImageVector,
     showPersonalizedImage: Boolean = true,
-    figure: ProfilesData.Avatar
+    avatar: ProfilesData.Avatar
 ) {
-    val imageResource = extractImageResource(useSmallImages, figure)
+    val imageResource = extractImageResource(useSmallImages, avatar)
 
-    when (figure) {
+    when (avatar) {
         ProfilesData.Avatar.PersonalizedImage -> {
             if (showPersonalizedImage) {
                 if (profile.image != null) {

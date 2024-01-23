@@ -47,13 +47,13 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomPopUpNames
+import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
 import de.gematik.ti.erp.app.profiles.ui.AvatarPicker
 import de.gematik.ti.erp.app.profiles.ui.ColorPicker
 import de.gematik.ti.erp.app.profiles.ui.ProfileImage
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
@@ -89,12 +89,12 @@ sealed class MainScreenBottomSheetContentState {
 @Composable
 fun MainScreenBottomSheetContentState(
     mainNavController: NavController,
+    mainScreenController: MainScreenController,
     profilesController: ProfilesController,
     infoContentState: MainScreenBottomSheetContentState?,
     profileToRename: ProfilesUseCaseData.Profile,
     onCancel: () -> Unit
 ) {
-    val settingsController = rememberSettingsController()
     val profile by profilesController.getActiveProfileState()
 
     val title = when (infoContentState) {
@@ -177,17 +177,13 @@ fun MainScreenBottomSheetContentState(
                         is MainScreenBottomSheetContentState.Welcome ->
                             ConnectBottomSheetContent(
                                 onClickConnect = {
-                                    scope.launch {
-                                        settingsController.welcomeDrawerShown()
-                                    }
+                                    mainScreenController.welcomeDrawerShown()
                                     mainNavController.navigate(
                                         MainNavigationScreens.CardWall.path(profile.id)
                                     )
                                 },
                                 onCancel = {
-                                    scope.launch {
-                                        settingsController.welcomeDrawerShown()
-                                    }
+                                    mainScreenController.welcomeDrawerShown()
                                     onCancel()
                                 }
                             )
@@ -207,7 +203,7 @@ private fun EditProfileAvatar(
     onSelectProfileColor: (ProfilesData.ProfileColorNames) -> Unit
 ) {
     ProfileColorAndImagePickerContent(
-        profile,
+        profile = profile,
         clearPersonalizedImage = clearPersonalizedImage,
         onPickPersonalizedImage = onPickPersonalizedImage,
         onSelectAvatar = onSelectAvatar,
@@ -227,7 +223,10 @@ private fun ProfileColorAndImagePickerContent(
     Column(modifier = Modifier.fillMaxSize()) {
         SpacerMedium()
         ProfileImage(editableProfile) {
-            editableProfile = editableProfile.copy(image = null)
+            editableProfile = editableProfile.copy(
+                avatar = ProfilesData.Avatar.PersonalizedImage,
+                image = null
+            )
             clearPersonalizedImage()
         }
 

@@ -24,7 +24,6 @@ import kotlin.time.Duration.Companion.minutes
 
 object DemoConstants {
     internal val randomTimeToday = Clock.System.now().minus((1..20).random().minutes)
-    internal val pastDate = Clock.System.now().minus((15..100).random().days)
     internal val longerRandomTimeToday = Clock.System.now().minus((2..58).random().minutes)
     internal const val PHARMACY_TELEMATIK_ID = "3-03.2.1006210000.10.795"
     internal const val SYNCED_TASK_PRESET = "110.000.002.345.863"

@@ -22,23 +22,43 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import de.gematik.ti.erp.app.attestation.usecase.IntegrityUseCase
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.orders.usecase.OrderUseCase
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import de.gematik.ti.erp.app.settings.usecase.AcceptMLKitUseCase
+import de.gematik.ti.erp.app.settings.usecase.AllowAnalyticsUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetOnboardingSucceededUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
+import de.gematik.ti.erp.app.settings.usecase.SavePasswordUseCase
+import de.gematik.ti.erp.app.settings.usecase.SaveToolTippsShownUseCase
+import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
+@Suppress("LongParameterList")
 class MainScreenController(
-    private val integrityUseCase: IntegrityUseCase,
     private val messageUseCase: OrderUseCase,
-    private val settingsUseCase: SettingsUseCase
+    private val saveToolTipsShownUseCase: SaveToolTippsShownUseCase,
+    private val saveWelcomeDrawerShownUseCase: SaveWelcomeDrawerShownUseCase,
+    private val acceptMLKitUseCase: AcceptMLKitUseCase,
+    private val allowAnalyticsUseCase: AllowAnalyticsUseCase,
+    private val savePasswordUseCase: SavePasswordUseCase,
+    private val scope: CoroutineScope,
+    getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
+    getOnboardingSucceededUseCase: GetOnboardingSucceededUseCase,
+    getCanStartToolTipsUseCase: GetCanStartToolTipsUseCase,
+    getShowWelcomeDrawerUseCase: GetShowWelcomeDrawerUseCase,
+    getMLKitAcceptedUseCase: GetMLKitAcceptedUseCase
 ) {
 
     enum class OrderedEvent {
@@ -57,14 +77,38 @@ class MainScreenController(
         orderedEvent = null
     }
 
-    fun hasUnreadPrescriptionAvailable(profileIdentifier: ProfileIdentifier) =
-        messageUseCase.unreadPrescriptionAvailable(profileIdentifier)
+    private val screenshotsAllowed =
+        getScreenShotsAllowedUseCase.invoke()
+
+    val screenshotsState
+        @Composable
+        get() = screenshotsAllowed.collectAsStateWithLifecycle(false)
+
+    val onboardingSucceeded = getOnboardingSucceededUseCase.invoke()
+
+    private val canStartToolTips = getCanStartToolTipsUseCase.invoke()
+
+    val canStartToolTipsState
+        @Composable
+        get() = canStartToolTips.collectAsStateWithLifecycle(false)
+
+    fun toolTippsShown() = scope.launch {
+        saveToolTipsShownUseCase()
+    }
+
+    private val showWelcomeDrawer =
+        getShowWelcomeDrawerUseCase.invoke()
+
+    val showWelcomeDrawerState
+        @Composable
+        get() = showWelcomeDrawer.collectAsStateWithLifecycle(false)
+
+    fun welcomeDrawerShown() = scope.launch {
+        saveWelcomeDrawerShownUseCase()
+    }
 
     fun unreadOrders(profile: ProfilesUseCaseData.Profile) =
         messageUseCase.unreadOrders(profile)
-
-    fun unreadPrescriptionsInAllOrders(profileIdentifier: ProfileIdentifier) =
-        messageUseCase.unreadPrescriptionsInAllOrders(profileIdentifier)
 
     suspend fun onRefresh(event: PrescriptionServiceState) {
         _onRefreshEvent.emit(event)
@@ -74,22 +118,60 @@ class MainScreenController(
         orderedEvent = if (hasError) OrderedEvent.Error else OrderedEvent.Success
     }
 
-    fun checkDeviceIntegrity() = integrityUseCase.runIntegrityAttestation().map {
-        !it && !settingsUseCase.general.first().userHasAcceptedInsecureDevice
+    private val mlKitAccepted =
+        getMLKitAcceptedUseCase.invoke()
+
+    val mlKitAcceptedState
+        @Composable
+        get() = mlKitAccepted.collectAsStateWithLifecycle(false)
+
+    fun acceptMLKit() = scope.launch {
+        acceptMLKitUseCase()
+    }
+
+    @Requirement(
+        "O.Purp_5#3",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Enable usage analytics."
+    )
+    fun allowAnalytics(allow: Boolean) = scope.launch {
+        allowAnalyticsUseCase(allow)
+    }
+
+    fun selectPasswordAsAuthenticationMode(password: String) = scope.launch {
+        savePasswordUseCase.invoke(password)
     }
 }
 
 @Composable
 fun rememberMainScreenController(): MainScreenController {
-    val integrityUseCase by rememberInstance<IntegrityUseCase>()
     val messageUseCase by rememberInstance<OrderUseCase>()
-    val settingsUseCase by rememberInstance<SettingsUseCase>()
+    val getScreenShotsAllowedUseCase by rememberInstance<GetScreenShotsAllowedUseCase>()
+    val shouldShowOnboardingUseCase by rememberInstance<GetOnboardingSucceededUseCase>()
+    val acceptMLKitUseCase by rememberInstance<AcceptMLKitUseCase>()
+    val getMLKitAcceptedUseCase by rememberInstance<GetMLKitAcceptedUseCase>()
+    val allowAnalyticsUseCase by rememberInstance<AllowAnalyticsUseCase>()
+    val savePasswordUseCase by rememberInstance<SavePasswordUseCase>()
+    val getShowToolTipsUseCase by rememberInstance<GetCanStartToolTipsUseCase>()
+    val saveToolTipsShownUseCase by rememberInstance<SaveToolTippsShownUseCase>()
+    val getShowWelcomeDrawerUseCase by rememberInstance<GetShowWelcomeDrawerUseCase>()
+    val saveWelcomeDrawerShownUseCase by rememberInstance<SaveWelcomeDrawerShownUseCase>()
+    val scope = rememberCoroutineScope()
 
     return remember {
         MainScreenController(
-            integrityUseCase = integrityUseCase,
             messageUseCase = messageUseCase,
-            settingsUseCase = settingsUseCase
+            getScreenShotsAllowedUseCase = getScreenShotsAllowedUseCase,
+            getOnboardingSucceededUseCase = shouldShowOnboardingUseCase,
+            acceptMLKitUseCase = acceptMLKitUseCase,
+            getMLKitAcceptedUseCase = getMLKitAcceptedUseCase,
+            allowAnalyticsUseCase = allowAnalyticsUseCase,
+            savePasswordUseCase = savePasswordUseCase,
+            getCanStartToolTipsUseCase = getShowToolTipsUseCase,
+            saveToolTipsShownUseCase = saveToolTipsShownUseCase,
+            getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,
+            saveWelcomeDrawerShownUseCase = saveWelcomeDrawerShownUseCase,
+            scope = scope
         )
     }
 }

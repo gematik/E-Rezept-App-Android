@@ -35,9 +35,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -50,49 +48,36 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.TopAppBarWithContent
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 /**
  * The top appbar of the actual main screen.
  */
 @Composable
 internal fun MultiProfileTopAppBar(
-    navController: NavController,
     mainScreenController: MainScreenController,
-    settingsController: SettingsController,
     profilesController: ProfilesController,
     isInPrescriptionScreen: Boolean,
     elevated: Boolean,
     onClickAddProfile: () -> Unit,
     onClickChangeProfileName: (profile: Profile) -> Unit,
+    onClickAddPrescription: () -> Unit,
+    showToolTipps: Boolean,
     tooltipBounds: MutableState<Map<Int, Rect>>
 ) {
     val profiles by profilesController.getProfilesState()
     val activeProfile by profilesController.getActiveProfileState()
     val accScan = stringResource(R.string.main_scan_acc)
     val elevation = remember(elevated) { if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp }
-
-    val toolTipBoundsRequired by produceState(initialValue = false) {
-        settingsController.showMainScreenToolTips().collect {
-            value = it
-        }
-    }
-
-    val scope = rememberCoroutineScope()
 
     TopAppBarWithContent(
         title = {
@@ -104,20 +89,12 @@ internal fun MultiProfileTopAppBar(
             if (isInPrescriptionScreen) {
                 // data matrix code scanner
                 IconButton(
-                    onClick = {
-                        scope.launch {
-                            if (settingsController.mlKitNotAccepted().first()) {
-                                navController.navigate(MainNavigationScreens.MlKitIntroScreen.path())
-                            } else {
-                                navController.navigate(MainNavigationScreens.Camera.path())
-                            }
-                        }
-                    },
+                    onClick = onClickAddPrescription,
                     modifier = Modifier
                         .testTag("erx_btn_scn_prescription")
                         .semantics { contentDescription = accScan }
                         .onGloballyPositioned { coordinates ->
-                            if (toolTipBoundsRequired) {
+                            if (showToolTipps) {
                                 tooltipBounds.value += Pair(0, coordinates.boundsInRoot())
                             }
                         }
@@ -137,7 +114,7 @@ internal fun MultiProfileTopAppBar(
                 profiles = profiles,
                 activeProfile = activeProfile,
                 tooltipBounds = tooltipBounds,
-                toolTipBoundsRequired = toolTipBoundsRequired,
+                toolTipBoundsRequired = showToolTipps,
                 onClickChangeProfileName = onClickChangeProfileName,
                 onClickAddProfile = onClickAddProfile,
                 onClickChangeActiveProfile = { profile ->

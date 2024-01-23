@@ -33,6 +33,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 
+/**
+ * The prescription [repository] obtains the active
+ * scanned and synced prescriptions and sorts them
+ * by the authored or scanned date in a descending order and then
+ * by name.
+ *
+ */
 class GetActivePrescriptionsUseCase(
     private val repository: PrescriptionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -54,7 +61,11 @@ class GetActivePrescriptionsUseCase(
             .groupByHospitalsOrDoctors()
             .flatMapToPrescriptions()
 
-        (scannedPrescriptions + syncedPrescriptions)
-            .sortedByDescending { it.redeemedOn ?: it.startedOn }
+        (scannedPrescriptions + syncedPrescriptions).sortActives()
     }.flowOn(dispatcher)
+
+    companion object {
+        private fun List<Prescription>.sortActives() =
+            sortedWith(compareByDescending<Prescription> { it.startedOn }.thenBy { it.name })
+    }
 }

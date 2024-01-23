@@ -55,7 +55,7 @@ import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
 import kotlinx.datetime.Instant
 
-const val ACTUAL_SCHEMA_VERSION = 27L
+const val ACTUAL_SCHEMA_VERSION = 28L
 
 val appSchemas = setOf(
     AppRealmSchema(

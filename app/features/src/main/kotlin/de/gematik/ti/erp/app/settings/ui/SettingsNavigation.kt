@@ -21,32 +21,29 @@ package de.gematik.ti.erp.app.settings.ui
 import AccessibilitySettingsScreen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithDemoMode
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
+import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationMode
-import de.gematik.ti.erp.app.utils.compose.shortToast
 import kotlinx.coroutines.launch
 
 object SettingsNavigationScreens {
-    object Settings : Route("settings")
-    object AccessibilitySettings : Route("settings_accessibility")
-    object ProductImprovementSettings : Route("settings_productImprovements")
-    object DeviceSecuritySettings : Route("settings_authenticationMethods")
+    object Settings : Routes("settings")
+    object AccessibilitySettings : Routes("settings_accessibility")
+    object ProductImprovementSettings : Routes("settings_productImprovements")
+    object DeviceSecuritySettings : Routes("settings_authenticationMethods")
 }
 
 @Suppress("LongMethod")
@@ -70,6 +67,9 @@ fun SettingsNavGraph(
                     mainNavController = mainNavController,
                     navController = settingsNavController,
                     buildConfig = buildConfig,
+                    onClickDemoModeEnd = {
+                        DemoModeIntent.startAppWithNormalMode<MainActivity>(activity)
+                    },
                     onClickDemoMode = {
                         DemoModeIntent.startAppWithDemoMode<MainActivity>(activity)
                     }
@@ -82,9 +82,6 @@ fun SettingsNavGraph(
             )
         }
         composable(SettingsNavigationScreens.ProductImprovementSettings.route) {
-            val context = LocalContext.current
-            val disAllowAnalyticsToast = stringResource(R.string.settings_tracking_disallow_info)
-
             ProductImprovementSettingsScreen(
                 settingsController = settingsController,
                 onAllowAnalytics = {
@@ -100,12 +97,7 @@ fun SettingsNavGraph(
                         rationale = "The agreement to the use of the analytics framework could be revoked. " +
                             "But other agreements cannot be revoked, since the app could not operate properly."
                     )
-                    if (!it) {
-                        settingsController.onTrackingDisallowed()
-                        context.shortToast(disAllowAnalyticsToast)
-                    } else {
-                        mainNavController.navigate(MainNavigationScreens.AllowAnalytics.path())
-                    }
+                    mainNavController.navigate(MainNavigationScreens.AllowAnalytics.path())
                 },
                 onBack = { settingsNavController.popBackStack() }
             )

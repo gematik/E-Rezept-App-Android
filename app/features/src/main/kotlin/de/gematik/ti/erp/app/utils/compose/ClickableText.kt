@@ -52,8 +52,13 @@ fun ClickableText(
 
     val resources = LocalContext.current.resources
     val textData = remember(clickText, text, resources) {
-        val regex = Regex(clickText.text)
-        val splits = text.splitToSequence(regex).toMutableList()
+        val spacingDelimiter = " "
+        val regex = Regex(clickText.text.lowercase())
+        val splits = text
+            .split(spacingDelimiter)
+            .joinToString(spacingDelimiter)
+            .splitToSequence(regex)
+            .toMutableList()
         // add the delimiter also to the list
         splits.add(1, clickText.text)
         mutableListOf<TextData>().apply {
@@ -61,7 +66,7 @@ fun ClickableText(
                 if (part == clickText.text) {
                     add(
                         TextData(
-                            text = clickText.text,
+                            text = " ${clickText.text} ",
                             tag = "$clickText-link-text-tag",
                             onClick = { clickText.onClick() }
                         )

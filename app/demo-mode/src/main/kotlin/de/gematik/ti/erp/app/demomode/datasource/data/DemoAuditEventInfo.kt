@@ -42,7 +42,7 @@ object DemoAuditEventInfo {
     internal fun downloadDispense(taskId: String = UUID.randomUUID().toString()) = AuditEventData.AuditEvent(
         auditId = UUID.randomUUID().toString(),
         taskId = taskId,
-        description = "Max Mustermann dowloaded a medication dispense list",
+        description = "Sie haben eine Medikamentenabgabeliste heruntergeladen",
         timestamp = Clock.System.now().minus(randomInt.randomDuration())
     )
 
@@ -50,7 +50,7 @@ object DemoAuditEventInfo {
         AuditEventData.AuditEvent(
             auditId = UUID.randomUUID().toString(),
             taskId = taskId,
-            description = "Max Mustermann dowloaded a prescription $taskId",
+            description = "Sie haben ein Rezept heruntergeladen mit taskId $taskId",
             timestamp = Clock.System.now().minus(randomInt.randomDuration())
         )
 }

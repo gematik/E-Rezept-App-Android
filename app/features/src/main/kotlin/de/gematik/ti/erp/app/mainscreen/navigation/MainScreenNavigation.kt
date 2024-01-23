@@ -18,15 +18,12 @@
 
 package de.gematik.ti.erp.app.mainscreen.navigation
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -34,18 +31,18 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navOptions
 import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.analytics.trackPopUps
+import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
+import de.gematik.ti.erp.app.appsecurity.navigation.appSecurityGraph
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
 import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
 import de.gematik.ti.erp.app.core.LocalAnalytics
-import de.gematik.ti.erp.app.debug.ui.DebugScreenWrapper
-import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.license.ui.LicenseScreen
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.mainscreen.ui.InsecureDeviceScreen
+import de.gematik.ti.erp.app.mainscreen.presentation.rememberMainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenScaffoldContainer
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingNavigationScreens
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingScreen
@@ -68,16 +65,14 @@ import de.gematik.ti.erp.app.redeem.ui.RedeemNavigation
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
 import de.gematik.ti.erp.app.settings.ui.PharmacyLicenseScreen
 import de.gematik.ti.erp.app.settings.ui.SecureAppWithPassword
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
-import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
+import de.gematik.ti.erp.app.ui.DebugScreenWrapper
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Requirement(
     "A_19178",
     sourceSpecification = "gemSpec_eRp_FdV",
@@ -451,30 +446,42 @@ import de.gematik.ti.erp.app.webview.WebViewScreen
 fun MainScreenNavigation(
     navController: NavHostController
 ) {
-    val settingsController = rememberSettingsController()
-    val startDestination = checkFirstAppStart(settingsController)
-    LaunchedEffect(startDestination) {
-        // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
-        // (on debug builds should be allowed for testing)
-        if (BuildConfig.DEBUG && startDestination == "onboarding") {
-            settingsController.onAllowScreenshots()
-        }
-    }
+    /**
+     * Main screen navigation start check
+     */
+    val mainScreenController = rememberMainScreenController()
+
+    val onboardingSucceeded = mainScreenController.onboardingSucceeded
+
+    val startDestinationScreen = shouldOnboardingBeDone(onboardingSucceeded)
+
     val analytics = LocalAnalytics.current
     val analyticsState by analytics.screenState
+    val mlKitAccepted by mainScreenController.mlKitAcceptedState
     trackPopUps(analytics, analyticsState)
     var previousNavEntry by remember { mutableStateOf("main") }
-    trackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
     NavHost(
         navController,
-        startDestination = startDestination
+        startDestination = AppSecurityRoutes.subGraphName()
     ) {
+        appSecurityGraph(navController = navController) {
+            navController.navigate(startDestinationScreen) {
+                popUpTo(AppSecurityRoutes.DeviceCheckLoadingScreen.path()) {
+                    inclusive = true
+                }
+            }
+        }
         composable(MainNavigationScreens.Onboarding.route) {
-            OnboardingScreen(
-                mainNavController = navController,
-                settingsController = settingsController
-            )
+            OnboardingScreen {
+                navController.navigate(MainNavigationScreens.Prescriptions.path()) {
+                    launchSingleTop = true
+                    popUpTo(MainNavigationScreens.Onboarding.path()) {
+                        inclusive = true
+                    }
+                }
+            }
         }
         composable(MainNavigationScreens.DataProtection.route) {
             NavigationAnimation(mode = navigationMode) {
@@ -496,8 +503,7 @@ fun MainScreenNavigation(
             MainNavigationScreens.Settings.arguments
         ) {
             SettingsScreen(
-                mainNavController = navController,
-                settingsController = settingsController
+                mainNavController = navController
             )
         }
         composable(MainNavigationScreens.Camera.route) {
@@ -511,8 +517,13 @@ fun MainScreenNavigation(
             )
             MainScreenScaffoldContainer(
                 mainNavController = navController,
-                onDeviceIsInsecure = {
-                    navController.navigate(MainNavigationScreens.IntegrityNotOkScreen.path())
+                mainScreenController = mainScreenController,
+                onClickAddPrescription = {
+                    if (mlKitAccepted) {
+                        navController.navigate(MainNavigationScreens.MlKitIntroScreen.path())
+                    } else {
+                        navController.navigate(MainNavigationScreens.Camera.path())
+                    }
                 }
             )
         }
@@ -536,44 +547,22 @@ fun MainScreenNavigation(
                 }
             )
         }
-        composable(MainNavigationScreens.InsecureDeviceScreen.route) {
-            @Requirement(
-                "O.Plat_1#4",
-                sourceSpecification = "BSI-eRp-ePA",
-                rationale = "insecure Devices warning."
-            )
-            InsecureDeviceScreen(
-                stringResource(id = R.string.insecure_device_title),
-                painterResource(id = R.drawable.laptop_woman_yellow),
-                stringResource(id = R.string.insecure_device_header),
-                stringResource(id = R.string.insecure_device_info),
-                stringResource(id = R.string.insecure_device_accept)
-            ) {
-                navController.navigate(MainNavigationScreens.Prescriptions.route)
-            }
-        }
         composable(MainNavigationScreens.MlKitIntroScreen.route) {
             MlKitIntroScreen(
-                navController,
-                settingsController
+                onAcceptMLKit = {
+                    mainScreenController.acceptMLKit()
+                    navController.navigate(MainNavigationScreens.Camera.path())
+                },
+                onClickReadMore = {
+                    navController.navigate(MainNavigationScreens.MlKitInformationScreen.path())
+                },
+                onBack = { navController.popBackStack() }
             )
         }
         composable(MainNavigationScreens.MlKitInformationScreen.route) {
             MlKitInformationScreen(
                 navController
             )
-        }
-        composable(MainNavigationScreens.IntegrityNotOkScreen.route) {
-            InsecureDeviceScreen(
-                stringResource(id = R.string.insecure_device_title_safetynet),
-                painterResource(id = R.drawable.laptop_woman_pink),
-                stringResource(id = R.string.insecure_device_header_safetynet),
-                stringResource(id = R.string.insecure_device_info_safetynet),
-                stringResource(id = R.string.insecure_device_accept_safetynet),
-                pinUseCase = false
-            ) {
-                navController.navigate(MainNavigationScreens.Prescriptions.route)
-            }
         }
         composable(
             MainNavigationScreens.Redeem.route
@@ -688,11 +677,7 @@ fun MainScreenNavigation(
                 AllowAnalyticsScreen(
                     onBack = { navController.popBackStack() },
                     onAllowAnalytics = {
-                        if (it) {
-                            settingsController.onTrackingAllowed()
-                        } else {
-                            settingsController.onTrackingDisallowed()
-                        }
+                        mainScreenController.allowAnalytics(it)
                     }
                 )
             }
@@ -700,8 +685,12 @@ fun MainScreenNavigation(
         composable(MainNavigationScreens.Password.route) {
             NavigationAnimation(mode = navigationMode) {
                 SecureAppWithPassword(
-                    navController,
-                    settingsController
+                    onSelectPasswordAsAuthenticationMode = { password ->
+                        mainScreenController.selectPasswordAsAuthenticationMode(password)
+                    },
+                    onBack = {
+                        navController.popBackStack()
+                    }
                 )
             }
         }
@@ -789,11 +778,10 @@ fun MainScreenNavigation(
 }
 
 @Composable
-private fun checkFirstAppStart(settingsController: SettingsController) =
-    if (settingsController.showOnboarding) {
-        MainNavigationScreens.Onboarding.route
-    } else {
-        MainNavigationScreens.Prescriptions.route
+private fun shouldOnboardingBeDone(onboardingSucceeded: Boolean): String =
+    when (onboardingSucceeded) {
+        true -> MainNavigationScreens.Prescriptions.route
+        false -> MainNavigationScreens.Onboarding.route
     }
 
 @Composable

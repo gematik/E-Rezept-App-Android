@@ -18,10 +18,11 @@
 
 package de.gematik.ti.erp.app.pkv
 
+import de.gematik.ti.erp.app.di.ModuleNames
 import org.kodein.di.DI
 import org.kodein.di.bind
 import org.kodein.di.instance
 
-val fileProviderAuthorityModule = DI.Module("fileProviderAuthorityModule") {
+val fileProviderAuthorityModule = DI.Module(ModuleNames.fileProviderAuthorityModule) {
     bind<FileProviderAuthority>() with instance(DefaultFileProviderAuthority())
 }

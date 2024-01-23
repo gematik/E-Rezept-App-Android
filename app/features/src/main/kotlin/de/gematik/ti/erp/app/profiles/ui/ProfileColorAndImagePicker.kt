@@ -95,18 +95,21 @@ fun ProfileColorAndImagePicker(
                 actions = {}
             )
         }
-    ) {
+    ) { paddingValues ->
         LazyColumn(
             state = listState,
             modifier = Modifier
-                .padding(it)
+                .padding(paddingValues)
                 .fillMaxSize(),
             contentPadding = PaddingValues(PaddingDefaults.Medium)
         ) {
             item {
                 SpacerMedium()
                 ProfileImage(editableProfile) {
-                    editableProfile = editableProfile.copy(image = null)
+                    editableProfile = editableProfile.copy(
+                        avatar = ProfilesData.Avatar.PersonalizedImage,
+                        image = null
+                    )
                     clearPersonalizedImage()
                 }
             }
@@ -148,7 +151,7 @@ fun ProfileColorAndImagePicker(
 @Composable
 fun AvatarPicker(
     profile: ProfilesUseCaseData.Profile,
-    currentAvatar: ProfilesData.Avatar,
+    currentAvatar: ProfilesData.Avatar?,
     onPickPersonalizedImage: () -> Unit,
     onSelectAvatar: (ProfilesData.Avatar) -> Unit
 ) {
@@ -220,7 +223,7 @@ fun AvatarSelector(
                 emptyIcon = Icons.Rounded.AddAPhoto,
                 modifier = Modifier.size(24.dp),
                 profile = profile,
-                figure = figure
+                avatar = figure
             )
         }
     }
@@ -276,7 +279,10 @@ fun ColorPicker(
 }
 
 @Composable
-fun ProfileImage(selectedProfile: ProfilesUseCaseData.Profile, onClickDeleteAvatar: () -> Unit) {
+fun ProfileImage(
+    selectedProfile: ProfilesUseCaseData.Profile,
+    onClickDeleteAvatar: () -> Unit
+) {
     val colors = profileColor(profileColorNames = selectedProfile.color)
 
     Column(
@@ -300,7 +306,7 @@ fun ProfileImage(selectedProfile: ProfilesUseCaseData.Profile, onClickDeleteAvat
                     modifier = Modifier.size(36.dp),
                     profile = selectedProfile,
                     emptyIcon = Icons.Rounded.PersonOutline,
-                    figure = selectedProfile.avatar,
+                    avatar = selectedProfile.avatar,
                     showPersonalizedImage = selectedProfile.image != null
                 )
             }
@@ -316,7 +322,11 @@ fun ProfileImage(selectedProfile: ProfilesUseCaseData.Profile, onClickDeleteAvat
                         .background(AppTheme.colors.neutral050)
                         .border(1.dp, color = AppTheme.colors.neutral000, shape = RoundedCornerShape(16.dp))
                 ) {
-                    IconButton(onClick = onClickDeleteAvatar) {
+                    IconButton(
+                        onClick = {
+                            onClickDeleteAvatar()
+                        }
+                    ) {
                         Icon(
                             imageVector = Icons.Rounded.Close,
                             tint = AppTheme.colors.neutral600,

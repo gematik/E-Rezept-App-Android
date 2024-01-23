@@ -18,7 +18,9 @@
 
 package de.gematik.ti.erp.app.utils.compose
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -45,8 +47,10 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.features.R
@@ -62,13 +66,13 @@ fun EditableHeaderTextField(
     onSaveText: (String) -> Unit
 ) {
     var isEditing by remember { mutableStateOf(false) }
-
-    var name by remember {
-        mutableStateOf(text)
-    }
+    var name by remember { mutableStateOf(text) }
 
     if (isEditing) {
-        EditableTextField(text, textMinLength) {
+        EditableTextField(
+            text = text,
+            textMinLength = textMinLength
+        ) {
             onSaveText(it)
             isEditing = false
             name = it
@@ -112,60 +116,54 @@ private fun EditIconButton(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun EditableTextField(
+fun EditableTextField(
+    modifier: Modifier = Modifier,
     text: String,
     textMinLength: Int,
-    onSaveText: (String) -> Unit
+    onDoneClicked: (String) -> Unit
 ) {
-    var name by remember {
-        mutableStateOf(text)
-    }
+    var name by remember { mutableStateOf(TextFieldValue(text)) }
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
     var isError by remember { mutableStateOf(false) }
 
-    val keyboardOption = KeyboardOptions.Default.copy(
-        imeAction = ImeAction.Done
-    )
-
-    val keyboardActionsDone = KeyboardActions(
-        onDone = {
-            if (!isError) {
-                focusManager.clearFocus()
-                keyboardController?.hide()
-                onSaveText(name.trim())
-            }
-        }
-    )
-
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
 
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
-            modifier = Modifier.wrapContentWidth().focusRequester(focusRequester),
+            modifier = Modifier.focusRequester(focusRequester),
             colors = basicTextFieldColors,
             textStyle = AppTheme.typography.h5.copy(textAlign = TextAlign.Center),
-            keyboardOptions = keyboardOption,
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
             isError = isError,
-            label = {
-                if (isError) {
-                    Text(stringResource(R.string.empty_scanned_prescription_name))
-                }
-            },
             value = name,
-            keyboardActions = keyboardActionsDone,
             onValueChange = {
-                name = it.trimStart()
-                isError = name.length < textMinLength
-            }
+                name = it
+                isError = name.text.length < textMinLength
+            },
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    if (!isError) {
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                        onDoneClicked(name.text.trim())
+                    }
+                }
+            )
         )
+        AnimatedVisibility(isError) {
+            SpacerTiny()
+            ErrorText(
+                modifier = Modifier.testTag(ErrorTextTag),
+                text = stringResource(R.string.empty_scanned_prescription_name)
+            )
+        }
     }
 }
 

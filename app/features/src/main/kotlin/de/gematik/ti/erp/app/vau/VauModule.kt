@@ -61,11 +61,12 @@ val vauModule = DI.Module("vauModule") {
     }
     bindSingleton<TruststoreTimeSourceProvider> { { Clock.System.now() } }
     bindSingleton<TrustedTruststoreProvider> {
-        { untrustedOCSPList: UntrustedOCSPList,
-            untrustedCertList: UntrustedCertList,
-            trustAnchor: X509CertificateHolder,
-            ocspResponseMaxAge: Duration,
-            timestamp: Instant ->
+        {
+                untrustedOCSPList: UntrustedOCSPList,
+                untrustedCertList: UntrustedCertList,
+                trustAnchor: X509CertificateHolder,
+                ocspResponseMaxAge: Duration,
+                timestamp: Instant ->
             TrustedTruststore.create(
                 untrustedOCSPList = untrustedOCSPList,
                 untrustedCertList = untrustedCertList,

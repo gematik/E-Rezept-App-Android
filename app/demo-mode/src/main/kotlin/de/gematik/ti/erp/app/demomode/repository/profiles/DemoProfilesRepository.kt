@@ -20,6 +20,9 @@ package de.gematik.ti.erp.app.demomode.repository.profiles
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.create
+import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
+import de.gematik.ti.erp.app.demomode.model.toProfile
+import de.gematik.ti.erp.app.demomode.model.toProfiles
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Add
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.NoAction
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository.ImageActions.Remove
@@ -28,20 +31,25 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
+import java.util.UUID
 
 class DemoProfilesRepository(
     private val dataSource: DemoModeDataSource,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : ProfileRepository {
 
-    override fun profiles() = dataSource.profiles
+    private fun demoModeProfiles(): MutableStateFlow<MutableList<DemoModeProfile>> = dataSource.profiles
+    override fun profiles(): Flow<List<ProfilesData.Profile>> = demoModeProfiles()
+        .mapNotNull(MutableList<DemoModeProfile>::toProfiles)
 
-    override fun activeProfile() = profiles().mapNotNull {
-        it.find { profile -> profile.active }
+    override fun activeProfile() = demoModeProfiles().mapNotNull {
+        it.find { profile -> profile.active }?.toProfile()
     }
 
     override suspend fun saveProfile(profileName: String, activate: Boolean) {
@@ -142,11 +150,13 @@ class DemoProfilesRepository(
         // Not for demo mode, will come later
     }
 
-    private fun MutableList<ProfilesData.Profile>.index(profileId: ProfileIdentifier) =
+    override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean = false
+
+    private fun MutableList<DemoModeProfile>.index(profileId: ProfileIdentifier) =
         indexOfFirst { profile -> profile.id == profileId }
             .takeIf { it != INDEX_OUT_OF_BOUNDS }
 
-    private fun MutableList<ProfilesData.Profile>.replace(
+    private fun MutableList<DemoModeProfile>.replace(
         profileId: ProfileIdentifier,
         activate: Boolean? = null,
         name: String? = null,
@@ -155,10 +165,11 @@ class DemoProfilesRepository(
         avatar: ProfilesData.Avatar? = null,
         profileImage: ByteArray? = null,
         imageAction: ImageActions = NoAction
-    ): MutableList<ProfilesData.Profile> =
+    ): MutableList<DemoModeProfile> =
         index(profileId)?.let { index ->
             val existingProfile = this[index]
             this[index] = this[index].copy(
+                demoModeId = existingProfile.demoModeId,
                 active = activate ?: existingProfile.active,
                 name = name ?: existingProfile.name,
                 color = color ?: existingProfile.color,
@@ -173,13 +184,13 @@ class DemoProfilesRepository(
             this
         } ?: this
 
-    private fun List<ProfilesData.Profile>.deactivateAllProfiles() =
+    private fun List<DemoModeProfile>.deactivateAllProfiles() =
         mapNotNull {
             it.copy(active = false)
         }.toMutableList()
 
-    private fun MutableList<ProfilesData.Profile>.updateUUIDForChangeVisibility() = this
-    // map { it.copy(id = UUID.randomUUID().toString()) }.toMutableList()
+    private fun MutableList<DemoModeProfile>.updateUUIDForChangeVisibility() =
+        map { it.copy(demoModeId = UUID.randomUUID()) }.toMutableList()
 
     enum class ImageActions {
         Add, Remove, NoAction

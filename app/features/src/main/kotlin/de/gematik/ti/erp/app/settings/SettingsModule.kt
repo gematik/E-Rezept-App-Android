@@ -18,8 +18,22 @@
 
 package de.gematik.ti.erp.app.settings
 
+import de.gematik.ti.erp.app.analytics.usecase.ChangeAnalyticsStateUseCase
+import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
+import de.gematik.ti.erp.app.settings.usecase.AcceptMLKitUseCase
+import de.gematik.ti.erp.app.settings.usecase.AllowAnalyticsUseCase
+import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetOnboardingSucceededUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
+import de.gematik.ti.erp.app.settings.usecase.SaveOnboardingSuccededUseCase
+import de.gematik.ti.erp.app.settings.usecase.SavePasswordUseCase
+import de.gematik.ti.erp.app.settings.usecase.SaveToolTippsShownUseCase
+import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -31,4 +45,19 @@ val settingsModule = DI.Module("settingsModule") {
     bindProvider { CardWallRepository(prefs = instance(ApplicationPreferencesTag)) }
     bindProvider { SettingsRepository(instance(), instance()) }
     bindProvider { SettingsUseCase(instance(), instance()) }
+    bindProvider { IsAnalyticsAllowedUseCase(instance()) }
+    bindProvider { ChangeAnalyticsStateUseCase(instance()) }
+    bindProvider { GetScreenShotsAllowedUseCase(instance()) }
+    bindProvider { AllowScreenshotsUseCase(instance()) }
+    bindProvider { GetOnboardingSucceededUseCase(instance()) }
+    bindProvider { SaveOnboardingSuccededUseCase(instance()) }
+    bindProvider { AcceptMLKitUseCase(instance()) }
+    bindProvider { AllowAnalyticsUseCase(instance()) }
+    bindProvider { GetMLKitAcceptedUseCase(instance()) }
+    bindProvider { GetCanStartToolTipsUseCase(instance()) }
+    bindProvider { SaveToolTippsShownUseCase(instance()) }
+    bindProvider { SavePasswordUseCase(instance()) }
+    bindProvider { GetShowWelcomeDrawerUseCase(instance()) }
+    bindProvider { SaveWelcomeDrawerShownUseCase(instance()) }
+    // bindProvider { GetDeviceSecurityUseCase(instance(), instance()) }
 }

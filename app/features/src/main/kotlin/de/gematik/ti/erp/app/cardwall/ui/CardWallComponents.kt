@@ -80,7 +80,7 @@ import androidx.navigation.navOptions
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
 import de.gematik.ti.erp.app.cardwall.domain.biometric.deviceStrongBiometricStatus
@@ -159,7 +159,7 @@ fun CardWallScreen(
     }
 
     var previousNavEntry by remember { mutableStateOf("cardwall_introduction") }
-    trackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
 
     var cardAccessNumber
         by rememberSaveable { mutableStateOf("") }

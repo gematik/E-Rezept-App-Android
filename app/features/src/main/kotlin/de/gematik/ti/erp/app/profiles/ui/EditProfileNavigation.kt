@@ -32,9 +32,9 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import de.gematik.ti.erp.app.Route
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
+import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.pkv.ui.InvoiceDetailsScreen
 import de.gematik.ti.erp.app.pkv.ui.InvoiceInformationScreen
 import de.gematik.ti.erp.app.pkv.ui.InvoiceLocalCorrectionScreen
@@ -50,16 +50,16 @@ import de.gematik.ti.erp.app.utils.compose.NavigationMode
 import kotlinx.coroutines.launch
 
 object ProfileDestinations {
-    object Profile : Route("profile")
-    object Token : Route("profile_token")
-    object AuditEvents : Route("profile_auditEvents")
-    object PairedDevices : Route("profile_registeredDevices")
-    object ProfileImagePicker : Route("profile_editPicture")
-    object ProfileImageCropper : Route("profile_editPicture_imageCropper")
-    object Invoices : Route("chargeItem_list")
+    object Profile : Routes("profile")
+    object Token : Routes("profile_token")
+    object AuditEvents : Routes("profile_auditEvents")
+    object PairedDevices : Routes("profile_registeredDevices")
+    object ProfileImagePicker : Routes("profile_editPicture")
+    object ProfileImageCropper : Routes("profile_editPicture_imageCropper")
+    object Invoices : Routes("chargeItem_list")
 
     object InvoiceInformation :
-        Route(
+        Routes(
             "chargeItem_details",
             navArgument("taskId") { type = NavType.StringType }
         ) {
@@ -67,7 +67,7 @@ object ProfileDestinations {
     }
 
     object InvoiceDetails :
-        Route(
+        Routes(
             "chargeItem_details_expanded",
             navArgument("taskId") { type = NavType.StringType }
         ) {
@@ -75,7 +75,7 @@ object ProfileDestinations {
     }
 
     object InvoiceLocalCorrection :
-        Route(
+        Routes(
             "chargeItem_correct_locally",
             navArgument("taskId") { type = NavType.StringType }
         ) {
@@ -83,7 +83,7 @@ object ProfileDestinations {
     }
 
     object ShareInformation :
-        Route(
+        Routes(
             "chargeItem_share",
             navArgument("taskId") { type = NavType.StringType }
         ) {
@@ -102,7 +102,7 @@ fun EditProfileNavGraph(
     mainNavController: NavController
 ) {
     var previousNavEntry by remember { mutableStateOf("profile") }
-    trackNavigationChanges(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(navController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
     val scope = rememberCoroutineScope()
     val invoicesController = rememberInvoicesController(profileId = selectedProfile.id)
     val auditEventsController = rememberAuditEventsController()

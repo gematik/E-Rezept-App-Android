@@ -18,33 +18,47 @@
 
 package de.gematik.ti.erp.app.settings.ui
 
-import android.accessibilityservice.AccessibilityServiceInfo
-import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.analytics.usecase.ChangeAnalyticsStateUseCase
+import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
-@Suppress("TooManyFunctions")
 class SettingsController(
     private val settingsUseCase: SettingsUseCase,
+    private val isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
+    private val changeAnalyticsStateUseCase: ChangeAnalyticsStateUseCase,
+    getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
+    private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
+    private val scope: CoroutineScope,
     private val analytics: Analytics
 ) {
 
-    private val analyticsFlow = analytics.analyticsAllowed.map { SettingStatesData.AnalyticsState(it) }
+    private val analyticsFlow by lazy {
+        isAnalyticsAllowedUseCase().map { SettingStatesData.AnalyticsState(it) }
+    }
 
     val analyticsState
         @Composable
         get() = analyticsFlow.collectAsStateWithLifecycle(SettingStatesData.defaultAnalyticsState)
+
+    fun changeAnalyticsState(boolean: Boolean) {
+        scope.launch {
+            changeAnalyticsStateUseCase.invoke(boolean)
+        }
+    }
 
     private val authenticationModeFlow = settingsUseCase.authenticationMode.map {
         SettingStatesData.AuthenticationModeState(
@@ -62,13 +76,12 @@ class SettingsController(
         @Composable
         get() = zoomFlow.collectAsStateWithLifecycle(SettingStatesData.defaultZoomState)
 
-    private val screenShotFlow = settingsUseCase.general.map {
-        SettingStatesData.ScreenshotState(it.screenShotsAllowed)
-    }
+    private val screenShotsAllowed =
+        getScreenShotsAllowedUseCase.invoke()
 
-    val screenshotState
+    val screenShotsState
         @Composable
-        get() = screenShotFlow.collectAsStateWithLifecycle(SettingStatesData.defaultScreenshotState)
+        get() = screenShotsAllowed.collectAsStateWithLifecycle(false)
 
     suspend fun onSelectDeviceSecurityAuthenticationMode() {
         settingsUseCase.saveAuthenticationMode(
@@ -76,16 +89,8 @@ class SettingsController(
         )
     }
 
-    suspend fun onSelectPasswordAsAuthenticationMode(password: String) {
-        settingsUseCase.saveAuthenticationMode(SettingsData.AuthenticationMode.Password(password = password))
-    }
-
-    suspend fun onAllowScreenshots() {
-        settingsUseCase.saveAllowScreenshots(true)
-    }
-
-    suspend fun onDisAllowScreenshots() {
-        settingsUseCase.saveAllowScreenshots(false)
+    fun onAllowScreenshots(allow: Boolean) = scope.launch {
+        allowScreenshotsUseCase.invoke(allow)
     }
 
     suspend fun onEnableZoom() {
@@ -97,49 +102,20 @@ class SettingsController(
     }
 
     @Requirement(
-        "O.Purp_5#3",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Enable usage analytics."
-    )
-    fun onTrackingAllowed() {
-        analytics.allowAnalytics()
-    }
-
-    @Requirement(
         "O.Purp_5#4",
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Disable usage analytics."
     )
     fun onTrackingDisallowed() {
-        analytics.disallowAnalytics()
+        analytics.setAnalyticsPreference(false)
     }
-
-    suspend fun onboardingSucceeded(
-        authenticationMode: SettingsData.AuthenticationMode,
-        defaultProfileName: String,
-        allowTracking: Boolean
-    ) {
-        settingsUseCase.onboardingSucceeded(
-            authenticationMode = authenticationMode,
-            defaultProfileName = defaultProfileName
-        )
-        if (allowTracking) {
-            onTrackingAllowed()
-        } else {
-            onTrackingDisallowed()
-        }
-    }
-
-    var showOnboarding = runBlocking { settingsUseCase.showOnboarding.first() }
-    var showWelcomeDrawer = runBlocking { settingsUseCase.showWelcomeDrawer }
 
     private var insecureDevicePromptShown = false
     val showInsecureDevicePrompt = settingsUseCase
         .showInsecureDevicePrompt
         .map {
-            if (showOnboarding) {
-                false
-            } else if (!insecureDevicePromptShown) {
+            // onb ...
+            if (!insecureDevicePromptShown) {
                 insecureDevicePromptShown = true
                 it
             } else {
@@ -150,43 +126,27 @@ class SettingsController(
     suspend fun onAcceptInsecureDevice() {
         settingsUseCase.acceptInsecureDevice()
     }
-
-    suspend fun acceptMlKit() {
-        settingsUseCase.acceptMlKit()
-    }
-
-    suspend fun welcomeDrawerShown() {
-        settingsUseCase.welcomeDrawerShown()
-    }
-
-    suspend fun mainScreenTooltipsShown() {
-        settingsUseCase.mainScreenTooltipsShown()
-    }
-
-    fun showMainScreenToolTips(): Flow<Boolean> = settingsUseCase.general
-        .map { !it.mainScreenTooltipsShown && it.welcomeDrawerShown }
-
-    fun mlKitNotAccepted() =
-        settingsUseCase.general.map { !it.mlKitAccepted }
-
-    fun talkbackEnabled(context: Context): Boolean {
-        val accessibilityManager =
-            context.getSystemService(Context.ACCESSIBILITY_SERVICE) as android.view.accessibility.AccessibilityManager
-
-        return accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_SPOKEN)
-            .isNotEmpty()
-    }
 }
 
 @Composable
 fun rememberSettingsController(): SettingsController {
     val settingsUseCase by rememberInstance<SettingsUseCase>()
+    val isAnalyticsAllowedUseCase by rememberInstance<IsAnalyticsAllowedUseCase>()
+    val changeAnalyticsStateUseCase by rememberInstance<ChangeAnalyticsStateUseCase>()
+    val getScreenShotsAllowedUseCase by rememberInstance<GetScreenShotsAllowedUseCase>()
+    val allowScreenshotsUseCase by rememberInstance<AllowScreenshotsUseCase>()
     val analytics by rememberInstance<Analytics>()
+    val scope = rememberCoroutineScope()
 
     return remember {
         SettingsController(
-            settingsUseCase,
-            analytics
+            settingsUseCase = settingsUseCase,
+            isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
+            changeAnalyticsStateUseCase = changeAnalyticsStateUseCase,
+            getScreenShotsAllowedUseCase = getScreenShotsAllowedUseCase,
+            allowScreenshotsUseCase = allowScreenshotsUseCase,
+            analytics = analytics,
+            scope = scope
         )
     }
 }
@@ -213,14 +173,4 @@ object SettingStatesData {
     )
 
     val defaultZoomState = ZoomState(zoomEnabled = false)
-
-    @Immutable
-    data class ScreenshotState(
-        val screenshotsAllowed: Boolean
-    )
-
-    // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
-    val defaultScreenshotState = ScreenshotState(
-        screenshotsAllowed = false
-    )
 }

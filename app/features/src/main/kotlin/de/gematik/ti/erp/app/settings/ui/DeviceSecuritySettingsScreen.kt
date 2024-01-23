@@ -52,7 +52,7 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.userauthentication.ui.BiometricPrompt
+import de.gematik.ti.erp.app.userauthentication.ui.BiometricPromptWrapper
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -70,7 +70,7 @@ fun DeviceSecuritySettingsScreen(
     var showBiometricPrompt by rememberSaveable { mutableStateOf(false) }
 
     if (showBiometricPrompt) {
-        BiometricPrompt(
+        BiometricPromptWrapper(
             title = stringResource(R.string.auth_prompt_headline),
             description = "",
             negativeButton = stringResource(R.string.auth_prompt_cancel),

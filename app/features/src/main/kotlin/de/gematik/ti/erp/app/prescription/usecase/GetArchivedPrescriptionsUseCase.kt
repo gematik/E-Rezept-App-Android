@@ -31,6 +31,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 
+/**
+ * The prescription [repository] obtains the non-active
+ * scanned and synced prescriptions and sorts them
+ * by the redeemed date or expired date in a descending order and then
+ * by name.
+ *
+ */
 class GetArchivedPrescriptionsUseCase(
     private val repository: PrescriptionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -50,8 +57,11 @@ class GetArchivedPrescriptionsUseCase(
                 .filterNonActiveTasks()
                 .map(SyncedTask::toPrescription)
 
-            (syncedPrescriptions + scannedPrescriptions)
-                .sortedBy { it.taskId }
-                .sortedByDescending { it.redeemedOn ?: it.startedOn }
+            (syncedPrescriptions + scannedPrescriptions).sortArchives()
         }.flowOn(dispatcher)
+
+    companion object {
+        private fun List<Prescription>.sortArchives() =
+            sortedWith(compareByDescending<Prescription> { it.redeemedOn ?: it.expiresOn }.thenBy { it.name })
+    }
 }

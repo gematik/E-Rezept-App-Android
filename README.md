@@ -56,14 +56,30 @@ This repository is an [Kotlin Multiplatform Project](https://kotlinlang.org/docs
 ### Structure
 
 ```text
-|-- android
-|   `-- src
-|       |-- androidTest
-|       |-- debug
-|       |-- main
-|       |-- release
-|       |-- sharedTest
-|       `-- test
+|-- app
+|   `-- android
+|       `-- src
+|           |-- androidTest
+|           |-- main
+|           `-- test
+|   `-- android-mock
+|       `-- src
+|           |-- androidTest
+|           |-- main
+|           `-- test
+|   `-- demo-mode
+|       `-- src
+|           |-- main
+|   `-- features
+|       `-- src
+|           |-- debug
+|           |-- release
+|           |-- androidTest
+|           |-- main
+|           `-- test
+|   `-- shared-test
+|       `-- src
+|           |-- main  
 |-- common
 |   `-- src
 |       |-- androidMain
@@ -95,7 +111,7 @@ gradle :android:assemble(Google|Huawei)Pu(External|Internal)(Debug|Release) -Pbu
 
 *Note: Currently the android build variant is derived from the `buildkonfig.flavor` property.*
 
-The resulting `.apk` can be found in e.g. `android/build/outputs/apk/googlePuExternal/debug/`.
+The resulting `.apk` can be found in e.g. `app/android/build/outputs/apk/googlePuExternal/debug/`.
 
 #### Visualize Test Tags
 

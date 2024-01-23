@@ -76,7 +76,7 @@ val appModules = DI.Module("appModules") {
 
     bindProvider { AnalyticsUseCase(instance()) }
 
-    bindSingleton { Analytics(instance(), instance(ApplicationPreferencesTag), instance()) }
+    bindSingleton { Analytics(instance(), instance(), instance(), instance()) }
 
     importAll(
         buildConfigInformationModule,

@@ -40,7 +40,7 @@ fun AccessibilitySettingsScreen(onBack: () -> Unit) {
     val zoomState by settingsController.zoomState
     val scope = rememberCoroutineScope()
     val listState = rememberLazyListState()
-    val screenShotState by settingsController.screenshotState
+    val screenShotState by settingsController.screenShotsState
 
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.settings_accessibility_headline),
@@ -67,16 +67,9 @@ fun AccessibilitySettingsScreen(onBack: () -> Unit) {
             }
             item {
                 AllowScreenShotsSection(
-                    screenShotsAllowed = screenShotState.screenshotsAllowed
+                    screenShotsAllowed = screenShotState
                 ) { allow ->
-                    when (allow) {
-                        true -> scope.launch {
-                            settingsController.onAllowScreenshots()
-                        }
-                        false -> scope.launch {
-                            settingsController.onDisAllowScreenshots()
-                        }
-                    }
+                    settingsController.onAllowScreenshots(allow)
                 }
             }
         }

@@ -33,10 +33,6 @@ afterEvaluate {
     }
 }
 
-tasks.named("preBuild") {
-    dependsOn(":ktlint", ":detekt")
-}
-
 licenseReport {
     generateCsvReport = false
     generateHtmlReport = false
@@ -125,6 +121,17 @@ android {
                     keyPassword = "android"
                 }
             }
+        }
+        create("minifiedDebug") {
+            initWith(debug)
+            applicationIdSuffix = ".debug"
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            resValue("string", "app_label", "E-Rezept DebugRelease")
         }
     }
     flavorDimensions += listOf("version")

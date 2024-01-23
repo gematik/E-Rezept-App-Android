@@ -18,8 +18,9 @@
 
 package de.gematik.ti.erp.app.di
 
-import de.gematik.ti.erp.app.attestation.usecase.integrityModule
+import de.gematik.ti.erp.app.appsecurity.appSecurityModule
 import de.gematik.ti.erp.app.authentication.di.authenticationModule
+import de.gematik.ti.erp.app.timeouts.di.timeoutsSharedPrefsModule
 import de.gematik.ti.erp.app.cardunlock.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
 import de.gematik.ti.erp.app.idp.idpModule
@@ -43,10 +44,13 @@ import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.vau.vauModule
 import org.kodein.di.DI
 
+/**
+ * Use this only in the android-app module
+ */
 val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
     importAll(
         cardWallModule,
-        integrityModule,
+        appSecurityModule,
         networkModule,
         realmModule,
         idpModule,
@@ -70,6 +74,7 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         pharmacyRepositoryModule,
         messageRepositoryModule,
         taskRepositoryModule,
+        timeoutsSharedPrefsModule,
         allowOverride = true
     )
 }

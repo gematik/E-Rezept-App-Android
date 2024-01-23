@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.Route
+import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.orderhealthcard.usecase.HealthCardOrderUseCase
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,9 +30,9 @@ import kotlinx.coroutines.flow.combine
 import org.kodein.di.compose.rememberInstance
 
 object HealthCardOrderNavigationScreens {
-    object HealthCardOrder : Route("contactInsuranceCompany")
-    object SelectOrderOption : Route("contactInsuranceCompany_selectReason")
-    object HealthCardOrderContact : Route("contactInsuranceCompany_selectMethod")
+    object HealthCardOrder : Routes("contactInsuranceCompany")
+    object SelectOrderOption : Routes("contactInsuranceCompany_selectReason")
+    object HealthCardOrderContact : Routes("contactInsuranceCompany_selectMethod")
 }
 
 class HealthCardOrderState(

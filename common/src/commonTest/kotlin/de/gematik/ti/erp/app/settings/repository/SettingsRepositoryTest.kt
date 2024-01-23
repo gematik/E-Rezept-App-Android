@@ -34,9 +34,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant
+import org.junit.Before
 import org.junit.Rule
-import kotlin.test.Test
-import kotlin.test.BeforeTest
+import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
@@ -47,9 +47,9 @@ class SettingsRepositoryTest : TestDB() {
 
     lateinit var realm: Realm
 
-    lateinit var repo: SettingsRepository
+    private lateinit var repo: SettingsRepository
 
-    @BeforeTest
+    @Before
     fun setUp() {
         realm = Realm.open(
             RealmConfiguration.Builder(

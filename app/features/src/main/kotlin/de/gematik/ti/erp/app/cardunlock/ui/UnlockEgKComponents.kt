@@ -45,7 +45,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.analytics.trackNavigationChanges
+import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.model.UnlockEgkNavigation
 import de.gematik.ti.erp.app.cardwall.ui.CardAccessNumber
@@ -97,7 +97,7 @@ fun UnlockEgKScreen(
     val unlockNavController = rememberNavController()
     var previousNavEntry by remember { mutableStateOf("healthCardPassword_introduction") }
 
-    trackNavigationChanges(unlockNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
+    trackNavigationChangesAsync(unlockNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
 
     var cardAccessNumber by rememberSaveable { mutableStateOf("") }
     var personalUnblockingKey by rememberSaveable { mutableStateOf("") }

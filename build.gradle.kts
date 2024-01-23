@@ -25,7 +25,7 @@ plugins {
 
     id("io.realm.kotlin") version "1.7.1" apply false
 
-    // TODO: Update to latest version : https://github.com/JetBrains/compose-multiplatform/blob/master/VERSIONING.md
+    // TODO: Update to latest version : https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compatibility-and-versioning.html#kotlin-compatibility
     id("org.jetbrains.kotlin.android") version "1.9.10" apply false
 
     id("org.jetbrains.compose") version "1.5.3" apply false
@@ -35,8 +35,8 @@ plugins {
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
 
     id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
-    id("org.jetbrains.kotlin.jvm") version "1.9.0" apply false
 
+    id("org.jetbrains.kotlin.jvm") version "1.9.0" apply false
 }
 
 val ktlintMain: Configuration by configurations.creating
@@ -54,21 +54,20 @@ dependencies {
 val sourcesKt = listOf(
     "app/android/src/**/de/gematik/**/*.kt",
     "app/features/src/**/de/gematik/**/*.kt",
+    "app/demo-mode/src/**/de/gematik/**/*.kt",
     "common/src/**/de/gematik/**/*.kt",
     "desktop/src/**/de/gematik/**/*.kt",
     "rules/src/**/de/gematik/**/*.kt",
     "smartcard-wrapper/src/**/de/gematik/**/*.kt",
-    "plugins/*/src/**/*.kt",
-
-    "**/*.gradle.kts"
+    "plugins/*/src/**/*.kt"
 )
 
 detekt {
+    autoCorrect = false
     source =
         fileTree(rootDir) {
             include(sourcesKt)
-        }
-            .filter { it.extension != "kts" }
+        }.filter { it.extension != "kts" }
             .map { it.parentFile }
             .let {
                 files(*it.toTypedArray())
@@ -107,9 +106,9 @@ tasks.register("clean", Delete::class) {
 }
 
 fun isUnstable(version: String): Boolean =
-    version.contains("alpha", ignoreCase = true)
-        || version.contains("rc", ignoreCase = true)
-        || version.contains("beta", ignoreCase = true)
+    version.contains("alpha", ignoreCase = true) ||
+        version.contains("rc", ignoreCase = true) ||
+        version.contains("beta", ignoreCase = true)
 
 tasks.withType<DependencyUpdatesTask> {
     outputFormatter = "txt,html"

@@ -92,11 +92,11 @@ class DemoIdpUseCase(
         // no implementation for demo mode
     }
 
-    override suspend fun getPairedDevices(profileId: ProfileIdentifier): Result<List<Pair<PairingResponseEntry, PairingData>>> =
-        withContext(dispatcher) {
-            val device = dataSource.pairedDevices.map { it.toList() }.first()
-            Result.success(device)
-        }
+    override suspend fun getPairedDevices(profileId: ProfileIdentifier):
+        Result<List<Pair<PairingResponseEntry, PairingData>>> = withContext(dispatcher) {
+        val device = dataSource.pairedDevices.map { it.toList() }.first()
+        Result.success(device)
+    }
 
     override suspend fun deletePairedDevice(profileId: ProfileIdentifier, deviceAlias: String): Result<Unit> =
         withContext(dispatcher) {

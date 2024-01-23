@@ -32,14 +32,12 @@ import de.gematik.ti.erp.app.orders.ui.OrderScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionsScreen
 import de.gematik.ti.erp.app.prescription.ui.rememberPrescriptionsController
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfilesController
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.settings.ui.SettingsScreen
 
 @Composable
 internal fun MainScreenContentNavHost(
     modifier: Modifier,
     mainScreenController: MainScreenController,
-    settingsController: SettingsController,
     mainNavController: NavController,
     bottomNavController: NavHostController,
     onElevateTopBar: (Boolean) -> Unit,
@@ -91,8 +89,7 @@ internal fun MainScreenContentNavHost(
                 MainNavigationScreens.Settings.arguments
             ) {
                 SettingsScreen(
-                    mainNavController = mainNavController,
-                    settingsController = settingsController
+                    mainNavController = mainNavController
                 )
             }
         }

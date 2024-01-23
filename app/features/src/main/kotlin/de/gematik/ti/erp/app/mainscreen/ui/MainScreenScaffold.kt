@@ -40,19 +40,20 @@ import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenContentNavHost
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.profiles.presentation.ProfilesController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 
 @Composable
 internal fun MainScreenScaffold(
+    modifier: Modifier = Modifier,
     mainScreenController: MainScreenController,
-    settingsController: SettingsController,
     profilesController: ProfilesController,
     mainNavController: NavController,
     bottomNavController: NavHostController,
+    showToolTipps: Boolean,
     tooltipBounds: MutableState<Map<Int, Rect>>,
     onClickAddProfile: () -> Unit,
     onClickChangeProfileName: (ProfilesUseCaseData.Profile) -> Unit,
     onClickAvatar: () -> Unit,
+    onClickAddPrescription: () -> Unit,
     scaffoldState: ScaffoldState
 ) {
     val currentBottomNavigationRoute by bottomNavController.currentBackStackEntryFlow.collectAsStateWithLifecycle(null)
@@ -66,19 +67,19 @@ internal fun MainScreenScaffold(
     var topBarElevated by remember { mutableStateOf(true) }
 
     Scaffold(
-        modifier = Modifier.testTag(TestTag.Main.MainScreen),
+        modifier = Modifier.testTag(TestTag.Main.MainScreen).then(modifier),
         topBar = {
             if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
                 MultiProfileTopAppBar(
                     mainScreenController = mainScreenController,
-                    settingsController = settingsController,
                     profilesController = profilesController,
-                    navController = mainNavController,
                     isInPrescriptionScreen = isInPrescriptionScreen,
+                    showToolTipps = showToolTipps,
                     tooltipBounds = tooltipBounds,
                     elevated = topBarElevated,
                     onClickAddProfile = onClickAddProfile,
-                    onClickChangeProfileName = onClickChangeProfileName
+                    onClickChangeProfileName = onClickChangeProfileName,
+                    onClickAddPrescription = onClickAddPrescription
                 )
             }
         },
@@ -106,7 +107,6 @@ internal fun MainScreenScaffold(
         MainScreenContentNavHost(
             modifier = Modifier.padding(innerPadding),
             mainScreenController = mainScreenController,
-            settingsController = settingsController,
             mainNavController = mainNavController,
             bottomNavController = bottomNavController,
             onClickAvatar = onClickAvatar,

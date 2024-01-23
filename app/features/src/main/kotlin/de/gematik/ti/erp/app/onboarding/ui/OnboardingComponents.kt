@@ -22,9 +22,7 @@ package de.gematik.ti.erp.app.onboarding.ui
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -38,7 +36,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Icon
 import androidx.compose.material.Switch
@@ -52,7 +49,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -63,7 +59,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -74,16 +69,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.Route
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
+import de.gematik.ti.erp.app.navigation.Routes
 import de.gematik.ti.erp.app.onboarding.model.OnboardingSecureAppMethod
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreen
 import de.gematik.ti.erp.app.settings.ui.AllowBiometryScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
@@ -98,18 +91,16 @@ import de.gematik.ti.erp.app.utils.compose.visualTestTag
 import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
 import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
 import de.gematik.ti.erp.app.webview.WebViewScreen
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.math.max
 import kotlin.math.min
 
 object OnboardingNavigationScreens {
-    object Onboarding : Route("onboarding")
-    object Analytics : Route("onboarding_analytics")
-    object TermsOfUse : Route("onboarding_termsOfUse")
-    object DataProtection : Route("onboarding_dataProtection")
-    object Biometry : Route("onboarding_biometry")
+    object Onboarding : Routes("onboarding")
+    object Analytics : Routes("onboarding_analytics")
+    object TermsOfUse : Routes("onboarding_termsOfUse")
+    object DataProtection : Routes("onboarding_dataProtection")
+    object Biometry : Routes("onboarding_biometry")
 }
 
 private enum class OnboardingPages(val index: Int) {
@@ -130,13 +121,22 @@ private enum class OnboardingPages(val index: Int) {
 
 @Composable
 fun OnboardingScreen(
-    mainNavController: NavController,
-    settingsController: SettingsController
+    onOnboardingSucceeded: () -> Unit
 ) {
     val navController = rememberNavController()
-    val coroutineScope = rememberCoroutineScope()
+    val onboardingController = rememberOnboardingController()
 
-    var allowAnalytics by rememberSaveable { mutableStateOf(false) }
+    val isAnalyticsAllowed by onboardingController.isAnalyticsAllowedState
+
+    LaunchedEffect(Unit) {
+        // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
+        // (on debug builds should be allowed for testing)
+        if (BuildConfig.DEBUG) {
+            onboardingController.allowScreenshots(true)
+        }
+    }
+
+    var allowAnalytics by rememberSaveable { mutableStateOf(isAnalyticsAllowed) }
     var secureMethod by rememberSaveable { mutableStateOf<OnboardingSecureAppMethod>(OnboardingSecureAppMethod.None) }
 
     val navigationMode by navController.navigationModeState(OnboardingNavigationScreens.Onboarding.route)
@@ -154,34 +154,27 @@ fun OnboardingScreen(
                         secureMethod = it
                     },
                     allowTracking = allowAnalytics,
-                    onAllowTracking = {
+                    onAllowAnalytics = {
+                        onboardingController.changeAnalyticsState(it)
                         allowAnalytics = it
                     },
                     onSaveNewUser = { allowTracking, defaultProfileName, secureMethod ->
-                        coroutineScope.launch(Dispatchers.Main) {
-                            settingsController.onboardingSucceeded(
-                                authenticationMode = when (secureMethod) {
-                                    is OnboardingSecureAppMethod.DeviceSecurity ->
-                                        SettingsData.AuthenticationMode.DeviceSecurity
+                        onboardingController.onboardingSucceeded(
+                            authenticationMode = when (secureMethod) {
+                                is OnboardingSecureAppMethod.DeviceSecurity ->
+                                    SettingsData.AuthenticationMode.DeviceSecurity
 
-                                    is OnboardingSecureAppMethod.Password ->
-                                        SettingsData.AuthenticationMode.Password(
-                                            password = requireNotNull(secureMethod.checkedPassword)
-                                        )
+                                is OnboardingSecureAppMethod.Password ->
+                                    SettingsData.AuthenticationMode.Password(
+                                        password = requireNotNull(secureMethod.checkedPassword)
+                                    )
 
-                                    else -> error("Illegal state. Authentication must be set")
-                                },
-                                defaultProfileName = defaultProfileName,
-                                allowTracking = allowTracking
-                            )
-
-                            mainNavController.navigate(MainNavigationScreens.Prescriptions.path()) {
-                                launchSingleTop = true
-                                popUpTo(MainNavigationScreens.Onboarding.path()) {
-                                    inclusive = true
-                                }
-                            }
-                        }
+                                else -> error("Illegal state. Authentication must be set")
+                            },
+                            profileName = defaultProfileName,
+                            allowAnalytics = allowTracking
+                        )
+                        onOnboardingSucceeded()
                     }
                 )
             }
@@ -246,7 +239,7 @@ private fun OnboardingScreenWithScaffold(
     secureMethod: OnboardingSecureAppMethod,
     onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit,
     allowTracking: Boolean,
-    onAllowTracking: (Boolean) -> Unit,
+    onAllowAnalytics: (Boolean) -> Unit,
     onSaveNewUser: (
         allowTracking: Boolean,
         defaultProfileName: String,
@@ -275,7 +268,7 @@ private fun OnboardingScreenWithScaffold(
             secureMethod,
             onSaveNewUser,
             allowTracking,
-            onAllowTracking,
+            onAllowAnalytics,
             onSecureMethodChange
         ) {
             page = it
@@ -293,7 +286,6 @@ private fun OnboardingScreenWithScaffold(
     }
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun OnboardingPages(
     page: OnboardingPages,
@@ -342,7 +334,9 @@ private fun OnboardingPages(
                     secureMethod = secureMethod,
                     onSecureMethodChange = onSecureMethodChange,
                     onOpenBiometricScreen = {
-                        navController.navigate(OnboardingNavigationScreens.Biometry.path())
+                        navController.navigate(OnboardingNavigationScreens.Biometry.path()) {
+                            launchSingleTop = true
+                        }
                     },
                     onNextPage = { onNextPage(OnboardingPages.Analytics) }
                 )
@@ -677,7 +671,8 @@ private fun AnalyticsToggle(
     "A_19980#2",
     "A_19981#2",
     sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "The user is informed and required to accept this information via the data protection statement. Related data and services are listed in sections 5." // ktlint-disable max-line-length
+    rationale = "The user is informed and required to accept this information via the data protection statement." +
+        " Related data and services are listed in sections 5."
 )
 @Composable
 private fun DataTermsToggle(
@@ -703,21 +698,15 @@ private fun LargeToggle(
             .clip(RoundedCornerShape(PaddingDefaults.Medium))
             .background(AppTheme.colors.neutral100, shape = RoundedCornerShape(16.dp))
             .fillMaxWidth()
-            .toggleable(
-                value = checked,
-                onValueChange = onCheckedChange,
-                enabled = true,
-                role = Role.Switch,
-                interactionSource = remember { MutableInteractionSource() },
-                indication = LocalIndication.current
-            )
             .padding(PaddingDefaults.Medium),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
     ) {
         Switch(
             checked = checked,
-            onCheckedChange = null
+            onCheckedChange = onCheckedChange,
+            enabled = true,
+            interactionSource = remember { MutableInteractionSource() }
         )
         SpacerSmall()
         Text(

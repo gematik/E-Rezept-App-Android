@@ -18,10 +18,6 @@ plugins {
     id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
 }
 
-tasks.named("preBuild") {
-    dependsOn(":ktlint", ":detekt")
-}
-
 licenseReport {
     generateCsvReport = false
     generateHtmlReport = false
@@ -32,7 +28,7 @@ licenseReport {
 android {
     namespace = "${de.gematik.ti.erp.AppDependenciesPlugin.APP_NAME_SPACE}.demomode"
     defaultConfig {
-        testApplicationId = "de.gematik.ti.erp.app..demomode.test"
+        testApplicationId = "${de.gematik.ti.erp.AppDependenciesPlugin.APP_NAME_SPACE}.demomode.test"
     }
     kotlinOptions {
         jvmTarget = Dependencies.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
@@ -47,6 +43,9 @@ android {
                 it.name.startsWith("implementation") ||
                 it.name.startsWith("kapt")
         }.map { it.name }
+    }
+    buildTypes {
+        create("minifiedDebug")
     }
     // disable build config for demo-mode since we use only from features.
     // If needed we need a new-namespace
@@ -120,5 +119,9 @@ dependencies {
 
 secrets {
     defaultPropertiesFileName = if (project.rootProject.file("ci-overrides.properties").exists()
-    ) "ci-overrides.properties" else "gradle.properties"
+    ) {
+        "ci-overrides.properties"
+    } else {
+        "gradle.properties"
+    }
 }

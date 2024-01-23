@@ -220,7 +220,7 @@
     <string name="insecure_device_accept_safetynet">Ich nehme das erhöhte Risiko zur Kenntnis und möchte dennoch fortfahren.</string>
     <string name="insecure_device_safetynet_more_info">Weshalb sind Geräte mit Root-Zugriff ein potentielles Sicherheitsrisiko?</string>
     <string name="insecure_device_safetynet_link_text">Mehr erfahren</string>
-    <string name="insecure_device_safetynet_link">https://www.bsi.bund.de/SharedDocs/Glossareintraege/DE/R/Rooten.html</string>
+    <string name="insecure_device_safetynet_link" translatable="false">https://www.bsi.bund.de/SharedDocs/Glossareintraege/DE/R/Rooten.html</string>
     <string name="profile_edit_name">Name des Profils</string>
     <string name="profile_edit_name_info">Bitte geben Sie einen Namen für das neue Profil ein.</string>
     <string name="profile_edit_name_place_holder">Profilname</string>
@@ -916,4 +916,5 @@
     <string name="demo_mode_text">Demo-Modus aktiviert</string>
     <string name="demo_mode_cancel_button_text">Hier Beenden</string>
     <string name="demo_mode_settings_title">Demo-Modus aktivieren</string>
+    <string name="demo_mode_settings_end_title">Demo-Modus Beenden</string>
 </resources>

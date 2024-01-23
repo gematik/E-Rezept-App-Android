@@ -43,7 +43,7 @@ val prescriptionModule = DI.Module("prescriptionModule") {
     bindSingleton { PrescriptionLocalDataSource(instance()) }
     bindSingleton { PrescriptionRemoteDataSource(instance()) }
     bindSingleton { PrescriptionUseCase(instance(), instance(), instance()) }
-    bindSingleton { RefreshPrescriptionUseCase(instance(), instance(), instance()) }
+    bindSingleton { RefreshPrescriptionUseCase(instance(), instance(), instance(), instance(), instance()) }
     bindProvider { GetActivePrescriptionsUseCase(instance()) }
     bindProvider { GetArchivedPrescriptionsUseCase(instance()) }
     bindProvider { UpdateScannedTaskNameUseCase(instance()) }

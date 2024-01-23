@@ -38,9 +38,7 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
@@ -54,11 +52,9 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.min
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.settings.ui.SettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.Dialog
-import kotlinx.coroutines.launch
 
 enum class ArrowPosition {
     Top,
@@ -73,20 +69,13 @@ data class ToolTipState(
 
 @Composable
 fun ToolTips(
-    settingsController: SettingsController,
     isInPrescriptionScreen: Boolean,
-    toolTipBounds: MutableState<Map<Int, Rect>>
+    toolTipBounds: MutableState<Map<Int, Rect>>,
+    onToolTipsShown: () -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     var tooltipNr by remember { mutableStateOf(0) }
 
-    val showMainScreenTooltips by produceState(initialValue = false) {
-        settingsController.showMainScreenToolTips().collect {
-            value = it
-        }
-    }
-    if (isInPrescriptionScreen && showMainScreenTooltips) {
+    if (isInPrescriptionScreen) {
         when (tooltipNr) {
             0 -> ToolTip(
                 onDismissRequest = {
@@ -111,11 +100,7 @@ fun ToolTips(
             )
 
             2 -> ToolTip(
-                onDismissRequest = {
-                    coroutineScope.launch {
-                        settingsController.mainScreenTooltipsShown()
-                    }
-                },
+                onDismissRequest = onToolTipsShown,
                 tooltipState = ToolTipState(
                     arrowPosition = ArrowPosition.Top,
                     elementBound = toolTipBounds.value[2] ?: Rect.Zero
@@ -153,7 +138,7 @@ fun ToolTipWithArrowTop(
     val offset = with(LocalDensity.current) {
         DpOffset(
             x = tooltipState.elementBound.bottomCenter.x.toDp() - 12.dp,
-            y = tooltipState.elementBound.bottomCenter.y.toDp() + 4.dp
+            y = tooltipState.elementBound.bottomCenter.y.toDp() - 36.dp
         )
     }
 
@@ -199,7 +184,7 @@ fun ToolTipWithArrowRight(
     val offset = with(LocalDensity.current) {
         DpOffset(
             x = tooltipState.elementBound.centerLeft.x.toDp() - 231.dp,
-            y = tooltipState.elementBound.centerLeft.y.toDp() - 12.dp
+            y = tooltipState.elementBound.centerLeft.y.toDp() - 50.dp
         )
     }
 

@@ -31,6 +31,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
@@ -57,12 +58,12 @@ class DemoPrescriptionsRepository(
     }
 
     override fun scannedTasks(profileId: ProfileIdentifier): Flow<List<ScannedTask>> = dataSource.scannedTasks
+        .map { list -> list.filter { it.profileId == profileId } }
 
     override fun syncedTasks(profileId: ProfileIdentifier): Flow<List<SyncedTask>> =
         dataSource.syncedTasks.mapNotNull { taskList ->
             taskList.filter { it.profileId == profileId }.sortedBy { it.lastModified }
         }.flowOn(dispatcher)
-
 
     override suspend fun redeemPrescription(
         profileId: ProfileIdentifier,
@@ -88,7 +89,8 @@ class DemoPrescriptionsRepository(
             }
             dataSource.scannedTasks.value = dataSource.scannedTasks.updateAndGet {
                 val scannedList = it.toMutableList()
-                scannedList.removeIf { scannedItem -> scannedItem.taskId == taskId && scannedItem.profileId == profileId }
+                scannedList
+                    .removeIf { scannedItem -> scannedItem.taskId == taskId && scannedItem.profileId == profileId }
                 scannedList
             }
             Result.success(Unit)

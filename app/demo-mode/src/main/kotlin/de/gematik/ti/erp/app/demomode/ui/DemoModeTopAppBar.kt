@@ -40,7 +40,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
-import de.gematik.ti.erp.app.demomode.DemoModeActivity
+import de.gematik.ti.erp.app.demomode.DemoModeObserver
 
 @Suppress("ComposableNaming")
 @Composable
@@ -49,8 +49,8 @@ fun checkForDemoMode(
     demoModeContent: @Composable ColumnScope.() -> Unit,
     appContent: @Composable ColumnScope.() -> Unit
 ) {
-    val activity = LocalContext.current.getAsDemoModeActivity()
-    val isDemoMode = (activity)?.isDemoMode() ?: false
+    val demoModeObserver = LocalContext.current.getDemoModeObserver()
+    val isDemoMode = demoModeObserver?.isDemoMode() ?: false
     val systemUiController = rememberSystemUiController()
 
     Column(
@@ -77,7 +77,7 @@ fun DemoModeStatusBar(
 ) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .then(modifier)
             .background(backgroundColor),
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically
@@ -108,4 +108,4 @@ private fun Context.getActivity(): AppCompatActivity? {
     return null
 }
 
-internal fun Context.getAsDemoModeActivity(): DemoModeActivity? = getActivity() as? DemoModeActivity
+internal fun Context.getDemoModeObserver(): DemoModeObserver? = getActivity() as? DemoModeObserver

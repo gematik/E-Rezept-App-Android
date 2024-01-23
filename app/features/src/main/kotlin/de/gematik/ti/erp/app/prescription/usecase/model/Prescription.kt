@@ -25,9 +25,11 @@ import kotlinx.datetime.Instant
 
 @Immutable
 sealed interface Prescription {
+    val name: String?
     val taskId: String
     val redeemedOn: Instant?
     val startedOn: Instant?
+    val expiresOn: Instant?
 
     /**
      * Represents a single [Task] synchronized with the backend.
@@ -35,13 +37,13 @@ sealed interface Prescription {
     @Immutable
     data class SyncedPrescription(
         override val taskId: String,
+        override val name: String?,
         override val redeemedOn: Instant?,
+        override val expiresOn: Instant?,
         val state: SyncedTaskData.SyncedTask.TaskState,
-        val name: String?,
         val isIncomplete: Boolean,
         val organization: String,
         val authoredOn: Instant,
-        val expiresOn: Instant?,
         val acceptUntil: Instant?,
         val isDirectAssignment: Boolean,
         val prescriptionChipInformation: PrescriptionChipInformation
@@ -62,13 +64,14 @@ sealed interface Prescription {
     @Immutable
     data class ScannedPrescription(
         override val taskId: String,
+        override val name: String?,
         override val redeemedOn: Instant?,
         val scannedOn: Instant,
-        val name: String?,
         val index: Int,
         val communications: List<Communication>
     ) : Prescription {
         override val startedOn = scannedOn
+        override val expiresOn = null
     }
 
     fun redeemedOrExpiredOn(): Instant =

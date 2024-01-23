@@ -206,6 +206,14 @@ android {
         sourceCompatibility = Dependencies.Versions.JavaVersion.PROJECT_JAVA_VERSION
         targetCompatibility = Dependencies.Versions.JavaVersion.PROJECT_JAVA_VERSION
     }
+    buildTypes {
+        val debug by getting {
+            isJniDebuggable = true
+        }
+        create("minifiedDebug") {
+            initWith(debug)
+        }
+    }
     namespace = "de.gematik.ti.erp.lib"
 }
 enum class Platforms {

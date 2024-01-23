@@ -51,7 +51,7 @@ object Dependencies {
         private const val desugar_version = "2.0.3"
         const val desugaring = "com.android.tools:desugar_jdk_libs:$desugar_version"
         const val processPhoenix = "com.jakewharton:process-phoenix:2.1.2" // TODO: Not used
-        const val imageCropper = "com.github.CanHub:Android-Image-Cropper:4.3.2" // TODO: remove lib for cropping
+        const val imageCropper = "com.github.CanHub:Android-Image-Cropper:4.3.2"
     }
 
     object AndroidX {
@@ -64,7 +64,7 @@ object Dependencies {
         private const val security_crypto_version = "1.1.0-alpha06"
 
         private const val lifecycle_version = "2.6.2" // needs compile version 34 to go to a higher version
-        private const val compose_navigation_version = "2.6.0" // needs compile version 34 for 2.7.3
+        private const val compose_navigation_version = "2.7.0-beta01"
         private const val compose_activity_version = "1.7.2"
         private const val compose_paging_version = "3.2.1"
         private const val camerax_version = "1.3.0-beta01" // needs compile version 34 for 1.3.0-rc02
@@ -292,9 +292,11 @@ object Dependencies {
     }
 
     object Tracking {
-        private const val content_square_version = "4.21.0"
+        private const val content_square_version = "4.22.0"
 
         const val contentSquare = "com.contentsquare.android:library:$content_square_version"
+        const val contentSquareCompose = "com.contentsquare.android:compose:$content_square_version"
+        const val contentSquareErrorAnalysis = "com.contentsquare.android:error-analysis:$content_square_version"
     }
 
     object Test {

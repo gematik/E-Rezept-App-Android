@@ -47,14 +47,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyOrderController
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.deliveryUrlNotEmpty
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.isDeliveryWithoutContactUrls
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.isOnlineServiceWithoutContactUrls
-import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.isPickupWithoutContactUrls
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.onlineUrlNotEmpty
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.pickupUrlNotEmpty
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
@@ -65,6 +63,8 @@ import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.shortToast
 
 private const val MAX_OPTIONS = 3
+private const val DISABLED_ALPHA = 0.3f
+private const val ENABLED_ALPHA = 1f
 
 @Composable
 internal fun OrderSelection(
@@ -74,43 +74,25 @@ internal fun OrderSelection(
 ) {
     val directRedeemEnabled by pharmacyOrderController.isDirectRedeemEnabledState
 
-    val hasNoPickupContact = pharmacy.contacts.pickUpUrl.isEmpty()
-    val hasNoDeliveryContact = pharmacy.contacts.pickUpUrl.isEmpty()
-    val hasNoOnlineServiceContact = pharmacy.contacts.pickUpUrl.isEmpty()
-    val hasNoContacts = listOf(hasNoPickupContact, hasNoDeliveryContact, hasNoOnlineServiceContact)
+    val directRedeemUrlsNotPresent = pharmacy.directRedeemUrlsNotPresent
 
-    val hasNoContactUrls = hasNoContacts.all { it }
+    val (pickUpContactAvailable, deliveryContactAvailable, onlineContactAvailable) =
+        pharmacy.checkRedemptionAndContactAvailabilityForPharmacy(directRedeemEnabled)
 
-    // service availability checks
-    val pickUpServiceAvailable = directRedeemEnabled && pharmacy.pickupUrlNotEmpty()
-    val deliveryServiceAvailable = directRedeemEnabled && pharmacy.deliveryUrlNotEmpty()
-    val onlineServiceAvailable = directRedeemEnabled && pharmacy.onlineUrlNotEmpty()
+    val (pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible) =
+        pharmacy.checkServiceVisibility(
+            directRedeemUrlsNotPresent = directRedeemUrlsNotPresent,
+            deliveryServiceAvailable = deliveryContactAvailable,
+            onlineServiceAvailable = onlineContactAvailable
+        )
 
-    // visibility checks
-    val pickUpServiceVisible = pickUpServiceAvailable ||
-        pharmacy.pickupUrlNotEmpty() ||
-        pharmacy.isPickupWithoutContactUrls(hasNoContactUrls)
-
-    val deliveryServiceVisible = deliveryServiceAvailable ||
-        pharmacy.deliveryUrlNotEmpty() ||
-        pharmacy.isDeliveryWithoutContactUrls(hasNoContactUrls)
-
-    val onlineServiceVisible = onlineServiceAvailable ||
-        pharmacy.onlineUrlNotEmpty() ||
-        pharmacy.isOnlineServiceWithoutContactUrls(hasNoContactUrls)
-
-    // enabled checks
-    val pickupServiceEnabled = pharmacy.pickupUrlNotEmpty() ||
-        pickUpServiceAvailable ||
-        !directRedeemEnabled && pharmacy.isPickupService
-
-    val deliveryServiceEnabled = pharmacy.deliveryUrlNotEmpty() ||
-        deliveryServiceAvailable ||
-        !directRedeemEnabled && pharmacy.isDeliveryService
-
-    val onlineServiceEnabled = pharmacy.onlineUrlNotEmpty() ||
-        onlineServiceAvailable ||
-        !directRedeemEnabled && pharmacy.isOnlineService
+    val (pickupServiceEnabled, deliveryServiceEnabled, onlineServiceEnabled) =
+        pharmacy.checkServiceAvailability(
+            directRedeemEnabled = directRedeemEnabled,
+            pickUpContactAvailable = pickUpContactAvailable,
+            deliveryContactAvailable = deliveryContactAvailable,
+            onlineContactAvailable = onlineContactAvailable
+        )
 
     val numberOfServices = remember(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible) {
         listOf(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible).count { it }
@@ -170,7 +152,6 @@ internal fun OrderSelection(
     }
 }
 
-@Suppress("MagicNumber")
 @Composable
 private fun OrderButton(
     modifier: Modifier,
@@ -180,7 +161,7 @@ private fun OrderButton(
     image: Painter,
     onClick: () -> Unit
 ) {
-    val shape = RoundedCornerShape(16.dp)
+    val shape = RoundedCornerShape(PaddingDefaults.Medium)
     val serviceDisabledText = stringResource(R.string.connect_for_pharmacy_service)
     var showToast by remember { mutableStateOf(false) }
 
@@ -205,8 +186,8 @@ private fun OrderButton(
             .padding(PaddingDefaults.Medium)
             .alpha(
                 when {
-                    isServiceEnabled -> 1f
-                    else -> 0.3f
+                    isServiceEnabled -> ENABLED_ALPHA
+                    else -> DISABLED_ALPHA
                 }
             )
     ) {
@@ -227,4 +208,55 @@ private fun OrderButton(
     AnimatedVisibility(showToast) {
         shortToast(serviceDisabledText)
     }
+}
+
+private fun Pharmacy.checkRedemptionAndContactAvailabilityForPharmacy(
+    directRedeemEnabled: Boolean
+): Triple<Boolean, Boolean, Boolean> {
+    val pickUpServiceAvailable = directRedeemEnabled && pickupUrlNotEmpty()
+
+    val deliveryServiceAvailable = directRedeemEnabled && deliveryUrlNotEmpty()
+
+    val onlineServiceAvailable = directRedeemEnabled && onlineUrlNotEmpty()
+
+    return Triple(pickUpServiceAvailable, deliveryServiceAvailable, onlineServiceAvailable)
+}
+
+private fun Pharmacy.checkServiceVisibility(
+    directRedeemUrlsNotPresent: Boolean,
+    deliveryServiceAvailable: Boolean,
+    onlineServiceAvailable: Boolean
+): Triple<Boolean, Boolean, Boolean> {
+    val pickUpServiceVisible = pickupUrlNotEmpty() || directRedeemUrlsNotPresent
+
+    val deliveryServiceVisible = deliveryServiceAvailable ||
+        deliveryUrlNotEmpty() ||
+        isDeliveryWithoutContactUrls(directRedeemUrlsNotPresent)
+
+    val onlineServiceVisible = onlineServiceAvailable ||
+        onlineUrlNotEmpty() ||
+        isOnlineServiceWithoutContactUrls(directRedeemUrlsNotPresent)
+
+    return Triple(pickUpServiceVisible, deliveryServiceVisible, onlineServiceVisible)
+}
+
+private fun Pharmacy.checkServiceAvailability(
+    directRedeemEnabled: Boolean,
+    pickUpContactAvailable: Boolean,
+    deliveryContactAvailable: Boolean,
+    onlineContactAvailable: Boolean
+): Triple<Boolean, Boolean, Boolean> {
+    val pickupServiceEnabled = pickupUrlNotEmpty() ||
+        pickUpContactAvailable ||
+        !directRedeemEnabled && isPickupService
+
+    val deliveryServiceEnabled = deliveryUrlNotEmpty() ||
+        deliveryContactAvailable ||
+        !directRedeemEnabled && isDeliveryService
+
+    val onlineServiceEnabled = onlineUrlNotEmpty() ||
+        onlineContactAvailable ||
+        !directRedeemEnabled && isOnlineService
+
+    return Triple(pickupServiceEnabled, deliveryServiceEnabled, onlineServiceEnabled)
 }

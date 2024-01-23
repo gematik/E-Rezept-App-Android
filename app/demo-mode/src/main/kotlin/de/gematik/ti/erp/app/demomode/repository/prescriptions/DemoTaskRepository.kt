@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("MagicNumber")
+
 package de.gematik.ti.erp.app.demomode.repository.prescriptions
 
 import de.gematik.ti.erp.app.api.ResourcePaging.ResourceResult
@@ -43,6 +45,4 @@ class DemoTaskRepository(
     ): Result<ResourceResult<Int>> = Result.success(ResourceResult(0, 0))
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? = null
-
 }
-

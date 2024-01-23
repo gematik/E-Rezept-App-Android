@@ -16,6 +16,8 @@
  * 
  */
 
+@file:Suppress("TooManyFunctions", "MagicNumber")
+
 package de.gematik.ti.erp.app.demomode.repository.orders
 
 import de.gematik.ti.erp.app.api.ResourcePaging
@@ -107,7 +109,6 @@ class DemoCommunicationRepository(
         dataSource.syncedTasks.map { syncedTasks ->
             syncedTasks.find { it.taskId == taskId }
         }.flowOn(dispatcher)
-
 
     override fun loadScannedByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?> =
         dataSource.scannedTasks.map { scannedTask ->
@@ -234,14 +235,15 @@ class DemoCommunicationRepository(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun loadOrdersForActiveProfile() = findActiveProfile().flatMapLatest { loadOrdersByProfileId(it.id) }
 
-
     /**
      * Method added so that demoModeProfile02 always loads with some communication
      * and for other profiles we have to add it. [downloadCommunications] method takes
      * in profileId so this can be changed to a different profile later too
      */
-    private fun loadOrdersByProfileId(profileId: ProfileIdentifier):
-        Flow<MutableList<DemoModeProfileLinkedCommunication>> =
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun loadOrdersByProfileId(
+        profileId: ProfileIdentifier
+    ): Flow<MutableList<DemoModeProfileLinkedCommunication>> =
         // For the profile 2 we load it with some existing communications
         if (profileId == DemoProfileInfo.demoProfile02.id) {
             dataSource.profileCommunicationLog

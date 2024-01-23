@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.sync.Mutex
@@ -280,4 +281,14 @@ class DefaultProfilesRepository constructor(
             }
         }
     }
+
+    override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean =
+        getProfileById(profileId).first().insuranceType == InsuranceTypeV1.PKV
+
+    private fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> =
+        profiles().mapNotNull { profiles ->
+            profiles.find {
+                it.id == profileId
+            }
+        }
 }
