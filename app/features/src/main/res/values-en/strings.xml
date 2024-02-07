@@ -145,7 +145,7 @@
     <string name="alternate_auth_info">Please identify yourself in order to download prescriptions.</string>
     <string name="pharmacy_detail_data_info">Note to pharmacies: we obtain the contact details for and information about pharmacies from mein-apothekenportal.de provided by the Deutscher Apothekenverband e.V. Have you found an error or would you like to correct any data?</string>
     <string name="pharmacy_detail_data_info_btn">Find out more</string>
-    <string name="pres_bottombar_pharmacies">pharmacies</string>
+    <string name="pres_bottombar_pharmacies">Pharmacies</string>
     <string name="auth_subtitle_error">Unfortunately that didn\'t work \uD83D\uDE15</string>
     <string name="auth_info_error">Please try it again.</string>
     <string name="auth_prompt_enter_password">Enter password</string>
@@ -165,7 +165,7 @@
     <string name="pharmacy_detail_not_ready_header">Redeem on site only</string>
     <string name="pharmacy_detail_not_ready_info">You cannot yet send e-prescriptions to this pharmacy.</string>
     <string name="search_pharmacies_filter_open_now">Open now</string>
-    <string name="search_pharmacies_filter_delivery_service">courier service</string>
+    <string name="search_pharmacies_filter_delivery_service">Courier service</string>
     <string name="search_pharmacies_filter_online_service">Mail order</string>
     <string name="search_pharmacies_filter_header">Filters</string>
     <string name="search_pharmacies_filter">Filter</string>
