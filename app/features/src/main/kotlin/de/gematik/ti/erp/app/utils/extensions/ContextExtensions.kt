@@ -19,10 +19,34 @@
 package de.gematik.ti.erp.app.utils.extensions
 
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.nfc.NfcManager
 import android.os.Build
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
+import de.gematik.ti.erp.app.features.R
 
 fun Context.isGooglePlayServiceAvailable(): Boolean =
     Build.VERSION.SDK_INT >= Build.VERSION_CODES.P &&
         GoogleApiAvailability.getInstance().isGooglePlayServicesAvailable(this) == ConnectionResult.SUCCESS
+
+fun Context.hasNFCTerminal(): Boolean =
+    this.packageManager.hasSystemFeature(PackageManager.FEATURE_NFC)
+
+fun Context.isNfcEnabled(): Boolean = if (hasNFCTerminal()) {
+    val nfcManager = getSystemService(Context.NFC_SERVICE) as? NfcManager
+    nfcManager?.defaultAdapter?.isEnabled ?: false
+} else {
+    false
+}
+
+fun Context.openAppPlayStoreLink() {
+    startActivity(
+        Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse(getString(R.string.app_playstore_link))
+        )
+    )
+}

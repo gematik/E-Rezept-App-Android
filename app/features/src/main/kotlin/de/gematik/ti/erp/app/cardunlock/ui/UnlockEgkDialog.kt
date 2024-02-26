@@ -58,22 +58,24 @@ import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.base.onNfcNotEnabled
 import de.gematik.ti.erp.app.base.retryOnNfcEnabled
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
+import de.gematik.ti.erp.app.cardunlock.presentation.CardUnlockGraphController
+import de.gematik.ti.erp.app.cardunlock.presentation.ToggleUnlock
 import de.gematik.ti.erp.app.cardunlock.usecase.UnlockEgkState
-import de.gematik.ti.erp.app.cardwall.ui.CardAnimationBox
-import de.gematik.ti.erp.app.cardwall.ui.EnableNfcDialog
-import de.gematik.ti.erp.app.cardwall.ui.ErrorDialog
-import de.gematik.ti.erp.app.cardwall.ui.InfoText
-import de.gematik.ti.erp.app.cardwall.ui.pinRetriesLeft
-import de.gematik.ti.erp.app.cardwall.ui.rotatingScanCardAssistance
+import de.gematik.ti.erp.app.cardwall.ui.components.CardAnimationBox
+import de.gematik.ti.erp.app.cardwall.ui.components.EnableNfcDialog
+import de.gematik.ti.erp.app.cardwall.ui.components.ErrorDialog
+import de.gematik.ti.erp.app.cardwall.ui.components.InfoText
+import de.gematik.ti.erp.app.cardwall.ui.components.pinRetriesLeft
+import de.gematik.ti.erp.app.cardwall.ui.components.rotatingScanCardAssistance
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.info.BuildConfigInformation
-import de.gematik.ti.erp.app.settings.ui.buildFeedbackBodyWithDeviceInfo
-import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.toAnnotatedString
+import de.gematik.ti.erp.app.utils.openMailClient
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -104,16 +106,16 @@ fun rememberUnlockEgkDialogState(): UnlockEgkDialogState {
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
-@Suppress("LongMethod", "LongParameterList")
+@Suppress("LongMethod", "LongParameterList", "ComplexMethod")
 @Composable
 fun UnlockEgkDialog(
-    unlockMethod: UnlockMethod,
+    unlockMethod: String,
     dialogState: UnlockEgkDialogState,
-    unlockEgkController: UnlockEgkController,
+    graphController: CardUnlockGraphController,
     cardAccessNumber: String,
     personalUnblockingKey: String,
-    oldSecret: String,
-    newSecret: String,
+    oldPin: String,
+    newPin: String,
     buildConfig: BuildConfigInformation,
     onClickTroubleshooting: (() -> Unit)? = null,
     troubleShootingEnabled: Boolean = false,
@@ -139,12 +141,12 @@ fun UnlockEgkDialog(
                     if (it.value) {
                         showCardCommunicationDialog = true
                         emitAll(
-                            unlockEgkController.unlockEgk(
+                            graphController.unlockEgk(
                                 unlockMethod = unlockMethod,
                                 can = cardAccessNumber,
                                 puk = personalUnblockingKey,
-                                oldSecret = oldSecret,
-                                newSecret = newSecret,
+                                oldPin = oldPin,
+                                newPin = newPin,
                                 tag = activity.nfcTagFlow.onNfcNotEnabled {
                                     showEnableNfcDialog = true
                                 }
@@ -168,12 +170,12 @@ fun UnlockEgkDialog(
                         }
                     }
                     emitAll(
-                        unlockEgkController.unlockEgk(
+                        graphController.unlockEgk(
                             unlockMethod = unlockMethod,
                             can = cardAccessNumber,
                             puk = personalUnblockingKey,
-                            oldSecret = oldSecret,
-                            newSecret = newSecret,
+                            oldPin = oldPin,
+                            newPin = newPin,
                             tagFlow
                         )
                     )
@@ -276,21 +278,22 @@ private fun nextTextFromUnlockEgkState(state: UnlockEgkState): String {
     return nextText
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun resumeTextFromUnlockEgkState(
-    unlockMethod: UnlockMethod,
+    unlockMethod: String,
     state: UnlockEgkState
 ): Pair<AnnotatedString, AnnotatedString>? {
     val resumeText = when (state) {
         UnlockEgkState.HealthCardCommunicationFinished -> Pair(
-            if (unlockMethod == UnlockMethod.ChangeReferenceData ||
-                unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret
+            if (unlockMethod == UnlockMethod.ChangeReferenceData.name ||
+                unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret.name
             ) {
                 stringResource(R.string.unlock_egk_dialog_new_secret_saved).toAnnotatedString()
             } else {
                 stringResource(R.string.unlock_egk_unlock_success_header).toAnnotatedString()
             },
-            if (unlockMethod == UnlockMethod.ChangeReferenceData) {
+            if (unlockMethod == UnlockMethod.ChangeReferenceData.name) {
                 "".toAnnotatedString()
             } else {
                 stringResource(R.string.unlock_egk_unlock_success_info).toAnnotatedString()
@@ -350,7 +353,7 @@ private fun resumeTextFromUnlockEgkState(
 @Composable
 private fun ResumeDialog(
     state: UnlockEgkState,
-    unlockMethod: UnlockMethod,
+    unlockMethod: String,
     resumeText: Pair<AnnotatedString, AnnotatedString>,
     onFinishUnlock: () -> Unit,
     nextText: String,
@@ -394,7 +397,7 @@ private fun ResumeDialog(
                     onToggleUnlock(false)
                 },
                 onRetry = {
-                    if (unlockMethod == UnlockMethod.ChangeReferenceData) {
+                    if (unlockMethod == UnlockMethod.ChangeReferenceData.name) {
                         when (state) {
                             UnlockEgkState.HealthCardCardAccessNumberWrong -> onRetryCan()
                             UnlockEgkState.HealthCardPinRetriesLeft -> onRetryOldSecret()

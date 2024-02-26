@@ -21,18 +21,20 @@
 package de.gematik.ti.erp.app.settings.ui
 
 import android.content.Context
-import android.os.Build
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -86,28 +88,36 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.navigation.TrackingScreenRoutes
-import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
+import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.debugsettings.navigation.SampleScreenRoutes
+import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
+import de.gematik.ti.erp.app.demomode.startAppWithDemoMode
+import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
+import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.ProfileController
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.Avatar
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.containsProfileWithName
+import de.gematik.ti.erp.app.settings.navigation.SettingsNavigationScreens
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
@@ -115,183 +125,268 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.handleIntent
-import de.gematik.ti.erp.app.utils.compose.navigationModeState
-import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
 import de.gematik.ti.erp.app.utils.extensions.sanitizeProfileName
+import de.gematik.ti.erp.app.utils.openMailClient
 import org.kodein.di.compose.rememberInstance
 import java.util.Locale
 
-@Composable
-fun SettingsScreen(
-    mainNavController: NavController
-) {
-    val buildConfig by rememberInstance<BuildConfigInformation>()
-    val settingsNavController = rememberNavController()
-    val settingsController = rememberSettingsController()
-    var previousNavEntry by remember { mutableStateOf("settings") }
-    trackNavigationChangesAsync(settingsNavController, previousNavEntry, onNavEntryChange = { previousNavEntry = it })
-    val navigationMode by settingsNavController.navigationModeState(SettingsNavigationScreens.Settings.route)
+class SettingsScreen(
+    override val navController: NavController,
+    override val navBackStackEntry: NavBackStackEntry
+) : Screen() {
+    @Composable
+    override fun Content() {
+        val buildConfig by rememberInstance<BuildConfigInformation>()
+        val context = LocalContext.current
+        val localActivity = LocalActivity.current
+        val demoModeObserver = localActivity as? DemoModeObserver
+        val isDemomode = demoModeObserver?.isDemoMode() ?: false
+        val profilesController = rememberProfileController()
+        val profilesState by profilesController.getProfilesState()
+        val listState = rememberLazyListState()
 
-    SettingsNavGraph(
-        settingsNavController = settingsNavController,
-        navigationMode = navigationMode,
-        mainNavController = mainNavController,
-        settingsController = settingsController,
-        buildConfig = buildConfig
-    )
-}
-
-@Suppress("LongMethod")
-@Composable
-fun SettingsScreenWithScaffold(
-    mainNavController: NavController,
-    navController: NavController,
-    buildConfig: BuildConfigInformation,
-    onClickDemoModeEnd: () -> Unit,
-    onClickDemoMode: () -> Unit
-) {
-    val context = LocalContext.current
-    val snackbar = LocalSnackbar.current
-    val demoModeObserver = LocalActivity.current as? DemoModeObserver
-    val isDemomode = demoModeObserver?.isDemoMode() ?: false
-
-    val profilesController = rememberProfileController()
-    val profilesState by profilesController.getProfilesState()
-
-    val listState = rememberLazyListState()
-
-    Scaffold(
-        modifier = Modifier
-            .testTag(TestTag.Settings.SettingsScreen)
-            .statusBarsPadding()
-    ) { contentPadding ->
-        LazyColumn(
-            modifier = Modifier.testTag("settings_screen"),
-            contentPadding = contentPadding,
-            state = listState
-        ) {
-            @Requirement(
-                "O.Source_8",
-                "O.Source_9",
-                "O.Source_11",
-                sourceSpecification = "BSI-eRp-ePA",
-                rationale = "Debug options are not accessible in the production version. All other debug mechanisms, including logging, are disabled in the build pipeline." // ktlint-disable max-line-length
-            )
-            if (BuildConfigExtension.isInternalDebug) {
-                item {
-                    DebugMenuSection(mainNavController)
-                }
-            }
-            item {
-                ProfileSection(profilesState, mainNavController)
-                SettingsDivider()
-            }
-            if (!isDemomode) {
-                item {
-                    HealthCardSection(
-                        onClickUnlockEgk = { unlockMethod ->
-                            mainNavController.navigate(
-                                MainNavigationScreens.UnlockEgk.path(
-                                    unlockMethod = unlockMethod
-                                )
-                            )
-                        },
-                        onClickOrderHealthCard = {
-                            mainNavController.navigate(MainNavigationScreens.OrderHealthCard.path())
-                        }
-                    )
-                    SettingsDivider()
-                }
-            }
-            item {
-                GlobalSettingsSection(
-                    isDemomode = isDemomode,
-                    onClickAccessibilitySettings = {
-                        navController.navigate(SettingsNavigationScreens.AccessibilitySettings.path())
-                    },
-                    onClickProductImprovementSettings = {
-                        navController.navigate(SettingsNavigationScreens.ProductImprovementSettings.path())
-                    },
-                    onClickDeviceSecuritySettings = {
-                        navController.navigate(SettingsNavigationScreens.DeviceSecuritySettings.path())
-                    },
-                    onClickDemoModeEnd = onClickDemoModeEnd,
-                    onClickDemoMode = onClickDemoMode
-                )
-                SettingsDivider()
-            }
-            item {
-                ContactSection(
-                    darkMode = buildConfig.inDarkTheme(),
-                    language = buildConfig.language(),
-                    versionName = buildConfig.versionName(),
-                    nfcInfo = buildConfig.nfcInformation(context),
-                    phoneModel = buildConfig.model()
-                )
-                SettingsDivider()
-            }
-            item {
-                LegalSection(mainNavController)
-            }
-            if (BuildConfigExtension.isInternalDebug) {
-                item {
-                    SettingsDivider()
-                }
-                item {
-                    Text(
-                        text = "Debug section",
-                        style = AppTheme.typography.h6,
-                        modifier = Modifier.padding(
-                            start = PaddingDefaults.Medium,
-                            end = PaddingDefaults.Medium,
-                            bottom = PaddingDefaults.Medium / 2,
-                            top = PaddingDefaults.Medium
+        Scaffold(
+            modifier = Modifier
+                .testTag(TestTag.Settings.SettingsScreen)
+                .statusBarsPadding()
+        ) { contentPadding ->
+            SettingsScreenContent(
+                contentPadding = contentPadding,
+                listState = listState,
+                onClickUnlockEgk = { unlockMethod ->
+                    navController.navigate(
+                        CardUnlockRoutes.CardUnlockIntroScreen.path(
+                            unlockMethod = unlockMethod.name
                         )
                     )
-                }
-                item {
-                    LabelButton(
-                        Icons.Outlined.TireRepair,
-                        "Debug section",
-                        modifier = Modifier.testTag("debug-section")
-                    ) {
-                        snackbar.show("TODO: Debug section comes here")
+                },
+                onClickOrderHealthCard = {
+                    navController.navigate(MainNavigationScreens.OrderHealthCard.path())
+                },
+                onClickAccessibilitySettings = {
+                    navController.navigate(SettingsNavigationScreens.SettingsAccessibilityScreen.path())
+                },
+                onClickProductImprovementSettings = {
+                    navController.navigate(SettingsNavigationScreens.SettingsProductImprovementsScreen.path())
+                },
+                onClickDeviceSecuritySettings = {
+                    navController.navigate(SettingsNavigationScreens.SettingsDeviceSecurityScreen.path())
+                },
+                onClickLegalNotice = {
+                    navController.navigate(SettingsNavigationScreens.SettingsLegalNoticeScreen.path())
+                },
+                onClickDataProtection = {
+                    navController.navigate(SettingsNavigationScreens.SettingsDataProtectionScreen.path())
+                },
+                onClickOpenSourceLicences = {
+                    navController.navigate(SettingsNavigationScreens.SettingsOpenSourceLicencesScreen.path())
+                },
+                onClickAdditionalLicences = {
+                    navController.navigate(SettingsNavigationScreens.SettingsAdditionalLicencesScreen.path())
+                },
+                onClickTermsOfUse = {
+                    navController.navigate(SettingsNavigationScreens.SettingsTermsOfUseScreen.path())
+                },
+                onClickDebug = {
+                    navController.navigate(MainNavigationScreens.Debug.path())
+                },
+                onClickEditProfile = {
+                    navController.navigate(ProfileRoutes.ProfileScreen.path(profileId = it))
+                },
+                onClickSample = {
+                    navController.navigate(PharmacyRoutes.subGraphName())
+                },
+                onClickDemoTracking = {
+                    navController.navigate(TrackingScreenRoutes.subGraphName())
+                },
+                isDemomode = isDemomode,
+                localActivity = localActivity,
+                buildConfig = buildConfig,
+                profilesState = profilesState,
+                context = context
+            )
+        }
+    }
+}
+
+@Suppress("LongParameterList")
+@Composable
+private fun SettingsScreenContent(
+    contentPadding: PaddingValues,
+    listState: LazyListState,
+    onClickUnlockEgk: (UnlockMethod) -> Unit,
+    onClickOrderHealthCard: () -> Unit,
+    onClickAccessibilitySettings: () -> Unit,
+    onClickProductImprovementSettings: () -> Unit,
+    onClickDeviceSecuritySettings: () -> Unit,
+    onClickLegalNotice: () -> Unit,
+    onClickDataProtection: () -> Unit,
+    onClickOpenSourceLicences: () -> Unit,
+    onClickAdditionalLicences: () -> Unit,
+    onClickTermsOfUse: () -> Unit,
+    onClickDebug: () -> Unit,
+    onClickEditProfile: (ProfileIdentifier) -> Unit,
+    onClickSample: () -> Unit,
+    onClickDemoTracking: () -> Unit,
+    profilesState: List<Profile>,
+    isDemomode: Boolean,
+    localActivity: ComponentActivity,
+    buildConfig: BuildConfigInformation,
+    context: Context
+) {
+    val snackbar = LocalSnackbar.current
+    LazyColumn(
+        modifier = Modifier.testTag("settings_screen"),
+        contentPadding = contentPadding,
+        state = listState
+    ) {
+        @Requirement(
+            "O.Source_8",
+            "O.Source_9",
+            "O.Source_11",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Debug options are not accessible in the production version. All other debug mechanisms, including logging, are disabled in the build pipeline." // ktlint-disable max-line-length
+        )
+        if (BuildConfigExtension.isInternalDebug) {
+            item {
+                DebugMenuSection(onClickDebug)
+            }
+        }
+        item {
+            ProfileSection(profilesState, onClickEditProfile)
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PaddingDefaults.Small)
+            )
+        }
+        if (!isDemomode) {
+            item {
+                HealthCardSection(
+                    onClickUnlockEgk = { unlockMethod ->
+                        onClickUnlockEgk(unlockMethod)
+                    },
+                    onClickOrderHealthCard = {
+                        onClickOrderHealthCard()
                     }
+                )
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PaddingDefaults.Small)
+                )
+            }
+        }
+        item {
+            GlobalSettingsSection(
+                isDemomode = isDemomode,
+                onClickAccessibilitySettings = {
+                    onClickAccessibilitySettings()
+                },
+                onClickProductImprovementSettings = {
+                    onClickProductImprovementSettings()
+                },
+                onClickDeviceSecuritySettings = {
+                    onClickDeviceSecuritySettings()
+                },
+                onClickDemoModeEnd = {
+                    DemoModeIntent.startAppWithNormalMode<MainActivity>(localActivity)
+                },
+                onClickDemoMode = {
+                    DemoModeIntent.startAppWithDemoMode<MainActivity>(localActivity)
                 }
-                item {
-                    LabelButton(
-                        Icons.Outlined.SettingsInputComposite,
-                        "Ui Components",
-                        modifier = Modifier.testTag("ui-components")
-                    ) {
-                        mainNavController.navigate(SampleScreenRoutes.subGraphName())
-                    }
-                }
-                item {
-                    LabelButton(
-                        Icons.Outlined.ChecklistRtl,
-                        "Tracking Debug",
-                        modifier = Modifier.testTag("tracking-debug")
-                    ) {
-                        mainNavController.navigate(TrackingScreenRoutes.subGraphName())
-                    }
+            )
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PaddingDefaults.Small)
+            )
+        }
+        item {
+            ContactSection(
+                darkMode = buildConfig.inDarkTheme(),
+                language = buildConfig.language(),
+                versionName = buildConfig.versionName(),
+                nfcInfo = buildConfig.nfcInformation(context),
+                phoneModel = buildConfig.model()
+            )
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PaddingDefaults.Small)
+            )
+        }
+        item {
+            LegalSection(
+                onClickLegalNotice,
+                onClickDataProtection,
+                onClickOpenSourceLicences,
+                onClickAdditionalLicences,
+                onClickTermsOfUse
+            )
+        }
+        if (BuildConfigExtension.isInternalDebug) {
+            item {
+                Divider(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PaddingDefaults.Small)
+                )
+            }
+            item {
+                Text(
+                    text = "Debug section",
+                    style = AppTheme.typography.h6,
+                    modifier = Modifier.padding(
+                        start = PaddingDefaults.Medium,
+                        end = PaddingDefaults.Medium,
+                        bottom = PaddingDefaults.Medium / 2,
+                        top = PaddingDefaults.Medium
+                    )
+                )
+            }
+            item {
+                LabelButton(
+                    Icons.Outlined.TireRepair,
+                    "Debug section",
+                    modifier = Modifier.testTag("debug-section")
+                ) {
+                    snackbar.show("TODO: Debug section comes here")
                 }
             }
             item {
-                AboutSection(
-                    modifier = Modifier.padding(top = 76.dp),
-                    buildVersionName = buildConfig.versionName()
-                )
+                LabelButton(
+                    Icons.Outlined.SettingsInputComposite,
+                    "Ui Components",
+                    modifier = Modifier.testTag("ui-components")
+                ) {
+                    onClickSample()
+                }
             }
+            item {
+                LabelButton(
+                    Icons.Outlined.ChecklistRtl,
+                    "Tracking Debug",
+                    modifier = Modifier.testTag("tracking-debug")
+                ) {
+                    onClickDemoTracking()
+                }
+            }
+        }
+        item {
+            AboutSection(
+                modifier = Modifier.padding(top = 76.dp),
+                buildVersionName = buildConfig.versionName()
+            )
         }
     }
 }
 
 @Composable
-fun GlobalSettingsSection(
+private fun GlobalSettingsSection(
     isDemomode: Boolean,
     onClickAccessibilitySettings: () -> Unit,
     onClickProductImprovementSettings: () -> Unit,
@@ -307,7 +402,7 @@ fun GlobalSettingsSection(
             modifier = Modifier.padding(
                 start = PaddingDefaults.Medium,
                 end = PaddingDefaults.Medium,
-                bottom = PaddingDefaults.Medium / 2,
+                bottom = PaddingDefaults.Small,
                 top = PaddingDefaults.Medium
             )
         )
@@ -348,17 +443,9 @@ fun GlobalSettingsSection(
 }
 
 @Composable
-private fun SettingsDivider() =
-    Divider(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp, bottom = 8.dp)
-    )
-
-@Composable
 private fun ProfileSection(
     profiles: List<Profile>,
-    navController: NavController
+    onClickEditProfile: (ProfileIdentifier) -> Unit
 ) {
     Column {
         Text(
@@ -369,7 +456,7 @@ private fun ProfileSection(
                     start = PaddingDefaults.Medium,
                     end = PaddingDefaults.Medium,
                     top = PaddingDefaults.Medium,
-                    bottom = PaddingDefaults.Medium / 2
+                    bottom = PaddingDefaults.Small
                 )
                 .testTag("Profiles")
         )
@@ -377,7 +464,7 @@ private fun ProfileSection(
         profiles.forEach { profile ->
             ProfileCard(
                 profile = profile,
-                onClickEdit = { navController.navigate(ProfileRoutes.ProfileScreen.path(profileId = profile.id)) }
+                onClickEdit = { onClickEditProfile(profile.id) }
             )
         }
     }
@@ -460,7 +547,7 @@ fun ProfileNameDialog(
                     infoText,
                     style = AppTheme.typography.body2
                 )
-                Box(modifier = Modifier.padding(top = 12.dp)) {
+                Box(modifier = Modifier.padding(top = PaddingDefaults.ShortMedium)) {
                     OutlinedTextField(
                         modifier = Modifier.testTag(TestTag.Settings.AddProfileDialog.ProfileNameTextField),
                         value = textValue,
@@ -523,7 +610,10 @@ fun ProfileNameDialog(
 }
 
 @Composable
-fun HealthCardSection(onClickUnlockEgk: (unlockMethod: UnlockMethod) -> Unit, onClickOrderHealthCard: () -> Unit) {
+private fun HealthCardSection(
+    onClickUnlockEgk: (unlockMethod: UnlockMethod) -> Unit,
+    onClickOrderHealthCard: () -> Unit
+) {
     Column {
         Text(
             text = stringResource(R.string.health_card_section_header),
@@ -531,7 +621,7 @@ fun HealthCardSection(onClickUnlockEgk: (unlockMethod: UnlockMethod) -> Unit, on
             modifier = Modifier.padding(
                 start = PaddingDefaults.Medium,
                 end = PaddingDefaults.Medium,
-                bottom = PaddingDefaults.Medium / 2,
+                bottom = PaddingDefaults.Small,
                 top = PaddingDefaults.Medium
             )
         )
@@ -568,16 +658,16 @@ fun HealthCardSection(onClickUnlockEgk: (unlockMethod: UnlockMethod) -> Unit, on
 }
 
 @Composable
-private fun DebugMenuSection(navController: NavController) {
+private fun DebugMenuSection(onClickDebug: () -> Unit) {
     OutlinedDebugButton(
         text = stringResource(id = R.string.debug_menu),
-        onClick = { navController.navigate(MainNavigationScreens.Debug.path()) },
+        onClick = { onClickDebug() },
         modifier = Modifier
             .fillMaxWidth()
             .padding(
                 start = PaddingDefaults.Medium,
                 end = PaddingDefaults.Medium,
-                bottom = PaddingDefaults.Medium / 2,
+                bottom = PaddingDefaults.Small,
                 top = PaddingDefaults.Medium
             )
             .testTag(TestTag.Settings.DebugMenuButton)
@@ -585,7 +675,13 @@ private fun DebugMenuSection(navController: NavController) {
 }
 
 @Composable
-private fun LegalSection(navController: NavController) {
+private fun LegalSection(
+    onClickLegalNotice: () -> Unit,
+    onClickDataProtection: () -> Unit,
+    onClickOpenSourceLicences: () -> Unit,
+    onClickAdditionalLicences: () -> Unit,
+    onClickTermsOfUse: () -> Unit
+) {
     Column {
         Text(
             text = stringResource(R.string.settings_legal_headline),
@@ -593,7 +689,7 @@ private fun LegalSection(navController: NavController) {
             modifier = Modifier.padding(
                 start = PaddingDefaults.Medium,
                 end = PaddingDefaults.Medium,
-                bottom = PaddingDefaults.Medium / 2,
+                bottom = PaddingDefaults.Small,
                 top = PaddingDefaults.Medium
             )
         )
@@ -602,7 +698,7 @@ private fun LegalSection(navController: NavController) {
             stringResource(R.string.settings_legal_imprint),
             modifier = Modifier.testTag("settings/imprint")
         ) {
-            navController.navigate(MainNavigationScreens.Imprint.route)
+            onClickLegalNotice()
         }
         @Requirement(
             "O.Arch_9",
@@ -614,28 +710,28 @@ private fun LegalSection(navController: NavController) {
             stringResource(R.string.settings_legal_dataprotection),
             modifier = Modifier.testTag("settings/privacy")
         ) {
-            navController.navigate(MainNavigationScreens.DataProtection.route)
+            onClickDataProtection()
         }
         LabelButton(
             Icons.Outlined.Wysiwyg,
             stringResource(R.string.settings_legal_tos),
             modifier = Modifier.testTag("settings/tos")
         ) {
-            navController.navigate(MainNavigationScreens.Terms.route)
+            onClickTermsOfUse()
         }
         LabelButton(
             Icons.Outlined.Code,
             stringResource(R.string.settings_legal_licences),
             modifier = Modifier.testTag("settings/licences")
         ) {
-            navController.navigate(MainNavigationScreens.OpenSourceLicences.route)
+            onClickOpenSourceLicences()
         }
         LabelButton(
             Icons.Outlined.Source,
             stringResource(R.string.settings_licence_pharmacy_search),
             modifier = Modifier.testTag("settings/additional_licences")
         ) {
-            navController.navigate(MainNavigationScreens.AdditionalLicences.route)
+            onClickAdditionalLicences()
         }
     }
 }
@@ -772,45 +868,3 @@ private fun ContactSection(
         )
     }
 }
-
-fun openMailClient(
-    context: Context,
-    address: String,
-    body: String,
-    subject: String
-) = context.handleIntent(
-    provideEmailIntent(
-        address = address,
-        body = body,
-        subject = subject
-    )
-)
-
-@Suppress("MaxLineLength")
-@Composable
-fun buildFeedbackBodyWithDeviceInfo(
-    title: String = stringResource(R.string.settings_feedback_mail_title),
-    userHint: String = stringResource(R.string.seetings_feedback_form_additional_data_info),
-    errorState: String? = null,
-    darkMode: String,
-    versionName: String,
-    language: String,
-    phoneModel: String,
-    nfcInfo: String
-): String = """$title
-      |
-      |
-      |
-      |$userHint
-      |
-      |Systeminformationen
-      |
-      |Betriebssystem: Android ${Build.VERSION.RELEASE} (SDK ${Build.VERSION.SDK_INT}) (PATCH ${Build.VERSION.SECURITY_PATCH})
-      |Modell: $phoneModel
-      |App Version: $versionName (${BuildKonfig.GIT_HASH})
-      |DarkMode: $darkMode
-      |Sprache: $language
-      |FehlerStatus: ${errorState ?: ""}
-      |NFC: $nfcInfo
-      |
-""".trimMargin()

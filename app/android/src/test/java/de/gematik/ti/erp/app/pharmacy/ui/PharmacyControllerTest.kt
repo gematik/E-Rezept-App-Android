@@ -21,8 +21,9 @@ package de.gematik.ti.erp.app.pharmacy.ui
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyOrderController
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -57,6 +58,7 @@ class PharmacySearchViewModelTest {
     private lateinit var profileUseCase: ProfilesUseCase
     private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
     private lateinit var getOrderStateUseCase: GetOrderStateUseCase
+    private lateinit var getShippingContactValidationUseCase: GetShippingContactValidationUseCase
 
     @Before
     fun setUp() {
@@ -65,6 +67,7 @@ class PharmacySearchViewModelTest {
         getActiveProfileUseCase = mockk()
         pharmacyOverviewUseCase = mockk()
         getOrderStateUseCase = mockk()
+        getShippingContactValidationUseCase = mockk()
         every { pharmacySearchUseCase.prescriptionDetailsForOrdering(any()) } returns flowOf(orderState)
         every { getActiveProfileUseCase.invoke() } returns flowOf(activeProfile)
         every { profileUseCase.profiles } returns flowOf(listOf(profile))
@@ -74,6 +77,7 @@ class PharmacySearchViewModelTest {
             getActiveProfileUseCase = getActiveProfileUseCase,
             pharmacySearchUseCase = pharmacySearchUseCase,
             getOrderStateUseCase = getOrderStateUseCase,
+            getShippingContactValidationUseCase = getShippingContactValidationUseCase,
             scope = TestScope()
         )
 

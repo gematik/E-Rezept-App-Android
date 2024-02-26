@@ -25,20 +25,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentUseCase
 import de.gematik.ti.erp.app.orders.usecase.GetUnreadOrdersUseCase
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.settings.usecase.AllowAnalyticsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetOnboardingSucceededUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
-import de.gematik.ti.erp.app.settings.usecase.SavePasswordUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTippsShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
 import kotlinx.coroutines.CoroutineScope
@@ -52,8 +49,6 @@ class MainScreenController(
     private val getUnreadOrdersUseCase: GetUnreadOrdersUseCase,
     private val saveToolTipsShownUseCase: SaveToolTippsShownUseCase,
     private val saveWelcomeDrawerShownUseCase: SaveWelcomeDrawerShownUseCase,
-    private val allowAnalyticsUseCase: AllowAnalyticsUseCase,
-    private val savePasswordUseCase: SavePasswordUseCase,
     private val saveGrantConsentDrawerShownUseCase: SaveGrantConsentDrawerShownUseCase,
     private val getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
     private val getOnboardingSucceededUseCase: GetOnboardingSucceededUseCase,
@@ -137,19 +132,6 @@ class MainScreenController(
     val mlKitAcceptedState
         @Composable
         get() = mlKitAccepted.collectAsStateWithLifecycle(false)
-
-    @Requirement(
-        "O.Purp_5#3",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Enable usage analytics."
-    )
-    fun allowAnalytics(allow: Boolean) = scope.launch {
-        allowAnalyticsUseCase(allow)
-    }
-
-    fun selectPasswordAsAuthenticationMode(password: String) = scope.launch {
-        savePasswordUseCase.invoke(password)
-    }
 }
 
 @Composable
@@ -158,8 +140,6 @@ fun rememberMainScreenController(): MainScreenController {
     val getScreenShotsAllowedUseCase by rememberInstance<GetScreenShotsAllowedUseCase>()
     val shouldShowOnboardingUseCase by rememberInstance<GetOnboardingSucceededUseCase>()
     val getMLKitAcceptedUseCase by rememberInstance<GetMLKitAcceptedUseCase>()
-    val allowAnalyticsUseCase by rememberInstance<AllowAnalyticsUseCase>()
-    val savePasswordUseCase by rememberInstance<SavePasswordUseCase>()
     val getShowToolTipsUseCase by rememberInstance<GetCanStartToolTipsUseCase>()
     val saveToolTipsShownUseCase by rememberInstance<SaveToolTippsShownUseCase>()
     val getShowWelcomeDrawerUseCase by rememberInstance<GetShowWelcomeDrawerUseCase>()
@@ -174,8 +154,6 @@ fun rememberMainScreenController(): MainScreenController {
             getScreenShotsAllowedUseCase = getScreenShotsAllowedUseCase,
             getOnboardingSucceededUseCase = shouldShowOnboardingUseCase,
             getMLKitAcceptedUseCase = getMLKitAcceptedUseCase,
-            allowAnalyticsUseCase = allowAnalyticsUseCase,
-            savePasswordUseCase = savePasswordUseCase,
             getCanStartToolTipsUseCase = getShowToolTipsUseCase,
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
             getShowWelcomeDrawerUseCase = getShowWelcomeDrawerUseCase,

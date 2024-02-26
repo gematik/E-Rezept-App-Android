@@ -34,9 +34,6 @@ object DependencyInjector {
     fun androidXTest(init: Dependencies.AndroidX.Test.() -> Unit) =
         Dependencies.AndroidX.Test.init()
 
-    fun appCenterSdk(init: Dependencies.AppCenterSdk.() -> Unit) =
-        Dependencies.AppCenterSdk.init()
-
     fun compose(init: Dependencies.Compose.() -> Unit) =
         Dependencies.Compose.init()
 

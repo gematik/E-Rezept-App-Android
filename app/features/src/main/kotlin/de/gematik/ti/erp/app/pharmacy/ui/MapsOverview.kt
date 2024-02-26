@@ -112,7 +112,7 @@ import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyOrderController
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacySearchController
 import de.gematik.ti.erp.app.pharmacy.presentation.locationPermissions
 import de.gematik.ti.erp.app.pharmacy.presentation.queryNativeLocation
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacySearchPopUpNames
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
@@ -192,7 +192,7 @@ sealed interface PharmacySearchSheetContentState {
 @Composable
 fun MapsOverview(
     searchController: PharmacySearchController,
-    orderState: PharmacyOrderController,
+    pharmacyOrderController: PharmacyOrderController,
     navController: NavHostController,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
     onBack: () -> Unit
@@ -241,7 +241,7 @@ fun MapsOverview(
     val scope = rememberCoroutineScope()
 
     val sheetState = rememberPharmacySheetState(
-        orderState.selectedPharmacy?.let {
+        pharmacyOrderController.selectedPharmacy?.let {
             PharmacySearchSheetContentState.PharmacySelected(it)
         }
     )
@@ -260,7 +260,7 @@ fun MapsOverview(
     Box {
         ScaffoldWithMap(
             scaffoldState = scaffoldState,
-            pharmacyOrderController = orderState,
+            pharmacyOrderController = pharmacyOrderController,
             cameraPositionState = cameraPositionState,
             pharmacySearchController = searchController,
             pharmacies = pharmacies,
@@ -303,7 +303,7 @@ fun MapsOverview(
 
                     is PharmacySearchSheetContentState.PharmacySelected ->
                         PharmacyBottomSheetDetails(
-                            orderController = orderState,
+                            orderController = pharmacyOrderController,
                             pharmacy =
                             (sheetState.content as PharmacySearchSheetContentState.PharmacySelected).pharmacy,
                             onClickOrder = { pharmacy, orderOption ->

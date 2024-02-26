@@ -23,7 +23,8 @@ import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import de.gematik.ti.erp.app.BuildConfig
-import de.gematik.ti.erp.app.cardwall.usecase.deviceHasNFC
+import de.gematik.ti.erp.app.utils.extensions.hasNFCTerminal
+import de.gematik.ti.erp.app.utils.extensions.riskyOperation
 import java.util.Locale
 
 class DefaultBuildConfigInformation : BuildConfigInformation {
@@ -34,8 +35,10 @@ class DefaultBuildConfigInformation : BuildConfigInformation {
 
     @Composable
     override fun inDarkTheme(): String = if (isSystemInDarkTheme()) DARK_THEME_ON else DARK_THEME_OFF
-    override fun nfcInformation(context: Context): String =
-        if (context.deviceHasNFC()) NFC_AVAILABLE else NFC_NOT_AVAILABLE
+    override fun nfcInformation(context: Context): String = riskyOperation(
+        block = { if (context.hasNFCTerminal()) NFC_AVAILABLE else NFC_NOT_AVAILABLE },
+        defaultValue = NFC_NOT_AVAILABLE
+    ) ?: NFC_NOT_AVAILABLE
 
     companion object {
         private const val DARK_THEME_ON = "an"

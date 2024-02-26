@@ -1,0 +1,170 @@
+/*
+ * Copyright (c) 2024 gematik GmbH
+ * 
+ * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
+ * the European Commission - subsequent versions of the EUPL (the Licence);
+ * You may not use this work except in compliance with the Licence.
+ * You may obtain a copy of the Licence at:
+ * 
+ *     https://joinup.ec.europa.eu/software/page/eupl
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the Licence for the specific language governing permissions and
+ * limitations under the Licence.
+ * 
+ */
+
+package de.gematik.ti.erp.app.cardunlock.ui
+
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavController
+import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
+import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockScreen
+import de.gematik.ti.erp.app.cardunlock.presentation.CardUnlockGraphController
+import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
+import de.gematik.ti.erp.app.cardwall.ui.PIN_RANGE
+import de.gematik.ti.erp.app.cardwall.ui.PinInputField
+import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
+import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+
+class CardUnlockOldSecretScreen(
+    override val navController: NavController,
+    override val navBackStackEntry: NavBackStackEntry,
+    override val graphController: CardUnlockGraphController
+) : CardUnlockScreen() {
+
+    @Composable
+    override fun Content() {
+        val oldPin by graphController.oldPin.collectAsStateWithLifecycle()
+        val lazyListState = rememberLazyListState()
+        CardWallScaffold(
+            modifier = Modifier.testTag("cardWall/secretScreen"),
+            backMode = NavigationBarMode.Back,
+            title = stringResource(R.string.unlock_egk_top_bar_title_change_secret),
+            nextEnabled = oldPin.length in PIN_RANGE,
+            listState = lazyListState,
+            onNext = {
+                navController.navigate(
+                    CardUnlockRoutes.CardUnlockNewSecretScreen.path()
+                )
+            },
+            onBack = {
+                navController.popBackStack()
+            },
+            nextText = stringResource(R.string.unlock_egk_next),
+            actions = {
+                TextButton(onClick = {
+                    graphController.reset()
+                    navController.popBackStack(CardUnlockRoutes.CardUnlockIntroScreen.route, inclusive = true)
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            }
+        ) { innerPadding ->
+            CardUnlockOldSecretScreenContent(
+                lazyListState = lazyListState,
+                innerPadding = innerPadding,
+                pinRange = PIN_RANGE,
+                oldPin = oldPin,
+                onOldPinChange = graphController::setOldPin,
+                onNext = { navController.navigate(CardUnlockRoutes.CardUnlockNewSecretScreen.path()) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun CardUnlockOldSecretScreenContent(
+    lazyListState: LazyListState,
+    pinRange: IntRange,
+    innerPadding: PaddingValues,
+    oldPin: String,
+    onOldPinChange: (String) -> Unit,
+    onNext: () -> Unit
+) {
+    val contentPadding by remember(innerPadding) {
+        derivedStateOf {
+            PaddingValues(
+                top = PaddingDefaults.Medium,
+                bottom = PaddingDefaults.Medium + innerPadding.calculateBottomPadding(),
+                start = PaddingDefaults.Medium,
+                end = PaddingDefaults.Medium
+            )
+        }
+    }
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier.fillMaxSize(),
+        contentPadding = contentPadding
+    ) {
+        item {
+            Text(
+                stringResource(R.string.unlock_egk_enter_old_secret),
+                style = AppTheme.typography.h5
+            )
+            SpacerMedium()
+        }
+        item {
+            PinInputField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .scrollOnFocus(1, lazyListState),
+                pinRange = pinRange,
+                onPinChange = onOldPinChange,
+                pin = oldPin,
+                onNext = onNext,
+                infoText = stringResource(R.string.unlock_egk_pin_info).plus(
+                    " " +
+                        annotatedStringResource(
+                            R.string.cdw_pin_length_info,
+                            PIN_RANGE.first.toString(),
+                            PIN_RANGE.last.toString()
+                        ).text
+                )
+            )
+        }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun OldSecretScreenLazyColumnPreview() {
+    val lazyListState = rememberLazyListState()
+    val secretRange = PIN_RANGE
+    val oldSecret = "1234" // Sample oldSecret
+    PreviewAppTheme {
+        CardUnlockOldSecretScreenContent(
+            lazyListState = lazyListState,
+            pinRange = secretRange,
+            innerPadding = PaddingValues(PaddingDefaults.Medium),
+            oldPin = oldSecret,
+            onOldPinChange = {},
+            onNext = {}
+        )
+    }
+}

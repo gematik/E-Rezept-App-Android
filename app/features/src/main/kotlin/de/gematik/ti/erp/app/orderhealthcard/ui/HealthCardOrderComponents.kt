@@ -84,7 +84,6 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.orderhealthcard.usecase.model.HealthCardOrderUseCaseData
-import de.gematik.ti.erp.app.settings.ui.openMailClient
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -94,6 +93,7 @@ import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import de.gematik.ti.erp.app.utils.openMailClient
 
 @Composable
 fun HealthCardContactOrderScreen(

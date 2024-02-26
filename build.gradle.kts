@@ -34,9 +34,22 @@ plugins {
 
     id("io.gitlab.arturbosch.detekt") version "1.22.0"
 
-    id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
-
     id("org.jetbrains.kotlin.jvm") version "1.9.0" apply false
+
+    // Generate a html file of all referenced technical requirements
+    id("de.gematik.ti.erp.technical-requirements")
+
+    // Updates the version from the git tags
+    id("de.gematik.ti.erp.versioning") apply true
+
+    // Updates the gradle.propertied
+    id("de.gematik.ti.erp.properties") apply true
+
+    // Builds the different app flavours
+    id("de.gematik.ti.erp.flavours") apply true
+
+    // Sends information to teams
+    id("de.gematik.ti.erp.teams") apply true
 }
 
 val ktlintMain: Configuration by configurations.creating
@@ -107,8 +120,8 @@ tasks.register("clean", Delete::class) {
 
 fun isUnstable(version: String): Boolean =
     version.contains("alpha", ignoreCase = true) ||
-        version.contains("rc", ignoreCase = true) ||
-        version.contains("beta", ignoreCase = true)
+            version.contains("rc", ignoreCase = true) ||
+            version.contains("beta", ignoreCase = true)
 
 tasks.withType<DependencyUpdatesTask> {
     outputFormatter = "txt,html"

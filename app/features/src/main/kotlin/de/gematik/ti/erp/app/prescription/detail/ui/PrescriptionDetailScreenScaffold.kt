@@ -30,6 +30,7 @@ import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
+import androidx.compose.material.icons.rounded.Share
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -53,6 +54,7 @@ import de.gematik.ti.erp.app.pkv.ui.GrantConsentDialog
 import de.gematik.ti.erp.app.pkv.ui.onGrantConsent
 import de.gematik.ti.erp.app.pkv.ui.rememberDeprecatedConsentController
 import de.gematik.ti.erp.app.prescription.detail.presentation.PrescriptionDetailController
+import de.gematik.ti.erp.app.prescription.detail.presentation.rememberSharePrescriptionController
 import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -82,6 +84,7 @@ fun PrescriptionDetailScreenScaffold(
     }
     // TODO: (Fail on design pattern) Need to add this to the controller in the screen level
     val consentController = rememberDeprecatedConsentController(profile = activeProfile)
+    val shareHandler = rememberSharePrescriptionController(activeProfile.id)
 
     var consentGranted: Boolean? by remember { mutableStateOf(null) }
 
@@ -118,11 +121,20 @@ fun PrescriptionDetailScreenScaffold(
                 )
             }
             prescription?.let {
+                prescription.accessCode?.let { accessCode ->
+                    IconButton(onClick = {
+                        shareHandler.share(taskId = prescription.taskId, accessCode)
+                    }) {
+                        Icon(Icons.Rounded.Share, null, tint = AppTheme.colors.primary700)
+                    }
+                }
+
                 DeleteAction(it) {
                     // TODO: This needs to be done in the PrescriptionDetailsScreen,
                     //  please do stateHoisting so that it is not hidden inside, becase this also has a onBack.
                     //  It should be something like maybeOnBack with the deleteState sent with it and then in the
                     //  screen we decide what to do
+
                     val deleteState = deletePrescriptionsHandle.deletePrescription(
                         profileId = prescription.profileId,
                         taskId = prescription.taskId

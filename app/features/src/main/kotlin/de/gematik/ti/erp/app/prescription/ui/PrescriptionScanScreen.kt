@@ -91,7 +91,6 @@ import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -120,6 +119,8 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
@@ -223,21 +224,26 @@ class PrescriptionScanScreen(
                 )
             }
         ) {
-            PrescriptionScanScreenContent(
-                camPermissionGranted,
-                scanner,
-                processor,
-                flashEnabled,
-                onFlashToggled = {
-                    flashEnabled = it
-                },
-                onClickPrescription = { navController.navigate(MainNavigationScreens.Prescriptions.path()) },
-                sheetState,
-                cancelRequested,
-                overlayState,
-                state,
-                coroutineScope
-            )
+            if (camPermissionGranted) {
+                PrescriptionScanScreenContent(
+                    scanner,
+                    processor,
+                    flashEnabled,
+                    onFlashToggled = {
+                        flashEnabled = it
+                    },
+                    onClickPrescription = { navController.navigate(MainNavigationScreens.Prescriptions.path()) },
+                    sheetState,
+                    cancelRequested,
+                    overlayState,
+                    state,
+                    coroutineScope
+                )
+            } else {
+                AccessDenied {
+                    navController.navigate(MainNavigationScreens.Prescriptions.path())
+                }
+            }
         }
 
         HapticAndAudibleFeedback(vibrationPattern)
@@ -247,7 +253,6 @@ class PrescriptionScanScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun PrescriptionScanScreenContent(
-    camPermissionGranted: Boolean,
     scanner: TwoDCodeScanner,
     processor: TwoDCodeProcessor,
     flashEnabled: Boolean,
@@ -260,41 +265,38 @@ private fun PrescriptionScanScreenContent(
     coroutineScope: CoroutineScope
 ) {
     Box {
-        if (camPermissionGranted) {
-            CameraView(
-                scanner,
-                processor,
-                Modifier.fillMaxSize(),
-                flashEnabled = flashEnabled,
-                onFlashToggled = onFlashToggled
-            )
-        } else {
-            AccessDenied(
-                onClickPrescription
-            )
-        }
-        if (camPermissionGranted) {
-            ScanOverlay(
-                enabled = !sheetState.isVisible && !cancelRequested,
-                flashEnabled = flashEnabled,
-                onFlashClick = onFlashToggled,
-                modifier = Modifier.fillMaxSize(),
-                onClickPrescription = onClickPrescription,
-                overlayState = overlayState
-            )
+        CameraView(
+            scanner,
+            processor,
+            Modifier.fillMaxSize(),
+            flashEnabled = flashEnabled,
+            onFlashToggled = onFlashToggled
+        )
 
-            if (state.snackBar.shouldShow()) {
-                ActionBarButton(
-                    state.snackBar,
-                    onClick = { coroutineScope.launch { sheetState.show() } },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .align(Alignment.BottomCenter)
-                        .navigationBarsPadding()
-                        .padding(PaddingDefaults.Medium)
-                        .padding(bottom = PaddingDefaults.Medium)
-                )
-            }
+        ScanOverlay(
+            enabled = !sheetState.isVisible && !cancelRequested,
+            flashEnabled = flashEnabled,
+            onFlashClick = onFlashToggled,
+            modifier = Modifier.fillMaxSize(),
+            onClickPrescription = onClickPrescription,
+            overlayState = overlayState
+        )
+
+        if (state.snackBar.shouldShow()) {
+            ActionBarButton(
+                state.snackBar,
+                onClick = { coroutineScope.launch { sheetState.show() } },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(
+                        start = PaddingDefaults.Medium,
+                        end = PaddingDefaults.Medium,
+                        top = PaddingDefaults.Medium,
+                        bottom = PaddingDefaults.XLarge
+                    )
+            )
         }
     }
 }
@@ -448,10 +450,12 @@ private fun beep(toneGenerator: ToneGenerator, pattern: ScanData.VibrationPatter
             ToneGenerator.TONE_PROP_PROMPT,
             1000
         )
+
         ScanData.VibrationPattern.Error -> toneGenerator.startTone(
             ToneGenerator.TONE_PROP_NACK,
             1000
         )
+
         else -> {}
     }
 }
@@ -469,8 +473,10 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanData.VibrationPattern) {
                 when (pattern) {
                     ScanData.VibrationPattern.Focused ->
                         createOneShot(100L, 100)
+
                     ScanData.VibrationPattern.Saved ->
                         createOneShot(300L, 100)
+
                     ScanData.VibrationPattern.Error ->
                         createWaveform(
                             longArrayOf(100, 100, 300),
@@ -481,6 +487,7 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanData.VibrationPattern) {
                             ),
                             -1
                         )
+
                     ScanData.VibrationPattern.None -> error("Should not be reached")
                 }
             )
@@ -489,10 +496,13 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanData.VibrationPattern) {
             when (pattern) {
                 ScanData.VibrationPattern.Focused ->
                     vibrator.vibrate(longArrayOf(0L, 100L), -1)
+
                 ScanData.VibrationPattern.Saved ->
                     vibrator.vibrate(longArrayOf(0L, 300L), -1)
+
                 ScanData.VibrationPattern.Error ->
                     vibrator.vibrate(longArrayOf(0L, 100L, 100L, 300L), -1)
+
                 ScanData.VibrationPattern.None -> error("Should not be reached")
             }
         }
@@ -562,6 +572,7 @@ private fun InfoCard(
                     textAlign = TextAlign.Center,
                     style = AppTheme.typography.subtitle1
                 )
+
                 ScanData.Info.ErrorNotValid -> InfoError(invalid)
                 ScanData.Info.ErrorDuplicated -> InfoError(duplicated)
                 is ScanData.Info.Scanned -> Text(
@@ -616,17 +627,10 @@ private fun CameraView(
     LaunchedEffect(camera, flashEnabled) {
         withContext(Dispatchers.Main) {
             camera?.apply {
-                if (cameraInfo.torchState.value == TorchState.ON != flashEnabled) {
-                    cameraControl.enableTorch(flashEnabled)
+                cameraControl.enableTorch(flashEnabled)
+                lifecycleOwner.lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
+                    onFlashToggled(cameraInfo.torchState.value == TorchState.ON)
                 }
-            }
-        }
-    }
-
-    SideEffect {
-        camera?.apply {
-            if (cameraInfo.torchState.value == TorchState.ON != flashEnabled) {
-                onFlashToggled(flashEnabled)
             }
         }
     }

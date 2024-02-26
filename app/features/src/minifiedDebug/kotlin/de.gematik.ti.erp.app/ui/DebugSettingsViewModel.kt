@@ -20,17 +20,21 @@ package de.gematik.ti.erp.app.ui
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.ErezeptApp
 import de.gematik.ti.erp.app.VisibleDebugTree
+import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateManagerFlagUseCase
+import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.data.DebugSettingsData
 import de.gematik.ti.erp.app.debugsettings.data.Environment
@@ -38,6 +42,7 @@ import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.featuretoggle.Features
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
@@ -48,10 +53,12 @@ import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.serialization.json.Json
 import org.bouncycastle.cert.X509CertificateHolder
 import org.bouncycastle.jce.ECNamedCurveTable
@@ -64,7 +71,8 @@ import java.security.KeyFactory
 import java.security.Signature
 import java.time.Instant
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.UUID
+import kotlin.time.Duration.Companion.minutes
 
 private val HealthCardCert = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
 private val HealthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
@@ -82,8 +90,20 @@ class DebugSettingsViewModel(
     private val profilesUseCase: ProfilesUseCase,
     private val featureToggleManager: FeatureToggleManager,
     private val pharmacyDirectRedeemUseCase: PharmacyDirectRedeemUseCase,
+    private val getAppUpdateManagerFlagUseCase: GetAppUpdateManagerFlagUseCase,
+    private val changeAppUpdateManagerFlagUseCase: ChangeAppUpdateManagerFlagUseCase,
     private val dispatchers: DispatchProvider
 ) : ViewModel() {
+
+    private val appUpdateManager = MutableStateFlow(true)
+
+    init {
+        viewModelScope.launch {
+            val value = getAppUpdateManagerFlagUseCase()
+            Napier.d { "getAppUpdateManagerSelector vm $value" }
+            appUpdateManager.value = value
+        }
+    }
 
     var debugSettingsData by mutableStateOf(createDebugSettingsData())
 
@@ -111,12 +131,12 @@ class DebugSettingsViewModel(
         updateState(
             debugSettingsData.copy(
                 cardAccessNumberIsSet = (
-                    cardWallUseCase.authenticationData(it)
-                        .first().singleSignOnTokenScope as? IdpData.TokenWithHealthCardScope
-                    )?.cardAccessNumber?.isNotEmpty()
+                        cardWallUseCase.authenticationData(it)
+                            .first().singleSignOnTokenScope as? IdpData.TokenWithHealthCardScope
+                        )?.cardAccessNumber?.isNotEmpty()
                     ?: false,
                 activeProfileId = it,
-                bearerToken = idpRepository.decryptedAccessToken(it).first() ?: ""
+                bearerToken = idpRepository.decryptedAccessToken(it).first()?.accessToken ?: ""
             )
         )
     }
@@ -126,10 +146,10 @@ class DebugSettingsViewModel(
     }
 
     fun selectEnvironment(environment: Environment) {
-        updateState(getDebugSettingsDataForEnvironment(environment))
+        updateState(getDebugSettingsdataForEnvironment(environment))
     }
 
-    private fun getDebugSettingsDataForEnvironment(environment: Environment): DebugSettingsData {
+    private fun getDebugSettingsdataForEnvironment(environment: Environment): DebugSettingsData {
         return when (environment) {
             Environment.PU -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_PU,
@@ -179,7 +199,15 @@ class DebugSettingsViewModel(
     }
 
     fun changeBearerToken(activeProfileId: ProfileIdentifier) {
-        idpRepository.saveDecryptedAccessToken(activeProfileId, debugSettingsData.bearerToken)
+        idpRepository.saveDecryptedAccessToken(
+            activeProfileId,
+            AccessToken(
+                debugSettingsData.bearerToken,
+                Clock.System.now().plus(
+                    5.minutes
+                )
+            )
+        )
         updateState(debugSettingsData.copy(bearerTokenIsSet = true))
     }
 
@@ -361,6 +389,17 @@ class DebugSettingsViewModel(
             val profileId = profilesUseCase.activeProfileId().first()
             val bundle = Json.parseToJsonElement(invoiceBundle)
             invoiceRepository.saveInvoice(profileId, bundle)
+        }
+    }
+
+    val appUpdateManagerState
+        @Composable
+        get() = appUpdateManager.collectAsStateWithLifecycle()
+
+    fun changeAppUpdateManager(useOriginal: Boolean) {
+        viewModelScope.launch {
+            appUpdateManager.value = useOriginal
+            changeAppUpdateManagerFlagUseCase(useOriginal)
         }
     }
 }

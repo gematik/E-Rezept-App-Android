@@ -54,15 +54,28 @@ enum class NavigationRouteNames {
     OnboardingWelcomeScreen,
     OnboardingSelectAppLoginScreen,
     OnboardingDataProtectionAndTermsOfUseOverviewScreen,
-    TermsOfUseScreen,
-    DataProtectionScreen,
+    TermsOfUseScreen, // TODO is duplicate with Settings
+    DataProtectionScreen, // TODO is duplicate with Settings
     OnboardingAnalyticsPreviewScreen,
 
     // Biometric
     BiometricScreen,
 
     // Analytics
-    AllowAnalyticsScreen,
+    AllowAnalyticsScreen, // TODO is duplicate with Settings
+
+    // Settings
+    SettingsScreen,
+    SettingsAccessibilityScreen,
+    SettingsProductImprovementScreen,
+    SettingsAllowAnalyticsScreen,
+    SettingsDeviceSecurityScreen,
+    SettingsSetAppPasswordScreen,
+    SettingsDataProtectionScreen,
+    SettingsTermsOfUseScreen,
+    SettingsLegalNoticeScreen,
+    SettingsOpenSourceLicencesScreen,
+    SettingsAdditionalLicencesScreen,
 
     // MlKit
     MlKit,
@@ -79,4 +92,39 @@ enum class NavigationRouteNames {
 
     // tracker
     DemoTrackerScreen,
+
+    // CardUnlock
+    CardUnlockIntroScreen,
+    CardUnlockCanScreen,
+    CardUnlockPukScreen,
+    CardUnlockOldSecretScreen,
+    CardUnlockNewSecretScreen,
+    CardUnlockEgkScreen,
+
+    // CardWall
+    CardWallIntroScreen,
+    CardWallCanScreen,
+    CardWallPinScreen,
+    CardWallSaveCredentialsScreen,
+    CardWallSaveCredentialsInfoScreen,
+    CardWallReadCardScreen,
+    CardWallExternalAuthenticationScreen,
+
+    // TroubleShooting
+    TroubleShootingIntroScreen,
+    TroubleShootingDeviceOnTopScreen,
+    TroubleShootingFindNfcPositionScreen,
+    TroubleShootingNoSuccessScreen,
+
+    // App Update
+    AppUpdateScreen,
+
+    // Pharmacy
+    PharmacyStartScreen,
+    PharmacyFilterSheetScreen,
+    PharmacySearchListScreen,
+    PharmacySearchMapsScreen,
+    PharmacyOrderOverviewScreen,
+    PharmacyEditShippingContactScreen,
+    PharmacyPrescriptionSelectionScreen
 }

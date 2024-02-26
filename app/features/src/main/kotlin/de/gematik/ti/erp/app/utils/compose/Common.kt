@@ -468,7 +468,7 @@ fun annotatedStringBold(text: String) =
     }
 
 @Deprecated(
-    "Use material3, will soon be changed to DeprecationLevel.ERROR",
+    "Please do not use this function anymore. Use ErezeptAlertDialog instead.",
     replaceWith = ReplaceWith("de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog"),
     level = DeprecationLevel.WARNING
 )

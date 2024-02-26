@@ -48,8 +48,8 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberMainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.RefreshScaffold
 import de.gematik.ti.erp.app.navigation.Screen
@@ -114,7 +114,7 @@ class ProfileAuditEventsScreen(
                                 onShowCardWall = {
                                     profilesController.switchActiveProfile(selectedProfile.id)
                                     navController.navigate(
-                                        MainNavigationScreens.CardWall.path(selectedProfile.id)
+                                        CardWallRoutes.CardWallIntroScreen.path(selectedProfile.id)
                                     )
                                 }
                             )
@@ -131,7 +131,7 @@ class ProfileAuditEventsScreen(
                     onShowCardWall = {
                         profilesController.switchActiveProfile(selectedProfile.id)
                         navController.navigate(
-                            MainNavigationScreens.CardWall.path(selectedProfile.id)
+                            CardWallRoutes.CardWallIntroScreen.path(selectedProfile.id)
                         )
                     }
                 ) {

@@ -78,25 +78,6 @@ interface IdpService {
     @GET
     suspend fun externalAuthenticationIDList(@Url url: String): Response<JsonWebSignature>
 
-    @Requirement(
-        "A_20603#2",
-        sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Store the client-id registered with the IDP and add it to requests."
-    )
-    @GET
-    suspend fun requestFastTrackAuthenticationRedirect(
-        @Url url: String,
-        @Query("kk_app_id") externalAppId: String,
-        @Query("nonce") nonce: String,
-        @Query("state") state: String,
-        @Query("client_id") clientID: String = CLIENT_ID,
-        @Query("redirect_uri") redirectUri: String = EXT_AUTH_REDIRECT_URI, // In-case of error use REDIRECT_URI
-        @Query("code_challenge_method") codeChallengeMethod: String = CODE_CHALLENGE_METHOD,
-        @Query("response_type") responseType: String = RESPONSE_CODE,
-        @Query("scope") scope: String,
-        @Query("code_challenge") codeChallenge: String
-    ): Response<ResponseBody>
-
     @GET
     suspend fun requestGidAuthenticationRedirect(
         @Url url: String,

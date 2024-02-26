@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="app_name" translatable="false">E-Rezept</string>
     <string name="ok">Okay</string>
     <string name="cancel">Abbrechen</string>
@@ -32,8 +32,8 @@
     <string name="cdw_auth_retry">Erneut probieren</string>
     <string name="cdw_nfc_intro_step1_header_on_error">Verbindung mit dem Server herstellen fehlgeschlagen.</string>
     <plurals name="cdw_nfc_intro_step2_info_on_pin_error">
-        <item quantity="one">Sie haben noch %s weiteren Versuch, bevor Ihre Karte gesperrt wird.</item>
-        <item quantity="other">Sie haben noch %s weitere Versuche, bevor Ihre Karte gesperrt wird.</item>
+        <item quantity="one">Sie haben noch %s weiteren Versuch, bevor Ihre Karte für die Verwendung mit PIN gesperrt wird.</item>
+        <item quantity="other">Sie haben noch %s weitere Versuche, bevor Ihre Karte für die Verwendung mit PIN gesperrt wird.</item>
     </plurals>
     <string name="cdw_nfc_intro_step2_info_on_can_error">Sie finden die Zugangsnummer oben rechts auf Ihrer Gesundheitskarte.</string>
     <string name="cdw_nfc_dlg_cancel">Abbrechen</string>
@@ -60,9 +60,9 @@
     <string name="legal_notice_menu">Impressum</string>
     <string name="legal_notice_issuer">Herausgeber</string>
     <string name="legal_notice_address">gematik GmbH\nFriedrichstraße 136\n10117 Berlin</string>
-    <string name="legal_notice_info">Geschäftsführer: Dr. med. Markus Leyck Dieken\nRegistergericht: Amtsgericht Berlin-Charlottenburg\nHandelsregister-Nr.: HRB 96351\nUmsatzsteueridentifikationsnummer: DE241843684</string>
+    <string name="legal_notice_info">Geschäftsführer: Dr. Florian Hartge\nRegistergericht: Amtsgericht Berlin-Charlottenburg\nHandelsregister-Nr.: HRB 96351\nUmsatzsteueridentifikationsnummer: DE241843684</string>
     <string name="legal_notice_responsible_header">Verantwortlich für den Inhalt</string>
-    <string name="legal_notice_responsible_name">Dr. med. Markus Leyck Dieken</string>
+    <string name="legal_notice_responsible_name">Dr. Florian Hartge</string>
     <string name="legal_notice_contact_header">Kontakt</string>
     <string name="menu_legal_notice_url" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/kontakt</string>
     <string name="legal_notice_email" translatable="false">app-feedback@gematik.de</string>
@@ -116,7 +116,6 @@
     <string name="cdw_enable_nfc_header">NFC aktivieren</string>
     <string name="cdw_enable_nfc_info">Bitte aktivieren Sie die NFC-Funktion Ihres Geräts, um sich mit Ihrer Gesundheitskarte anzumelden.</string>
     <string name="cdw_enable_nfc_btn_text">Aktivieren</string>
-    <string name="cdw_enable_nfc_abort_button_text">Jetzt nicht</string>
     <string name="cdw_auth_retry_pin_can">Korrigieren</string>
     <string name="redeem_prescriptions_dialog_header">Rezepte eingelöst?</string>
     <string name="redeem_prescriptions_dialog_info">Möchten Sie die Rezepte als eingelöst markieren?</string>
@@ -124,7 +123,7 @@
     <string name="redeem_prescriptions_dialog_redeem">Eingelöst</string>
     <string name="search_pharmacy_opens_at">Öffnet um %s Uhr</string>
     <string name="technical_hotline_contact">+49 800 277 377 7</string>
-    <string name="technical_hotline_info">Technische Hotline</string>
+    <string name="technical_hotline_info">Telefonische Hotline</string>
     <string name="main_scan_acc">Scanner für Rezepte öffnen</string>
     <string name="main_settings_acc">Einstellungen</string>
     <string name="settings_screenshots_toggle_text">Screenshots unterdrücken</string>
@@ -139,8 +138,8 @@
     <string name="search_pharmacy_nothing_found_info">Unter diesem Suchbegriff konnten wir keine Ergebnisse finden.</string>
     <string name="settings_legal_licences">Open Source Lizenzen</string>
     <string name="settings_contact_headline">Kontakt</string>
-    <string name="settings_contact_hotline">Technische Hotline anrufen</string>
-    <string name="settings_contact_feedback">An Umfrage teilnehmen</string>
+    <string name="settings_contact_hotline">Telefonischen Support anrufen</string>
+    <string name="settings_contact_feedback">Umfrage zur App</string>
     <string name="settings_contact_hotline_number">+49 800 277 377 7</string>
     <string name="settings_contact_mail_address" translatable="false">app-feedback@gematik.de</string>
     <string name="on_boarding_page_5_label">Ich möchte dabei helfen, diese App besser zu machen</string>
@@ -262,7 +261,7 @@
     <string name="data_terms_update_open_data_terms">Datenschutzbestimmungen öffnen</string>
     <string name="data_terms_update_updates">Das hat sich seit dem %s geändert:</string>
     <string name="data_terms_first_update_header">Was passiert, wenn Sie die App öffnen?</string>
-    <string name="data_terms_first_update_text" translatable="false">Die Erhebung Ihrer IP-Adresse durch unser System ist notwendig, um Ihnen die Nutzung unserer App zu ermöglichen. Bei dem Aufruf und während der Nutzung unserer App synchronisiert unser Server die Daten mit der App auf Ihrem Endgerät, damit Ihnen die aktuellen Informationen zu Ihren E-Rezepten zur Verfügung stehen. Dabei verarbeiten wird Ihre IP-Adresse, Ihr Internet-Service-Provider und das Datum und die Uhrzeit des Zugriffs.\n\n\nWir führen bei jedem Start der E-Rezept App eine Integritätsprüfung Ihres Gerätes durch. Smartphones können mit einem modifiziertem und somit potenziell unsicheren Betriebssystem ausgestattet werden. Nicht jeder Nutzer ist sich bewusst (z.B. bei gebraucht gekauften Geräten), dass sein Gerät „gerootet“ ist, und welche möglichen Gefahren damit einhergehen. Daher nutzen wir Google SafetyNet, um die Integrität des Gerätes zu prüfen, und informieren Nutzer, wenn ihr Gerät betroffen ist.\n\n\nUm die Integrität zu prüfen, erhebt Google SafetyNet diverse Informationen über das Gerät und das installierte Betriebssystem, und leitet diese zur Integritätsprüfung an eigene Server. Diese Server befinden sich möglicherweise im außereuropäischen Ausland und unterliegen anderen Datenschutzgrundsätzen.</string>
+    <string name="data_terms_first_update_text" translatable="false">Die Erhebung Ihrer IP-Adresse durch unser System ist notwendig, um Ihnen die Nutzung unserer App zu ermöglichen. Bei dem Aufruf und während der Nutzung unserer App synchronisiert unser Server die Daten mit der App auf Ihrem Endgerät, damit Ihnen die aktuellen Informationen zu Ihren E-Rezepten zur Verfügung stehen. Dabei verarbeiten wird Ihre IP-Adresse, Ihr Internet-Service-Provider und das Datum und die Uhrzeit des Zugriffs.\n\n\nWir führen bei jedem Start der E-Rezept App eine Integritätsprüfung Ihres Gerätes durch. Smartphones können mit einem modifiziertem und somit potenziell unsicheren Betriebssystem ausgestattet werden. Nicht jeder Nutzende ist sich bewusst (z.B. bei gebraucht gekauften Geräten), dass sein Gerät „gerootet“ ist, und welche möglichen Gefahren damit einhergehen. Daher nutzen wir Google SafetyNet, um die Integrität des Gerätes zu prüfen, und informieren Nutzer, wenn ihr Gerät betroffen ist.\n\n\nUm die Integrität zu prüfen, erhebt Google SafetyNet diverse Informationen über das Gerät und das installierte Betriebssystem, und leitet diese zur Integritätsprüfung an eigene Server. Diese Server befinden sich möglicherweise im außereuropäischen Ausland und unterliegen anderen Datenschutzgrundsätzen.</string>
     <string name="data_terms_second_update_header">Was passiert, wenn ich die Kamerafunktion nutze / Rezepte mit der Kamera auslese?</string>
     <string name="data_terms_second_update_text" translatable="false">Wir verwenden ML Kit von Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland (\"Google\"), um den Rezept-QR-Code zu lesen. Der Rezeptcode ist eine eindeutige Identifizierung Ihres Rezeptes. Er kann verglichen werden mit der Nummer eines Schließfachs. Um diesen Code komfortabel und schnell auszulesen, wird das ML Kit genutzt. Die Verarbeitung des Rezeptcodes findet ausschließlich auf Ihrem Gerät statt. \n\nBei dem ersten Starten des Rezeptcodescanners in unserer App, wird ML Kit auf Ihre Gerät heruntergeladen. Zu diesem Zweck erhebt Google Ihre IP-Adresse. Die Verarbeitung dient der Bereitstellung des Dienstes.\n\nDarüber hinaus erhebt Google folgende nicht-personenbezogene Informationen zum Zwecke der Nutzungsanalyse, Diagnostik und Konfiguration des ML Kit:\n            - Geräteinformationen (z. B. Hersteller, Gerätemodell, Betriebssystemversion, Hardware, Mobilfunkbetreiber, Zeitzone und Spracheinstellungen)\n            - Informationen über die Applikation (z.B. Version der App)\n            - Informationen über die Konfiguration von ML Kit\n            - Fehlermeldungen\n            - Ereignistypen (initialisieren, Modell herunterladen, aktualisieren, ausführen, Erkennung)\n            - Technische Leistungsdaten Ihres Gerätes\n            - IP-Adresse (wird nur temporär gespeichert)\n            - Weitere Daten, insbesondere Ihre Rezeptdaten, werden nicht von Google erhoben.\n\nDie Verarbeitung Ihrer Informationen wird nicht nur von Google Ireland Limited, sondern kann auch von Google LLC in den USA durchgeführt werden. Weiterführendes unter 7. Übermittlung in Drittländer.</string>
     <string name="google_policies_link" translatable="false">https://policies.google.com/privacy/frameworks</string>
@@ -328,13 +327,10 @@
     <string name="edit_shipping_contact_top_bar_title">Kontaktdaten und Adresse</string>
     <string name="edit_shipping_contact_title_contact">Kontakt</string>
     <string name="edit_shipping_contact_phone">Telefonnummer</string>
-    <string name="edit_shipping_contact_error_phone">Bitte geben Sie für die Kontaktaufnahme eine Telefonnummer an.</string>
     <string name="edit_shipping_contact_mail">Mailadresse (optional)</string>
     <string name="edit_shipping_contact_title_address">Lieferadresse</string>
     <string name="edit_shipping_contact_name">Vorname und Nachname</string>
-    <string name="edit_shipping_contact_error_name">Bitte geben Sie für die Kontaktaufnahme einen Vor- und Nachnamen an.</string>
     <string name="edit_shipping_contact_title_line1">Straße und Hausnummer</string>
-    <string name="edit_shipping_contact_error_line1">Bitte geben Sie für die Kontaktaufnahme eine Straße und Hausnummer an.</string>
     <string name="edit_shipping_contact_line2">Adresszusatz (optional)</string>
     <string name="edit_shipping_contact_delivery_information">Lieferanweisung (optional)</string>
     <string name="pharmacy_order_further_contact_information_required">Weitere Kontaktdaten benötigt</string>
@@ -345,7 +341,7 @@
     <string name="license_pharmacy_search_web_link">https://www.openstreetmap.org/copyright</string>
     <string name="onb_page_4_header">Datenschutz &amp; Nutzung</string>
     <string name="cdw_forward">Weiter</string>
-    <string name="cdw_pin_info">Ihre PIN haben Sie in einem Brief von Ihrer Krankenversicherung erhalten.</string>
+    <string name="cdw_pin_info">Die PIN für Ihre Gesundheitskarte haben Sie durch ein sicheres Verfahren, wie dem Postident, von Ihrer Krankenversicherung erhalten.</string>
     <string name="cdw_no_pin_received">Keine PIN erhalten</string>
     <string name="cdw_pin_label">PIN</string>
     <string name="cdw_idp_error_time_and_connection">Überprüfen Sie die Verbindung mit dem Internet und die Uhrzeit-/Datumseinstellung Ihres Geräts.</string>
@@ -421,12 +417,12 @@
     <string name="cdw_enter_troubleshooting_action">Verbindungs-Tipps starten</string>
     <string name="cdw_auth_retry_unlock_egk">Entsperren</string>
     <string name="cdw_header_on_card_blocked">Karte gesperrt</string>
-    <string name="cdw_info_on_card_blocked">Die PIN wurde dreimal falsch eingegeben. Ihre Karte wurde daher aus Sicherheitsgründen gesperrt.</string>
+    <string name="cdw_info_on_card_blocked">Die PIN wurde dreimal falsch eingegeben. Ihre Karte wurde daher aus Sicherheitsgründen für die Verwendung mit PIN gesperrt.</string>
     <string name="unlock_egk_top_bar_title">Karte entsperren</string>
     <string name="unlock_egk_enter_puk">PUK eingeben</string>
     <string name="unlock_egk_puk_info">Mit Ihrer PIN haben Sie eine 8-stellige PUK von Ihrer Versicherung erhalten.</string>
     <string name="unlock_egk_new_secret_title">Neue PIN wählen</string>
-    <string name="unlock_egk_new_secret_info">Ihre neue persönliche Identifikationsnummer (PIN) können Sie selbst wählen (6 bis 8 Stellen).</string>
+    <string name="unlock_egk_new_secret_info">Ihre neue PIN können Sie selbst wählen (6 bis 8 Stellen).</string>
     <string name="unlock_egk_new_secret_extra_content_title">PIN gemerkt?</string>
     <string name="unlock_egk_new_secret_extra_content_info">Bitte notieren Sie sich Ihre PIN und bewahren an einem sicheren Ort auf.</string>
     <string name="unlock_egk_dialog_cancel">Abbrechen</string>
@@ -442,7 +438,7 @@
     <string name="health_card_section_header">Gesundheitskarte</string>
     <string name="health_card_section_order_card">PIN oder Karte bestellen</string>
     <string name="cdw_intro_header">Anmelden</string>
-    <string name="cdw_intro_info">Wie möchten Sie sich anmelden?</string>
+    <string name="cdw_intro_info">Wie möchten Sie sich authentifizieren?</string>
     <string name="cdw_intro_nfc_card_needed">NFC-fähige Gesundheitskarte</string>
     <string name="cdw_intro_pin_needed">PIN zur Gesundheitskarte</string>
     <string name="cdw_have_no_card_with_pin">Sie verfügen noch nicht über eine NFC-fähige Gesundheitskarte und PIN?</string>
@@ -452,8 +448,8 @@
     <string name="cdw_can_description">"Ihre Zugangsnummer finden Sie in der rechten oberen Ecke Ihrer Gesundheitskarte."</string>
     <string name="cdw_no_can_on_card">Meine Karte verfügt über keine Zugangsnummer</string>
     <plurals name="cdw_nfc_intro_step2_info_on_puk_error">
-        <item quantity="one">Sie haben noch %s weiteren Versuch, bevor Ihre Karte gesperrt wird.</item>
-        <item quantity="other">Sie haben noch %s weitere Versuche, bevor Ihre Karte gesperrt wird.</item>
+        <item quantity="one">Sie haben noch %s weiteren Versuch, bevor Ihre Karte für die Verwendung mit PIN gesperrt wird.</item>
+        <item quantity="other">Sie haben noch %s weitere Versuche, bevor Ihre Karte für die Verwendung mit PIN gesperrt wird.</item>
     </plurals>
     <string name="nfc_instruction_headline">Gesundheitskarte an Rückseite des Telefons anlegen</string>
     <string name="nfc_instruction_time_hint">Der folgende Prozess kann bis zu 30 Sekunden lang dauern.</string>
@@ -516,7 +512,6 @@
     <string name="edit_profile_avatar">Ändern</string>
     <string name="edit_profile_picture">Profilbild bearbeiten</string>
     <string name="mini_cdw_fasttrack_next">Weiter</string>
-    <string name="mini_cdw_fasttrack_search">Suche</string>
     <string name="cdw_fasttrack_error_title">Server antwortet nicht</string>
     <string name="cdw_fasttrack_error_info">Bitte probieren Sie es zu einem späteren Zeitpunkt erneut.</string>
     <string name="cdw_fasttrack_try_again">Erneut versuchen</string>
@@ -549,9 +544,7 @@
     <string name="orders_show_code">Abholcode anzeigen</string>
     <string name="orders_show_general_message">Nachricht anzeigen</string>
     <string name="orders_timestamp" formatted="false">%s um %s Uhr</string>
-    <string name="orders_prescription_sent_to">Rezept an %s gesandt.</string>
-    <string name="cost_receipt_is_ready" translatable="false">Sie haben einen Kostenbeleg zu Ihrem Medikament %s erhalten.</string>
-    <string name="show_cost_receipt" translatable="false">"Kostenbeleg anzeigen"</string>
+    <string name="orders_prescription_sent_to">Rezept an %s gesendet. Der digitale Einlöseprozess ist für viele Apotheken noch ungewohnt. Sollten Sie bis morgen keine Rückmeldung erhalten, empfehlen wir, vorsichtshalber telefonisch nachzufragen.</string>
     <string name="orders_details_title">Bestellübersicht</string>
     <string name="orders_label_new">Neu</string>
     <string name="orders_history_title">Verlauf</string>
@@ -587,8 +580,8 @@
     <string name="multiple_prescription_numbering" translatable="false" formatted="false">%s / %s</string>
     <string name="settings_product_improvement_headline">Produktverbesserungen</string>
     <string name="settings_allow_analytics_header">Anonyme Analyse</string>
-    <string name="settings_allow_analytics_info">Helfen Sie uns, diese App besser zu machen. Alle Nutzungsdaten werden anonym erhoben und dienen ausschließlich der Verbesserung des Nutzungserlebsnisses.</string>
-    <string name="settings_device_security_header">Gerätesicherheit</string>
+    <string name="settings_allow_analytics_info">Helfen Sie uns, diese App besser zu machen. Alle Nutzungsdaten werden anonym erhoben und dienen ausschließlich der Verbesserung des Nutzungserlebnisses.</string>
+    <string name="settings_device_security_header">App Sicherheit</string>
     <string name="settings_personal_settings_header">Persönliche Einstellungen</string>
     <string name="settings_accessibility_header">Bedienungshilfen</string>
     <string name="settings_product_improvement_header">Produktverbesserungen</string>
@@ -607,10 +600,10 @@
     <string name="onboarding_data_terms_info">Ich habe die Datenschutzerklärung und Nutzungsbestimmungen gelesen und akzeptiere sie.</string>
     <string name="onboarding_data_button">Datenschutzerklärung</string>
     <string name="onboarding_terms_button">Nutzungsbestimmungen</string>
-    <string name="onboarding_analytics_we_want">Wir möchten:</string>
+    <string name="onboarding_analytics_we_want">Wir werden:</string>
     <string name="onboarding_analytics_ww_usability">Die Nutzbarkeit verbessern.</string>
     <string name="onboarding_analytics_ww_errors">Fehler und Abstürze erkennen.</string>
-    <string name="onboarding_analytics_ww_anon">Alle Daten werden selbstverständlich anonym erhoben.</string>
+    <string name="onboarding_analytics_ww_anon">Alle Daten selbstverständlich anonym erheben.</string>
     <string name="onboarding_analytics_bottom_you_can_change">Sie können diese Entscheidung in den Systemeinstellungen jederzeit ändern.</string>
     <string name="onboarding_bottom_button_next">Fortfahren</string>
     <string name="onboarding_bottom_button_accept">Akzeptieren</string>
@@ -628,7 +621,7 @@
     <string name="pres_details_no_value">Keine Angabe</string>
     <string name="pres_details_additional_fee">Zuzahlung</string>
     <string name="pres_details_medication">Medikament</string>
-    <string name="pres_detail_medication_label_note">Abgabehinweise</string>
+    <string name="pres_detail_medication_label_note">Einnahmehinweise</string>
     <string name="pres_detail_medication_label_bvg">Anspruchberechtigt nach BVG</string>
     <string name="pres_detail_medication_label_subtitution">Alternativpräparat</string>
     <string name="medication_compounding_name">Rezepturname</string>
@@ -717,7 +710,7 @@
     <string name="mainscreen_welcome_drawer_header">Rezepte digital empfangen?</string>
     <string name="mainscreen_empty_connected_info">Ziehen Sie den Screen nach unten, um zu aktualisieren.</string>
     <string name="mainscreen_empty_content_header">Keine Rezepte</string>
-    <string name="mainscreen_empty_not_connected_info">Fügen Sie Rezepte über den + Button in der rechten oberen Ecke hinzu.</string>
+    <string name="mainscreen_empty_not_connected_info">Melden Sie sich an, um Rezepte automatisch zu erhalten oder fügen Sie über das ⊕ in der oberen Ecke ein neues Rezept hinzu.</string>
     <string name="mainscreen_login">Anmelden</string>
     <string name="archived_prescriptions_button">Rezeptarchiv</string>
     <string name="mainscreen_connect_bottomsheet_connect_later">Vielleicht später</string>
@@ -869,15 +862,11 @@
     <string name="prescription_status_sent">Gesendet</string>
     <string name="edit_shipping_contact_postal_code">PLZ</string>
     <string name="edit_shipping_contact_city">Ort</string>
-    <string name="edit_shipping_contact_error_postal_code">Bitte geben Sie für die Kontaktaufnahme Ihre Postleitzahl an.</string>
-    <string name="edit_shipping_contact_error_city">Bitte geben Sie für die Kontaktaufnahme Ihren Wohnort an.</string>
     <string name="prescription_status_direct_assignment_ready">Wird für Sie eingelöst</string>
     <string name="prescription_status_direct_assignment_closed">Wurde für Sie eingelöst</string>
     <string name="connect_for_pharmacy_service">Sie müssen angemeldet sein, um diesen Service zu nutzen.</string>
-    <string name="cdw_intro_auth_insurance_app">Versicherungs-App</string>
     <string name="cdw_intro_auth_health_card">Gesundheitskarte</string>
     <string name="cdw_intro_auth_health_card_pin">Zugehörige PIN benötigt</string>
-    <string name="cdw_intro_auth_health_card_no_nfc_device">NFC-fähiges Smartphone erforderlich</string>
     <string name="prescription_item_expiration_only_tomorrow">Nur noch morgen als Selbstzahlender einlösbar</string>
     <string name="prescription_item_two_expiration_days_left">Nur noch %s Tage als Selbstzahlender einlösbar</string>
     <string name="prescription_item_expiration_days_left">\n        Noch %s Tage als Selbstzahlender einlösbar\n    </string>
@@ -914,13 +903,18 @@
     <string name="invoice_correction">Korrekturanfrage der Abrechnung</string>
     <string name="pres_details_scanned_medication">Medikament</string>
     <string name="empty_scanned_prescription_name">Bitte geben Sie mindestens 1 Zeichen ein.</string>
-    <string name="demo_mode_start_text">Oder. Die App im Demo-Modus ausprobieren</string>
+    <string name="demo_mode_start_text">Oder: Die App im Demo-Modus ausprobieren</string>
     <string name="demo_mode_link_text">Demo-Modus</string>
     <string name="demo_mode_clickable_text">Demo-Modus</string>
     <string name="start_demo_mode">Demomodus nutzen</string>
     <string name="demo_mode_text">Demo-Modus aktiviert</string>
     <string name="demo_mode_cancel_button_text">Hier Beenden</string>
     <string name="demo_mode_settings_title">Demo-Modus aktivieren</string>
+    <string name="cdw_enable_nfc_abort_button_text">Jetzt nicht</string>
+    <string name="mini_cdw_fasttrack_search">Suche</string>
+    <string name="cost_receipt_is_ready" translatable="false">Sie haben einen Kostenbeleg zu Ihrem Medikament %s erhalten.</string>
+    <string name="show_cost_receipt" translatable="false">"Kostenbeleg anzeigen"</string>
+    <string name="cdw_intro_auth_health_card_no_nfc_device">NFC-fähiges Smartphone erforderlich</string>
     <string name="invoice_card_no_consent_title">Kostenbelege digital erhalten</string>
     <string name="invoice_card_no_consent_body">Nach Aktivierung der Kostenbelege finden Sie diese nach der Einlösung Ihres Rezepts hier.</string>
     <string name="invoice_card_no_consent_button_text">Aktivieren</string>
@@ -929,15 +923,11 @@
     <string name="invoice_card_consent_invoice_button_text">Kostenbeleg</string>
     <string name="lightbulb" translatable="false">\uD83D\uDCA1</string>
     <string name="give_consent_bottom_sheet_header">Kostenbelege digital erhalten</string>
-    <string name="give_consent_bottom_sheet_info">Hinweis: Sie erhalten Ihre Kostenbelege nicht mehr als Ausdruck in der
-        Apotheke.
-    </string>
+    <string name="give_consent_bottom_sheet_info">Hinweis: Sie erhalten Ihre Kostenbelege nicht mehr als Ausdruck in der\n        Apotheke.\n    </string>
     <string name="give_consent_bottom_sheet_activate">Aktivieren</string>
     <string name="give_consent_bottom_sheet_activate_later">Vielleicht später</string>
     <string name="get_consent_info_dialog_header">Einverständnis</string>
-    <string name="get_consent_info_dialog_info">Mit Ihrem Einverständnis verzichten Sie auf den Ausdruck in der Apotheke
-        und reichen Ihre Kostenbelege künftig digital ein.
-    </string>
+    <string name="get_consent_info_dialog_info">Mit Ihrem Einverständnis verzichten Sie auf den Ausdruck in der Apotheke\n        und reichen Ihre Kostenbelege künftig digital ein.\n    </string>
     <string name="get_consent_info_dialog_cancel">Abbrechen</string>
     <string name="get_consent_info_dialog_accept">Einverstanden</string>
     <string name="demo_mode_settings_end_title">Demo-Modus Beenden</string>
@@ -952,25 +942,17 @@
     <string name="consent_error_no_internet_header">Kein Internet</string>
     <string name="consent_error_no_internet_info">Es besteht keine Verbindung zum Internet.</string>
     <string name="consent_error_bad_request_header">Fehlerhafte Anfrage</string>
-    <string name="consent_error_bad_request_info">Es gab ein Problem mit der Anfrage. Wir arbeiten an einer Lösung.
-    </string>
+    <string name="consent_error_bad_request_info">Es gab ein Problem mit der Anfrage. Wir arbeiten an einer Lösung.\n    </string>
     <string name="consent_error_server_timeout_header">Server antwortet nicht</string>
     <string name="consent_error_server_timeout_info">Bitte probieren Sie es in einigen Minuten erneut.</string>
     <string name="consent_error_internal_error_header">Herstellen der Verbindung fehlgeschlagen</string>
-    <string name="consent_error_internal_error_info">Derzeit können keine Informationen abgerufen werden. Bitte
-        probieren Sie es später erneut.
-    </string>
+    <string name="consent_error_internal_error_info">Derzeit können keine Informationen abgerufen werden. Bitte\n        probieren Sie es später erneut.\n    </string>
     <string name="consent_error_too_many_requests_header">Abgelehnt</string>
-    <string name="consent_error_too_many_requests_info">Der Server hat Ihre Anfrage abgelehnt. Bitte probieren Sie es
-        später erneut.
-    </string>
+    <string name="consent_error_too_many_requests_info">Der Server hat Ihre Anfrage abgelehnt. Bitte probieren Sie es\n        später erneut.\n    </string>
     <string name="consent_error_forbidden_header">App aktualisieren</string>
-    <string name="consent_error_forbidden_info">Um diese Funktion nutzen zu können, aktualisieren Sie bitte Ihre App.
-    </string>
+    <string name="consent_error_forbidden_info">Um diese Funktion nutzen zu können, aktualisieren Sie bitte Ihre App.\n    </string>
     <string name="consent_error_unauthorized_header">Anmeldung fehlgeschlagen</string>
-    <string name="consent_error_unauthorized_info">Der Server hatte ein Problem bei der Anmeldung. Bitte melden Sie sich
-        erneut an.
-    </string>
+    <string name="consent_error_unauthorized_info">Der Server hatte ein Problem bei der Anmeldung. Bitte melden Sie sich\n        erneut an.\n    </string>
     <string name="consent_error_connect">Anmelden</string>
     <string name="debug_copy_text">Copy URL</string>
     <string name="connecting_universal_link">Verbindung mit externer Krankenversicherungs-App herstellen.</string>
@@ -981,4 +963,32 @@
     <string name="gid_gematik_error_uuid" translatable="false">Uuid</string>
     <string name="gid_gematik_error_timestamp" translatable="false">Timestamp</string>
     <string name="gid_fast_track_closed_error">Für diese Krankenversicherung nicht möglich</string>
+    <string name="edit_shipping_contact_empty_phone">Bitte geben Sie für die Kontaktaufnahme eine Telefonnummer an.</string>
+    <string name="edit_shipping_contact_empty_name">Bitte geben Sie für die Kontaktaufnahme einen Vor- und Nachnamen an.</string>
+    <string name="edit_shipping_contact_empty_line1">Bitte geben Sie für die Kontaktaufnahme eine Straße und Hausnummer an.</string>
+    <string name="edit_shipping_contact_empty_postal_code">Bitte geben Sie für die Kontaktaufnahme Ihre Postleitzahl an.</string>
+    <string name="edit_shipping_contact_empty_city">Bitte geben Sie für die Kontaktaufnahme Ihren Wohnort an.</string>
+    <string name="edit_shipping_contact_invalid_phone">Die eingegebene Telefonnummer ist ungültig. (zu kurz, zu lang, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_empty_mail">Bitte geben Sie Für die Kontaktaufnahme eine Mailadresse ein</string>
+    <string name="edit_shipping_contact_invalid_mail">Die eingegebene Mailadresse ist ungültig.</string>
+    <string name="edit_shipping_contact_invalid_name">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_invalid_line1">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_invalid_line2">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_invalid_postal_code">Dir eingegebene Text ist ungültig. (zu lang, zu kurz, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_invalid_city">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
+    <string name="edit_shipping_contact_invalid_delivery_information">Dir eingegebene Text ist ungültig. (zu lang, ungültige Zeichen)</string>
+    <string name="pharmacy_order_contact_information_invalid">Fehlerhafte Daten - Korrektur erforderlich</string>
+    <string name="cdw_intro_auth_additional_app_required">Zusätzliche App benötigt</string>
+    <string name="cdw_intro_auth_prior">Empfohlen</string>
+    <string name="cdw_intro_auth_gid">Digitale Gesundheits-ID</string>
+    <string name="domain_verifier_dialog_title">Einstellungen anpassen ?</string>
+    <string name="domain_verifier_banner_title">404 Seite?</string>
+    <string name="domain_verifier_dialog_body">Bitte aktivieren Sie in Ihren Einstellungen das Öffnen von Links, um fortzufahren.</string>
+    <string name="domain_verifier_dialog_button">Einstellungen öffnen</string>
+    <string name="app_update_title_text">Veraltete Appversion</string>
+    <string name="app_update_description_text">Ihre Version der App ist veraltet und wird nicht mehr unterstützt. Um das E-Rezept weiterhin nutzen zu können, aktualisieren Sie bitte die App.</string>
+    <string name="app_update_Button_text">Aktualisieren</string>
+    <string name="app_playstore_link" translatable="false">https://play.google.com/store/apps/details?id=de.gematik.ti.erp.app</string>
+    <string name="cdw_can_length_info">Ihre CAN ist %s Ziffern lang.</string>
+    <string name="cdw_pin_length_info" formatted="false">Ihre PIN kann %s bis %s Ziffern lang sein.</string>
 </resources>

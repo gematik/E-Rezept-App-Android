@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.update
 class IdpPairingRepository constructor(
     private val localDataSource: IdpLocalDataSource
 ) {
-    private val decryptedAccessTokenMap: MutableStateFlow<Map<ProfileIdentifier, String>> =
+    private val decryptedAccessTokenMap: MutableStateFlow<Map<String, AccessToken>> =
         MutableStateFlow(mutableMapOf())
     private val singleSignOnTokenMap: MutableStateFlow<Map<ProfileIdentifier, IdpData.SingleSignOnToken>> =
         MutableStateFlow(mutableMapOf())
@@ -43,7 +43,7 @@ class IdpPairingRepository constructor(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Save the access token token to mutable state."
     )
-    fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: String) {
+    fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: AccessToken) {
         decryptedAccessTokenMap.update {
             it + (profileId to accessToken)
         }

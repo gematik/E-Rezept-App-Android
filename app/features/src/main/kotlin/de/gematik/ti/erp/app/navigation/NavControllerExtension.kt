@@ -27,18 +27,24 @@ import androidx.navigation.NavController
  * @param route The route to be navigated to.
  * @param excludeUpTodRoute Up to which route the screens need to be removed from the stack
  */
-fun NavController.navigateAndClearStack(route: String, excludeUpTodRoute: String? = null) {
+fun NavController.navigateAndClearStack(
+    route: String,
+    isLaunchSingleTop: Boolean = true,
+    isInclusive: Boolean = true,
+    excludeUpTodRoute: String? = null
+) {
     navigate(route = route) {
-        launchSingleTop = true
+        launchSingleTop = isLaunchSingleTop
         excludeUpTodRoute?.let {
             // pops up to the point that is given
             popUpTo(it) {
-                inclusive = true
+                this.saveState
+                inclusive = isInclusive
             }
         } ?: run {
             // pops up to to the start of the app
             popUpTo(0) {
-                inclusive = true
+                inclusive = isInclusive
             }
         }
     }

@@ -9,6 +9,7 @@
 .externalNativeBuild
 .cxx
 repo
+/artifacts
 
 Jenkinsfile
 Nightly.Jenkinsfile
@@ -29,3 +30,5 @@ technical_requirements_report.html
 keystore
 CODEOWNERS
 local.cliactions.yaml
+jenkinsfiles
+

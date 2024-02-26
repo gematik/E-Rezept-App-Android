@@ -69,6 +69,7 @@ import java.security.Security
 import java.security.interfaces.ECPublicKey
 import javax.crypto.SecretKey
 import kotlin.time.Duration.Companion.hours
+import kotlin.time.Duration.Companion.seconds
 
 private val discoveryDocumentMaxValidityMinutes: Int = 24.hours.inWholeMinutes.toInt()
 private val discoveryDocumentMaxValiditySeconds: Int = 24.hours.inWholeSeconds.toInt()
@@ -266,6 +267,7 @@ class IdpBasicUseCase(
         )
         return IdpAuthFlowResult(
             accessToken = idpTokenResult.decryptedAccessToken,
+            expiresOn = idpTokenResult.expiresOn,
             ssoToken = redirectSsoToken,
             idTokenInsuranceIdentifier = idTokenJson.jsonObject["idNummer"]?.jsonPrimitive?.content ?: "",
             idTokenInsuranceName = idTokenJson.jsonObject["organizationName"]?.jsonPrimitive?.content ?: "",
@@ -317,7 +319,7 @@ class IdpBasicUseCase(
             redirectUri = redirectUri
         )
 
-        return IdpRefreshFlowResult(scope, idpTokenResult.decryptedAccessToken)
+        return IdpRefreshFlowResult(scope, idpTokenResult.decryptedAccessToken, expiresOn = idpTokenResult.expiresOn)
     }
 
     // ////////////////////////////////////////////////////////////////////////////////////////
@@ -445,6 +447,7 @@ class IdpBasicUseCase(
             val json = decryptAccessToken(it, symmetricalKey)
             IdpTokenResult(
                 decryptedAccessToken = Json.parseToJsonElement(json).jsonObject["njwt"]!!.jsonPrimitive.content,
+                expiresOn = Clock.System.now().plus(it.expiresIn.seconds),
                 idTokenPayload = idTokenPayload
             )
         }.getOrThrow()

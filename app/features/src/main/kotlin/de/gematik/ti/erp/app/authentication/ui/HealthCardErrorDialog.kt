@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.cardwall.mini.ui.HealthCardPromptAuthenticator
-import de.gematik.ti.erp.app.cardwall.ui.pinRetriesLeft
+import de.gematik.ti.erp.app.cardwall.ui.components.pinRetriesLeft
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.CommonAlertDialog

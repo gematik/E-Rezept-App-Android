@@ -32,6 +32,9 @@ fun UniversalLinkWrongDialog(
     ErezeptAlertDialog(
         title = stringResource(R.string.main_fasttrack_error_title),
         body = stringResource(id = R.string.main_fasttrack_error_info),
+        // okText = stringResource(R.string.cancel),
+        // confirmText = stringResource(R.string.ok),
+        onConfirmRequest = onDismissRequest,
         onDismissRequest = onDismissRequest
     )
 }

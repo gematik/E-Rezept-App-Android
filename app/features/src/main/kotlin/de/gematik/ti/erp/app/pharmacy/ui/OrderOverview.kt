@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui
 
-import android.annotation.SuppressLint
 import android.content.Context
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -26,7 +25,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
@@ -72,158 +70,145 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyOrderController
 import de.gematik.ti.erp.app.pharmacy.presentation.RedeemPrescriptionsController
 import de.gematik.ti.erp.app.pharmacy.presentation.rememberRedeemPrescriptionsController
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isContactInformationMissing
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase.Companion.isValid
+import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceErrorState
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.AcceptDialog
+import de.gematik.ti.erp.app.utils.compose.NavigationBack
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerShortMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.letNotNull
 import kotlinx.coroutines.launch
 import java.util.UUID
 
 private const val OrderSuccessVideoAspectRatio = 1.69f
 val TopBarColor = Color(0xffd6e9fb)
 
-/*
-   TODO: Change screen layout
-   - Column is not needed and so is the box
-   - putting columns inside lay-column is not a writing code without understanding compose or android
- */
-
 @Requirement(
     "A_19183#2",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "Displays a summary of a prescription assignment to a pharmacy."
 )
-@SuppressLint("UnusedMaterialScaffoldPaddingParameter")
 @Composable
 fun OrderOverview(
-    orderState: PharmacyOrderController,
+    pharmacyOrderController: PharmacyOrderController,
     onClickContacts: () -> Unit,
     onSelectPrescriptions: () -> Unit,
     onBack: () -> Unit,
     onFinish: (Boolean) -> Unit
 ) {
-    val order by orderState.orderState
-    val selectedPharmacy = remember { orderState.selectedPharmacy!! }
-    val selectedOrderOption = remember { orderState.selectedOrderOption!! }
+    val orderState by pharmacyOrderController.orderState
+    val selectedPharmacy = remember { pharmacyOrderController.selectedPharmacy!! }
+    val selectedOrderOption = remember { pharmacyOrderController.selectedOrderOption!! }
 
     val listState = rememberLazyListState()
     val videoHeightPx = remember { mutableFloatStateOf(0f) }
 
-    val contact = order.contact
-    val shippingContactCompleted = remember(contact) {
-        selectedOrderOption == PharmacyScreenData.OrderOption.PickupService ||
-            !contact.phoneOrAddressMissing()
+    val shippingContactState = remember(orderState, selectedOrderOption) {
+        pharmacyOrderController.shippingContactState(orderState.contact, selectedOrderOption)
     }
 
     val scaffoldState = rememberScaffoldState()
     Scaffold(
+        modifier = Modifier.testTag(TestTag.PharmacySearch.OrderSummary.Screen),
         scaffoldState = scaffoldState,
         snackbarHost = {
             SnackbarHost(it, modifier = Modifier.systemBarsPadding())
         }
-    ) {
-        Column(
-            Modifier
-                .testTag(TestTag.PharmacySearch.OrderSummary.Screen)
-                .fillMaxSize()
+    ) { padding ->
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxWidth().padding(padding),
+            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Large)
         ) {
-            Box(
-                Modifier.weight(1f)
-            ) {
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Large)
-                ) {
-                    item {
-                        val shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
-                        VideoContent(
-                            Modifier
-                                .onPlaced {
-                                    videoHeightPx.value = it.size.height.toFloat()
-                                }
-                                .clip(shape)
-                                .background(TopBarColor)
-                                .statusBarsPadding()
-                                .fillMaxWidth(),
-                            source = when (selectedOrderOption) {
-                                PharmacyScreenData.OrderOption.PickupService -> R.raw.animation_local
-                                PharmacyScreenData.OrderOption.CourierDelivery -> R.raw.animation_courier
-                                PharmacyScreenData.OrderOption.MailDelivery -> R.raw.animation_mail
-                            },
-                            aspectRatioOverwrite = OrderSuccessVideoAspectRatio
-                        )
-                    }
-                    item {
-                        SpacerMedium()
-                        Text(
-                            stringResource(R.string.pharmacy_order_title),
-                            textAlign = TextAlign.Center,
-                            style = AppTheme.typography.h5,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = PaddingDefaults.Medium)
-                        )
-                    }
-                    item {
-                        Column(Modifier.padding(horizontal = PaddingDefaults.Medium)) {
-                            Text(stringResource(R.string.pharmacy_order_receiver), style = AppTheme.typography.h6)
-                            SpacerMedium()
-                            ContactSelectionButton(
-                                contact = order.contact,
-                                shippingContactCompleted = shippingContactCompleted,
-                                onClick = onClickContacts
-                            )
-                        }
-                    }
-                    item {
-                        Column(Modifier.padding(horizontal = PaddingDefaults.Medium)) {
-                            Text(stringResource(R.string.pharmacy_order_prescriptions), style = AppTheme.typography.h6)
-                            SpacerMedium()
-                            order.orders.takeIf { it.isNotEmpty() }?.let {
-                                PrescriptionSelectionButton(
-                                    prescriptions = it,
-                                    onClick = onSelectPrescriptions
-                                )
+            item {
+                val shape = RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp)
+                Box {
+                    VideoContent(
+                        Modifier
+                            .onPlaced {
+                                videoHeightPx.floatValue = it.size.height.toFloat()
                             }
-                        }
-                    }
-                    item {
-                        Column(Modifier.padding(horizontal = PaddingDefaults.Medium)) {
-                            Text(stringResource(R.string.pharmacy_order_pharmacy), style = AppTheme.typography.h6)
-                            SpacerMedium()
-                            PharmacySelectionButton(
-                                selectedPharmacy = selectedPharmacy,
-                                selectedOrderOption = selectedOrderOption,
-                                onClick = onBack
-                            )
-                            SpacerMedium()
-                        }
-                    }
+                            .clip(shape)
+                            .background(TopBarColor)
+                            .statusBarsPadding()
+                            .fillMaxWidth(),
+                        source = when (selectedOrderOption) {
+                            PharmacyScreenData.OrderOption.PickupService -> R.raw.animation_local
+                            PharmacyScreenData.OrderOption.CourierDelivery -> R.raw.animation_courier
+                            PharmacyScreenData.OrderOption.MailDelivery -> R.raw.animation_mail
+                        },
+                        aspectRatioOverwrite = OrderSuccessVideoAspectRatio
+                    )
+
+                    NavigationBack(onClick = onBack)
                 }
+            }
+            item {
+                SpacerMedium()
                 Text(
-                    text = stringResource(R.string.pharmacy_order_title),
+                    stringResource(R.string.pharmacy_order_title),
                     textAlign = TextAlign.Center,
-                    style = AppTheme.typography.h6,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    style = AppTheme.typography.h5,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PaddingDefaults.Medium)
                 )
             }
-            RedeemButton(
-                pharmacyOrderController = orderState,
-                scaffoldState = scaffoldState,
-                shippingContactCompleted = shippingContactCompleted,
-                onFinish = onFinish
-            )
+            item {
+                Column(Modifier.padding(horizontal = PaddingDefaults.Medium)) {
+                    Text(stringResource(R.string.pharmacy_order_receiver), style = AppTheme.typography.h6)
+                    SpacerMedium()
+                    ContactSelectionButton(
+                        contact = orderState.contact,
+                        shippingContactState = shippingContactState,
+                        onClick = onClickContacts
+                    )
+                }
+            }
+            item {
+                Column(Modifier.padding(horizontal = PaddingDefaults.Medium)) {
+                    Text(stringResource(R.string.pharmacy_order_prescriptions), style = AppTheme.typography.h6)
+                    SpacerMedium()
+                    orderState.orders.takeIf { it.isNotEmpty() }?.let {
+                        PrescriptionSelectionButton(
+                            prescriptions = it,
+                            onClick = onSelectPrescriptions
+                        )
+                    }
+                }
+            }
+            item {
+                Column(Modifier.padding(horizontal = PaddingDefaults.Medium)) {
+                    Text(stringResource(R.string.pharmacy_order_pharmacy), style = AppTheme.typography.h6)
+                    SpacerMedium()
+                    PharmacySelectionButton(
+                        selectedPharmacy = selectedPharmacy,
+                        selectedOrderOption = selectedOrderOption,
+                        onClick = onBack
+                    )
+                    SpacerMedium()
+                }
+            }
+            item {
+                RedeemButton(
+                    pharmacyOrderController = pharmacyOrderController,
+                    scaffoldState = scaffoldState,
+                    shippingContactCompleted =
+                    shippingContactState == ShippingContactState.ValidShippingContactState.OK,
+                    onFinish = onFinish
+                )
+            }
         }
     }
 }
@@ -246,10 +231,10 @@ private fun RedeemButton(
     val order by pharmacyOrderController.orderState
 
     // TODO : Remove !! and refactor
-    val selectedPharmacy = remember { pharmacyOrderController.selectedPharmacy!! }
+    val selectedPharmacy = remember { pharmacyOrderController.selectedPharmacy }
 
     // TODO : Remove !! and refactor
-    val selectedOrderOption = remember { pharmacyOrderController.selectedOrderOption!! }
+    val selectedOrderOption = remember { pharmacyOrderController.selectedOrderOption }
 
     var uploadInProgress by remember { mutableStateOf(false) }
 
@@ -282,66 +267,72 @@ private fun RedeemButton(
                 onClick = {
                     uploadInProgress = true
                     scope.launch {
-                        try {
-                            val redeemState = if (directRedeemEnabled) {
-                                redeemController.orderPrescriptionsDirectly(
-                                    orderId = UUID.randomUUID(),
-                                    prescriptions = order.orders,
-                                    redeemOption = selectedOrderOption,
-                                    pharmacy = selectedPharmacy,
-                                    contact = order.contact
-                                )
-                            } else {
-                                redeemController
-                                    .orderPrescriptions(
-                                        profileId = profile.id,
+                        letNotNull(selectedOrderOption, selectedPharmacy) { option, pharmacy ->
+                            try {
+                                val redeemState = if (directRedeemEnabled) {
+                                    redeemController.orderPrescriptionsDirectly(
                                         orderId = UUID.randomUUID(),
                                         prescriptions = order.orders,
-                                        redeemOption = selectedOrderOption,
-                                        pharmacy = selectedPharmacy,
+                                        redeemOption = option,
+                                        pharmacy = pharmacy,
                                         contact = order.contact
                                     )
-                            }
-                            when (redeemState) {
-                                is PrescriptionServiceErrorState -> {
-                                    redeemErrorMessage(context, redeemState)?.let {
-                                        scaffoldState.snackbarHostState.showSnackbar(it)
-                                    }
+                                } else {
+                                    redeemController
+                                        .orderPrescriptions(
+                                            profileId = profile.id,
+                                            orderId = UUID.randomUUID(),
+                                            prescriptions = order.orders,
+                                            redeemOption = option,
+                                            pharmacy = pharmacy,
+                                            contact = order.contact
+                                        )
                                 }
-
-                                is RedeemPrescriptionsController.State.Ordered -> {
-                                    val responseCodeMessagesMap = responseCodeMessagesMap(context)
-
-                                    val results = redeemState.results.values
-                                    when {
-                                        results.size == 1 -> {
-                                            // case 1: When one prescription is transferred.
-                                            val responseMessagesPairedList: List<Pair<String, String>> =
-                                                results.mapNotNull {
-                                                    responseCodeMessagesMap[it as PrescriptionServiceState]
-                                                }
-                                            dialogTitle = responseMessagesPairedList.joinToString { it.first ?: "" }
-                                            dialogDescription =
-                                                responseMessagesPairedList.joinToString { it.second ?: "" }
-                                        }
-
-                                        results.contains<Any?>(RedeemPrescriptionsController.State.Success.Ok) -> {
-                                            // case 2.1: When multiple prescriptions are transferred Successfully.
-                                            dialogTitle = context.getString(R.string.server_return_code_200_title)
-                                            dialogDescription = context.getString(R.string.server_return_code_200)
-                                        }
-
-                                        else -> {
-                                            // case 2.2: When any multiple prescription are transferred Unsuccessfully. Show a generic error message.
-                                            dialogTitle = context.getString(R.string.server_return_code_title_failure)
-                                            dialogDescription = context.getString(R.string.several_return_code)
+                                when (redeemState) {
+                                    is PrescriptionServiceErrorState -> {
+                                        redeemErrorMessage(context, redeemState)?.let {
+                                            scaffoldState.snackbarHostState.showSnackbar(it)
                                         }
                                     }
-                                    showDialog = true
+
+                                    is RedeemPrescriptionsController.State.Ordered -> {
+                                        val responseCodeMessagesMap = responseCodeMessagesMap(context)
+
+                                        val results = redeemState.results.values
+                                        when {
+                                            results.size == 1 -> {
+                                                // case 1: When one prescription is transferred.
+                                                val responseMessagesPairedList: List<Pair<String, String>> =
+                                                    results.mapNotNull {
+                                                        responseCodeMessagesMap[it as PrescriptionServiceState]
+                                                    }
+                                                dialogTitle = responseMessagesPairedList.joinToString { it.first ?: "" }
+                                                dialogDescription =
+                                                    responseMessagesPairedList.joinToString { it.second ?: "" }
+                                            }
+
+                                            results.contains<Any?>(RedeemPrescriptionsController.State.Success.Ok) -> {
+                                                // case 2.1: When multiple prescriptions are transferred Successfully.
+                                                dialogTitle = context.getString(R.string.server_return_code_200_title)
+                                                dialogDescription = context.getString(R.string.server_return_code_200)
+                                            }
+
+                                            else -> {
+                                                // case 2.2: When any multiple prescription are transferred Unsuccessfully. Show a generic error message.
+                                                dialogTitle = context.getString(
+                                                    R.string.server_return_code_title_failure
+                                                )
+                                                dialogDescription = context.getString(R.string.several_return_code)
+                                            }
+                                        }
+                                        showDialog = true
+                                    }
+
+                                    else -> {}
                                 }
+                            } finally {
+                                uploadInProgress = false
                             }
-                        } finally {
-                            uploadInProgress = false
                         }
                     }
                 }
@@ -409,13 +400,13 @@ fun PrescriptionRedeemAlertDialog(
 @Composable
 private fun ContactSelectionButton(
     contact: PharmacyUseCaseData.ShippingContact,
-    shippingContactCompleted: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    shippingContactState: ShippingContactState
 ) {
     FlatButton(
         onClick = onClick
     ) {
-        if (contact.addressIsMissing()) {
+        if (contact.isEmpty()) {
             Text(
                 stringResource(R.string.pharmacy_order_add_contacts),
                 style = AppTheme.typography.subtitle1,
@@ -447,11 +438,16 @@ private fun ContactSelectionButton(
                             Text(contact.deliveryInformation, style = AppTheme.typography.body1l)
                         }
                     }
-                    if (!shippingContactCompleted) {
+                    if (!shippingContactState.isValid()) {
+                        val text = if (shippingContactState.isContactInformationMissing()) {
+                            stringResource(R.string.pharmacy_order_further_contact_information_required)
+                        } else {
+                            stringResource(R.string.pharmacy_order_contact_information_invalid)
+                        }
                         SpacerSmall()
                         Surface(shape = RoundedCornerShape(8.dp), color = AppTheme.colors.red100) {
                             Text(
-                                stringResource(R.string.pharmacy_order_further_contact_information_required),
+                                text,
                                 color = AppTheme.colors.red900,
                                 style = AppTheme.typography.subtitle2,
                                 modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)

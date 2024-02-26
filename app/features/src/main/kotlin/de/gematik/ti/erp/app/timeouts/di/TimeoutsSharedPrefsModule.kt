@@ -42,7 +42,7 @@ private const val ENCRYPTED_PREFS_MASTER_KEY_ALIAS = "ENCRYPTED_PREFS_MASTER_KEY
 private const val ENCRYPTED_SHARED_PREFS_TAG = "EncryptedSharedPrefsTag"
 
 val timeoutsSharedPrefsModule = DI.Module("sharedPrefsModule") {
-    bindSingleton {
+    bindSingleton(ENCRYPTED_PREFS_MASTER_KEY_ALIAS) {
         val context = instance<Context>()
         val masterKey = MasterKey.Builder(context, ENCRYPTED_PREFS_MASTER_KEY_ALIAS)
             .setKeyScheme(MasterKey.KeyScheme.AES256_GCM)
@@ -51,7 +51,7 @@ val timeoutsSharedPrefsModule = DI.Module("sharedPrefsModule") {
     }
     bindSingleton(ENCRYPTED_SHARED_PREFS_TAG) {
         val context = instance<Context>()
-        val masterKey = instance<MasterKey>()
+        val masterKey = instance<MasterKey>(ENCRYPTED_PREFS_MASTER_KEY_ALIAS)
 
         EncryptedSharedPreferences.create(
             context,

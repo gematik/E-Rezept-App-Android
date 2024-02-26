@@ -212,7 +212,7 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
 
 @LightDarkPreview
 @Composable
-fun DataProtectionAndTermsOfUseOverviewScreenContentPreviewFalse() {
+fun DataProtectionAndTermsOfUseOverviewScreenContentFalsePreview() {
     PreviewAppTheme {
         LazyColumn {
             dataProtectionAndTermsOfUseOverviewScreenContent(
@@ -227,7 +227,7 @@ fun DataProtectionAndTermsOfUseOverviewScreenContentPreviewFalse() {
 
 @LightDarkPreview
 @Composable
-fun DataProtectionAndTermsOfUseOverviewScreenContentPreviewTrue() {
+fun DataProtectionAndTermsOfUseOverviewScreenContentTruePreview() {
     PreviewAppTheme {
         LazyColumn {
             dataProtectionAndTermsOfUseOverviewScreenContent(

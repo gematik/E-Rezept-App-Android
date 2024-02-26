@@ -52,4 +52,10 @@ class ComposableEvent<T> {
             }
         }
     }
+
+    companion object {
+        fun ComposableEvent<Unit>.trigger() {
+            trigger(Unit)
+        }
+    }
 }

@@ -36,6 +36,7 @@ class ContentSquareMapper {
             NavigationRouteNames.PrescriptionDetailMedicationOverviewScreen -> "prescriptionDetail:medicationOverview"
             NavigationRouteNames.PrescriptionDetailMedicationIngredientsScreen ->
                 "prescriptionDetail:medication_ingredients"
+
             NavigationRouteNames.PrescriptionDetailAccidentInfoScreen -> "prescriptionDetail:accidentInfo"
             NavigationRouteNames.PrescriptionDetailTechnicalInfoScreen -> "prescriptionDetail:technicalInfo"
 
@@ -52,24 +53,68 @@ class ContentSquareMapper {
             NavigationRouteNames.InvoiceLocalCorrectionScreen -> "chargeItem:localCorrection"
             NavigationRouteNames.InvoiceShareScreen -> "chargeItem:share"
 
-            NavigationRouteNames.OnboardingWelcomeScreen -> ""
-            NavigationRouteNames.AllowAnalyticsScreen -> ""
-            NavigationRouteNames.BiometricScreen -> ""
-            NavigationRouteNames.TermsOfUseScreen -> ""
-            NavigationRouteNames.DataProtectionScreen -> ""
-            NavigationRouteNames.OnboardingSelectAppLoginScreen -> ""
-            NavigationRouteNames.OnboardingDataProtectionAndTermsOfUseOverviewScreen -> ""
-            NavigationRouteNames.OnboardingAnalyticsPreviewScreen -> ""
+            NavigationRouteNames.OnboardingWelcomeScreen -> "onboarding:welcome"
+            NavigationRouteNames.AllowAnalyticsScreen -> "onboarding:allowAnalytics"
+            NavigationRouteNames.BiometricScreen -> "onboarding:biometric"
+            NavigationRouteNames.TermsOfUseScreen -> "onboarding:termsOfUse"
+            NavigationRouteNames.DataProtectionScreen -> "onboarding:dataProtection"
+            NavigationRouteNames.OnboardingSelectAppLoginScreen -> "onboarding:selectAppLogin"
+            NavigationRouteNames.OnboardingDataProtectionAndTermsOfUseOverviewScreen ->
+                "onboarding:termsOfUseAndDataProtection"
+
+            NavigationRouteNames.OnboardingAnalyticsPreviewScreen -> "onboarding:analyticsPreview"
 
             NavigationRouteNames.MlKit -> "mlKit"
             NavigationRouteNames.MlKitInformationScreen -> "mlKit:information"
 
+            NavigationRouteNames.CardUnlockIntroScreen -> "healthCardPassword:introduction"
+            NavigationRouteNames.CardUnlockCanScreen -> "healthCardPassword:can"
+            NavigationRouteNames.CardUnlockPukScreen -> "healthCardPassword:puk"
+            NavigationRouteNames.CardUnlockOldSecretScreen -> "healthCardPassword:oldPin"
+            NavigationRouteNames.CardUnlockNewSecretScreen -> "healthCardPassword:pin"
+            NavigationRouteNames.CardUnlockEgkScreen -> "healthCardPassword:readCard"
+
+            NavigationRouteNames.CardWallIntroScreen -> "cardWall:welcome"
+            NavigationRouteNames.CardWallCanScreen -> "cardWall:CAN"
+            NavigationRouteNames.CardWallPinScreen -> "cardWall:PIN"
+            NavigationRouteNames.CardWallSaveCredentialsScreen -> "cardWall:saveCredentials:initial"
+            NavigationRouteNames.CardWallSaveCredentialsInfoScreen -> "cardWall:saveCredentials:information"
+            NavigationRouteNames.CardWallReadCardScreen -> "cardWall:connect"
+            NavigationRouteNames.CardWallExternalAuthenticationScreen -> "cardWall:extAuth"
+
+            NavigationRouteNames.TroubleShootingIntroScreen -> "troubleShooting"
+            NavigationRouteNames.TroubleShootingDeviceOnTopScreen -> "troubleShooting:readCardHelp1"
+            NavigationRouteNames.TroubleShootingFindNfcPositionScreen -> "troubleShooting:readCardHelp2"
+            NavigationRouteNames.TroubleShootingNoSuccessScreen -> "troubleShooting:readCardHelp3"
+
+            NavigationRouteNames.SettingsScreen -> "settings"
+            NavigationRouteNames.SettingsAccessibilityScreen -> "settings:accessibility"
+            NavigationRouteNames.SettingsProductImprovementScreen -> "settings:productImprovements"
+            NavigationRouteNames.SettingsAllowAnalyticsScreen -> "settings:productImprovements:complyTracking"
+            NavigationRouteNames.SettingsDeviceSecurityScreen -> "settings:authenticationMethods"
+            NavigationRouteNames.SettingsSetAppPasswordScreen -> "settings:authenticationMethods:setAppPassword"
+            NavigationRouteNames.SettingsDataProtectionScreen -> "settings:dataProtection"
+            NavigationRouteNames.SettingsTermsOfUseScreen -> "settings:termsOfUse"
+            NavigationRouteNames.SettingsLegalNoticeScreen -> "settings:legalNotice"
+            NavigationRouteNames.SettingsOpenSourceLicencesScreen -> "settings:openSourceLicence"
+            NavigationRouteNames.SettingsAdditionalLicencesScreen -> "settings:additionalLicence"
+
             NavigationRouteNames.PrescriptionScanScreen -> "main:scanner"
+
+            NavigationRouteNames.PharmacyStartScreen -> "pharmacySearch"
+            NavigationRouteNames.PharmacyFilterSheetScreen -> "pharmacySearch:filter"
+            NavigationRouteNames.PharmacySearchListScreen -> "pharmacySearch:detail"
+            NavigationRouteNames.PharmacySearchMapsScreen -> "pharmacySearch:map"
+            NavigationRouteNames.PharmacyOrderOverviewScreen -> "redeem:viaTI"
+            NavigationRouteNames.PharmacyEditShippingContactScreen -> "redeem:editContactInformation"
+            NavigationRouteNames.PharmacyPrescriptionSelectionScreen -> "redeem:prescriptionChooseSubset"
 
             NavigationRouteNames.SampleOverviewScreen -> null
             NavigationRouteNames.BottomSheetSampleScreen -> null
             NavigationRouteNames.BottomSheetSampleLargeScreen -> null
             NavigationRouteNames.BottomSheetSampleSmallScreen -> null
             NavigationRouteNames.DemoTrackerScreen -> null
+
+            NavigationRouteNames.AppUpdateScreen -> "appUpdate"
         }
 }

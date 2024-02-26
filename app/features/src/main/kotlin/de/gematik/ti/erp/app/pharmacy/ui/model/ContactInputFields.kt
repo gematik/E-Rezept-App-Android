@@ -25,14 +25,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.pharmacy.ui.ValidationResult
 import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
 import de.gematik.ti.erp.app.utils.compose.InputField
 
 fun LazyListScope.phoneNumberInputField(
     listState: LazyListState,
     value: String,
-    telephoneOptional: Boolean,
-    isError: Boolean,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
     onSubmit: (String) -> Unit
 ) {
@@ -46,15 +46,21 @@ fun LazyListScope.phoneNumberInputField(
             onSubmit = onSubmit,
             label = {
                 Text(
-                    if (telephoneOptional) {
+                    if (!validationResult.isEmpty) {
                         stringResource(R.string.edit_shipping_contact_phone_optional)
                     } else {
                         stringResource(R.string.edit_shipping_contact_phone)
                     }
                 )
             },
-            isError = isError,
-            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_phone)) },
+            isError = validationResult.isEmpty || validationResult.isInvalid,
+            errorText = {
+                if (validationResult.isEmpty) {
+                    Text(stringResource(R.string.edit_shipping_contact_empty_phone))
+                } else {
+                    Text(stringResource(R.string.edit_shipping_contact_invalid_phone))
+                }
+            },
             keyBoardType = KeyboardType.Phone
         )
     }
@@ -63,9 +69,9 @@ fun LazyListScope.phoneNumberInputField(
 fun LazyListScope.mailInputField(
     listState: LazyListState,
     value: String,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
-    onSubmit: (String) -> Unit,
-    isError: Boolean
+    onSubmit: (String) -> Unit
 ) {
     item(key = "InputField_2") {
         InputField(
@@ -75,8 +81,17 @@ fun LazyListScope.mailInputField(
             value = value,
             onValueChange = onValueChange,
             onSubmit = onSubmit,
-            label = { Text(stringResource(R.string.edit_shipping_contact_mail)) },
-            isError = isError,
+            label = {
+                stringResource(R.string.edit_shipping_contact_mail)
+            },
+            errorText = {
+                if (validationResult.isEmpty) {
+                    Text(stringResource(R.string.edit_shipping_contact_empty_mail))
+                } else {
+                    Text(stringResource(R.string.edit_shipping_contact_invalid_mail))
+                }
+            },
+            isError = validationResult.isEmpty || validationResult.isInvalid,
             keyBoardType = KeyboardType.Email
         )
     }
@@ -86,9 +101,9 @@ fun LazyListScope.mailInputField(
 fun LazyListScope.nameInputField(
     listState: LazyListState,
     value: String,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
-    onSubmit: (String) -> Unit,
-    isError: Boolean
+    onSubmit: (String) -> Unit
 ) {
     item(key = "InputField_3") {
         InputField(
@@ -99,8 +114,14 @@ fun LazyListScope.nameInputField(
             onValueChange = onValueChange,
             onSubmit = onSubmit,
             label = { Text(stringResource(R.string.edit_shipping_contact_name)) },
-            isError = isError,
-            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_name)) }
+            isError = validationResult.isEmpty || validationResult.isInvalid,
+            errorText = {
+                if (validationResult.isEmpty) {
+                    Text(stringResource(R.string.edit_shipping_contact_empty_name))
+                } else {
+                    Text(stringResource(R.string.edit_shipping_contact_invalid_name))
+                }
+            }
         )
     }
 }
@@ -109,9 +130,9 @@ fun LazyListScope.nameInputField(
 fun LazyListScope.streetAndNumberInputField(
     listState: LazyListState,
     value: String,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
-    onSubmit: (String) -> Unit,
-    isError: Boolean
+    onSubmit: (String) -> Unit
 ) {
     item(key = "InputField_4") {
         InputField(
@@ -122,8 +143,14 @@ fun LazyListScope.streetAndNumberInputField(
             onValueChange = onValueChange,
             onSubmit = onSubmit,
             label = { Text(stringResource(R.string.edit_shipping_contact_title_line1)) },
-            isError = isError,
-            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_line1)) }
+            isError = validationResult.isEmpty || validationResult.isInvalid,
+            errorText = {
+                if (validationResult.isEmpty) {
+                    Text(stringResource(R.string.edit_shipping_contact_empty_line1))
+                } else {
+                    Text(stringResource(R.string.edit_shipping_contact_invalid_line1))
+                }
+            }
         )
     }
 }
@@ -132,6 +159,7 @@ fun LazyListScope.streetAndNumberInputField(
 fun LazyListScope.addressSupplementInputField(
     listState: LazyListState,
     value: String,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
     onSubmit: (String) -> Unit
 ) {
@@ -144,7 +172,10 @@ fun LazyListScope.addressSupplementInputField(
             onValueChange = onValueChange,
             onSubmit = onSubmit,
             label = { Text(stringResource(R.string.edit_shipping_contact_line2)) },
-            isError = false
+            isError = validationResult.isInvalid,
+            errorText = {
+                Text(stringResource(R.string.edit_shipping_contact_invalid_line2))
+            }
         )
     }
 }
@@ -153,9 +184,9 @@ fun LazyListScope.addressSupplementInputField(
 fun LazyListScope.postalCodeInputField(
     listState: LazyListState,
     value: String,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
-    onSubmit: (String) -> Unit,
-    isError: Boolean
+    onSubmit: (String) -> Unit
 ) {
     item(key = "InputField_6") {
         InputField(
@@ -166,8 +197,14 @@ fun LazyListScope.postalCodeInputField(
             onValueChange = onValueChange,
             onSubmit = onSubmit,
             label = { Text(stringResource(R.string.edit_shipping_contact_postal_code)) },
-            isError = isError,
-            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_postal_code)) },
+            isError = validationResult.isEmpty || validationResult.isInvalid,
+            errorText = {
+                if (validationResult.isEmpty) {
+                    Text(stringResource(R.string.edit_shipping_contact_empty_postal_code))
+                } else {
+                    Text(stringResource(R.string.edit_shipping_contact_invalid_postal_code))
+                }
+            },
             keyBoardType = KeyboardType.Number
         )
     }
@@ -177,9 +214,9 @@ fun LazyListScope.postalCodeInputField(
 fun LazyListScope.cityInputField(
     listState: LazyListState,
     value: String,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
-    onSubmit: (String) -> Unit,
-    isError: Boolean
+    onSubmit: (String) -> Unit
 ) {
     item(key = "InputField_7") {
         InputField(
@@ -190,8 +227,14 @@ fun LazyListScope.cityInputField(
             onValueChange = onValueChange,
             onSubmit = onSubmit,
             label = { Text(stringResource(R.string.edit_shipping_contact_city)) },
-            isError = isError,
-            errorText = { Text(stringResource(R.string.edit_shipping_contact_error_city)) }
+            isError = validationResult.isEmpty || validationResult.isInvalid,
+            errorText = {
+                if (validationResult.isEmpty) {
+                    Text(stringResource(R.string.edit_shipping_contact_empty_city))
+                } else {
+                    Text(stringResource(R.string.edit_shipping_contact_invalid_city))
+                }
+            }
         )
     }
 }
@@ -200,6 +243,7 @@ fun LazyListScope.cityInputField(
 fun LazyListScope.deliveryInformationInputField(
     listState: LazyListState,
     value: String,
+    validationResult: ValidationResult,
     onValueChange: (String) -> Unit,
     onSubmit: (String) -> Unit
 ) {
@@ -212,7 +256,10 @@ fun LazyListScope.deliveryInformationInputField(
             onValueChange = onValueChange,
             onSubmit = onSubmit,
             label = { Text(stringResource(R.string.edit_shipping_contact_delivery_information)) },
-            isError = false
+            isError = validationResult.isInvalid,
+            errorText = {
+                Text(stringResource(R.string.edit_shipping_contact_invalid_delivery_information))
+            }
         )
     }
 }

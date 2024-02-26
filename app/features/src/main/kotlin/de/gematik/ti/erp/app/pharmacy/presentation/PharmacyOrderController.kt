@@ -27,9 +27,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.profiles.presentation.ProfileController.Companion.DEFAULT_EMPTY_PROFILE
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
@@ -51,6 +53,7 @@ class PharmacyOrderController(
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val pharmacySearchUseCase: PharmacySearchUseCase,
     private val getOrderStateUseCase: GetOrderStateUseCase,
+    private val getShippingContactValidationUseCase: GetShippingContactValidationUseCase,
     private val scope: CoroutineScope
 ) {
     private val activeProfile by lazy {
@@ -134,6 +137,11 @@ class PharmacyOrderController(
         unSelectedPrescriptions.value = emptyList()
     }
 
+    fun shippingContactState(
+        contact: PharmacyUseCaseData.ShippingContact,
+        selectedOrderOption: PharmacyScreenData.OrderOption
+    ): ShippingContactState = getShippingContactValidationUseCase(contact, selectedOrderOption)
+
     @RestrictTo(RestrictTo.Scope.TESTS)
     val updatedOrdersForTest = updatedOrders
 }
@@ -143,6 +151,7 @@ fun rememberPharmacyOrderController(): PharmacyOrderController {
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val pharmacySearchUseCase by rememberInstance<PharmacySearchUseCase>()
     val getOrderStateUseCase by rememberInstance<GetOrderStateUseCase>()
+    val getShippingContactValidationUseCase by rememberInstance<GetShippingContactValidationUseCase>()
     val scope = rememberCoroutineScope()
 
     return remember {
@@ -150,6 +159,7 @@ fun rememberPharmacyOrderController(): PharmacyOrderController {
             getActiveProfileUseCase = getActiveProfileUseCase,
             pharmacySearchUseCase = pharmacySearchUseCase,
             getOrderStateUseCase = getOrderStateUseCase,
+            getShippingContactValidationUseCase = getShippingContactValidationUseCase,
             scope = scope
         )
     }

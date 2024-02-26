@@ -32,5 +32,5 @@ class DecryptAccessTokenUseCase(
 ) {
     operator fun invoke(id: ProfileIdentifier): Flow<String> =
 
-        repository.decryptedAccessToken(id).mapNotNull { it }.flowOn(dispatcher)
+        repository.decryptedAccessToken(id).mapNotNull { it?.accessToken }.flowOn(dispatcher)
 }

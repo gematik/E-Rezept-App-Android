@@ -45,11 +45,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
+import de.gematik.ti.erp.app.appupdate.navigation.AppUpdateNavHost
 import de.gematik.ti.erp.app.authentication.ui.ExternalAuthPrompt
 import de.gematik.ti.erp.app.authentication.ui.HealthCardPrompt
 import de.gematik.ti.erp.app.authentication.ui.SecureHardwarePrompt
@@ -59,6 +61,7 @@ import de.gematik.ti.erp.app.core.AppContent
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalAuthenticator
+import de.gematik.ti.erp.app.core.LocalDi
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeEnded
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeStarted
@@ -98,7 +101,6 @@ class MainActivity : BaseActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        collectCrashOnlyForDebug()
         catchAllUnCaughtExceptions()
 
         lifecycleScope.launch {
@@ -126,6 +128,8 @@ class MainActivity : BaseActivity() {
 
         setContent {
             val view = LocalView.current
+            val isUpdateAvailable by getAppUpdateFlagUseCase.invoke().collectAsStateWithLifecycle()
+
             LaunchedEffect(view) {
                 ViewCompat.setWindowInsetsAnimationCallback(view, null)
             }
@@ -133,89 +137,93 @@ class MainActivity : BaseActivity() {
             withDI(di) {
                 CompositionLocalProvider(
                     LocalActivity provides this,
+                    LocalDi provides di,
                     LocalAnalytics provides analytics,
                     LocalIntentHandler provides intentHandler,
                     LocalAuthenticator provides rememberAuthenticator(intentHandler)
                 ) {
                     val authenticator = LocalAuthenticator.current
+                    val bottomSheetNavigator = rememberBottomSheetNavigator()
+                    val navController = rememberNavController(bottomSheetNavigator)
                     AppContent {
-                        val profilesController = rememberProfileController()
-                        val mainScreenController = rememberMainScreenController()
-                        val screenshotsAllowed by mainScreenController.screenshotsState
-
-                        if (screenshotsAllowed) {
-                            this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                        if (isUpdateAvailable) {
+                            AppUpdateNavHost(navController)
                         } else {
-                            this.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                        }
-                        val authentication by produceState<AuthenticationModeAndMethod?>(null) {
-                            launch {
-                                authenticationModeAndMethod.distinctUntilChangedBy { it::class }
-                                    .collect {
-                                        if (it is AuthenticationModeAndMethod.AuthenticationRequired) {
-                                            authenticator.cancelAllAuthentications()
+                            val profilesController = rememberProfileController()
+                            val mainScreenController = rememberMainScreenController()
+                            val screenshotsAllowed by mainScreenController.screenshotsState
+
+                            if (screenshotsAllowed) {
+                                this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                            } else {
+                                this.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
+                            }
+                            val authentication by produceState<AuthenticationModeAndMethod?>(null) {
+                                launch {
+                                    authenticationModeAndMethod.distinctUntilChangedBy { it::class }
+                                        .collect {
+                                            if (it is AuthenticationModeAndMethod.AuthenticationRequired) {
+                                                authenticator.cancelAllAuthentications()
+                                            }
                                         }
-                                    }
-                            }
-                            authenticationModeAndMethod.collect {
-                                value = it
-                            }
-                        }
-
-                        val bottomSheetNavigator = rememberBottomSheetNavigator()
-                        val navController = rememberNavController(bottomSheetNavigator)
-
-                        val noDrawModifier = Modifier.graphicsLayer(alpha = 0f)
-                        val activeProfile by profilesController.getActiveProfileState()
-                        val isSsoTokenValid = rememberSaveable(activeProfile, activeProfile.ssoTokenScope) {
-                            activeProfile.isSSOTokenValid()
-                        }
-
-                        Box {
-                            if (authentication !is Authenticated) {
-                                Image(
-                                    painterResource(R.drawable.erp_logo),
-                                    null,
-                                    modifier = Modifier.align(Alignment.Center)
-                                )
-                            }
-
-                            DialogHost {
-                                Box(
-                                    if (authentication is Authenticated) Modifier else noDrawModifier
-                                ) {
-                                    // show mini card wall only when we have a invalid sso token
-                                    if (!isSsoTokenValid) {
-                                        HealthCardPrompt(authenticator.authenticatorHealthCard)
-                                        ExternalAuthPrompt(authenticator.authenticatorExternal)
-                                    }
-                                    SecureHardwarePrompt(authenticator.authenticatorSecureElement)
-
-                                    MainScreenNavigation(
-                                        bottomSheetNavigator = bottomSheetNavigator,
-                                        navController = navController
-                                    )
-
-                                    SharePrescriptionHandler(
-                                        activeProfile = activeProfile,
-                                        authenticationModeAndMethod = authenticationModeAndMethod
-                                    )
+                                }
+                                authenticationModeAndMethod.collect {
+                                    value = it
                                 }
                             }
 
-                            DialogHost {
-                                AnimatedVisibility(
-                                    visible = authentication is AuthenticationModeAndMethod.AuthenticationRequired,
-                                    enter = fadeIn(),
-                                    exit = fadeOut()
-                                ) {
-                                    UserAuthenticationScreen()
+                            val noDrawModifier = Modifier.graphicsLayer(alpha = 0f)
+                            val activeProfile by profilesController.getActiveProfileState()
+                            val isSsoTokenValid = rememberSaveable(activeProfile, activeProfile.ssoTokenScope) {
+                                activeProfile.isSSOTokenValid()
+                            }
+
+                            Box {
+                                if (authentication !is Authenticated) {
+                                    Image(
+                                        painterResource(R.drawable.erp_logo),
+                                        null,
+                                        modifier = Modifier.align(Alignment.Center)
+                                    )
+                                }
+
+                                DialogHost {
+                                    Box(
+                                        if (authentication is Authenticated) Modifier else noDrawModifier
+                                    ) {
+                                        // show mini card wall only when we have a invalid sso token
+                                        if (!isSsoTokenValid) {
+                                            HealthCardPrompt(authenticator.authenticatorHealthCard)
+                                            ExternalAuthPrompt(authenticator.authenticatorExternal)
+                                        }
+                                        SecureHardwarePrompt(authenticator.authenticatorSecureElement)
+
+                                        MainScreenNavigation(
+                                            bottomSheetNavigator = bottomSheetNavigator,
+                                            navController = navController
+                                        )
+
+                                        SharePrescriptionHandler(
+                                            activeProfile = activeProfile,
+                                            authenticationModeAndMethod = authenticationModeAndMethod
+                                        )
+                                    }
+                                }
+
+                                DialogHost {
+                                    AnimatedVisibility(
+                                        visible = authentication is AuthenticationModeAndMethod.AuthenticationRequired,
+                                        enter = fadeIn(),
+                                        exit = fadeOut()
+                                    ) {
+                                        UserAuthenticationScreen()
+                                    }
                                 }
                             }
                         }
-                    }
-                    if (BuildConfig.DEBUG && BuildKonfig.DEBUG_VISUAL_TEST_TAGS) {
-                        DebugOverlay(elementsUsedInTests)
+                        if (BuildConfig.DEBUG && BuildKonfig.DEBUG_VISUAL_TEST_TAGS) {
+                            DebugOverlay(elementsUsedInTests)
+                        }
                     }
                 }
             }

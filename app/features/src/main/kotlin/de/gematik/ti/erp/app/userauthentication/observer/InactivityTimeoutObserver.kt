@@ -25,10 +25,10 @@ import androidx.lifecycle.Lifecycle.Event.ON_START
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.timeouts.repository.TimeoutRepository
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.model.SettingsData.AuthenticationMode.Password
-import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import de.gematik.ti.erp.app.settings.repository.SettingsRepository
+import de.gematik.ti.erp.app.timeouts.repository.TimeoutRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -67,7 +67,7 @@ private const val RESET_TIMEOUT = -1L
     rationale = "A Timer is used to measure the time a user is inactive. Every user interaction resets the timer."
 )
 class InactivityTimeoutObserver(
-    private val settingsUseCase: SettingsUseCase,
+    private val settingsRepository: SettingsRepository,
     private val timeoutRepo: TimeoutRepository,
     dispatcher: CoroutineDispatcher = Dispatchers.Default
 ) : LifecycleEventObserver {
@@ -89,8 +89,8 @@ class InactivityTimeoutObserver(
         combineTransform(
             lifecycle,
             authRequired,
-            settingsUseCase.authenticationMode,
-            settingsUseCase.general
+            settingsRepository.authenticationMode,
+            settingsRepository.general
         ) { lifecycle, authRequired, authenticationMode, settings ->
             unspecifiedAuthentication = authenticationMode is SettingsData.AuthenticationMode.Unspecified
 
@@ -159,7 +159,7 @@ class InactivityTimeoutObserver(
     // end::AuthenticationUseCase[]
 
     suspend fun isPasswordValid(password: String): Boolean =
-        settingsUseCase.authenticationMode.map {
+        settingsRepository.authenticationMode.map {
             (it as? Password)?.isValid(password) ?: false
         }.first()
 
@@ -187,10 +187,10 @@ class InactivityTimeoutObserver(
     }
 
     suspend fun incrementNumberOfAuthenticationFailures() =
-        settingsUseCase.incrementNumberOfAuthenticationFailures()
+        settingsRepository.incrementNumberOfAuthenticationFailures()
 
     suspend fun resetNumberOfAuthenticationFailures() =
-        settingsUseCase.resetNumberOfAuthenticationFailures()
+        settingsRepository.resetNumberOfAuthenticationFailures()
 
     override fun onStateChanged(source: LifecycleOwner, event: Event) {
         Napier.i { "Application lifecycle event state: $event" }

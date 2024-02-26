@@ -20,12 +20,14 @@ package de.gematik.ti.erp.app.card.model.command
 
 import de.gematik.ti.erp.app.card.model.card.EncryptedPinFormat2
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.PasswordReference
+import kotlinx.serialization.Serializable
 
 private const val CLA = 0x00
 private const val UNLOCK_EGK_INS = 0x2C
 private const val MODE_VERIFICATION_DATA_NEW_SECRET = 0x00
 private const val MODE_VERIFICATION_DATA = 0x01
 
+@Serializable
 enum class UnlockMethod {
     ChangeReferenceData,
     ResetRetryCounterWithNewSecret,
@@ -37,7 +39,7 @@ enum class UnlockMethod {
  * Use case unlock eGK with/without Secret (Pin) gemSpec_COS#14.6.5.1 und gemSpec_COS#14.6.5.2
  */
 fun HealthCardCommand.Companion.unlockEgk(
-    unlockMethod: UnlockMethod,
+    unlockMethod: String,
     passwordReference: PasswordReference,
     dfSpecific: Boolean,
     puk: EncryptedPinFormat2,
@@ -47,13 +49,13 @@ fun HealthCardCommand.Companion.unlockEgk(
         expectedStatus = unlockEgkStatus,
         cla = CLA,
         ins = UNLOCK_EGK_INS,
-        p1 = if (unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret) {
+        p1 = if (unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret.name) {
             MODE_VERIFICATION_DATA_NEW_SECRET
         } else {
             MODE_VERIFICATION_DATA
         },
         p2 = passwordReference.calculateKeyReference(dfSpecific),
-        data = if (unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret) {
+        data = if (unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret.name) {
             puk.bytes + (newSecret?.bytes ?: byteArrayOf())
         } else {
             puk.bytes

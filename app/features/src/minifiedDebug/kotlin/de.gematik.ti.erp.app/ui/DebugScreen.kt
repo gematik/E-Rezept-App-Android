@@ -21,6 +21,9 @@ package de.gematik.ti.erp.app.ui
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -31,15 +34,23 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -51,6 +62,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -64,9 +76,7 @@ import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
-import de.gematik.ti.erp.app.debugsettings.ui.DebugCard
 import de.gematik.ti.erp.app.debugsettings.ui.DebugScreenPKV
-import de.gematik.ti.erp.app.debugsettings.ui.EditablePathComponentSetButton
 import de.gematik.ti.erp.app.debugsettings.ui.EnvironmentSelector
 import de.gematik.ti.erp.app.debugsettings.ui.LoadingButton
 import de.gematik.ti.erp.app.features.R
@@ -78,6 +88,7 @@ import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
+import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import kotlinx.coroutines.launch
@@ -90,6 +101,100 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+
+@Composable
+fun DebugCard(
+    modifier: Modifier = Modifier,
+    title: String,
+    onReset: (() -> Unit)? = null,
+    content: @Composable ColumnScope.() -> Unit
+) =
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(24.dp),
+        backgroundColor = AppTheme.colors.neutral100,
+        elevation = 10.dp
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            content = {
+                Column(
+                    Modifier.padding(PaddingDefaults.Medium),
+                    verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
+                ) {
+                    Text(
+                        title,
+                        style = MaterialTheme.typography.h6,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                    SpacerMedium()
+                    content()
+                }
+                onReset?.run {
+                    IconButton(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(PaddingDefaults.Small),
+                        onClick = onReset
+                    ) {
+                        Icon(Icons.Rounded.Refresh, null)
+                    }
+                }
+            }
+        )
+    }
+
+@Composable
+fun EditablePathComponentSetButton(
+    modifier: Modifier = Modifier,
+    label: String,
+    text: String,
+    active: Boolean,
+    onValueChange: (String, Boolean) -> Unit,
+    onClick: () -> Unit
+) {
+    val color = if (active) Color.Green else Color.Red
+    val buttonText = if (active) "SAVED" else "SET"
+    EditablePathComponentWithControl(
+        modifier = modifier,
+        label = label,
+        textFieldValue = text,
+        onValueChange = onValueChange,
+        content = {
+            Button(
+                onClick = onClick,
+                colors = ButtonDefaults.buttonColors(backgroundColor = color),
+                enabled = !active
+
+            ) {
+                Text(text = buttonText)
+            }
+        }
+    )
+}
+
+@Composable
+fun EditablePathComponentWithControl(
+    modifier: Modifier,
+    label: String,
+    textFieldValue: String,
+    onValueChange: (String, Boolean) -> Unit,
+    content: @Composable ((Boolean) -> Unit) -> Unit
+) {
+    Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth()) {
+        TextField(
+            value = textFieldValue,
+            onValueChange = { onValueChange(it, false) },
+            label = { Text(label) },
+            maxLines = 3,
+            modifier = Modifier
+                .weight(1f)
+                .padding(end = PaddingDefaults.Medium)
+        )
+
+        content { onValueChange(textFieldValue, it) }
+    }
+}
 
 @Composable
 fun DebugScreen(
@@ -112,6 +217,8 @@ fun DebugScreen(
                 profilesUseCase = instance(),
                 featureToggleManager = instance(),
                 pharmacyDirectRedeemUseCase = instance(),
+                getAppUpdateManagerFlagUseCase = instance(),
+                changeAppUpdateManagerFlagUseCase = instance(),
                 dispatchers = instance()
             )
         }
@@ -160,7 +267,6 @@ fun DebugScreen(
                     )
                 }
             }
-
             composable(DebugScreenNavigation.DebugTimeout.route) {
                 DebugTimeoutScreen.Content {
                     navController.popBackStack()
@@ -314,6 +420,8 @@ fun DebugScreenMain(
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
+    val appUpdateManager by viewModel.appUpdateManagerState
+
     ModalBottomSheetLayout(
         sheetContent = {
             EnvironmentSelector(
@@ -374,6 +482,27 @@ fun DebugScreenMain(
                             text = "Trigger Prescription Refresh"
                         ) {
                             viewModel.refreshPrescriptions()
+                        }
+                    }
+                }
+                item {
+                    DebugCard(
+                        title = "App Update"
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Original app update",
+                                modifier = Modifier
+                                    .weight(1f)
+                            )
+                            Switch(
+                                modifier = Modifier.testTag(TestTag.DebugMenu.FakeAppUpdate),
+                                checked = appUpdateManager,
+                                onCheckedChange = { viewModel.changeAppUpdateManager(it) }
+                            )
                         }
                     }
                 }
@@ -599,4 +728,3 @@ private fun FeatureToggles(modifier: Modifier = Modifier, viewModel: DebugSettin
         }
     }
 }
-

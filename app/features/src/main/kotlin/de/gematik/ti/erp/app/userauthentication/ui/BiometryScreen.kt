@@ -77,9 +77,7 @@ class BiometryScreen(
                         profileName = profileName
                     )
                     navController.navigate(OnboardingRoutes.OnboardingAnalyticsPreviewScreen.path())
-                },
-                onFailure = { navController.popBackStack() },
-                onError = { navController.popBackStack() }
+                }
             )
         }
 

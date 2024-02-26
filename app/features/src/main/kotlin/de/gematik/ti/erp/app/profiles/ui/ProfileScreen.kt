@@ -98,9 +98,9 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.TestTag.Profile.OpenTokensScreenButton
 import de.gematik.ti.erp.app.TestTag.Profile.ProfileScreen
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
@@ -170,7 +170,7 @@ class ProfileScreen(
                         onClickLogIn = {
                             profileController.switchActiveProfile(selectedProfile.id)
                             navController.navigate(
-                                MainNavigationScreens.CardWall.path(selectedProfile.id)
+                                CardWallRoutes.CardWallIntroScreen.path(selectedProfile.id)
                             )
                         },
                         onClickLogout = { profileController.logout(selectedProfile) },
@@ -244,7 +244,7 @@ private fun ProfileScreenContent(
                 onClickLogIn = {
                     profileController.switchActiveProfile(selectedProfile.id)
                     navController.navigate(
-                        MainNavigationScreens.CardWall.path(selectedProfile.id)
+                        CardWallRoutes.CardWallIntroScreen.path(selectedProfile.id)
                     )
                 }
             )

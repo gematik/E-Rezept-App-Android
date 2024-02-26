@@ -25,6 +25,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.datetime.Instant
+
+data class AccessToken(
+    val accessToken: String,
+    val expiresOn: Instant
+)
 
 class AccessTokenDataSource {
 
@@ -33,7 +39,8 @@ class AccessTokenDataSource {
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Store access token in data structure only."
     )
-    private val decryptedAccessTokenMap: MutableStateFlow<Map<String, String>> = MutableStateFlow(mutableMapOf())
+    private val decryptedAccessTokenMap: MutableStateFlow<Map<String, AccessToken>> =
+        MutableStateFlow(mutableMapOf())
 
     fun delete(profileId: ProfileIdentifier) {
         decryptedAccessTokenMap.update {
@@ -41,10 +48,10 @@ class AccessTokenDataSource {
         }
     }
 
-    fun get(profileId: ProfileIdentifier): Flow<String?> =
+    fun get(profileId: ProfileIdentifier): Flow<AccessToken?> =
         decryptedAccessTokenMap.map { it[profileId] }.distinctUntilChanged()
 
-    fun save(profileId: ProfileIdentifier, accessToken: String) {
+    fun save(profileId: ProfileIdentifier, accessToken: AccessToken) {
         decryptedAccessTokenMap.update {
             it + (profileId to accessToken)
         }

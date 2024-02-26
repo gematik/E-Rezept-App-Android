@@ -48,6 +48,35 @@ inline fun <A, R> letNotNullOnCondition(first: A?, condition: () -> Boolean, tra
     }
 }
 
+inline fun <A, B, R> letNotNullOnCondition(
+    first: A?,
+    second: B?,
+    condition: () -> Boolean,
+    transform: (A, B) -> R
+): R? {
+    val result = condition()
+    return if (first != null && second != null && result) {
+        transform(first, second)
+    } else {
+        null
+    }
+}
+
+inline fun <A, B, C, R> letNotNullOnCondition(
+    first: A?,
+    second: B?,
+    third: C?,
+    condition: () -> Boolean,
+    transform: (A, B, C) -> R
+): R? {
+    val result = condition()
+    return if (first != null && second != null && third != null && result) {
+        transform(first, second, third)
+    } else {
+        null
+    }
+}
+
 /**
  * Calls the specified function [transform] with `this` value as its arguments and returns its result when no element is null.
  */
@@ -76,7 +105,6 @@ inline fun <A, B, C, R> letNotNull(first: A?, second: B?, third: C?, transform: 
 /**
  * Calls the specified function [block] with `this` value as its arguments and returns its result when no element is [null].
  */
-@Suppress("ComplexCondition")
 inline fun <A, B, C, D, R> Quad<A, B, C, D>.letNotNull(transform: (A, B, C, D) -> R): R? {
     val firstFrozen = first
     val secondFrozen = second

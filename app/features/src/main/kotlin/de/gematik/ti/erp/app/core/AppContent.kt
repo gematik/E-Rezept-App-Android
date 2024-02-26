@@ -63,13 +63,14 @@ import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.demomode.ui.DemoModeStatusBar
 import de.gematik.ti.erp.app.demomode.ui.checkForDemoMode
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.settings.ui.rememberSettingsController
+import de.gematik.ti.erp.app.settings.presentation.rememberAccessibilitySettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import org.kodein.di.DI
 import kotlin.math.max
 import kotlin.math.min
 
@@ -82,11 +83,13 @@ val LocalActivity =
 val LocalAnalytics =
     staticCompositionLocalOf<Analytics> { error("No analytics provided!") }
 
+val LocalDi = staticCompositionLocalOf<DI> { error("No DI provided!") }
+
 @Composable
 fun AppContent(
     content: @Composable () -> Unit
 ) {
-    val settingsController = rememberSettingsController()
+    val settingsController = rememberAccessibilitySettingsController()
     val zoomState by settingsController.zoomState
 
     AppTheme {

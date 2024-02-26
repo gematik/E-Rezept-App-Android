@@ -50,6 +50,7 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackMainScreenBottomPopUps
 import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.analytics.trackScreenUsingNavEntry
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
@@ -129,7 +130,7 @@ internal fun MainScreenScaffoldContainer(
         },
         onClickToInvoices = onClickGoToInvoicesAction,
         onShowCardWall = {
-            mainNavController.navigate(MainNavigationScreens.CardWall.path(activeProfile.id))
+            mainNavController.navigate(CardWallRoutes.CardWallIntroScreen.path(activeProfile.id))
         }
     )
 

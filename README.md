@@ -111,21 +111,16 @@ gradle :android:assemble(Google|Huawei)Pu(External|Internal)(Debug|Release) -Pbu
 
 *Note: Currently the android build variant is derived from the `buildkonfig.flavor` property.*
 
+#### APK
+
 The resulting `.apk` can be found in e.g. `app/android/build/outputs/apk/googlePuExternal/debug/`.
+
+Additionally, you can find the latest apk [here](https://github.com/gematik/E-Rezept-App-Android/releases/latest)
 
 #### Visualize Test Tags
 
 See [Visualize Test Tags](documentation/test-tags.md)
 
-### Desktop
-
-To build a fat JAR run:
-
-```shell
-gradle :desktop:packageUberJarForCurrentOS -Pbuildkonfig.flavor=desktopPu(External|Internal)
-```
-
-Java 15 is required to execute the JAR located in `desktop/build/compose/jars/`.
 
 ### Links Sourcecode
 

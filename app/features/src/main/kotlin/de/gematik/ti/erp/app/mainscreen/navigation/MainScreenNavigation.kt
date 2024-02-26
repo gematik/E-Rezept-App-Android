@@ -24,40 +24,35 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navOptions
 import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.navigation.material.ModalBottomSheetLayout
-import de.gematik.ti.erp.app.LegalNoticeWithScaffold
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.navigation.trackingGraph
 import de.gematik.ti.erp.app.analytics.trackNavigationChangesAsync
 import de.gematik.ti.erp.app.analytics.trackPopUps
 import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
 import de.gematik.ti.erp.app.appsecurity.navigation.appSecurityGraph
-import de.gematik.ti.erp.app.card.model.command.UnlockMethod
-import de.gematik.ti.erp.app.cardunlock.ui.UnlockEgKScreen
-import de.gematik.ti.erp.app.cardwall.ui.CardWallScreen
+import de.gematik.ti.erp.app.cardunlock.navigation.cardUnlockGraph
+import de.gematik.ti.erp.app.cardwall.navigation.cardWallGraph
 import de.gematik.ti.erp.app.core.LocalAnalytics
+import de.gematik.ti.erp.app.core.LocalDi
 import de.gematik.ti.erp.app.debugsettings.navigation.exampleScreensGraph
-import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.license.ui.LicenseScreen
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberMainScreenController
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenScaffoldContainer
 import de.gematik.ti.erp.app.mlkit.navigation.MlKitRoutes
 import de.gematik.ti.erp.app.mlkit.navigation.mlKitGraph
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
-import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.onboardingGraph
 import de.gematik.ti.erp.app.onboarding.ui.DeprecatedOnboardingNavigationScreens
 import de.gematik.ti.erp.app.orderhealthcard.ui.HealthCardContactOrderScreen
 import de.gematik.ti.erp.app.orders.ui.OrderOverviewScreen
+import de.gematik.ti.erp.app.pharmacy.navigation.pharmacyGraph
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyNavigation
 import de.gematik.ti.erp.app.pkv.navigation.pkvGraph
 import de.gematik.ti.erp.app.prescription.detail.navigation.prescriptionDetailGraph
@@ -68,18 +63,12 @@ import de.gematik.ti.erp.app.prescription.ui.ArchiveScreen
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.prescription.ui.RefreshedState
 import de.gematik.ti.erp.app.profiles.navigation.profileGraph
-import de.gematik.ti.erp.app.profiles.ui.ProfileImageCropperScreen
 import de.gematik.ti.erp.app.redeem.ui.RedeemNavigation
-import de.gematik.ti.erp.app.settings.ui.AllowAnalyticsScreenComposable
-import de.gematik.ti.erp.app.settings.ui.PharmacyLicenseScreen
-import de.gematik.ti.erp.app.settings.ui.SecureAppWithPassword
-import de.gematik.ti.erp.app.settings.ui.SettingsScreen
+import de.gematik.ti.erp.app.settings.navigation.settingsGraph
+import de.gematik.ti.erp.app.troubleshooting.navigation.troubleShootingGraph
 import de.gematik.ti.erp.app.ui.DebugScreenWrapper
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
-import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
-import de.gematik.ti.erp.app.webview.URI_TERMS_OF_USE
-import de.gematik.ti.erp.app.webview.WebViewScreen
 
 @OptIn(ExperimentalMaterialNavigationApi::class)
 @Requirement(
@@ -456,6 +445,8 @@ fun MainScreenNavigation(
     bottomSheetNavigator: BottomSheetNavigator,
     navController: NavHostController
 ) {
+    val dependencyInjector = LocalDi.current
+
     /**
      * Main screen navigation start check
      */
@@ -485,29 +476,6 @@ fun MainScreenNavigation(
                 navController,
                 startDestination = startDestinationScreen
             )
-            composable(MainNavigationScreens.DataProtection.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    @Requirement(
-                        "O.Arch_8#2",
-                        "O.Plat_11#2",
-                        sourceSpecification = "BSI-eRp-ePA",
-                        rationale = "Webview containing local html without javascript"
-                    )
-                    WebViewScreen(
-                        title = stringResource(R.string.onb_data_consent),
-                        onBack = { navController.popBackStack() },
-                        url = URI_DATA_TERMS
-                    )
-                }
-            }
-            composable(
-                MainNavigationScreens.Settings.route,
-                MainNavigationScreens.Settings.arguments
-            ) {
-                SettingsScreen(
-                    mainNavController = navController
-                )
-            }
             composable(MainNavigationScreens.Prescriptions.route) {
                 @Requirement(
                     "O.Plat_1#2",
@@ -564,141 +532,12 @@ fun MainScreenNavigation(
                     mainNavController = navController
                 )
             }
-            composable(
-                MainNavigationScreens.CardWall.route,
-                MainNavigationScreens.CardWall.arguments
-            ) {
-                val profileId =
-                    remember { it.arguments?.getString("profileId")!! }
-                CardWallScreen(
-                    navController,
-                    onResumeCardWall = {
-                        navController.navigate(
-                            MainNavigationScreens.Prescriptions.path(),
-                            navOptions {
-                                popUpTo(MainNavigationScreens.Prescriptions.route) {
-                                    inclusive = true
-                                }
-                            }
-                        )
-                    },
-                    profileId = profileId
-                )
-            }
             composable(MainNavigationScreens.Debug.route) {
                 DebugScreenWrapper(navController)
-            }
-            composable(MainNavigationScreens.Terms.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    @Requirement(
-                        "O.Arch_8#3",
-                        "O.Plat_11#3",
-                        sourceSpecification = "BSI-eRp-ePA",
-                        rationale = "Webview containing local html without javascript"
-                    )
-                    WebViewScreen(
-                        title = stringResource(R.string.onb_terms_of_use),
-                        onBack = { navController.popBackStack() },
-                        url = URI_TERMS_OF_USE
-                    )
-                }
-            }
-            composable(MainNavigationScreens.Imprint.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    LegalNoticeWithScaffold(
-                        navController
-                    )
-                }
-            }
-            composable(MainNavigationScreens.DataProtection.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    @Requirement(
-                        "O.Arch_8#4",
-                        "O.Plat_11#4",
-                        sourceSpecification = "BSI-eRp-ePA",
-                        rationale = "Webview containing local html without javascript"
-                    )
-                    WebViewScreen(
-                        title = stringResource(R.string.onb_data_consent),
-                        onBack = { navController.popBackStack() },
-                        url = URI_DATA_TERMS
-                    )
-                }
-            }
-            composable(MainNavigationScreens.OpenSourceLicences.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    LicenseScreen(
-                        onBack = { navController.popBackStack() }
-                    )
-                }
-            }
-            composable(MainNavigationScreens.AdditionalLicences.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    PharmacyLicenseScreen {
-                        navController.popBackStack()
-                    }
-                }
-            }
-            composable(MainNavigationScreens.AllowAnalytics.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    AllowAnalyticsScreenComposable(
-                        onBack = { navController.popBackStack() },
-                        onAllowAnalytics = {
-                            mainScreenController.allowAnalytics(it)
-                        }
-                    )
-                }
-            }
-            composable(MainNavigationScreens.Password.route) {
-                NavigationAnimation(mode = navigationMode) {
-                    SecureAppWithPassword(
-                        onSelectPasswordAsAuthenticationMode = { password ->
-                            mainScreenController.selectPasswordAsAuthenticationMode(password)
-                        },
-                        onBack = {
-                            navController.popBackStack()
-                        }
-                    )
-                }
             }
             composable(MainNavigationScreens.OrderHealthCard.route) {
                 HealthCardContactOrderScreen(onBack = { navController.popBackStack() })
             }
-            renderComposable(
-                route = MainNavigationScreens.ProfileImageCropper.route,
-                arguments = MainNavigationScreens.ProfileImageCropper.arguments
-            ) { navEntry ->
-                ProfileImageCropperScreen(
-                    navController = navController,
-                    navBackStackEntry = navEntry
-                )
-            }
-            composable(
-                MainNavigationScreens.UnlockEgk.route,
-                MainNavigationScreens.UnlockEgk.arguments
-            ) {
-                val unlockMethod = remember { it.arguments!!.getString("unlockMethod") }
-
-                NavigationAnimation(mode = navigationMode) {
-                    UnlockEgKScreen(
-                        unlockMethod = when (unlockMethod) {
-                            UnlockMethod.ChangeReferenceData.name -> UnlockMethod.ChangeReferenceData
-                            UnlockMethod.ResetRetryCounter.name -> UnlockMethod.ResetRetryCounter
-                            UnlockMethod.ResetRetryCounterWithNewSecret.name ->
-                                UnlockMethod.ResetRetryCounterWithNewSecret
-
-                            else -> UnlockMethod.None
-                        },
-                        onCancel = { navController.popBackStack() },
-                        onClickLearnMore = {
-                            navController.navigate(
-                                MainNavigationScreens.OrderHealthCard.path()
-                            )
-                        }
-                    )
-                }
-            }
-
             composable(
                 MainNavigationScreens.Archive.route
             ) {
@@ -713,8 +552,22 @@ fun MainScreenNavigation(
                     }
                 }
             }
-            exampleScreensGraph(navController)
+            exampleScreensGraph(navController = navController)
             trackingGraph(navController)
+            settingsGraph(navController = navController)
+            troubleShootingGraph(navController = navController)
+            cardUnlockGraph(
+                dependencyInjector = dependencyInjector,
+                navController = navController
+            )
+            cardWallGraph(
+                dependencyInjector = dependencyInjector,
+                navController = navController
+            )
+            pharmacyGraph(
+                dependencyInjector = dependencyInjector,
+                navController = navController
+            )
         }
     }
 }

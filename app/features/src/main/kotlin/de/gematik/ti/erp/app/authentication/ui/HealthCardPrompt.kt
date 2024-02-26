@@ -51,9 +51,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.cardwall.mini.ui.HealthCardPromptAuthenticator
-import de.gematik.ti.erp.app.cardwall.ui.ReadingCardAnimation
-import de.gematik.ti.erp.app.cardwall.ui.SearchingCardAnimation
-import de.gematik.ti.erp.app.cardwall.ui.TagLostCard
+import de.gematik.ti.erp.app.cardwall.ui.components.ReadingCardAnimation
+import de.gematik.ti.erp.app.cardwall.ui.components.SearchingCardAnimation
+import de.gematik.ti.erp.app.cardwall.ui.components.TagLostCard
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults

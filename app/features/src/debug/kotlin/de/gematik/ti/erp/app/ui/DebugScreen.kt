@@ -217,6 +217,8 @@ fun DebugScreen(
                 profilesUseCase = instance(),
                 featureToggleManager = instance(),
                 pharmacyDirectRedeemUseCase = instance(),
+                getAppUpdateManagerFlagUseCase = instance(),
+                changeAppUpdateManagerFlagUseCase = instance(),
                 dispatchers = instance()
             )
         }
@@ -418,6 +420,8 @@ fun DebugScreenMain(
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
+    val appUpdateManager by viewModel.appUpdateManagerState
+
     ModalBottomSheetLayout(
         sheetContent = {
             EnvironmentSelector(
@@ -478,6 +482,27 @@ fun DebugScreenMain(
                             text = "Trigger Prescription Refresh"
                         ) {
                             viewModel.refreshPrescriptions()
+                        }
+                    }
+                }
+                item {
+                    DebugCard(
+                        title = "App Update"
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Original app update",
+                                modifier = Modifier
+                                    .weight(1f)
+                            )
+                            Switch(
+                                modifier = Modifier.testTag(TestTag.DebugMenu.FakeAppUpdate),
+                                checked = appUpdateManager,
+                                onCheckedChange = { viewModel.changeAppUpdateManager(it) }
+                            )
                         }
                     }
                 }
@@ -703,61 +728,3 @@ private fun FeatureToggles(modifier: Modifier = Modifier, viewModel: DebugSettin
         }
     }
 }
-
-/*@Composable
-fun EnvironmentSelector(
-    currentSelectedEnvironment: Environment,
-    onSelectEnvironment: (environment: Environment) -> Unit,
-    onSaveEnvironment: () -> Unit
-) {
-    var selectedEnvironment by remember { mutableStateOf(currentSelectedEnvironment) }
-
-    Column(
-        modifier = Modifier
-            .navigationBarsPadding()
-            .fillMaxWidth()
-            .selectableGroup()
-    ) {
-        Text(
-            text = stringResource(R.string.debug_select_environment),
-            style = AppTheme.typography.h6,
-            modifier = Modifier.padding(PaddingDefaults.Medium)
-        )
-
-        Environment.values().forEach {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable {
-                        selectedEnvironment = it
-                        onSelectEnvironment(it)
-                    }
-            ) {
-                Row(
-                    modifier = Modifier.padding(
-                        horizontal = PaddingDefaults.Medium,
-                        vertical = PaddingDefaults.Small
-                    ),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    RadioButton(
-                        modifier = Modifier.size(32.dp),
-                        selected = selectedEnvironment == it,
-                        onClick = {
-                            selectedEnvironment = it
-                            onSelectEnvironment(it)
-                        }
-                    )
-                    Text(it.name)
-                }
-            }
-        }
-        Row(modifier = Modifier.padding(PaddingDefaults.Medium)) {
-            Button(modifier = Modifier.fillMaxWidth(), onClick = { onSaveEnvironment() }) {
-                Text(text = stringResource(R.string.debug_save_environment))
-            }
-            Spacer(modifier = Modifier.navigationBarsPadding())
-        }
-    }
-}*/

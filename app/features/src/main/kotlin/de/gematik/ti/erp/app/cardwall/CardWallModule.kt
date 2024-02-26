@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.cardwall
 
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallLoadNfcPositionUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
@@ -32,4 +33,5 @@ val cardWallModule = DI.Module("cardWallModule") {
     bindProvider { CardWallLoadNfcPositionUseCase(instance()) }
     bindProvider { CardWallUseCase(instance(), instance()) }
     bindSingleton { MiniCardWallUseCase(instance(), instance()) }
+    bindProvider { CardWallGraphController() }
 }

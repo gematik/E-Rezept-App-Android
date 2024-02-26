@@ -75,12 +75,6 @@ class SettingsRepository constructor(
 
     fun isAnalyticsAllowed() = settings.mapNotNull { settings -> settings?.trackingAllowed }
 
-    suspend fun changeTrackingState(state: Boolean) {
-        writeToRealm {
-            this.trackingAllowed = state
-        }
-    }
-
     // TODO: Not used
     override val authenticationMode: Flow<SettingsData.AuthenticationMode>
         get() = realm.query<SettingsEntityV1>().first().asFlow().mapNotNull { query ->

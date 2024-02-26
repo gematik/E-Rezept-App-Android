@@ -37,8 +37,8 @@ open class BiometricPromptBuilder(val activity: AppCompatActivity) {
 
     private fun authenticationCallback(
         onSuccess: () -> Unit,
-        onFailure: () -> Unit,
-        onError: () -> Unit
+        onFailure: (() -> Unit)? = null,
+        onError: (() -> Unit)? = null
     ): BiometricPrompt.AuthenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
@@ -46,7 +46,7 @@ open class BiometricPromptBuilder(val activity: AppCompatActivity) {
                 tag = "BiometricPrompt",
                 message = "authentication failed"
             )
-            onFailure()
+            onFailure?.invoke()
         }
 
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
@@ -55,7 +55,7 @@ open class BiometricPromptBuilder(val activity: AppCompatActivity) {
                 tag = "BiometricPrompt",
                 message = "authentication error $errString"
             )
-            onError()
+            onError?.invoke()
         }
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -84,8 +84,8 @@ open class BiometricPromptBuilder(val activity: AppCompatActivity) {
 
     fun buildBiometricPrompt(
         onSuccess: () -> Unit,
-        onFailure: () -> Unit,
-        onError: () -> Unit
+        onFailure: (() -> Unit)? = null,
+        onError: (() -> Unit)? = null
     ): BiometricPrompt = BiometricPrompt(activity, executor, authenticationCallback(onSuccess, onFailure, onError))
 
     @Requirement(

@@ -289,6 +289,7 @@ object TestTag {
         val CertificateField by tagName()
         val PrivateKeyField by tagName()
         val SetVirtualHealthCardButton by tagName()
+        val FakeAppUpdate by tagName()
     }
 
     object BottomNavigation {

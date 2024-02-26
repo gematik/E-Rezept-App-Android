@@ -22,9 +22,8 @@ import android.os.Parcelable
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import de.gematik.ti.erp.app.analytics.PopUpName
-import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.navigation.Routes
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.settings.navigation.SettingsNavigationScreens
 import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
@@ -34,7 +33,6 @@ data class TaskIds(val ids: List<String>) : Parcelable, List<String> by ids
 
 object MainNavigationScreens {
     object Onboarding : Routes("onboarding")
-    object Settings : Routes("settings")
     object Prescriptions : Routes("main")
     object Archive : Routes("main_prescriptionArchive")
 
@@ -52,43 +50,15 @@ object MainNavigationScreens {
 
     object Redeem : Routes("redeem_methodSelection")
 
-    object ProfileImageCropper : Routes(
-        "profile_editPicture_imageCropper",
-        navArgument("profileId") { type = NavType.StringType }
-    ) {
-        fun path(profileId: String) = path("profileId" to profileId)
-    }
-
-    object CardWall : Routes(
-        "cardWall_introduction",
-        navArgument("profileId") { type = NavType.StringType }
-    ) {
-        fun path(profileId: ProfileIdentifier) = path("profileId" to profileId)
-    }
-    object DataProtection : Routes("settings_dataProtection")
-
-    object Terms : Routes("settings_termsOfUse")
-    object Imprint : Routes("settings_legalNotice")
-    object OpenSourceLicences : Routes("settings_openSourceLicence")
-    object AdditionalLicences : Routes("settings_additionalLicence")
-    object AllowAnalytics : Routes("settings_productImprovements_complyTracking")
-    object Password : Routes("settings_authenticationMethods_setAppPassword")
     object Debug : Routes("debug")
     object OrderHealthCard : Routes("contactInsuranceCompany")
-
-    object UnlockEgk : Routes(
-        "healthCardPassword_introduction",
-        navArgument("unlockMethod") { type = NavType.StringType }
-    ) {
-        fun path(unlockMethod: UnlockMethod) = path("unlockMethod" to unlockMethod.name)
-    }
 }
 
 val MainScreenBottomNavigationItems = listOf(
     MainNavigationScreens.Prescriptions,
     MainNavigationScreens.Pharmacies,
     MainNavigationScreens.Orders,
-    MainNavigationScreens.Settings
+    SettingsNavigationScreens.SettingsScreen
 )
 
 object MainScreenBottomPopUpNames {

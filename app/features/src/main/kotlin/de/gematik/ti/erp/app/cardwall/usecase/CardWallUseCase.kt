@@ -18,13 +18,14 @@
 
 package de.gematik.ti.erp.app.cardwall.usecase
 
-import android.content.Context
-import android.nfc.NfcAdapter
 import de.gematik.ti.erp.app.ErezeptApp.Companion.applicationModule
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
+import de.gematik.ti.erp.app.utils.extensions.hasNFCTerminal
+import de.gematik.ti.erp.app.utils.extensions.isNfcEnabled
+import de.gematik.ti.erp.app.utils.extensions.riskyOperation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,22 +35,21 @@ open class CardWallUseCase(
     private val cardWallRepository: CardWallRepository
 ) {
     private val deviceHasNFCFlow =
-        MutableStateFlow(applicationModule.androidContext().deviceHasNFC() || cardWallRepository.hasFakeNFCEnabled)
+        MutableStateFlow(applicationModule.androidContext().hasNFCTerminal() || cardWallRepository.hasFakeNFCEnabled)
+
     val deviceHasNfcStateFlow: Flow<Boolean> = deviceHasNFCFlow.asStateFlow()
     fun updateDeviceNFCCapability(value: Boolean) {
         cardWallRepository.hasFakeNFCEnabled = value
         deviceHasNFCFlow.value = value
     }
-    fun checkNfcEnabled(): Boolean = applicationModule.androidContext().nfcEnabled()
+
+    // On some devices, the isEnabled() method of the NFCManager throws an exception
+    // https://stackoverflow.com/questions/23564475/check-programmatically-if-device-has-nfc-reader
+    fun checkNfcEnabled(): Boolean = riskyOperation(
+        block = applicationModule.androidContext()::isNfcEnabled,
+        defaultValue = false
+    ) ?: false
+
     fun authenticationData(profileId: ProfileIdentifier): Flow<IdpData.AuthenticationData> =
         idpRepository.authenticationData(profileId)
-}
-
-fun Context.deviceHasNFC(): Boolean =
-    this.packageManager.hasSystemFeature("android.hardware.nfc")
-
-private fun Context.nfcEnabled(): Boolean = if (this.deviceHasNFC()) {
-    NfcAdapter.getDefaultAdapter(this).isEnabled
-} else {
-    false
 }

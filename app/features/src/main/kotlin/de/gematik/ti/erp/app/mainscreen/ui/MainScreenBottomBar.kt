@@ -51,6 +51,7 @@ import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomNavigationIte
 import de.gematik.ti.erp.app.mainscreen.navigation.calculatePrescriptionCount
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.profiles.presentation.ProfileController
+import de.gematik.ti.erp.app.settings.navigation.SettingsNavigationScreens
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
 
@@ -85,7 +86,7 @@ internal fun MainScreenBottomBar(
                         MainNavigationScreens.Prescriptions -> TestTag.BottomNavigation.PrescriptionButton
                         MainNavigationScreens.Orders -> TestTag.BottomNavigation.OrdersButton
                         MainNavigationScreens.Pharmacies -> TestTag.BottomNavigation.PharmaciesButton
-                        MainNavigationScreens.Settings -> TestTag.BottomNavigation.SettingsButton
+                        SettingsNavigationScreens.SettingsScreen -> TestTag.BottomNavigation.SettingsButton
                         else -> ""
                     }
                 ),
@@ -156,7 +157,7 @@ internal fun MainScreenBottomBar(
                                     )
                                 }
 
-                            MainNavigationScreens.Settings -> Icon(
+                            SettingsNavigationScreens.SettingsScreen -> Icon(
                                 Icons.Outlined.Settings,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -171,7 +172,7 @@ internal fun MainScreenBottomBar(
                                 MainNavigationScreens.Prescriptions -> R.string.pres_bottombar_prescriptions
                                 MainNavigationScreens.Orders -> R.string.pres_bottombar_orders
                                 MainNavigationScreens.Pharmacies -> R.string.pres_bottombar_pharmacies
-                                MainNavigationScreens.Settings -> R.string.main_settings_acc
+                                SettingsNavigationScreens.SettingsScreen -> R.string.main_settings_acc
                                 else -> R.string.pres_bottombar_prescriptions
                             }
                         ),

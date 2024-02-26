@@ -63,7 +63,7 @@ class IdpRepository(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "Store access token in data structure only."
     )
-    fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: String) {
+    fun saveDecryptedAccessToken(profileId: ProfileIdentifier, accessToken: AccessToken) {
         accessTokenDataSource.save(profileId, accessToken)
     }
 

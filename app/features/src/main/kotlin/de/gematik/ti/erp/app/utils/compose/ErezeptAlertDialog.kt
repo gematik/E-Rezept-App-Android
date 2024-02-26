@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.utils.compose
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,39 +27,114 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.contentColorFor
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddTask
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Cancel
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
-import androidx.compose.material3.AlertDialog
-import androidx.compose.ui.Alignment
+import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.ErezeptText.ErezeptTextAlignment.Center
+import de.gematik.ti.erp.app.utils.compose.ErezeptText.ErezeptTextAlignment.Default
+import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
     title: String,
     body: String,
     okText: String = stringResource(R.string.ok),
+    titleAlignment: ErezeptText.ErezeptTextAlignment = Center,
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    dismissButtonIcon: ImageVector? = null,
+    onDismissRequest: () -> Unit,
+    onConfirmRequest: () -> Unit
+) {
+    InternalErezeptAlertDialog(
+        modifier = modifier,
+        title = title,
+        titleAlignment = titleAlignment,
+        body = body,
+        buttonsArrangement = buttonsArrangement,
+        dismissText = okText,
+        dismissButtonIcon = dismissButtonIcon,
+        onConfirmRequest = onConfirmRequest,
+        onDismissRequest = onDismissRequest
+    )
+}
+
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    body: String,
+    confirmText: String = stringResource(R.string.ok),
+    dismissText: String,
+    titleAlignment: ErezeptText.ErezeptTextAlignment = Center,
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    confirmButtonIcon: ImageVector? = null,
+    dismissButtonIcon: ImageVector? = null,
+    onConfirmRequest: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    InternalErezeptAlertDialog(
+        modifier = modifier,
+        title = title,
+        body = body,
+        confirmText = confirmText,
+        dismissText = dismissText,
+        confirmButtonIcon = confirmButtonIcon,
+        dismissButtonIcon = dismissButtonIcon,
+        titleAlignment = titleAlignment,
+        buttonsArrangement = buttonsArrangement,
+        onConfirmRequest = onConfirmRequest,
+        onDismissRequest = onDismissRequest
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InternalErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    titleAlignment: ErezeptText.ErezeptTextAlignment = Center,
+    body: String,
+    confirmText: String? = null,
+    dismissText: String,
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    confirmButtonIcon: ImageVector? = null,
+    dismissButtonIcon: ImageVector? = null,
+    onConfirmRequest: (() -> Unit)? = null,
     onDismissRequest: () -> Unit
 ) {
     AlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismissRequest
     ) {
         Surface(
-            color = MaterialTheme.colors.surface,
+            color = AppTheme.colors.neutral025,
             shape = RoundedCornerShape(SizeDefaults.triple),
-            contentColor = contentColorFor(MaterialTheme.colors.surface)
+            border = BorderStroke(
+                width = SizeDefaults.eighth,
+                color = AppTheme.colors.neutral400
+            ),
+            contentColor = contentColorFor(AppTheme.colors.neutral025)
         ) {
             Column(
                 modifier = Modifier
@@ -68,22 +144,50 @@ fun ErezeptAlertDialog(
                 SpacerMedium()
                 ErezeptText.Title(
                     text = title,
-                    textAlignment = Center
+                    textAlignment = titleAlignment
                 )
                 SpacerMedium()
                 ErezeptText.Body(body)
                 SpacerMedium()
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End
+                    horizontalArrangement = buttonsArrangement
                 ) {
                     TextButton(
-                        modifier = Modifier.testTag(TestTag.AlertDialog.ConfirmButton),
+                        modifier = Modifier.testTag(TestTag.AlertDialog.CancelButton),
                         onClick = onDismissRequest
                     ) {
-                        Text(okText)
+                        Text(dismissText)
+                        dismissButtonIcon?.let { dismissIcon ->
+                            SpacerTiny()
+                            Icon(
+                                imageVector = dismissIcon,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                    letNotNullOnCondition(
+                        first = confirmText,
+                        condition = { onConfirmRequest != null }
+                    ) { text ->
+                        TextButton(
+                            modifier = Modifier.testTag(TestTag.AlertDialog.ConfirmButton),
+                            onClick = {
+                                onConfirmRequest?.invoke()
+                            }
+                        ) {
+                            Text(text)
+                            confirmButtonIcon?.let { confirmIcon ->
+                                SpacerTiny()
+                                Icon(
+                                    imageVector = confirmIcon,
+                                    contentDescription = null
+                                )
+                            }
+                        }
                     }
                 }
+                SpacerMedium()
             }
         }
     }
@@ -92,17 +196,23 @@ fun ErezeptAlertDialog(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
     title: String,
     body: @Composable ColumnScope.() -> Unit,
     okText: String = stringResource(R.string.ok),
     onDismissRequest: () -> Unit
 ) {
     AlertDialog(
+        modifier = modifier,
         onDismissRequest = onDismissRequest
     ) {
         Surface(
             color = MaterialTheme.colors.surface,
             shape = RoundedCornerShape(SizeDefaults.triple),
+            border = BorderStroke(
+                width = SizeDefaults.eighth,
+                color = AppTheme.colors.neutral400
+            ),
             contentColor = contentColorFor(MaterialTheme.colors.surface)
         ) {
             Column(
@@ -129,7 +239,72 @@ fun ErezeptAlertDialog(
                         Text(okText)
                     }
                 }
+                SpacerMedium()
             }
         }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with one button",
+            body = "A dialog is a type of modal window that apperars in front of app content to " +
+                "provide critical information, or ask for decision",
+            onConfirmRequest = {},
+            onDismissRequest = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertDialogWithIconPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with one button",
+            titleAlignment = Default,
+            dismissButtonIcon = Icons.Default.ArrowForward,
+            body = "A dialog is a type of modal window that apperars in front of app content to " +
+                "provide critical information, or ask for decision",
+            onConfirmRequest = {},
+            onDismissRequest = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertTwoButtonsDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with two buttons",
+            body = "A dialog is a type of modal window that apperars in front of app content to " +
+                "provide critical information, or ask for decision",
+            confirmText = "Ok",
+            dismissText = "Cancel",
+            onDismissRequest = {},
+            onConfirmRequest = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertTwoButtonsWithIconsDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with two buttons",
+            body = "A dialog is a type of modal window that apperars in front of app content to " +
+                "provide critical information, or ask for decision",
+            confirmText = "Ok",
+            dismissText = "Cancel",
+            confirmButtonIcon = Icons.Default.AddTask,
+            dismissButtonIcon = Icons.Default.Cancel,
+            onDismissRequest = {},
+            onConfirmRequest = {}
+        )
     }
 }

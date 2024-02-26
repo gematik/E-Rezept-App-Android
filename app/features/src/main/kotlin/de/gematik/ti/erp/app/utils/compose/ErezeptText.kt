@@ -19,16 +19,19 @@
 package de.gematik.ti.erp.app.utils.compose
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.ErezeptText.ErezeptTextAlignment.Center
 import de.gematik.ti.erp.app.utils.compose.ErezeptText.ErezeptTextAlignment.Default
 
-internal object ErezeptText {
+object ErezeptText {
 
     enum class ErezeptTextAlignment {
         Center, Default
@@ -38,22 +41,25 @@ internal object ErezeptText {
     internal fun Title(
         text: String,
         modifier: Modifier = Modifier,
+        color: Color = Color.Unspecified,
         textAlignment: ErezeptTextAlignment = Default
     ) {
         when (textAlignment) {
-            Center -> CenteredTitle(text, modifier)
-            Default -> UnCenteredTitle(text, modifier)
+            Center -> CenteredTitle(text, modifier, color)
+            Default -> UnCenteredTitle(text, modifier, color)
         }
     }
 
     @Composable
     private fun UnCenteredTitle(
         text: String,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        color: Color = Color.Unspecified
     ) {
         Text(
             modifier = modifier,
             text = text,
+            color = color,
             style = AppTheme.typography.h6
         )
     }
@@ -61,24 +67,41 @@ internal object ErezeptText {
     @Composable
     private fun CenteredTitle(
         text: String,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        color: Color = Color.Unspecified
     ) {
         Box(
             modifier = Modifier.fillMaxWidth(),
             contentAlignment = Alignment.Center
         ) {
-            Title(text, modifier)
+            Title(text, modifier, color)
         }
     }
 
     @Composable
-    internal fun Subtitle(
+    internal fun SubtitleOne(
         text: String,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        color: Color = Color.Unspecified
     ) {
         Text(
             modifier = modifier,
             text = text,
+            color = color,
+            style = AppTheme.typography.subtitle1
+        )
+    }
+
+    @Composable
+    internal fun SubtitleTwo(
+        text: String,
+        modifier: Modifier = Modifier,
+        color: Color = Color.Unspecified
+    ) {
+        Text(
+            modifier = modifier,
+            text = text,
+            color = color,
             style = AppTheme.typography.subtitle2
         )
     }
@@ -87,14 +110,37 @@ internal object ErezeptText {
     internal fun Body(
         text: String,
         modifier: Modifier = Modifier,
-        maxLines: Int = Int.MAX_VALUE
+        color: Color = Color.Unspecified,
+        maxLines: Int = Int.MAX_VALUE,
+        overflow: TextOverflow = TextOverflow.Ellipsis
     ) {
         Text(
             modifier = modifier,
             text = text,
+            color = color,
             maxLines = maxLines,
-            style = AppTheme.typography.body2
+            style = AppTheme.typography.body2,
+            overflow = overflow
         )
+    }
+}
+
+@LightDarkPreview
+@Composable
+internal fun TitlePreview() {
+    PreviewAppTheme {
+        Column {
+            ErezeptText.Title(
+                textAlignment = Center,
+                text = "Center Title text"
+            )
+            ErezeptText.Title(
+                textAlignment = Default,
+                text = "Default Title text"
+            )
+            ErezeptText.SubtitleTwo(text = "Subtitle text")
+            ErezeptText.Body(text = "Body text")
+        }
     }
 }
 
@@ -122,9 +168,17 @@ internal fun TitleDefaultPreview() {
 
 @LightDarkPreview
 @Composable
-internal fun SubtitlePreview() {
+internal fun SubtitleOnePreview() {
     PreviewAppTheme {
-        ErezeptText.Subtitle(text = "Subtitle text")
+        ErezeptText.SubtitleOne(text = "Subtitle One text")
+    }
+}
+
+@LightDarkPreview
+@Composable
+internal fun SubtitleTwoPreview() {
+    PreviewAppTheme {
+        ErezeptText.SubtitleTwo(text = "Subtitle Two text")
     }
 }
 

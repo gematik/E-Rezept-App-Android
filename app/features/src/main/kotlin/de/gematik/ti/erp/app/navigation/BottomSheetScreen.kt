@@ -22,6 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import de.gematik.ti.erp.app.theme.AppTheme
 
 /**
  * @param skipPartiallyExpanded Whether the partially expanded state, if the sheet is tall enough,
@@ -40,6 +41,7 @@ abstract class BottomSheetScreen(
     fun BottomSheetContent() {
         ModalBottomSheet(
             onDismissRequest = { navController.popBackStack() },
+            containerColor = AppTheme.colors.neutral000,
             sheetState = rememberModalBottomSheetState(
                 skipPartiallyExpanded = skipPartiallyExpanded,
                 confirmValueChange = { allowStateChange }

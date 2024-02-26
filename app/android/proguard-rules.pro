@@ -63,6 +63,9 @@
 -keep class io.realm.** { *; }
 -keep class de.gematik.ti.erp.app.di.** { *; }
 -keep class de.gematik.ti.erp.app.MessageConversionException
+-keep class de.gematik.ti.erp.app.DomainVerifier
+-keep class de.gematik.ti.erp.app.Sdk31DomainVerifier
+-keep class de.gematik.ti.erp.app.OlderSdkDomainVerifier
 
 # Serilization
 -keep class kotlin.jvm.** { *; }

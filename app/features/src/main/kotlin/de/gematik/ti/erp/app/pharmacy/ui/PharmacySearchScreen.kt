@@ -111,7 +111,7 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyOrderController
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacySearchController
 import de.gematik.ti.erp.app.pharmacy.presentation.locationPermissions
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacyId
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -513,7 +513,7 @@ private fun ErrorRetryHandler(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun PharmacySearchResultScreen(
-    orderState: PharmacyOrderController,
+    pharmacyOrderController: PharmacyOrderController,
     searchController: PharmacySearchController,
     navController: NavHostController,
     onSelectPharmacy: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
@@ -579,7 +579,7 @@ fun PharmacySearchResultScreen(
     val focusManager = LocalFocusManager.current
 
     val sheetState = rememberPharmacySheetState(
-        orderState.selectedPharmacy?.let {
+        pharmacyOrderController.selectedPharmacy?.let {
             PharmacySearchSheetContentState.PharmacySelected(it)
         }
     )
@@ -704,7 +704,7 @@ fun PharmacySearchResultScreen(
 
                     is PharmacySearchSheetContentState.PharmacySelected ->
                         PharmacyBottomSheetDetails(
-                            orderController = orderState,
+                            orderController = pharmacyOrderController,
                             pharmacy =
                             (sheetState.content as PharmacySearchSheetContentState.PharmacySelected).pharmacy,
                             onClickOrder = { pharmacy, orderOption ->

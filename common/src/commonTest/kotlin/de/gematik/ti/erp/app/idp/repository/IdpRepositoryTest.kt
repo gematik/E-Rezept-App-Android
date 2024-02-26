@@ -64,6 +64,7 @@ import io.realm.kotlin.RealmConfiguration
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64
@@ -75,6 +76,7 @@ import org.junit.Test
 import java.io.File
 import java.security.Security
 import kotlin.test.assertEquals
+import kotlin.time.Duration.Companion.minutes
 
 const val EXPECTED_EXPIRATION_TIME = 1616143876L
 const val EXPECTED_ISSUE_TIME = 1616057476L
@@ -189,11 +191,15 @@ class CommonIdpRepositoryTest : TestDB() {
 
     @Test
     fun `save and get access token`() = runTest {
-        every { accessTokenDataSource.save(profileId, accessToken) } returns Unit
-        every { accessTokenDataSource.get(profileId) } returns flowOf(accessToken)
+        val accessTokenExpiresOn = Clock.System.now().plus(5.minutes)
+        val expected = AccessToken(accessToken, accessTokenExpiresOn)
+        every { accessTokenDataSource.save(profileId, expected) } returns Unit
+        every { accessTokenDataSource.get(profileId) } returns flowOf(
+            AccessToken(accessToken, accessTokenExpiresOn)
+        )
 
-        repo.saveDecryptedAccessToken(profileId, accessToken)
-        assertEquals(accessToken, repo.decryptedAccessToken(profileId).first())
+        repo.saveDecryptedAccessToken(profileId, AccessToken(accessToken, accessTokenExpiresOn))
+        assertEquals(expected, repo.decryptedAccessToken(profileId).first())
     }
 
     @Test

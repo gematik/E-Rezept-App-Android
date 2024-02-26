@@ -20,11 +20,11 @@
 
 package de.gematik.ti.erp.app.base
 
-import android.app.Activity
 import android.app.Dialog
 import android.content.Intent
 import android.nfc.NfcAdapter
 import android.nfc.Tag
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -41,14 +41,18 @@ import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
-import com.google.android.play.core.appupdate.AppUpdateManagerFactory
-import com.google.android.play.core.appupdate.AppUpdateOptions
-import com.google.android.play.core.install.model.AppUpdateType
-import com.google.android.play.core.install.model.UpdateAvailability
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.DomainVerifier
+import de.gematik.ti.erp.app.OlderSdkDomainVerifier
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.Sdk31DomainVerifier
 import de.gematik.ti.erp.app.analytics.Analytics
-import de.gematik.ti.erp.app.apicheck.usecase.CheckVersionUseCase
+import de.gematik.ti.erp.app.appupdate.usecase.AppUpdateInfoUseCase
+import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateFlagUseCase
+import de.gematik.ti.erp.app.appupdate.usecase.CheckVersionUseCase
+import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateFlagUseCase
+import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
+import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerUseCase
 import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.debugOverrides
 import de.gematik.ti.erp.app.demomode.DefaultDemoModeObserver
@@ -97,13 +101,30 @@ open class BaseActivity :
             }
         }
         bindProvider { CheckVersionUseCase(instance()) }
+
+        // domain verification is only available on SDK 31 and above
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            bindProvider<DomainVerifier> { Sdk31DomainVerifier(instance()) }
+        } else {
+            bindProvider<DomainVerifier> { OlderSdkDomainVerifier() }
+        }
     }
 
     private val checkVersionUseCase: CheckVersionUseCase by instance()
 
+    private val getAppUpdateManagerFlagUseCase: GetAppUpdateManagerFlagUseCase by instance()
+
+    private val appUpdateInfoUseCase: AppUpdateInfoUseCase by instance()
+
     private val pauseTimeoutUseCase: GetPauseMetricUseCase by instance()
 
     private val inactivityTimeoutObserver: InactivityTimeoutObserver by instance()
+
+    private val changeAppUpdateFlagUseCase: ChangeAppUpdateFlagUseCase by instance()
+
+    private val updateManagerUseCase: GetAppUpdateManagerUseCase by instance()
+
+    val getAppUpdateFlagUseCase: GetAppUpdateFlagUseCase by instance()
 
     val analytics: Analytics by instance()
 
@@ -235,24 +256,23 @@ open class BaseActivity :
         rationale = "If an update is required, the user is prompted to update via Google´s InAppUpdate function"
     )
     suspend fun checkAppUpdate() {
-        if (checkVersionUseCase.isUpdateRequired()) {
-            val appUpdateManager = AppUpdateManagerFactory.create(this)
-            val appUpdateInfoTask = appUpdateManager.appUpdateInfo
+        val isUpdateRequired = when {
+            !getAppUpdateManagerFlagUseCase.invoke() -> true
+            else -> checkVersionUseCase.isUpdateRequired()
+        }
 
-            appUpdateInfoTask.addOnSuccessListener { appUpdateInfo ->
-                if (appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE) {
-                    val task = appUpdateManager.startUpdateFlow(
-                        appUpdateInfo,
-                        this,
-                        AppUpdateOptions.defaultOptions(AppUpdateType.IMMEDIATE)
-                    )
-
-                    task.addOnCompleteListener {
-                        if (task.isSuccessful && task.result != Activity.RESULT_OK) {
-                            finish()
-                        }
+        if (isUpdateRequired) {
+            updateManagerUseCase.invoke(this@BaseActivity).let {
+                appUpdateInfoUseCase.invoke(
+                    activity = this@BaseActivity,
+                    appUpdateManager = it,
+                    onTaskSuccessful = {
+                        Napier.d { "Successfully downloaded" }
+                    },
+                    onTaskFailed = {
+                        changeAppUpdateFlagUseCase.invoke(true)
                     }
-                }
+                )
             }
         }
     }

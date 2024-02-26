@@ -22,6 +22,7 @@ package de.gematik.ti.erp.app.idp.api.models
 
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.secureRandomInstance
+import kotlinx.datetime.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -105,6 +106,7 @@ data class IdpChallengeFlowResult(
 
 data class IdpAuthFlowResult(
     val accessToken: String,
+    val expiresOn: Instant,
     val ssoToken: String,
     val idTokenInsurantName: String,
     val idTokenInsuranceIdentifier: String,
@@ -113,7 +115,8 @@ data class IdpAuthFlowResult(
 
 data class IdpRefreshFlowResult(
     val scope: IdpScope,
-    val accessToken: String
+    val accessToken: String,
+    val expiresOn: Instant
 )
 
 data class IdpInitialData(
@@ -134,6 +137,7 @@ data class IdpUnsignedChallenge(
 
 data class IdpTokenResult(
     val decryptedAccessToken: String,
+    val expiresOn: Instant,
     val idTokenPayload: String
 )
 

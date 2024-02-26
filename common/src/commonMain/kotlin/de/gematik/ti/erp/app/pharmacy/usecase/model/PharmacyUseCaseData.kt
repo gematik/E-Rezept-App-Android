@@ -89,11 +89,6 @@ object PharmacyUseCaseData {
     }
 
     sealed class LocationMode {
-        /**
-         * We only store the information if gps was enabled and not the actual position.
-         */
-        @Immutable
-        data object EnabledWithoutPosition : LocationMode()
 
         @Immutable
         data object Disabled : LocationMode()
@@ -135,18 +130,6 @@ object PharmacyUseCaseData {
         val deliveryInformation: String
     ) {
         @Stable
-        fun toList() = listOf(
-            name,
-            line1,
-            line2,
-            postalCode,
-            city,
-            telephoneNumber,
-            mail,
-            deliveryInformation
-        ).filter { it.isNotBlank() }
-
-        @Stable
         fun address() = listOf(
             line1,
             line2,
@@ -162,10 +145,7 @@ object PharmacyUseCaseData {
         ).filter { it.isNotBlank() }
 
         @Stable
-        fun phoneOrAddressMissing() = telephoneNumber.isBlank() || addressIsMissing()
-
-        @Stable
-        fun addressIsMissing() = name.isBlank() || line1.isBlank() || postalCode.isBlank() || city.isBlank()
+        fun isEmpty() = address().isEmpty() && other().isEmpty()
 
         companion object {
             val EmptyShippingContact = ShippingContact(

@@ -34,7 +34,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
+import de.gematik.ti.erp.app.theme.SizeDefaults
 
 @Composable
 fun AnimatedElevationScaffold(
@@ -48,7 +48,9 @@ fun AnimatedElevationScaffold(
     onBack: () -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val elevated by derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+    val elevated by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+    }
     Scaffold(
         modifier = modifier,
         scaffoldState = scaffoldState,
@@ -60,7 +62,7 @@ fun AnimatedElevationScaffold(
                 elevation = if (elevated) {
                     AppBarDefaults.TopAppBarElevation
                 } else {
-                    0.dp
+                    SizeDefaults.zero
                 },
                 onBack = onBack
             )
@@ -84,7 +86,9 @@ fun AnimatedElevationScaffold(
     actions: @Composable RowScope.() -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val elevated by derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+    val elevated by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+    }
     Scaffold(
         modifier = modifier,
         scaffoldState = scaffoldState,
@@ -96,7 +100,7 @@ fun AnimatedElevationScaffold(
                 elevation = if (elevated) {
                     AppBarDefaults.TopAppBarElevation
                 } else {
-                    0.dp
+                    SizeDefaults.zero
                 },
                 onBack = onBack,
                 actions = actions
@@ -120,7 +124,7 @@ fun AnimatedElevationScaffold(
     actions: @Composable (RowScope.() -> Unit),
     content: @Composable (PaddingValues) -> Unit
 ) {
-    val elevation = remember(elevated) { if (elevated) AppBarDefaults.TopAppBarElevation else 0.dp }
+    val elevation = remember(elevated) { if (elevated) AppBarDefaults.TopAppBarElevation else SizeDefaults.zero }
 
     Scaffold(
         modifier = modifier,
@@ -152,6 +156,9 @@ fun AnimatedElevationScaffold(
     snackbarHost: @Composable (SnackbarHostState) -> Unit,
     content: @Composable (PaddingValues) -> Unit
 ) {
+    val elevated by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0 }
+    }
     Scaffold(
         modifier = modifier,
         scaffoldState = scaffoldState,
@@ -160,10 +167,10 @@ fun AnimatedElevationScaffold(
                 navigationMode = navigationMode,
                 backgroundColor = topBarColor,
                 title = topBarTitle,
-                elevation = if (listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0) {
+                elevation = if (elevated) {
                     AppBarDefaults.TopAppBarElevation
                 } else {
-                    0.dp
+                    SizeDefaults.zero
                 },
                 onBack = onBack
             )

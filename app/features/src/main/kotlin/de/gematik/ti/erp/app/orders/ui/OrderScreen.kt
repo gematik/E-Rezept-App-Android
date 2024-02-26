@@ -36,6 +36,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
@@ -60,7 +61,7 @@ fun OrderScreen(
 
     val onShowCardWall = {
         mainNavController.navigate(
-            MainNavigationScreens.CardWall.path(activeProfile.id)
+            CardWallRoutes.CardWallIntroScreen.path(activeProfile.id)
         )
     }
     if (showUserNotAuthenticatedDialog) {

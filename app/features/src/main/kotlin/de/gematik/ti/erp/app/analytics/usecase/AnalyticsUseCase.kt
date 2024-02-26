@@ -30,7 +30,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.io.InputStream
 
-class AnalyticsUseCase(
+class AnalyticsUseCase( // TODO delete when new Alert/PopUp-Tracking is implemented
     private val context: Context
 ) {
     private val screenNames: List<AnalyticsUseCaseData.AnalyticsScreenName> by lazy {

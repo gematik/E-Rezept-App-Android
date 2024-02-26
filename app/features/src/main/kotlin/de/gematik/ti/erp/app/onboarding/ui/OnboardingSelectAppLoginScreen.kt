@@ -64,16 +64,16 @@ import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
 import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
-import de.gematik.ti.erp.app.settings.ui.ConfirmationPasswordTextField
-import de.gematik.ti.erp.app.settings.ui.PasswordStrength
-import de.gematik.ti.erp.app.settings.ui.PasswordTextField
-import de.gematik.ti.erp.app.settings.ui.validatePasswordScore
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.compose.ConfirmationPasswordTextField
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.PasswordStrength
+import de.gematik.ti.erp.app.utils.compose.PasswordTextField
 import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.validatePasswordScore
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 
 private const val POS_OF_ANIMATED_CONTENT_ITEM = 3

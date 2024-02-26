@@ -18,24 +18,7 @@
 
 package de.gematik.ti.erp.app
 
-import android.util.Log
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.crashes.Crashes
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
-
-/**
- * Only in a non-release mode the crashes are captured for analysis
- */
-fun MainActivity.collectCrashOnlyForDebug() {
-    if (BuildConfigExtension.isDebugOrMinifiedDebug) {
-        AppCenter.start(
-            application,
-            BuildKonfig.APP_CENTER_SECRET,
-            Crashes::class.java
-        )
-        AppCenter.setLogLevel(Log.VERBOSE)
-    }
-}
 
 /**
  * Any exception that is not thrown correctly is caught here as a fallback mechanism

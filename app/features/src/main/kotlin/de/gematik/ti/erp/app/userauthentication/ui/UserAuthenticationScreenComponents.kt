@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.userauthentication.ui
 
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -60,7 +61,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -73,24 +73,20 @@ import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
-import de.gematik.ti.erp.app.settings.ui.PasswordTextField
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.PaddingDefaults.Medium
 import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
-import de.gematik.ti.erp.app.utils.compose.HintCard
-import de.gematik.ti.erp.app.utils.compose.HintCardDefaults
-import de.gematik.ti.erp.app.utils.compose.HintSmallImage
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
+import de.gematik.ti.erp.app.utils.compose.PasswordTextField
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedLinkString
-import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -126,10 +122,10 @@ fun UserAuthenticationScreen() {
                 showAuthPrompt = false
             },
             onFailure = {
+                scope.launch { authentication.onFailedAuthentication() }
                 showAuthPrompt = false
             },
             onError = {
-                scope.launch { authentication.onFailedAuthentication() }
                 showAuthPrompt = false
                 showError = true
             }
@@ -188,16 +184,29 @@ fun UserAuthenticationScreen() {
                 )
             }
 
-            if (showError) {
+            AnimatedVisibility(
+                visible = authenticationState.nrOfAuthFailures > 0
+            ) {
+                AuthenticationHintCard(state = authenticationState)
+            }
+            AnimatedVisibility(
+                visible = authenticationState.nrOfAuthFailures == 0
+            ) {
+                Spacer(modifier = Modifier.height(80.dp))
+            }
+
+            AnimatedVisibility(visible = showError) {
                 AuthenticationScreenErrorContent(
                     showAuthPromptOnClick = { showAuthPrompt = true }
                 )
-            } else {
+            }
+
+            AnimatedVisibility(visible = !showError) {
                 AuthenticationScreenContent(
-                    showAuthPromptOnClick = { showAuthPrompt = true },
-                    state = authenticationState
+                    showAuthPromptOnClick = { showAuthPrompt = true }
                 )
             }
+
             Spacer(modifier = Modifier.weight(1f))
             if (showError) {
                 AuthenticationScreenErrorBottomContent(
@@ -306,6 +315,7 @@ private fun AuthenticationScreenErrorBottomContent(state: AuthenticationStateDat
                     style = AppTheme.typography.body2l,
                     textAlign = TextAlign.Center
                 )
+
             else ->
                 ClickableTaggedText(
                     annotatedStringResource(R.string.auth_failed_password_info, link),
@@ -320,8 +330,7 @@ private fun AuthenticationScreenErrorBottomContent(state: AuthenticationStateDat
 
 @Composable
 private fun AuthenticationScreenContent(
-    showAuthPromptOnClick: () -> Unit,
-    state: AuthenticationStateData.AuthenticationState
+    showAuthPromptOnClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -329,33 +338,6 @@ private fun AuthenticationScreenContent(
             .padding(horizontal = Medium),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (state.nrOfAuthFailures > 0) {
-            HintCard(
-                modifier = Modifier.padding(vertical = Medium),
-                properties = HintCardDefaults.flatProperties(
-                    backgroundColor = AppTheme.colors.red100
-                ),
-                image = {
-                    HintSmallImage(
-                        painterResource(R.drawable.oh_no_girl_hint_red),
-                        innerPadding = it
-                    )
-                },
-                title = { Text(stringResource(R.string.auth_error_failed_auths_headline)) },
-                body = {
-                    Text(
-                        annotatedPluralsResource(
-                            R.plurals.auth_error_failed_auths_info,
-                            state.nrOfAuthFailures,
-                            AnnotatedString(state.nrOfAuthFailures.toString())
-                        )
-                    )
-                }
-            )
-        } else {
-            Spacer(modifier = Modifier.height(80.dp))
-        }
-
         Text(
             stringResource(R.string.auth_headline),
             style = AppTheme.typography.h5,

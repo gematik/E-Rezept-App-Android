@@ -16,7 +16,9 @@ plugins {
     id("com.jaredsburrows.license")
     id("de.gematik.ti.erp.dependencies")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
+    id("de.gematik.ti.erp.technical-requirements")
+    // Release app into play-store
+    id("com.github.triplet.play") version "3.8.6" apply true
 }
 
 val VERSION_CODE: String by overriding()

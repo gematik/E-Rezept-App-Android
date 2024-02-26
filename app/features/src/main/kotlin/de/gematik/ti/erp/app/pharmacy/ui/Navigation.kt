@@ -150,7 +150,7 @@ fun PharmacyNavigation(
             NavigationAnimation(mode = navigationMode) {
                 PharmacyOverviewScreen(
                     isNestedNavigation = isNestedNavigation,
-                    orderState = pharmacyOrderController,
+                    pharmacyOrderController = pharmacyOrderController,
                     onBack = onBack,
                     navController = navController,
                     onFilterChange = { searchFilter = it },
@@ -186,7 +186,7 @@ fun PharmacyNavigation(
         composable(PharmacyNavigationScreens.List.route) {
             NavigationAnimation(mode = navigationMode) {
                 PharmacySearchResultScreen(
-                    orderState = pharmacyOrderController,
+                    pharmacyOrderController = pharmacyOrderController,
                     navController = navController,
                     searchController = pharmacySearchController,
                     onBack = {
@@ -218,7 +218,7 @@ fun PharmacyNavigation(
             NavigationAnimation(mode = navigationMode) {
                 MapsOverview(
                     searchController = pharmacySearchController,
-                    orderState = pharmacyOrderController,
+                    pharmacyOrderController = pharmacyOrderController,
                     navController = navController,
                     onBack = {
                         pharmacyOrderController.onResetPharmacySelection()
@@ -237,7 +237,7 @@ fun PharmacyNavigation(
             NavigationAnimation(mode = navigationMode) {
                 val mainScreenController = rememberMainScreenController()
                 OrderOverview(
-                    orderState = pharmacyOrderController,
+                    pharmacyOrderController = pharmacyOrderController,
                     onClickContacts = {
                         navController.navigate(PharmacyNavigationScreens.EditShippingContact.path())
                     },
@@ -255,7 +255,7 @@ fun PharmacyNavigation(
         composable(PharmacyNavigationScreens.EditShippingContact.route) {
             NavigationAnimation(mode = navigationMode) {
                 EditShippingContactScreen(
-                    orderState = pharmacyOrderController,
+                    pharmacyOrderController = pharmacyOrderController,
                     onBack = {
                         navController.popBackStack()
                     }

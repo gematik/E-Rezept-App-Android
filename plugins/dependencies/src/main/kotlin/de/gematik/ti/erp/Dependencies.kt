@@ -68,7 +68,7 @@ object Dependencies {
         private const val compose_navigation_version = "2.7.0-beta01"
         private const val compose_activity_version = "1.7.2"
         private const val compose_paging_version = "3.2.1"
-        private const val camerax_version = "1.3.0-beta01" // needs compile version 34 for 1.3.0-rc02
+        private const val camerax_version = "1.3.1" // needs compile version 34 for 1.3.0-rc02
         private const val multiplatform_paging_version = "3.2.1" // 3.3.0-alpha02 needs compile version 34
 
         const val appcompat = "androidx.appcompat:appcompat:$appcompat_version"
@@ -128,13 +128,6 @@ object Dependencies {
         object Tracing {
             const val tracing = "androidx.tracing:tracing:1.2.0-rc01"
         }
-    }
-
-    object AppCenterSdk {
-        private const val appCenterSdkVersion = "4.4.5"
-
-        const val appCenterAnalytics = "com.microsoft.appcenter:appcenter-analytics:$appCenterSdkVersion"
-        const val appCenterCrashes = "com.microsoft.appcenter:appcenter-crashes:$appCenterSdkVersion"
     }
 
     object Compose {
@@ -215,6 +208,8 @@ object Dependencies {
         val kodeinCompose = kodein("di-framework-compose")
         val kodeinViewModel = kodein("di-framework-android-x-viewmodel")
         val kodeinSavedState = kodein("di-framework-android-x-viewmodel-savedstate")
+        val kodeinAndroid = kodein("di-framework-android-x")
+        val kodein = kodein("di")
         private fun kodein(module: String) = "org.kodein.di:kodein-$module:$kodein_version"
     }
 

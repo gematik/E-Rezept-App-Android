@@ -10,12 +10,12 @@ tasks.withType<KotlinCompile>() {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:8.1.2")
+    implementation("com.android.tools.build:gradle:8.2.2")
 }
 
 gradlePlugin {
     plugins.register("TechnicalRequirementsPlugin") {
-        id = "de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin"
+        id = "de.gematik.ti.erp.technical-requirements"
         implementationClass = "de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin"
     }
 }

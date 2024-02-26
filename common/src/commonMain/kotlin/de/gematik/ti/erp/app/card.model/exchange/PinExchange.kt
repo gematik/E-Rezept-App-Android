@@ -20,16 +20,16 @@ package de.gematik.ti.erp.app.card.model.exchange
 
 import de.gematik.ti.erp.app.card.model.card.EncryptedPinFormat2
 import de.gematik.ti.erp.app.card.model.card.ICardChannel
-import de.gematik.ti.erp.app.cardwall.model.nfc.card.PasswordReference
 import de.gematik.ti.erp.app.card.model.cardobjects.Mf
 import de.gematik.ti.erp.app.card.model.command.HealthCardCommand
 import de.gematik.ti.erp.app.card.model.command.ResponseStatus
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.card.model.command.changeReferenceData
-import de.gematik.ti.erp.app.card.model.command.unlockEgk
 import de.gematik.ti.erp.app.card.model.command.executeSuccessfulOn
 import de.gematik.ti.erp.app.card.model.command.select
+import de.gematik.ti.erp.app.card.model.command.unlockEgk
 import de.gematik.ti.erp.app.card.model.command.verifyPin
+import de.gematik.ti.erp.app.cardwall.model.nfc.card.PasswordReference
 
 fun ICardChannel.verifyPin(pin: String): ResponseStatus {
     HealthCardCommand.select(selectParentElseRoot = false, readFirst = false)
@@ -61,7 +61,7 @@ fun ICardChannel.verifyPin(pin: String): ResponseStatus {
 }
 
 fun ICardChannel.unlockEgk(
-    unlockMethod: UnlockMethod,
+    unlockMethod: String,
     puk: String,
     oldSecret: String,
     newSecret: String
@@ -71,7 +71,7 @@ fun ICardChannel.unlockEgk(
 
     val passwordReference = PasswordReference(Mf.MrPinHome.PWID)
 
-    val response = if (unlockMethod == UnlockMethod.ChangeReferenceData) {
+    val response = if (unlockMethod == UnlockMethod.ChangeReferenceData.name) {
         HealthCardCommand.changeReferenceData(
             passwordReference = passwordReference,
             dfSpecific = false,
@@ -84,7 +84,7 @@ fun ICardChannel.unlockEgk(
             passwordReference = passwordReference,
             dfSpecific = false,
             puk = EncryptedPinFormat2(puk),
-            newSecret = if (unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret) {
+            newSecret = if (unlockMethod == UnlockMethod.ResetRetryCounterWithNewSecret.name) {
                 EncryptedPinFormat2(newSecret)
             } else { null }
         ).executeSuccessfulOn(this)

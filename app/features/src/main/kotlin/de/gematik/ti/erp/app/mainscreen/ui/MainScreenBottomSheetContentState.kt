@@ -44,8 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomPopUpNames
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -180,7 +180,7 @@ fun MainScreenBottomSheetContentState(
                                 onClickConnect = {
                                     mainScreenController.welcomeDrawerShown()
                                     mainNavController.navigate(
-                                        MainNavigationScreens.CardWall.path(profile.id)
+                                        CardWallRoutes.CardWallIntroScreen.path(profile.id)
                                     )
                                 },
                                 onCancel = {

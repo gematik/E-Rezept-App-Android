@@ -594,7 +594,7 @@ private fun PerformerLabel(performer: String) {
 private fun HandedOverLabel(whenHandedOver: FhirTemporal?) {
     whenHandedOver?.let {
         Label(
-            text = it.formattedString(),
+            text = remember { temporalText(it, TimeZone.currentSystemDefault()) },
             label = stringResource(id = R.string.pres_detail_medication_label_handed_over)
         )
     }

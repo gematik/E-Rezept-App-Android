@@ -259,6 +259,7 @@ class IdpAlternateAuthenticationUseCase(
         // final [redirectSsoToken] & [accessToken]
         return IdpAuthFlowResult(
             accessToken = idpTokenResult.decryptedAccessToken,
+            expiresOn = idpTokenResult.expiresOn,
             ssoToken = redirectSsoToken,
             idTokenInsuranceIdentifier = idTokenJson.jsonObject["idNummer"]?.jsonPrimitive?.content ?: "",
             idTokenInsuranceName = idTokenJson.jsonObject["organizationName"]?.jsonPrimitive?.content ?: "",

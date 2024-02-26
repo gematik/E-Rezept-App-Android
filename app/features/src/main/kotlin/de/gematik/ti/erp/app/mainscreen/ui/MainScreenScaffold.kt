@@ -40,6 +40,7 @@ import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenContentNavHost
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.profiles.presentation.ProfileController
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.settings.navigation.SettingsNavigationScreens
 
 @Composable
 internal fun MainScreenScaffold(
@@ -69,7 +70,7 @@ internal fun MainScreenScaffold(
     Scaffold(
         modifier = Modifier.testTag(TestTag.Main.MainScreen).then(modifier),
         topBar = {
-            if (currentBottomNavigationRoute?.destination?.route != MainNavigationScreens.Settings.route) {
+            if (currentBottomNavigationRoute?.destination?.route != SettingsNavigationScreens.SettingsScreen.route) {
                 MultiProfileTopAppBar(
                     mainScreenController = mainScreenController,
                     profileController = profileController,

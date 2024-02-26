@@ -50,24 +50,6 @@ class IdpRemoteDataSource(
             )
         }
 
-    suspend fun getFastTrackAuthorizationRedirectUrl(
-        url: String,
-        externalAppId: String,
-        nonce: String,
-        state: String,
-        codeChallenge: String,
-        isPairingScope: Boolean
-    ) = postToEndpointExpectingLocationRedirect {
-        service.requestFastTrackAuthenticationRedirect(
-            url = url,
-            externalAppId = externalAppId,
-            codeChallenge = codeChallenge,
-            nonce = nonce,
-            state = state,
-            scope = if (isPairingScope) pairingScope else defaultScope()
-        )
-    }
-
     suspend fun getGidAuthorizationRedirectUrl(
         url: String,
         externalAppId: String,

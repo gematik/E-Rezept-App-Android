@@ -30,6 +30,7 @@ import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.model.error.DecryptAccessTokenError
 import de.gematik.ti.erp.app.idp.model.error.SingleSignOnTokenError
 import de.gematik.ti.erp.app.idp.model.error.UniversalLinkError
+import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
@@ -222,7 +223,10 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
         idpTokenResult?.let {
             idpRepository.saveDecryptedAccessToken(
                 profileId,
-                it.decryptedAccessToken
+                AccessToken(
+                    it.decryptedAccessToken,
+                    it.expiresOn
+                )
             )
         } ?: {
             Napier.i { "idpTokenResult null, access token not saved" }

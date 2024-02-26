@@ -39,7 +39,7 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.model.SettingsData
-import de.gematik.ti.erp.app.settings.usecase.SettingsUseCase
+import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -56,7 +56,7 @@ class PharmacySearchUseCase(
     private val repository: PharmacyRepository,
     private val shippingContactRepository: ShippingContactRepository,
     private val prescriptionRepository: PrescriptionRepository,
-    private val settingsUseCase: SettingsUseCase,
+    private val settingsRepository: SettingsRepository,
     private val dispatchers: DispatchProvider
 ) {
     data class PharmacyPagingKey(val bundleId: String, val offset: Int)
@@ -144,7 +144,7 @@ class PharmacySearchUseCase(
     suspend fun searchPharmacies(
         searchData: PharmacyUseCaseData.SearchData
     ): Flow<PagingData<PharmacyUseCaseData.Pharmacy>> {
-        settingsUseCase.savePharmacySearch(
+        settingsRepository.savePharmacySearch(
             SettingsData.PharmacySearch(
                 name = searchData.name,
                 locationEnabled = searchData.locationMode !is PharmacyUseCaseData.LocationMode.Disabled,

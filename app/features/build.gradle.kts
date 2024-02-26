@@ -15,7 +15,7 @@ plugins {
     id("com.jaredsburrows.license")
     id("de.gematik.ti.erp.dependencies")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
+    id("de.gematik.ti.erp.technical-requirements")
 }
 
 licenseReport {
@@ -114,14 +114,12 @@ dependencies {
             implementation(cameraxLifecycle)
             implementation(cameraxView)
         }
-        appCenterSdk {
-            implementation(appCenterAnalytics)
-            implementation(appCenterCrashes)
-        }
         dependencyInjection {
             compileOnly(kodeinCompose)
             implementation(kodeinCompose)
             implementation(kodeinViewModel)
+            implementation(kodeinAndroid)
+            implementation(kodein)
             androidTestImplementation(kodeinCompose)
         }
         imageLoad {

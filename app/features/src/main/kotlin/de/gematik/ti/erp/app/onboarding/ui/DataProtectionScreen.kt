@@ -31,7 +31,7 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
-import de.gematik.ti.erp.app.webview.URI_DATA_TERMS
+import de.gematik.ti.erp.app.utils.extensions.getUriDataTerms
 import de.gematik.ti.erp.app.webview.WebViewScreen
 
 @Requirement(
@@ -55,7 +55,7 @@ class DataProtectionScreen(
             modifier = Modifier.testTag(TestTag.Onboarding.DataProtectionScreen),
             title = stringResource(R.string.onb_data_consent),
             onBack = { navController.popBackStack() },
-            url = URI_DATA_TERMS
+            url = getUriDataTerms()
         )
         if (BuildConfigExtension.isNonReleaseMode) {
             SkipOnBoardingButton {

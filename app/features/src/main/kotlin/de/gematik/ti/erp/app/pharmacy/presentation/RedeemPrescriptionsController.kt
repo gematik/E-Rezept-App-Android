@@ -29,7 +29,7 @@ import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.fhir.model.DirectCommunicationMessage
 import de.gematik.ti.erp.app.fhir.model.json
 import de.gematik.ti.erp.app.orders.usecase.SaveLocalCommunicationUseCase
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase

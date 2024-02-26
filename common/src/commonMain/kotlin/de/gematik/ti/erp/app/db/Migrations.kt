@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.SingleSignOnTokenScopeV1
 import de.gematik.ti.erp.app.db.entities.v1.TruststoreEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
@@ -53,9 +54,10 @@ import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.types.RealmInstant
 import kotlinx.datetime.Instant
 
-const val ACTUAL_SCHEMA_VERSION = 29L
+const val ACTUAL_SCHEMA_VERSION = 30L
 
 val appSchemas = setOf(
     AppRealmSchema(
@@ -173,6 +175,21 @@ val appSchemas = setOf(
                 }.forEach {
                     it.value.mapIndexed { index, scannedTaskEntityV1 ->
                         scannedTaskEntityV1.index = index + 1
+                    }
+                }
+            }
+            // Logout all users with external authentication if they have not authenticated since 15.12.2023 (GID)
+            if (migrationStartedFrom < 30) {
+                query<ProfileEntityV1>().find().forEach {
+                    val epochSeconds: Long = Instant.parse("2023-12-15T00:00:00Z").epochSeconds
+                    if (it.idpAuthenticationData?.singleSignOnTokenScope
+                        == SingleSignOnTokenScopeV1.ExternalAuthentication
+                    ) {
+                        it.lastAuthenticated?.let { lastAuthenticated ->
+                            if (lastAuthenticated < RealmInstant.from(epochSeconds, nanosecondAdjustment = 0)) {
+                                it.idpAuthenticationData = null
+                            }
+                        }
                     }
                 }
             }

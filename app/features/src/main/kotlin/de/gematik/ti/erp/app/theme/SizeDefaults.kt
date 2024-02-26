@@ -86,8 +86,14 @@ object SizeDefaults {
     /** `96dp` in design specification. */
     val twelvefold: Dp get() = multiple(12.0)
 
+    /** `184dp` in design specification. */
+    val twentythreefold: Dp get() = multiple(23.0)
+
     /** `192dp` in design specification. */
     val twentyfourfold: Dp get() = multiple(24.0)
+
+    /** `304dp` in design specification. */
+    val thirtyEightfold: Dp get() = multiple(38.0)
 
     /** Default horizontal padding. */
     val defaultStartEnd: Dp get() = triple

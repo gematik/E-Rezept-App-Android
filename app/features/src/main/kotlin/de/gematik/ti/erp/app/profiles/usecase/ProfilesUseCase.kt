@@ -83,9 +83,6 @@ class ProfilesUseCase(
     val activeProfile: Flow<ProfilesUseCaseData.Profile> =
         profiles.map { it.activeProfile() }
 
-    fun decryptedAccessToken(profileId: ProfileIdentifier): Flow<String?> =
-        idpRepository.decryptedAccessToken(profileId)
-
     suspend fun addProfile(newProfileName: String, activate: Boolean = false) {
         sanitizedProfileName(newProfileName)?.also { profileName ->
             profilesRepository.saveProfile(profileName.trim(), activate = activate)

@@ -197,7 +197,7 @@ class IdpIntegrationTest {
         coVerify(exactly = 1) { idpRepository.saveSingleSignOnToken(profileId, any()) }
         coVerify(exactly = 1) { idpRepository.saveDecryptedAccessToken(profileId, any()) }
 
-        assertEquals(true, idpRepository.decryptedAccessToken(profileId).first()?.isNotEmpty())
+        assertEquals(true, idpRepository.decryptedAccessToken(profileId).first()?.accessToken?.isNotEmpty())
     }
 
     @Test
@@ -277,7 +277,7 @@ class IdpIntegrationTest {
         coVerify(exactly = 2) { idpRepository.saveSingleSignOnToken(profileId, any()) }
         coVerify(exactly = 1) { idpRepository.saveDecryptedAccessToken(profileId, any()) }
 
-        assertEquals(true, idpRepository.decryptedAccessToken(profileId).first()?.isNotEmpty())
+        assertEquals(true, idpRepository.decryptedAccessToken(profileId).first()?.accessToken?.isNotEmpty())
 
         //
         // paired devices

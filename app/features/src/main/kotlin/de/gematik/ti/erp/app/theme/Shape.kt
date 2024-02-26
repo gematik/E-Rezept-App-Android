@@ -25,8 +25,10 @@ object PaddingDefaults {
     val Small = 8.dp
     val ShortMedium = 12.dp
     val Medium = 16.dp
+    val MediumPlus = 18.dp
     val Large = 24.dp
     val XLarge = 32.dp
     val XXLarge = 40.dp
     val XXLargeMedium = 56.dp
+    val Extraordinary = 200.dp
 }

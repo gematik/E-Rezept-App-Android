@@ -1,3 +1,9 @@
+# Release 1.20.0
+- Added multi-language support for privacy policy
+- Update health insurance contacts
+- Optimized performance
+- Bug fixes
+
 # Release 1.19.1
 - Added gID (HealthID) authentication function
 - Language settings can now be changed within the app, not just via the Android settings
@@ -5,22 +11,20 @@
 - Bug fixes
 
 # Release 1.18.1
-- Optimized performance 
+- Optimized performance
 - UX improvements
 - Bug fixes
 
-
 # Release 1.17.2
 - Added Demo mode function
-- Added function to change the name of scanned prescriptions 
+- Added function to change the name of scanned prescriptions
 - Increased minimum SDK version to 26 and build version to 34
 - UX improvements
 - Bug fixes
 
-
 # Release 1.16.1
 - Added Invoice correction function for private health insurance customers
-- Optimized performance 
+- Optimized performance
 - UX improvements
 - Bug fixes
 
@@ -86,4 +90,3 @@
 
 # Release 1.2.1-SRC
 Codebase for SRC review
-

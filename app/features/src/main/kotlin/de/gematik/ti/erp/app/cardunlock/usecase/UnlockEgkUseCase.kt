@@ -83,8 +83,8 @@ enum class UnlockEgkState {
 }
 
 class UnlockEgkUseCase {
-    fun unlockEgk(
-        unlockMethod: UnlockMethod,
+    operator fun invoke(
+        unlockMethod: String,
         can: String,
         puk: String,
         oldSecret: String,
@@ -104,11 +104,11 @@ class UnlockEgkUseCase {
             }
         }
 
-    private fun handleException(unlockMethod: UnlockMethod, e: Throwable): UnlockEgkState =
+    private fun handleException(unlockMethod: String, e: Throwable): UnlockEgkState =
         when (e) {
             is ResponseException -> {
                 @Suppress("MagicNumber")
-                if (unlockMethod == UnlockMethod.ChangeReferenceData) {
+                if (unlockMethod == UnlockMethod.ChangeReferenceData.name) {
                     when (e.responseStatus) {
                         ResponseStatus.AUTHENTICATION_FAILURE -> UnlockEgkState.HealthCardCardAccessNumberWrong
                         ResponseStatus.PASSWORD_BLOCKED -> UnlockEgkState.HealthCardPasswordBlocked
@@ -179,7 +179,7 @@ class UnlockEgkUseCase {
 }
 
 private suspend fun ProducerScope<UnlockEgkState>.healthCardCommunication(
-    unlockMethod: UnlockMethod,
+    unlockMethod: String,
     channel: NfcCardChannel,
     can: String,
     puk: String,
@@ -205,7 +205,7 @@ private suspend fun ProducerScope<UnlockEgkState>.healthCardCommunication(
 
     send(
         @Suppress("MagicNumber")
-        if (unlockMethod == UnlockMethod.ChangeReferenceData) {
+        if (unlockMethod == UnlockMethod.ChangeReferenceData.name) {
             when (response) {
                 ResponseStatus.SUCCESS -> UnlockEgkState.HealthCardCommunicationFinished
                 ResponseStatus.WRONG_SECRET_WARNING_COUNT_03 ->

@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.onboarding.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import de.gematik.ti.erp.app.analytics.ui.AllowAnalyticsScreen
+import de.gematik.ti.erp.app.analytics.ui.OnboardingAllowAnalyticsScreen
 import de.gematik.ti.erp.app.navigation.fadeInLong
 import de.gematik.ti.erp.app.navigation.fadeOutLong
 import de.gematik.ti.erp.app.navigation.renderComposable
@@ -86,7 +86,7 @@ fun NavGraphBuilder.onboardingGraph(
             route = OnboardingRoutes.AllowAnalyticsScreen.route,
             stackEnterAnimation = { slideInDown() }
         ) {
-            AllowAnalyticsScreen(
+            OnboardingAllowAnalyticsScreen(
                 navController = navController,
                 navBackStackEntry = it
             )

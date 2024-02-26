@@ -16,7 +16,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.codingfeline.buildkonfig")
     id("de.gematik.ti.erp.dependencies")
-    id("de.gematik.ti.erp.gradleplugins.TechnicalRequirementsPlugin")
+    id("de.gematik.ti.erp.technical-requirements")
 }
 fun getGitHash() =
     if (File("${rootDir.path}/.git").exists()) {
@@ -119,6 +119,7 @@ kotlin {
                     }
                     dependencyInjection {
                         implementation(kodeinCompose)
+                        implementation(kodein)
                     }
                 }
                 implementation(compose.runtime)

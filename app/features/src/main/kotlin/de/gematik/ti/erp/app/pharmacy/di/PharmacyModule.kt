@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.di
 
+import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacyLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyLocalDataSource
@@ -26,6 +27,7 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOrderStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOverviewPharmaciesUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
@@ -34,10 +36,9 @@ import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
-val pharmacyModule = DI.Module("pharmacyModule") {
-    bindProvider { PharmacyRemoteDataSource(instance(), instance()) }
-    bindProvider<PharmacyRepository> { DefaultPharmacyRepository(instance(), instance(), instance()) }
-    bindProvider { ShippingContactRepository(instance(), instance()) }
+val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
+    bindProvider { PharmacyGraphController(instance(), instance(), instance()) }
+    bindProvider { GetShippingContactValidationUseCase() }
     bindProvider { PharmacyDirectRedeemUseCase(instance()) }
     bindProvider { PharmacyMapsUseCase(instance(), instance(), instance()) }
     bindProvider { PharmacySearchUseCase(instance(), instance(), instance(), instance(), instance()) }
@@ -47,5 +48,8 @@ val pharmacyModule = DI.Module("pharmacyModule") {
 }
 
 val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilentOverride = true) {
+    bindProvider { PharmacyRemoteDataSource(instance(), instance()) }
+    bindProvider<PharmacyRepository> { DefaultPharmacyRepository(instance(), instance(), instance()) }
+    bindProvider { ShippingContactRepository(instance(), instance()) }
     bindProvider<PharmacyLocalDataSource> { DefaultPharmacyLocalDataSource(instance()) }
 }

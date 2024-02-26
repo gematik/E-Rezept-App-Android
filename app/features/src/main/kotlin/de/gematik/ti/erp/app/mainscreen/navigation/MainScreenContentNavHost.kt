@@ -27,13 +27,14 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
 import de.gematik.ti.erp.app.orders.ui.OrderScreen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionsScreen
 import de.gematik.ti.erp.app.prescription.presentation.rememberPrescriptionsController
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
-import de.gematik.ti.erp.app.settings.ui.SettingsScreen
+import de.gematik.ti.erp.app.settings.navigation.settingsGraph
 
 @Composable
 fun MainScreenContentNavHost(
@@ -66,7 +67,7 @@ fun MainScreenContentNavHost(
                     onClickAvatar = onClickAvatar,
                     onShowCardWall = {
                         mainNavController.navigate(
-                            MainNavigationScreens.CardWall.path(activeProfile.id)
+                            CardWallRoutes.CardWallIntroScreen.path(activeProfile.id)
                         )
                     },
                     onClickPrescription = { taskId ->
@@ -85,14 +86,8 @@ fun MainScreenContentNavHost(
                     onElevateTopBar = onElevateTopBar
                 )
             }
-            composable(
-                MainNavigationScreens.Settings.route,
-                MainNavigationScreens.Settings.arguments
-            ) {
-                SettingsScreen(
-                    mainNavController = mainNavController
-                )
-            }
+            // duplicate exists because of 2 main nav-hosts
+            settingsGraph(navController = mainNavController)
         }
     }
 }

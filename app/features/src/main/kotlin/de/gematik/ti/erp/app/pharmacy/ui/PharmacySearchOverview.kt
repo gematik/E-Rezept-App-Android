@@ -82,7 +82,7 @@ import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyOrderController
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacySearchController
 import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacySearchController
-import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -101,7 +101,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun PharmacyOverviewScreen(
     isNestedNavigation: Boolean,
-    orderState: PharmacyOrderController,
+    pharmacyOrderController: PharmacyOrderController,
     navController: NavHostController,
     onBack: () -> Unit,
     onStartSearch: () -> Unit,
@@ -185,7 +185,7 @@ fun PharmacyOverviewScreen(
 
                     is PharmacySearchSheetContentState.PharmacySelected ->
                         PharmacyBottomSheetDetails(
-                            orderController = orderState,
+                            orderController = pharmacyOrderController,
                             pharmacy = (sheetState.content as PharmacySearchSheetContentState.PharmacySelected)
                                 .pharmacy,
                             onClickOrder = { pharmacy, orderOption ->

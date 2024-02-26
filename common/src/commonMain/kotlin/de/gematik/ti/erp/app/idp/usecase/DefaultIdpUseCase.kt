@@ -29,6 +29,7 @@ import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -37,6 +38,8 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import org.bouncycastle.util.encoders.Base64
 import java.net.HttpURLConnection
 import java.security.KeyStore
@@ -84,9 +87,13 @@ class DefaultIdpUseCase(
                         repository.invalidateSingleSignOnTokenRetainingScope(
                             profileId
                         )
-                    },
-                    saveDecryptedAccessToken = { repository.saveDecryptedAccessToken(profileId, it) }
-                )
+                    }
+                ) { accessToken, expiresOn ->
+                    repository.saveDecryptedAccessToken(
+                        profileId,
+                        AccessToken(accessToken, expiresOn)
+                    )
+                }
 
             IdpScope.BiometricPairing ->
                 loadAccessToken(
@@ -100,9 +107,13 @@ class DefaultIdpUseCase(
                         pairingRepository.invalidateSingleSignOnToken(
                             profileId
                         )
-                    },
-                    saveDecryptedAccessToken = { pairingRepository.saveDecryptedAccessToken(profileId, it) }
-                )
+                    }
+                ) { accessToken, expiresOn ->
+                    pairingRepository.saveDecryptedAccessToken(
+                        profileId,
+                        AccessToken(accessToken, expiresOn)
+                    )
+                }
         }
     }
 
@@ -111,13 +122,20 @@ class DefaultIdpUseCase(
         profileId: ProfileIdentifier,
         scope: IdpScope,
         singleSignOnTokenScope: suspend () -> IdpData.SingleSignOnTokenScope?,
-        decryptedAccessToken: suspend () -> String?,
+        decryptedAccessToken: suspend () -> AccessToken?,
         invalidateDecryptedAccessToken: suspend () -> Unit,
         invalidateSingleSignOnTokenRetainingScope: suspend () -> Unit,
-        saveDecryptedAccessToken: suspend (decryptedAccessToken: String) -> Unit
+        saveDecryptedAccessToken: suspend (decryptedAccessToken: String, expiresOn: Instant) -> Unit
     ): String {
         val ssoTokenScope = singleSignOnTokenScope()
-        val accessToken = decryptedAccessToken()
+        val savedAccessToken = decryptedAccessToken()
+        val accessToken = savedAccessToken?.accessToken
+
+        val isExpired = if (savedAccessToken == null) {
+            true
+        } else {
+            savedAccessToken.expiresOn <= Clock.System.now()
+        }
 
         Napier.d {
             """Loading access token with:
@@ -125,6 +143,8 @@ class DefaultIdpUseCase(
               |profileId: $profileId
               |scope: $scope
               |access-token: $accessToken
+              |isExpired: $isExpired
+              |isExpiredOn: ${savedAccessToken?.expiresOn}
             """.trimMargin()
         }
 
@@ -138,7 +158,7 @@ class DefaultIdpUseCase(
                 )
             }
 
-            if (refresh || accessToken == null) {
+            if (refresh || accessToken == null || isExpired) {
                 invalidateDecryptedAccessToken()
 
                 val actualToken = ssoTokenScope.token!!.token
@@ -159,6 +179,7 @@ class DefaultIdpUseCase(
                             REDIRECT_URI
                         }
                     )
+                    saveDecryptedAccessToken(refreshData.accessToken, refreshData.expiresOn)
                     refreshData.accessToken
                 } catch (e: Exception) {
                     Napier.e("Couldn't refresh access token", e)
@@ -174,16 +195,13 @@ class DefaultIdpUseCase(
                     throw RefreshFlowException(false, null, e)
                 }
             } else {
-                accessToken
+                savedAccessToken.accessToken
             }
-                .also {
-                    saveDecryptedAccessToken(it)
-                }
         } else {
             invalidateDecryptedAccessToken()
             throw RefreshFlowException(
                 true,
-                ssoTokenScope,
+                null,
                 "SSO token not set for $profileId!"
             )
         }
@@ -223,7 +241,10 @@ class DefaultIdpUseCase(
                             basicData.idTokenInsuranceName
                         )
                         repository.saveSingleSignOnToken(profileId, ssoToken)
-                        repository.saveDecryptedAccessToken(profileId, basicData.accessToken)
+                        repository.saveDecryptedAccessToken(
+                            profileId,
+                            AccessToken(basicData.accessToken, basicData.expiresOn)
+                        )
                     }
 
                     IdpScope.BiometricPairing -> {
@@ -359,7 +380,10 @@ class DefaultIdpUseCase(
                                 healthCardCertificate = authTokenScope.healthCardCertificate.encoded
                             )
                         )
-                        repository.saveDecryptedAccessToken(profileId, authData.accessToken)
+                        repository.saveDecryptedAccessToken(
+                            profileId,
+                            AccessToken(authData.accessToken, authData.expiresOn)
+                        )
                     }
 
                     IdpScope.BiometricPairing -> {

@@ -51,7 +51,6 @@ import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 
 const val URI_TERMS_OF_USE = "file:///android_asset/terms_of_use.html"
-const val URI_DATA_TERMS = "file:///android_asset/data_terms.html"
 
 @Requirement(
     "O.Arch_8#1",
