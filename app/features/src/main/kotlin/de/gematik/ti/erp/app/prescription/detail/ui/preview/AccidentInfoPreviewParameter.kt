@@ -1,0 +1,98 @@
+/*
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ * You may not use this work except in compliance with the Licence.
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
+ */
+
+package de.gematik.ti.erp.app.prescription.detail.ui.preview
+
+import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import kotlinx.datetime.Instant
+
+data class AccidentInfoPreviewParameter(
+    val name: String,
+    val syncedPrescription: PrescriptionData.Synced
+)
+
+class AccidentInfoPreviewParameterProvider : PreviewParameterProvider<AccidentInfoPreviewParameter> {
+
+    override val values: Sequence<AccidentInfoPreviewParameter>
+        get() = sequenceOf(
+            AccidentInfoPreviewParameter(
+                "None",
+                PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_NONE
+            ),
+            AccidentInfoPreviewParameter(
+                "Accident",
+                PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_ACCIDENT
+            ),
+            AccidentInfoPreviewParameter(
+                "Work Accident",
+                PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_WORK_ACCIDENT
+            ),
+            AccidentInfoPreviewParameter(
+                "Occupational Illness",
+                PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_OCCUPATIONAL_ILLNESS
+            )
+        )
+}
+
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_NONE = PrescriptionData.Synced(
+    task = SYNCED_TASK.copy(
+        status = SyncedTaskData.TaskStatus.Ready,
+        medicationRequest = SYNCED_TASK.medicationRequest.copy(
+            accidentType = SyncedTaskData.AccidentType.None,
+            dateOfAccident = null,
+            location = null
+        )
+    )
+)
+
+val time = Instant.parse("2024-07-03T14:20:00Z")
+
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_ACCIDENT = PrescriptionData.Synced(
+    task = SYNCED_TASK.copy(
+        status = SyncedTaskData.TaskStatus.Ready,
+        medicationRequest = SYNCED_TASK.medicationRequest.copy(
+            accidentType = SyncedTaskData.AccidentType.Unfall,
+            dateOfAccident = time,
+            location = "somewhere"
+        )
+    )
+)
+
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_WORK_ACCIDENT = PrescriptionData.Synced(
+    task = SYNCED_TASK.copy(
+        status = SyncedTaskData.TaskStatus.Ready,
+        medicationRequest = SYNCED_TASK.medicationRequest.copy(
+            accidentType = SyncedTaskData.AccidentType.Arbeitsunfall,
+            dateOfAccident = time,
+            location = "work"
+        )
+    )
+)
+
+private val PREVIEW_SYNCED_PRESCRIPTION_ACCIDENT_TYPE_OCCUPATIONAL_ILLNESS = PrescriptionData.Synced(
+    task = SYNCED_TASK.copy(
+        status = SyncedTaskData.TaskStatus.Ready,
+        medicationRequest = SYNCED_TASK.medicationRequest.copy(
+            accidentType = SyncedTaskData.AccidentType.Berufskrankheit,
+            dateOfAccident = time,
+            location = "home"
+        )
+    )
+)

@@ -1,25 +1,27 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 package de.gematik.ti.erp.app.demomode.repository.profiles
 
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.create
+import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.demoEmptyProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.toProfile
 import de.gematik.ti.erp.app.demomode.model.toProfiles
@@ -33,6 +35,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
@@ -63,6 +66,17 @@ class DemoProfilesRepository(
         }
     }
 
+    override suspend fun createNewProfile(profileName: String) {
+        withContext(dispatcher) {
+            dataSource.profiles.value = dataSource.profiles
+                .updateAndGet { profileList ->
+                    val profiles = profileList.deactivateAllProfiles()
+                    profiles.add(profileName.create())
+                    profiles
+                }
+        }
+    }
+
     override suspend fun activateProfile(profileId: ProfileIdentifier) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles
@@ -74,10 +88,13 @@ class DemoProfilesRepository(
         }
     }
 
-    override suspend fun removeProfile(profileId: ProfileIdentifier) {
+    override suspend fun removeProfile(profileId: ProfileIdentifier, profileName: String) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles
                 .updateAndGet { profiles ->
+                    if (profiles.size == 1) {
+                        profiles.add(demoEmptyProfile(profileName))
+                    }
                     profiles.removeIf { profile -> profile.id == profileId }
                     profiles
                 }
@@ -90,7 +107,18 @@ class DemoProfilesRepository(
         insuranceIdentifier: String,
         insuranceName: String
     ) {
-        // Not used in demo mode
+        withContext(dispatcher) {
+            dataSource.profiles.value = dataSource.profiles
+                .updateAndGet {
+                    it.replace(
+                        profileId = profileId,
+                        insurantName = insurantName,
+                        insuranceIdentifier = insuranceIdentifier,
+                        insuranceName = insuranceName
+                    )
+                }
+                .updateUUIDForChangeVisibility()
+        }
     }
 
     override suspend fun updateProfileName(profileId: ProfileIdentifier, profileName: String) {
@@ -146,11 +174,28 @@ class DemoProfilesRepository(
         }
     }
 
-    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
-        // Not for demo mode, will come later
+    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean {
+        // cannot switch to PKV in demo mode
+        return false
+    }
+
+    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean {
+        return true
     }
 
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean = false
+
+    override fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> =
+        demoModeProfiles().mapNotNull {
+            it.find {
+                    profile ->
+                profile.id == profileId
+            }?.toProfile()
+        }
+
+    override suspend fun isSsoTokenValid(profileId: ProfileIdentifier): Flow<Boolean> {
+        return flowOf(true)
+    }
 
     private fun MutableList<DemoModeProfile>.index(profileId: ProfileIdentifier) =
         indexOfFirst { profile -> profile.id == profileId }
@@ -164,7 +209,10 @@ class DemoProfilesRepository(
         lastAuthenticated: Instant? = null,
         avatar: ProfilesData.Avatar? = null,
         profileImage: ByteArray? = null,
-        imageAction: ImageActions = NoAction
+        imageAction: ImageActions = NoAction,
+        insurantName: String? = null,
+        insuranceIdentifier: String? = null,
+        insuranceName: String? = null
     ): MutableList<DemoModeProfile> =
         index(profileId)?.let { index ->
             val existingProfile = this[index]
@@ -174,6 +222,9 @@ class DemoProfilesRepository(
                 name = name ?: existingProfile.name,
                 color = color ?: existingProfile.color,
                 lastAuthenticated = lastAuthenticated,
+                insurantName = insurantName ?: existingProfile.insurantName,
+                insuranceIdentifier = insuranceIdentifier ?: existingProfile.insuranceIdentifier,
+                insuranceName = insuranceName ?: existingProfile.insuranceName,
                 avatar = avatar ?: existingProfile.avatar,
                 personalizedImage = when (imageAction) {
                     Add -> profileImage

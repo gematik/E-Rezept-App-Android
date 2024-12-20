@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.onboarding.navigation
@@ -27,19 +27,27 @@ import de.gematik.ti.erp.app.navigation.fadeOutLong
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown
 import de.gematik.ti.erp.app.navigation.slideOutUp
+import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
 import de.gematik.ti.erp.app.onboarding.ui.DataProtectionScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingAnalyticsPreviewScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingDataProtectionAndTermsOfUseOverviewScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingSelectAppLoginScreen
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingWelcomeScreen
 import de.gematik.ti.erp.app.onboarding.ui.TermsOfUseScreen
-import de.gematik.ti.erp.app.userauthentication.ui.BiometryScreen
+import de.gematik.ti.erp.app.onboarding.ui.BiometryScreen
+import org.kodein.di.DI
+import org.kodein.di.instance
 
 fun NavGraphBuilder.onboardingGraph(
-    navController: NavController,
-    startDestination: String
+    dependencyInjector: DI,
+    startDestination: String = OnboardingRoutes.OnboardingWelcomeScreen.route,
+    navController: NavController
 ) {
-    navigation(startDestination = startDestination, route = OnboardingRoutes.subGraphName()) {
+    val controller by dependencyInjector.instance<OnboardingGraphController>()
+    navigation(
+        startDestination = startDestination,
+        route = OnboardingRoutes.subGraphName()
+    ) {
         renderComposable(
             route = OnboardingRoutes.OnboardingWelcomeScreen.route,
             stackEnterAnimation = { fadeInLong() },
@@ -47,7 +55,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             OnboardingWelcomeScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
         renderComposable(
@@ -55,7 +64,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             OnboardingDataProtectionAndTermsOfUseOverviewScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
         renderComposable(
@@ -63,7 +73,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             OnboardingSelectAppLoginScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
         renderComposable(
@@ -71,7 +82,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             BiometryScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
         renderComposable(
@@ -79,7 +91,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             OnboardingAnalyticsPreviewScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
         renderComposable(
@@ -88,7 +101,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             OnboardingAllowAnalyticsScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
         renderComposable(
@@ -98,7 +112,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             TermsOfUseScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
         renderComposable(
@@ -108,7 +123,8 @@ fun NavGraphBuilder.onboardingGraph(
         ) {
             DataProtectionScreen(
                 navController = navController,
-                navBackStackEntry = it
+                navBackStackEntry = it,
+                graphController = controller
             )
         }
     }

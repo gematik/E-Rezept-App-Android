@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.idp.api
@@ -42,23 +42,18 @@ import java.net.URI
 private const val CODE_CHALLENGE_METHOD = "S256"
 private const val RESPONSE_CODE = "code"
 
-@Requirement(
-    "A_20603#1",
-    sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Store the client-id registered with the IDP and add it to requests."
-)
 const val CLIENT_ID = "eRezeptApp"
 
 @Requirement(
     "A_20740#1",
-    sourceSpecification = "gemSpec_eRp_FdV",
+    sourceSpecification = "gemSpec_IDP_Frontend",
     rationale = "Store the redirect URI for this app."
 )
 const val REDIRECT_URI = "https://redirect.gematik.de/erezept"
 const val EXT_AUTH_REDIRECT_URI: String = "https://das-e-rezept-fuer-deutschland.de/extauth"
 
 @Requirement(
-    "O.Purp_8#1",
+    "O.Purp_8#2",
     sourceSpecification = "BSI-eRp-ePA",
     rationale = "Interface of external idp service"
 )
@@ -92,11 +87,6 @@ interface IdpService {
         @Query("code_challenge") codeChallenge: String
     ): Response<ResponseBody>
 
-    @Requirement(
-        "A_20603#3",
-        sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Store the client-id registered with the IDP and add it to requests."
-    )
     @GET
     suspend fun fetchTokenChallenge(
         @Url url: String,
@@ -119,9 +109,10 @@ interface IdpService {
     ): Response<ResponseBody>
 
     @Requirement(
-        "A_20603#4",
-        sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Store the client-id registered with the IDP and add it to requests."
+        "A_20529-01#2",
+        "A_20483#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Sending encrypted KEY_VERIFIER and AUTHORIZATION_CODE."
     )
     @FormUrlEncoded
     @POST

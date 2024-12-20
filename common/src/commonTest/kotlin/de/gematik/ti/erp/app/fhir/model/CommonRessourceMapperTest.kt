@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
@@ -73,9 +73,10 @@ class CommonRessourceMapperTest {
         val insuranceInformation = Json.parseToJsonElement(insuranceInformationJson)
         val result = extractInsuranceInformation(
             insuranceInformation,
-            processInsuranceInformation = { name: String?, statusCode: String? ->
+            processInsuranceInformation = { name, statusCode, coverageType ->
                 assertEquals("HEK", name)
                 assertEquals("3", statusCode)
+                assertEquals("GKV", coverageType)
 
                 ReturnType.InsuranceInformation
             }
@@ -123,10 +124,10 @@ class CommonRessourceMapperTest {
                 assertEquals(ReturnType.Quantity, denominator)
                 ReturnType.Ratio
             },
-            ingredientFn = { text, form, number, amount, strength ->
+            ingredientFn = { text, form, identifier, amount, strength ->
                 assertEquals("Wirkstoff Paulaner Weissbier", text)
                 assertEquals(null, form)
-                assertEquals("37197", number)
+                assertEquals(Identifier(ask = "37197"), identifier)
                 assertEquals(null, amount)
                 assertEquals(ReturnType.Ratio, strength)
                 ReturnType.Ingredient
@@ -145,10 +146,10 @@ class CommonRessourceMapperTest {
             ratioFn = { _, _ ->
                 null
             },
-            ingredientFn = { text, form, number, amount, strength ->
+            ingredientFn = { text, form, identifier, amount, strength ->
                 assertEquals("2-propanol 70 %", text)
                 assertEquals(null, form)
-                assertEquals(null, number)
+                assertEquals(Identifier(), identifier)
                 assertEquals("Ad 100 g", amount)
                 assertEquals(null, strength)
 

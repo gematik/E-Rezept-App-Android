@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file: Suppress("TopLevelPropertyNaming")
 
 package de.gematik.ti.erp.app.interceptor
 
@@ -34,10 +36,14 @@ private const val invalidAccessTokenHeader = "Www-Authenticate"
 private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"
 
 @Requirement(
-    "A_19187",
-    "A_20529-01",
-    sourceSpecification = "gemSpec_eRp_FdV",
+    "A_20529-01#01",
+    sourceSpecification = "gemSpec_IDP_Frontend",
     rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
+)
+@Requirement(
+    "A_20602#1",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "The interceptor pattern is used to add the bearer token to the request."
 )
 class BearerHeaderInterceptor(
     private val idpUseCase: IdpUseCase
@@ -77,6 +83,7 @@ class PharmacySearchInterceptor(private val endpointHelper: EndpointHelper) : In
     override fun intercept(chain: Interceptor.Chain): Response {
         val original: Request = chain.request()
         val request: Request = original.newBuilder()
+            .header("X-Api-Key", endpointHelper.getPharmacyApiKey())
             .build()
         return chain.proceed(request)
     }
@@ -94,7 +101,7 @@ class PharmacyRedeemInterceptor : Interceptor {
 class UserAgentHeaderInterceptor : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-            .header("User-Agent", BuildKonfig.USER_AGENT)
+            .header("User-Agent", "${BuildKonfig.USER_AGENT}/${BuildKonfig.CLIENT_ID}")
             .build()
 
         return chain.proceed(request)

@@ -1,22 +1,17 @@
+@file:Suppress("UnusedPrivateProperty", "VariableNaming", "PropertyName")
+
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.BOOLEAN
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.LONG
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
-import de.gematik.ti.erp.Dependencies
-import de.gematik.ti.erp.inject
-import de.gematik.ti.erp.overriding
+import de.gematik.ti.erp.app.plugins.dependencies.overrides
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import java.io.ByteArrayOutputStream
 
 plugins {
-    id("com.android.library")
-    kotlin("multiplatform")
-    kotlin("plugin.serialization")
-    id("io.realm.kotlin")
-    id("org.jetbrains.compose")
+    id("base-multiplatform-library")
     id("com.codingfeline.buildkonfig")
-    id("de.gematik.ti.erp.dependencies")
-    id("de.gematik.ti.erp.technical-requirements")
+    id("de.gematik.ti.erp.dependency-overrides")
 }
 fun getGitHash() =
     if (File("${rootDir.path}/.git").exists()) {
@@ -29,99 +24,92 @@ fun getGitHash() =
     } else {
         "n/a"
     }
-val USER_AGENT: String by overriding()
-val DATA_PROTECTION_LAST_UPDATED: String by overriding()
-val VERSION_CODE: String by overriding()
-val VERSION_NAME: String by overriding()
-val DEBUG_TEST_IDS_ENABLED: String by overriding()
-val VAU_OCSP_RESPONSE_MAX_AGE: String by overriding()
-val APP_TRUST_ANCHOR_BASE64: String by overriding()
-val APP_TRUST_ANCHOR_BASE64_TEST: String by overriding()
-val PHARMACY_SERVICE_URI: String by overriding()
-val PHARMACY_SERVICE_URI_TEST: String by overriding()
-val PHARMACY_API_KEY: String by overriding()
-val PHARMACY_API_KEY_TEST: String by overriding()
-val BASE_SERVICE_URI_PU: String by overriding()
-val BASE_SERVICE_URI_TU: String by overriding()
-val BASE_SERVICE_URI_RU: String by overriding()
-val BASE_SERVICE_URI_RU_DEV: String by overriding()
-val BASE_SERVICE_URI_TR: String by overriding()
-val IDP_SERVICE_URI_PU: String by overriding()
-val IDP_SERVICE_URI_TU: String by overriding()
-val IDP_SERVICE_URI_RU: String by overriding()
-val IDP_SERVICE_URI_RU_DEV: String by overriding()
-val IDP_SERVICE_URI_TR: String by overriding()
-val ERP_API_KEY_GOOGLE_PU: String by overriding()
-val ERP_API_KEY_GOOGLE_TU: String by overriding()
-val ERP_API_KEY_GOOGLE_RU: String by overriding()
-val ERP_API_KEY_GOOGLE_TR: String by overriding()
-val ERP_API_KEY_HUAWEI_PU: String by overriding()
-val ERP_API_KEY_HUAWEI_TU: String by overriding()
-val ERP_API_KEY_HUAWEI_RU: String by overriding()
-val ERP_API_KEY_HUAWEI_TR: String by overriding()
-val ERP_API_KEY_DESKTOP_PU: String by overriding()
-val ERP_API_KEY_DESKTOP_TU: String by overriding()
-val ERP_API_KEY_DESKTOP_RU: String by overriding()
-val INTEGRITY_API_KEY: String by overriding()
-val INTEGRITY_VERIFICATION_KEY: String by overriding()
-val CLOUD_PROJECT_NUMBER: String by overriding()
-val DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE: String by overriding()
-val DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY: String by overriding()
+
+// versioning
+val VERSION_NAME: String by overrides()
+val VERSION_CODE: String by overrides()
+val USER_AGENT: String by overrides()
+
+// client id
+val CLIENT_ID_RU: String by overrides()
+val CLIENT_ID_TU: String by overrides()
+val CLIENT_ID_PU: String by overrides()
+
+// data protection
+val DATA_PROTECTION_LAST_UPDATED: String by overrides()
+
+// OCSP
+val VAU_OCSP_RESPONSE_MAX_AGE: String by overrides()
+
+// trust anchor
+val APP_TRUST_ANCHOR_BASE64: String by overrides()
+val APP_TRUST_ANCHOR_BASE64_TEST: String by overrides()
+
+// pharmacy
+val PHARMACY_SERVICE_URI: String by overrides()
+val PHARMACY_SERVICE_URI_TEST: String by overrides()
+val PHARMACY_API_KEY: String by overrides()
+val PHARMACY_API_KEY_TEST: String by overrides()
+
+// organ donation
+val ORGAN_DONATION_REGISTER_RU : String by overrides()
+val ORGAN_DONATION_REGISTER_PU : String by overrides()
+val ORGAN_DONATION_INFO : String by overrides()
+
+// base service URIs
+val BASE_SERVICE_URI_PU: String by overrides()
+val BASE_SERVICE_URI_TU: String by overrides()
+val BASE_SERVICE_URI_RU: String by overrides()
+val BASE_SERVICE_URI_RU_DEV: String by overrides()
+val BASE_SERVICE_URI_TR: String by overrides()
+
+// IDP URIs
+val IDP_SERVICE_URI_PU: String by overrides()
+val IDP_SERVICE_URI_TU: String by overrides()
+val IDP_SERVICE_URI_RU: String by overrides()
+val IDP_SERVICE_URI_RU_DEV: String by overrides()
+val IDP_SERVICE_URI_TR: String by overrides()
+
+// ERP API keys google
+val ERP_API_KEY_GOOGLE_PU: String by overrides()
+val ERP_API_KEY_GOOGLE_TU: String by overrides()
+val ERP_API_KEY_GOOGLE_RU: String by overrides()
+val ERP_API_KEY_GOOGLE_TR: String by overrides()
+
+// ERP API keys huawei
+val ERP_API_KEY_HUAWEI_PU: String by overrides()
+val ERP_API_KEY_HUAWEI_TU: String by overrides()
+val ERP_API_KEY_HUAWEI_RU: String by overrides()
+val ERP_API_KEY_HUAWEI_TR: String by overrides()
+
+// ERP API keys desktop
+val ERP_API_KEY_DESKTOP_PU: String by overrides()
+val ERP_API_KEY_DESKTOP_TU: String by overrides()
+val ERP_API_KEY_DESKTOP_RU: String by overrides()
+
+// integrity
+val INTEGRITY_API_KEY: String by overrides()
+val INTEGRITY_VERIFICATION_KEY: String by overrides()
+
+// cloud project number
+val CLOUD_PROJECT_NUMBER: String by overrides()
+
+// virtual health card
+val DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE: String by overrides()
+val DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY: String by overrides()
+
+// debug
+val DEBUG_TEST_IDS_ENABLED: String by overrides()
 val DEBUG_VISUAL_TEST_TAGS: String? by project
-val APP_CENTER_SECRET: String by overriding()
-val BUILD_TYPE_MINIFIED_DEBUG: String by overriding()
+val BUILD_TYPE_MINIFIED_DEBUG: String by overrides()
+
+// app center
+val APP_CENTER_SECRET: String by overrides()
 
 kotlin {
-    androidTarget {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = Dependencies.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
-            }
-        }
-    }
-    jvm("desktop")
     sourceSets {
         val commonMain by getting {
             dependencies {
-                implementation(kotlin("reflect"))
-                inject {
-                    androidX {
-                        implementation(multiplatformPaging) {
-                            // remove coroutine dependency; otherwise intellij will be confused with "duplicated class import"
-                            exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-core")
-                        }
-                    }
-                    coroutines {
-                        implementation(coroutinesCore)
-                    }
-                    dateTime {
-                        implementation(datetime)
-                    }
-                    database {
-                        implementation(realm)
-                    }
-                    crypto {
-                        implementation(jose4j)
-                        compileOnly(bouncycastleBcprov)
-                        compileOnly(bouncycastleBcpkix)
-                    }
-                    serialization {
-                        implementation(kotlinXJson)
-                    }
-                    logging {
-                        implementation(napier)
-                    }
-                    network {
-                        implementation(retrofit)
-                        implementation(okhttp3)
-                        implementation(retrofit2KotlinXSerialization)
-                        implementation(okhttpLogging)
-                    }
-                    dependencyInjection {
-                        implementation(kodeinCompose)
-                        implementation(kodein)
-                    }
-                }
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material)
@@ -129,103 +117,35 @@ kotlin {
                 implementation(compose.ui)
             }
         }
-        val commonTest by getting {
-            dependencies {
-                inject {
-                    database {
-                        implementation(realm)
-                    }
-                    coroutinesTest {
-                        implementation(coroutinesTest)
-                    }
-                    serialization {
-                        implementation(kotlinXJson)
-                    }
-                    test {
-                        implementation(kotlinTest)
-                        implementation(kotlinTestCommon)
-                        implementation(kotlinReflect)
-                        implementation(junit4)
-                        implementation(mockkOld)
-                        implementation(snakeyaml)
-                    }
-                    crypto {
-                        implementation(jose4j)
-                        implementation(bouncycastleBcprov)
-                        implementation(bouncycastleBcpkix)
-                    }
-                    networkTest {
-                        implementation(mockWebServer)
-                    }
-                    dateTime {
-                        implementation(datetime)
-                    }
-                }
-            }
-        }
         val androidMain by getting {
             dependsOn(commonMain)
             dependencies {
-                inject {
-                    androidX {
-                        implementation(coreKtx)
-                    }
-                    crypto {
-                        implementation(bouncycastleBcprov)
-                        implementation(bouncycastleBcpkix)
-                    }
-                    dependencyInjection {
-                        implementation(kodeinViewModel)
-                        implementation(kodeinSavedState)
-                    }
-                }
+                implementation(libs.androidx.core.ktx)
+                implementation(libs.bundles.crypto)
+                implementation(libs.bundles.di.viewmodel)
             }
         }
         val desktopMain by getting {
             dependsOn(commonMain)
             dependencies {
+                implementation(libs.bundles.crypto)
                 implementation(compose.preview)
-            }
-        }
-        val desktopTest by getting {
-            dependencies {
-                inject {
-                    crypto {
-                        implementation(bouncycastleBcprov)
-                        implementation(bouncycastleBcpkix)
-                    }
-                }
             }
         }
     }
 }
 android {
-    buildToolsVersion = "33.0.1"
-    sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
-    compileSdk = Dependencies.Versions.SdkVersions.COMPILE_SDK_VERSION
-    defaultConfig {
-        minSdk = Dependencies.Versions.SdkVersions.MIN_SDK_VERSION
-    }
-    compileOptions {
-        sourceCompatibility = Dependencies.Versions.JavaVersion.PROJECT_JAVA_VERSION
-        targetCompatibility = Dependencies.Versions.JavaVersion.PROJECT_JAVA_VERSION
-    }
-    buildTypes {
-        val debug by getting {
-            isJniDebuggable = true
-        }
-        create("minifiedDebug") {
-            initWith(debug)
-        }
-    }
     namespace = "de.gematik.ti.erp.lib"
 }
+
 enum class Platforms {
     Google, Huawei, Konnektathon, Desktop
 }
+
 enum class Environments {
-    PU, TU, RU, DEVRU, TR
+    PU, TU, RU, DEVRU, TR, NONE
 }
+
 enum class Types {
     Internal, External
 }
@@ -238,8 +158,16 @@ buildkonfig {
         buildConfigField(STRING, "INTEGRITY_API_KEY", INTEGRITY_API_KEY)
         buildConfigField(STRING, "INTEGRITY_VERIFICATION_KEY", INTEGRITY_VERIFICATION_KEY)
         buildConfigField(STRING, "CLOUD_PROJECT_NUMBER", CLOUD_PROJECT_NUMBER)
-        buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE", DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
-        buildConfigField(STRING, "DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY", DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY)
+        buildConfigField(
+            STRING,
+            "DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE",
+            DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE
+        )
+        buildConfigField(
+            STRING,
+            "DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY",
+            DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
+        )
         buildConfigField(STRING, "BUILD_FLAVOR", project.property("buildkonfig.flavor") as String)
         buildConfigField(STRING, "APP_CENTER_SECRET", APP_CENTER_SECRET)
         buildConfigField(STRING, "BUILD_TYPE_MINIFIED_DEBUG", BUILD_TYPE_MINIFIED_DEBUG)
@@ -253,12 +181,17 @@ buildkonfig {
         pharmacyServiceUri: String,
         pharmacyServiceApiKey: String,
         trustAnchor: String,
+        clientId: String,
         ocspResponseMaxAge: String
     ) {
         defaultConfigs(flavor) {
             buildConfigField(STRING, "VERSION_NAME", VERSION_NAME)
             buildConfigField(INT, "VERSION_CODE", VERSION_CODE)
             buildConfigField(BOOLEAN, "INTERNAL", isInternal.toString())
+            // client ids
+            buildConfigField(STRING, "CLIENT_ID_TU", CLIENT_ID_TU)
+            buildConfigField(STRING, "CLIENT_ID_PU", CLIENT_ID_PU)
+            buildConfigField(STRING, "CLIENT_ID_RU", CLIENT_ID_RU)
             if (isInternal) {
                 buildConfigField(STRING, "BASE_SERVICE_URI_PU", BASE_SERVICE_URI_PU)
                 buildConfigField(STRING, "BASE_SERVICE_URI_RU", BASE_SERVICE_URI_RU)
@@ -282,6 +215,9 @@ buildkonfig {
                 buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64_TU", APP_TRUST_ANCHOR_BASE64_TEST)
                 buildConfigField(STRING, "IDP_SCOPE_DEVRU", "e-rezept-dev openid")
             }
+            buildConfigField(STRING, "ORGAN_DONATION_REGISTER_RU", ORGAN_DONATION_REGISTER_RU)
+            buildConfigField(STRING, "ORGAN_DONATION_REGISTER_PU", ORGAN_DONATION_REGISTER_PU)
+            buildConfigField(STRING, "ORGAN_DONATION_INFO", ORGAN_DONATION_INFO)
             buildConfigField(STRING, "BASE_SERVICE_URI", baseServiceUri)
             buildConfigField(STRING, "IDP_SERVICE_URI", idpServiceUri)
             buildConfigField(STRING, "ERP_API_KEY", erpApiKey)
@@ -289,6 +225,7 @@ buildkonfig {
             buildConfigField(STRING, "PHARMACY_API_KEY", pharmacyServiceApiKey)
             buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64", trustAnchor)
             buildConfigField(LONG, "VAU_OCSP_RESPONSE_MAX_AGE", ocspResponseMaxAge)
+            buildConfigField(STRING, "CLIENT_ID", clientId)
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false")
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_IDP_INTEGRATION", "false")
             buildConfigField(
@@ -302,6 +239,7 @@ buildkonfig {
             )
         }
     }
+
     val platforms = Platforms.values()
     val environments = Environments.values()
     val types = Types.values()
@@ -321,6 +259,7 @@ buildkonfig {
                         Environments.RU -> BASE_SERVICE_URI_RU
                         Environments.DEVRU -> BASE_SERVICE_URI_RU_DEV
                         Environments.TR -> BASE_SERVICE_URI_TR
+                        Environments.NONE -> ""
                     },
                     idpServiceUri = when (environment) {
                         Environments.PU -> IDP_SERVICE_URI_PU
@@ -328,28 +267,31 @@ buildkonfig {
                         Environments.RU -> IDP_SERVICE_URI_RU
                         Environments.DEVRU -> IDP_SERVICE_URI_RU_DEV
                         Environments.TR -> IDP_SERVICE_URI_TR
+                        Environments.NONE -> ""
                     },
                     erpApiKey = when (platform) {
                         Platforms.Google, Platforms.Konnektathon -> when (environment) {
                             Environments.PU -> ERP_API_KEY_GOOGLE_PU
                             Environments.TU -> ERP_API_KEY_GOOGLE_TU
-                            Environments.DEVRU,
-                            Environments.RU -> ERP_API_KEY_GOOGLE_RU
+                            Environments.DEVRU, Environments.RU -> ERP_API_KEY_GOOGLE_RU
                             Environments.TR -> ERP_API_KEY_GOOGLE_TR
+                            Environments.NONE -> ""
                         }
+
                         Platforms.Desktop -> when (environment) {
                             Environments.PU -> ERP_API_KEY_DESKTOP_PU
                             Environments.TU -> ERP_API_KEY_DESKTOP_TU
-                            Environments.DEVRU,
-                            Environments.RU -> ERP_API_KEY_DESKTOP_RU
                             Environments.TR -> ERP_API_KEY_GOOGLE_TR
+                            Environments.DEVRU, Environments.RU -> ERP_API_KEY_DESKTOP_RU
+                            Environments.NONE -> ""
                         }
+
                         Platforms.Huawei -> when (environment) {
                             Environments.PU -> ERP_API_KEY_HUAWEI_PU
                             Environments.TU -> ERP_API_KEY_HUAWEI_TU
-                            Environments.DEVRU,
-                            Environments.RU -> ERP_API_KEY_HUAWEI_RU
+                            Environments.DEVRU, Environments.RU -> ERP_API_KEY_HUAWEI_RU
                             Environments.TR -> ERP_API_KEY_HUAWEI_TR
+                            Environments.NONE -> ""
                         }
                     },
                     pharmacyServiceUri = when (environment) {
@@ -358,20 +300,27 @@ buildkonfig {
                         Environments.RU,
                         Environments.DEVRU,
                         Environments.TR -> PHARMACY_SERVICE_URI_TEST
+                        Environments.NONE -> ""
                     },
                     pharmacyServiceApiKey = when (environment) {
                         Environments.PU -> PHARMACY_API_KEY
                         Environments.TU,
                         Environments.RU,
-                        Environments.DEVRU,
-                        Environments.TR -> PHARMACY_API_KEY_TEST
+                        Environments.DEVRU, Environments.TR -> PHARMACY_API_KEY_TEST
+                        Environments.NONE -> ""
                     },
                     trustAnchor = when (environment) {
                         Environments.PU -> APP_TRUST_ANCHOR_BASE64
                         Environments.TU,
                         Environments.RU,
-                        Environments.DEVRU,
-                        Environments.TR -> APP_TRUST_ANCHOR_BASE64_TEST
+                        Environments.DEVRU, Environments.TR -> APP_TRUST_ANCHOR_BASE64_TEST
+                        Environments.NONE -> ""
+                    },
+                    clientId = when (environment) {
+                        Environments.PU -> CLIENT_ID_PU
+                        Environments.TU, Environments.TR -> CLIENT_ID_TU
+                        Environments.RU, Environments.DEVRU -> CLIENT_ID_RU
+                        Environments.NONE -> ""
                     },
                     ocspResponseMaxAge = VAU_OCSP_RESPONSE_MAX_AGE
                 )

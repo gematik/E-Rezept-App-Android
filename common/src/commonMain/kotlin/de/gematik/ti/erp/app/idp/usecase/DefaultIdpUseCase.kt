@@ -1,20 +1,21 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 @file:Suppress("LongParameterList", "TooGenericExceptionCaught", "MagicNumber", "ThrowsCount")
 
 package de.gematik.ti.erp.app.idp.usecase
@@ -41,7 +42,8 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import org.bouncycastle.util.encoders.Base64
-import java.net.HttpURLConnection
+import java.net.HttpURLConnection.HTTP_FORBIDDEN
+import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
 import java.security.KeyStore
 import java.security.PrivateKey
 import java.security.PublicKey
@@ -62,9 +64,7 @@ class DefaultIdpUseCase(
      */
     @Requirement(
         "A_20283-01#1",
-        "A_21326",
-        "A_21327",
-        sourceSpecification = "gemSpec_eRp_FdV",
+        sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Load and decrypt access token."
     )
     override suspend fun loadAccessToken(
@@ -117,6 +117,7 @@ class DefaultIdpUseCase(
         }
     }
 
+    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
     private suspend fun loadAccessToken(
         refresh: Boolean = false,
         profileId: ProfileIdentifier,
@@ -137,8 +138,9 @@ class DefaultIdpUseCase(
             savedAccessToken.expiresOn <= Clock.System.now()
         }
 
-        Napier.d {
+        Napier.d(tag = "IdpUseCase") {
             """Loading access token with:
+              |ssoTokenScope.present: ${ssoTokenScope != null}
               |refresh: $refresh
               |profileId: $profileId
               |scope: $scope
@@ -158,41 +160,50 @@ class DefaultIdpUseCase(
                 )
             }
 
+            if (ssoTokenScope.token?.isValid() == false) {
+                Napier.e(tag = "IdpUseCase") { "expired SSO Token ${ssoTokenScope.token?.token}" }
+            }
+
             if (refresh || accessToken == null || isExpired) {
                 invalidateDecryptedAccessToken()
 
-                val actualToken = ssoTokenScope.token!!.token
-
-                val initialData = try {
-                    basicUseCase.initializeConfigurationAndKeys()
-                } catch (e: Exception) {
-                    throw IDPConfigException(e)
-                }
-                try {
-                    val refreshData = basicUseCase.refreshAccessTokenWithSsoFlow(
-                        initialData,
-                        scope = scope,
-                        ssoToken = actualToken,
-                        redirectUri = if (ssoTokenScope is IdpData.ExternalAuthenticationToken) {
-                            EXT_AUTH_REDIRECT_URI
-                        } else {
-                            REDIRECT_URI
-                        }
-                    )
-                    saveDecryptedAccessToken(refreshData.accessToken, refreshData.expiresOn)
-                    refreshData.accessToken
-                } catch (e: Exception) {
-                    Napier.e("Couldn't refresh access token", e)
-                    (e as? ApiCallException)?.also {
-                        when (it.response.code()) {
-                            // 400 returned by redirect call if sso token is not valid anymore
-                            400, 401, 403 -> {
-                                invalidateSingleSignOnTokenRetainingScope()
-                                throw RefreshFlowException(true, ssoTokenScope, e)
+                ssoTokenScope.token?.token?.let { actualToken ->
+                    val initialData = try {
+                        basicUseCase.initializeConfigurationAndKeys()
+                    } catch (e: Exception) {
+                        throw IDPConfigException(e)
+                    }
+                    try {
+                        val refreshData = basicUseCase.refreshAccessTokenWithSsoFlow(
+                            initialData,
+                            scope = scope,
+                            ssoToken = actualToken,
+                            redirectUri = if (ssoTokenScope is IdpData.ExternalAuthenticationToken) {
+                                EXT_AUTH_REDIRECT_URI
+                            } else {
+                                REDIRECT_URI
+                            }
+                        )
+                        saveDecryptedAccessToken(refreshData.accessToken, refreshData.expiresOn)
+                        refreshData.accessToken
+                    } catch (e: Exception) {
+                        Napier.e(tag = "IdpUseCase", message = "Couldn't refresh access token", throwable = e)
+                        (e as? ApiCallException)?.also {
+                            when (it.response.code()) {
+                                // 400 returned by redirect call if sso token is not valid anymore
+                                400, 401, 403 -> {
+                                    Napier.e(tag = "IdpUseCase") { "RefreshFlowException due to ApiCallException.code ${it.response.code()}" }
+                                    invalidateSingleSignOnTokenRetainingScope()
+                                    throw RefreshFlowException(true, ssoTokenScope, e)
+                                }
                             }
                         }
+                        throw RefreshFlowException(false, null, e)
                     }
-                    throw RefreshFlowException(false, null, e)
+                } ?: run {
+                    Napier.e(tag = "IdpUseCase", message = "ssoTokenScope.token?.token is null!")
+                    invalidateDecryptedAccessToken()
+                    throw RefreshFlowException(false, null, NullPointerException("SSO token is null"))
                 }
             } else {
                 savedAccessToken.accessToken
@@ -202,7 +213,7 @@ class DefaultIdpUseCase(
             throw RefreshFlowException(
                 true,
                 null,
-                "SSO token not set for $profileId!"
+                "SSO token-scope is null for $profileId!"
             )
         }
     }
@@ -210,13 +221,11 @@ class DefaultIdpUseCase(
     /**
      * Initial flow fetching the sso & access token requiring the health card to sign the challenge.
      */
+    // // A_20601-01
     @Requirement(
-        "A_20600#1",
-        "A_20601",
-        "A_20601-01",
-        "A_21598#2",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Authenticate to the IDP using the health card certificate."
+        "A_20167-02#1",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Authenticate to the IDP using the health card certificate"
     )
     override suspend fun authenticationFlowWithHealthCard(
         profileId: ProfileIdentifier,
@@ -297,6 +306,11 @@ class DefaultIdpUseCase(
     /**
      * Pairing flow fetching the sso & access token requiring the health card and generated key material.
      */
+    @Requirement(
+        "A_20167-02#2",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Authenticate to the IDP using the health card certificate an secure element."
+    )
     override suspend fun alternatePairingFlowWithSecureElement(
         profileId: ProfileIdentifier,
         cardAccessNumber: String,
@@ -350,9 +364,9 @@ class DefaultIdpUseCase(
      * sets the sso & access token within the repository.
      */
     @Requirement(
-        "A_21598#1",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Authentication flow with health card and secure element."
+        "A_20167-02#3",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Authenticate to the IDP using an secure element."
     )
     override suspend fun alternateAuthenticationFlowWithSecureElement(
         profileId: ProfileIdentifier,
@@ -406,35 +420,44 @@ class DefaultIdpUseCase(
             authData: IdpAuthFlowResult
         ) -> R
     ): R {
-        val ssoTokenScope = requireNotNull(repository.authenticationData(profileId).first().singleSignOnTokenScope)
+        val ssoTokenScope = requireNotNull(repository.authenticationData(profileId).first().singleSignOnTokenScope) // TODO: Throws IllegalStateException
 
         val authTokenScope =
-            requireNotNull(ssoTokenScope as? IdpData.TokenWithKeyStoreAliasScope) { "Wrong authentication scope!" }
+            requireNotNull(ssoTokenScope as? IdpData.TokenWithKeyStoreAliasScope) { "Wrong authentication scope!" } // TODO: Throws IllegalStateException
 
         val healthCardCertificate = authTokenScope.healthCardCertificate
         val aliasOfSecureElementEntry = authTokenScope.aliasOfSecureElementEntry
 
+        @Requirement(
+            "O.Cryp_7#1",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "java.security.PrivateKey used as the private-key container.",
+            codeLines = 2
+        )
         lateinit var privateKeyOfSecureElementEntry: PrivateKey
         lateinit var signatureObjectOfSecureElementEntry: Signature
         @Requirement(
             "O.Cryp_1#2",
-            "O.Cryp_4#2",
             sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Signature via ecdh ephemeral-static (one time usage)"
+            rationale = "Signature via ecdh ephemeral-static [one time usage]",
+            codeLines = 30
         )
         @Requirement(
-            "O.Cryp_6",
+            "O.Cryp_4#3",
             sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Persisted cryptographic keys are created within the devices key store. " +
-                "Temporal keys are discarded as soon as usage is no longer needed."
+            rationale = "One time usage for JWE ECDH-ES Encryption"
         )
         @Requirement(
-            "O.Cryp_7",
+            "O.Cryp_6#1",
             sourceSpecification = "BSI-eRp-ePA",
-            rationale = "As Brainpool256R1 is not available within key store but enforced by BSI where possible, " +
-                "we use secure enclave encryption only for biometric authentication. " +
-                "Everywhere else, cryptographic operations are ephemeral or use the eGK " +
-                "as a secure execution environment."
+            rationale = "Secure enclave key generation",
+            codeLines = 18
+        )
+        @Requirement(
+            "A_21590#2",
+            sourceSpecification = "gemSpec_IDP_Frontend",
+            rationale = "Key generation for authentication",
+            codeLines = 18
         )
         try {
             privateKeyOfSecureElementEntry = (
@@ -465,7 +488,6 @@ class DefaultIdpUseCase(
             privateKeyOfSecureElementEntry = privateKeyOfSecureElementEntry,
             signatureObjectOfSecureElementEntry = signatureObjectOfSecureElementEntry
         )
-
         return finally(
             initialData,
             authTokenScope,
@@ -476,8 +498,8 @@ class DefaultIdpUseCase(
     /**
      * Returns the paired devices associated with the [profileId]s sso token scope.
      *
-     * @param authenticateWithSecureElement will be called if an alternate authentication is required.
-     * @param authenticateWithHealthCard will be called if a health card authentication is required
+     * [de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase.authenticateWithSecureElement] will be called if an alternate authentication is required.
+     * [de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase.authenticateWithHealthCard] will be called if a health card authentication is required
      *                                   which needs to sign [hash].
      */
     override suspend fun getPairedDevices(profileId: ProfileIdentifier):
@@ -488,6 +510,8 @@ class DefaultIdpUseCase(
                 profileId = profileId,
                 scope = IdpScope.BiometricPairing
             )
+
+            Napier.e { "access token $accessToken" }
 
             altAuthUseCase.getPairedDevices(
                 initialData = basicUseCase.initializeConfigurationAndKeys(),
@@ -518,15 +542,15 @@ class DefaultIdpUseCase(
     ) =
         runCatching {
             block(false)
-        }.recoverCatching { e ->
-            val isRetryable = (e as? ApiCallException)?.let {
-                it.response.code() == HttpURLConnection.HTTP_FORBIDDEN ||
-                    it.response.code() == HttpURLConnection.HTTP_UNAUTHORIZED
+        }.recoverCatching { exception ->
+            Napier.e { "retrying due to ${exception.stackTraceToString()}" }
+            val isRetryable = (exception as? ApiCallException)?.let {
+                it.response.code() == HTTP_FORBIDDEN || it.response.code() == HTTP_UNAUTHORIZED
             } ?: false
             if (isRetryable) {
                 block(true)
             } else {
-                throw e
+                throw exception
             }
         }
 }

@@ -1,26 +1,26 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.tasks
 
+import de.gematik.ti.erp.app.plugins.buildapp.BuildAppFlavoursPlugin
 import de.gematik.ti.erp.app.utils.APP_MOCK_PROJECT_NAME
 import de.gematik.ti.erp.app.utils.APP_PROJECT_NAME
-import de.gematik.ti.erp.app.plugins.buildapp.BuildAppFlavoursPlugin
 import de.gematik.ti.erp.app.utils.GOOGLE_TU_EXTERNAL_MAPPING_PATH
 import de.gematik.ti.erp.app.utils.HUAWEI_STORE_BUNDLE_FILE
 import de.gematik.ti.erp.app.utils.HUAWEI_STORE_BUNDLE_PATH
@@ -38,6 +38,7 @@ import de.gematik.ti.erp.app.utils.PLAY_STORE_BUNDLE_FILE
 import de.gematik.ti.erp.app.utils.PLAY_STORE_BUNDLE_PATH
 import de.gematik.ti.erp.app.utils.PLAY_STORE_MAPPING_PATH
 import de.gematik.ti.erp.app.utils.TU_EXTERNAL_APP_APK_FILE
+import de.gematik.ti.erp.app.utils.TU_EXTERNAL_APP_APK_FILE_UNSIGNED
 import de.gematik.ti.erp.app.utils.TU_EXTERNAL_APP_APK_PATH
 import de.gematik.ti.erp.app.utils.TU_INTERNAL_APP_APK_FILE
 import de.gematik.ti.erp.app.utils.TU_INTERNAL_APP_APK_PATH
@@ -49,7 +50,7 @@ import java.io.File
 import java.nio.file.Files
 import java.nio.file.Paths
 
-internal fun TaskContainer.registerCopyPlayStoreBundle() {
+internal fun TaskContainer.copyPlayStoreBundle() {
     register(TaskNames.copyPlayStoreBundle) {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
@@ -57,7 +58,11 @@ internal fun TaskContainer.registerCopyPlayStoreBundle() {
             val sourceDir = androidProject.buildDir
             doLast {
                 val inputFile = sourceDir.resolve("$PLAY_STORE_BUNDLE_PATH/$PLAY_STORE_BUNDLE_FILE")
-                project copyFileFrom inputFile
+                if (inputFile.exists()) {
+                    project copyFileFrom inputFile
+                } else {
+                    throw GradleScriptException("AAB not found", Exception("copyPlayStoreBundle failed"))
+                }
                 val inputMappingFile = sourceDir.resolve("$PLAY_STORE_MAPPING_PATH/$MAPPING_FILE")
                 inputMappingFile moveMappingFileAndRenameTo BuildAppFlavoursPlugin.MappingFileName.PlayStore.fileName()
             }
@@ -67,7 +72,7 @@ internal fun TaskContainer.registerCopyPlayStoreBundle() {
     }
 }
 
-internal fun TaskContainer.registerCopyAppGalleryBundle() {
+internal fun TaskContainer.copyAppGalleryBundle() {
     register(TaskNames.copyAppGalleryBundle) {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
@@ -75,7 +80,11 @@ internal fun TaskContainer.registerCopyAppGalleryBundle() {
             val sourceDir = androidProject.buildDir
             doLast {
                 val inputFile = sourceDir.resolve("$HUAWEI_STORE_BUNDLE_PATH/$HUAWEI_STORE_BUNDLE_FILE")
-                project copyFileFrom inputFile
+                if (inputFile.exists()) {
+                    project copyFileFrom inputFile
+                } else {
+                    throw GradleScriptException("AAB not found", Exception("copyAppGalleryBundle failed"))
+                }
                 val inputMappingFile = sourceDir.resolve("$HUAWEI_STORE_MAPPING_PATH/$MAPPING_FILE")
                 inputMappingFile moveMappingFileAndRenameTo BuildAppFlavoursPlugin.MappingFileName.AppGallery.fileName()
             }
@@ -85,7 +94,7 @@ internal fun TaskContainer.registerCopyAppGalleryBundle() {
     }
 }
 
-internal fun TaskContainer.registerCopyKonnyApp() {
+internal fun TaskContainer.copyKonnyApp() {
     register(TaskNames.copyKonnyApp) {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
@@ -93,7 +102,11 @@ internal fun TaskContainer.registerCopyKonnyApp() {
             val sourceDir = androidProject.buildDir
             doLast {
                 val inputFile = sourceDir.resolve("$KONNY_APP_APK_PATH/$KONNY_APP_APK_FILE")
-                project copyFileFrom inputFile
+                if (inputFile.exists()) {
+                    project copyFileFrom inputFile
+                } else {
+                    throw GradleScriptException("APK not found", Exception("copyKonnyApp failed"))
+                }
             }
         } ?: run {
             throw GradleScriptException("Project missing", Exception("Expected project not found"))
@@ -101,7 +114,7 @@ internal fun TaskContainer.registerCopyKonnyApp() {
     }
 }
 
-internal fun TaskContainer.registerCopyGoogleTuApp() {
+internal fun TaskContainer.copyGoogleTuApp() {
     register(TaskNames.copyGoogleTuApp) {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
@@ -109,7 +122,14 @@ internal fun TaskContainer.registerCopyGoogleTuApp() {
             val sourceDir = androidProject.buildDir
             doLast {
                 val inputFile = sourceDir.resolve("$TU_EXTERNAL_APP_APK_PATH/$TU_EXTERNAL_APP_APK_FILE")
-                project copyFileFrom inputFile
+                if (inputFile.exists()) {
+                    project copyFileFrom inputFile
+                } else {
+                    val unsignedInputFile =
+                        sourceDir.resolve("$TU_EXTERNAL_APP_APK_PATH/$TU_EXTERNAL_APP_APK_FILE_UNSIGNED")
+                    project copyFileFrom unsignedInputFile
+                    print("Tu app is unsigned, copying unsigned apk")
+                }
                 val inputMappingFile = sourceDir.resolve("$GOOGLE_TU_EXTERNAL_MAPPING_PATH/$MAPPING_FILE")
                 inputMappingFile moveMappingFileAndRenameTo BuildAppFlavoursPlugin.MappingFileName.TuExternal.fileName()
             }
@@ -119,7 +139,7 @@ internal fun TaskContainer.registerCopyGoogleTuApp() {
     }
 }
 
-internal fun TaskContainer.registerCopyDebugApp() {
+internal fun TaskContainer.copyDebugApp() {
     register(TaskNames.copyDebugApp) {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
@@ -136,7 +156,7 @@ internal fun TaskContainer.registerCopyDebugApp() {
     }
 }
 
-internal fun TaskContainer.registerCopyMockApp() {
+internal fun TaskContainer.copyMockApp() {
     register(TaskNames.copyMockApp) {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_MOCK_PROJECT_NAME }?.let { androidProject ->
@@ -152,7 +172,7 @@ internal fun TaskContainer.registerCopyMockApp() {
     }
 }
 
-internal fun TaskContainer.registerCopyMinifiedApp() {
+internal fun TaskContainer.copyMinifiedApp() {
     register(TaskNames.copyMinifiedApp) {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->

@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.appupdate.ui
@@ -43,14 +43,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateFlagUseCase
+import de.gematik.ti.erp.app.base.BaseActivity
+import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.openAppPlayStoreLink
 import org.kodein.di.compose.rememberInstance
 
@@ -61,15 +63,19 @@ class AppUpdateScreen(
 
     @Composable
     override fun Content() {
-        UpdateAppScreenContent()
+        val useCase by rememberInstance<ChangeAppUpdateFlagUseCase>()
+        UpdateAppScreenContent { useCase.invoke(false) }
     }
 }
 
 @Composable
-private fun UpdateAppScreenContent() {
+private fun UpdateAppScreenContent(
+    onClick: () -> Unit
+) {
     val context = LocalContext.current
-    val useCase by rememberInstance<ChangeAppUpdateFlagUseCase>()
+    val padding = (LocalActivity.current as? BaseActivity)?.applicationInnerPadding
 
+    // TODO: Convert to AnimatedElevationScaffold
     Scaffold(
         topBar = {
             Row(
@@ -97,7 +103,7 @@ private fun UpdateAppScreenContent() {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding)
+                    .padding(padding?.combineWithInnerScaffold(innerPadding) ?: innerPadding)
                     .padding(PaddingDefaults.Large),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -148,9 +154,7 @@ private fun UpdateAppScreenContent() {
                     )
                 }
                 TextButton(
-                    onClick = {
-                        useCase.invoke(false)
-                    }
+                    onClick = onClick
                 ) {
                     Text(
                         stringResource(R.string.cancel)
@@ -166,6 +170,6 @@ private fun UpdateAppScreenContent() {
 @Composable
 fun UpdateAppScreenContentPreview() {
     PreviewAppTheme {
-        UpdateAppScreenContent()
+        UpdateAppScreenContent {}
     }
 }

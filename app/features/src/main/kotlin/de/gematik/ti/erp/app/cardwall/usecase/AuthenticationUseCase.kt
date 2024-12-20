@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.cardwall.usecase
@@ -27,19 +27,19 @@ import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.card.model.command.ResponseException
-import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardChannel
-import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardSecureChannel
 import de.gematik.ti.erp.app.card.model.command.ResponseStatus
-import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.establishTrustedChannel
 import de.gematik.ti.erp.app.card.model.exchange.retrieveCertificate
 import de.gematik.ti.erp.app.card.model.exchange.signChallenge
 import de.gematik.ti.erp.app.card.model.exchange.verifyPin
+import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardChannel
+import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcCardSecureChannel
+import de.gematik.ti.erp.app.cardwall.model.nfc.exchange.establishTrustedChannel
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.usecase.AltAuthenticationCryptoException
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.profiles.repository.KVNRAlreadyAssignedException
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import java.io.IOException
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ProducerScope
@@ -54,7 +54,7 @@ import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import org.json.JSONException
 import org.json.JSONObject
-import io.github.aakira.napier.Napier
+import java.io.IOException
 import java.security.PublicKey
 
 @Stable
@@ -78,19 +78,25 @@ sealed class AuthenticationState {
     object HealthCardCommunicationInterrupted : AuthenticationState()
 
     // health card failure states
-    object HealthCardCardAccessNumberWrong : AuthenticationState()
-    object HealthCardPin2RetriesLeft : AuthenticationState()
-    object HealthCardPin1RetryLeft : AuthenticationState()
-    object HealthCardBlocked : AuthenticationState()
+    data object HealthCardCardAccessNumberWrong : AuthenticationState()
+    data object HealthCardPin2RetriesLeft : AuthenticationState()
+    data object HealthCardPin1RetryLeft : AuthenticationState()
+    data object HealthCardBlocked : AuthenticationState()
 
+    @Requirement(
+        "A_20605#5",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "The errors are mapped to their descriptive localized errors to be shown in the application.",
+        codeLines = 10
+    )
     // IDP failure states
-    object IDPCommunicationFailed : AuthenticationState()
+    data object IDPCommunicationFailed : AuthenticationState()
 
-    object UserNotAuthenticated : AuthenticationState()
+    data object UserNotAuthenticated : AuthenticationState()
 
-    object IDPCommunicationAltAuthNotSuccessful : AuthenticationState()
-    object IDPCommunicationInvalidCertificate : AuthenticationState()
-    object IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate : AuthenticationState()
+    data object IDPCommunicationAltAuthNotSuccessful : AuthenticationState()
+    data object IDPCommunicationInvalidCertificate : AuthenticationState()
+    data object IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate : AuthenticationState()
 
     // profile failure
     class InsuranceIdentifierAlreadyExists(
@@ -117,6 +123,7 @@ sealed class AuthenticationState {
             UserNotAuthenticated,
             is InsuranceIdentifierAlreadyExists,
             SecureElementCryptographyFailed -> true
+
             else -> false
         }
 
@@ -132,6 +139,7 @@ sealed class AuthenticationState {
             HealthCardCommunicationCertificateLoaded,
             HealthCardCommunicationFinished,
             IDPCommunicationFinished -> true
+
             else -> false
         }
 
@@ -159,17 +167,6 @@ enum class IDPErrorCodes(val code: String) {
 class AuthenticationUseCase(
     private val idpUseCase: IdpUseCase
 ) {
-
-    @Requirement(
-        "A_20172#1",
-        "A_20526-01#1",
-        "A_20283-01#2",
-        "A_20167",
-        "A_19938-01#2",
-        "GS-A_5322",
-        sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Authenticate to the IDP using the health card certificate."
-    )
     fun authenticateWithHealthCard(
         profileId: ProfileIdentifier,
         scope: IdpScope = IdpScope.Default,
@@ -193,10 +190,6 @@ class AuthenticationUseCase(
             }
 
     @Requirement(
-        "A_20172#2",
-        "A_20526-01#2",
-        "A_20700-07#2",
-        "A_20700-07#3",
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Authenticate to the IDP using the health card certificate."
     )
@@ -223,7 +216,7 @@ class AuthenticationUseCase(
             }
     }
 
-    fun authenticateWithSecureElement(profileId: ProfileIdentifier, scope: IdpScope) =
+    fun authenticateWithSecureElement(profileId: ProfileIdentifier, scope: IdpScope): Flow<AuthenticationState> =
         alternateAuthenticationFlowWithSecureElement(profileId, scope)
             .onEach { Napier.d("AuthenticationState: $it") }
             .catch { cause ->
@@ -246,7 +239,11 @@ class AuthenticationUseCase(
             val healthCardCertificateChannel = Channel<ByteArray>()
             val signChannel = Channel<ByteArray>()
             val responseChannel = Channel<ByteArray>()
-
+            @Requirement(
+                "O.Auth_3#2",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Description of how the card communication is established."
+            )
             //
             //                  + - IDP communication --------- + ------------- + -- + -------- +
             //                 /                                ^               |    ^           \
@@ -381,15 +378,18 @@ class AuthenticationUseCase(
             is CancellationException,
             is AuthenticationException,
             is ResponseException -> throw e
+
             else -> {
                 when (e) {
                     is ApiCallException ->
                         handleApiCallException(e, kind)
+
                     is KVNRAlreadyAssignedException ->
                         throw AuthenticationException(
                             kind = AuthenticationExceptionKind.InsuranceIdentifierAlreadyAssigned,
                             cause = e
                         )
+
                     else ->
                         throw AuthenticationException(kind)
                 }
@@ -397,6 +397,11 @@ class AuthenticationUseCase(
         }
     }
 
+    @Requirement(
+        "A_19937#4",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Handling of errors from the IDP Api Call."
+    )
     private fun handleApiCallException(e: ApiCallException, kind: AuthenticationExceptionKind) {
         val code = e.response.errorBody()
             ?.let {
@@ -411,12 +416,15 @@ class AuthenticationUseCase(
         when (code) {
             IDPErrorCodes.AltAuthNotSuccessful ->
                 throw AuthenticationException(AuthenticationExceptionKind.IDPCommunicationAltAuthNotSuccessful)
+
             IDPErrorCodes.InvalidHealthCardCertificate ->
                 throw AuthenticationException(AuthenticationExceptionKind.IDPCommunicationInvalidCertificate)
+
             IDPErrorCodes.InvalidOCSPResponseOfHealthCardCertificate ->
                 throw AuthenticationException(
                     AuthenticationExceptionKind.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate
                 )
+
             else ->
                 throw AuthenticationException(kind)
         }
@@ -435,10 +443,13 @@ class AuthenticationUseCase(
                     is KeyPermanentlyInvalidatedException,
                     is UserNotAuthenticatedException ->
                         throw AuthenticationException(AuthenticationExceptionKind.UserNotAuthenticated)
+
                     is AltAuthenticationCryptoException ->
                         throw AuthenticationException(AuthenticationExceptionKind.SecureElementFailure)
+
                     is ApiCallException ->
                         handleApiCallException(e, AuthenticationExceptionKind.IDPCommunicationFailed)
+
                     else ->
                         throw AuthenticationException(AuthenticationExceptionKind.IDPCommunicationFailed)
                 }
@@ -475,10 +486,13 @@ class AuthenticationUseCase(
                     )
                 }
             }
+
             ResponseStatus.WRONG_SECRET_WARNING_COUNT_02 ->
                 throw AuthenticationException(AuthenticationExceptionKind.HealthCardPin2RetriesLeft)
+
             ResponseStatus.WRONG_SECRET_WARNING_COUNT_01 ->
                 throw AuthenticationException(AuthenticationExceptionKind.HealthCardPin1RetryLeft)
+
             else -> {
                 throw AuthenticationException(AuthenticationExceptionKind.HealthCardBlocked)
             }
@@ -487,31 +501,24 @@ class AuthenticationUseCase(
         send(AuthenticationState.HealthCardCommunicationFinished)
     }
 
+    @Suppress("CyclomaticComplexMethod")
     private fun handleException(e: Throwable): AuthenticationState =
         when (e) {
             is CancellationException -> throw e
             is AuthenticationException -> {
                 when (e.kind) {
-                    AuthenticationExceptionKind.IDPCommunicationFailed ->
-                        AuthenticationState.IDPCommunicationFailed
-                    AuthenticationExceptionKind.IDPCommunicationAltAuthNotSuccessful ->
-                        AuthenticationState.IDPCommunicationAltAuthNotSuccessful
-                    AuthenticationExceptionKind.IDPCommunicationInvalidCertificate ->
-                        AuthenticationState.IDPCommunicationInvalidCertificate
-
-                    AuthenticationExceptionKind.HealthCardBlocked ->
-                        AuthenticationState.HealthCardBlocked
-                    AuthenticationExceptionKind.HealthCardPin1RetryLeft ->
-                        AuthenticationState.HealthCardPin1RetryLeft
-                    AuthenticationExceptionKind.HealthCardPin2RetriesLeft ->
-                        AuthenticationState.HealthCardPin2RetriesLeft
-                    AuthenticationExceptionKind.HealthCardCommunicationFailed ->
-                        AuthenticationState.HealthCardCommunicationInterrupted
-                    AuthenticationExceptionKind.SecureElementFailure ->
-                        AuthenticationState.SecureElementCryptographyFailed
+                    AuthenticationExceptionKind.IDPCommunicationFailed -> AuthenticationState.IDPCommunicationFailed
+                    AuthenticationExceptionKind.IDPCommunicationAltAuthNotSuccessful -> AuthenticationState.IDPCommunicationAltAuthNotSuccessful
+                    AuthenticationExceptionKind.IDPCommunicationInvalidCertificate -> AuthenticationState.IDPCommunicationInvalidCertificate
+                    AuthenticationExceptionKind.HealthCardBlocked -> AuthenticationState.HealthCardBlocked
+                    AuthenticationExceptionKind.HealthCardPin1RetryLeft -> AuthenticationState.HealthCardPin1RetryLeft
+                    AuthenticationExceptionKind.HealthCardPin2RetriesLeft -> AuthenticationState.HealthCardPin2RetriesLeft
+                    AuthenticationExceptionKind.HealthCardCommunicationFailed -> AuthenticationState.HealthCardCommunicationInterrupted
+                    AuthenticationExceptionKind.SecureElementFailure -> AuthenticationState.SecureElementCryptographyFailed
                     AuthenticationExceptionKind.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate ->
                         AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate
 
+                    AuthenticationExceptionKind.UserNotAuthenticated -> AuthenticationState.UserNotAuthenticated
                     AuthenticationExceptionKind.InsuranceIdentifierAlreadyAssigned -> {
                         val alreadyAssignedException = (e.cause!! as KVNRAlreadyAssignedException)
                         AuthenticationState.InsuranceIdentifierAlreadyExists(
@@ -520,19 +527,21 @@ class AuthenticationUseCase(
                             insuranceIdentifier = alreadyAssignedException.insuranceIdentifier
                         )
                     }
-                    AuthenticationExceptionKind.UserNotAuthenticated -> AuthenticationState.UserNotAuthenticated
                 }
             }
+
             is ResponseException -> {
                 when (e.responseStatus) {
                     ResponseStatus.AUTHENTICATION_FAILURE -> AuthenticationState.HealthCardCardAccessNumberWrong
                     else -> AuthenticationState.HealthCardCommunicationInterrupted
                 }
             }
+
             is TagLostException, is IOException -> {
                 Napier.e("IO Exception / NFC TAG was lost", e)
                 AuthenticationState.HealthCardCommunicationInterrupted
             }
+
             else -> {
                 Napier.e("Unknown exception", e)
                 // soft fail

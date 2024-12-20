@@ -1,24 +1,23 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.profiles.usecase
 
-import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -33,7 +32,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onEach
 
 fun List<ProfilesUseCaseData.Profile>.activeProfile() =
-    find { profile -> profile.active }!!
+    find { profile -> profile.isActive }!!
 
 // TODO: Used only in test and debug-viewmodel. Remove it from there too.
 class ProfilesUseCase(
@@ -57,10 +56,10 @@ class ProfilesUseCase(
                             ProfilesData.InsuranceType.PKV -> ProfilesUseCaseData.InsuranceType.PKV
                         }
                     ),
-                    active = profile.active,
+                    isActive = profile.active,
                     color = profile.color,
                     avatar = profile.avatar,
-                    image = profile.personalizedImage,
+                    image = profile.image,
                     lastAuthenticated = profile.lastAuthenticated,
                     ssoTokenScope = profile.singleSignOnTokenScope
                 )
@@ -89,48 +88,11 @@ class ProfilesUseCase(
         } ?: error("invalid profile name `$newProfileName`")
     }
 
-    /**
-     * Removes the [profile] and adds a new profile with the name set to [newProfileName].
-     */
-    suspend fun removeAndSaveProfile(profile: ProfilesUseCaseData.Profile, newProfileName: String) {
-        addProfile(newProfileName, activate = true)
-
-        idpRepository.invalidateDecryptedAccessToken(profile.name)
-        profilesRepository.removeProfile(profile.id)
-    }
-
-    /**
-     * Removes the [profile].
-     */
-    suspend fun removeProfile(profile: ProfilesUseCaseData.Profile) {
-        idpRepository.invalidateDecryptedAccessToken(profile.name)
-        profilesRepository.removeProfile(profile.id)
-    }
-
-    @Requirement(
-        "O.Tokn_6#3",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "invalidate config and token"
-    )
-    suspend fun logout(profile: ProfilesUseCaseData.Profile) {
-        idpRepository.invalidate(profile.id)
-    }
-
     suspend fun updateProfileName(profileId: ProfileIdentifier, newProfileName: String) {
         sanitizedProfileName(newProfileName)?.also { profileName ->
             profilesRepository.updateProfileName(profileId, profileName)
         } ?: error("invalid profile name `$newProfileName`")
     }
-
-    suspend fun updateProfileColor(profile: ProfilesUseCaseData.Profile, color: ProfilesData.ProfileColorNames) {
-        profilesRepository.updateProfileColor(profile.id, color)
-    }
-
-    // tag::SwitchActiveProfileUseCase[]
-    suspend fun switchActiveProfile(profile: ProfilesUseCaseData.Profile) {
-        profilesRepository.activateProfile(profile.id)
-    }
-    // end::SwitchActiveProfileUseCase[]
 
     fun activeProfileId() = activeProfile().mapNotNull { it!!.id }
 
@@ -138,10 +100,6 @@ class ProfilesUseCase(
         it.find { profile ->
             profile.active
         }
-    }
-
-    suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
-        profilesRepository.switchProfileToPKV(profileId)
     }
 }
 

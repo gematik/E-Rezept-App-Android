@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.pharmacy.presentation
@@ -43,8 +43,8 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.tasks.CancellationTokenSource
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
-import de.gematik.ti.erp.app.fhir.model.Location
+import de.gematik.ti.erp.app.fhir.model.Coordinates
+import de.gematik.ti.erp.app.fhir.model.PharmacyService
 import de.gematik.ti.erp.app.fhir.model.isOpenAt
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.usecase.GetOverviewPharmaciesUseCase
@@ -53,8 +53,8 @@ import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.LocationMode
-import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
 import de.gematik.ti.erp.app.prescription.presentation.catchAndTransformRemoteExceptions
+import de.gematik.ti.erp.app.api.ErpServiceState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -82,7 +82,7 @@ import kotlinx.datetime.toLocalDateTime
 import org.kodein.di.compose.rememberInstance
 
 private const val WaitForLocationUpdate = 2500L
-private const val DefaultRadiusInMeter = 999 * 1000.0
+internal const val DefaultRadiusInMeter = 999 * 1000.0
 
 @Stable
 class PharmacySearchController(
@@ -103,7 +103,7 @@ class PharmacySearchController(
         get() = overviewPharmacies.collectAsStateWithLifecycle()
 
     @Stable
-    sealed interface State : PrescriptionServiceState {
+    sealed interface State : ErpServiceState {
         @Stable
         data object Loading : State
 
@@ -150,7 +150,7 @@ class PharmacySearchController(
             )
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val pharmacyMapsFlow: Flow<PrescriptionServiceState> =
+    val pharmacyMapsFlow: Flow<ErpServiceState> =
         searchChannelFlow
             .filterNotNull()
             .onEach {
@@ -160,10 +160,26 @@ class PharmacySearchController(
                 flow {
                     emit(State.Loading)
 
-                    val pharmacies = pharmacyMapsUseCase.searchPharmacies(searchData)
+                    val pharmacies = pharmacyMapsUseCase.invoke(
+                        PharmacyUseCaseData.MapsSearchData(
+                            name = searchData.name,
+                            filter = searchData.filter,
+                            locationMode = searchData.locationMode,
+                            coordinates = searchData.locationMode.let {
+                                if (it is LocationMode.Enabled) {
+                                    it.coordinates
+                                } else {
+                                    null
+                                }
+                            }
+                        )
+                    )
 
                     pharmacies
-                        .map { it.updateDistanceForEnabledLocation(searchData.locationMode) }
+                        .map {
+
+                            it.updateDistanceForEnabledLocation(searchData.locationMode)
+                        }
                         .filter { it.providesDeliveryService(searchData.filter.deliveryService) }
                         .filter { it.hasOpeningHours(searchData.filter.openNow) }
                         .also {
@@ -188,10 +204,11 @@ class PharmacySearchController(
 
     private val lock = Mutex()
 
+    @Suppress("CyclomaticComplexMethod")
     suspend fun search(
         name: String,
         filter: PharmacyUseCaseData.Filter,
-        location: Location? = null,
+        coordinates: Coordinates? = null,
         radiusInMeter: Double = DefaultRadiusInMeter
     ): SearchQueryResult = withContext(Dispatchers.IO) {
         lock.withLock {
@@ -202,7 +219,7 @@ class PharmacySearchController(
                 val hasLocationServiceEnabled = isLocationServiceEnabled(context)
 
                 val currentLocation =
-                    location ?: if (hasLocationPermission && hasLocationServiceEnabled && filter.nearBy) {
+                    coordinates ?: if (hasLocationPermission && hasLocationServiceEnabled && filter.nearBy) {
                         queryLocation(context)
                     } else {
                         null
@@ -212,7 +229,7 @@ class PharmacySearchController(
                     LocationMode.Enabled(it, radiusInMeter)
                 } ?: LocationMode.Disabled
 
-                val locationError = if (location == null && filter.nearBy) {
+                val locationError = if (coordinates == null && filter.nearBy) {
                     when {
                         !hasLocationServiceEnabled -> SearchQueryResult.NoLocationServicesEnabled
                         !hasLocationPermission -> SearchQueryResult.NoLocationPermission
@@ -229,7 +246,7 @@ class PharmacySearchController(
                     }
 
                     else -> {
-                        val isNearBy = locationMode is LocationMode.Enabled && location == null
+                        val isNearBy = locationMode is LocationMode.Enabled && coordinates == null
                         searchChannelFlow.emit(
                             PharmacyUseCaseData.SearchData(
                                 name = name,
@@ -245,6 +262,7 @@ class PharmacySearchController(
             }
         }
     }
+
     suspend fun deleteOverviewPharmacy(overviewPharmacy: OverviewPharmacyData.OverviewPharmacy) {
         pharmacyOverviewUseCase.deleteOverviewPharmacy(overviewPharmacy)
     }
@@ -255,13 +273,13 @@ class PharmacySearchController(
 
     private fun PharmacyUseCaseData.Pharmacy.updateDistanceForEnabledLocation(locationMode: LocationMode) =
         when (locationMode) {
-            is LocationMode.Enabled -> copy(distance = location?.minus(locationMode.location))
+            is LocationMode.Enabled -> copy(distance = coordinates?.minus(locationMode.coordinates))
             else -> this
         }
 
     private fun PharmacyUseCaseData.Pharmacy.providesDeliveryService(isDeliveryServiceFiltered: Boolean) =
         when {
-            isDeliveryServiceFiltered -> provides.any { it is DeliveryPharmacyService }
+            isDeliveryServiceFiltered -> provides.any { it is PharmacyService.DeliveryPharmacyService }
             else -> true
         }
 
@@ -284,9 +302,9 @@ private fun isLocationServiceEnabled(context: Context): Boolean {
     }
 }
 
-suspend fun queryLocation(context: Context): Location? =
+suspend fun queryLocation(context: Context): Coordinates? =
     queryNativeLocation(context)?.let {
-        Location(longitude = it.longitude, latitude = it.latitude)
+        Coordinates(longitude = it.longitude, latitude = it.latitude)
     }
 
 @SuppressLint("MissingPermission")

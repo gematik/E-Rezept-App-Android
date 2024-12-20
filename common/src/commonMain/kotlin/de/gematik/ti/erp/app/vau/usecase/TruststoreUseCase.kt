@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber", "UnusedPrivateProperty", "UnusedPrivateMember")
 
 package de.gematik.ti.erp.app.vau.usecase
 
@@ -62,10 +64,9 @@ typealias TrustedTruststoreProvider = (
 ) -> TrustedTruststore
 
 @Requirement(
-    "O.Auth_11",
+    "O.Auth_12#1",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "We use TLS Pinning and a Trust Store for VAU communication. " +
-        "See NetworkModule and TruststoreUseCase for implementation."
+    rationale = "TruststoreUseCase implementation"
 )
 class TruststoreUseCase(
     private val config: TruststoreConfig,
@@ -113,7 +114,6 @@ class TruststoreUseCase(
             }
         }
     }
-
     suspend fun <R> withValidVauPublicKey(block: (vauPubKey: ECPublicKey) -> R): R = lock.withLock {
         val timestamp = timeSourceProvider()
 
@@ -170,13 +170,17 @@ class TruststoreUseCase(
         }
     }
 
+    // A_20617-01,
     @Requirement(
-        "A_20161-01#4",
-        "A_20614#2,",
-        "A_20617-01#3",
+        "A_20161-01#2",
         "A_21218#2",
         sourceSpecification = "gemSpec_Krypt",
         rationale = "Create Truststore."
+    )
+    @Requirement(
+        "A_20623#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Create truststore"
     )
     private suspend fun createTrustedTruststore(timestamp: Instant): TrustedTruststore {
         Napier.d("Load truststore from repository...")
@@ -193,6 +197,12 @@ class TruststoreUseCase(
     }
 }
 
+@Requirement(
+    "A_21222#1",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "Using the wrapper the certificate is always checked.",
+    codeLines = 10
+)
 /**
  * Wrapper for X.509 certificates of type [X509Certificate].
  */
@@ -212,13 +222,17 @@ class TrustedTruststore private constructor(
 
     val vauPublicKey: ECPublicKey
 ) {
+    // A_20617-01,
     @Requirement(
         "A_20161-01#3",
-        "A_20614#1,",
-        "A_20617-01#2",
         "A_21218#1",
         sourceSpecification = "gemSpec_Krypt",
-        rationale = "Check OCSP validity."
+        rationale = "OCSP validity is verified by the truststore."
+    )
+    @Requirement(
+        "A_20623#2",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "OCSP validity is verified by truststore"
     )
     fun checkValidity(ocspResponseMaxAge: Duration, timestamp: Instant) {
         require(ocspResponses.isNotEmpty()) { "No OCSp responses. This should never happen" }
@@ -235,9 +249,13 @@ class TrustedTruststore private constructor(
     }
 
     @Requirement(
+        "A_20623#3",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Create a TrustedTruststore."
+    )
+    @Requirement(
         "A_20161-01#1",
-        "A_20623",
-        sourceSpecification = "gemSpec_eRp_FdV",
+        sourceSpecification = "gemSpec_Krypt",
         rationale = "Create a TrustedTruststore."
     )
     companion object {
@@ -290,12 +308,22 @@ class TrustedTruststore private constructor(
     }
 }
 
+@Requirement(
+    "A_21222#2",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "X509Certificates are checked before using them."
+)
 /**
  * Returns a list of validated OCSP responses by signature and the provided [timestamp] & [maxAge].
  *
  * A OCSP response is valid, if the contained certificate is verified with at least on of the
  * certificate chains [caCertChains] and is within the provided period of time.
  */
+@Requirement(
+    "A_21222#2",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "X509Certificates are checked before using them."
+)
 fun findValidOcspResponses(
     ocspResponses: List<BasicOCSPResp>,
     caCertChains: List<List<X509CertificateHolder>>,
@@ -329,11 +357,21 @@ fun findValidOcspResponses(
         }
     }
 
+@Requirement(
+    "A_21222#3",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "X509Certificates are checked before using them."
+)
 /**
  * Returns the first valid VAU certificate.
  * While only one VAU certificate can exist at any time, this won't fail if multiple chains are valid.
  * Before we throw an exception with this non-critical behavior, just pick the first valid as the true one.
  */
+@Requirement(
+    "A_21222#3",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "X509Certificates are checked before using them."
+)
 fun findValidVauChain(
     chains: List<List<X509CertificateHolder>>,
     validOcspResponses: List<BasicOCSPResp>,
@@ -351,9 +389,15 @@ fun findValidVauChain(
  * Returns all valid IDP certificate chains.
  */
 @Requirement(
-    "A_20625",
-    sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Validate signature of IDP chains."
+    "A_20625#1",
+    "A_20623#5",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Validate signature of IDP chains. Check for OID, OCSP response and signature."
+)
+@Requirement(
+    "A_21222#4",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "X509Certificates are checked before using them."
 )
 fun findValidIdpChains(
     chains: List<List<X509CertificateHolder>>,

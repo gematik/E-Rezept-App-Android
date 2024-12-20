@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.utils.compose
@@ -32,19 +32,12 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.key
-import androidx.compose.runtime.remember
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.layout
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Constraints
@@ -54,7 +47,8 @@ import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import java.util.UUID
+import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.SpacerTiny
 
 @Composable
 fun OutlinedDebugButton(
@@ -75,25 +69,6 @@ fun OutlinedDebugButton(
         SpacerTiny()
     }
 }
-
-@OptIn(ExperimentalComposeUiApi::class)
-fun Modifier.visualTestTag(tag: String) =
-    composed(fullyQualifiedName = "de.gematik.ti.erp.app.utils.compose.visualTestTag", key1 = tag) {
-        val activity = LocalContext.current as MainActivity
-        val uuid = remember { UUID.randomUUID().toString() }
-
-        DisposableEffect(tag) {
-            onDispose {
-                activity.elementsUsedInTests -= uuid
-            }
-        }
-
-        Modifier
-            .testTag(tag)
-            .onGloballyPositioned {
-                activity.elementsUsedInTests += uuid to MainActivity.ElementForTest(it.boundsInRoot(), tag)
-            }
-    }
 
 @Composable
 fun DebugOverlay(elements: Map<String, MainActivity.ElementForTest>) {

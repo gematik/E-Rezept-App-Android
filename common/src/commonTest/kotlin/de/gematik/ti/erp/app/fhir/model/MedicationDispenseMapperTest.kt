@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
@@ -24,8 +24,9 @@ import de.gematik.ti.erp.app.utils.asFhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import org.junit.Test
 import kotlin.test.assertEquals
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class MedicationDispenseMapperTest {
 
@@ -42,19 +43,18 @@ class MedicationDispenseMapperTest {
                 assertEquals(ReturnType.Quantity, denominator)
                 ReturnType.Ratio
             },
-            ingredientFn = { text, form, number, amount, strength ->
+            ingredientFn = { text, form, identifier, amount, strength ->
                 assertEquals("Wirkstoff Paulaner Weissbier", text)
                 assertEquals(null, form)
-                assertEquals("", number)
                 assertEquals(null, amount)
+                assertEquals(Identifier(), identifier)
                 assertEquals(ReturnType.Ratio, strength)
                 ReturnType.Ingredient
             },
-            processMedication = { text, medicationProfile, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
                 ingredients, lotNumber, expirationDate ->
                 assertEquals("Defamipin", text)
-                assertEquals(MedicationProfile.PZN, medicationProfile)
                 assertEquals(MedicationCategory.BTM, medicationCategory)
                 assertEquals("FET", form)
                 assertEquals(ReturnType.Ratio, amount)
@@ -62,7 +62,7 @@ class MedicationDispenseMapperTest {
                 assertEquals(null, manufacturingInstructions)
                 assertEquals(null, packaging)
                 assertEquals("Sonstiges", normSizeCode)
-                assertEquals("06491772", uniqueIdentifier)
+                assertEquals("06491772", identifier.pzn)
                 assertEquals(listOf(), ingredients)
                 assertEquals("8521037577", lotNumber)
                 assertEquals(FhirTemporal.Instant(Instant.parse("2023-05-02T06:26:06Z")), expirationDate)
@@ -99,11 +99,10 @@ class MedicationDispenseMapperTest {
             ingredientFn = { _, _, _, _, _ ->
                 ReturnType.Ingredient
             },
-            processMedication = { text, medicationProfile, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
                 ingredients, lotNumber, expirationDate ->
                 assertEquals("", text)
-                assertEquals(MedicationProfile.UNKNOWN, medicationProfile)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
                 assertEquals(null, form)
                 assertEquals(null, amount)
@@ -111,7 +110,7 @@ class MedicationDispenseMapperTest {
                 assertEquals(null, manufacturingInstructions)
                 assertEquals(null, packaging)
                 assertEquals(null, normSizeCode)
-                assertEquals(null, uniqueIdentifier)
+                assertEquals(Identifier(), identifier)
                 assertEquals(listOf(), ingredients)
                 assertEquals(null, lotNumber)
                 assertEquals(null, expirationDate)
@@ -149,11 +148,10 @@ class MedicationDispenseMapperTest {
                 ingredientFn = { _, _, _, _, _ ->
                     ReturnType.Ingredient
                 },
-                processMedication = { text, medicationProfile, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                processMedication = { text, medicationCategory, form, amount, vaccine,
+                    manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
                     ingredients, lotNumber, expirationDate ->
                     assertEquals("Sumatriptan-1a Pharma 100 mg Tabletten", text)
-                    assertEquals(MedicationProfile.PZN, medicationProfile)
                     assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                     assertEquals("TAB", form)
                     assertEquals(ReturnType.Ratio, amount)
@@ -161,7 +159,7 @@ class MedicationDispenseMapperTest {
                     assertEquals(null, manufacturingInstructions)
                     assertEquals(null, packaging)
                     assertEquals("N1", normSizeCode)
-                    assertEquals("06313728", uniqueIdentifier)
+                    assertEquals("06313728", identifier.pzn)
                     assertEquals(listOf(), ingredients)
                     assertEquals(null, lotNumber)
                     assertEquals(null, expirationDate)
@@ -196,19 +194,18 @@ class MedicationDispenseMapperTest {
                 assertEquals(ReturnType.Quantity, denominator)
                 ReturnType.Ratio
             },
-            ingredientFn = { text, form, number, amount, strength ->
+            ingredientFn = { text, form, identifier, amount, strength ->
                 assertEquals("Wirkstoff Paulaner Weissbier", text)
                 assertEquals(null, form)
-                assertEquals("", number)
+                assertEquals(Identifier(), identifier)
                 assertEquals(null, amount)
                 assertEquals(ReturnType.Ratio, strength)
                 ReturnType.Ingredient
             },
-            processMedication = { text, medicationProfile, medicationCategory, form, amount, vaccine,
-                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
                 ingredients, lotNumber, expirationDate ->
                 assertEquals("Defamipin", text)
-                assertEquals(MedicationProfile.PZN, medicationProfile)
                 assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
                 assertEquals("FET", form)
                 assertEquals(ReturnType.Ratio, amount)
@@ -216,7 +213,7 @@ class MedicationDispenseMapperTest {
                 assertEquals(null, manufacturingInstructions)
                 assertEquals(null, packaging)
                 assertEquals("Sonstiges", normSizeCode)
-                assertEquals("06491772", uniqueIdentifier)
+                assertEquals("06491772", identifier.pzn)
                 assertEquals(listOf(), ingredients)
                 assertEquals("8521037577", lotNumber)
                 assertEquals(Instant.parse("2023-05-02T06:26:06Z"), expirationDate?.toInstant())
@@ -235,5 +232,152 @@ class MedicationDispenseMapperTest {
             }
         )
         assertEquals(ReturnType.MedicationDispense, result)
+    }
+
+    @Test
+    fun `extract medication dispense simple medication version 1_4`() {
+        val medicationDispensesBundle = Json.parseToJsonElement(dispenseSimpleMedication_1_4)
+        val dispensesWithMedication = extractMedicationDispensePairs(medicationDispensesBundle)
+
+        assertEquals(1, dispensesWithMedication.size)
+
+        dispensesWithMedication.forEach { (dispense, dispenseMedication) ->
+            val result = extractMedicationDispenseWithMedication(
+                dispense,
+                dispenseMedication,
+                quantityFn = { _, _ ->
+                    ReturnType.Quantity
+                },
+                ratioFn = { numerator, denominator ->
+                    assertEquals(ReturnType.Quantity, numerator)
+                    assertEquals(ReturnType.Quantity, denominator)
+                    ReturnType.Ratio
+                },
+                ingredientFn = { _, _, _, _, _ ->
+                    ReturnType.Ingredient
+                },
+                processMedication = { text, medicationCategory, form, amount, vaccine,
+                    manufacturingInstructions, packaging, normSizeCode, identifier, ingredientMedications,
+                    ingredients, lotNumber, expirationDate ->
+                    assertEquals("06313728", text)
+                    assertEquals(MedicationCategory.UNKNOWN, medicationCategory)
+                    assertEquals(null, form)
+                    assertEquals(null, amount)
+                    assertEquals(false, vaccine)
+                    assertEquals(null, manufacturingInstructions)
+                    assertEquals(null, packaging)
+                    assertEquals(null, normSizeCode)
+                    assertEquals("06313728", identifier.pzn)
+                    assertEquals(listOf(), ingredients)
+                    assertTrue(ingredientMedications.isEmpty())
+                    assertEquals(null, lotNumber)
+                    assertEquals(null, expirationDate)
+                    ReturnType.Medication
+                },
+                processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
+                    dosageInstruction, performer, whenHandedOver ->
+                    assertEquals("160.000.000.000.000.01", dispenseId)
+                    assertEquals("X123456789", patientIdentifier)
+                    assertEquals(ReturnType.Medication, medication)
+                    assertEquals(false, wasSubstituted)
+                    assertEquals(null, dosageInstruction)
+                    assertEquals("3-SMC-B-Testkarte-883110000095957", performer)
+                    assertEquals(LocalDate.parse("2025-09-06").asFhirTemporal(), whenHandedOver)
+                    ReturnType.MedicationDispense
+                }
+            )
+            assertEquals(ReturnType.MedicationDispense, result)
+        }
+    }
+
+    @Test
+    fun `extract medication dispense compounding medication version 1_4`() {
+        val medicationDispensesBundle = Json.parseToJsonElement(dispenseCompoundingMedication_1_4)
+        val dispensesWithMedication = extractMedicationDispensePairs(medicationDispensesBundle)
+
+        assertEquals(1, dispensesWithMedication.size)
+
+        dispensesWithMedication.forEach { (dispense, dispenseMedication) ->
+            val result = extractMedicationDispenseWithMedication(
+                dispense,
+                dispenseMedication,
+                quantityFn = { _, _ ->
+                    ReturnType.Quantity
+                },
+                ratioFn = { numerator, denominator ->
+                    assertEquals(ReturnType.Quantity, numerator)
+                    assertEquals(ReturnType.Quantity, denominator)
+                    ReturnType.Ratio
+                },
+                ingredientFn = { _, _, _, _, _ ->
+                    ReturnType.Ingredient
+                },
+                processMedication = { _, _, _, _, _,
+                    _, _, _, _, _,
+                    _, _, _ ->
+                    ReturnType.Medication
+                },
+                processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
+                    dosageInstruction, performer, whenHandedOver ->
+                    assertEquals("160.000.000.000.000.03", dispenseId)
+                    assertEquals("X123456789", patientIdentifier)
+                    assertEquals(ReturnType.Medication, medication)
+                    assertEquals(false, wasSubstituted)
+                    assertEquals(null, dosageInstruction)
+                    assertEquals("3-SMC-B-Testkarte-883110000095957", performer)
+                    assertEquals(LocalDate.parse("2025-09-06").asFhirTemporal(), whenHandedOver)
+                    ReturnType.MedicationDispense
+                }
+            )
+            assertEquals(ReturnType.MedicationDispense, result)
+        }
+    }
+
+    @Test
+    fun `extract multiple dispenses with medications version 1_4`() {
+        val medicationDispensesBundle = Json.parseToJsonElement(dispenseMultipleMedication_1_4)
+        val dispensesWithMedication = extractMedicationDispensePairs(medicationDispensesBundle)
+
+        assertEquals(2, dispensesWithMedication.size)
+
+        dispensesWithMedication.forEachIndexed() { index, (dispense, dispenseMedication) ->
+            val result = extractMedicationDispenseWithMedication(
+                dispense,
+                dispenseMedication,
+                quantityFn = { _, _ ->
+                    ReturnType.Quantity
+                },
+                ratioFn = { numerator, denominator ->
+                    assertEquals(ReturnType.Quantity, numerator)
+                    assertEquals(ReturnType.Quantity, denominator)
+                    ReturnType.Ratio
+                },
+                ingredientFn = { _, _, _, _, _ ->
+                    ReturnType.Ingredient
+                },
+                processMedication = { _, _, _, _, _,
+                    _, _, _, _, _,
+                    _, _, _ ->
+                    ReturnType.Medication
+                },
+                processMedicationDispense = { dispenseId, patientIdentifier, medication, wasSubstituted,
+                    dosageInstruction, performer, whenHandedOver ->
+
+                    if (index == 0) {
+                        assertEquals("160.000.000.000.000.01", dispenseId)
+                    } else {
+                        assertEquals("160.000.000.000.000.02", dispenseId)
+                    }
+                    assertEquals("X123456789", patientIdentifier)
+                    assertEquals(ReturnType.Medication, medication)
+                    assertEquals(false, wasSubstituted)
+                    assertEquals(null, dosageInstruction)
+                    assertEquals("3-SMC-B-Testkarte-883110000095957", performer)
+                    assertEquals(LocalDate.parse("2025-09-06").asFhirTemporal(), whenHandedOver)
+                    ReturnType.MedicationDispense
+                }
+            )
+            assertEquals(ReturnType.MedicationDispense, result)
+        }
     }
 }

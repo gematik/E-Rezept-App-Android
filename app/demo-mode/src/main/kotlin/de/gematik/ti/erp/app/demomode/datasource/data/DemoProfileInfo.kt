@@ -1,40 +1,35 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 @file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
-import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.EXPIRY_DATE
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.START_DATE
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import kotlinx.datetime.Instant
-import org.bouncycastle.cert.X509CertificateHolder
-import org.bouncycastle.util.encoders.Base64
 import java.util.UUID
 
 object DemoProfileInfo {
-    private const val CAN = "123123"
-    private val byteArray = Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
-    private val HEALTH_CERTIFICATE = X509CertificateHolder(byteArray)
+    private const val AUTHENTICATOR_NAME = "Gematik Versicherung"
     private val singleSignOnToken = IdpData.SingleSignOnToken(
         token = UUID.randomUUID().toString(),
         expiresOn = EXPIRY_DATE,
@@ -42,10 +37,10 @@ object DemoProfileInfo {
     )
 
     // TODO: Add demo mode for different modes of sign-on scopes
-    private val cardToken = IdpData.DefaultToken(
+    private val token = IdpData.ExternalAuthenticationToken(
         token = singleSignOnToken,
-        cardAccessNumber = CAN,
-        healthCardCertificate = HEALTH_CERTIFICATE
+        authenticatorName = AUTHENTICATOR_NAME,
+        authenticatorId = UUID.randomUUID().toString()
     )
     private val HEALTH_INSURANCE_COMPANIES = listOf(
         "GesundheitsVersichert AG",
@@ -70,7 +65,7 @@ object DemoProfileInfo {
         profileName = "Erika Mustermann",
         isActive = true,
         color = ProfilesData.ProfileColorNames.SUN_DEW,
-        insuranceType = ProfilesData.InsuranceType.PKV, // Note: Private insurance account
+        insuranceType = ProfilesData.InsuranceType.GKV,
         avatar = listOf(
             ProfilesData.Avatar.FemaleDoctor,
             ProfilesData.Avatar.FemaleDoctorWithPhone,
@@ -99,14 +94,18 @@ object DemoProfileInfo {
         lastAuthenticated = null
     )
 
+    internal fun demoEmptyProfile(name: String) = profile(
+        name
+    )
+
     private fun profile(
         profileName: String,
         isActive: Boolean = true,
-        color: ProfilesData.ProfileColorNames = ProfilesData.ProfileColorNames.values().random(),
-        avatar: ProfilesData.Avatar = ProfilesData.Avatar.values().random(),
+        color: ProfilesData.ProfileColorNames = ProfilesData.ProfileColorNames.entries.toTypedArray().random(),
+        avatar: ProfilesData.Avatar = ProfilesData.Avatar.entries.toTypedArray().random(),
         insuranceType: ProfilesData.InsuranceType = ProfilesData.InsuranceType.GKV,
         lastAuthenticated: Instant? = null,
-        singleSignOnTokenScope: IdpData.SingleSignOnTokenScope? = cardToken
+        singleSignOnTokenScope: IdpData.SingleSignOnTokenScope? = token
     ): DemoModeProfile {
         val uuid = UUID.randomUUID()
         return DemoModeProfile(
@@ -125,5 +124,5 @@ object DemoProfileInfo {
         )
     }
 
-    internal fun String.create() = profile(profileName = this)
+    internal fun String.create(): DemoModeProfile = profile(profileName = this)
 }

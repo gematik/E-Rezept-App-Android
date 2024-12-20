@@ -1,7 +1,49 @@
+# Release 1.26.0
+- added: link to organ donation register in settings
+- added: in-app notification about the latest changes
+- added: option to have both appPassword and device credentials as login method
+- changed: accessibility overhaul on many screens
+- Bug fixes
+- infrastructure/ project improvements
+- UX improvements
+
+# Release 1.25.1
+- added: saving the credentials of the user when logging in with gid
+- added: no internet hint
+- reworked: app-login
+- Bug fixes
+- infrastructure/ project improvements
+- UX improvements
+
+# Release 1.24.0
+- Bug fixes
+- infrastructure/ project improvements
+- UX improvements
+
+# Release 1.23.0
+- added: help-section for GID usage
+- added: in-app language change for android 13 and higher, lower versions are getting redirected to android settings
+- added: profile picture enhancements: stickers, emojis, bitmojis
+- Bug fixes
+- infrastructure/ project improvements
+- UX improvements
+
+# Release 1.22.0
+- Saving credentials possible for all devices with hardware backed keystore
+- Redeem from detail view
+- Refactoring of pharmacy feature, redeem feature
+- Bug fixes
+- Url updates
+- UX improvements
+
+# Release 1.21.0
+- skipped
+
 # Release 1.20.0
-- Added multi-language support for privacy policy
+- Refactor of egk card feature
+- Partial refactoring of pharmacy feature
+- Add multi language support for privacy policy
 - Update health insurance contacts
-- Optimized performance
 - Bug fixes
 
 # Release 1.19.1

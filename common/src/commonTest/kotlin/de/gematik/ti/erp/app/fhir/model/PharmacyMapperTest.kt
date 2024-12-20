@@ -1,28 +1,28 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
 
 import kotlinx.datetime.LocalTime
 import kotlinx.serialization.json.Json
+import org.junit.Test
 import java.io.File
 import java.time.DayOfWeek
-import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }
@@ -43,7 +43,7 @@ class PharmacyMapperTest {
             postalCode = "27578",
             city = "Bremerhaven"
         ),
-        location = Location(latitude = 8.597412, longitude = 53.590027),
+        coordinates = Coordinates(latitude = 8.597412, longitude = 53.590027),
         contacts = PharmacyContacts(
             phone = "0471/87029",
             mail = "info@heide-apotheke-bremerhaven.de",
@@ -53,7 +53,7 @@ class PharmacyMapperTest {
             onlineServiceUrl = ""
         ),
         provides = listOf(
-            LocalPharmacyService(
+            PharmacyService.LocalPharmacyService(
                 name = "Heide-Apotheke",
                 openingHours = OpeningHours(
                     openingTime = mapOf(
@@ -66,7 +66,7 @@ class PharmacyMapperTest {
                     )
                 )
             ),
-            DeliveryPharmacyService(
+            PharmacyService.DeliveryPharmacyService(
                 name = "Heide-Apotheke",
                 openingHours = OpeningHours(
                     openingTime = mapOf(
@@ -78,10 +78,10 @@ class PharmacyMapperTest {
                     )
                 )
             ),
-            OnlinePharmacyService(
+            PharmacyService.OnlinePharmacyService(
                 name = "Heide-Apotheke"
             ),
-            PickUpPharmacyService(
+            PharmacyService.PickUpPharmacyService(
                 name = "Heide-Apotheke"
             )
         ),
@@ -97,7 +97,7 @@ class PharmacyMapperTest {
                 postalCode = "82139",
                 city = "Starnberg"
             ),
-            location = Location(latitude = 48.0018513, longitude = 11.3497755),
+            coordinates = Coordinates(latitude = 48.0018513, longitude = 11.3497755),
             contacts = PharmacyContacts(
                 phone = "",
                 mail = "",
@@ -109,12 +109,12 @@ class PharmacyMapperTest {
                 onlineServiceUrl = ""
             ),
             provides = listOf(
-                LocalPharmacyService(
+                PharmacyService.LocalPharmacyService(
                     name = "PT-STA-Apotheke 2TEST-ONLY",
                     openingHours = OpeningHours(mapOf())
                 ),
-                OnlinePharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY"),
-                PickUpPharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY")
+                PharmacyService.OnlinePharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY"),
+                PharmacyService.PickUpPharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY")
             ),
             telematikId = "3-SMC-B-Testkarte-883110000116948"
         )

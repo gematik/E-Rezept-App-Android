@@ -1,23 +1,25 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.onboarding.ui
 
+import android.app.KeyguardManager
+import android.content.Context
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
 import androidx.compose.foundation.Image
@@ -43,37 +45,45 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInParent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.authentication.presentation.deviceBiometricStatus
+import de.gematik.ti.erp.app.authentication.presentation.deviceDeviceSecurityStatus
+import de.gematik.ti.erp.app.authentication.presentation.deviceHasAuthenticationMethodEnabled
+import de.gematik.ti.erp.app.authentication.presentation.deviceSupportsAuthenticationMethod
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mainscreen.ui.TextTabRow
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.model.OnboardingAuthTab
-import de.gematik.ti.erp.app.onboarding.model.OnboardingSecureAppMethod
-import de.gematik.ti.erp.app.onboarding.model.OnboardingSecureAppMethod.Companion.toAuthenticationMode
-import de.gematik.ti.erp.app.onboarding.model.OnboardingSecureAppMethod.None
-import de.gematik.ti.erp.app.onboarding.model.OnboardingSecureAppMethod.Password
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
-import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
-import de.gematik.ti.erp.app.pharmacy.ui.scrollOnFocus
+import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
+import de.gematik.ti.erp.app.settings.model.SettingsData
+import de.gematik.ti.erp.app.settings.ui.preview.SetAppPasswordParameter
+import de.gematik.ti.erp.app.settings.ui.preview.SetAppPasswordParameterProvider
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.ConfirmationPasswordTextField
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.PasswordStrength
 import de.gematik.ti.erp.app.utils.compose.PasswordTextField
-import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerTiny
-import de.gematik.ti.erp.app.utils.compose.validatePasswordScore
+import de.gematik.ti.erp.app.utils.compose.presentation.PasswordFieldsData
+import de.gematik.ti.erp.app.utils.compose.presentation.rememberPasswordFieldsController
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.compose.scrollOnFocus
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 
 private const val POS_OF_ANIMATED_CONTENT_ITEM = 3
@@ -83,92 +93,152 @@ private const val FAILURE_SCORE = 0
 
 class OnboardingSelectAppLoginScreen(
     override val navController: NavController,
-    override val navBackStackEntry: NavBackStackEntry
+    override val navBackStackEntry: NavBackStackEntry,
+    private val graphController: OnboardingGraphController
 ) : Screen() {
 
     @Composable
     override fun Content() {
-        val controller = rememberOnboardingController()
-        val secureAppMethod by controller.secureAppMethod
-        val profileName = stringResource(R.string.onboarding_default_profile_name)
+        val passwordFieldsController = rememberPasswordFieldsController()
+        val passwordFieldsState by passwordFieldsController.passwordFieldsState.collectAsStateWithLifecycle()
         val lazyListState = rememberLazyListState()
         var selectedTab by remember { mutableStateOf(OnboardingAuthTab.Biometric) }
+        val context = LocalContext.current
 
-        OnboardingScaffold(
-            modifier = Modifier
-                .testTag(TestTag.Onboarding.CredentialsScreen)
-                .fillMaxSize(),
-            state = lazyListState,
-            bottomBar = {
-                OnboardingBottomBar(
-                    info = when (selectedTab) {
-                        OnboardingAuthTab.Password -> null
-                        OnboardingAuthTab.Biometric -> stringResource(R.string.onboarding_auth_biometric_info)
-                    },
-                    buttonText = when (selectedTab) {
-                        OnboardingAuthTab.Password -> stringResource(R.string.onboarding_bottom_button_save)
-                        OnboardingAuthTab.Biometric -> stringResource(R.string.onboarding_bottom_button_choose)
-                    },
-                    buttonEnabled = when (selectedTab) {
-                        OnboardingAuthTab.Password -> (secureAppMethod as? Password)?.checkedPassword != null
-                        OnboardingAuthTab.Biometric -> true
-                    },
-                    buttonModifier = Modifier.testTag(TestTag.Onboarding.NextButton),
-                    onButtonClick = {
-                        when (selectedTab) {
-                            OnboardingAuthTab.Password -> {
-                                controller.onSaveOnboardingData(
-                                    authenticationMode = secureAppMethod.toAuthenticationMode(),
-                                    profileName = profileName
-                                )
-                                navController.navigate(OnboardingRoutes.OnboardingAnalyticsPreviewScreen.path())
-                            }
-                            OnboardingAuthTab.Biometric -> {
-                                navController.navigate(OnboardingRoutes.BiometricScreen.path())
-                            }
-                        }
-                    }
-                )
-            }
-        ) {
-            onboardingSelectAppLoginContent(
-                selectedTab = selectedTab,
-                secureMethod = secureAppMethod,
-                lazyListState = lazyListState,
-                onSecureMethodChange = controller::updateAuthenticationMode,
-                onTabChange = {
-                    when (it) {
-                        0 -> selectedTab = OnboardingAuthTab.Biometric
-                        1 -> selectedTab = OnboardingAuthTab.Password
-                    }
-                    controller.updateAuthenticationMode(None)
-                },
-                onNext = {
-                    controller.onSaveOnboardingData(
-                        authenticationMode = secureAppMethod.toAuthenticationMode(),
-                        profileName = profileName
-                    )
-                    navController.navigate(OnboardingRoutes.OnboardingAnalyticsPreviewScreen.path())
-                }
+        val deviceSupportsDeviceSecurity by remember {
+            mutableStateOf(
+                deviceSupportsAuthenticationMethod(context.deviceDeviceSecurityStatus())
+            )
+        }
+        val keyguardManager = context.getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+        val deviceHasDeviceSecurityEnabled by remember {
+            mutableStateOf(
+                keyguardManager.isDeviceSecure or deviceHasAuthenticationMethodEnabled(context.deviceDeviceSecurityStatus())
+            )
+        }
+        val deviceHasBiometryEnabled by remember {
+            mutableStateOf(
+                deviceHasAuthenticationMethodEnabled(context.deviceBiometricStatus())
             )
         }
 
-        if (BuildConfigExtension.isNonReleaseMode) {
-            SkipOnBoardingButton {
-                controller.createProfileOnSkipOnboarding()
+        OnboardingScreenContent(
+            selectedTab = selectedTab,
+            passwordFieldsState = passwordFieldsState,
+            lazyListState = lazyListState,
+            deviceSupportsDeviceSecurity = deviceSupportsDeviceSecurity,
+            deviceHasDeviceSecurityEnabled = deviceHasDeviceSecurityEnabled,
+            deviceHasBiometryEnabled = deviceHasBiometryEnabled,
+            onPasswordChange = passwordFieldsController::onPasswordChange,
+            onRepeatedPasswordChange = passwordFieldsController::onRepeatedPasswordChange,
+            onTabChange = {
+                when (it) {
+                    0 -> selectedTab = OnboardingAuthTab.Biometric
+                    1 -> selectedTab = OnboardingAuthTab.Password
+                }
+            },
+            onChoosePassword = {
+                graphController.onChooseAuthentication(
+                    authentication = SettingsData.Authentication(
+                        deviceSecurity = false,
+                        failedAuthenticationAttempts = 0,
+                        password = SettingsData.Authentication.Password(passwordFieldsState.password)
+                    )
+                )
+                navController.navigate(OnboardingRoutes.OnboardingAnalyticsPreviewScreen.path())
+            },
+            onChooseDeviceSecurity = {
+                navController.navigate(OnboardingRoutes.BiometricScreen.path())
+            },
+            onSkip = {
+                graphController.createProfileOnSkipOnboarding()
                 navController.finishOnboardingAsSuccessAndOpenPrescriptions()
             }
-        }
+        )
     }
 }
 
+@Composable
+fun OnboardingScreenContent(
+    selectedTab: OnboardingAuthTab,
+    passwordFieldsState: PasswordFieldsData,
+    lazyListState: LazyListState,
+    deviceSupportsDeviceSecurity: Boolean,
+    deviceHasDeviceSecurityEnabled: Boolean,
+    deviceHasBiometryEnabled: Boolean,
+    onPasswordChange: (String) -> Unit,
+    onRepeatedPasswordChange: (String) -> Unit,
+    onTabChange: (Int) -> Unit,
+    onChoosePassword: () -> Unit,
+    onChooseDeviceSecurity: () -> Unit,
+    onSkip: () -> Unit
+) {
+    OnboardingScreenScaffold(
+        modifier = Modifier
+            .testTag(TestTag.Onboarding.CredentialsScreen)
+            .fillMaxSize(),
+        state = lazyListState,
+        bottomBar = {
+            OnboardingBottomBar(
+                info = when (selectedTab) {
+                    OnboardingAuthTab.Password -> null
+                    OnboardingAuthTab.Biometric -> if (deviceSupportsDeviceSecurity) {
+                        stringResource(R.string.onboarding_auth_biometric_info)
+                    } else {
+                        stringResource(R.string.auth_no_biometry_info)
+                    }
+                },
+                buttonText = when (selectedTab) {
+                    OnboardingAuthTab.Password -> stringResource(R.string.onboarding_bottom_button_save)
+                    OnboardingAuthTab.Biometric -> stringResource(R.string.onboarding_bottom_button_choose)
+                },
+                buttonEnabled = when (selectedTab) {
+                    OnboardingAuthTab.Password -> passwordFieldsState.passwordIsValidAndConsistent
+                    OnboardingAuthTab.Biometric -> deviceSupportsDeviceSecurity
+                },
+                buttonModifier = Modifier.testTag(TestTag.Onboarding.NextButton),
+                onButtonClick = {
+                    when (selectedTab) {
+                        OnboardingAuthTab.Password -> onChoosePassword()
+                        OnboardingAuthTab.Biometric -> onChooseDeviceSecurity()
+                    }
+                }
+            )
+        }
+    ) {
+        onboardingSelectAppLoginContent(
+            selectedTab = selectedTab,
+            passwordFieldsState = passwordFieldsState,
+            deviceHasDeviceSecurityEnabled = deviceHasDeviceSecurityEnabled,
+            deviceHasBiometryEnabled = deviceHasBiometryEnabled,
+            lazyListState = lazyListState,
+            onPasswordChange = onPasswordChange,
+            onRepeatedPasswordChange = onRepeatedPasswordChange,
+            onTabChange = onTabChange,
+            onChoosePassword = onChoosePassword
+        )
+    }
+
+    if (BuildConfigExtension.isNonReleaseMode) {
+        SkipOnBoardingButton(onSkip)
+    }
+}
+
+@Requirement(
+    "O.Resi_1#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Selection of secure app login method in onboarding process"
+)
 private fun LazyListScope.onboardingSelectAppLoginContent(
     selectedTab: OnboardingAuthTab,
     onTabChange: (Int) -> Unit,
-    secureMethod: OnboardingSecureAppMethod,
+    passwordFieldsState: PasswordFieldsData,
+    deviceHasDeviceSecurityEnabled: Boolean,
+    deviceHasBiometryEnabled: Boolean,
     lazyListState: LazyListState,
-    onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit,
-    onNext: () -> Unit
+    onPasswordChange: (String) -> Unit,
+    onRepeatedPasswordChange: (String) -> Unit,
+    onChoosePassword: () -> Unit
 ) {
     item {
         Image(
@@ -201,7 +271,11 @@ private fun LazyListScope.onboardingSelectAppLoginContent(
             backGroundColor = MaterialTheme.colors.background,
             onClick = onTabChange,
             tabs = listOf(
-                stringResource(R.string.onboarding_secure_app_biometric),
+                if (!deviceHasBiometryEnabled && deviceHasDeviceSecurityEnabled) { stringResource(id = R.string.settings_app_security_device_security) } else {
+                    stringResource(
+                        R.string.onboarding_secure_app_biometric
+                    )
+                },
                 stringResource(R.string.onboarding_secure_app_password)
             ),
             testTags = listOf(
@@ -225,10 +299,11 @@ private fun LazyListScope.onboardingSelectAppLoginContent(
             when (targetTab) {
                 OnboardingAuthTab.Password -> {
                     PasswordAuthentication(
-                        secureMethod = secureMethod,
+                        passwordFieldsState = passwordFieldsState,
                         lazyListState = lazyListState,
-                        onSecureMethodChange = onSecureMethodChange,
-                        onNext = onNext
+                        onPasswordChange = onPasswordChange,
+                        onRepeatedPasswordChange = onRepeatedPasswordChange,
+                        onNext = onChoosePassword
                     )
                 }
 
@@ -243,24 +318,14 @@ private fun LazyListScope.onboardingSelectAppLoginContent(
 
 @Composable
 private fun PasswordAuthentication(
-    secureMethod: OnboardingSecureAppMethod,
+    passwordFieldsState: PasswordFieldsData,
     lazyListState: LazyListState,
-    onSecureMethodChange: (OnboardingSecureAppMethod) -> Unit,
+    onPasswordChange: (String) -> Unit,
+    onRepeatedPasswordChange: (String) -> Unit,
     onNext: () -> Unit
 ) {
     var offsetFirstPassword by remember { mutableIntStateOf(0) }
     var offsetSecondPassword by remember { mutableIntStateOf(0) }
-
-    val password =
-        remember(secureMethod) { (secureMethod as? Password)?.password ?: "" }
-    val repeatedPassword =
-        remember(secureMethod) {
-            (secureMethod as? Password)?.repeatedPassword ?: ""
-        }
-    val passwordScore =
-        remember(secureMethod) {
-            (secureMethod as? Password)?.score ?: 0
-        }
 
     val focusManager = LocalFocusManager.current
 
@@ -274,46 +339,35 @@ private fun PasswordAuthentication(
                 .scrollOnFocus(POS_OF_ANIMATED_CONTENT_ITEM, lazyListState, offsetFirstPassword)
                 .onGloballyPositioned { offsetFirstPassword = it.positionInParent().y.toInt() }
                 .padding(bottom = PaddingDefaults.Tiny),
-            value = password,
-            onValueChange = {
-                if (it.isEmpty()) {
-                    onSecureMethodChange(None)
-                } else {
-                    onSecureMethodChange(
-                        Password(
-                            password = it,
-                            repeatedPassword = repeatedPassword,
-                            score = passwordScore
-                        )
-                    )
-                }
-            },
+            value = passwordFieldsState.password,
+            onValueChange = onPasswordChange,
             onSubmit = {
-                if (validatePasswordScore(passwordScore)) {
+                if (passwordFieldsState.passwordEvaluation.isStrongEnough) {
                     focusManager.moveFocus(FocusDirection.Down)
                 }
             },
             allowAutofill = true,
             allowVisiblePassword = true,
             label = {
-                Text(stringResource(R.string.settings_password_enter))
+                Text(stringResource(R.string.settings_password_entry))
             }
+        )
+        @Requirement(
+            "O.Pass_1#2",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Usage of password strength evaluation to ensure a secure password for onboarding"
+        )
+        @Requirement(
+            "O.Pass_2#2",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Shows password strength within the onboarding process"
         )
         PasswordStrength(
             modifier = Modifier
                 .testTag(TestTag.Onboarding.Credentials.PasswordStrengthCheck)
                 .fillMaxWidth()
                 .padding(bottom = PaddingDefaults.Medium),
-            password = password,
-            onScoreChange = {
-                onSecureMethodChange(
-                    Password(
-                        password = password,
-                        repeatedPassword = repeatedPassword,
-                        score = it
-                    )
-                )
-            }
+            passwordEvaluation = passwordFieldsState.passwordEvaluation
         )
         ConfirmationPasswordTextField(
             modifier = Modifier
@@ -321,24 +375,16 @@ private fun PasswordAuthentication(
                 .fillMaxWidth()
                 .scrollOnFocus(POS_OF_ANIMATED_CONTENT_ITEM, lazyListState, offsetSecondPassword)
                 .onGloballyPositioned { offsetSecondPassword = it.positionInParent().y.toInt() },
-            password = password,
-            value = repeatedPassword,
-            passwordScore = passwordScore,
-            onValueChange = {
-                onSecureMethodChange(
-                    Password(
-                        password = password,
-                        repeatedPassword = it,
-                        score = passwordScore
-                    )
-                )
-            },
+            value = passwordFieldsState.repeatedPassword,
+            onValueChange = onRepeatedPasswordChange,
+            repeatedPasswordHasError = passwordFieldsState.repeatedPasswordHasError,
+            passwordIsValidAndConsistent = passwordFieldsState.passwordIsValidAndConsistent,
             onSubmit = {
                 focusManager.clearFocus()
                 onNext()
             }
         )
-        if (repeatedPassword.isNotBlank() && repeatedPassword != password) {
+        if (passwordFieldsState.repeatedPasswordHasError) {
             SpacerTiny()
             Text(
                 stringResource(R.string.not_matching_entries),
@@ -351,54 +397,24 @@ private fun PasswordAuthentication(
 
 @LightDarkPreview
 @Composable
-fun PasswordAuthenticationSuccessfulPreview() {
+fun PasswordAuthenticationPreview(
+    @PreviewParameter(SetAppPasswordParameterProvider::class) parameter: SetAppPasswordParameter
+) {
     val lazyListState = rememberLazyListState()
     PreviewAppTheme {
-        PasswordAuthentication(
-            secureMethod = Password(
-                "azerbaijan@89Atropates",
-                "azerbaijan@89Atropates",
-                SUCCESS_SCORE
-            ),
+        OnboardingScreenContent(
+            selectedTab = OnboardingAuthTab.Password,
+            passwordFieldsState = parameter.passwordFieldsState,
             lazyListState = lazyListState,
-            onSecureMethodChange = {},
-            onNext = {}
-        )
-    }
-}
-
-@LightDarkPreview
-@Composable
-fun PasswordAuthenticationFailurePreview() {
-    val lazyListState = rememberLazyListState()
-    PreviewAppTheme {
-        PasswordAuthentication(
-            secureMethod = Password(
-                "azerbaijan@89",
-                "",
-                MEDIOCRE_SCORE
-            ),
-            lazyListState = lazyListState,
-            onSecureMethodChange = {},
-            onNext = {}
-        )
-    }
-}
-
-@LightDarkPreview
-@Composable
-fun PasswordAuthenticationEmptyPreview() {
-    val lazyListState = rememberLazyListState()
-    PreviewAppTheme {
-        PasswordAuthentication(
-            secureMethod = Password(
-                "",
-                "",
-                FAILURE_SCORE
-            ),
-            lazyListState = lazyListState,
-            onSecureMethodChange = {},
-            onNext = {}
+            deviceSupportsDeviceSecurity = false,
+            deviceHasBiometryEnabled = false,
+            deviceHasDeviceSecurityEnabled = false,
+            onPasswordChange = {},
+            onRepeatedPasswordChange = {},
+            onTabChange = {},
+            onChoosePassword = {},
+            onChooseDeviceSecurity = {},
+            onSkip = {}
         )
     }
 }

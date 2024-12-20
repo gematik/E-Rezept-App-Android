@@ -17,7 +17,7 @@
             android:required="false" />
 
     <application
-        android:name="de.gematik.ti.erp.app.DefaultErezeptMockApp"
+        android:name="de.gematik.ti.erp.app.MockErezeptApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
@@ -25,7 +25,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.ERezApp">
         <service
-            android:name="de.gematik.ti.erp.app.DefaultErezeptMockApp"
+            android:name="de.gematik.ti.erp.app.MockErezeptApp"
             android:foregroundServiceType="location" />
         <meta-data
             android:name="com.contentsquare.android.autostart"
@@ -51,10 +51,9 @@
             android:value="${MAPS_API_KEY}" />
 
         <activity
-            android:name="de.gematik.ti.erp.app.MainActivity"
+            android:name="de.gematik.ti.erp.app.MockMainActivity"
             android:exported="true"
             android:launchMode="singleTask"
-            android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

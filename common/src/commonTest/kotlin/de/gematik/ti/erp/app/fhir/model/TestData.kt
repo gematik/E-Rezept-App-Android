@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
@@ -22,11 +22,11 @@ import java.io.File
 
 const val ResourceBasePath = "src/commonTest/resources/"
 
-val taskJson_vers_1_1_1 by lazy {
-    File("$ResourceBasePath/fhir/task.json").readText()
-}
 val taskJson_vers_1_2 by lazy {
     File("$ResourceBasePath/fhir/task_vers_1_2.json").readText()
+}
+val taskJson_vers_1_3 by lazy {
+    File("$ResourceBasePath/fhir/task_vers_1_3.json").readText()
 }
 
 val organizationJson by lazy {
@@ -124,8 +124,39 @@ val medDispenseBundleVersion_1_2 by lazy {
     File("$ResourceBasePath/fhir/bundle_med_dispense_version_1_2.json").readText()
 }
 
+val dispenseSimpleMedication_1_4 by lazy {
+    File("$ResourceBasePath/fhir/workflow_version_1_4/bundle_dispense_simple_medication.json").readText()
+}
+
+val simpleMedication_1_4 by lazy {
+    File("$ResourceBasePath/fhir/workflow_version_1_4/resource_simple_medication.json").readText()
+}
+
+val pharmaceuticalProduct by lazy {
+    File("$ResourceBasePath/fhir/workflow_version_1_4/pharmaceuticalProduct.json").readText()
+}
+
+val complexMedication_1_4 by lazy {
+    File("$ResourceBasePath/fhir/workflow_version_1_4/Medication-Medication-Kombipackung.json").readText()
+}
+
+val complexIngredientMedication_1_4 by lazy {
+    File("$ResourceBasePath/fhir/workflow_version_1_4/Medication-Medication-Rezeptur.json").readText()
+}
+
+val dispenseMultipleMedication_1_4 by lazy {
+    File("$ResourceBasePath/fhir/workflow_version_1_4/bundle_multiple_dispenses_simple_medications.json").readText()
+}
+
+val dispenseCompoundingMedication_1_4 by lazy {
+    File("$ResourceBasePath/fhir/workflow_version_1_4/bundle_dispense_compounding_medication.json").readText()
+}
+
 val task_bundle_version_1_2 by lazy {
     File("$ResourceBasePath/fhir/task_bundle_vers_1_2.json").readText()
+}
+val task_bundle_version_1_3 by lazy {
+    File("$ResourceBasePath/fhir/task_bundle_vers_1_3.json").readText()
 }
 
 val charge_item_bundle_version_1_2 by lazy {

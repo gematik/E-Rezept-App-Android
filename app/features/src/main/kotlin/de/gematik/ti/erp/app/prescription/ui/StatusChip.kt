@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 @file:Suppress("TooManyFunctions")
@@ -30,8 +30,10 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.EventBusy
 import androidx.compose.material.icons.rounded.HourglassTop
@@ -53,8 +55,10 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Composable
 fun StatusChip(
@@ -93,7 +97,9 @@ fun StatusChip(
     StatusChip(
         text = text,
         icon = icon?.let {
-            { Icon(it, tint = iconColor, contentDescription = null) }
+            {
+                Icon(it, tint = iconColor, contentDescription = null)
+            }
         },
         textColor = textColor,
         backgroundColor = backgroundColor,
@@ -182,6 +188,28 @@ fun CompletedStatusChip() =
     )
 
 @Composable
+fun ProvidedStatusChip() =
+    StatusChip(
+        text = stringResource(R.string.provided),
+        icon = Icons.Rounded.DoneAll,
+        textColor = AppTheme.colors.neutral600,
+        backgroundColor = AppTheme.colors.neutral200,
+        iconColor = AppTheme.colors.neutral500,
+        modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionProvided)
+    )
+
+@Composable
+fun DeletedStatusChip() =
+    StatusChip(
+        text = stringResource(R.string.prescription_status_deleted),
+        icon = Icons.Outlined.Delete,
+        textColor = AppTheme.colors.neutral600,
+        backgroundColor = AppTheme.colors.neutral200,
+        iconColor = AppTheme.colors.neutral500,
+        modifier = Modifier.testTag(TestTag.Prescriptions.PrescriptionDeleted)
+    )
+
+@Composable
 fun ExpiredStatusChip() =
     StatusChip(
         text = stringResource(R.string.prescription_status_expired),
@@ -262,7 +290,7 @@ fun DirectAssignmentChip(
     )
 
 @Composable
-fun ScannedChip(
+fun SubstitutionNotAllowedChip(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) =
@@ -271,24 +299,7 @@ fun ScannedChip(
             .clickable(role = Role.Button) {
                 onClick()
             },
-        text = stringResource(R.string.prescription_detail_scanned_chip),
-        icon = Icons.Outlined.Info,
-        textColor = AppTheme.colors.primary900,
-        backgroundColor = AppTheme.colors.primary100,
-        iconColor = AppTheme.colors.primary600
-    )
-
-@Composable
-fun SubstitutionAllowedChip(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
-) =
-    StatusChip(
-        modifier = modifier
-            .clickable(role = Role.Button) {
-                onClick()
-            },
-        text = stringResource(R.string.prescription_detail_aut_idem_chip),
+        text = stringResource(R.string.prescription_details_substitution_not_allowed),
         icon = Icons.Outlined.Info,
         textColor = AppTheme.colors.primary900,
         backgroundColor = AppTheme.colors.primary100,
@@ -311,3 +322,19 @@ fun FailureDetailsStatusChip(
         backgroundColor = AppTheme.colors.red100,
         iconColor = AppTheme.colors.red500
     )
+
+@LightDarkPreview
+@Composable
+fun SubstitutionNotallowedStatusChipPreview() {
+    PreviewAppTheme {
+        SubstitutionNotAllowedChip {}
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun PendingStatusChipPreview() {
+    PreviewAppTheme {
+        PendingStatusChip()
+    }
+}

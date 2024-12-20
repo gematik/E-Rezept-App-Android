@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 @file:Suppress("MemberNameEqualsClassName")
@@ -24,8 +24,8 @@ object Dependencies {
     object Versions {
         object SdkVersions {
             const val MIN_SDK_VERSION = 26
-            const val COMPILE_SDK_VERSION = 34
-            const val TARGET_SDK_VERSION = 34
+            const val COMPILE_SDK_VERSION = 35
+            const val TARGET_SDK_VERSION = 35
         }
 
         object JavaVersion {
@@ -99,6 +99,7 @@ object Dependencies {
         const val camerax2 = "androidx.camera:camera-camera2:$camerax_version"
         const val cameraxLifecycle = "androidx.camera:camera-lifecycle:$camerax_version"
         const val cameraxView = "androidx.camera:camera-view:$camerax_version"
+        const val window = "androidx.window:window:1.2.0"
 
         object Test {
             private const val test_runner_version = "1.6.0-alpha04"
@@ -169,7 +170,7 @@ object Dependencies {
     }
 
     object Crypto {
-        private const val json_web_token_version = "0.9.3"
+        private const val json_web_token_version = "0.9.5"
         private const val bouncy_castle_version = "1.76"
 
         const val jose4j = "org.bitbucket.b_c:jose4j:$json_web_token_version"
@@ -197,7 +198,7 @@ object Dependencies {
     }
 
     object Datetime {
-        private const val datetime_version = "0.4.1"
+        private const val datetime_version = "0.6.0-RC.2"
 
         const val datetime = "org.jetbrains.kotlinx:kotlinx-datetime:$datetime_version"
     }
@@ -217,7 +218,7 @@ object Dependencies {
     object GoogleMaps {
         private const val maps_version = "18.1.0"
         private const val maps_ktx_version = "4.0.0"
-        private const val location_version = "21.0.1"
+        private const val location_version = "21.1.0"
         private const val maps_compose_version = "2.15.0" // 3.1.1 needs core_ktx_version=1.12.0
 
         val maps = gms("maps", maps_version)
@@ -318,11 +319,10 @@ object Dependencies {
     }
 
     object Tracking {
-        private const val content_square_version = "4.22.0"
+        private const val content_square_version = "4.28.0"
 
         const val contentSquare = "com.contentsquare.android:library:$content_square_version"
         const val contentSquareCompose = "com.contentsquare.android:compose:$content_square_version"
-        const val contentSquareErrorAnalysis = "com.contentsquare.android:error-analysis:$content_square_version"
     }
 
     object Test {

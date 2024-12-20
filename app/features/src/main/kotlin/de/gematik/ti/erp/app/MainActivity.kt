@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app
@@ -23,11 +23,8 @@ import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.annotation.RestrictTo
 import androidx.annotation.VisibleForTesting
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
@@ -36,52 +33,50 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
-import androidx.compose.ui.res.painterResource
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.compose.rememberNavController
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
-import com.google.accompanist.navigation.material.rememberBottomSheetNavigator
+import de.gematik.ti.erp.app.app.ApplicationScaffold
 import de.gematik.ti.erp.app.appupdate.navigation.AppUpdateNavHost
-import de.gematik.ti.erp.app.authentication.ui.ExternalAuthPrompt
-import de.gematik.ti.erp.app.authentication.ui.HealthCardPrompt
-import de.gematik.ti.erp.app.authentication.ui.SecureHardwarePrompt
+import de.gematik.ti.erp.app.authentication.presentation.rememberBiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.ui.components.BiometricPrompt
+import de.gematik.ti.erp.app.authentication.ui.components.ExternalAuthPrompt
+import de.gematik.ti.erp.app.authentication.ui.components.HealthCardPrompt
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.cardwall.mini.ui.rememberAuthenticator
 import de.gematik.ti.erp.app.core.AppContent
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalAnalytics
 import de.gematik.ti.erp.app.core.LocalAuthenticator
+import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
+import de.gematik.ti.erp.app.core.LocalBottomSheetNavigator
+import de.gematik.ti.erp.app.core.LocalBottomSheetNavigatorSheetState
 import de.gematik.ti.erp.app.core.LocalDi
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeEnded
-import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeStarted
+import de.gematik.ti.erp.app.core.LocalNavController
+import de.gematik.ti.erp.app.core.LocalTimeZone
 import de.gematik.ti.erp.app.features.BuildConfig
-import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenNavigation
-import de.gematik.ti.erp.app.mainscreen.presentation.rememberMainScreenController
+import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
+import de.gematik.ti.erp.app.mainscreen.ui.ExternalAuthenticationUiHandler
+import de.gematik.ti.erp.app.navigation.ErezeptNavigatorFactory.initNavigation
 import de.gematik.ti.erp.app.prescription.detail.presentation.SharePrescriptionHandler
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileController
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
-import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod.Authenticated
-import de.gematik.ti.erp.app.userauthentication.ui.UserAuthenticationScreen
 import de.gematik.ti.erp.app.utils.compose.DebugOverlay
 import de.gematik.ti.erp.app.utils.compose.DialogHost
 import kotlinx.coroutines.flow.distinctUntilChangedBy
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
 import org.kodein.di.compose.withDI
 import org.kodein.di.instance
 
-class MainActivity : BaseActivity() {
+open class MainActivity : BaseActivity() {
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE) // Only visible for testing, otherwise shows a warning
     val testWrapper: TestWrapper by instance()
@@ -96,31 +91,28 @@ class MainActivity : BaseActivity() {
     @RestrictTo(RestrictTo.Scope.TESTS)
     val elementsUsedInTests: SnapshotStateMap<String, ElementForTest> = mutableStateMapOf()
 
-    @OptIn(ExperimentalMaterialNavigationApi::class)
+    @OptIn(ExperimentalMaterialNavigationApi::class, ExperimentalMaterialApi::class)
     @Suppress("LongMethod")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        catchAllUnCaughtExceptions()
-
+        catchAllUnCaughtExceptions(this)
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 intent?.let {
-                    when (it.action) {
-                        DemoModeStarted.name -> setAsDemoMode()
-                        DemoModeEnded.name -> cancelDemoMode()
-                        else -> {
-                            cancelDemoMode()
-                            intentHandler.propagateIntent(it)
-                        }
-                    }
+                    intentHandler.propagateIntent(it)
                 }
             }
         }
 
+        @Requirement(
+            "O.Arch_10#1",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Trigger for update check"
+        )
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 checkAppUpdate()
+                updateInAppMessage()
             }
         }
 
@@ -130,34 +122,35 @@ class MainActivity : BaseActivity() {
             val view = LocalView.current
             val isUpdateAvailable by getAppUpdateFlagUseCase.invoke().collectAsStateWithLifecycle()
 
-            LaunchedEffect(view) {
-                ViewCompat.setWindowInsetsAnimationCallback(view, null)
-            }
+            LaunchedEffect(view) { ViewCompat.setWindowInsetsAnimationCallback(view, null) }
+
+            val (navHostController, bottomSheetNavigator, sheetState) = initNavigation()
 
             withDI(di) {
                 CompositionLocalProvider(
-                    LocalActivity provides this,
+                    LocalTimeZone provides TimeZone.currentSystemDefault(),
                     LocalDi provides di,
+                    LocalActivity provides this,
+                    LocalNavController provides navHostController,
+                    LocalBottomSheetNavigator provides bottomSheetNavigator,
+                    LocalBottomSheetNavigatorSheetState provides sheetState,
+                    LocalBiometricAuthenticator provides rememberBiometricAuthenticator(),
                     LocalAnalytics provides analytics,
                     LocalIntentHandler provides intentHandler,
                     LocalAuthenticator provides rememberAuthenticator(intentHandler)
                 ) {
                     val authenticator = LocalAuthenticator.current
-                    val bottomSheetNavigator = rememberBottomSheetNavigator()
-                    val navController = rememberNavController(bottomSheetNavigator)
+
                     AppContent {
                         if (isUpdateAvailable) {
-                            AppUpdateNavHost(navController)
+                            AppUpdateNavHost(navHostController)
                         } else {
                             val profilesController = rememberProfileController()
-                            val mainScreenController = rememberMainScreenController()
-                            val screenshotsAllowed by mainScreenController.screenshotsState
+                            val mainScreenController = rememberAppController()
+                            val isScreenshotsAllowed by mainScreenController.screenshotsState
 
-                            if (screenshotsAllowed) {
-                                this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                            } else {
-                                this.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
-                            }
+                            toggleScreenshotsAllowed(isScreenshotsAllowed)
+
                             val authentication by produceState<AuthenticationModeAndMethod?>(null) {
                                 launch {
                                     authenticationModeAndMethod.distinctUntilChangedBy { it::class }
@@ -172,35 +165,30 @@ class MainActivity : BaseActivity() {
                                 }
                             }
 
-                            val noDrawModifier = Modifier.graphicsLayer(alpha = 0f)
                             val activeProfile by profilesController.getActiveProfileState()
-                            val isSsoTokenValid = rememberSaveable(activeProfile, activeProfile.ssoTokenScope) {
+                            val isSsoTokenValid = rememberSaveable(
+                                activeProfile,
+                                activeProfile.ssoTokenScope,
+                                activeProfile.ssoTokenScope?.token
+                            ) {
                                 activeProfile.isSSOTokenValid()
                             }
 
                             Box {
-                                if (authentication !is Authenticated) {
-                                    Image(
-                                        painterResource(R.drawable.erp_logo),
-                                        null,
-                                        modifier = Modifier.align(Alignment.Center)
-                                    )
-                                }
-
                                 DialogHost {
-                                    Box(
-                                        if (authentication is Authenticated) Modifier else noDrawModifier
-                                    ) {
+                                    Box {
                                         // show mini card wall only when we have a invalid sso token
                                         if (!isSsoTokenValid) {
                                             HealthCardPrompt(authenticator.authenticatorHealthCard)
                                             ExternalAuthPrompt(authenticator.authenticatorExternal)
                                         }
-                                        SecureHardwarePrompt(authenticator.authenticatorSecureElement)
+                                        BiometricPrompt(authenticator.authenticatorBiometric)
 
-                                        MainScreenNavigation(
-                                            bottomSheetNavigator = bottomSheetNavigator,
-                                            navController = navController
+                                        ExternalAuthenticationUiHandler()
+
+                                        ApplicationScaffold(
+                                            authentication = authentication,
+                                            isDemoMode = isDemoMode()
                                         )
 
                                         SharePrescriptionHandler(
@@ -209,24 +197,30 @@ class MainActivity : BaseActivity() {
                                         )
                                     }
                                 }
-
-                                DialogHost {
-                                    AnimatedVisibility(
-                                        visible = authentication is AuthenticationModeAndMethod.AuthenticationRequired,
-                                        enter = fadeIn(),
-                                        exit = fadeOut()
-                                    ) {
-                                        UserAuthenticationScreen()
-                                    }
-                                }
                             }
                         }
+                        @Suppress("RestrictedApi")
                         if (BuildConfig.DEBUG && BuildKonfig.DEBUG_VISUAL_TEST_TAGS) {
+                            @Suppress("RestrictedApi")
                             DebugOverlay(elementsUsedInTests)
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Requirement(
+    "O.Data_13#2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Default settings are not allow screenshots",
+    codeLines = 8
+)
+private fun MainActivity.toggleScreenshotsAllowed(isScreenshotsAllowed: Boolean = false) {
+    if (isScreenshotsAllowed) {
+        this.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+    } else {
+        this.window.addFlags(WindowManager.LayoutParams.FLAG_SECURE)
     }
 }

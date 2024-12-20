@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.idp.usecase
@@ -43,23 +43,16 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.net.URI
 
+// A_20601-01
 @Requirement(
-    "A_20527#2",
-    "A_20600#2",
-    "A_20601",
-    "A_20601-01",
-    "A_22301",
+    "A_22301-01#1",
     sourceSpecification = "gemSpec_IDP_Frontend",
-    rationale = "External authentication (Fast-Track / Gesundheit-Id)"
-)
-@Requirement(
-    "O.Plat_10#1",
-    sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Follow redirect"
+    rationale = "External authentication (Gesundheit-Id)"
 )
 class AuthenticateWithExternalHealthInsuranceAppUseCase(
     private val idpRepository: IdpRepository,
@@ -88,6 +81,11 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
 
                         val authorizationEndPoint = initialData.config.requiredAuthorizationEndPoint()
 
+                        @Requirement(
+                            "A_22301-01#2",
+                            sourceSpecification = "gemSpec_IDP_Frontend",
+                            rationale = "Acceptance of the Authorization Code via App2App communication."
+                        )
                         idpRepository
                             .authorizeExternalHealthInsuranceAppDataAsGiD(
                                 url = authorizationEndPoint,
@@ -200,21 +198,24 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
         "authorizationEndPoint null, Fast-track or Gid not available"
     }
 
-    private fun insurantIdentifier(idTokenJson: JsonElement?) =
-        idTokenJson?.jsonObject?.get("idNummer")?.jsonPrimitive?.content ?: ""
+    private fun insurantIdentifier(idTokenJson: JsonElement?): String = idTokenJson.getContent("idNummer")
 
-    private fun insuranceName(idTokenJson: JsonElement?) =
-        idTokenJson?.jsonObject?.get("organizationName")?.jsonPrimitive?.content
+    private fun insuranceName(idTokenJson: JsonElement?): String = idTokenJson.getContent("organizationName")
+
+    private fun insurantName(jsonElement: JsonElement?): String {
+        val jsonObject = jsonElement?.jsonObject
+
+        // Extract fields safely
+        val displayName = jsonObject?.get("display_name")?.jsonPrimitive?.contentOrNull
+        val givenName = jsonObject?.get("given_name")?.jsonPrimitive?.contentOrNull
+        val familyName = jsonObject?.get("family_name")?.jsonPrimitive?.contentOrNull
+
+        // Return the first non-null, non-empty value
+        return givenName?.takeIf { it.isNotEmpty() }
+            ?: familyName?.takeIf { it.isNotEmpty() }
+            ?: displayName?.takeIf { it.isNotEmpty() }
             ?: ""
-
-    private fun insurantName(idTokenJson: JsonElement?) =
-        idTokenJson?.jsonObject?.get("given_name")?.jsonPrimitive?.content
-            ?.let {
-                "$it ${
-                idTokenJson.jsonObject["family_name"]
-                    ?.jsonPrimitive?.content
-                }"
-            } ?: ""
+    }
 
     private fun saveAccessToken(
         idpTokenResult: IdpTokenResult?,
@@ -273,4 +274,7 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
             throw SingleSignOnTokenError
         }
     }
+
+    private fun (JsonElement?).getContent(elementName: String): String =
+        this?.jsonObject?.get(elementName)?.jsonPrimitive?.contentOrNull ?: ""
 }

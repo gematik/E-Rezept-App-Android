@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.mlkit.ui
@@ -29,7 +29,6 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,7 +39,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mlkit.navigation.MlKitRoutes
 import de.gematik.ti.erp.app.mlkit.presentation.rememberMlKitController
@@ -48,21 +46,17 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
 import de.gematik.ti.erp.app.utils.compose.SecondaryButton
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.compose.preview.TestScaffold
 
-@Requirement(
-    "A_20194",
-    sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Display information regarding usage of MLKit to the user."
-)
 class MlKitScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -164,22 +158,23 @@ private fun MlKitBottomBar(onAccept: () -> Unit, onClickReadMore: () -> Unit) {
 
 @LightDarkPreview
 @Composable
-fun MlKitScreenContentPreview() {
+fun MlKitScreenScaffoldPreview() {
     val listState = rememberLazyListState()
     PreviewAppTheme {
-        Scaffold(
+        TestScaffold(
+            topBarTitle = "",
+            navigationMode = NavigationBarMode.Close,
             bottomBar = {
                 MlKitBottomBar(
                     onAccept = {},
-                    onClickReadMore = {}
-                )
-            },
-            content = {
-                MlKitScreenContent(
-                    listState = listState,
-                    contentPadding = it
+                    onClickReadMore = { }
                 )
             }
-        )
+        ) {
+            MlKitScreenContent(
+                contentPadding = it,
+                listState = listState
+            )
+        }
     }
 }

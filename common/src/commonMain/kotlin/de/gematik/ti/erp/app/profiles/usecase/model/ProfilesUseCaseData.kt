@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.profiles.usecase.model
@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.profiles.usecase.model
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import de.gematik.ti.erp.app.idp.model.IdpData
+import de.gematik.ti.erp.app.idp.model.IdpData.AlternateAuthenticationWithoutToken
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
@@ -39,20 +40,30 @@ object ProfilesUseCaseData {
         val id: ProfileIdentifier,
         val name: String,
         val insurance: ProfileInsuranceInformation,
-        val active: Boolean,
+        val isActive: Boolean,
         val color: ProfilesData.ProfileColorNames,
         val avatar: ProfilesData.Avatar,
         val image: ByteArray? = null,
         val lastAuthenticated: Instant? = null,
         val ssoTokenScope: IdpData.SingleSignOnTokenScope?
     ) {
-        fun isBiometricPairing() = ssoTokenScope !is IdpData.ExternalAuthenticationToken
+        //region Validations required before starting processes that require tokens
+        fun isNotGid() = ssoTokenScope !is IdpData.ExternalAuthenticationToken
+
+        fun isPkv() = insurance.insuranceType == InsuranceType.PKV
 
         fun isSSOTokenValid(now: Instant = Clock.System.now()) = ssoTokenScope?.token?.isValid(now) ?: false
+
+        val isDirectRedeemEnabled: Boolean
+            get() = lastAuthenticated == null
+
+        fun isRedemptionAllowed() = isSSOTokenValid() || isDirectRedeemEnabled
+        //endregion
 
         fun hasNoImageSelected() = this.avatar == ProfilesData.Avatar.PersonalizedImage &&
             this.image == null
 
+        @Suppress("CyclomaticComplexMethod")
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -62,7 +73,7 @@ object ProfilesUseCaseData {
             if (id != other.id) return false
             if (name != other.name) return false
             if (insurance != other.insurance) return false
-            if (active != other.active) return false
+            if (isActive != other.isActive) return false
             if (color != other.color) return false
             if (avatar != other.avatar) return false
             if (image != null) {
@@ -79,7 +90,7 @@ object ProfilesUseCaseData {
             var result = id.hashCode()
             result = 31 * result + name.hashCode()
             result = 31 * result + insurance.hashCode()
-            result = 31 * result + active.hashCode()
+            result = 31 * result + isActive.hashCode()
             result = 31 * result + color.hashCode()
             result = 31 * result + avatar.hashCode()
             result = 31 * result + (image?.contentHashCode() ?: 0)
@@ -98,7 +109,6 @@ object ProfilesUseCaseData {
                 NeverConnected
             }
 
-            // old state: ssoTokenScope == null && lastAuthenticated == null
             private fun Profile.neverConnected() = lastAuthenticated == null
 
             private fun Profile.ssoTokenSetAndConnected() =
@@ -123,9 +133,15 @@ object ProfilesUseCaseData {
                     is IdpData.AlternateAuthenticationWithoutToken -> true
                     else -> false
                 }
-            fun List<Profile>.activeProfile() = first { it.active }
+
+            fun List<Profile>.activeProfile() = first { it.isActive }
+
             fun List<Profile>.profileById(id: ProfileIdentifier?) = firstOrNull { it.id == id }
+
             fun List<Profile>.containsProfileWithName(name: String) = any { it.name == name.trim() }
+
+            // for pharmacies that do not support direct redemption this condition needs to be fulfilled
+            fun Profile.isSsoTokenValidAndDirectRedeemEnabled() = isSSOTokenValid() && isDirectRedeemEnabled
 
             @Stable
             fun Profile.connectionState(): ProfileConnectionState? =
@@ -142,6 +158,21 @@ object ProfilesUseCaseData {
 
                     else -> null
                 }
+
+            fun Profile.validateRequirementForLastAuthUpdateRequired(
+                block: (ProfileIdentifier, Instant) -> Unit
+            ): Profile {
+                when {
+                    ssoTokenScope != null && ssoTokenScope !is AlternateAuthenticationWithoutToken &&
+                        lastAuthenticated == null -> {
+                        ssoTokenScope.token?.let { token ->
+                            block(id, token.validOn)
+                            this@Companion
+                        }
+                    }
+                }
+                return this
+            }
         }
     }
 

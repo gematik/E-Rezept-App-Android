@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.detail.presentation
@@ -26,6 +26,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
@@ -77,6 +78,11 @@ class SharePrescriptionController(
      *
      * URI pattern is .../prescription/#["TASK_ID|ACCESS_CODE"]
      */
+    @Requirement(
+        "O.Source_1#9",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Uri is validated for task-id and access-code pattern before sharing"
+    )
     suspend fun handle(value: String): HandleResult =
         if (value.startsWith(ShareBaseUri)) {
             try {
@@ -100,13 +106,14 @@ class SharePrescriptionController(
                             ScannedTaskData.ScannedTask(
                                 profileId = profileId,
                                 index = 0,
-                                name = null,
+                                name = "", // name will be set later
                                 taskId = taskId,
                                 accessCode = accessCode,
                                 scannedOn = Clock.System.now(),
                                 redeemedOn = null
                             )
-                        )
+                        ),
+                        medicationString = context.getString(R.string.pres_details_scanned_medication)
                     )
 
                     HandleResult.TaskSaved

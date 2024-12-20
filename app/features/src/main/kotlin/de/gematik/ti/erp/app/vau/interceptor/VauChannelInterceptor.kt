@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.vau.interceptor
@@ -29,11 +29,11 @@ import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.vau.VauChannelSpec
 import de.gematik.ti.erp.app.vau.VauCryptoConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.runBlocking
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
 import okhttp3.Response
-import io.github.aakira.napier.Napier
 import java.io.IOException
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
 import java.net.HttpURLConnection.HTTP_UNAUTHORIZED
@@ -55,7 +55,6 @@ class VauException(e: Exception) : IOException(e)
 
 @Requirement(
     "A_20161-01#4",
-    "A_20174#1  ",
     sourceSpecification = "gemSpec_Krypt",
     rationale = "Handle VAU response."
 )
@@ -66,6 +65,17 @@ class VauChannelInterceptor(
     private val dispatchers: DispatchProvider,
     private val networkSecPrefs: SharedPreferences
 ) : Interceptor {
+    @Requirement(
+        "A_20175#2",
+        "A_20174#6",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Set/Retrieve a UserPseudonym from secure storage"
+    )
+    @Requirement(
+        "A_20161-01#13",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "7. VAU-Endpoint respects userpseudonym if present"
+    )
     private var previousUserAlias = networkSecPrefs.getString(VAU_USER_ALIAS_PREF_KEY, null) ?: "0"
         set(v) {
             field = v
@@ -96,7 +106,11 @@ class VauChannelInterceptor(
 
             // outer response
             val encryptedResponse = chain.proceed(encryptedRequest.first)
-
+            @Requirement(
+                "A_20174#7",
+                sourceSpecification = "gemSpec_Krypt",
+                rationale = "handle encrypted response and user pseudonym"
+            )
             return if (!encryptedResponse.isSuccessful) {
                 // e.g. 401 -> user pseudonym unknown -> reset to zero
                 if (encryptedResponse.code == HTTP_UNAUTHORIZED || encryptedResponse.code == HTTP_FORBIDDEN) {

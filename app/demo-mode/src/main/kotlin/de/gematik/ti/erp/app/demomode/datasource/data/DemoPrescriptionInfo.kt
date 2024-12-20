@@ -1,23 +1,24 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
+import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.DIRECT_ASSIGNMENT_TASK_PRESET
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.EXPIRY_DATE
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.NOW
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.SHORT_EXPIRY_DATE
@@ -25,16 +26,16 @@ import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.SYNCED_TASK_
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.longerRandomTimeToday
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.randomTimeToday
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.demoProfile01
+import de.gematik.ti.erp.app.prescription.model.Quantity
+import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationDispense
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationPZN
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Medication
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Quantity
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Ratio
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import java.util.UUID
@@ -42,9 +43,13 @@ import kotlin.random.Random
 
 object DemoPrescriptionInfo {
 
-    private val SYNCED_MEDICATION_NAMES = listOf(
+    private val BOOLEAN = listOf(true, false)
+
+    private val SYNCED_MEDICATION_NAMES = setOf(
         "Ibuprofen 600", "Meloxicam", "Indomethacin", "Celebrex", "Ketoprofen", "Piroxicam", "Etodolac", "Toradol",
-        "Aspirin", "Voltaren"
+        "Aspirin", "Voltaren", "Naproxen", "Mobic", "Aleve", "Motrin", "Advil", "Relafen", "Feldene", "Daypro",
+        "Clinoril", "Ansaid", "Orudis", "Dolobid", "Tolectin", "Lodine", "Nalfon", "Indocin", "Arthrotec", "Vimovo",
+        "Cataflam", "Pennsaid", "Zipsor", "Voltaren Gel"
     )
 
     val SCANNED_MEDICINE_NAMES = listOf(
@@ -242,37 +247,66 @@ object DemoPrescriptionInfo {
         denominator = null
     )
 
-    private val MEDICATION = MedicationPZN(
-        category = SyncedTaskData.MedicationCategory.values().random(),
+    private val MEDICATION = Medication(
+        category = SyncedTaskData.MedicationCategory.entries.toTypedArray().random(),
         vaccine = Random.nextBoolean(),
         text = SYNCED_MEDICATION_NAMES.random(),
         form = codeToFormMapping.random(),
         lotNumber = DEMO_MODE_IDENTIFIER,
         expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
-        uniqueIdentifier = DEMO_MODE_IDENTIFIER,
+        identifier = SyncedTaskData.Identifier(DEMO_MODE_IDENTIFIER),
         normSizeCode = normSizeMappings.random(),
-        amount = RATIO
+        amount = RATIO,
+        ingredientMedications = emptyList(),
+        ingredients = emptyList(),
+        manufacturingInstructions = null,
+        packaging = null
+    )
+
+    private val COVERAGE_TYPE = SyncedTaskData.CoverageType.entries
+        .toTypedArray().random()
+
+    private fun medication(index: Int) = Medication(
+        category = SyncedTaskData.MedicationCategory.entries.toTypedArray().random(),
+        vaccine = Random.nextBoolean(),
+        text = SYNCED_MEDICATION_NAMES.elementAtOrElse(index) { SYNCED_MEDICATION_NAMES.random() },
+        form = codeToFormMapping.random(),
+        lotNumber = DEMO_MODE_IDENTIFIER,
+        expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
+        identifier = SyncedTaskData.Identifier(DEMO_MODE_IDENTIFIER),
+        normSizeCode = normSizeMappings.random(),
+        amount = RATIO,
+        ingredientMedications = emptyList(),
+        ingredients = emptyList(),
+        manufacturingInstructions = null,
+        packaging = null
     )
 
     internal val MEDICATION_DISPENSE = MedicationDispense(
         dispenseId = UUID.randomUUID().toString(),
         patientIdentifier = PATIENT.insuranceIdentifier ?: "",
         medication = MEDICATION,
-        wasSubstituted = false,
+        wasSubstituted = BOOLEAN.random(),
         dosageInstruction = DOSAGE.random(),
         performer = PERFORMERS.random(),
         whenHandedOver = null
     )
 
-    internal val MEDICATION_REQUEST = MedicationRequest(
-        medication = MEDICATION,
+    internal val INSURANCE_INFORMATION = SyncedTaskData.InsuranceInformation(
+        name = null,
+        status = null,
+        coverageType = COVERAGE_TYPE
+    )
+
+    internal fun medicationRequest(index: Int) = MedicationRequest(
+        medication = medication(index),
         dateOfAccident = null,
         location = CITY_NAMES.random(),
-        emergencyFee = Random.nextBoolean(),
+        emergencyFee = BOOLEAN.random(),
         dosageInstruction = DOSAGE.random(),
         multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(),
         note = DOCTORS_NOTES.random(),
-        substitutionAllowed = Random.nextBoolean()
+        substitutionAllowed = BOOLEAN.random()
     )
 
     internal object DemoScannedPrescription {
@@ -302,29 +336,32 @@ object DemoPrescriptionInfo {
         internal fun syncedTask(
             profileIdentifier: ProfileIdentifier,
             status: SyncedTaskData.TaskStatus = SyncedTaskData.TaskStatus.Ready,
+            isDirectAssignment: Boolean = false,
             index: Int
-        ) = SyncedTaskData.SyncedTask(
-            profileId = profileIdentifier,
-            taskId = "$SYNCED_TASK_PRESET.$index",
-            isIncomplete = false,
-            pvsIdentifier = DEMO_MODE_IDENTIFIER,
-            accessCode = DEMO_MODE_IDENTIFIER,
-            lastModified = longerRandomTimeToday,
-            organization = ORGANIZATION,
-            practitioner = PRACTITIONER,
-            patient = PATIENT,
-            insuranceInformation = SyncedTaskData.InsuranceInformation(
-                name = null,
-                status = null
-            ),
-            expiresOn = EXPIRY_DATE,
-            acceptUntil = SHORT_EXPIRY_DATE,
-            authoredOn = NOW,
-            status = status,
-            medicationRequest = MEDICATION_REQUEST,
-            medicationDispenses = listOf(MEDICATION_DISPENSE),
-            communications = emptyList(),
-            failureToReport = ""
-        )
+        ): SyncedTaskData.SyncedTask {
+            val taskId =
+                if (isDirectAssignment) "$DIRECT_ASSIGNMENT_TASK_PRESET.$index" else "$SYNCED_TASK_PRESET.$index"
+            return SyncedTaskData.SyncedTask(
+                profileId = profileIdentifier,
+                taskId = taskId,
+                isIncomplete = false, // making this true makes the prescription defective
+                pvsIdentifier = DEMO_MODE_IDENTIFIER,
+                accessCode = DEMO_MODE_IDENTIFIER,
+                lastModified = longerRandomTimeToday,
+                organization = ORGANIZATION,
+                practitioner = PRACTITIONER,
+                patient = PATIENT,
+                insuranceInformation = INSURANCE_INFORMATION,
+                expiresOn = EXPIRY_DATE,
+                acceptUntil = SHORT_EXPIRY_DATE,
+                authoredOn = NOW,
+                status = status,
+                medicationRequest = medicationRequest(index),
+                lastMedicationDispense = null,
+                medicationDispenses = listOf(MEDICATION_DISPENSE),
+                communications = emptyList(),
+                failureToReport = ""
+            )
+        }
     }
 }

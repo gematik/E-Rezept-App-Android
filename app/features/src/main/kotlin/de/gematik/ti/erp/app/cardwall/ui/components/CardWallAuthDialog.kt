@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.cardwall.ui.components
 
@@ -27,6 +29,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.wrapContentHeight
@@ -58,8 +61,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.trackAuth
@@ -264,7 +265,7 @@ fun CardWallAuthenticationDialog(
                     AuthenticationState.HealthCardPin2RetriesLeft,
                     AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
                     AuthenticationState.HealthCardBlocked -> onUnlockEgk()
-                    else -> if (cardWallController.checkNfcEnabled()) {
+                    else -> if (cardWallController.isNfcEnabled) {
                         coroutineScope.launch {
                             toggleAuth.emit(ToggleAuth.ToggleByUser(true))
                         }
@@ -386,93 +387,85 @@ private fun AuthenticationDialog(
     onCancel: () -> Unit,
     onClickTroubleshooting: (() -> Unit)? = null
 ) {
-    Dialog(
-        onDismissRequest = {},
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false,
-            usePlatformDefaultWidth = false,
-            decorFitsSystemWindows = false
-        )
+    Box(
+        Modifier
+            .testTag(TestTag.CardWall.Nfc.CardReadingDialog)
+            .semantics(false) { }
+            .fillMaxSize()
+            .imePadding()
+            .systemBarsPadding(),
+        contentAlignment = Alignment.BottomCenter
     ) {
-        Box(
-            Modifier
-                .testTag(TestTag.CardWall.Nfc.CardReadingDialog)
-                .semantics(false) { }
-                .fillMaxSize()
-                .systemBarsPadding(),
-            contentAlignment = Alignment.BottomCenter
+        Surface(
+            modifier = Modifier
+                .wrapContentHeight()
+                .fillMaxWidth()
+                .padding(PaddingDefaults.Medium),
+            color = MaterialTheme.colors.surface,
+            shape = RoundedCornerShape(28.dp),
+            elevation = 8.dp
         ) {
-            Surface(
+            val screen = remember(state) {
+                when (state) {
+                    AuthenticationState.AuthenticationFlowInitialized -> 0
+                    AuthenticationState.HealthCardCommunicationChannelReady,
+                    AuthenticationState.HealthCardCommunicationTrustedChannelEstablished,
+                    AuthenticationState.HealthCardCommunicationCertificateLoaded,
+                    AuthenticationState.HealthCardCommunicationFinished,
+                    AuthenticationState.IDPCommunicationFinished,
+                    AuthenticationState.AuthenticationFlowFinished -> 1
+
+                    AuthenticationState.HealthCardCommunicationInterrupted -> 2
+                    else -> 1
+                }
+            }
+
+            Column(
                 modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-                    .padding(PaddingDefaults.Medium),
-                color = MaterialTheme.colors.surface,
-                shape = RoundedCornerShape(28.dp),
-                elevation = 8.dp
+                    .padding(24.dp)
+                    .wrapContentSize()
+                    .testTag("cdw_auth_nfc_bottom_sheet"),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                val screen = remember(state) {
-                    when (state) {
-                        AuthenticationState.AuthenticationFlowInitialized -> 0
-                        AuthenticationState.HealthCardCommunicationChannelReady,
-                        AuthenticationState.HealthCardCommunicationTrustedChannelEstablished,
-                        AuthenticationState.HealthCardCommunicationCertificateLoaded,
-                        AuthenticationState.HealthCardCommunicationFinished,
-                        AuthenticationState.IDPCommunicationFinished,
-                        AuthenticationState.AuthenticationFlowFinished -> 1
-                        AuthenticationState.HealthCardCommunicationInterrupted -> 2
-                        else -> 1
-                    }
-                }
-
-                Column(
-                    modifier = Modifier
-                        .padding(24.dp)
-                        .wrapContentSize()
-                        .testTag("cdw_auth_nfc_bottom_sheet"),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                TextButton(
+                    enabled = onCancelEnabled,
+                    onClick = onCancel
                 ) {
-                    TextButton(
-                        enabled = onCancelEnabled,
-                        onClick = onCancel
-                    ) {
-                        Text(stringResource(R.string.cdw_nfc_dlg_cancel).uppercase(Locale.getDefault()))
-                    }
-                    CardAnimationBox(screen)
-
-                    // how to hold your card
-                    val rotatingScanCardAssistance = rotatingScanCardAssistance()
-
-                    var info by remember { mutableStateOf(rotatingScanCardAssistance.first()) }
-
-                    LaunchedEffect(state) {
-                        if (state == AuthenticationState.AuthenticationFlowInitialized) {
-                            var i = 0
-                            while (true) {
-                                info = rotatingScanCardAssistance[i]
-
-                                i = if (i < rotatingScanCardAssistance.size - 1) {
-                                    i + 1
-                                } else {
-                                    0
-                                }
-
-                                delay(5000)
-                            }
-                        }
-                    }
-
-                    info = extractInfo(state) ?: info
-
-                    InfoText(
-                        showTroubleshooting,
-                        info,
-                        onClickTroubleshooting = {
-                            onClickTroubleshooting?.run { onClickTroubleshooting() }
-                        }
-                    )
+                    Text(stringResource(R.string.cdw_nfc_dlg_cancel).uppercase(Locale.getDefault()))
                 }
+                CardAnimationBox(screen)
+
+                // how to hold your card
+                val rotatingScanCardAssistance = rotatingScanCardAssistance()
+
+                var info by remember { mutableStateOf(rotatingScanCardAssistance.first()) }
+
+                LaunchedEffect(state) {
+                    if (state == AuthenticationState.AuthenticationFlowInitialized) {
+                        var i = 0
+                        while (true) {
+                            info = rotatingScanCardAssistance[i]
+
+                            i = if (i < rotatingScanCardAssistance.size - 1) {
+                                i + 1
+                            } else {
+                                0
+                            }
+
+                            delay(5000)
+                        }
+                    }
+                }
+
+                info = extractInfo(state) ?: info
+
+                InfoText(
+                    showTroubleshooting,
+                    info,
+                    onClickTroubleshooting = {
+                        onClickTroubleshooting?.run { onClickTroubleshooting() }
+                    }
+                )
             }
         }
     }

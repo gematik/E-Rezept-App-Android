@@ -1,22 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-@file:Suppress("LongMethod", "MagicNumber")
+@file:Suppress("LongMethod", "MagicNumber", "TooManyFunctions")
 
 package de.gematik.ti.erp.app.base
 
@@ -37,7 +37,6 @@ import androidx.appcompat.view.ContextThemeWrapper
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.setMargins
 import androidx.core.view.updateLayoutParams
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.snackbar.Snackbar
@@ -47,12 +46,14 @@ import de.gematik.ti.erp.app.OlderSdkDomainVerifier
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.Sdk31DomainVerifier
 import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.app.ApplicationInnerPadding
 import de.gematik.ti.erp.app.appupdate.usecase.AppUpdateInfoUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.CheckVersionUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerUseCase
+import de.gematik.ti.erp.app.base.usecase.UpdateInAppMessageUseCase
 import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.debugOverrides
 import de.gematik.ti.erp.app.demomode.DefaultDemoModeObserver
@@ -61,6 +62,8 @@ import de.gematik.ti.erp.app.demomode.di.demoModeModule
 import de.gematik.ti.erp.app.demomode.di.demoModeOverrides
 import de.gematik.ti.erp.app.features.BuildConfig
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.medicationplan.DefaultShowMedicationPlanSuccessScreenObserver
+import de.gematik.ti.erp.app.medicationplan.ShowMedicationPlanSuccessObserver
 import de.gematik.ti.erp.app.timeouts.usecase.GetPauseMetricUseCase
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
@@ -70,6 +73,7 @@ import io.github.aakira.napier.Napier
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flowOn
@@ -83,13 +87,15 @@ import org.kodein.di.android.retainedSubDI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
+private const val SNACKBAR_LINES = 3
+
 open class BaseActivity :
     SnackbarScaffold,
     DialogScaffold,
     DIAware,
     AppCompatActivity(),
-    DemoModeObserver by DefaultDemoModeObserver() {
-
+    DemoModeObserver by DefaultDemoModeObserver(),
+    ShowMedicationPlanSuccessObserver by DefaultShowMedicationPlanSuccessScreenObserver() {
     override val di by retainedSubDI(closestDI(), copy = Copy.All) {
         // should be only done from feature module
         import(demoModeModule)
@@ -97,6 +103,7 @@ open class BaseActivity :
         when {
             BuildConfig.DEBUG && BuildKonfig.INTERNAL -> {
                 debugOverrides()
+                fullDescriptionOnError = true
                 fullContainerTreeOnError = true
             }
         }
@@ -111,47 +118,49 @@ open class BaseActivity :
     }
 
     private val checkVersionUseCase: CheckVersionUseCase by instance()
-
     private val getAppUpdateManagerFlagUseCase: GetAppUpdateManagerFlagUseCase by instance()
-
     private val appUpdateInfoUseCase: AppUpdateInfoUseCase by instance()
-
     private val pauseTimeoutUseCase: GetPauseMetricUseCase by instance()
-
     private val inactivityTimeoutObserver: InactivityTimeoutObserver by instance()
-
     private val changeAppUpdateFlagUseCase: ChangeAppUpdateFlagUseCase by instance()
-
     private val updateManagerUseCase: GetAppUpdateManagerUseCase by instance()
-
-    val getAppUpdateFlagUseCase: GetAppUpdateFlagUseCase by instance()
-
-    val analytics: Analytics by instance()
-
-    val intentHandler = IntentHandler(this@BaseActivity)
-
-    // This is needed to be declared here so that the dialog can be cancelled on-pause
-    private var dialog: Dialog? = null
-
+    private val updateInAppMessageUseCase: UpdateInAppMessageUseCase by instance()
     private val _nfcTag = MutableSharedFlow<Tag>()
 
+    val analytics: Analytics by instance()
+    val getAppUpdateFlagUseCase: GetAppUpdateFlagUseCase by instance()
+    val intentHandler = IntentHandler(this@BaseActivity)
+
+    // This is needed to be declared here so that the dialog can be cancelled on-pause and when needed
+    var dialog: Dialog? = null
+
     private var pauseTimerHandler: Handler = Handler(Looper.getMainLooper())
+
+    // this is a control variable to disable the zoom on screens which don't need them
+    val disableZoomTemporarily = MutableStateFlow(false)
+
+    // this value is added to provide screens with the extra padding that they require since the app is inside a scaffold
+    var applicationInnerPadding: ApplicationInnerPadding? = null
 
     /**
      * A [Runnable] that makes the app require an authentication
      */
     @Requirement(
-        "O.Auth_7",
-        "O.Plat_12",
+        "O.Auth_8#2",
+        "O.Plat_9#3",
         sourceSpecification = "BSI-eRp-ePA",
-        rationale = "The LifeCycleState of the app is monitored. If the app stopped, the authentication " +
-            "process starts after a delay of 30 seconds. We opted for this delay for usability reasons, " +
-            "as selecting the profile picture and external authentication requires pausing the app."
+        rationale = "The timer forces the app to require authentication after a certain time of inactivity.",
+        codeLines = 5
     )
     private val pauseTimerRunnable = Runnable {
         inactivityTimeoutObserver.forceRequireAuthentication()
     }
 
+    @Requirement(
+        "O.Auth_8#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "The timer to pause the app after 30 seconds is started when the app is paused."
+    )
     override fun onPause() {
         super.onPause()
         // cancel the dialog when pausing since it might show up security concerns
@@ -170,12 +179,10 @@ open class BaseActivity :
         inactivityTimeoutObserver.resetInactivityTimer()
     }
 
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         lifecycleScope.launch {
-            intent?.let {
-                intentHandler.propagateIntent(it)
-            }
+            intentHandler.propagateIntent(intent)
         }
     }
 
@@ -219,6 +226,7 @@ open class BaseActivity :
         @ColorRes backgroundTint: Int
     ) {
         val snackbar = Snackbar.make(findViewById(android.R.id.content), text, length)
+        snackbar.setTextMaxLines(SNACKBAR_LINES)
         val theme = ContextThemeWrapper(
             applicationContext,
             R.style.ThemeOverlay_MaterialAlertDialog_Rounded
@@ -235,7 +243,7 @@ open class BaseActivity :
             width = CoordinatorLayout.LayoutParams.MATCH_PARENT
             height = CoordinatorLayout.LayoutParams.WRAP_CONTENT
             gravity = Gravity.BOTTOM
-            setMargins(24)
+            setMargins(24, 0, 24, 144)
         }
         snackbar.show()
     }
@@ -277,6 +285,10 @@ open class BaseActivity :
         }
     }
 
+    suspend fun updateInAppMessage() {
+        updateInAppMessageUseCase.invoke()
+    }
+
     // Flow on a non main thread to avoid ANR
     val nfcTagFlow: Flow<Tag>
         get() = _nfcTag.onStart {
@@ -284,6 +296,7 @@ open class BaseActivity :
         }.flowOn(Dispatchers.IO)
 
     companion object {
+
         private fun BaseActivity.isNfcNotEnabled() = !NfcAdapter.getDefaultAdapter(this).isEnabled
 
         fun BaseActivity.throwExceptionOnNfcNotEnabled() {

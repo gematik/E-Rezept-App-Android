@@ -1,28 +1,32 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.presentation
 
+import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.DispatchProvider
+import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.prescription.ui.ScannedCode
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeProcessor
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeScanner
@@ -87,9 +91,15 @@ class ScanPrescriptionController(
     val processor: TwoDCodeProcessor,
     private val validator: TwoDCodeValidator,
     dispatchers: DispatchProvider,
+    private val context: Context,
     private val scope: CoroutineScope
 ) {
-
+    @Requirement(
+        "O.Data_6#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Collected data is stored only till the lifecycle of the viewmodel",
+        codeLines = 3
+    )
     private val scannedCodes = MutableStateFlow(listOf<ValidScannedCode>())
     var vibration = MutableSharedFlow<ScanData.VibrationPattern>()
         private set
@@ -229,7 +239,10 @@ class ScanPrescriptionController(
             getActiveProfileUseCase().collectLatest { profile ->
                 prescriptionUseCase.saveScannedCodes(
                     profile.id,
-                    scannedCodes.value
+                    scannedCodes.value,
+                    context.getString(
+                        R.string.pres_details_scanned_medication
+                    )
                 )
             }
         }
@@ -244,6 +257,7 @@ fun rememberScanPrescriptionController(): ScanPrescriptionController {
     val processor by rememberInstance<TwoDCodeProcessor>()
     val validator by rememberInstance<TwoDCodeValidator>()
     val dispatchers by rememberInstance<DispatchProvider>()
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     return remember {
         ScanPrescriptionController(
@@ -253,6 +267,7 @@ fun rememberScanPrescriptionController(): ScanPrescriptionController {
             processor = processor,
             validator = validator,
             dispatchers = dispatchers,
+            context = context,
             scope
         )
     }

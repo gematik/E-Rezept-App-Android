@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.utils.compose
@@ -22,15 +22,14 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.text.selection.DisableSelection
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
-import androidx.compose.material.OutlinedTextField
-import androidx.compose.material.TextFieldColors
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Visibility
 import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material.icons.rounded.Check
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -54,13 +53,21 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.extensions.disableCopyPasteFromKeyboard
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Requirement(
-    "O.Data_10#1",
     "O.Data_11#1",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Password field using the  keyboard type password. Copying the content is not possible " +
-        "with this type. Autocorrect is disallowed. It`s not possible to disable third party keyboards."
+    rationale = "Password field using the  keyboard type password. " +
+        "Autocorrect is disallowed. It`s not possible to disable third party keyboards."
+)
+@Requirement(
+    "O.Data_10#2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "..using the autofill disabled keyboard options for password entry.",
+    codeLines = 70
 )
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -74,7 +81,7 @@ fun PasswordTextField(
     allowAutofill: Boolean = false,
     allowVisiblePassword: Boolean = false,
     label: @Composable (() -> Unit)? = null,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors()
+    colors: TextFieldColors = erezeptTextFieldColors()
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
 
@@ -102,53 +109,56 @@ fun PasswordTextField(
     val passwordIsNotVisible = stringResource(R.string.password_is_not_visible)
     val passwordIsVisible = stringResource(R.string.password_is_visible)
 
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier
-            .heightIn(min = 56.dp)
-            .then(autofillModifier)
-            .semantics {
-                contentDescription = if (passwordVisible) {
-                    passwordIsVisible
-                } else {
-                    passwordIsNotVisible
-                }
-            },
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(autoCorrect = false, keyboardType = KeyboardType.Password),
-        keyboardActions = KeyboardActions {
-            onSubmit()
-        },
-        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-        trailingIcon = {
-            if (isConsistent) {
-                Icon(
-                    Icons.Rounded.Check,
-                    stringResource(R.string.consistent_password)
-                )
-            } else if (allowVisiblePassword) {
-                IconButton(
-                    onClick = { passwordVisible = !passwordVisible }
-                ) {
-                    when (passwordVisible) {
-                        true -> Icon(
-                            Icons.Outlined.Visibility,
-                            stringResource(R.string.settings_password_acc_show_password_toggle)
-                        )
-                        false -> Icon(
-                            Icons.Outlined.VisibilityOff,
-                            stringResource(R.string.settings_password_acc_show_password_toggle)
-                        )
+    DisableSelection {
+        ErezeptOutlineText(
+            value = value,
+            onValueChange = onValueChange,
+            modifier = modifier
+                .heightIn(min = 56.dp)
+                .then(autofillModifier)
+                .semantics {
+                    contentDescription = if (passwordVisible) {
+                        passwordIsVisible
+                    } else {
+                        passwordIsNotVisible
                     }
                 }
-            }
-        },
-        isError = isError,
-        label = label,
-        shape = RoundedCornerShape(8.dp),
-        colors = colors
-    )
+                .disableCopyPasteFromKeyboard(),
+            singleLine = true,
+            keyboardOptions = autofillDisabledPasswordKeyboardOptions(),
+            keyboardActions = KeyboardActions {
+                onSubmit()
+            },
+            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+            trailingIcon = {
+                if (isConsistent) {
+                    Icon(
+                        Icons.Rounded.Check,
+                        stringResource(R.string.consistent_password)
+                    )
+                } else if (allowVisiblePassword) {
+                    IconButton(
+                        onClick = { passwordVisible = !passwordVisible }
+                    ) {
+                        when (passwordVisible) {
+                            true -> Icon(
+                                Icons.Outlined.Visibility,
+                                stringResource(R.string.settings_password_show_password_toggle)
+                            )
+                            false -> Icon(
+                                Icons.Outlined.VisibilityOff,
+                                stringResource(R.string.settings_password_show_password_toggle)
+                            )
+                        }
+                    }
+                }
+            },
+            isError = isError,
+            label = label,
+            shape = RoundedCornerShape(SizeDefaults.one),
+            colors = colors
+        )
+    }
 }
 
 @LightDarkPreview
@@ -164,3 +174,13 @@ fun PasswordTextFieldPreview() {
         )
     }
 }
+
+@Requirement(
+    "O.Data_10#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "By disabling autofill we eliminate any recordings that can be done while typing the keyboard."
+)
+private fun autofillDisabledPasswordKeyboardOptions() = KeyboardOptions(
+    autoCorrect = false,
+    keyboardType = KeyboardType.Password
+)

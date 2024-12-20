@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.demomode.repository.prescriptions
@@ -23,6 +23,7 @@ import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.model.DemoModeSentCommunicationJson
 import de.gematik.ti.erp.app.demomode.model.toDemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -35,10 +36,14 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
+
+private const val NOT_FOUND = -1
 
 class DemoPrescriptionsRepository(
     private val dataSource: DemoModeDataSource,
@@ -46,12 +51,16 @@ class DemoPrescriptionsRepository(
 ) : PrescriptionRepository {
     override suspend fun saveScannedTasks(
         profileId: ProfileIdentifier,
-        tasks: List<ScannedTask>
+        tasks: List<ScannedTask>,
+        medicationString: String
     ) {
+        val updatedTasksWithNames = tasks.mapIndexed { index, scannedTask ->
+            scannedTask.copy(name = "$medicationString ${index + 1}")
+        }
         withContext(dispatcher) {
             dataSource.scannedTasks.value = dataSource.scannedTasks.updateAndGet {
                 val scannedList = it.toMutableList()
-                scannedList.addAll(tasks)
+                scannedList.addAll(updatedTasksWithNames)
                 scannedList
             }
         }
@@ -68,8 +77,8 @@ class DemoPrescriptionsRepository(
     override suspend fun redeemPrescription(
         profileId: ProfileIdentifier,
         communication: JsonElement,
-        accessCode: String?
-    ): Result<Unit> =
+        accessCode: String
+    ): Result<JsonElement> =
         withContext(dispatcher) {
             val decodedCommunication = Json
                 .decodeFromJsonElement<DemoModeSentCommunicationJson>(communication)
@@ -78,10 +87,35 @@ class DemoPrescriptionsRepository(
                 communications.add(decodedCommunication)
                 communications
             }
-            Result.success(Unit)
+            // change the status of the prescription to in progress
+            dataSource.syncedTasks.value = dataSource.syncedTasks.updateAndGet { syncedList ->
+                val index = syncedList.indexOfFirst { profileId == it.profileId && it.taskId == decodedCommunication.taskId }
+                if (index != NOT_FOUND) {
+                    val updatedItem = syncedList[index].copy(
+                        status = SyncedTaskData.TaskStatus.InProgress,
+                        lastModified = Clock.System.now()
+                    )
+                    syncedList[index] = updatedItem
+                }
+                syncedList
+            }
+            dataSource.scannedTasks.value = dataSource.scannedTasks.updateAndGet { scannedList ->
+                val index = scannedList.indexOfFirst { profileId == it.profileId && it.taskId == decodedCommunication.taskId }
+                if (index != NOT_FOUND) {
+                    val updatedItem = scannedList[index].copy(
+                        redeemedOn = Clock.System.now()
+                    )
+                    scannedList[index] = updatedItem
+                }
+                scannedList
+            }
+            Result.success(JsonPrimitive(true)) // sending some random json response
         }
 
-    override suspend fun deleteTaskByTaskId(profileId: ProfileIdentifier, taskId: String): Result<Unit> =
+    override suspend fun deleteRemoteTaskById(
+        profileId: ProfileIdentifier,
+        taskId: String
+    ): Result<JsonElement?> =
         withContext(dispatcher) {
             dataSource.syncedTasks.value = dataSource.syncedTasks.updateAndGet { syncedList ->
                 syncedList.removeIf { it.taskId == taskId && it.profileId == profileId }
@@ -93,7 +127,7 @@ class DemoPrescriptionsRepository(
                     .removeIf { scannedItem -> scannedItem.taskId == taskId && scannedItem.profileId == profileId }
                 scannedList
             }
-            Result.success(Unit)
+            Result.success(null)
         }
 
     // used only for scanned
@@ -142,4 +176,22 @@ class DemoPrescriptionsRepository(
                 syncedTasks.mapNotNull { it.taskId }
             )
         }.flowOn(dispatcher)
+
+    override suspend fun deleteLocalTaskById(taskId: String) {
+        // do nothing
+    }
+
+    override suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean {
+        return true
+    }
+
+    override suspend fun redeemScannedTasks(taskIds: List<String>) {
+        // do nothing
+    }
+
+    override fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>> = loadTaskIds()
+
+    override suspend fun deleteLocalInvoicesById(taskId: String) {
+        // do nothing
+    }
 }

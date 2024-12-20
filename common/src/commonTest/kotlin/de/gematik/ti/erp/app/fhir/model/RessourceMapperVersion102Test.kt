@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
@@ -98,11 +98,10 @@ class RessourceMapperVersion102Test {
                 ReturnType.Ratio
             },
             processMedication = {
-                    text, medicationProfile, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                    text, medicationCategory, form, amount, vaccine,
+                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier, ingredientMedication,
                     ingredients, lotnumber, expirationDate ->
                 assertEquals("Ich bin in Einlösung", text)
-                assertEquals(MedicationProfile.PZN, medicationProfile)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("IHP", form)
                 assertEquals(ReturnType.Ratio, amount)
@@ -110,7 +109,7 @@ class RessourceMapperVersion102Test {
                 assertEquals(null, manufacturingInstructions)
                 assertEquals(null, packaging)
                 assertEquals("N1", normSizeCode)
-                assertEquals("00427833", uniqueIdentifier)
+                assertEquals("00427833", uniqueIdentifier.pzn)
                 assertEquals(listOf(), ingredients)
                 assertEquals(null, lotnumber)
                 assertEquals(null, expirationDate)
@@ -133,20 +132,20 @@ class RessourceMapperVersion102Test {
                 assertEquals(ReturnType.Quantity, denominator)
                 ReturnType.Ratio
             },
-            ingredientFn = { text, form, number, amount, strength ->
+            ingredientFn = { text, form, identifier, amount, strength ->
                 assertEquals("Wirkstoff Paulaner Weissbier", text)
                 assertEquals(null, form)
                 assertEquals(null, amount)
-                assertEquals("37197", number)
+                assertEquals(Identifier(ask = "37197"), identifier)
                 assertEquals(ReturnType.Ratio, strength)
                 ReturnType.Ingredient
             },
             processMedication = {
-                    text, medicationProfile, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                    text, medicationCategory, form, amount, vaccine,
+                    manufacturingInstructions, packaging, normSizeCode, identifier,
+                    _,
                     ingredients, lotNumber, expirationDate ->
                 assertEquals(null, text)
-                assertEquals(MedicationProfile.INGREDIENT, medicationProfile)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Flüssigkeiten", form)
                 assertEquals(null, amount)
@@ -154,7 +153,7 @@ class RessourceMapperVersion102Test {
                 assertEquals(null, manufacturingInstructions)
                 assertEquals(null, packaging)
                 assertEquals("N1", normSizeCode)
-                assertEquals(null, uniqueIdentifier)
+                assertEquals(Identifier(), identifier)
                 assertEquals(listOf(ReturnType.Ingredient), ingredients)
 
                 assertEquals(null, lotNumber)
@@ -181,11 +180,10 @@ class RessourceMapperVersion102Test {
                 ReturnType.Ingredient
             },
             processMedication = {
-                    text, medicationProfile, medicationCategory, form, amount, vaccine,
+                    text, medicationCategory, form, amount, vaccine,
                     manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
-                    ingredients, lotNumber, expirationDate ->
+                    ingredientMedication, ingredients, lotNumber, expirationDate ->
                 assertEquals(null, text)
-                assertEquals(MedicationProfile.COMPOUNDING, medicationProfile)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Lösung", form)
                 assertEquals(ReturnType.Ratio, amount)
@@ -193,7 +191,7 @@ class RessourceMapperVersion102Test {
                 assertEquals(null, manufacturingInstructions)
                 assertEquals(null, packaging)
                 assertEquals(null, normSizeCode)
-                assertEquals(null, uniqueIdentifier)
+                assertEquals(Identifier(), uniqueIdentifier)
                 assertEquals(listOf(ReturnType.Ingredient, ReturnType.Ingredient), ingredients)
 
                 assertEquals(null, lotNumber)
@@ -216,11 +214,10 @@ class RessourceMapperVersion102Test {
                 ReturnType.Ratio
             },
             processMedication = {
-                    text, medicationProfile, medicationCategory, form, amount, vaccine,
+                    text, medicationCategory, form, amount, vaccine,
                     manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
-                    ingredients, lotNumber, expirationDate ->
+                    ingredientMedication, ingredients, lotNumber, expirationDate ->
                 assertEquals("Freitext", text)
-                assertEquals(MedicationProfile.FREETEXT, medicationProfile)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals(null, form)
                 assertEquals(null, amount)
@@ -228,9 +225,8 @@ class RessourceMapperVersion102Test {
                 assertEquals(null, manufacturingInstructions)
                 assertEquals(null, packaging)
                 assertEquals(null, normSizeCode)
-                assertEquals(null, uniqueIdentifier)
+                assertEquals(Identifier(), uniqueIdentifier)
                 assertEquals(listOf(), ingredients)
-
                 assertEquals(null, lotNumber)
                 assertEquals(null, expirationDate)
                 ReturnType.Medication

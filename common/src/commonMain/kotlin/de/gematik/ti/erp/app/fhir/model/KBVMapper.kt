@@ -1,26 +1,27 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.serialization.json.JsonElement
 
 typealias AddressFn<R> = (
@@ -53,7 +54,8 @@ typealias PractitionerFn<R> = (
 
 typealias InsuranceInformationFn<R> = (
     name: String?,
-    statusCode: String?
+    statusCode: String?,
+    typeCode: String
 ) -> R
 
 typealias MedicationRequestFn<R, MultiplePrescriptionInfo> = (
@@ -78,9 +80,8 @@ typealias MultiplePrescriptionInfoFn<R, Ratio> = (
     end: FhirTemporal?
 ) -> R
 
-typealias MedicationFn<R, Ingredient, Ratio> = (
+typealias MedicationFn<R, Medication, Ingredient, Ratio> = (
     text: String?,
-    medicationProfile: MedicationProfile,
     medicationCategory: MedicationCategory,
     form: String?,
     amount: Ratio?,
@@ -88,7 +89,8 @@ typealias MedicationFn<R, Ingredient, Ratio> = (
     manufacturingInstructions: String?,
     packaging: String?,
     normSizeCode: String?,
-    uniqueIdentifier: String?,
+    uniqueIdentifier: Identifier,
+    ingredientMedications: List<Medication>,
     ingredients: List<Ingredient>,
     lotNumber: String?,
     expirationDate: FhirTemporal?
@@ -97,7 +99,7 @@ typealias MedicationFn<R, Ingredient, Ratio> = (
 typealias IngredientFn<R, Ratio> = (
     text: String,
     form: String?,
-    number: String?,
+    identifier: Identifier,
     amount: String?,
     strength: Ratio?
 ) -> R
@@ -128,7 +130,23 @@ enum class AccidentType {
 }
 
 enum class MedicationProfile {
-    PZN, COMPOUNDING, INGREDIENT, FREETEXT, UNKNOWN
+    PZN, COMPOUNDING, INGREDIENT, FREETEXT, UNKNOWN, EPA
+}
+
+data class Identifier(
+    val pzn: String? = null,
+    val atc: String? = null,
+    val ask: String? = null,
+    val snomed: String? = null
+) {
+    fun toIdentifierEntityV1(): IdentifierEntityV1 {
+        return IdentifierEntityV1().apply {
+            pzn = this@Identifier.pzn
+            atc = this@Identifier.atc
+            ask = this@Identifier.ask
+            snomed = this@Identifier.snomed
+        }
+    }
 }
 
 @Suppress("LongParameterList")
@@ -140,7 +158,7 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
     processPractitioner: PractitionerFn<Practitioner>,
     processInsuranceInformation: InsuranceInformationFn<InsuranceInformation>,
     processAddress: AddressFn<Address>,
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
     processIngredient: IngredientFn<Ingredient, Ratio>,
     processRatio: RatioFn<Ratio, Quantity>,
     processQuantity: QuantityFn<Quantity>,
@@ -164,20 +182,20 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",
             "1.0.2"
         ) -> extractKBVBundleVersion102(
-            bundle,
-            processOrganization,
-            processPatient,
-            processPractitioner,
-            processInsuranceInformation,
-            processAddress,
-            processMedication,
-            processIngredient,
-            processRatio,
-            processQuantity,
-            processMultiplePrescriptionInfo,
-            processMedicationRequest,
-            savePVSIdentifier,
-            save
+            bundle = bundle,
+            processOrganization = processOrganization,
+            processPatient = processPatient,
+            processPractitioner = processPractitioner,
+            processInsuranceInformation = processInsuranceInformation,
+            processAddress = processAddress,
+            processMedication = processMedication,
+            processIngredient = processIngredient,
+            processRatio = processRatio,
+            processQuantity = processQuantity,
+            processMultiplePrescriptionInfo = processMultiplePrescriptionInfo,
+            processMedicationRequest = processMedicationRequest,
+            savePVSIdentifier = savePVSIdentifier,
+            save = save
         )
         profileString.isProfileValue(
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",

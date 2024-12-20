@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.detail.ui
@@ -29,6 +29,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -37,6 +38,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
@@ -45,13 +47,16 @@ import de.gematik.ti.erp.app.insuranceState
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.statusMapping
+import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.UiStateMachine
+import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.extensions.temporalText
 import kotlinx.datetime.TimeZone
 
@@ -62,30 +67,47 @@ class PrescriptionDetailPatientScreen(
     @Composable
     override fun Content() {
         val taskId = remember {
-            requireNotNull(
-                navBackStackEntry.arguments?.getString(PrescriptionDetailRoutes.TaskId)
+            navBackStackEntry.arguments?.getString(
+                PrescriptionDetailRoutes.PRESCRIPTION_DETAIL_NAV_TASK_ID
             )
-        }
+        } ?: ""
         val prescriptionDetailsController = rememberPrescriptionDetailController(taskId)
-        val prescription by prescriptionDetailsController.prescriptionState
-        val syncedPrescription = prescription as? PrescriptionData.Synced
-        val patient = syncedPrescription?.patient
-        val insurance = syncedPrescription?.insurance
-        val listState = rememberLazyListState()
-        AnimatedElevationScaffold(
-            modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.Screen),
-            topBarTitle = stringResource(R.string.pres_detail_patient_header),
-            listState = listState,
-            onBack = navController::popBackStack,
-            navigationMode = NavigationBarMode.Back
-        ) { innerPadding ->
-            PrescriptionDetailPatientScreenContent(
-                listState,
-                innerPadding,
-                patient,
-                insurance
-            )
-        }
+        val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
+
+        UiStateMachine(
+            state = profilePrescriptionData,
+            onLoading = {
+                Center {
+                    CircularProgressIndicator()
+                }
+            },
+            onEmpty = {
+                ErrorScreenComponent()
+            },
+            onError = {
+                ErrorScreenComponent()
+            },
+            onContent = { (_, prescription) ->
+                val syncedPrescription = prescription as? PrescriptionData.Synced
+                val patient = syncedPrescription?.patient
+                val insurance = syncedPrescription?.insurance
+                val listState = rememberLazyListState()
+                AnimatedElevationScaffold(
+                    modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.Screen),
+                    topBarTitle = stringResource(R.string.pres_detail_patient_header),
+                    listState = listState,
+                    onBack = navController::popBackStack,
+                    navigationMode = NavigationBarMode.Back
+                ) { innerPadding ->
+                    PrescriptionDetailPatientScreenContent(
+                        listState,
+                        innerPadding,
+                        patient,
+                        insurance
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -98,7 +120,8 @@ private fun PrescriptionDetailPatientScreenContent(
 ) {
     val noValueText = stringResource(R.string.pres_details_no_value)
     LazyColumn(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxSize()
             .padding(innerPadding)
             .testTag(TestTag.Prescriptions.Details.Patient.Content),
@@ -130,7 +153,8 @@ private fun PrescriptionDetailPatientScreenContent(
         item {
             Label(
                 modifier = Modifier.testTag(TestTag.Prescriptions.Details.Patient.BirthDate),
-                text = remember(LocalConfiguration.current, patient) {
+                text =
+                remember(LocalConfiguration.current, patient) {
                     patient?.birthdate?.let {
                         temporalText(it, TimeZone.currentSystemDefault())
                     } ?: noValueText
@@ -147,7 +171,8 @@ private fun PrescriptionDetailPatientScreenContent(
         }
         item {
             Label(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .testTag(TestTag.Prescriptions.Details.Patient.InsuranceState)
                     .semantics {
                         insuranceState = insurance?.status

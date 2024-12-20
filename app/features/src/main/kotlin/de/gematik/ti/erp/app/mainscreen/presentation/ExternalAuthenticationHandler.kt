@@ -1,25 +1,25 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.mainscreen.presentation
 
 import androidx.compose.runtime.Stable
-import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.core.GidResultIntent
 import de.gematik.ti.erp.app.idp.model.error.DecryptAccessTokenError
 import de.gematik.ti.erp.app.idp.model.error.SingleSignOnTokenError
 import de.gematik.ti.erp.app.idp.model.error.UniversalLinkError
@@ -54,18 +54,14 @@ class ExternalAuthenticationHandler(
     /**
      * Handles an incoming intent. Updates the [handlerState] to Success if it can be handled.
      */
-    @Requirement(
-        "O.Plat_10#2",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "handle incoming intent"
-    )
-    suspend fun handle(value: String) =
+    suspend fun handle(intent: GidResultIntent) =
         try {
             handlerState.value = AuthenticationHandlerState.Loading
-            Napier.d("Authenticate external ...")
-            idpUseCase.invoke(URI(value))
+            Napier.i("Authenticate with GID ...")
+            idpUseCase.invoke(URI(intent.uriData))
             handlerState.value = AuthenticationHandlerState.Success
-            Napier.d("... authenticated")
+            intent.resultChannel.send(intent.uriData) // the result is sent here, after the idpUseCase saves the token
+            Napier.i("... authenticated")
         } catch (e: Throwable) {
             when (e) {
                 is DecryptAccessTokenError -> handlerState.value = AuthenticationHandlerState.AuthTokenNotSaved

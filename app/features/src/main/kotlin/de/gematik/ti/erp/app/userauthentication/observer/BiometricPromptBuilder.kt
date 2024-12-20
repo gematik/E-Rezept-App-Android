@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.userauthentication.observer
@@ -22,23 +22,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
-import de.gematik.ti.erp.app.Requirement
 import io.github.aakira.napier.Napier
 
-@Requirement(
-    "A_21584",
-    sourceSpecification = "gemSpec_IDP_Frontend",
-    rationale = "Only biometric means provided by the operating system are used."
-)
 open class BiometricPromptBuilder(val activity: AppCompatActivity) {
     private val executor = ContextCompat.getMainExecutor(activity)
     private val biometricManager = BiometricManager.from(activity)
-    private val authenticators = fetchAuthenticators(biometricManager)
+    private val authenticators = bestSecureOption(biometricManager)
 
     private fun authenticationCallback(
         onSuccess: () -> Unit,
         onFailure: (() -> Unit)? = null,
-        onError: (() -> Unit)? = null
+        onError: ((String, Int) -> Unit)? = null
     ): BiometricPrompt.AuthenticationCallback = object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationFailed() {
             super.onAuthenticationFailed()
@@ -49,13 +43,13 @@ open class BiometricPromptBuilder(val activity: AppCompatActivity) {
             onFailure?.invoke()
         }
 
-        override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {
-            super.onAuthenticationError(errorCode, errString)
+        override fun onAuthenticationError(errorCode: Int, systemMessage: CharSequence) {
+            super.onAuthenticationError(errorCode, systemMessage)
             Napier.i(
                 tag = "BiometricPrompt",
-                message = "authentication error $errString"
+                message = "authentication error $systemMessage"
             )
-            onError?.invoke()
+            onError?.invoke(systemMessage.toString(), errorCode)
         }
 
         override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
@@ -68,7 +62,7 @@ open class BiometricPromptBuilder(val activity: AppCompatActivity) {
         }
     }
 
-    fun buildPromptInfo(
+    fun buildPromptInfoWithBestSecureOption(
         title: String,
         description: String = "",
         negativeButton: String
@@ -80,40 +74,44 @@ open class BiometricPromptBuilder(val activity: AppCompatActivity) {
                 setNegativeButtonText(negativeButton)
             }
         }.setAllowedAuthenticators(authenticators)
+        .setConfirmationRequired(false)
+        .build()
+
+    fun buildPromptInfoWithAllAuthenticatorsAvailable(
+        title: String,
+        description: String = ""
+    ): BiometricPrompt.PromptInfo = BiometricPrompt.PromptInfo.Builder()
+        .setTitle(title)
+        .setDescription(description)
+        .setAllowedAuthenticators(
+            BiometricManager.Authenticators.BIOMETRIC_STRONG
+                or BiometricManager.Authenticators.BIOMETRIC_WEAK
+                or BiometricManager.Authenticators.DEVICE_CREDENTIAL
+        )
+        .setConfirmationRequired(false)
         .build()
 
     fun buildBiometricPrompt(
         onSuccess: () -> Unit,
         onFailure: (() -> Unit)? = null,
-        onError: (() -> Unit)? = null
+        onError: ((String, Int) -> Unit)? = null
     ): BiometricPrompt = BiometricPrompt(activity, executor, authenticationCallback(onSuccess, onFailure, onError))
 
-    @Requirement(
-        "A_21582",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Selection of the best available authentication option on the device."
-    )
     @Suppress("ReturnCount")
-    private fun fetchAuthenticators(biometricManager: BiometricManager): Int {
+    private fun bestSecureOption(biometricManager: BiometricManager): Int {
         if (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) ==
-            BiometricManager.BIOMETRIC_SUCCESS ||
-            biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) ==
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
+            BiometricManager.BIOMETRIC_SUCCESS
         ) {
             return BiometricManager.Authenticators.BIOMETRIC_STRONG
         }
 
         if (biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) ==
-            BiometricManager.BIOMETRIC_SUCCESS ||
-            biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) ==
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
+            BiometricManager.BIOMETRIC_SUCCESS
         ) {
             return BiometricManager.Authenticators.BIOMETRIC_WEAK
         }
         if (biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL) ==
-            BiometricManager.BIOMETRIC_SUCCESS ||
-            biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL) ==
-            BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED
+            BiometricManager.BIOMETRIC_SUCCESS
         ) {
             return BiometricManager.Authenticators.DEVICE_CREDENTIAL
         }

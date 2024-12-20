@@ -1,25 +1,25 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.invoice.model
 
-import de.gematik.ti.erp.app.utils.toFormattedDate
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.utils.toFormattedDate
 
 object PkvHtmlTemplate {
     private fun createOrganization(
@@ -73,6 +73,7 @@ object PkvHtmlTemplate {
         <div></div>
     """.trimIndent()
 
+    @Suppress("CyclomaticComplexMethod")
     fun createPriceData(
         medicationRequest: SyncedTaskData.MedicationRequest,
         taskId: String,
@@ -107,7 +108,7 @@ object PkvHtmlTemplate {
                 }
 
                 val text = when (medicationRequest.medication) {
-                    is SyncedTaskData.MedicationPZN -> if (medicationRequest.medication.uniqueIdentifier == pzn) {
+                    is SyncedTaskData.Medication -> if (medicationRequest.medication.identifier.pzn == pzn) {
                         "wie verordnet"
                     } else {
                         it.text
@@ -185,26 +186,13 @@ object PkvHtmlTemplate {
         return info
     }
 
-    fun joinMedicationInfo(medicationRequest: SyncedTaskData.MedicationRequest?): String {
-        return when (val medication = medicationRequest?.medication) {
-            is SyncedTaskData.MedicationPZN ->
-                "${medicationRequest.quantity}x ${medication.text} / " +
-                    "${medication.amount?.numerator?.value} " +
-                    "${medication.amount?.numerator?.unit} " +
-                    "${medication.normSizeCode} " + "PZN: " + medication.uniqueIdentifier
-            is SyncedTaskData.MedicationCompounding ->
-                "${medicationRequest.quantity}x ${medication.text} / " +
-                    "${medication.amount?.numerator?.value} " +
-                    "${medication.amount?.numerator?.unit} " + "${medication.form} "
-            is SyncedTaskData.MedicationIngredient ->
-                "${medicationRequest.quantity}x ${medication.text} / " +
-                    "${medication.amount?.numerator?.value} " +
-                    "${medication.amount?.numerator?.unit} " + "${medication.form} " +
-                    "${medication.normSizeCode} "
-            is SyncedTaskData.MedicationFreeText -> "${medicationRequest.quantity}x ${medication.text}"
-            else -> ""
-        }
-    }
+    fun joinMedicationInfo(medicationRequest: SyncedTaskData.MedicationRequest?): String =
+        medicationRequest?.medication?.let { medication ->
+            "${medicationRequest.quantity}x ${medication.text} / " +
+                "${medication.amount?.numerator?.value} " +
+                "${medication.amount?.numerator?.unit} " +
+                "${medication.normSizeCode} " + "PZN: " + medication.identifier.pzn
+        } ?: ""
 
     private fun createFeesPriceData(
         totalBruttoAmount: Double,
@@ -255,7 +243,7 @@ object PkvHtmlTemplate {
     </div>
     """.trimIndent()
 
-    fun createHTML(invoice: InvoiceData.PKVInvoice): String {
+    fun createHTML(invoice: InvoiceData.PKVInvoiceRecord): String {
         val patient = createPatient(
             patientName = invoice.patient.name ?: "",
             patientAddress = invoice.patient.address?.joinToHtmlString() ?: "",

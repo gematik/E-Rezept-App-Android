@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.repository
@@ -23,12 +23,13 @@ import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
+import de.gematik.ti.erp.app.db.entities.v1.task.CoverageTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationCategoryV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MedicationProfileV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
@@ -43,16 +44,20 @@ import de.gematik.ti.erp.app.db.queryFirst
 import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.tryWrite
+import de.gematik.ti.erp.app.db.writeToRealm
 import de.gematik.ti.erp.app.fhir.model.AccidentType
 import de.gematik.ti.erp.app.fhir.model.MedicationCategory
-import de.gematik.ti.erp.app.fhir.model.MedicationProfile
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
 import de.gematik.ti.erp.app.fhir.model.extractKBVBundle
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispense
+import de.gematik.ti.erp.app.fhir.model.extractMedicationDispensePairs
+import de.gematik.ti.erp.app.fhir.model.extractMedicationDispenseWithMedication
 import de.gematik.ti.erp.app.fhir.model.extractTask
 import de.gematik.ti.erp.app.fhir.model.extractTaskAndKBVBundle
 import de.gematik.ti.erp.app.prescription.model.Communication
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.prescription.model.Quantity
+import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -77,7 +82,8 @@ class TaskLocalDataSource(
 ) {
     data class SaveTaskResult(
         val isCompleted: Boolean,
-        val lastModified: Instant
+        val lastModified: Instant,
+        val lastMedicationDispense: Instant? = null
     )
 
     fun latestTaskModifiedTimestamp(profileId: ProfileIdentifier): Flow<Instant?> =
@@ -87,6 +93,17 @@ class TaskLocalDataSource(
             .map {
                 it?.toInstant()
             }
+
+    suspend fun updateTaskStatus(taskId: String, status: TaskStatus, lastModified: FhirTemporal?) {
+        realm.tryWrite {
+            queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)?.let { task ->
+                lastModified?.let {
+                    task.lastModified = lastModified.toInstant().toRealmInstant()
+                    task.status = status.toTaskStatusV1()
+                }
+            }
+        }
+    }
 
     private val mutex = Mutex()
 
@@ -101,9 +118,10 @@ class TaskLocalDataSource(
                     process = { taskResource, bundleResource ->
                         extractTask(
                             task = taskResource,
-                            process = { taskId: String, accessCode: String?, lastModified: FhirTemporal.Instant,
+                            process = { taskId: String, accessCode: String, lastModified: FhirTemporal.Instant,
                                 expiresOn: FhirTemporal.LocalDate?, acceptUntil: FhirTemporal.LocalDate?,
-                                authoredOn: FhirTemporal.Instant, status: TaskStatus ->
+                                authoredOn: FhirTemporal.Instant, status: TaskStatus,
+                                lastMedicationDispense: FhirTemporal.Instant? ->
 
                                 taskEntity = queryFirst("taskId = $0", taskId) ?: run {
                                     copyToRealm(SyncedTaskEntityV1()).also {
@@ -116,22 +134,10 @@ class TaskLocalDataSource(
                                     this.taskId = taskId
                                     this.accessCode = accessCode
                                     this.lastModified = lastModified.value.toRealmInstant()
-                                    this.status = when (status) {
-                                        TaskStatus.Ready -> TaskStatusV1.Ready
-                                        TaskStatus.InProgress -> TaskStatusV1.InProgress
-                                        TaskStatus.Completed -> TaskStatusV1.Completed
-                                        TaskStatus.Draft -> TaskStatusV1.Draft
-                                        TaskStatus.Requested -> TaskStatusV1.Requested
-                                        TaskStatus.Received -> TaskStatusV1.Received
-                                        TaskStatus.Accepted -> TaskStatusV1.Accepted
-                                        TaskStatus.Rejected -> TaskStatusV1.Rejected
-                                        TaskStatus.Canceled -> TaskStatusV1.Canceled
-                                        TaskStatus.OnHold -> TaskStatusV1.OnHold
-                                        TaskStatus.Failed -> TaskStatusV1.Failed
-                                        else -> TaskStatusV1.Other
-                                    }
+                                    this.status = status.toTaskStatusV1()
                                     this.expiresOn =
                                         expiresOn?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
+                                    this.lastMedicationDispense = lastMedicationDispense?.toInstant()?.toRealmInstant()
                                     this.acceptUntil =
                                         acceptUntil?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
                                     this.authoredOn = authoredOn.value.toRealmInstant()
@@ -166,10 +172,11 @@ class TaskLocalDataSource(
                                         this.practitionerIdentifier = practitionerIdentifier
                                     }
                                 },
-                                processInsuranceInformation = { name, statusCode ->
+                                processInsuranceInformation = { name, statusCode, coverageType ->
                                     InsuranceInformationEntityV1().apply {
                                         this.name = name
                                         this.statusCode = statusCode
+                                        this.coverageType = CoverageTypeV1.mapTo(coverageType)
                                     }
                                 },
                                 processAddress = { line, postalCode, city ->
@@ -192,37 +199,32 @@ class TaskLocalDataSource(
                                         this.denominator = denominator
                                     }
                                 },
-                                processIngredient = { text, form, number, amount, strength ->
+                                processIngredient = { text, form, identifier, amount, strength ->
                                     IngredientEntityV1().apply {
                                         this.text = text
                                         this.form = form
                                         this.number = number
                                         this.amount = amount
+                                        this.identifier = identifier.toIdentifierEntityV1()
                                         this.strength = strength
                                     }
                                 },
-                                processMedication = { text,
-                                    medicationProfile,
-                                    medicationCategory,
-                                    form,
-                                    amount,
-                                    vaccine,
-                                    manufacturingInstructions,
-                                    packaging,
-                                    normSizeCode,
-                                    uniqueIdentifier,
-                                    ingredients,
-                                    _,
-                                    _ ->
+                                processMedication = {
+                                        text,
+                                        medicationCategory,
+                                        form,
+                                        amount,
+                                        vaccine,
+                                        manufacturingInstructions,
+                                        packaging,
+                                        normSizeCode,
+                                        identifier,
+                                        _,
+                                        ingredients,
+                                        _,
+                                        _ ->
                                     MedicationEntityV1().apply {
                                         this.text = text ?: ""
-                                        this.medicationProfile = when (medicationProfile) {
-                                            MedicationProfile.PZN -> MedicationProfileV1.PZN
-                                            MedicationProfile.COMPOUNDING -> MedicationProfileV1.COMPOUNDING
-                                            MedicationProfile.INGREDIENT -> MedicationProfileV1.INGREDIENT
-                                            MedicationProfile.FREETEXT -> MedicationProfileV1.FREETEXT
-                                            else -> MedicationProfileV1.UNKNOWN
-                                        }
                                         this.medicationCategory = when (medicationCategory) {
                                             MedicationCategory.ARZNEI_UND_VERBAND_MITTEL ->
                                                 MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL
@@ -238,7 +240,7 @@ class TaskLocalDataSource(
                                         this.manufacturingInstructions = manufacturingInstructions
                                         this.packaging = packaging
                                         this.normSizeCode = normSizeCode
-                                        this.uniqueIdentifier = uniqueIdentifier
+                                        this.identifier = identifier.toIdentifierEntityV1()
                                         this.ingredients = ingredients.toRealmList()
                                     }
                                 },
@@ -327,12 +329,30 @@ class TaskLocalDataSource(
         }
     }
 
-    suspend fun saveMedicationDispense(taskId: String, bundle: JsonElement) {
-        realm.tryWrite<Unit> {
-            queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)?.let { syncedTask ->
+    private fun TaskStatus.toTaskStatusV1(): TaskStatusV1 {
+        return when (this) {
+            TaskStatus.Ready -> TaskStatusV1.Ready
+            TaskStatus.InProgress -> TaskStatusV1.InProgress
+            TaskStatus.Completed -> TaskStatusV1.Completed
+            TaskStatus.Draft -> TaskStatusV1.Draft
+            TaskStatus.Requested -> TaskStatusV1.Requested
+            TaskStatus.Received -> TaskStatusV1.Received
+            TaskStatus.Accepted -> TaskStatusV1.Accepted
+            TaskStatus.Rejected -> TaskStatusV1.Rejected
+            TaskStatus.Canceled -> TaskStatusV1.Canceled
+            TaskStatus.OnHold -> TaskStatusV1.OnHold
+            TaskStatus.Failed -> TaskStatusV1.Failed
+            else -> TaskStatusV1.Other
+        }
+    }
 
-                extractMedicationDispense(
-                    bundle,
+    suspend fun saveMedicationDispensesWithMedications(taskId: String, bundle: JsonElement) {
+        realm.writeToRealm<SyncedTaskEntityV1, Unit>("taskId = $0", taskId) { syncedTask ->
+            val dispensesWithMedications = extractMedicationDispensePairs(bundle)
+            dispensesWithMedications.forEach { (dispense, medication) ->
+                extractMedicationDispenseWithMedication(
+                    dispense,
+                    medication,
                     quantityFn = { value, unit ->
                         QuantityEntityV1().apply {
                             this.value = value
@@ -345,17 +365,17 @@ class TaskLocalDataSource(
                             this.denominator = denominator
                         }
                     },
-                    ingredientFn = { text, form, number, amount, strength ->
+                    ingredientFn = { text, form, identifier, amount, strength ->
                         IngredientEntityV1().apply {
                             this.text = text
                             this.form = form
                             this.number = number
+                            this.identifier = identifier.toIdentifierEntityV1()
                             this.amount = amount
                             this.strength = strength
                         }
                     },
                     processMedication = { text,
-                        medicationProfile,
                         medicationCategory,
                         form,
                         amount,
@@ -363,19 +383,13 @@ class TaskLocalDataSource(
                         manufacturingInstructions,
                         packaging,
                         normSizeCode,
-                        uniqueIdentifier,
+                        identifier,
+                        ingredientMedications,
                         ingredients,
                         lotNumber,
                         expirationDate ->
                         MedicationEntityV1().apply {
                             this.text = text ?: ""
-                            this.medicationProfile = when (medicationProfile) {
-                                MedicationProfile.PZN -> MedicationProfileV1.PZN
-                                MedicationProfile.COMPOUNDING -> MedicationProfileV1.COMPOUNDING
-                                MedicationProfile.INGREDIENT -> MedicationProfileV1.INGREDIENT
-                                MedicationProfile.FREETEXT -> MedicationProfileV1.FREETEXT
-                                else -> MedicationProfileV1.UNKNOWN
-                            }
                             this.medicationCategory = when (medicationCategory) {
                                 MedicationCategory.ARZNEI_UND_VERBAND_MITTEL ->
                                     MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL
@@ -390,13 +404,14 @@ class TaskLocalDataSource(
                             this.manufacturingInstructions = manufacturingInstructions
                             this.packaging = packaging
                             this.normSizeCode = normSizeCode
-                            this.uniqueIdentifier = uniqueIdentifier
+                            this.identifier = identifier.toIdentifierEntityV1()
+                            this.ingredientMedications = ingredientMedications.toRealmList()
                             this.ingredients = ingredients.toRealmList()
                             this.lotNumber = lotNumber
                             this.expirationDate = expirationDate
                         }
                     },
-                    processMedicationDispense = { dispenseId, patientIdentifier, medication,
+                    processMedicationDispense = { dispenseId, patientIdentifier, med,
                         wasSubstituted, dosageInstruction, performer, whenHandedOver ->
 
                         if (query<MedicationDispenseEntityV1>("dispenseId = $0", dispenseId)
@@ -406,7 +421,7 @@ class TaskLocalDataSource(
                             syncedTask.medicationDispenses += MedicationDispenseEntityV1().apply {
                                 this.dispenseId = dispenseId
                                 this.patientIdentifier = patientIdentifier
-                                this.medication = medication
+                                this.medication = med
                                 this.wasSubstituted = wasSubstituted
                                 this.dosageInstruction = dosageInstruction
                                 this.performer = performer
@@ -416,6 +431,91 @@ class TaskLocalDataSource(
                     }
                 )
             }
+        }
+    }
+
+    suspend fun saveMedicationDispense(taskId: String, bundle: JsonElement) {
+        realm.writeToRealm<SyncedTaskEntityV1, Unit>("taskId = $0", taskId) { syncedTask ->
+
+            extractMedicationDispense(
+                bundle,
+                quantityFn = { value, unit ->
+                    QuantityEntityV1().apply {
+                        this.value = value
+                        this.unit = unit
+                    }
+                },
+                ratioFn = { numerator, denominator ->
+                    RatioEntityV1().apply {
+                        this.numerator = numerator
+                        this.denominator = denominator
+                    }
+                },
+                ingredientFn = { text, form, identifier, amount, strength ->
+                    IngredientEntityV1().apply {
+                        this.text = text
+                        this.form = form
+                        this.number = number
+                        this.identifier = identifier.toIdentifierEntityV1()
+                        this.amount = amount
+                        this.strength = strength
+                    }
+                },
+                processMedication = { text,
+                    medicationCategory,
+                    form,
+                    amount,
+                    vaccine,
+                    manufacturingInstructions,
+                    packaging,
+                    normSizeCode,
+                    identifier,
+                    ingredientMedications,
+                    ingredients,
+                    lotNumber,
+                    expirationDate ->
+                    MedicationEntityV1().apply {
+                        this.text = text ?: ""
+                        this.medicationCategory = when (medicationCategory) {
+                            MedicationCategory.ARZNEI_UND_VERBAND_MITTEL ->
+                                MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL
+
+                            MedicationCategory.BTM -> MedicationCategoryV1.BTM
+                            MedicationCategory.AMVV -> MedicationCategoryV1.AMVV
+                            else -> MedicationCategoryV1.UNKNOWN
+                        }
+                        this.form = form
+                        this.amount = amount
+                        this.vaccine = vaccine
+                        this.manufacturingInstructions = manufacturingInstructions
+                        this.packaging = packaging
+                        this.normSizeCode = normSizeCode
+                        this.ingredientMedications = ingredientMedications.toRealmList()
+                        this.identifier = identifier.toIdentifierEntityV1()
+                        this.ingredients = ingredients.toRealmList()
+                        this.lotNumber = lotNumber
+                        this.expirationDate = expirationDate
+                    }
+                },
+                processMedicationDispense = { dispenseId, patientIdentifier, medication,
+                    wasSubstituted, dosageInstruction, performer, whenHandedOver ->
+
+                    if (query<MedicationDispenseEntityV1>("dispenseId = $0", dispenseId)
+                        .count()
+                        .find() == 0L
+                    ) {
+                        syncedTask.medicationDispenses += MedicationDispenseEntityV1().apply {
+                            this.dispenseId = dispenseId
+                            this.patientIdentifier = patientIdentifier
+                            this.medication = medication
+                            this.wasSubstituted = wasSubstituted
+                            this.dosageInstruction = dosageInstruction
+                            this.performer = performer
+                            this.handedOverOn = whenHandedOver
+                        }
+                    }
+                }
+            )
         }
     }
 }
@@ -463,7 +563,8 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
         ),
         insuranceInformation = SyncedTaskData.InsuranceInformation(
             name = this.insuranceInformation?.name,
-            status = this.insuranceInformation?.statusCode
+            status = this.insuranceInformation?.statusCode,
+            coverageType = SyncedTaskData.CoverageType.mapTo(this.insuranceInformation?.coverageType?.name)
         ),
         expiresOn = this.expiresOn?.toInstant(),
         acceptUntil = this.acceptUntil?.toInstant(),
@@ -497,12 +598,12 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
             dosageInstruction = this.medicationRequest?.dosageInstruction,
             multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(
                 indicator = this.medicationRequest?.multiplePrescriptionInfo?.indicator ?: false,
-                numbering = SyncedTaskData.Ratio(
-                    numerator = SyncedTaskData.Quantity(
+                numbering = Ratio(
+                    numerator = Quantity(
                         value = this.medicationRequest?.multiplePrescriptionInfo?.numbering?.numerator?.value ?: "",
                         unit = ""
                     ),
-                    denominator = SyncedTaskData.Quantity(
+                    denominator = Quantity(
                         value = this.medicationRequest?.multiplePrescriptionInfo?.numbering?.denominator?.value ?: "",
                         unit = ""
                     )
@@ -519,6 +620,7 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
             note = this.medicationRequest?.note,
             bvg = this.medicationRequest?.bvg
         ),
+        lastMedicationDispense = this.lastMedicationDispense?.toInstant(),
         medicationDispenses = this.medicationDispenses.map { medicationDispense ->
             SyncedTaskData.MedicationDispense(
                 dispenseId = medicationDispense.dispenseId,
@@ -536,66 +638,43 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
     )
 
 fun MedicationEntityV1?.toMedication(): SyncedTaskData.Medication? =
-    when (this?.medicationProfile) {
-        MedicationProfileV1.PZN -> SyncedTaskData.MedicationPZN(
-            uniqueIdentifier = this.uniqueIdentifier ?: "",
-            category = this.medicationCategory.toMedicationCategory(),
-            vaccine = this.vaccine,
-            text = this.text,
-            form = this.form,
-            lotNumber = this.lotNumber,
-            expirationDate = this.expirationDate,
-            normSizeCode = this.normSizeCode,
-            amount = this.amount.toRatio()
+    this?.let { medication ->
+        SyncedTaskData.Medication(
+            identifier = medication.identifier?.toIdentifier() ?: SyncedTaskData.Identifier(),
+            category = medication.medicationCategory.toMedicationCategory(),
+            vaccine = medication.vaccine,
+            text = medication.text,
+            form = medication.form,
+            normSizeCode = medication.normSizeCode,
+            amount = medication.amount.toRatio(),
+            manufacturingInstructions = medication.manufacturingInstructions,
+            packaging = medication.packaging,
+            ingredients = medication.ingredients.toIngredients(),
+            lotNumber = medication.lotNumber,
+            ingredientMedications = medication.ingredientMedications.map {
+                it.toMedication()
+            },
+            expirationDate = medication.expirationDate
         )
-
-        MedicationProfileV1.COMPOUNDING -> SyncedTaskData.MedicationCompounding(
-            category = this.medicationCategory.toMedicationCategory(),
-            vaccine = this.vaccine,
-            text = this.text,
-            form = this.form,
-            lotNumber = this.lotNumber,
-            expirationDate = this.expirationDate,
-            manufacturingInstructions = this.manufacturingInstructions,
-            packaging = this.packaging,
-            amount = this.amount.toRatio(),
-            ingredients = this.ingredients.toIngredients()
-        )
-
-        MedicationProfileV1.INGREDIENT -> SyncedTaskData.MedicationIngredient(
-            category = this.medicationCategory.toMedicationCategory(),
-            vaccine = this.vaccine,
-            text = this.text,
-            form = this.form,
-            lotNumber = this.lotNumber,
-            expirationDate = this.expirationDate,
-            normSizeCode = this.normSizeCode,
-            amount = this.amount.toRatio(),
-            ingredients = this.ingredients.toIngredients()
-        )
-
-        MedicationProfileV1.FREETEXT -> SyncedTaskData.MedicationFreeText(
-            category = this.medicationCategory.toMedicationCategory(),
-            vaccine = this.vaccine,
-            text = this.text,
-            form = this.form,
-            lotNumber = this.lotNumber,
-            expirationDate = this.expirationDate
-        )
-
-        else -> null
     }
 
-private fun RatioEntityV1?.toRatio(): SyncedTaskData.Ratio? = this?.let {
-    SyncedTaskData.Ratio(
+fun IdentifierEntityV1.toIdentifier(): SyncedTaskData.Identifier = SyncedTaskData.Identifier(
+    pzn = this.pzn,
+    atc = this.atc,
+    ask = this.ask,
+    snomed = this.snomed
+)
+
+fun RatioEntityV1?.toRatio(): Ratio? = this?.let {
+    Ratio(
         numerator = it.numerator?.let { quantity ->
-            SyncedTaskData.Quantity(
+            Quantity(
                 value = quantity.value,
                 unit = quantity.unit
             )
         },
         denominator = it.denominator?.let { quantity ->
-            SyncedTaskData.Quantity(
+            Quantity(
                 value = quantity.value,
                 unit = quantity.unit
             )
@@ -652,7 +731,7 @@ fun ScannedTaskEntityV1.toScannedTask() =
     ScannedTaskData.ScannedTask(
         profileId = this.parent!!.id,
         taskId = this.taskId,
-        name = this.name,
+        name = this.name ?: "",
         index = this.index,
         accessCode = this.accessCode,
         scannedOn = this.scannedOn.toInstant(),

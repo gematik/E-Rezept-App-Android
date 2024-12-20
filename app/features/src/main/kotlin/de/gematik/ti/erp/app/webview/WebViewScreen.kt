@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.webview
 
@@ -29,9 +31,10 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Typography
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -47,7 +50,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.view.updateLayoutParams
 import androidx.webkit.WebViewAssetLoader
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffoldWithScrollState
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 
 const val URI_TERMS_OF_USE = "file:///android_asset/terms_of_use.html"
@@ -55,9 +58,8 @@ const val URI_TERMS_OF_USE = "file:///android_asset/terms_of_use.html"
 @Requirement(
     "O.Arch_8#1",
     "O.Plat_11#1",
-    "O.Plat_14",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Webview containing local html without javascript. No cookies are created."
+    rationale = "Webviews containing local html without javascript. No cookies are created."
 )
 @Composable
 fun WebViewScreen(
@@ -67,17 +69,21 @@ fun WebViewScreen(
     navigationMode: NavigationBarMode = NavigationBarMode.Back,
     onBack: () -> Unit
 ) {
-    var scrollState by remember { mutableStateOf(0) }
-    AnimatedElevationScaffold(
+    var scrollState by remember { mutableIntStateOf(0) }
+    AnimatedElevationScaffoldWithScrollState(
+        modifier = modifier,
+        topBarTitle = title,
         elevated = scrollState > 0,
         navigationMode = navigationMode,
         bottomBar = {},
         actions = {},
-        topBarTitle = title,
-        onBack = onBack,
-        modifier = modifier
+        onBack = onBack
     ) {
-        WebView(Modifier.fillMaxSize(), url, onScroll = { scrollState = it })
+        WebView(
+            modifier = Modifier.fillMaxSize(),
+            url = url,
+            onScroll = { scrollState = it }
+        )
     }
 }
 
@@ -87,12 +93,19 @@ private fun WebView(
     url: String,
     onScroll: (y: Int) -> Unit
 ) {
+    @Requirement(
+        "O.Arch_8#2",
+        "O.Plat_11#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Javascript is disabled on all webviews used in the app."
+    )
     val context = LocalContext.current
     val colors = MaterialTheme.colors
     val typo = MaterialTheme.typography
     val webView = remember(colors, typo) {
         WebView(context).apply {
             setBackgroundColor(colors.background.toArgb())
+            settings.javaScriptCanOpenWindowsAutomatically = false
             settings.javaScriptEnabled = false
             setOnScrollChangeListener { _, _, scrollY, _, _ -> onScroll(scrollY) }
             webViewClient = createWebViewClient(colors, typo)
@@ -105,6 +118,7 @@ private fun WebView(
         onDispose {
             webView.clearCache(true)
             webView.clearHistory()
+            webView.destroy()
         }
     }
 
@@ -113,10 +127,7 @@ private fun WebView(
             webView.loadUrl(url)
             webView
         },
-        modifier = modifier
-            .onSizeChanged {
-                size = it
-            }
+        modifier = modifier.onSizeChanged { size = it }
     ) {
         it.updateLayoutParams {
             this.height = size.width
@@ -200,7 +211,7 @@ fun createWebViewClient(colors: Colors, typo: Typography) = object : WebViewClie
     }
 
     @Requirement(
-        "O.Plat_13",
+        "O.Plat_10#1",
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Disables unused schemes"
     )

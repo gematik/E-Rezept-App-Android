@@ -1,0 +1,2 @@
+# app/features/src/debug/**/*.png filter=lfs diff=lfs merge=lfs -text
+**/snapshots/**/*.png filter=lfs diff=lfs merge=lfs -text

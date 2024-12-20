@@ -1,98 +1,100 @@
-import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+@file:Suppress("SpreadOperator")
 
-// NOTE: Only pre-include plugins (apply false) required by the modules android, common
-// and desktop within this block to keep them excluded from the root module.
-// If the plugin can't be resolved add a custom resolution strategy to `settings.gradle.kts`.
+import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
+import java.util.Properties
+
+private val ktlintMain: Configuration by configurations.creating
+private val ktlintRules: Configuration by configurations.creating
+
 plugins {
 
-    // Running `./gradlew dependencyUpdates` looks for the latest libs that are available
-    id("com.github.ben-manes.versions") version "0.48.0"
+    // module plugins
+    alias(libs.plugins.android.application) apply false
+    alias(libs.plugins.android.library) apply false
+    alias(libs.plugins.kotlin.multiplatform) apply false
 
-    id("org.owasp.dependencycheck") version "8.0.2" apply false
+    // extra plugins
+    alias(libs.plugins.github.ben.manes.version) apply false
+    /** todo issue to be fixed:
+     *
+     *    > Could not resolve all task dependencies for configuration ':classpath'.
+     *       > Could not find org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.2.
+     *         Required by:
+     *             project : > com.jaredsburrows.license:com.jaredsburrows.license.gradle.plugin:0.8.90 > com.jaredsburrows:gradle-license-plugin:0.8.90
+     */
+    // alias(libs.plugins.jaredburrows.license) apply false
+    alias(libs.plugins.gradle.secrets) apply false
+    alias(libs.plugins.realm.kotlin) apply false
+    alias(libs.plugins.jetbrains.kotlin.android) apply false
+    alias(libs.plugins.jetbrains.compose) apply false
+    alias(libs.plugins.buildkonfig) apply false
+    alias(libs.plugins.kotlin.jvm) apply false
+    alias(libs.plugins.kotlin.serialization) apply false
+    alias(libs.plugins.detekt)
 
-    // generates licence report
-    id("com.jaredsburrows.license") version "0.8.90" apply false
+    // test
+    alias(libs.plugins.paparazzi) apply false
+    id("jacoco")
 
-    id("com.android.application") version "8.1.0" apply false
-
-    id("com.android.library") version "8.1.0" apply false
-
-    kotlin("multiplatform") version "1.9.10" apply false
-
-    kotlin("plugin.serialization") version "1.8.10" apply false
-
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin") version "2.0.1" apply false
-
-    id("io.realm.kotlin") version "1.7.1" apply false
-
-    // TODO: Update to latest version : https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compatibility-and-versioning.html#kotlin-compatibility
-    id("org.jetbrains.kotlin.android") version "1.9.10" apply false
-
-    id("org.jetbrains.compose") version "1.5.3" apply false
-
-    id("com.codingfeline.buildkonfig") version "0.13.3" apply false
-
-    id("io.gitlab.arturbosch.detekt") version "1.22.0"
-
-    id("org.jetbrains.kotlin.jvm") version "1.9.0" apply false
-
-    // Generate a html file of all referenced technical requirements
+    // custom gematik plugins
     id("de.gematik.ti.erp.technical-requirements")
-
-    // Updates the version from the git tags
-    id("de.gematik.ti.erp.versioning") apply true
-
-    // Updates the gradle.propertied
-    id("de.gematik.ti.erp.properties") apply true
-
-    // Builds the different app flavours
-    id("de.gematik.ti.erp.flavours") apply true
-
-    // Sends information to teams
-    id("de.gematik.ti.erp.teams") apply true
+    id("de.gematik.ti.erp.versioning")
+    id("de.gematik.ti.erp.properties")
+    id("de.gematik.ti.erp.flavours")
+    id("de.gematik.ti.erp.teams")
+    id("de.gematik.ti.erp.names")
 }
 
-val ktlintMain: Configuration by configurations.creating
-val ktlintRules: Configuration by configurations.creating
+// obtain libs from nexus
+try {
+    val properties = Properties()
+    properties.load(File("ci-overrides.properties").inputStream())
+    val nexusUsername: String? = properties.getProperty("NEXUS_USERNAME")
+    val nexusPassword: String? = properties.getProperty("NEXUS_PASSWORD")
+    val nexusUrl: String? = properties.getProperty("NEXUS_URL")
+
+    allprojects {
+        repositories {
+            if (!nexusUsername.isNullOrEmpty() && !nexusPassword.isNullOrEmpty() && !nexusUrl.isNullOrEmpty()) {
+                maven {
+                    name = "nexus"
+                    setUrl(nexusUrl)
+                    credentials {
+                        username = nexusUsername
+                        password = nexusPassword
+                    }
+                }
+            }
+        }
+    }
+} catch (e: Throwable) {
+    println("No ci-overrides.properties found")
+}
+
+val sourcesKt = listOf(
+    "app/android/src/**/*.kt",
+    "app/android-mock/src/**/*.kt",
+    "app/demo-mode/src/**/*.kt",
+    "app/features/src/**/*.kt",
+    "app/test-actions/src/**/*.kt",
+    "app/test-tags/src/**/*.kt",
+    "buildSrc/src/**/*.kt",
+    "common/src/**/*.kt",
+    "desktop/src/**/*.kt",
+    "plugins/*/src/**/*.kt",
+    "rules/src/**/*.kt",
+    "scripts/src/**/*.kt",
+    "smartcard-wrapper/src/**/*.kt",
+    "ui-components/src/**/*.kt",
+)
 
 dependencies {
-    ktlintMain("com.pinterest:ktlint:0.46.1") {
+    ktlintMain(libs.quality.ktlint) {
         attributes {
             attribute(Bundling.BUNDLING_ATTRIBUTE, objects.named(Bundling.SHADOWED))
         }
     }
-    ktlintRules("de.gematik.ti.erp.app:rules:1.0")
-}
-
-val sourcesKt = listOf(
-    "app/android/src/**/de/gematik/**/*.kt",
-    "app/features/src/**/de/gematik/**/*.kt",
-    "app/demo-mode/src/**/de/gematik/**/*.kt",
-    "common/src/**/de/gematik/**/*.kt",
-    "desktop/src/**/de/gematik/**/*.kt",
-    "rules/src/**/de/gematik/**/*.kt",
-    "smartcard-wrapper/src/**/de/gematik/**/*.kt",
-    "plugins/*/src/**/*.kt"
-)
-
-detekt {
-    autoCorrect = false
-    source =
-        fileTree(rootDir) {
-            include(sourcesKt)
-        }.filter { it.extension != "kts" }
-            .map { it.parentFile }
-            .let {
-                files(*it.toTypedArray())
-            }
-    parallel = true
-    config = files("config/detekt/detekt.yml")
-    baseline = file("config/detekt/baseline.xml")
-    buildUponDefaultConfig = false
-    allRules = false
-    disableDefaultRuleSets = false
-    debug = false
-    ignoreFailures = false
+    ktlintRules(libs.quality.rules)
 }
 
 fun ktlintCreating(format: Boolean, sources: List<String>, disableLicenceRule: Boolean) =
@@ -106,7 +108,7 @@ fun ktlintCreating(format: Boolean, sources: List<String>, disableLicenceRule: B
             if (disableLicenceRule) add("--disabled_rules=custom:licence-header")
         }
         // required for java > 16; see https://github.com/pinterest/ktlint/issues/1195
-        jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
+        jvmArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
     }
 
 val ktlint by ktlintCreating(format = false, sources = sourcesKt, disableLicenceRule = false)
@@ -128,5 +130,14 @@ tasks.withType<DependencyUpdatesTask> {
     rejectVersionIf {
         // allows unstable to unstable updates but not stable to unstable
         isUnstable(candidate.version) && !isUnstable(currentVersion)
+    }
+}
+
+// config changes for security vulnerabilities
+allprojects {
+    configurations.all {
+        resolutionStrategy {
+            force("com.google.guava:guava:33.2.0-jre")
+        }
     }
 }

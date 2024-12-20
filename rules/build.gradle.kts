@@ -12,9 +12,13 @@ repositories {
 version = 1.0
 group = "de.gematik.ti.erp.app"
 
-tasks.withType<KotlinCompile>() {
+tasks.withType<KotlinCompile> {
     kotlinOptions.jvmTarget = "17"
     kotlinOptions.freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+}
+
+tasks.withType<Test> {
+    jvmArgs("--add-opens", "java.base/java.lang=ALL-UNNAMED")
 }
 
 tasks.test {
@@ -23,8 +27,8 @@ tasks.test {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    implementation("com.pinterest.ktlint:ktlint-core:0.45.2")
+    implementation(libs.quality.ktlint.core)
     testImplementation(kotlin("test"))
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("com.pinterest.ktlint:ktlint-test:0.45.2")
+    testImplementation(libs.test.junit)
+    testImplementation(libs.quality.ktlint.test)
 }

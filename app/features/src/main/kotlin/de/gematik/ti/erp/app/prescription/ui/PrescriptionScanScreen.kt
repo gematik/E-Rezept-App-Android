@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.ui
@@ -71,20 +71,13 @@ import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.IconToggleButton
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.Surface
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CropFree
-import androidx.compose.material.icons.rounded.ErrorOutline
-import androidx.compose.material.icons.rounded.FlashOff
-import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.SaveAlt
 import androidx.compose.material.icons.rounded.ShoppingBag
 import androidx.compose.material.rememberModalBottomSheetState
@@ -110,8 +103,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
@@ -125,30 +116,36 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.navigation.navigateAndClearStack
+import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.presentation.rememberScanPrescriptionController
 import de.gematik.ti.erp.app.prescription.ui.model.ScanData
+import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.AlertDialog
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.AccessToCameraDenied
 import de.gematik.ti.erp.app.utils.compose.BottomSheetAction
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.CameraTopBar
+import de.gematik.ti.erp.app.utils.compose.ComposableEvent
+import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
+import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.util.Locale
 import java.util.concurrent.Executors
 
+// TODO: Cleanup to move more logic into the viewmodel to make it more testable
 @Requirement(
     "O.Purp_2#1",
-    "O.Data_6#1",
     sourceSpecification = "BSI-eRp-ePA",
     rationale = "Scanning tasks contains purpose related data input."
 )
@@ -159,25 +156,41 @@ class PrescriptionScanScreen(
     @OptIn(ExperimentalMaterialApi::class)
     @Composable
     override fun Content() {
+        val context = LocalContext.current
+        val dialog = LocalDialog.current
+
+        val confirmCancelDialogEvent = ComposableEvent<Unit>()
+
         val scanPrescriptionController = rememberScanPrescriptionController()
-        val state by scanPrescriptionController.state
+        val scanPrescriptionState by scanPrescriptionController.state
         val overlayState by scanPrescriptionController.overlayState
         val vibrationPattern = scanPrescriptionController.vibration
         val scanner = scanPrescriptionController.scanner
         val processor = scanPrescriptionController.processor
-        val context = LocalContext.current
+
+        // stops the camera overlay from scanning data points
+        var stopCameraOverlayScan by remember { mutableStateOf(false) }
+
+        confirmCancelDialogEvent.listen {
+            dialog.show {
+                stopCameraOverlayScan = true
+                SaveDialog(
+                    onDismissRequest = {
+                        stopCameraOverlayScan = false
+                        it.dismiss()
+                    },
+                    onCancel = {
+                        it.dismiss()
+                        navController.navigate(PrescriptionRoutes.PrescriptionsScreen.path())
+                    }
+                )
+            }
+        }
 
         var camPermissionGranted by rememberSaveable { mutableStateOf(false) }
 
-        @Requirement(
-            "A_20193#2",
-            sourceSpecification = "gemSpec_eRp_FdV",
-            rationale = "Request user permission for using the camera."
-        )
-        val camPermissionLauncher =
-            rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) {
-                camPermissionGranted = it
-            }
+        val camPermissionLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { camPermissionGranted = it }
+
         @Requirement(
             "O.Plat_3#2",
             sourceSpecification = "BSI-eRp-ePA",
@@ -194,20 +207,20 @@ class PrescriptionScanScreen(
         var flashEnabled by remember { mutableStateOf(false) }
         val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
         val coroutineScope = rememberCoroutineScope()
-        var cancelRequested by remember { mutableStateOf(false) }
-        BackHandler(!cancelRequested && state.hasCodesToSave()) {
-            cancelRequested = true
-        }
-        BackHandler(sheetState.isVisible) {
-            coroutineScope.launch { sheetState.hide() }
+
+        // conditional back
+        val onBack: () -> Unit = {
+            if (sheetState.isVisible) {
+                coroutineScope.launch { sheetState.hide() }
+            }
+            if (scanPrescriptionState.hasCodesToSave()) {
+                confirmCancelDialogEvent.trigger()
+            } else {
+                navController.navigateAndClearStack(PrescriptionRoutes.PrescriptionsScreen.route)
+            }
         }
 
-        if (cancelRequested && state.hasCodesToSave()) {
-            SaveDialog(
-                onDismissRequest = { cancelRequested = false },
-                onCancel = { navController.navigate(MainNavigationScreens.Prescriptions.path()) }
-            )
-        }
+        BackHandler { onBack() }
 
         ModalBottomSheetLayout(
             sheetState = sheetState,
@@ -215,33 +228,31 @@ class PrescriptionScanScreen(
                 SheetContent(
                     onClickSave = {
                         scanPrescriptionController.saveToDatabase()
-                        navController.navigate(MainNavigationScreens.Prescriptions.path())
+                        navController.navigate(PrescriptionRoutes.PrescriptionsScreen.path())
                     },
                     onClickRedeem = {
                         scanPrescriptionController.saveToDatabase()
-                        navController.navigate(MainNavigationScreens.Redeem.path())
+                        navController.navigate(RedeemRoutes.RedeemMethodSelection.path())
                     }
                 )
             }
         ) {
             if (camPermissionGranted) {
                 PrescriptionScanScreenContent(
-                    scanner,
-                    processor,
-                    flashEnabled,
-                    onFlashToggled = {
-                        flashEnabled = it
-                    },
-                    onClickPrescription = { navController.navigate(MainNavigationScreens.Prescriptions.path()) },
-                    sheetState,
-                    cancelRequested,
-                    overlayState,
-                    state,
-                    coroutineScope
+                    scanner = scanner,
+                    processor = processor,
+                    flashEnabled = flashEnabled,
+                    sheetState = sheetState,
+                    stopCameraOverlayScan = stopCameraOverlayScan,
+                    overlayState = overlayState,
+                    state = scanPrescriptionState,
+                    coroutineScope = coroutineScope,
+                    onFlashToggled = { flashEnabled = it },
+                    onClickClose = { onBack() }
                 )
             } else {
-                AccessDenied {
-                    navController.navigate(MainNavigationScreens.Prescriptions.path())
+                AccessToCameraDenied {
+                    navController.navigate(PrescriptionRoutes.PrescriptionsScreen.path())
                 }
             }
         }
@@ -257,35 +268,33 @@ private fun PrescriptionScanScreenContent(
     processor: TwoDCodeProcessor,
     flashEnabled: Boolean,
     onFlashToggled: (Boolean) -> Unit,
-    onClickPrescription: () -> Unit,
+    onClickClose: () -> Unit,
     sheetState: ModalBottomSheetState,
-    cancelRequested: Boolean,
+    stopCameraOverlayScan: Boolean,
     overlayState: ScanData.OverlayState,
     state: ScanData.State,
     coroutineScope: CoroutineScope
 ) {
     Box {
         CameraView(
-            scanner,
-            processor,
-            Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
+            scanner = scanner,
+            processor = processor,
             flashEnabled = flashEnabled,
             onFlashToggled = onFlashToggled
         )
 
         ScanOverlay(
-            enabled = !sheetState.isVisible && !cancelRequested,
+            modifier = Modifier.fillMaxSize(),
+            enabled = !sheetState.isVisible && !stopCameraOverlayScan,
             flashEnabled = flashEnabled,
             onFlashClick = onFlashToggled,
-            modifier = Modifier.fillMaxSize(),
-            onClickPrescription = onClickPrescription,
+            onClickClose = onClickClose,
             overlayState = overlayState
         )
 
         if (state.snackBar.shouldShow()) {
             ActionBarButton(
-                state.snackBar,
-                onClick = { coroutineScope.launch { sheetState.show() } },
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
@@ -295,7 +304,9 @@ private fun PrescriptionScanScreenContent(
                         end = PaddingDefaults.Medium,
                         top = PaddingDefaults.Medium,
                         bottom = PaddingDefaults.XLarge
-                    )
+                    ),
+                data = state.snackBar,
+                onClick = { coroutineScope.launch { sheetState.show() } }
             )
         }
     }
@@ -338,66 +349,10 @@ private fun SheetContent(
 
 @Suppress("MagicNumber")
 @Composable
-private fun AccessDenied(
-    onClickPrescription: () -> Unit
-) {
-    Surface(
-        color = Color.Black,
-        contentColor = Color.White,
-        modifier = Modifier.fillMaxSize()
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .systemBarsPadding()
-                .testTag("camera/disallowed")
-        ) {
-            TopBar(
-                flashEnabled = false,
-                onClickPrescription = onClickPrescription,
-                onFlashClick = {}
-            )
-            Spacer(Modifier.weight(0.4f))
-            Column(
-                modifier = Modifier
-                    .padding(PaddingDefaults.Medium),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    Icons.Rounded.ErrorOutline,
-                    null,
-                    modifier = Modifier.size(48.dp)
-                )
-                Text(
-                    stringResource(R.string.cam_access_denied_headline),
-                    style = AppTheme.typography.h6,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    stringResource(R.string.cam_access_denied_description),
-                    style = AppTheme.typography.subtitle1,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            }
-            Spacer(Modifier.weight(0.6f))
-        }
-    }
-}
-
-@Suppress("MagicNumber")
-@Composable
 private fun HapticAndAudibleFeedback(scanPrescriptionVibration: MutableSharedFlow<ScanData.VibrationPattern>) {
     val context = LocalContext.current
 
-    val toneGenerator = remember {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            ToneGenerator(AudioManager.STREAM_ACCESSIBILITY, 100)
-        } else {
-            ToneGenerator(AudioManager.STREAM_NOTIFICATION, 100)
-        }
-    }
+    val toneGenerator = remember { ToneGenerator(AudioManager.STREAM_ACCESSIBILITY, 100) }
 
     LaunchedEffect(scanPrescriptionVibration) {
         scanPrescriptionVibration.collect {
@@ -421,8 +376,17 @@ private fun HapticAndAudibleFeedback(scanPrescriptionVibration: MutableSharedFlo
 private fun SaveDialog(
     onDismissRequest: () -> Unit,
     onCancel: () -> Unit
-) =
-    AlertDialog(
+) {
+    ErezeptAlertDialog(
+        body = stringResource(R.string.cam_cancel_msg),
+        okText = stringResource(R.string.cam_cancel_ok),
+        dismissText = stringResource(R.string.cam_cancel_resume),
+        dismissButtonTestTag = "camera/saveDialog/dismissDialogButton",
+        confirmButtonTestTag = "camera/saveDialog/saveButton",
+        onConfirmRequest = onCancel,
+        onDismissRequest = onDismissRequest
+    )
+    /* AlertDialog(
         onDismissRequest = onDismissRequest,
         text = {
             Text(
@@ -440,11 +404,11 @@ private fun SaveDialog(
                 Text(stringResource(R.string.cam_cancel_ok).uppercase(Locale.getDefault()))
             }
         }
-    )
+    )  */
+}
 
 @Suppress("MagicNumber")
 private fun beep(toneGenerator: ToneGenerator, pattern: ScanData.VibrationPattern) {
-    @Suppress("NON_EXHAUSTIVE_WHEN")
     when (pattern) {
         ScanData.VibrationPattern.Saved -> toneGenerator.startTone(
             ToneGenerator.TONE_PROP_PROMPT,
@@ -468,44 +432,14 @@ private fun vibrate(vibrator: Vibrator, pattern: ScanData.VibrationPattern) {
 
     val canVibrate: Boolean = vibrator.hasVibrator()
     if (canVibrate) {
-        if (VERSION.SDK_INT >= VERSION_CODES.O) {
-            vibrator.vibrate(
-                when (pattern) {
-                    ScanData.VibrationPattern.Focused ->
-                        createOneShot(100L, 100)
-
-                    ScanData.VibrationPattern.Saved ->
-                        createOneShot(300L, 100)
-
-                    ScanData.VibrationPattern.Error ->
-                        createWaveform(
-                            longArrayOf(100, 100, 300),
-                            intArrayOf(
-                                100,
-                                0,
-                                100
-                            ),
-                            -1
-                        )
-
-                    ScanData.VibrationPattern.None -> error("Should not be reached")
-                }
-            )
-        } else {
-            @Suppress("DEPRECATION")
+        vibrator.vibrate(
             when (pattern) {
-                ScanData.VibrationPattern.Focused ->
-                    vibrator.vibrate(longArrayOf(0L, 100L), -1)
-
-                ScanData.VibrationPattern.Saved ->
-                    vibrator.vibrate(longArrayOf(0L, 300L), -1)
-
-                ScanData.VibrationPattern.Error ->
-                    vibrator.vibrate(longArrayOf(0L, 100L, 100L, 300L), -1)
-
+                ScanData.VibrationPattern.Focused -> createOneShot(100L, 100)
+                ScanData.VibrationPattern.Saved -> createOneShot(300L, 100)
+                ScanData.VibrationPattern.Error -> createWaveform(longArrayOf(100, 100, 300), intArrayOf(100, 0, 100), -1)
                 ScanData.VibrationPattern.None -> error("Should not be reached")
             }
-        }
+        )
     }
 }
 
@@ -704,50 +638,6 @@ private fun CameraView(
     }
 }
 
-@Composable
-private fun TopBar(
-    flashEnabled: Boolean,
-    onClickPrescription: () -> Unit,
-    onFlashClick: (Boolean) -> Unit
-) {
-    Surface(
-        color = Color.Unspecified,
-        contentColor = Color.White,
-        modifier = Modifier.fillMaxWidth()
-    ) {
-        Row(modifier = Modifier.padding(16.dp)) {
-            val accCancel = stringResource(R.string.cam_acc_cancel)
-            val accTorch = stringResource(R.string.cam_acc_torch)
-
-            IconButton(
-                onClick = { onClickPrescription() },
-                modifier = Modifier
-                    .testTag("camera/closeButton")
-                    .semantics { contentDescription = accCancel }
-            ) {
-                Icon(Icons.Rounded.Close, null, modifier = Modifier.size(24.dp))
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            IconToggleButton(
-                checked = flashEnabled,
-                onCheckedChange = onFlashClick,
-                modifier = Modifier
-                    .testTag("camera/flashToggle")
-                    .semantics { contentDescription = accTorch }
-            ) {
-                val ic = if (flashEnabled) {
-                    Icons.Rounded.FlashOn
-                } else {
-                    Icons.Rounded.FlashOff
-                }
-                Icon(ic, null, modifier = Modifier.size(24.dp))
-            }
-        }
-    }
-}
-
 @Suppress("ComplexMethod", "MagicNumber")
 @Composable
 private fun ScanOverlay(
@@ -755,7 +645,7 @@ private fun ScanOverlay(
     flashEnabled: Boolean,
     onFlashClick: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
-    onClickPrescription: () -> Unit,
+    onClickClose: () -> Unit,
     overlayState: ScanData.OverlayState
 ) {
     var points by remember { mutableStateOf(FloatArray(8)) }
@@ -816,9 +706,9 @@ private fun ScanOverlay(
                 .fillMaxSize()
                 .systemBarsPadding()
         ) {
-            TopBar(
+            CameraTopBar(
                 flashEnabled = flashEnabled,
-                onClickPrescription = onClickPrescription,
+                onClickClose = onClickClose,
                 onFlashClick = onFlashClick
             )
             Spacer(modifier = Modifier.size(24.dp))
@@ -834,6 +724,7 @@ private fun ScanOverlay(
                 ) {
                     val infTransition = rememberInfiniteTransition()
                     val scale by infTransition.animateFloat(
+                        label = "",
                         initialValue = 1.0f,
                         targetValue = 1.2f,
                         animationSpec = infiniteRepeatable(

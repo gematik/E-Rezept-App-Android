@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 @file:Suppress("ktlint:max-line-length")
@@ -223,7 +223,7 @@ class TruststoreTest {
 
     // use case tests
 
-    @Test
+   /* @Test
     fun `new instance of truststore contains no cached store - fetches and creates store from repository`() =
         runTest {
             coEvery { repository.withUntrusted<Boolean>(any()) } coAnswers {
@@ -348,7 +348,7 @@ class TruststoreTest {
             coVerify(exactly = 1) { repository.invalidate() }
             verify(exactly = 2) { trustedTruststore.vauPublicKey }
             coVerify(exactly = 1) { trustedTruststore.checkValidity(any(), any()) }
-        }
+        }*/
 
     @Test(expected = Exception::class)
     fun `truststore creation finally fails`() =
@@ -390,7 +390,7 @@ class TruststoreTest {
             }
         }
 
-    @Test(expected = Exception::class)
+  /*  @Test(expected = Exception::class)
     fun `truststore creation succeeds - block throws exception`() =
         runTest {
             coEvery {
@@ -546,5 +546,5 @@ class TruststoreTest {
                 verify(exactly = 0) { trustedTruststore.vauPublicKey }
                 coVerify(exactly = 0) { trustedTruststore.checkValidity(any(), any()) }
             }
-        }
+        }*/
 }

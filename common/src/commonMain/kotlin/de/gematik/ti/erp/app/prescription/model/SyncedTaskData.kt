@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.model
@@ -22,6 +22,8 @@ import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.daysUntil
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -31,7 +33,6 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 
 val CommunicationWaitStateDelta: Duration = 10.minutes
@@ -45,10 +46,42 @@ object SyncedTaskData {
         Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed
     }
 
+    enum class TaskStateSerializationType {
+        Ready,
+        Deleted,
+        LaterRedeemable,
+        Pending,
+        InProgress,
+        Expired,
+        Provided,
+        Other
+    }
+
+    enum class CoverageType {
+        GKV, // Gesetzliche Krankenversicherung
+        PKV, // Private Krankenversicherung
+        BG, // Berufsgenossenschaft
+        SEL, // Selbstzahler
+        SOZ, // Sozialamt
+        GPV, // Gesetzliche Pflegeversicherung
+        PPV, // Private Pflegeversicherung
+        BEI, // Beihilfe
+        UNKNOWN;
+
+        companion object {
+            fun mapTo(value: String?): CoverageType =
+                try {
+                    valueOf(value ?: UNKNOWN.toString())
+                } catch (e: Throwable) {
+                    UNKNOWN
+                }
+        }
+    }
+
     data class SyncedTask(
         val profileId: String,
         val taskId: String,
-        val accessCode: String?,
+        val accessCode: String,
         val lastModified: Instant,
         val organization: Organization,
         val practitioner: Practitioner,
@@ -62,36 +95,119 @@ object SyncedTaskData {
         var pvsIdentifier: String,
         var failureToReport: String,
         val medicationRequest: MedicationRequest,
+        val currentTime: Instant = Clock.System.now(), // TODO: figure out a way to remove this and make previews work
         val medicationDispenses: List<MedicationDispense> = emptyList(),
+        val lastMedicationDispense: Instant?,
         val communications: List<Communication> = emptyList()
     ) {
-        sealed interface TaskState
+        @Serializable(with = TaskStateSyncedTaskDataSerializer::class)
+        sealed interface TaskState {
+            val type: TaskStateSerializationType
+        }
 
-        data class Ready(val expiresOn: Instant, val acceptUntil: Instant) : TaskState
-        data class LaterRedeemable(val redeemableOn: Instant) : TaskState
+        @Serializable
+        @SerialName("Ready")
+        data class Ready(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.Ready,
+            val expiresOn: Instant,
+            val acceptUntil: Instant
+        ) : TaskState {
+            fun acceptDaysLeft(now: Instant): Int =
+                now.daysUntil(acceptUntil, TimeZone.currentSystemDefault())
 
-        data class Pending(val sentOn: Instant, val toTelematikId: String) : TaskState
-        data class InProgress(val lastModified: Instant) : TaskState
-        data class Expired(val expiredOn: Instant) : TaskState
+            // -1 because on the day of expiresOn, the the prescription is not redeemable
+            fun expiryDaysLeft(now: Instant): Int =
+                now.daysUntil(expiresOn, TimeZone.currentSystemDefault()) - 1
+        }
 
-        data class Other(val state: TaskStatus, val lastModified: Instant) : TaskState
+        @Serializable
+        @SerialName("Deleted")
+        data class Deleted(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.Deleted,
+            val lastModified: Instant
+        ) : TaskState
 
-        fun state(now: Instant = Clock.System.now(), delta: Duration = CommunicationWaitStateDelta): TaskState =
+        @Serializable
+        @SerialName("LaterRedeemable")
+        data class LaterRedeemable(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.LaterRedeemable,
+            val redeemableOn: Instant
+        ) : TaskState
+
+        @Serializable
+        @SerialName("Pending")
+        data class Pending(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.Pending,
+            val sentOn: Instant,
+            val toTelematikId: String
+        ) : TaskState
+
+        @Serializable
+        @SerialName("InProgress")
+        data class InProgress(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.InProgress,
+            val lastModified: Instant
+        ) : TaskState
+
+        @Serializable
+        @SerialName("Expired")
+        data class Expired(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.Expired,
+            val expiredOn: Instant
+        ) : TaskState
+
+        @Serializable
+        @SerialName("InProgress")
+        data class Provided(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.Provided,
+            val lastMedicationDispense: Instant
+        ) : TaskState
+
+        @Serializable
+        @SerialName("Other")
+        data class Other(
+            override val type: TaskStateSerializationType = TaskStateSerializationType.Other,
+            val state: TaskStatus,
+            val lastModified: Instant
+        ) : TaskState
+
+        object TaskStateSyncedTaskDataSerializer : JsonContentPolymorphicSerializer<TaskState>(
+            TaskState::class
+        ) {
+            override fun selectDeserializer(element: JsonElement): KSerializer<out TaskState> {
+                element.jsonObject["type"]?.jsonPrimitive?.content?.let { classType ->
+                    return when (TaskStateSerializationType.valueOf(classType)) {
+                        TaskStateSerializationType.Ready -> Ready.serializer()
+                        TaskStateSerializationType.Deleted -> Deleted.serializer()
+                        TaskStateSerializationType.LaterRedeemable -> LaterRedeemable.serializer()
+                        TaskStateSerializationType.Pending -> Pending.serializer()
+                        TaskStateSerializationType.InProgress -> InProgress.serializer()
+                        TaskStateSerializationType.Expired -> Expired.serializer()
+                        TaskStateSerializationType.Provided -> Provided.serializer()
+                        TaskStateSerializationType.Other -> Other.serializer()
+                    }
+                } ?: throw SerializationException(
+                    "TaskStateSyncedTaskDataSerializer: key 'type' not found or does not match any task state type"
+                )
+            }
+        }
+
+        fun state(now: Instant = currentTime, delta: Duration = CommunicationWaitStateDelta): TaskState =
             when {
                 medicationRequest.multiplePrescriptionInfo.indicator &&
                     medicationRequest.multiplePrescriptionInfo.start?.let { start ->
                     start > now
                 } == true -> {
-                    LaterRedeemable(medicationRequest.multiplePrescriptionInfo.start)
+                    LaterRedeemable(redeemableOn = medicationRequest.multiplePrescriptionInfo.start)
                 }
 
                 // expiration date is issue day + 3 months until 0:00 AM on that day
                 expiresOn != null && expiresOn <= now.toStartOfDayInUTC() && status != TaskStatus.Completed ->
-                    Expired(expiresOn)
+                    Expired(expiredOn = expiresOn)
 
-                status == TaskStatus.Ready && accessCode != null &&
-                    communications.any { it.profile == CommunicationProfile.ErxCommunicationDispReq } &&
-                    redeemState(now, delta) == RedeemState.NotRedeemable -> {
+                status == TaskStatus.Ready && communications.any {
+                    it.profile == CommunicationProfile.ErxCommunicationDispReq
+                } && redeemState(now, delta) == RedeemState.RedeemableAfterDelta -> {
                     val comm = this.communications
                         .filter { it.profile == CommunicationProfile.ErxCommunicationDispReq }
                         .maxBy { it.sentOn }
@@ -103,16 +219,17 @@ object SyncedTaskData {
                 }
 
                 status == TaskStatus.Ready -> Ready(
-                    // Expires on "expiresOn"-day at 0:00 AM.
-                    // Minus 1 day to use it as the last possible day of redeemability
-                    expiresOn = requireNotNull(expiresOn?.minus(1.days)),
-                    // Not Redeemable at the cost of the healthinsurancecompany (HI) on this day at 0:00 AM
-                    // Minus 1 day to use it as the last possible day of redeemability at the cost of the HI
-                    acceptUntil = requireNotNull(acceptUntil?.minus(1.days))
+                    expiresOn = requireNotNull(expiresOn) { "expiresOn is wrong" },
+                    acceptUntil = requireNotNull(acceptUntil) { "acceptUntil is wrong" }
+                )
+
+                status == TaskStatus.Canceled -> Deleted(lastModified = this.lastModified)
+                status != TaskStatus.Completed && lastMedicationDispense != null -> Provided(
+                    lastMedicationDispense = this.lastMedicationDispense
                 )
 
                 status == TaskStatus.InProgress -> InProgress(lastModified = this.lastModified)
-                else -> Other(this.status, this.lastModified)
+                else -> Other(state = status, lastModified = this.lastModified)
             }
 
         enum class RedeemState {
@@ -120,12 +237,12 @@ object SyncedTaskData {
             RedeemableAndValid,
             RedeemableAfterDelta;
 
-            fun isRedeemable() = this != NotRedeemable
+            fun isRedeemable() = this == RedeemableAndValid
         }
 
         fun redeemedOn() =
             if (status == TaskStatus.Completed) {
-                medicationDispenses.firstOrNull()?.whenHandedOver?.toInstant() ?: lastModified
+                lastModified
             } else {
                 null
             }
@@ -134,6 +251,7 @@ object SyncedTaskData {
          * The list of redeemable prescriptions. Should NOT be used as a filter for the active/archive tab!
          * See [isActive] for a decision it this prescription should be shown in the "Active" or "Archive" tab.
          */
+        @Suppress("CyclomaticComplexMethod")
         fun redeemState(now: Instant = Clock.System.now(), delta: Duration = CommunicationWaitStateDelta): RedeemState {
             val expired = (expiresOn != null && expiresOn <= now.toStartOfDayInUTC())
             val redeemableLater = medicationRequest.multiplePrescriptionInfo.indicator &&
@@ -141,27 +259,27 @@ object SyncedTaskData {
                 it > now
             } == true
             val ready = status == TaskStatus.Ready
-            val valid = accessCode != null
+            val inProgress = status == TaskStatus.InProgress
             val latestDispenseReqCommunication = communications
                 .filter { it.profile == CommunicationProfile.ErxCommunicationDispReq }
                 .maxOfOrNull { it.sentOn }
-            // if lastModified is more recent than the latest disp req, we can be sure that something
-            // happened with the task (e.g. claimed -> rejected)
-            val isDeltaLocked = latestDispenseReqCommunication?.let { lastModified < it && (it + delta) > now }
+
+            val isDeltaLocked = latestDispenseReqCommunication?.let { lastModified < it && (it + delta) > now } ?: false
+            val valid = accessCode.isNotEmpty()
 
             return when {
-                redeemableLater || expired -> RedeemState.NotRedeemable
-                ready && valid && latestDispenseReqCommunication == null -> RedeemState.RedeemableAndValid
-                ready && valid && isDeltaLocked == false -> RedeemState.RedeemableAfterDelta
-                ready && valid && isDeltaLocked == true -> RedeemState.NotRedeemable
+                redeemableLater || expired || inProgress -> RedeemState.NotRedeemable
+                ready && valid && isDeltaLocked -> RedeemState.RedeemableAfterDelta
+                ready && valid && !isDeltaLocked -> RedeemState.RedeemableAndValid
                 else -> RedeemState.NotRedeemable
             }
         }
 
         fun isActive(now: Instant = Clock.System.now()): Boolean {
             val expired = expiresOn != null && expiresOn <= now.toStartOfDayInUTC()
-            val allowedStatus = status == TaskStatus.Ready || status == TaskStatus.InProgress
-            return !expired && allowedStatus
+            val wasActiveAndThenCanceled = !expired && medicationDispenses.isEmpty() && status == TaskStatus.Canceled
+            val allowedStatus = status in setOf(TaskStatus.Ready, TaskStatus.InProgress)
+            return (!expired && allowedStatus) || wasActiveAndThenCanceled
         }
 
         fun isDirectAssignment() =
@@ -230,7 +348,8 @@ object SyncedTaskData {
     @Serializable
     data class InsuranceInformation(
         val name: String? = null,
-        val status: String? = null
+        val status: String? = null,
+        val coverageType: CoverageType
     )
 
     @Serializable
@@ -304,18 +423,6 @@ object SyncedTaskData {
     }
 
     @Serializable
-    data class Quantity(
-        val value: String,
-        val unit: String
-    )
-
-    @Serializable
-    data class Ratio(
-        val numerator: Quantity?,
-        val denominator: Quantity?
-    )
-
-    @Serializable
     data class Ingredient(
         var text: String,
         var form: String?,
@@ -324,117 +431,38 @@ object SyncedTaskData {
         var strength: Ratio?
     )
 
-    /*
-       Since kotlinx.serialization does not support PolymorphicSerializer of nullable types
-        out of the box we need to add a type to let the serializer know the difference if it is
-        a sealed class or sealed interface.
-    */
-    enum class MedicationSerializationType {
-        MedicationFreeText,
-        MedicationIngredient,
-        MedicationCompounding,
-        MedicationPZN
-    }
-
-    @Serializable(with = MedicationSyncedTaskDataSerializer::class)
-    sealed interface Medication {
-        val type: MedicationSerializationType
-        fun name(): String
-
-        val category: MedicationCategory
-        val vaccine: Boolean
-        val text: String
-        val form: String?
-        val lotNumber: String?
-        val expirationDate: FhirTemporal?
-    }
+    @Serializable
+    data class Identifier(
+        var pzn: String? = null,
+        var atc: String? = null,
+        var ask: String? = null,
+        var snomed: String? = null
+    )
 
     @Serializable
-    @SerialName("MedicationFreeText")
-    data class MedicationFreeText(
-        override val type: MedicationSerializationType = MedicationSerializationType.MedicationFreeText,
-        override val category: MedicationCategory,
-        override val vaccine: Boolean,
-        override val text: String,
-        override val form: String?,
-        override val lotNumber: String?,
-        override val expirationDate: FhirTemporal?
-    ) : Medication {
-        override fun name(): String = text
-    }
-
-    @Serializable
-    @SerialName("MedicationIngredient")
-    data class MedicationIngredient(
-        override val type: MedicationSerializationType = MedicationSerializationType.MedicationIngredient,
-        override val category: MedicationCategory,
-        override val vaccine: Boolean,
-        override val text: String,
-        override val form: String?,
-        override val lotNumber: String?,
-        override val expirationDate: FhirTemporal?,
+    @SerialName("Medication")
+    data class Medication(
+        val category: MedicationCategory,
+        val vaccine: Boolean,
+        val text: String,
+        val form: String?,
+        val lotNumber: String?,
+        val expirationDate: FhirTemporal?,
+        val identifier: Identifier,
         val normSizeCode: String?,
         val amount: Ratio?,
-        val ingredients: List<Ingredient>
-
-    ) : Medication {
-        override fun name(): String = joinIngredientNames(ingredients)
-    }
-
-    @Serializable
-    @SerialName("MedicationCompounding")
-    data class MedicationCompounding(
-        override val type: MedicationSerializationType = MedicationSerializationType.MedicationCompounding,
-        override val category: MedicationCategory,
-        override val vaccine: Boolean,
-        override val text: String,
-        override val form: String?,
-        override val lotNumber: String?,
-        override val expirationDate: FhirTemporal?,
         val manufacturingInstructions: String?,
         val packaging: String?,
-        val amount: Ratio?,
+        val ingredientMedications: List<Medication?>,
         val ingredients: List<Ingredient>
-
-    ) : Medication {
-        override fun name(): String = joinIngredientNames(ingredients)
-    }
-
-    @Serializable
-    @SerialName("MedicationPZN")
-    data class MedicationPZN(
-        override val type: MedicationSerializationType = MedicationSerializationType.MedicationPZN,
-        override val category: MedicationCategory,
-        override val vaccine: Boolean,
-        override val text: String,
-        override val form: String?,
-        override val lotNumber: String?,
-        override val expirationDate: FhirTemporal?,
-        val uniqueIdentifier: String,
-        val normSizeCode: String?,
-        val amount: Ratio?
-
-    ) : Medication {
-        override fun name() = text
+    ) {
+        fun name() = text.ifEmpty {
+            joinIngredientNames(ingredients)
+        }
     }
 
     fun joinIngredientNames(ingredients: List<Ingredient>) =
         ingredients.joinToString(", ") { ingredient ->
             ingredient.text
         }
-
-    object MedicationSyncedTaskDataSerializer : JsonContentPolymorphicSerializer<Medication>(Medication::class) {
-        override fun selectDeserializer(element: JsonElement): KSerializer<out Medication> {
-            element.jsonObject["type"]?.jsonPrimitive?.content?.let { classType ->
-                return when (MedicationSerializationType.valueOf(classType)) {
-                    MedicationSerializationType.MedicationFreeText -> MedicationFreeText.serializer()
-                    MedicationSerializationType.MedicationIngredient -> MedicationIngredient.serializer()
-                    MedicationSerializationType.MedicationCompounding -> MedicationCompounding.serializer()
-                    MedicationSerializationType.MedicationPZN -> MedicationPZN.serializer()
-                }
-            } ?: throw SerializationException(
-                "MedicationSyncedTaskDataSerializer: key 'type' not found or does not matches any module type"
-            )
-        }
-    }
 }

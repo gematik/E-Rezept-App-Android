@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.idp.usecase
 
@@ -64,12 +66,6 @@ class IdpAlternateAuthenticationUseCase(
         encodeDefaults = true
     }
 
-    @Requirement(
-        "A_21591",
-        "A_21600",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Gather device info and register with health card."
-    )
     suspend fun registerDeviceWithHealthCard(
         initialData: IdpInitialData,
         accessToken: String,
@@ -145,11 +141,7 @@ class IdpAlternateAuthenticationUseCase(
     }
 
     // tag::DeletePairedDevicesUseCase[]
-    @Requirement(
-        "A_21443",
-        sourceSpecification = "gemF_Biometrie",
-        rationale = "Delete pairing for device."
-    )
+
     suspend fun deletePairedDevice(
         initialData: IdpInitialData,
         accessToken: String,
@@ -163,6 +155,13 @@ class IdpAlternateAuthenticationUseCase(
             idpPukEncKey = pukEncKey.jws.publicKey
         )
 
+        // TODO: This needs to be handled properly
+        @Requirement(
+            "O.Source_5#4",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "Failure while deleting pairing",
+            codeLines = 6
+        )
         repository.deletePairing(
             url = config.pairingEndpoint,
             token = encryptedAccessToken.compactSerialization,
@@ -198,7 +197,6 @@ class IdpAlternateAuthenticationUseCase(
         challenge: IdpUnsignedChallenge,
         healthCardCertificate: ByteArray,
         authenticationMethod: AuthenticationMethod = AuthenticationMethod.Strong,
-
         aliasOfSecureElementEntry: ByteArray,
         privateKeyOfSecureElementEntry: PrivateKey,
         signatureObjectOfSecureElementEntry: Signature
@@ -218,9 +216,13 @@ class IdpAlternateAuthenticationUseCase(
 
         @Requirement(
             "O.Cryp_1#3",
-            "O.Cryp_4#3",
             sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Signature via ecdh ephemeral-static (one time usage)"
+            rationale = "Signature via ecdh ephemeral-static [one time usage]"
+        )
+        @Requirement(
+            "O.Cryp_4#4",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "One time usage for JWE ECDH-ES Encryption"
         )
         val signedAuthData =
             buildSignedAuthenticationData(authData, privateKeyOfSecureElementEntry, signatureObjectOfSecureElementEntry)
@@ -304,7 +306,7 @@ class IdpAlternateAuthenticationUseCase(
         subjectPublicKeyInfoOfSecureElement: SubjectPublicKeyInfo,
         healthCardCertificate: X509CertificateHolder
     ): PairingData {
-        require(keyAliasOfSecureElement.size == 32)
+        require(keyAliasOfSecureElement.size == 32) // TODO: throws IllegalArgumentException, probably we can make a custom exception for this
 
         return PairingData(
             subjectPublicKeyInfoOfSecureElement = Base64Url.encode(
@@ -348,11 +350,11 @@ class IdpAlternateAuthenticationUseCase(
             deviceInformation = deviceInformation
         )
 
-    @Requirement(
+    /*(
         "A_21416",
         sourceSpecification = "gemF_Biometrie",
         rationale = "Generate registration data and encrypt it with PuK_IDP_ENC."
-    )
+    ) */
     fun buildEncryptedRegistrationData(
         registrationData: RegistrationData,
         idpPukEncKey: PublicKey
@@ -393,9 +395,13 @@ class IdpAlternateAuthenticationUseCase(
 
     @Requirement(
         "O.Cryp_1#4",
-        "O.Cryp_4#4",
         sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Signature via ecdh ephemeral-static (one time usage)"
+        rationale = "Signature via ecdh ephemeral-static [one time usage]"
+    )
+    @Requirement(
+        "O.Cryp_4#6",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "One time usage for JWE ECDH-ES Encryption"
     )
     fun buildSignedAuthenticationData(
         authenticationData: AuthenticationData,
@@ -412,11 +418,6 @@ class IdpAlternateAuthenticationUseCase(
             signature
         )
 
-    @Requirement(
-        "A_21431",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Create and encrypt authentication data."
-    )
     fun buildEncryptedSignedAuthenticationData(
         signedAuthenticationData: String,
         challengeExpiry: Long,

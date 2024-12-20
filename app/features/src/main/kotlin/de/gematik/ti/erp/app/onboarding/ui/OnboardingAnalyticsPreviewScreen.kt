@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.onboarding.ui
@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Icon
@@ -40,8 +39,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.toggleableState
+import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
@@ -50,15 +53,15 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
-import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
+import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
-import de.gematik.ti.erp.app.utils.compose.SwitchWithText
-import de.gematik.ti.erp.app.utils.compose.visualTestTag
+import de.gematik.ti.erp.app.utils.compose.SwitchLeftWithText
+import de.gematik.ti.erp.app.utils.compose.preview.BooleanPreviewParameterProvider
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Requirement(
     "O.Purp_3#4",
@@ -67,49 +70,63 @@ import de.gematik.ti.erp.app.utils.compose.visualTestTag
 )
 class OnboardingAnalyticsPreviewScreen(
     override val navController: NavController,
-    override val navBackStackEntry: NavBackStackEntry
+    override val navBackStackEntry: NavBackStackEntry,
+    private val graphController: OnboardingGraphController
 ) : Screen() {
-
     @Composable
     override fun Content() {
-        val controller = rememberOnboardingController()
-        val isAnalyticsAllowedState by controller.isAnalyticsAllowedState
+        val isAnalyticsAllowedState by graphController.isAnalyticsAllowedState
         var isAnalyticsAllowed by remember(isAnalyticsAllowedState) { mutableStateOf(isAnalyticsAllowedState) }
 
-        OnboardingScaffold(
-            state = rememberLazyListState(),
-            bottomBar = {
-                OnboardingBottomBar(
-                    info = stringResource(R.string.onboarding_analytics_bottom_you_can_change),
-                    buttonText = stringResource(R.string.onboarding_bottom_button_next),
-                    buttonEnabled = true,
-                    buttonModifier = Modifier.testTag(TestTag.Onboarding.NextButton),
-                    onButtonClick = {
-                        // we finish onboarding irrespective of the analytics status
-                        navController.finishOnboardingAsSuccessAndOpenPrescriptions()
-                    }
-                )
-            },
-            modifier = Modifier
-                .visualTestTag(TestTag.Onboarding.AnalyticsScreen)
-                .fillMaxSize()
-        ) {
-            onboardingAnalyticsPreviewContent(
-                isAnalyticsAllowed = isAnalyticsAllowed,
-                onAnalyticsCheckChanged = {
-                    isAnalyticsAllowed = it
-                    controller.changeAnalyticsState(it)
-                    if (it) {
-                        navController.navigate(OnboardingRoutes.AllowAnalyticsScreen.path())
-                    }
+        OnboardingScreenScaffold(
+            isAnalyticsAllowed = isAnalyticsAllowed,
+            onAnalyticsCheckChanged = {
+                isAnalyticsAllowed = it
+                graphController.changeAnalyticsState(it)
+                if (it) {
+                    navController.navigate(OnboardingRoutes.AllowAnalyticsScreen.path())
                 }
-            )
-        }
+            },
+            onButtonClick = {
+                graphController.createProfile()
+                navController.finishOnboardingAsSuccessAndOpenPrescriptions()
+            }
+        )
     }
 }
 
 @Composable
-private fun AnalyticsInfo(icon: ImageVector, text: String) {
+fun OnboardingScreenScaffold(
+    isAnalyticsAllowed: Boolean,
+    onAnalyticsCheckChanged: (Boolean) -> Unit,
+    onButtonClick: () -> Unit
+) {
+    OnboardingScreenScaffold(
+        state = rememberLazyListState(),
+        bottomBar = {
+            OnboardingBottomBar(
+                info = stringResource(R.string.onboarding_analytics_bottom_you_can_change),
+                buttonText = stringResource(R.string.onboarding_bottom_button_next),
+                buttonEnabled = true,
+                buttonModifier = Modifier.testTag(TestTag.Onboarding.NextButton),
+                onButtonClick = onButtonClick
+            )
+        },
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        onboardingAnalyticsPreviewContent(
+            isAnalyticsAllowed = isAnalyticsAllowed,
+            onAnalyticsCheckChanged = onAnalyticsCheckChanged
+        )
+    }
+}
+
+@Composable
+private fun AnalyticsInfo(
+    icon: ImageVector,
+    text: String
+) {
     Row(Modifier.fillMaxWidth()) {
         Icon(icon, null, tint = AppTheme.colors.primary600)
         SpacerMedium()
@@ -131,7 +148,8 @@ private fun LazyListScope.onboardingAnalyticsPreviewContent(
             style = AppTheme.typography.h4,
             fontWeight = FontWeight.W700,
             textAlign = TextAlign.Start,
-            modifier = Modifier
+            modifier =
+            Modifier
                 .padding(
                     top = PaddingDefaults.XXLarge,
                     bottom = PaddingDefaults.Large
@@ -176,8 +194,11 @@ private fun LazyListScope.onboardingAnalyticsPreviewContent(
         SpacerMedium()
     }
     item {
-        SwitchWithText(
-            modifier = Modifier.testTag(TestTag.Onboarding.AnalyticsSwitch),
+        SwitchLeftWithText(
+            modifier =
+            Modifier.testTag(TestTag.Onboarding.AnalyticsSwitch).semantics {
+                toggleableState = ToggleableState.Off
+            },
             text = stringResource(R.string.on_boarding_page_5_label),
             checked = isAnalyticsAllowed,
             onCheckedChange = onAnalyticsCheckChanged
@@ -188,13 +209,14 @@ private fun LazyListScope.onboardingAnalyticsPreviewContent(
 
 @LightDarkPreview
 @Composable
-fun OnboardingAnalyticsPreviewContentPreview() {
+fun OnboardingAnalyticsPreviewContentPreview(
+    @PreviewParameter(BooleanPreviewParameterProvider::class) isAnalyticsAllowed: Boolean
+) {
     PreviewAppTheme {
-        LazyColumn {
-            onboardingAnalyticsPreviewContent(
-                isAnalyticsAllowed = false,
-                onAnalyticsCheckChanged = {}
-            )
-        }
+        OnboardingScreenScaffold(
+            isAnalyticsAllowed = isAnalyticsAllowed,
+            onAnalyticsCheckChanged = {},
+            onButtonClick = {}
+        )
     }
 }

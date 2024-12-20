@@ -1,24 +1,25 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("UnusedPrivateMember")
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.utils.asFhirLocalDate
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedBoolean
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
@@ -29,6 +30,7 @@ import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
+import de.gematik.ti.erp.app.utils.asFhirLocalDate
 import de.gematik.ti.erp.app.utils.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
@@ -42,7 +44,7 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
     processPractitioner: PractitionerFn<Practitioner>,
     processInsuranceInformation: InsuranceInformationFn<InsuranceInformation>,
     processAddress: AddressFn<Address>,
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
     processIngredient: IngredientFn<Ingredient, Ratio>,
     processRatio: RatioFn<Ratio, Quantity>,
     processQuantity: QuantityFn<Quantity>,
@@ -319,12 +321,11 @@ fun <Patient, Address> extractPatient(
 
 fun <Medication, Ingredient, Ratio, Quantity> extractPZNMedication(
     resource: JsonElement,
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
     ratioFn: RatioFn<Ratio, Quantity>,
     quantityFn: QuantityFn<Quantity>
 ): Medication {
     val text = resource.contained("code").containedStringOrNull("text")
-    val medicationProfile = MedicationProfile.PZN
     val medicationCategory = extractMedicationCategory(resource)
 
     val form = resource.containedOrNull("form")
@@ -355,10 +356,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractPZNMedication(
         .firstOrNull()
         ?.containedStringOrNull("valueCode")
 
-    val uniqueIdentifier =
-        resource.contained("code").findAll("coding")
-            .filterWith("system", stringValue("http://fhir.de/CodeSystem/ifa/pzn"))
-            .firstOrNull()?.containedString("code")
+    val identifier = parseIdentifier(resource)
 
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
@@ -366,7 +364,6 @@ fun <Medication, Ingredient, Ratio, Quantity> extractPZNMedication(
 
     return processMedication(
         text,
-        medicationProfile,
         medicationCategory,
         form,
         amount,
@@ -374,8 +371,9 @@ fun <Medication, Ingredient, Ratio, Quantity> extractPZNMedication(
         null,
         null,
         normSizeCode,
-        uniqueIdentifier,
-        listOf(),
+        identifier,
+        emptyList(),
+        emptyList(),
         lotNumber,
         expirationDate
     )
@@ -383,13 +381,12 @@ fun <Medication, Ingredient, Ratio, Quantity> extractPZNMedication(
 
 fun <Medication, Ingredient, Ratio, Quantity> extractMedicationCompounding(
     resource: JsonElement,
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
     ingredientFn: IngredientFn<Ingredient, Ratio>,
     ratioFn: RatioFn<Ratio, Quantity>,
     quantityFn: QuantityFn<Quantity>
 ): Medication {
     val text = resource.contained("code").containedStringOrNull("text")
-    val medicationProfile = MedicationProfile.COMPOUNDING
     val medicationCategory = extractMedicationCategory(resource)
     val form = resource.contained("form").containedString("text")
     val amount = resource.containedOrNull("amount")?.extractRatio(ratioFn, quantityFn)
@@ -420,13 +417,14 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationCompounding(
         it.extractIngredient(ingredientFn, ratioFn, quantityFn)
     }.toList()
 
+    val identifier = parseIdentifier(resource)
+
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
         ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
 
     return processMedication(
         text,
-        medicationProfile,
         medicationCategory,
         form,
         amount,
@@ -434,7 +432,8 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationCompounding(
         manufacturingInstructions,
         packaging,
         null,
-        null,
+        identifier,
+        emptyList(),
         ingredients,
         lotNumber,
         expirationDate
@@ -445,13 +444,11 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationFreetext(
     resource: JsonElement,
     quantityFn: QuantityFn<Quantity>, // needed for medication alias
     ratioFn: RatioFn<Ratio, Quantity>, // needed for medication alias
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>
 ): Medication {
     val text = resource.contained("code").containedStringOrNull("text")
-    val medicationProfile = MedicationProfile.FREETEXT
     val medicationCategory = extractMedicationCategory(resource)
     val form = resource.containedOrNull("form")?.containedStringOrNull("text")
-
     val vaccine = resource.findAll("extension")
         .filterWith(
             "url",
@@ -466,7 +463,6 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationFreetext(
 
     return processMedication(
         text,
-        medicationProfile,
         medicationCategory,
         form,
         null,
@@ -474,7 +470,8 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationFreetext(
         null,
         null,
         null,
-        null,
+        Identifier(),
+        emptyList(),
         listOf(),
         lotNumber,
         expirationDate
@@ -483,13 +480,12 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationFreetext(
 
 fun <Medication, Ingredient, Ratio, Quantity> extractMedicationIngredient(
     resource: JsonElement,
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
     ingredientFn: IngredientFn<Ingredient, Ratio>,
     ratioFn: RatioFn<Ratio, Quantity>,
     quantityFn: QuantityFn<Quantity>
 ): Medication {
     val text = resource.contained("code").containedStringOrNull("text")
-    val medicationProfile = MedicationProfile.INGREDIENT
     val medicationCategory = extractMedicationCategory(resource)
     val form = resource.containedOrNull("form")?.containedStringOrNull("text")
 
@@ -515,13 +511,14 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationIngredient(
         it.extractIngredient(ingredientFn, ratioFn, quantityFn)
     }.toList()
 
+    val identifier = parseIdentifier(resource)
+
     val lotNumber = resource.containedOrNull("batch")?.containedStringOrNull("lotNumber")
     val expirationDate = resource.containedOrNull("batch")
         ?.containedOrNull("expirationDate")?.jsonPrimitive?.toFhirTemporal()
 
     return processMedication(
         text,
-        medicationProfile,
         medicationCategory,
         form,
         amount,
@@ -529,7 +526,8 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationIngredient(
         null,
         null,
         normSizeCode,
-        null,
+        identifier,
+        emptyList(),
         ingredients,
         lotNumber,
         expirationDate

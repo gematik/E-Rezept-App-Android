@@ -1,39 +1,42 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.settings.navigation
 
-import SettingsAccessibilityScreen
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import de.gematik.ti.erp.app.settings.ui.SettingsLegalNoticeScreen
-import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.settings.ui.SettingsOpenSourceLicencesScreen
 import de.gematik.ti.erp.app.navigation.renderComposable
-import de.gematik.ti.erp.app.settings.ui.SettingsDataProtectionScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsAllowAnalyticsScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsDeviceSecurityScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsAdditionalLicencesScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsProductImprovementsScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsSetAppPasswordScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsScreen
-import de.gematik.ti.erp.app.settings.ui.SettingsTermsOfUseScreen
+import de.gematik.ti.erp.app.navigation.slideInDown
+import de.gematik.ti.erp.app.navigation.slideInRight
+import de.gematik.ti.erp.app.navigation.slideOutLeft
+import de.gematik.ti.erp.app.navigation.slideOutUp
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsAdditionalLicencesScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsAllowAnalyticsScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsDataProtectionScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsAppSecurityScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsLanguageScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsLegalNoticeScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsOpenSourceLicencesScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsProductImprovementsScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsSetAppPasswordScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsTermsOfUseScreen
 
 @Suppress("LongMethod")
 fun NavGraphBuilder.settingsGraph(
@@ -45,19 +48,13 @@ fun NavGraphBuilder.settingsGraph(
         route = SettingsNavigationScreens.subGraphName()
     ) {
         renderComposable(
+            stackEnterAnimation = { slideInDown() },
+            stackExitAnimation = { slideOutUp() },
+            popExitAnimation = { slideOutUp() },
             route = SettingsNavigationScreens.SettingsScreen.route,
             arguments = SettingsNavigationScreens.SettingsScreen.arguments
         ) { navEntry ->
             SettingsScreen(
-                navController = navController,
-                navBackStackEntry = navEntry
-            )
-        }
-        renderComposable(
-            route = SettingsNavigationScreens.SettingsAccessibilityScreen.route,
-            arguments = SettingsNavigationScreens.SettingsAccessibilityScreen.arguments
-        ) { navEntry ->
-            SettingsAccessibilityScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
@@ -72,10 +69,12 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsDeviceSecurityScreen.route,
-            arguments = SettingsNavigationScreens.SettingsDeviceSecurityScreen.arguments
+            route = SettingsNavigationScreens.SettingsAppSecurityScreen.route,
+            arguments = SettingsNavigationScreens.SettingsAppSecurityScreen.arguments,
+            stackEnterAnimation = { slideInRight() },
+            stackExitAnimation = { slideOutLeft() }
         ) { navEntry ->
-            SettingsDeviceSecurityScreen(
+            SettingsAppSecurityScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )
@@ -84,12 +83,6 @@ fun NavGraphBuilder.settingsGraph(
             route = SettingsNavigationScreens.SettingsTermsOfUseScreen.route,
             arguments = SettingsNavigationScreens.SettingsTermsOfUseScreen.arguments
         ) { navEntry ->
-            @Requirement(
-                "O.Arch_8#3",
-                "O.Plat_11#3",
-                sourceSpecification = "BSI-eRp-ePA",
-                rationale = "Webview containing local html without javascript"
-            )
             SettingsTermsOfUseScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
@@ -108,12 +101,6 @@ fun NavGraphBuilder.settingsGraph(
             route = SettingsNavigationScreens.SettingsDataProtectionScreen.route,
             arguments = SettingsNavigationScreens.SettingsDataProtectionScreen.arguments
         ) { navEntry ->
-            @Requirement(
-                "O.Arch_8#4",
-                "O.Plat_11#4",
-                sourceSpecification = "BSI-eRp-ePA",
-                rationale = "Webview containing local html without javascript"
-            )
             SettingsDataProtectionScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
@@ -148,9 +135,20 @@ fun NavGraphBuilder.settingsGraph(
         }
         renderComposable(
             route = SettingsNavigationScreens.SettingsSetAppPasswordScreen.route,
-            arguments = SettingsNavigationScreens.SettingsSetAppPasswordScreen.arguments
+            arguments = SettingsNavigationScreens.SettingsSetAppPasswordScreen.arguments,
+            stackEnterAnimation = { slideInRight() },
+            stackExitAnimation = { slideOutLeft() }
         ) { navEntry ->
             SettingsSetAppPasswordScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderComposable(
+            route = SettingsNavigationScreens.SettingsLanguageScreen.route,
+            arguments = SettingsNavigationScreens.SettingsLanguageScreen.arguments
+        ) { navEntry ->
+            SettingsLanguageScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

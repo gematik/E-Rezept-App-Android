@@ -1,26 +1,29 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.fhir.model
 
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.serialization.Serializable
 import kotlin.math.PI
 import kotlin.math.abs
 import kotlin.math.asin
@@ -38,14 +41,15 @@ data class PharmacyServices(
     val bundleResultCount: Int
 )
 
-data class Location(
+@Serializable
+data class Coordinates(
     val latitude: Double,
     val longitude: Double
 ) {
     /**
      * Haversine distance between two points on a sphere.
      */
-    fun distanceInMeters(other: Location): Double {
+    private fun distanceInMeters(other: Coordinates): Double {
         val dLat = toRadians(other.latitude - this.latitude)
         val dLon = toRadians(other.longitude - this.longitude)
         val lat1 = toRadians(this.latitude)
@@ -56,9 +60,9 @@ data class Location(
     }
 
     private fun toRadians(deg: Double) = deg / 180.0 * PI
-    operator fun minus(other: Location) = distanceInMeters(other)
+    operator fun minus(other: Coordinates) = distanceInMeters(other)
     override fun equals(other: Any?): Boolean =
-        if (other == null || other !is Location) {
+        if (other == null || other !is Coordinates) {
             false
         } else {
             abs(this.latitude - other.latitude) < EqEpsilon && abs(this.longitude - other.longitude) < EqEpsilon
@@ -71,12 +75,14 @@ data class Location(
     }
 }
 
+@Serializable
 data class PharmacyAddress(
     val lines: List<String>,
     val postalCode: String,
     val city: String
 )
 
+@Serializable
 data class PharmacyContacts(
     val phone: String,
     val mail: String,
@@ -90,63 +96,17 @@ data class Pharmacy(
     val id: String,
     val name: String,
     val address: PharmacyAddress,
-    val location: Location,
+    val coordinates: Coordinates? = null,
     val contacts: PharmacyContacts,
     val provides: List<PharmacyService>,
     val telematikId: String
 )
 
-sealed interface PharmacyService
-
-interface TemporalPharmacyService : PharmacyService {
-    val openingHours: OpeningHours
-    fun isOpenAt(tm: LocalDateTime) = openingHours.isOpenAt(tm)
-    fun isAllDayOpen(day: DayOfWeek) = openingHours[day]?.any { it.isAllDayOpen() } ?: false
-    fun openUntil(tm: LocalDateTime): LocalTime? {
-        val localTm = tm.time
-        return openingHours[tm.dayOfWeek]?.find {
-            it.isOpenAt(localTm)
-        }?.closingTime
-    }
-
-    fun opensAt(tm: LocalDateTime): LocalTime? {
-        val localTm = tm.time
-        return openingHours[tm.dayOfWeek]?.find {
-            if (it.openingTime == null) {
-                true
-            } else {
-                it.openingTime >= localTm
-            }
-        }?.openingTime
-    }
-}
-
-data class OnlinePharmacyService(
-    val name: String
-) : PharmacyService
-
-data class PickUpPharmacyService(
-    val name: String
-) : PharmacyService
-
-data class DeliveryPharmacyService(
-    val name: String,
-    override val openingHours: OpeningHours
-) : TemporalPharmacyService
-
-data class EmergencyPharmacyService(
-    val name: String,
-    override val openingHours: OpeningHours
-) : TemporalPharmacyService
-
-data class LocalPharmacyService(
-    val name: String,
-    override val openingHours: OpeningHours
-) : TemporalPharmacyService
-
+@Serializable
 data class OpeningHours(val openingTime: Map<DayOfWeek, List<OpeningTime>>) :
     Map<DayOfWeek, List<OpeningTime>> by openingTime
 
+@Serializable
 data class OpeningTime(
     val openingTime: LocalTime?,
     val closingTime: LocalTime?

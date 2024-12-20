@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.idp.usecase
 
@@ -118,7 +120,12 @@ class IdpBasicUseCase(
 ) {
 
     // ////////////////////////////////////////////////////////////////////////////////////////
-
+    @Requirement(
+        "A_17207#3",
+        "GS-A_4357-02#3",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Initialize required algorithms implemented using ECDSA."
+    )
     suspend fun initializeConfigurationAndKeys(): IdpInitialData {
         cryptoInitializedLock.withLock {
             if (!isCryptoInitialized) {
@@ -139,6 +146,12 @@ class IdpBasicUseCase(
             // retry
             try {
                 repository.loadUncheckedIdpConfiguration().also {
+                    @Requirement(
+                        "O.Auth_10#2",
+                        sourceSpecification = "BSI-eRp-ePA",
+                        rationale = "The application also checks for the expiration time-stamp of the IDP configuration.",
+                        codeLines = 3
+                    )
                     checkIdpConfigurationValidity(it, Clock.System.now())
                 }
             } catch (e: Exception) {
@@ -162,6 +175,11 @@ class IdpBasicUseCase(
         val state = IdpState.create()
         val nonce = IdpNonce.create()
 
+        @Requirement(
+            "A_20309#1",
+            sourceSpecification = "gemSpec_IDP_Frontend",
+            rationale = "generation and hashing for codeChallenge"
+        )
         val codeVerifier = generateCodeVerifier()
         val codeChallenge = generateCodeChallenge(codeVerifier)
 
@@ -253,12 +271,7 @@ class IdpBasicUseCase(
         )
 
         @Requirement(
-            "A_20527#1",
-            sourceSpecification = "gemSpec_IDP_Frontend",
-            rationale = "Returns the AUTHORIZATION_CODE (accessToken) and the SSO token."
-        )
-        @Requirement(
-            "A_21327#1",
+            "A_21327#4",
             sourceSpecification = "gemSpec_IDP_Frontend",
             rationale = "Usage of idToken Payload / idToken is not persisted / " +
                 "since we have automatic memory management, we can't delete the token. " +
@@ -309,6 +322,11 @@ class IdpBasicUseCase(
 
         val codeFromRedirect = IdpService.extractQueryParameter(redirect, "code")
 
+        @Requirement(
+            "A_20283-01#2",
+            sourceSpecification = "gemSpec_IDP_Frontend",
+            rationale = "post redirect and decrypt access token."
+        )
         val idpTokenResult = postCodeAndDecryptAccessToken(
             config.tokenEndpoint,
             nonce = nonce,
@@ -351,12 +369,7 @@ class IdpBasicUseCase(
         return redirect
     }
 
-    @Requirement(
-        "A_19908-01",
-        "GS-A_4357-01",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Fetch and check challenge."
-    )
+    // GS-A_4357-01
     suspend fun fetchAndCheckUnsignedChallenge(
         url: String,
         codeChallenge: String,
@@ -395,13 +408,6 @@ class IdpBasicUseCase(
         )
     }
 
-    @Requirement(
-        "A_20529-01",
-        "A_20740#2",
-        "A_21414",
-        sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Post relevant information to IDP and decrypt access-token."
-    )
     suspend fun postCodeAndDecryptAccessToken(
         url: String,
         nonce: IdpNonce,
@@ -412,10 +418,14 @@ class IdpBasicUseCase(
         redirectUri: String
     ): IdpTokenResult {
         @Requirement(
-            "O.Cryp_3#2",
-            "O.Cryp_4#2",
+            "O.Cryp_3#3",
             sourceSpecification = "BSI-eRp-ePA",
             rationale = "AES Key-Generation and one time usage"
+        )
+        @Requirement(
+            "O.Cryp_4#5",
+            sourceSpecification = "BSI-eRp-ePA",
+            rationale = "One time usage for JWE ECDH-ES Encryption"
         )
         @Requirement(
             "GS-A_4389#1",
@@ -435,6 +445,12 @@ class IdpBasicUseCase(
             code = code,
             redirectUri = redirectUri
         ).map {
+            @Requirement(
+                "A_20283-01#3",
+                "A_19938-01#3",
+                sourceSpecification = "gemSpec_IDP_Frontend",
+                rationale = "decrypt access token and token validation."
+            )
             val decryptedIdToken = decryptIdToken(it, symmetricalKey)
             val idTokenPayload = decryptedIdToken.apply {
                 key = pukSigKey.jws.publicKey
@@ -483,8 +499,8 @@ class IdpBasicUseCase(
         }
 
     @Requirement(
-        "A_20309",
-        sourceSpecification = "gemSpec_eRp_FdV",
+        "A_20309#2",
+        sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Generate code verifier using SecureRandome."
     )
     fun generateCodeVerifier(): String {
@@ -497,6 +513,11 @@ class IdpBasicUseCase(
         )
     }
 
+    @Requirement(
+        "A_20309#3",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Hashing of code verifier to generate code challenge."
+    )
     fun generateCodeChallenge(codeVerifier: String): String {
         // https://datatracker.ietf.org/doc/html/rfc7636#section-4.2
         return Base64Url.encode(
@@ -506,20 +527,48 @@ class IdpBasicUseCase(
         )
     }
 
+    // A_20617-01,
     @Requirement(
-        "A_20512",
-        "A_20614#2",
-        "A_20617-01#3",
-        "A_21218#2",
-        "A_22296-01#2",
+        "A_23082#3",
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Get and validate discovery document."
+    )
+    @Requirement(
+        "O.Ntwk_4#1",
+        "O.Resi_6#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Get and validate discovery document."
+    )
+    @Requirement(
+        "A_21218#5",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "Check OCSP validity."
+    )
+    @Requirement(
+        "A_20512#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Get and validate discovery document.",
+        codeLines = 3
     )
     suspend fun checkIdpConfigurationValidity(config: IdpData.IdpConfiguration, timestamp: Instant) {
         truststoreUseCase.checkIdpCertificate(config.certificate, true)
 
         val claims = JwtClaims().apply {
             issuedAt = NumericDate.fromMilliseconds(config.issueTimestamp.toEpochMilliseconds())
+            @Requirement(
+                "O.Auth_10#1",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "The application also checks for the expiration time-stamp of the IDP configuration.",
+                codeLines = 3
+            )
+            @Requirement(
+                "A_20512#2,",
+                sourceSpecification = "gemSpec_IDP_Frontend",
+                rationale = "The application also checks for the expiration time-stamp of the IDP configuration. " +
+                    "The discoveryDocumentMaxValiditySeconds and discoveryDocumentMaxValidityMinutes value is used to set " +
+                    "the maximum validity time of 24 hours.",
+                codeLines = 3
+            )
             expirationTime = NumericDate.fromMilliseconds(config.expirationTimestamp.toEpochMilliseconds())
         }
 
