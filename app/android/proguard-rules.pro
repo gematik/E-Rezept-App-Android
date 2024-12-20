@@ -128,6 +128,9 @@
 -keep,allowobfuscation,allowshrinking class okhttp3.RequestBody
 -keep,allowobfuscation,allowshrinking class okhttp3.ResponseBody
 
+# app classes
+-keep class de.gematik.ti.erp.app.debugsettings.** { *; }
+
 # With R8 full mode generic signatures are stripped for classes that are not
 # kept. Suspend functions are wrapped in continuations where the type argument
 # is used.
@@ -138,6 +141,10 @@
 -dontwarn org.conscrypt.**
 -dontwarn org.bouncycastle.**
 -dontwarn org.openjsse.**
+
+# Keep all classes, methods, and fields in the com.appmattus.certificatetransparency package
+-keep class com.appmattus.certificatetransparency.** { *; }
+-keep class com.appmattus.certificatetransparency.**$* { *; }
 
 -printconfiguration "~/tmp/full-r8-config.txt"
 

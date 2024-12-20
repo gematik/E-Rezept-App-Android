@@ -1,75 +1,35 @@
+@file:Suppress("VariableNaming", "PropertyName", "UnusedPrivateProperty")
 
-import de.gematik.ti.erp.AppDependenciesPlugin
-import de.gematik.ti.erp.Dependencies
-import de.gematik.ti.erp.inject
-import de.gematik.ti.erp.overriding
-import org.owasp.dependencycheck.reporting.ReportGenerator.Format
+import de.gematik.ti.erp.app.plugins.dependencies.overrides
+import de.gematik.ti.erp.app.plugins.names.AppDependencyNamesPlugin
 import java.util.Properties
 
 plugins {
-    id("com.android.application")
-    kotlin("android")
-    id("org.jetbrains.compose")
-    id("io.realm.kotlin")
-    kotlin("plugin.serialization")
-    id("org.owasp.dependencycheck")
-    id("com.jaredsburrows.license")
-    id("de.gematik.ti.erp.dependencies")
-    id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
-    id("de.gematik.ti.erp.technical-requirements")
+    id("base-android-application")
+    id("de.gematik.ti.erp.dependency-overrides")
+    id("de.gematik.ti.erp.names")
     // Release app into play-store
     id("com.github.triplet.play") version "3.8.6" apply true
 }
 
-val VERSION_CODE: String by overriding()
-val VERSION_NAME: String by overriding()
-val TEST_INSTRUMENTATION_ORCHESTRATOR: String? by project
-
-afterEvaluate {
-    val taskRegEx = """assemble(Google|Huawei)(PuExternalDebug|PuExternalRelease)""".toRegex()
-    tasks.forEach { task ->
-        taskRegEx.matchEntire(task.name)?.let {
-            val (_, version, flavor) = it.groupValues
-            task.dependsOn(tasks.getByName("license${version}${flavor}Report"))
-        }
-    }
-}
-
-licenseReport {
-    generateCsvReport = false
-    generateHtmlReport = false
-    generateJsonReport = true
-    copyJsonReportToAssets = true
-}
+// these two need to be in uppercase since it is declared that way in gradle.properties
+val VERSION_CODE: String by overrides()
+val VERSION_NAME: String by overrides()
+val gematik = AppDependencyNamesPlugin()
 
 android {
-    namespace = AppDependenciesPlugin.APP_NAME_SPACE
+    namespace = gematik.appNameSpace
     defaultConfig {
-        applicationId = AppDependenciesPlugin.APP_ID
+        applicationId = gematik.appId
         versionCode = VERSION_CODE.toInt()
         versionName = VERSION_NAME
 
-        testApplicationId = "de.gematik.ti.erp.app.test.test"
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    kotlinOptions {
-        jvmTarget = Dependencies.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
-    }
-    dependencyCheck {
-        analyzers.assemblyEnabled = false
-        suppressionFile = "${project.rootDir}" + "/config/dependency-check/suppressions.xml"
-        formats = listOf(Format.HTML, Format.XML)
-        scanConfigurations = configurations.filter {
-            it.name.startsWith("api") ||
-                it.name.startsWith("implementation") ||
-                it.name.startsWith("kapt")
-        }.map {
-            it.name
-        }
-    }
-    androidResources {
-        generateLocaleConfig = true
+        testApplicationId = gematik.moduleName("test.test")
+        testInstrumentationRunnerArguments["clearPackageData"] = "true"
+        testOptions.execution = "ANDROID_TEST_ORCHESTRATOR"
+        // Check if MAPS_API_KEY is defined, otherwise provide a default value
+        val mapsApiKey = project.findProperty("MAPS_API_KEY") ?: "DEFAULT_PLACEHOLDER_KEY"
+        manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
     }
     val rootPath = project.rootProject
     val signingPropsFile = rootPath.file("signing.properties")
@@ -78,18 +38,20 @@ android {
         val signingProps = Properties()
         signingProps.load(signingPropsFile.inputStream())
         signingConfigs {
-            fun creatingRelease() = creating {
-                val target = this.name // property name; e.g. googleRelease
-                println("Create signing config for: $target")
-                storeFile = signingProps["$target.storePath"]?.let {
-                    rootPath.file("erp-app-android/$it")
+            fun creatingRelease() =
+                creating {
+                    val target = this.name // property name; e.g. googleRelease
+                    println("Create signing config for: $target")
+                    storeFile =
+                        signingProps["$target.storePath"]?.let {
+                            rootPath.file("erp-app-android/$it")
+                        }
+                    println("\tstore: ${signingProps["$target.storePath"]}")
+                    keyAlias = signingProps["$target.keyAlias"] as? String
+                    println("\tkeyAlias: ${signingProps["$target.keyAlias"]}")
+                    storePassword = signingProps["$target.storePassword"] as? String
+                    keyPassword = signingProps["$target.keyPassword"] as? String
                 }
-                println("\tstore: ${signingProps["$target.storePath"]}")
-                keyAlias = signingProps["$target.keyAlias"] as? String
-                println("\tkeyAlias: ${signingProps["$target.keyAlias"]}")
-                storePassword = signingProps["$target.storePassword"] as? String
-                keyPassword = signingProps["$target.keyPassword"] as? String
-            }
             if (signingProps["googleRelease.storePath"] != null) {
                 val googleRelease by creatingRelease()
             }
@@ -100,14 +62,13 @@ android {
     } else {
         println("No signing properties found!")
     }
-
     buildTypes {
         val release by getting {
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             if (signingPropsFile.canRead()) {
                 signingConfig = signingConfigs.getByName("googleRelease")
@@ -116,27 +77,32 @@ android {
         }
         val debug by getting {
             applicationIdSuffix = ".test"
-            resValue("string", "app_label", "E-Rezept Debug")
             versionNameSuffix = "-debug"
-            signingConfigs {
-                getByName("debug") {
-                    storeFile = rootPath.file("keystore/debug.keystore")
-                    keyAlias = "androiddebugkey"
-                    storePassword = "android"
-                    keyPassword = "android"
+            resValue("string", "app_label", "E-Rezept Debug")
+            if(rootPath.file("keystore/debug.keystore").exists()) { // needed tp be able to build on github
+                signingConfigs {
+                    getByName("debug") {
+                        storeFile = rootPath.file("keystore/debug.keystore")
+                        keyAlias = "androiddebugkey"
+                        storePassword = "android"
+                        keyPassword = "android"
+                    }
                 }
             }
         }
-        create("minifiedDebug") {
-            initWith(debug)
+        create(gematik.minifiedDebug) {
             applicationIdSuffix = ".minirelease"
+            isDebuggable = true
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
-            resValue("string", "app_label", "E-Rezept MiniRelease")
+            if (signingPropsFile.canRead()) {
+                signingConfig = signingConfigs.getByName("googleRelease")
+            }
+            resValue("string", "app_label", "E-Rezept Mini")
         }
     }
     flavorDimensions += listOf("version")
@@ -162,6 +128,7 @@ android {
                 applicationIdSuffix = ".konnektathon.ru"
                 versionNameSuffix = "-konnektathon-RU"
                 signingConfig = signingConfigs.findByName("googleRelease")
+                resValue("string", "app_label", "E-Rezept Konny")
             }
         }
         if (flavor?.startsWith("konnektathonDevru") == true) {
@@ -170,137 +137,38 @@ android {
                 applicationIdSuffix = ".konnektathon.rudev"
                 versionNameSuffix = "-konnektathon-RUDEV"
                 signingConfig = signingConfigs.findByName("googleRelease")
+                resValue("string", "app_label", "E-Rezept Konny Dev")
             }
         }
     }
 
-    packagingOptions {
-        resources {
-            excludes += "META-INF/**"
-            // for JNA and JNA-platform
-            excludes += "META-INF/AL2.0"
-            excludes += "META-INF/LGPL2.1"
-            // for byte-buddy
-            excludes += "META-INF/licenses/ASM"
-            pickFirsts += "win32-x86-64/attach_hotspot_windows.dll"
-            pickFirsts += "win32-x86/attach_hotspot_windows.dll"
-        }
+    testOptions {
+        animationsDisabled = true
     }
 }
 
 dependencies {
-    implementation(project(":app:features"))
-    implementation(project(":app:demo-mode"))
-    androidTestImplementation(project(":app:shared-test"))
-    implementation(project(":common"))
-    testImplementation(project(":common"))
-    testImplementation(kotlin("test"))
-    implementation("com.tom-roush:pdfbox-android:2.0.27.0") {
-        exclude(group = "org.bouncycastle")
-        implementation(kotlin("stdlib"))
-        implementation(kotlin("reflect"))
-    }
+    implementation(project(gematik.feature))
+    implementation(project(gematik.demoMode))
+    implementation(project(gematik.uiComponents))
+    androidTestImplementation(project(gematik.testActions))
+    androidTestImplementation(project(gematik.testTags))
+    implementation(project(gematik.multiplatform))
+    testImplementation(project(gematik.multiplatform))
+    implementation(libs.play.app.update)
+    implementation(libs.tracing)
+    debugImplementation(libs.tracing)
 
-    inject {
-        dateTime {
-            implementation(datetime)
-            testCompileOnly(datetime)
-        }
-        android {
-            coreLibraryDesugaring(desugaring)
-            debugImplementation(processPhoenix)
-        }
-        androidX {
-            implementation(appcompat)
-            implementation(composeNavigation)
-            implementation(security)
-            implementation(lifecycleViewmodel)
-            implementation(lifecycleProcess)
-            implementation(lifecycleComposeRuntime)
-        }
-        dependencyInjection {
-            compileOnly(kodeinCompose)
-            androidTestImplementation(kodeinCompose)
-        }
-        logging {
-            implementation(napier)
-        }
-        tracking {
-            implementation(contentSquare)
-        }
-        compose {
-            implementation(runtime)
-            implementation(foundation)
-            implementation(uiTooling)
-            implementation(preview)
-        }
-        crypto {
-            testImplementation(jose4j)
-            testImplementation(bouncycastleBcprov)
-            testImplementation(bouncycastleBcpkix)
-        }
-        database {
-            testCompileOnly(realm)
-        }
-        network {
-            implementation(retrofit)
-            implementation(retrofit2KotlinXSerialization)
-            implementation(okhttp3)
-            implementation(okhttpLogging)
-            // Work around vulnerable Okio version 3.1.0 (CVE-2023-3635).
-            // Can be removed as soon as Retrofit releases a new version >2.9.0.
-            implementation(okio)
+    androidTestImplementation(libs.kodeon.core)
+    androidTestImplementation(libs.kodeon.android)
+    androidTestImplementation(libs.primsys.client)
+}
 
-            androidTestImplementation(okhttp3)
-        }
-        database {
-            compileOnly(realm)
-            testCompileOnly(realm)
-        }
-        playServices {
-            implementation(appUpdate)
-        }
-        serialization {
-            implementation(kotlinXJson)
-        }
-        androidXTest {
-            testImplementation(archCore)
-            androidTestImplementation(core)
-            androidTestImplementation(rules)
-            androidTestImplementation(junitExt)
-            androidTestImplementation(runner)
-            androidTestUtil(orchestrator)
-            androidTestUtil(services)
-            // androidTestImplementation(navigation)
-            androidTestImplementation(espresso)
-            androidTestImplementation(espressoIntents)
-        }
-        tracing {
-            debugImplementation(tracing)
-            implementation(tracing)
-        }
-        coroutinesTest {
-            testImplementation(coroutinesTest)
-        }
-        composeTest {
-            androidTestImplementation(ui)
-            debugImplementation(uiManifest)
-            androidTestImplementation(junit4)
-        }
-        networkTest {
-            testImplementation(mockWebServer)
-        }
-        test {
-            testImplementation(junit4)
-            testImplementation(snakeyaml)
-            testImplementation(json)
-            testImplementation(mockkOld)
-            androidTestImplementation(mockkAndroid)
-        }
+// keep this here since it cannot be changed for mock app
+configurations.all {
+    resolutionStrategy {
+        force("io.netty:netty-codec-http2:4.1.100.Final")
+        force("com.google.protobuf:protobuf-java:4.28.2")
     }
 }
 
-secrets {
-    defaultPropertiesFileName = if (project.rootProject.file("ci-overrides.properties").exists()
-    ) "ci-overrides.properties" else "gradle.properties"
-}

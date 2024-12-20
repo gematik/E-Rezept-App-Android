@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.ui
@@ -21,9 +21,9 @@ package de.gematik.ti.erp.app.prescription.ui
 import android.content.Context
 import android.util.Size
 import androidx.annotation.OptIn
+import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageProxy
-import androidx.camera.core.ExperimentalGetImage
 import com.google.mlkit.common.MlKit
 import com.google.mlkit.common.sdkinternal.MlKitContext
 import com.google.mlkit.vision.barcode.BarcodeScanner
@@ -32,9 +32,9 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
 import de.gematik.ti.erp.app.Requirement
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import io.github.aakira.napier.Napier
 
 private const val DEFAULT_SCAN_TIME = 250L
 
@@ -44,15 +44,9 @@ private const val DEFAULT_SCAN_TIME = 250L
     rationale = "analyse the camera input"
 )
 @Requirement(
-    "O.Data_8",
+    "O.Data_9#1",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "This controller uses the camera as an input device. Frames are processed but never " +
-        "stored, metadata is never created here."
-)
-@Requirement(
-    "O.Data_9",
-    sourceSpecification = "BSI-eRp-ePA",
-    rationale = "The device camera is exclusively used for scanning data matrix codes, no picture files are created."
+    rationale = "The device camera is also used for scanning data matrix codes."
 )
 class TwoDCodeScanner(
 
@@ -72,6 +66,12 @@ class TwoDCodeScanner(
     )
         private set
 
+    @Requirement(
+        "O.Data_8#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "This controller uses the camera as an input device. Frames are processed but never " +
+            "stored, metadata is never created here."
+    )
     private val scanner: BarcodeScanner by lazy {
         BarcodeScanning.getClient(
             BarcodeScannerOptions.Builder()

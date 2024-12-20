@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.pharmacy.usecase
@@ -58,8 +58,8 @@ class GetOrderStateUseCase(
         profileRepository.activeProfile().flatMapLatest { profile ->
             combine(
                 shippingContactRepository.shippingContact(),
-                getRedeemedSyncedTasks(profile.id),
-                getRedeemedScannedTasks(profile.id)
+                getRedeemableSyncedTasks(profile.id),
+                getRedeemableScannedTasks(profile.id)
             ) { contact, syncedTasks, scannedTasks ->
                 val updatedContact = when {
                     syncedTasks.isNotEmpty() && contact == null ->
@@ -68,9 +68,11 @@ class GetOrderStateUseCase(
                     else -> contact
                 }
                 val orders = syncedTasks.map { it.toOrder() } + scannedTasks.map { it.toOrder() }
+                val selfPayerPrescriptionIds = orders.filter { it.isSelfPayerPrescription }.map { it.taskId }
                 val shippingContact = updatedContact?.toModel() ?: EmptyShippingContact
                 PharmacyUseCaseData.OrderState(
-                    orders = orders,
+                    prescriptionOrders = orders,
+                    selfPayerPrescriptionIds = selfPayerPrescriptionIds,
                     contact = shippingContact
                 )
             }.flowOn(dispatcher)
@@ -82,18 +84,21 @@ class GetOrderStateUseCase(
         return this
     }
 
-    private fun getRedeemedSyncedTasks(id: ProfileIdentifier): Flow<List<SyncedTask>> =
+    private fun getRedeemableSyncedTasks(id: ProfileIdentifier): Flow<List<SyncedTask>> =
         prescriptionRepository.syncedTasks(id)
             .mapNotNull { tasks ->
                 tasks.filter { it.redeemState().isRedeemable() }
+                    .sortedByDescending { it.authoredOn }
             }.flowOn(dispatcher)
 
-    private fun getRedeemedScannedTasks(id: ProfileIdentifier): Flow<List<ScannedTask>> =
+    private fun getRedeemableScannedTasks(id: ProfileIdentifier): Flow<List<ScannedTask>> =
         prescriptionRepository.scannedTasks(id)
             .mapNotNull { tasks ->
                 tasks.filter {
                     it.isRedeemable()
-                    it.communications.isEmpty()
+                    // TODO: (Check) Keeping this comment in-case we need the check for redeem enabled
+                    // it.communications.isEmpty()
                 }
+                    .sortedByDescending { it.scannedOn }
             }.flowOn(dispatcher)
 }

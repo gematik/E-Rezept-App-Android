@@ -1,5 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
+  <ManuallySuppressedIssues>
+    <ID>ConstructorParameterNaming:PrescriptionDetailController.kt$PrescriptionDetailController$private val _prescription: MutableStateFlow&lt;UiState&lt;PrescriptionData.Prescription>> = MutableStateFlow(UiState.Loading())</ID>
+  </ManuallySuppressedIssues>
   <CurrentIssues>
     <ID>ClassNaming:SchemaTest.kt$RealmA_V1 : RealmObject</ID>
     <ID>ClassNaming:SchemaTest.kt$RealmA_V2 : RealmObject</ID>
@@ -324,9 +327,6 @@
     <ID>NestedBlockDepth:EntityUtils.kt$private suspend fun SequenceScope&lt;Deleteable>.flatten( currentObject: Cascading, currentDepth: Int, maxDepth: Int )</ID>
     <ID>NestedBlockDepth:LicenceRule.kt$LicenceRule$override fun visit( node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit )</ID>
     <ID>MemberNameEqualsClassName:AppDependenciesPlugin.kt$AppDependenciesPlugin.Dependencies.Lottie$const val lottie = "com.airbnb.android:lottie-compose:$lottieVersion"</ID>
-    <ID>MemberNameEqualsClassName:Navigation.kt$Route$val route = arguments.fold(Uri.Builder().path(path)) { uri, param -&gt; uri.appendQueryParameter(param.name, "{${param.name}}") }.build().toString()</ID>
-    <ID>NestedBlockDepth:EntityUtils.kt$private suspend fun SequenceScope&lt;Deleteable&gt;.flatten( currentObject: Cascading, currentDepth: Int, maxDepth: Int )</ID>
-    <ID>NestedBlockDepth:LicenceRule.kt$LicenceRule$override fun visit( node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -&gt; Unit )</ID>
     <ID>NestedBlockDepth:Utils.kt$fun ByteArray.contains(other: ByteArray): Boolean</ID>
     <ID>ReturnCount:BiometricPrompt.kt$@Requirement( "A_21582", sourceSpecification = "gemSpec_IDP_Frontend", rationale = "Selection of the best available authentication option on the device." ) private fun bestSecureOption(biometricManager: BiometricManager): Int</ID>
     <ID>ReturnCount:TestResource.kt$TestResource$fun getParameter(parameterEnum: ParameterEnum): Any?</ID>
@@ -339,7 +339,7 @@
     <ID>SwallowedException:OCSPUtils.kt$e: Exception</ID>
     <ID>SwallowedException:SecureMessagingTest.kt$SecureMessagingTest$e: Exception</ID>
     <ID>SwallowedException:TruststoreUseCase.kt$TruststoreUseCase$e: Exception</ID>
-    <ID>ThrowsCount:IdpUseCase.kt$IdpUseCase$private suspend fun loadAccessToken( refresh: Boolean = false, profileId: ProfileIdentifier, scope: IdpScope, singleSignOnTokenScope: suspend () -&gt; IdpData.SingleSignOnTokenScope?, decryptedAccessToken: suspend () -&gt; String?, invalidateDecryptedAccessToken: suspend () -&gt; Unit, invalidateSingleSignOnTokenRetainingScope: suspend () -&gt; Unit, saveDecryptedAccessToken: suspend (decryptedAccessToken: String) -&gt; Unit ): String</ID>
+    <ID>ThrowsCount:IdpUseCase.kt$IdpUseCase$private suspend fun loadAccessToken( refresh: Boolean = false, profileId: ProfileIdentifier, scope: IdpScope, singleSignOnTokenScope: suspend () -> IdpData.SingleSignOnTokenScope?, decryptedAccessToken: suspend () -> String?, invalidateDecryptedAccessToken: suspend () -> Unit, invalidateSingleSignOnTokenRetainingScope: suspend () -> Unit, saveDecryptedAccessToken: suspend (decryptedAccessToken: String) -> Unit ): String</ID>
     <ID>TooGenericExceptionCaught:AuthenticationUseCase.kt$AuthenticationUseCase$e: Exception</ID>
     <ID>TooGenericExceptionCaught:CertUtils.kt$e: Exception</ID>
     <ID>TooGenericExceptionCaught:DebugLoadingButton.kt$e: Exception</ID>

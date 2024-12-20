@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("TooManyFunctions", "MagicNumber")
 
 package de.gematik.ti.erp.app.utils.compose
 
@@ -32,7 +34,9 @@ import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -64,21 +68,21 @@ import androidx.compose.material.LocalContentAlpha
 import androidx.compose.material.LocalContentColor
 import androidx.compose.material.LocalTextStyle
 import androidx.compose.material.MaterialTheme
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
-import androidx.compose.material.TextFieldColors
-import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.KeyboardArrowRight
-import androidx.compose.material.icons.rounded.Undo
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -86,13 +90,16 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -121,19 +128,26 @@ import androidx.compose.ui.window.DialogProperties
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.LocalTimeZone
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.extensions.openUriWhenValid
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.format
+import kotlinx.datetime.format.Padding
 import kotlinx.datetime.toLocalDateTime
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
+import kotlinx.datetime.LocalDateTime as KotlinLocalDateTime
 
 @Composable
 fun LargeButton(
@@ -271,17 +285,17 @@ fun ClickableTaggedText(
 }
 
 @Composable
-fun NavigationBack(modifier: Modifier = Modifier, onClick: () -> Unit) {
-    val acc = stringResource(R.string.back)
+fun NavigateBackButton(modifier: Modifier = Modifier, onClick: () -> Unit) {
+    val contentDescription = stringResource(R.string.back)
 
     IconButton(
         onClick = onClick,
         modifier = modifier
-            .semantics { contentDescription = acc }
+            .semantics { this.contentDescription = contentDescription }
             .testTag(TestTag.TopNavigation.BackButton)
     ) {
         Icon(
-            Icons.Rounded.ArrowBack,
+            Icons.AutoMirrored.Rounded.ArrowBack,
             null,
             tint = MaterialTheme.colors.primary,
             modifier = Modifier.size(24.dp)
@@ -296,20 +310,29 @@ enum class NavigationBarMode {
 
 @Composable
 fun NavigationTopAppBar(
+    modifier: Modifier = Modifier,
     navigationMode: NavigationBarMode?,
     title: String,
+    isTitleCentered: Boolean = false,
     backgroundColor: Color = MaterialTheme.colors.surface,
     elevation: Dp = AppBarDefaults.TopAppBarElevation,
     actions: @Composable RowScope.() -> Unit = {},
     onBack: () -> Unit
 ) = TopAppBar(
+    modifier = modifier,
     title = {
-        Text(title, overflow = TextOverflow.Ellipsis)
+        if (isTitleCentered) {
+            Center {
+                Text(title, overflow = TextOverflow.Ellipsis)
+            }
+        } else {
+            Text(title, overflow = TextOverflow.Ellipsis)
+        }
     },
     backgroundColor = backgroundColor,
     navigationIcon = {
         when (navigationMode) {
-            NavigationBarMode.Back -> NavigationBack { onBack() }
+            NavigationBarMode.Back -> NavigateBackButton { onBack() }
             NavigationBarMode.Close -> NavigationClose { onBack() }
             else -> {}
         }
@@ -326,7 +349,7 @@ fun LabeledSwitch(
     enabled: Boolean = true,
     icon: ImageVector,
     header: String,
-    description: String?
+    description: String? = null
 ) {
     LabeledSwitch(
         checked = checked,
@@ -384,15 +407,15 @@ fun LabeledSwitch(
                 indication = LocalIndication.current
             )
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(SizeDefaults.double)
             .semantics(true) {},
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(SizeDefaults.onefold)
     ) {
         label()
 
         // for better visibility in dark mode
-        CompositionLocalProvider(LocalAbsoluteElevation provides 8.dp) {
+        CompositionLocalProvider(LocalAbsoluteElevation provides SizeDefaults.onefold) {
             Switch(
                 checked = checked,
                 onCheckedChange = null,
@@ -402,6 +425,61 @@ fun LabeledSwitch(
     }
 }
 
+@Composable
+fun LabelButton(
+    icon: ImageVector,
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(PaddingDefaults.Medium)
+            .semantics(mergeDescendants = true) {}
+    ) {
+        Icon(icon, null, tint = AppTheme.colors.primary600)
+        SpacerMedium()
+        Text(
+            modifier = Modifier.weight(1f),
+            text = text,
+            style = AppTheme.typography.body1
+        )
+        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+    }
+}
+
+@Composable
+fun LabelButton(
+    icon: Painter,
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(PaddingDefaults.Medium)
+            .semantics(mergeDescendants = true) {}
+    ) {
+        Image(painter = icon, contentDescription = null)
+        SpacerMedium()
+        Text(
+            modifier = Modifier.weight(1f),
+            text = text,
+            style = AppTheme.typography.body1
+        )
+        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+    }
+}
+
+@Suppress("SpreadOperator")
 @Composable
 fun annotatedStringResource(@StringRes id: Int, vararg args: Any): AnnotatedString =
     annotatedStringResource(id, *(args.map { AnnotatedString(it.toString()) }.toTypedArray()))
@@ -466,6 +544,27 @@ fun annotatedStringBold(text: String) =
             append(text)
         }
     }
+
+@Composable
+fun annotatedLinkUnderlined(fullText: String, clickableText: String, tag: String): AnnotatedString {
+    val startIndex = fullText.indexOf(clickableText)
+    val endIndex = startIndex + clickableText.length
+
+    return buildAnnotatedString {
+        append(fullText)
+        addStyle(
+            style = SpanStyle(color = AppTheme.colors.primary600, textDecoration = TextDecoration.Underline),
+            start = startIndex,
+            end = endIndex
+        )
+        addStringAnnotation(
+            tag = tag,
+            start = startIndex,
+            end = endIndex,
+            annotation = clickableText
+        )
+    }
+}
 
 @Deprecated(
     "Please do not use this function anymore. Use ErezeptAlertDialog instead.",
@@ -733,7 +832,7 @@ fun InputField(
     onValueChange: (String) -> Unit,
     onSubmit: (value: String) -> Unit,
     label: @Composable (() -> Unit)? = null,
-    colors: TextFieldColors = TextFieldDefaults.outlinedTextFieldColors(),
+    colors: TextFieldColors = erezeptTextFieldColors(),
     isError: Boolean = false,
     errorText: @Composable (() -> Unit)? = null,
     keyBoardType: KeyboardType? = null
@@ -741,7 +840,7 @@ fun InputField(
     val initialValue = rememberSaveable { value }
     val undoDescription = stringResource(R.string.onb_undo_description)
     Column {
-        OutlinedTextField(
+        ErezeptOutlineText(
             value = value,
             onValueChange = {
                 onValueChange(it)
@@ -770,7 +869,7 @@ fun InputField(
                             .semantics { contentDescription = undoDescription },
                         onClick = { onValueChange(initialValue) }
                     ) {
-                        Icon(Icons.Rounded.Undo, null)
+                        Icon(Icons.AutoMirrored.Rounded.Undo, null)
                     }
                 }
             } else {
@@ -809,22 +908,26 @@ fun phrasedDateString(date: LocalDateTime): String {
     return "${date.format(dateFormatter)} $at ${timeFormatter.format(timeOfDate)}"
 }
 
-fun dateString(date: kotlinx.datetime.LocalDateTime): String {
-    return dateString(date.toJavaLocalDateTime())
+fun dateString(date: KotlinLocalDateTime): String {
+    return date.format(
+        KotlinLocalDateTime.Format {
+            dayOfMonth(Padding.ZERO)
+            chars(".")
+            monthNumber(Padding.ZERO)
+            chars(".")
+            year()
+        }
+    )
 }
 
-fun timeString(time: kotlinx.datetime.LocalDateTime): String {
-    return timeString(time.toJavaLocalDateTime())
-}
-
-fun dateString(date: LocalDateTime): String {
-    val dateFormatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM)
-    return date.format(dateFormatter)
-}
-
-fun timeString(date: LocalDateTime): String {
-    val timeFormatter = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
-    return date.format(timeFormatter)
+fun timeString(time: KotlinLocalDateTime): String {
+    return time.format(
+        KotlinLocalDateTime.Format {
+            hour()
+            chars(":")
+            minute()
+        }
+    )
 }
 
 /**
@@ -832,12 +935,8 @@ fun timeString(date: LocalDateTime): String {
  */
 @Composable
 fun dateWithIntroductionString(@StringRes id: Int, instant: Instant): String {
-    val dateFormatter = remember { DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM) }
-    val date = remember {
-        instant.toLocalDateTime(TimeZone.currentSystemDefault())
-            .toJavaLocalDateTime()
-            .toLocalDate().format(dateFormatter)
-    }
+    val zone = LocalTimeZone.current
+    val date = remember { dateString(instant.toLocalDateTime(zone)) }
     val combinedString = annotatedStringResource(id, date).toString()
     return remember { combinedString }
 }
@@ -871,6 +970,7 @@ fun Label(
     label: String? = null,
     onClick: (() -> Unit)? = null
 ) {
+    val haptic = LocalHapticFeedback.current
     val clipboardManager = LocalClipboardManager.current
     val context = LocalContext.current
 
@@ -889,7 +989,8 @@ fun Label(
                     onClick?.invoke()
                 },
                 onLongClick = {
-                    if (text != null) {
+                    if (text.isNotNullOrEmpty() && text != null) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         clipboardManager.setText(AnnotatedString(text))
                         Toast
                             .makeText(context, "$label $text", Toast.LENGTH_SHORT)
@@ -943,10 +1044,22 @@ fun HealthPortalLink(
                 annotatedLink
                     .getStringAnnotations("URL", it, it)
                     .firstOrNull()?.let { stringAnnotation ->
-                        uriHandler.openUri(stringAnnotation.item)
+                        uriHandler.openUriWhenValid(stringAnnotation.item)
                     }
             },
             modifier = Modifier.align(Alignment.End)
+        )
+    }
+}
+
+@Composable
+fun rememberContentPadding(innerPadding: PaddingValues) = remember(innerPadding) {
+    derivedStateOf {
+        PaddingValues(
+            top = PaddingDefaults.Medium,
+            bottom = PaddingDefaults.Medium + innerPadding.calculateBottomPadding(),
+            start = PaddingDefaults.Medium,
+            end = PaddingDefaults.Medium
         )
     }
 }

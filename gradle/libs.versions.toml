@@ -1,0 +1,477 @@
+[versions]
+
+# android
+agp = "8.2.2"
+certificatetransparency-android = "2.5.42"
+desugar = "2.1.3"
+
+# androidx
+gradle-license-plugin = "0.9.7"
+legacy-support-v4 = "1.0.0"
+lifecycle = "2.8.7"
+accompanist = "0.32.0"
+activity-compose = "1.9.3"
+markdown = "0.5.4"
+appcompat = "1.7.0"
+biometric = "1.2.0-alpha05"
+camera = "1.4.0"
+core-ktx = "1.15.0"
+datastore-preferences = "1.1.1"
+secrets-gradle-plugin = "2.0.1"
+security-crypto = "1.1.0-alpha06"
+window = "1.3.0"
+webkit = "1.12.1"
+androidx-work = "2.10.0"
+
+# androidx test
+androidx-test-core = "1.6.1"
+androidx-test-rules = "1.6.1"
+androidx-test-junit = "1.2.1"
+androidx-test-runner = "1.6.2"
+androidx-test-services = "1.5.0"
+androidx-test-espresso-core = "3.6.1"
+androidx-test-arch-core = "2.2.0"
+
+# animation
+lottie = "6.1.0"
+shimmer = "1.2.0"
+
+# buildkonfig
+buildkonfig-gradle-plugin = "0.15.1"
+
+# compose
+# todo solve problems with compose update
+compose-plugin = "1.6.1"
+compose-foundation = "1.7.0-alpha02"
+compose = "1.6.5"
+compiler = "1.5.11"
+navigation-compose = "2.7.7"
+paging-compose = "3.2.1"
+material3 = "1.2.1"
+
+# crypto
+bouncycastle = "1.79"
+jose4j = "0.9.5"
+json = "20231013"
+
+# coroutines
+coroutine-core = "1.9.0"
+
+# database
+realm = "1.8.0"
+realm-plugin = "1.7.1"
+
+# dependency check
+dependency-check-gradle = "8.0.2"
+
+# design
+# TODO: Snackbar breaks on update, needs fix
+material = "1.12.0"
+
+# di
+di = "7.20.2"
+
+# serialization
+kotlinx-serialization = "1.9.23"
+kotlinx-serialization-json = "1.6.3"
+
+# image
+emoji2-emojipicker = "1.4.0"
+# todo: remove as image-cropper is not maintained anymore
+image-cropper = "4.3.2"
+coil = "2.6.0"
+barcode-scanning = "17.3.0"
+zxing-core = "3.5.2"
+
+jetbrains-kotlin-jvm = "1.9.0"
+kotlin-serilization = "1.9.23"
+junit = "4.13.2"
+
+# kotlin
+kotlin = "1.9.10"
+atomicfu = "0.22.0"
+kotlinx-datetime = "0.6.0-RC.2"
+kotlinx-html = "0.11.0"
+kotlin-reflect = "1.9.23"
+kotlin-test = "1.9.23"
+
+# maps
+maps-compose = "2.15.0"
+maps-ktx = "4.0.0"
+maps = "19.0.0"
+maps-location = "21.3.0"
+
+
+# logging
+napier = "2.7.1"
+slf4j = "2.0.9"
+
+# network
+httpclient5 = "5.4"
+retrofit = "2.9.0"
+retrofit-kotlinx-serialization-converter = "1.0.0"
+okhttp = "4.12.0" # this depends on the certificate transparancy library. Always check if they are compatible
+okio = "3.9.0"
+
+# play
+play-integrity = "1.4.0"
+play-review = "2.0.2"
+play-app-update = "2.1.0"
+
+# others
+password-strength = "1.8.2"
+reactive-state = "5.6.0"
+opencsv = "5.5.2"
+process-phoenix = "3.0.0"
+
+# tracking
+tracking = "4.28.0"
+
+# testing
+screenshot = "0.0.1-alpha07"
+paparazzi = "1.3.3"
+mockk = "1.13.10"
+yaml = "2.3"
+
+# e2e testing
+primsys = "0.9.1-SNAPSHOT"
+kodeon = "0.1.1-SNAPSHOT"
+
+# Quality
+# Always check if these libraries work on update
+ktlint = "0.46.1"
+ktlint-test = "0.45.2"
+ktlint-core = "0.45.2"
+detekt = "1.23.6"
+composerules = "0.0.26"
+rules = "1.0"
+
+# Plugins
+kotlin-multiplatform = "1.9.23"
+uiautomator-v18 = "2.2.0-alpha1"
+
+[libraries]
+
+# network
+certificatetransparency-android = { module = "com.appmattus.certificatetransparency:certificatetransparency-android", version.ref = "certificatetransparency-android" }
+network-httpclient5 = { module = "org.apache.httpcomponents.client5:httpclient5", version.ref = "httpclient5" }
+network-httpclient5-fluent = { module = "org.apache.httpcomponents.client5:httpclient5-fluent", version.ref = "httpclient5" }
+
+# Quality
+quality-ktlint = { module = "com.pinterest:ktlint", version.ref = "ktlint" }
+quality-ktlint-core = { module = "com.pinterest.ktlint:ktlint-core", version.ref = "ktlint-core" }
+quality-ktlint-test = { module = "com.pinterest.ktlint:ktlint-test", version.ref = "ktlint-test" }
+quality-detekt = { module = "io.gitlab.arturbosch.detekt:detekt-gradle-plugin", version.ref = "detekt" }
+quality-composerules = { module = "com.twitter.compose.rules:detekt", version.ref = "composerules" }
+quality-rules = { module = "de.gematik.ti.erp.app:rules", version.ref = "rules" }
+
+# material
+material = { module = "com.google.android.material:material", version.ref = "material" }
+
+# accompanist
+accompanist-navigation-material = { module = "com.google.accompanist:accompanist-navigation-material", version.ref = "accompanist" }
+accompanist-swiperefresh = { module = "com.google.accompanist:accompanist-swiperefresh", version.ref = "accompanist" }
+accompanist-flowlayout = { module = "com.google.accompanist:accompanist-flowlayout", version.ref = "accompanist" }
+accompanist-pager = { module = "com.google.accompanist:accompanist-pager", version.ref = "accompanist" }
+accompanist-pager-indicators = { module = "com.google.accompanist:accompanist-pager-indicators", version.ref = "accompanist" }
+accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
+accompanist-permission = { module = "com.google.accompanist:accompanist-permissions", version.ref = "accompanist" }
+compose-markdown = { module = "com.github.jeziellago:compose-markdown", version.ref = "markdown" }
+
+# androidx
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+androidx-legacy-support-v4 = { module = "androidx.legacy:legacy-support-v4", version.ref = "legacy-support-v4" }
+androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
+androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore-preferences" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
+androidx-webkit = { module = "androidx.webkit:webkit", version.ref = "webkit" }
+androidx-security-crypto = { module = "androidx.security:security-crypto", version.ref = "security-crypto" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activity-compose" }
+androidx-window = { module = "androidx.window:window", version.ref = "window" }
+androidx-work = { group = "androidx.work", name = "work-runtime-ktx", version.ref = "androidx-work" }
+androidx-test-core = { module = "androidx.test:core", version.ref = "androidx-test-core" }
+androidx-test-rules = { module = "androidx.test:rules", version.ref = "androidx-test-rules" }
+androidx-test-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-junit" }
+androidx-test-runner = { module = "androidx.test:runner", version.ref = "androidx-test-runner" }
+androidx-test-orchestrator = { module = "androidx.test:orchestrator", version.ref = "androidx-test-services" }
+androidx-test-services = { module = "androidx.test.services:test-services", version.ref = "androidx-test-services" }
+androidx-test-espresso-core = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso-core" }
+androidx-test-espresso-intents = { module = "androidx.test.espresso:espresso-intents", version.ref = "androidx-test-espresso-core" }
+androidx-test-arch-core = { module = "androidx.arch.core:core-testing", version.ref = "androidx-test-arch-core" }
+
+# bouncy castle
+bouncycastle-jose4j = { module = "org.bitbucket.b_c:jose4j", version.ref = "jose4j" }
+bouncycastle-bcprov = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+bouncycastle-bcpkix = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bouncycastle" }
+
+# camera
+camera-camera2 = { module = "androidx.camera:camera-camera2", version.ref = "camera" }
+camera-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camera" }
+camera-view = { module = "androidx.camera:camera-view", version.ref = "camera" }
+
+# compose
+compose-plugin = { module = "org.jetbrains.compose:compose-gradle-plugin", version.ref = "compose-plugin" }
+compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compiler" }
+compose-animation = { module = "androidx.compose.animation:animation", version.ref = "compose" }
+compose-foundation = { module = "androidx.compose.foundation:foundation", version.ref = "compose-foundation" }
+compose-runtime = { module = "androidx.compose.runtime:runtime", version.ref = "compose" }
+compose-ui = { module = "androidx.compose.ui:ui", version.ref = "compose" }
+compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling", version.ref = "compose" }
+compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview", version.ref = "compose" }
+
+# compose material
+compose-material = { module = "androidx.compose.material:material", version.ref = "compose" }
+compose-material-icons-core = { module = "androidx.compose.material:material-icons-core", version.ref = "compose" }
+compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "compose" }
+compose-material3 = { module = "androidx.compose.material3:material3", version.ref = "material3" }
+
+# compose test
+compose-ui-test = { module = "androidx.compose.ui:ui-test", version.ref = "compose" }
+compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest", version.ref = "compose" }
+compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4", version.ref = "compose" }
+
+# coroutine
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutine-core" }
+kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-android", version.ref = "coroutine-core" }
+kotlinx-coroutines-play-services = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services", version.ref = "coroutine-core" }
+kotlinx-coroutines-swing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "coroutine-core" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutine-core" }
+
+# coil
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
+coil-gif = { module = "io.coil-kt:coil-gif", version.ref = "coil" }
+
+# di
+di-compose = { module = "org.kodein.di:kodein-di-framework-compose", version.ref = "di" }
+di-viewmodel = { module = "org.kodein.di:kodein-di-framework-android-x-viewmodel", version.ref = "di" }
+di-savedstate = { module = "org.kodein.di:kodein-di-framework-android-x-viewmodel-savedstate", version.ref = "di" }
+di-androidx = { module = "org.kodein.di:kodein-di-framework-android-x", version.ref = "di" }
+di = { module = "org.kodein.di:kodein-di", version.ref = "di" }
+
+# google
+barcode-scanning = { module = "com.google.mlkit:barcode-scanning", version.ref = "barcode-scanning" }
+secrets-gradle-plugin = { module = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin:secrets-gradle-plugin", version.ref = "secrets-gradle-plugin" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing-core" }
+
+# kotlin
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin-reflect" }
+
+# kotlinx
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+kotlinx-html-js = { module = "org.jetbrains.kotlinx:kotlinx-html-js", version.ref = "kotlinx-html" }
+kotlinx-html-jvm = { module = "org.jetbrains.kotlinx:kotlinx-html-jvm", version.ref = "kotlinx-html" }
+kotlinx-html = { module = "org.jetbrains.kotlinx:kotlinx-html", version.ref = "kotlinx-html" }
+
+# opencsv
+opencsv = { module = "com.opencsv:opencsv", version.ref = "opencsv" }
+
+# life-cycle
+lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+lifecycle-process = { module = "androidx.lifecycle:lifecycle-process", version.ref = "lifecycle" }
+lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
+
+# logging
+logging-napier = { module = "io.github.aakira:napier", version.ref = "napier" }
+logging-slf4j-nop = { module = "org.slf4j:slf4j-nop", version.ref = "slf4j" }
+
+# lottie
+lottie = { module = "com.airbnb.android:lottie-compose", version.ref = "lottie" }
+
+# maps
+maps-compose = { module = "com.google.maps.android:maps-compose", version.ref = "maps-compose" }
+maps-ktx = { module = "com.google.maps.android:maps-ktx", version.ref = "maps-ktx" }
+maps-utils = { module = "com.google.maps.android:maps-utils-ktx", version.ref = "maps-ktx" }
+maps = { module = "com.google.android.gms:play-services-maps", version.ref = "maps" }
+maps-location = { module = "com.google.android.gms:play-services-location", version.ref = "maps-location" }
+
+# mockk
+test-mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+test-mockk-android = { module = "io.mockk:mockk-android", version.ref = "mockk" }
+
+# navigation
+navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigation-compose" }
+
+# network
+network-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
+network-okhttp-logging = { module = "com.squareup.okhttp3:logging-interceptor", version.ref = "okhttp" }
+network-okhttp-mockwebserver = { module = "com.squareup.okhttp3:mockwebserver", version.ref = "okhttp" }
+# To work around a vulnerable Okio version 3.1.0 (CVE-2023-3635) we include a newer, non-vulnerable version
+# to be selected by Gradle instead instead of the old one.
+network-okio = { module = "com.squareup.okio:okio", version.ref = "okio" }
+network-retrofit = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
+network-retrofit-kotlinx-serialization-converter = { module = "com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter", version.ref = "retrofit-kotlinx-serialization-converter" }
+
+# paging
+paging-compose = { module = "androidx.paging:paging-compose", version.ref = "paging-compose" }
+paging-common-ktx = { module = "androidx.paging:paging-common-ktx", version.ref = "paging-compose" }
+
+# password
+password-strength = { module = "com.nulab-inc:zxcvbn", version.ref = "password-strength" }
+
+# play
+play-intergrity = { module = "com.google.android.play:integrity", version.ref = "play-integrity" }
+play-review = { module = "com.google.android.play:review-ktx", version.ref = "play-review" }
+play-app-update = { module = "com.google.android.play:app-update-ktx", version.ref = "play-app-update" }
+
+# realm
+database-realm = { module = "io.realm.kotlin:library-base", version.ref = "realm" }
+database-realm-plugin = { module = "io.realm.kotlin:gradle-plugin", version.ref = "realm-plugin" }
+
+# reactive-state
+reactive-state = { module = "com.ensody.reactivestate:reactivestate", version.ref = "reactive-state" }
+
+# serialization
+json = { module = "org.json:json", version.ref = "json" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization-json" }
+kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core-jvm", version.ref = "kotlinx-serialization-json" }
+
+# shimmer
+shimmer = { module = "com.valentinilk.shimmer:compose-shimmer", version.ref = "shimmer" }
+
+# tracking
+tracking-library = { module = "com.contentsquare.android:library", version.ref = "tracking" }
+tracking-compose = { module = "com.contentsquare.android:compose", version.ref = "tracking" }
+
+# others
+desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar" }
+process-phoenix = { module = "com.jakewharton:process-phoenix", version.ref = "process-phoenix" }
+image-cropper = { module = "com.github.CanHub:Android-Image-Cropper", version.ref = "image-cropper" }
+pdf-box = { module = "com.tom-roush:pdfbox-android", version = "2.0.27.0" }
+
+# testing
+test-junit = { module = "junit:junit", version.ref = "junit" }
+test-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin-test" }
+test-kotlin-test-common = { module = "org.jetbrains.kotlin:kotlin-test-common", version.ref = "kotlin-test" }
+test-yaml = { module = "org.yaml:snakeyaml", version.ref = "yaml" }
+test-turbine = { module = "app.cash.turbine:turbine", version = "1.1.0" }
+#
+
+# e2e testing
+primsys-client = { module = "de.gematik.test.erezept:primsys-rest-client", version.ref = "primsys" }
+primsys-data = { module = "de.gematik.test.erezept:primsys-rest-data", version.ref = "primsys" }
+kodeon-core = { module = "de.gematik.kodeon:kodeon-core", version.ref = "kodeon" }
+kodeon-android = { module = "de.gematik.kodeon:kodeon-android", version.ref = "kodeon" }
+
+# project
+buildkonfig-gradle-plugin = { module = "com.codingfeline.buildkonfig:buildkonfig-gradle-plugin", version.ref = "buildkonfig-gradle-plugin" }
+android_gradle_plugin = { module = "com.android.tools.build:gradle", version.ref = "agp" }
+kotlin_gradle_plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlin-serilization-plugin = { module = "org.jetbrains.kotlin:kotlin-serialization", version.ref = "kotlin-serilization" }
+kotlin_atomicfu = { module = "org.jetbrains.kotlinx:atomicfu-gradle-plugin", version.ref = "atomicfu" }
+dependency-check-gradle = { module = "org.owasp:dependency-check-gradle", version.ref = "dependency-check-gradle" }
+gradle-license-plugin = { module = "com.jaredsburrows:gradle-license-plugin", version.ref = "gradle-license-plugin" }
+
+# tracing
+tracing = { module = "androidx.tracing:tracing", version = "1.2.0" }
+androidx-uiautomator-v18 = { group = "androidx.test.uiautomator", name = "uiautomator-v18", version.ref = "uiautomator-v18" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp" }
+android-library = { id = "com.android.library", version.ref = "agp" }
+kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin-multiplatform" }
+kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains-kotlin-jvm" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlinx-serialization" }
+github-ben-manes-version = { id = "com.github.ben-manes.versions", version = "0.48.0" }
+jaredburrows-license = { id = "com.jaredsburrows.license", version = "0.8.90" }
+gradle-secrets = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secrets-gradle-plugin" }
+realm-kotlin = { id = "io.realm.kotlin", version.ref = "realm-plugin" }
+# compatibility check before upgrade: https://www.jetbrains.com/help/kotlin-multiplatform-dev/compose-compatibility-and-versioning.html#kotlin-compatibility
+jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
+buildkonfig = { id = "com.codingfeline.buildkonfig", version.ref = "buildkonfig-gradle-plugin" }
+detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+screenshot = { id = "com.android.compose.screenshot", version.ref = "screenshot" }
+paparazzi = { id = "app.cash.paparazzi", version.ref = "paparazzi" }
+
+# Bundles are used in VersionCatalogBundles file as a way to group dependencies together
+[bundles]
+accompanist = ["accompanist-swiperefresh", "accompanist-flowlayout", "accompanist-pager",
+    "accompanist-pager-indicators", "accompanist-systemuicontroller", "accompanist-navigation-material",
+    "accompanist-permission", "compose-markdown"]
+
+androidx-app = ["androidx-appcompat", "androidx-security-crypto"]
+
+androidx = ["androidx-appcompat", "androidx-legacy-support-v4", "androidx-core-ktx", "androidx-datastore-preferences",
+    "androidx-biometric", "androidx-webkit", "androidx-security-crypto", "androidx-activity-compose", "androidx-window"]
+
+androidx-test-arch-core = ["androidx-test-arch-core"]
+
+androidxtest = ["androidx-test-core", "androidx-test-rules", "androidx-test-junit", "androidx-test-runner",
+    "androidx-test-espresso-core", "androidx-test-espresso-intents"]
+
+androidxtestutils = ["androidx-test-orchestrator", "androidx-test-services"]
+
+animation = ["lottie", "shimmer"]
+
+compose-app = ["compose-runtime", "compose-foundation", "compose-ui-tooling", "compose-ui-tooling-preview"]
+
+compose = ["compose-compiler", "compose-animation", "compose-foundation", "compose-runtime", "compose-ui",
+    "compose-ui-tooling", "compose-ui-tooling-preview", "compose-material", "compose-material3",
+    "compose-material-icons-core", "compose-material-icons-extended", "paging-compose", "paging-common-ktx",
+    "navigation-compose"]
+
+composetest = ["compose-ui-test", "compose-ui-test-manifest", "compose-ui-test-junit4"]
+
+camera = ["camera-camera2", "camera-lifecycle", "camera-view"]
+
+coroutines = ["kotlinx-coroutines-core", "kotlinx-coroutines-android", "kotlinx-coroutines-play-services"]
+
+corutinestest = ["kotlinx-coroutines-test"]
+
+crypto = ["bouncycastle-jose4j", "bouncycastle-bcprov", "bouncycastle-bcpkix"]
+
+cryptotest = ["bouncycastle-bcprov", "bouncycastle-bcpkix"]
+
+datetime = ["kotlinx-datetime"]
+
+datamatrix = ["barcode-scanning", "zxing-core"]
+
+database = ["database-realm"]
+
+di = ["di-compose", "di-viewmodel", "di-savedstate", "di-androidx", "di"]
+
+di-kotlin = ["di-compose", "di"]
+
+di-viewmodel = ["di-viewmodel", "di-savedstate"]
+
+image = ["coil-compose", "coil-gif"]
+
+kotlin = [
+    # "kotlin-stdlib",
+    "kotlin-reflect"]
+
+kotlintest = ["test-kotlin-test", "test-kotlin-test-common", "kotlin-reflect"]
+
+lifecycle = ["lifecycle-viewmodel-ktx", "lifecycle-process", "lifecycle-runtime-compose"]
+
+logging = ["logging-napier", "logging-slf4j-nop"]
+
+maps = ["maps-compose", "maps-ktx", "maps-utils", "maps", "maps-location"]
+
+network = ["network-okhttp", "network-okhttp-logging", "network-okhttp-mockwebserver", "network-okio",
+    "network-retrofit", "network-retrofit-kotlinx-serialization-converter"]
+
+networktest = ["network-okhttp-mockwebserver", "network-okhttp"]
+
+others = ["image-cropper", "reactive-state", "password-strength"]
+
+pdfbox = ["pdf-box"]
+
+processphoenix = ["process-phoenix"]
+
+play = ["play-intergrity", "play-review", "play-app-update"]
+
+quality = ["quality-ktlint", "quality-detekt", "quality-composerules"]
+
+qualitydetektcomposerules = ["quality-composerules"]
+
+serialization = ["kotlinx-serialization-json", "kotlinx-serialization-core"]
+
+tracking = ["tracking-library", "tracking-compose"]
+
+testing = ["test-junit", "test-kotlin-test", "test-kotlin-test-common",
+    "test-yaml", "androidx-test-junit", "androidx-test-espresso-core", "json", "test-mockk-android"]
+
+testjunit = ["test-junit", "test-yaml", "json", "test-mockk"]
+
+mockandroid = ["test-mockk-android"]

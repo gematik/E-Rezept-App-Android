@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("TopLevelPropertyNaming", "MagicNumber")
 
 package de.gematik.ti.erp.app.vau
 
@@ -95,14 +97,32 @@ class VauChannelSpec constructor(
 
         cryptoConfig: VauCryptoConfig = defaultCryptoConfig
     ): RawRequestData {
+        @Requirement(
+            "A_20161-01#10",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "3./4. create the AES-Key.",
+            codeLines = 3
+        )
         val decryptionKey = KeyGenerator.getInstance("AES", cryptoConfig.provider).apply {
             init(this@VauChannelSpec.decryptionKeySize * 8)
         }.generateKey()
 
+        @Requirement(
+            "A_20161-01#9",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "2./4. create the Request-ID.",
+            codeLines = 2
+        )
         val requestId = ByteArray(this.requestIdSize).apply {
             SecureRandom().nextBytes(this)
         }
 
+        @Requirement(
+            "A_20161-01#12",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "6 a-g: encrypt Vau-Request.",
+            codeLines = 8
+        )
         return encryptRawVauRequest(
             innerHttp = innerHttp,
             bearer = bearer,
@@ -117,9 +137,9 @@ class VauChannelSpec constructor(
      * Encrypt raw request data as the inner request.
      */
     @Requirement(
-        "A_20161-01",
+        "A_20161-01#7",
         sourceSpecification = "gemSpec_Krypt",
-        rationale = "Request encryption"
+        rationale = "Encrypt raw request data as the inner request"
     )
     fun encryptRawVauRequest(
         innerHttp: ByteArray,
@@ -134,6 +154,12 @@ class VauChannelSpec constructor(
     ): RawRequestData {
         val symmetricalKeyHex = decryptionKey.encoded!!.toLowerCaseHex()
         val requestIdHex = requestId.toLowerCaseHex()
+
+        @Requirement(
+            "A_20161-01#11",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "5. Create the inner HTTP request."
+        )
         val composedInnerHttp =
             composeInnerHttp(innerHttp, this.version, bearer, requestIdHex, symmetricalKeyHex)
 
@@ -187,10 +213,14 @@ class VauChannelSpec constructor(
      *
      * @return the encrypted request and [RawRequestData] of the actual encryption process.
      */
-    @Requirement(
-        "A_20161-01#5",
+    /*(
         "A_21325",
         sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "Generate AES key, assemble and encrypt VAU request."
+    )*/
+    @Requirement(
+        "A_20161-01#5",
+        sourceSpecification = "gemSpec_Krypt",
         rationale = "Generate AES key, assemble and encrypt VAU request."
     )
     fun encryptHttpRequest(
@@ -217,7 +247,11 @@ class VauChannelSpec constructor(
         )
 
         val body = encryptedRawRequest.payload.toRequestBody(defaultContentType)
-
+        @Requirement(
+            "A_20161-01#14",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "8. Generate HTTPS Request"
+        )
         return Pair(
             Request.Builder()
                 .url(requireNotNull(baseUrl.resolve("VAU/$userpseudonym")))
@@ -238,8 +272,7 @@ class VauChannelSpec constructor(
      * @return the decrypted inner response with the user pseudonym.
      */
     @Requirement(
-        "A_20174#2",
-        "A_20175",
+        "A_20175#1",
         sourceSpecification = "gemSpec_Krypt",
         rationale = "Decrypt VAU response."
     )
@@ -253,8 +286,19 @@ class VauChannelSpec constructor(
     ): Pair<Response, String?> {
         require(outerResponse.isSuccessful)
         val body = requireNotNull(outerResponse.body) { "VAU response body empty" }
+        @Requirement(
+            "A_20174#1",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "1. Check content type of VAU response.",
+            codeLines = 1
+        )
         require(body.contentType() == defaultContentType) { "VAU response body has wrong content type" }
-
+        @Requirement(
+            "A_20174#2",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "2.1 Get Userpseudonym from VAU response.",
+            codeLines = 1
+        )
         val userpseudonym = outerResponse.header("Userpseudonym")
 
         val p = decryptRawVauResponse(
@@ -262,7 +306,12 @@ class VauChannelSpec constructor(
             decryptionKey = rawRequestData.decryptionKey,
             cryptoConfig = cryptoConfig
         )
-
+        @Requirement(
+            "A_20174#5",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "3.2/4. Check if decrypted VAU response is valid.",
+            codeLines = 5
+        )
         require(p.size >= this.minResponseSize)
 
         require(p[0] == this.version)
@@ -272,7 +321,12 @@ class VauChannelSpec constructor(
         ) { "VAU response contains wrong request id" }
 
         val innerResponse = p.copyOfRange(this.minResponseSize, p.size)
-
+        @Requirement(
+            "A_20174#3",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "2.2 Return the validated inner response and the user pseudonym for next usage.",
+            codeLines = 1
+        )
         return Pair(innerResponse.toVauInnerHttpResponse(previousInnerRequest), userpseudonym)
     }
 
@@ -288,8 +342,6 @@ class VauChannelSpec constructor(
     }
 }
 
-// http
-
 /**
  * Create a raw http request according to rfc2616 from a okhttp [Request].
  *
@@ -302,6 +354,12 @@ class VauChannelSpec constructor(
  *
  * Throws an exception if [baseUrl] doesn't contain a trailing `/` or [this] doesn't contain the [baseUrl].
  */
+@Requirement(
+    "A_20161-01#8",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "1: Serialize the request into a String that can be interpreted by the VAU server" +
+        "Note: A HTTP body is only included into the string representation when it is UTF-8 encoded."
+)
 fun Request.toRawVauInnerHttpRequest(
     baseUrl: HttpUrl,
     protocol: Protocol = Protocol.HTTP_1_1
@@ -326,7 +384,7 @@ fun Request.toRawVauInnerHttpRequest(
             req.headers.forEach { h ->
                 writeUtf8("${h.first}: ${h.second}\r\n")
             }
-            writeUtf8("Content-Length: ${req.body?.contentLength() ?: 0 }\r\n")
+            writeUtf8("Content-Length: ${req.body?.contentLength() ?: 0}\r\n")
             // body separation
             writeUtf8("\r\n")
             // body if present
@@ -344,6 +402,12 @@ private fun Response.Builder.parseResponseLine(l: String): Response.Builder =
 /**
  * Creates an okhttp [Response] from a raw http request according to rfc2616.
  */
+@Requirement(
+    "A_20174#5",
+    sourceSpecification = "gemSpec_Krypt",
+    rationale = "Verify decrypted message. Expect: “1 <response header+body>",
+    codeLines = 1
+)
 fun String.toVauInnerHttpResponse(req: Request): Response =
     this.split("\r\n\r\n", limit = 2).let { rawHttp ->
         val rawHeader = rawHttp.first().split("\r\n").iterator()

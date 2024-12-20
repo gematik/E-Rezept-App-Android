@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.onboarding.ui
@@ -55,11 +55,11 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes.OnboardingDataProtectionAndTermsOfUseOverviewScreen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
-import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
+import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension.isDebugOrMinifiedDebug
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension.isNonReleaseMode
 import kotlinx.coroutines.Job
@@ -74,12 +74,11 @@ private const val FLAG_PADDING = 10
 // Should be replaced by a splash screen and come as the first one in the app
 class OnboardingWelcomeScreen(
     override val navController: NavController,
-    override val navBackStackEntry: NavBackStackEntry
+    override val navBackStackEntry: NavBackStackEntry,
+    private val graphController: OnboardingGraphController
 ) : Screen() {
     @Composable
     override fun Content() {
-        val controller = rememberOnboardingController()
-
         var job: Job? by remember { mutableStateOf(null) }
 
         DelayedNavigation(
@@ -93,7 +92,7 @@ class OnboardingWelcomeScreen(
             // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
             // (on debug builds should be allowed for testing)
             if (isDebugOrMinifiedDebug) {
-                controller.allowScreenshots(true)
+                graphController.allowScreenshots(true)
             }
         }
 
@@ -102,7 +101,7 @@ class OnboardingWelcomeScreen(
         if (isNonReleaseMode) {
             SkipOnBoardingButton {
                 job?.cancel()
-                controller.createProfileOnSkipOnboarding()
+                graphController.createProfileOnSkipOnboarding()
                 navController.finishOnboardingAsSuccessAndOpenPrescriptions()
             }
         }
@@ -130,7 +129,7 @@ class OnboardingWelcomeScreen(
 }
 
 @Composable
-private fun OnboardingWelcomeScreenContent() {
+internal fun OnboardingWelcomeScreenContent() {
     Surface {
         Column(
             modifier = Modifier

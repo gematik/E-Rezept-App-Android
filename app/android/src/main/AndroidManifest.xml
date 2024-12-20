@@ -28,9 +28,14 @@
         android:name="android.hardware.camera"
         android:required="false" />
 
+    <!-- [REQ:BSI-eRp-ePA:O.Arch_2#3, O.Arch_4#2]-->
+    <!-- all possible data backups exclusion flags are specified-->
     <application
         android:name=".DefaultErezeptApp"
         android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:usesCleartextTraffic="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_label"
         android:networkSecurityConfig="@xml/network_security_config"

@@ -1,54 +1,61 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
- * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ * ${GEMATIK_COPYRIGHT_STATEMENT}
  */
 
 plugins {
     `kotlin-dsl`
     id("org.jetbrains.kotlin.jvm") version "1.9.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.10"
 }
+
+fun implementationClass(value: String) = "de.gematik.ti.erp.app.plugins.$value"
+fun name(value: String) = "de.gematik.ti.erp.$value"
 
 gradlePlugin {
     plugins.create("versionApp") {
-        id = "de.gematik.ti.erp.versioning"
-        implementationClass = "de.gematik.ti.erp.app.plugins.buildapp.VersionAppPlugin"
+        id = name("versioning")
+        group = name("versioning")
+        implementationClass = implementationClass("buildapp.VersionAppPlugin")
     }
     plugins.create("updateGradleProperties") {
-        id = "de.gematik.ti.erp.properties"
-        implementationClass = "de.gematik.ti.erp.app.plugins.buildapp.UpdatePropertiesPlugin"
+        id = name("properties")
+        group = name("properties")
+        implementationClass = implementationClass("updateproperties.UpdatePropertiesPlugin")
     }
     plugins.create("buildAppFlavours") {
-        id = "de.gematik.ti.erp.flavours"
-        implementationClass = "de.gematik.ti.erp.app.plugins.buildapp.BuildAppFlavoursPlugin"
+        id = name("flavours")
+        group = name("flavours")
+        implementationClass = implementationClass("buildapp.BuildAppFlavoursPlugin")
     }
     plugins.create("teamsCommunication") {
-        id = "de.gematik.ti.erp.teams"
-        implementationClass = "de.gematik.ti.erp.app.plugins.teams.TeamsCommunicationPlugin"
+        id = name("teams")
+        group = name("teams")
+        implementationClass = implementationClass("teams.TeamsCommunicationPlugin")
+    }
+    plugins.create("dependencies") {
+        id = name("dependency-overrides")
+        group = name("dependency-overrides")
+        implementationClass = implementationClass("dependencies.DependenciesPlugin")
+    }
+    plugins.create("names") {
+        id = name("names")
+        group = name("names")
+        implementationClass = implementationClass("names.AppDependencyNamesPlugin")
     }
 }
 
 repositories {
     mavenCentral()
+    google()
 }
 
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.3")
-    implementation("org.apache.httpcomponents.client5:httpclient5-fluent:5.3")
-    implementation("com.opencsv:opencsv:5.5.2")
-    testImplementation("junit:junit:4.13.2")
-    testImplementation("io.mockk:mockk:1.13.8")
+    implementation(libs.kotlinx.datetime)
+    implementation(libs.network.httpclient5)
+    implementation(libs.network.httpclient5.fluent)
+    implementation(libs.opencsv)
+    testImplementation(libs.test.junit)
+    testImplementation(libs.test.mockk)
+    implementation(libs.dependency.check.gradle)
+    implementation(libs.kotlinx.serialization.json)
 }

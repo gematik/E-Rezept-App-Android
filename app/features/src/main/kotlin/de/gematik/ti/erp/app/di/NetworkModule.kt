@@ -1,23 +1,24 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.di
 
+import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
@@ -30,10 +31,11 @@ import de.gematik.ti.erp.app.interceptor.BearerHeaderInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacyRedeemInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacySearchInterceptor
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
+import de.gematik.ti.erp.app.logger.HttpAppLogger
+import de.gematik.ti.erp.app.logger.HttpTerminalLogger
 import de.gematik.ti.erp.app.vau.api.VauService
 import de.gematik.ti.erp.app.vau.interceptor.VauChannelInterceptor
 import io.github.aakira.napier.Napier
-import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import okhttp3.CipherSuite
 import okhttp3.ConnectionSpec
@@ -79,31 +81,23 @@ const val PrefixedLoggerTag = "PrefixedLogger"
 const val JsonConverterFactoryTag = "JsonConverterFactory"
 const val JsonFhirConverterFactoryTag = "JsonFhirConverterFactoryTag"
 
+// A_20617-01,
 @Requirement(
-    "A_19187",
-    "A_19739",
-    "A_19938-01#1",
-    "A_20033",
-    "A_20206-01",
-    "A_20283-01#3",
-    "A_20529-01",
-    "A_20606",
-    "A_20608",
-    "A_20607",
-    "A_20609",
-    "A_20617-01#1",
-    "A_20618",
+    "A_20033#1",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "Any connection to the IDP or the ERP service uses this configuration."
 )
 @Requirement(
-    "GS-A_5035",
-    "GS-A_4387",
-    "GS-A_4385",
-    sourceSpecification = "gemSpec_Krypt",
+    "A_19938-01#1",
+    "A_19938-01#2",
+    sourceSpecification = "gemSpec_IDP_Frontend",
     rationale = "Any connection to the IDP or the ERP service uses this configuration."
 )
-@OptIn(ExperimentalSerializationApi::class)
+@Requirement(
+    "A_20623#4",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Any connection to the IDP or the ERP service uses this configuration"
+)
 val networkModule = DI.Module("Network Module") {
     bindInstance {
         Json {
@@ -116,21 +110,14 @@ val networkModule = DI.Module("Network Module") {
         instance<Json>().asConverterFactory("application/json+fhir".toMediaType())
     }
     @Requirement(
-        "O.Ntwk_1#2",
+        "A_20283-01#4",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = "Any connection to the IDP or the ERP service uses this configuration."
+    )
+    @Requirement(
         "O.Ntwk_2#2",
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Bind the connection specification."
-    )
-    @Requirement(
-        "O.Ntwk_3",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "We use OkHttp for network communication"
-    )
-    @Requirement(
-        "GS-A_5322",
-        sourceSpecification = "gemSpec_Krypt",
-        rationale = "We initialize our okhttp client as singleton. Thus, we support TLS resumption, it is handled by " +
-            "okhttp. See https://square.github.io/okhttp/4.x/okhttp/okhttp3/-connection/ for more details."
     )
     bindSingleton {
         OkHttpClient.Builder()
@@ -153,15 +140,13 @@ val networkModule = DI.Module("Network Module") {
     bindSingleton { ApiKeyHeaderInterceptor(instance()) }
     bindSingleton { BearerHeaderInterceptor(instance()) }
 
-    bindProvider {
-        HttpLoggingInterceptor(NapierLogger()).also {
-            it.setLevel(HttpLoggingInterceptor.Level.BODY)
-        }
-    }
+    // Two loggers are used to log the HTTP requests and responses. One is used for the terminal and the other for the app.
+    bindProvider { HttpLoggingInterceptor(HttpTerminalLogger()).also { it.setLevel(HttpLoggingInterceptor.Level.BODY) } }
+    bindProvider { HttpAppLogger(instance()) }
 
     bindMultiton<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag) { (tagSuffix, withBody) ->
         AuditEventFilteredHttpLoggingInterceptor(
-            HttpLoggingInterceptor(NapierLogger(tagSuffix)).also {
+            HttpLoggingInterceptor(HttpTerminalLogger(tagSuffix)).also {
                 if (BuildKonfig.INTERNAL) {
                     if (withBody) {
                         it.setLevel(HttpLoggingInterceptor.Level.BODY)
@@ -173,18 +158,26 @@ val networkModule = DI.Module("Network Module") {
         )
     }
 
+    @Requirement(
+        "O.Ntwk_3#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "We use OkHttp with different interceptors to make it more secure."
+    )
     // IDP Service
     bindSingleton {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
         val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
         val endpointHelper = instance<EndpointHelper>()
         val apiKeyInterceptor = instance<ApiKeyHeaderInterceptor>()
-        val loggingInterceptor = instance<HttpLoggingInterceptor>()
+        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
+        val httpAppLogger = instance<HttpAppLogger>()
 
         val client = clientBuilder
             .addInterceptor(userAgentInterceptor)
             .addInterceptor(apiKeyInterceptor)
-            .addInterceptor(loggingInterceptor)
+            .addCertificateTransparencyInterceptor()
+            .addInterceptor(httpTerminalLogger)
+            .addInterceptor(httpAppLogger)
             .followRedirects(false)
             .build()
 
@@ -197,6 +190,11 @@ val networkModule = DI.Module("Network Module") {
             .create(IdpService::class.java)
     }
 
+    @Requirement(
+        "O.Ntwk_3#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "We use OkHttp with different interceptors to make it more secure."
+    )
     // ERP Service
     bindSingleton {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
@@ -209,6 +207,7 @@ val networkModule = DI.Module("Network Module") {
             instance<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag, "[inner request]" to true)
         val outerLoggingInterceptor =
             instance<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag, "[outer request]" to false)
+        val httpAppLogger = instance<HttpAppLogger>()
 
         clientBuilder.cache(null)
 
@@ -222,7 +221,11 @@ val networkModule = DI.Module("Network Module") {
         clientBuilder.addInterceptor(userAgentInterceptor)
         clientBuilder.addInterceptor(apiKeyInterceptor)
 
+        clientBuilder.addCertificateTransparencyInterceptor()
+
         clientBuilder.addInterceptor(outerLoggingInterceptor)
+
+        clientBuilder.addInterceptor(httpAppLogger)
 
         Retrofit.Builder()
             .client(clientBuilder.build())
@@ -233,17 +236,25 @@ val networkModule = DI.Module("Network Module") {
             .create(ErpService::class.java)
     }
 
+    @Requirement(
+        "O.Ntwk_3#3",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "We use OkHttp with different interceptors to make it more secure."
+    )
     // The VAU service is only used to get CertList & OCSPList and NOT to post to the VAU endpoint
     bindSingleton {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
         val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
         val apiKeyInterceptor = instance<ApiKeyHeaderInterceptor>()
         val endpointHelper = instance<EndpointHelper>()
-        val loggingInterceptor = instance<HttpLoggingInterceptor>()
+        val httpAppLogger = instance<HttpAppLogger>()
+        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
 
         clientBuilder.addInterceptor(apiKeyInterceptor)
         clientBuilder.addInterceptor(userAgentInterceptor)
-        clientBuilder.addInterceptor(loggingInterceptor)
+        clientBuilder.addCertificateTransparencyInterceptor()
+        clientBuilder.addInterceptor(httpTerminalLogger)
+        clientBuilder.addInterceptor(httpAppLogger)
 
         Retrofit.Builder()
             .client(clientBuilder.build())
@@ -253,13 +264,23 @@ val networkModule = DI.Module("Network Module") {
             .create(VauService::class.java)
     }
 
+    @Requirement(
+        "O.Ntwk_3#4",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "We use OkHttp with different interceptors to make it more secure."
+    )
     // Pharmacy Redeem Service
     bindSingleton {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
-        val loggingInterceptor = instance<HttpLoggingInterceptor>()
+        val httpAppLogger = instance<HttpAppLogger>()
+        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
+        val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
 
         clientBuilder
-            .addInterceptor(loggingInterceptor)
+            .addInterceptor(userAgentInterceptor)
+            .addCertificateTransparencyInterceptor()
+            .addInterceptor(httpTerminalLogger)
+            .addInterceptor(httpAppLogger)
 
         if (BuildKonfig.INTERNAL) {
             clientBuilder.addInterceptor(PharmacyRedeemInterceptor())
@@ -272,15 +293,25 @@ val networkModule = DI.Module("Network Module") {
             .create(PharmacyRedeemService::class.java)
     }
 
+    @Requirement(
+        "O.Ntwk_3#5",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "We use OkHttp with different interceptors to make it more secure."
+    )
     // Pharmacy Search Service
     bindSingleton {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
         val endpointHelper = instance<EndpointHelper>()
-        val loggingInterceptor = instance<HttpLoggingInterceptor>()
+        val httpAppLogger = instance<HttpAppLogger>()
+        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
+        val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
 
         clientBuilder
             .addInterceptor(PharmacySearchInterceptor(instance()))
-            .addInterceptor(loggingInterceptor)
+            .addInterceptor(userAgentInterceptor)
+            .addCertificateTransparencyInterceptor()
+            .addInterceptor(httpTerminalLogger)
+            .addInterceptor(httpAppLogger)
 
         Retrofit.Builder()
             .client(clientBuilder.build())
@@ -292,33 +323,26 @@ val networkModule = DI.Module("Network Module") {
 }
 
 @Requirement(
-    "A_20206-01",
-    "A_17322",
-    "A_18464",
-    "A_18467",
-    "A_21332",
-    "A_21275-01",
-    sourceSpecification = "gemSpec_eRp_FdV",
+    "A_21332-02#1",
+    sourceSpecification = "gemSpec_Krypt",
     rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
 )
 @Requirement(
-    "GS-A_4357-2#1",
-    "GS-A_4361-2#1",
-    sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Cipher Suites regarding sha256WithRsaEncryption are listed below, see RSA specific cipher suites."
-)
-@Requirement(
-    "O.Ntwk_1#1",
     "O.Ntwk_2#1",
     sourceSpecification = "BSI-eRp-ePA",
     rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
 )
 @Requirement(
-    "GS-A_5035#1",
-    "GS-A_4385#1",
-    "GS-A_4387#1",
-    sourceSpecification = "gemSpec_Krypt",
-    rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
+    "O.Auth_12#2",
+    "O.Resi_6#1",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "The TLS specification is done here and using RESTRICTED_TLS. We inherently support tlsExtensions."
+)
+@Requirement(
+    "A_20606#1",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Add TLS versioning through connectionSpecs.",
+    codeLines = 6
 )
 private fun getConnectionSpec(): List<ConnectionSpec> = ConnectionSpec
     .Builder(ConnectionSpec.RESTRICTED_TLS)
@@ -334,10 +358,16 @@ private fun getConnectionSpec(): List<ConnectionSpec> = ConnectionSpec
         CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
         // TLS 1.3
         CipherSuite.TLS_AES_128_GCM_SHA256,
-        CipherSuite.TLS_AES_256_GCM_SHA384,
-        CipherSuite.TLS_CHACHA20_POLY1305_SHA256
+        CipherSuite.TLS_AES_256_GCM_SHA384
     )
     .build()
     .let {
         listOf(it)
     }
+
+private fun OkHttpClient.Builder.addCertificateTransparencyInterceptor() =
+    addNetworkInterceptor(
+        certificateTransparencyInterceptor {
+            failOnError = true
+        }
+    )

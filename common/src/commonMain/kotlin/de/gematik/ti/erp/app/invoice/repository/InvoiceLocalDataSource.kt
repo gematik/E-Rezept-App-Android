@@ -1,36 +1,36 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.DescriptionTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.task.CoverageTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationCategoryV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MedicationProfileV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
@@ -44,21 +44,25 @@ import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.tryWrite
 import de.gematik.ti.erp.app.fhir.model.AccidentType
 import de.gematik.ti.erp.app.fhir.model.MedicationCategory
-import de.gematik.ti.erp.app.fhir.model.MedicationProfile
 import de.gematik.ti.erp.app.fhir.model.extractBinary
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.fhir.model.extractInvoiceBundle
 import de.gematik.ti.erp.app.fhir.model.extractInvoiceKBVAndErpPrBundle
 import de.gematik.ti.erp.app.fhir.model.extractKBVBundle
+import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.prescription.model.Quantity
+import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.toMedication
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import io.github.aakira.napier.Napier
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.toRealmList
+import io.realm.kotlin.query.Sort
 import io.realm.kotlin.query.max
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -66,7 +70,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.serialization.json.JsonElement
-
+@Suppress("SpreadOperator")
 class InvoiceLocalDataSource(
     private val realm: Realm
 ) {
@@ -81,7 +85,7 @@ class InvoiceLocalDataSource(
 
     private val mutex = Mutex()
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: JsonElement) = mutex.withLock {
         realm.tryWrite {
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.let { profile ->
@@ -188,10 +192,11 @@ class InvoiceLocalDataSource(
                                     this.practitionerIdentifier = practitionerIdentifier
                                 }
                             },
-                            processInsuranceInformation = { name, statusCode ->
+                            processInsuranceInformation = { name, statusCode, coverageType ->
                                 InsuranceInformationEntityV1().apply {
                                     this.name = name
                                     this.statusCode = statusCode
+                                    this.coverageType = CoverageTypeV1.mapTo(coverageType)
                                 }
                             },
                             processAddress = { line, postalCode, city ->
@@ -214,17 +219,18 @@ class InvoiceLocalDataSource(
                                     this.denominator = denominator
                                 }
                             },
-                            processIngredient = { text, form, number, amount, strength ->
+                            processIngredient = { text, form, identifier, amount, strength ->
                                 IngredientEntityV1().apply {
                                     this.text = text
                                     this.form = form
                                     this.number = number
                                     this.amount = amount
+                                    this.identifier = identifier.toIdentifierEntityV1()
                                     this.strength = strength
                                 }
                             },
-                            processMedication = { text,
-                                medicationProfile,
+                            processMedication =
+                            { text,
                                 medicationCategory,
                                 form,
                                 amount,
@@ -232,19 +238,13 @@ class InvoiceLocalDataSource(
                                 manufacturingInstructions,
                                 packaging,
                                 normSizeCode,
-                                uniqueIdentifier,
+                                identifier,
+                                ingredientMedications,
                                 ingredients,
                                 _,
                                 _ ->
                                 MedicationEntityV1().apply {
                                     this.text = text ?: ""
-                                    this.medicationProfile = when (medicationProfile) {
-                                        MedicationProfile.PZN -> MedicationProfileV1.PZN
-                                        MedicationProfile.COMPOUNDING -> MedicationProfileV1.COMPOUNDING
-                                        MedicationProfile.INGREDIENT -> MedicationProfileV1.INGREDIENT
-                                        MedicationProfile.FREETEXT -> MedicationProfileV1.FREETEXT
-                                        else -> MedicationProfileV1.UNKNOWN
-                                    }
                                     this.medicationCategory = when (medicationCategory) {
                                         MedicationCategory.ARZNEI_UND_VERBAND_MITTEL ->
                                             MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL
@@ -260,7 +260,8 @@ class InvoiceLocalDataSource(
                                     this.manufacturingInstructions = manufacturingInstructions
                                     this.packaging = packaging
                                     this.normSizeCode = normSizeCode
-                                    this.uniqueIdentifier = uniqueIdentifier
+                                    this.ingredientMedications = ingredientMedications.toRealmList()
+                                    this.identifier = identifier.toIdentifierEntityV1()
                                     this.ingredients = ingredients.toRealmList()
                                 }
                             },
@@ -272,8 +273,8 @@ class InvoiceLocalDataSource(
                                     this.end = end?.toInstant(TimeZone.UTC)?.toRealmInstant()
                                 }
                             },
-                            processMedicationRequest = {
-                                    authoredOn,
+                            processMedicationRequest =
+                            { authoredOn,
                                     dateOfAccident,
                                     location,
                                     accidentType,
@@ -365,8 +366,9 @@ class InvoiceLocalDataSource(
         }
     }
 
-    private fun PKVInvoiceEntityV1.toPKVInvoice(): InvoiceData.PKVInvoice =
-        InvoiceData.PKVInvoice(
+    @Suppress("CyclomaticComplexMethod")
+    private fun PKVInvoiceEntityV1.toPKVInvoice(): InvoiceData.PKVInvoiceRecord =
+        InvoiceData.PKVInvoiceRecord(
             profileId = this.parent?.id ?: "",
             timestamp = this.timestamp.toInstant(),
             pharmacyOrganization = SyncedTaskData.Organization(
@@ -422,12 +424,12 @@ class InvoiceLocalDataSource(
                 dosageInstruction = this.medicationRequest?.dosageInstruction,
                 multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(
                     indicator = this.medicationRequest?.multiplePrescriptionInfo?.indicator ?: false,
-                    numbering = SyncedTaskData.Ratio(
-                        numerator = SyncedTaskData.Quantity(
+                    numbering = Ratio(
+                        numerator = Quantity(
                             value = this.medicationRequest?.multiplePrescriptionInfo?.numbering?.numerator?.value ?: "",
                             unit = ""
                         ),
-                        denominator = SyncedTaskData.Quantity(
+                        denominator = Quantity(
                             value =
                             this.medicationRequest?.multiplePrescriptionInfo?.numbering?.denominator?.value ?: "",
                             unit = ""
@@ -460,17 +462,46 @@ class InvoiceLocalDataSource(
                     it.toChargeableItem()
                 } ?: listOf(),
                 additionalInformation = this.invoice?.additionalInformation?.toList() ?: listOf()
-            )
+            ),
+            consumed = this.consumed
         )
 
-    fun loadInvoices(profileId: ProfileIdentifier): Flow<List<InvoiceData.PKVInvoice>> =
+    fun loadInvoices(profileId: ProfileIdentifier): Flow<List<InvoiceData.PKVInvoiceRecord>> =
+        realm.query<PKVInvoiceEntityV1>("parent.id = $0", profileId)
+            .asFlow()
+            .map { invoices ->
+                val result = invoices.list.map { invoice ->
+                    invoice.toPKVInvoice()
+                }
+                result
+            }
+
+    fun loadInvoiceByTaskId(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?> =
+        realm.query<PKVInvoiceEntityV1>("taskId = $0", taskId)
+            .sort("timestamp", Sort.DESCENDING)
+            .asFlow()
+            .map { result ->
+                result.list.firstOrNull()?.toPKVInvoice()
+            }
+
+    fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceData.InvoiceStatus>> =
         realm.query<PKVInvoiceEntityV1>("parent.id = $0", profileId)
             .asFlow()
             .map { invoices ->
                 invoices.list.map { invoice ->
-                    invoice.toPKVInvoice()
+                    InvoiceData.InvoiceStatus(taskId = invoice.taskId, consumed = invoice.consumed)
                 }
             }
+
+    suspend fun updateInvoiceCommunicationStatus(taskId: String, consumed: Boolean) {
+        realm.tryWrite {
+            this.query<PKVInvoiceEntityV1>("taskId == $0", taskId)
+                .first()
+                .find()?.apply {
+                    this.consumed = consumed
+                } ?: Napier.w("Task ID $taskId not found, unable to update consumed status")
+        }
+    }
 
     fun loadInvoiceAttachments(taskId: String) =
         realm.queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId)?.let {
@@ -481,19 +512,10 @@ class InvoiceLocalDataSource(
             )
         }
 
-    fun loadInvoiceById(taskId: String): Flow<InvoiceData.PKVInvoice?> =
-        realm.query<PKVInvoiceEntityV1>("taskId = $0", taskId)
-            .first()
-            .asFlow()
-            .map { invoice ->
-                invoice.obj?.toPKVInvoice()
-            }
-
-    suspend fun deleteInvoiceById(taskId: String) {
-        realm.tryWrite<Unit> {
+    suspend fun deleteInvoiceById(taskId: String): Unit =
+        realm.tryWrite {
             queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId)?.let { delete(it) }
         }
-    }
 
     private fun ChargeableItemV1.toChargeableItem() = InvoiceData.ChargeableItem(
         description = when (this.descriptionTypeV1) {
@@ -508,4 +530,21 @@ class InvoiceLocalDataSource(
             tax = this.price?.tax ?: 0.0
         )
     )
+
+    fun hasUnreadInvoiceMessages(taskIds: List<String>): Flow<Boolean> {
+        return if (taskIds.isEmpty()) {
+            flowOf(false)
+        } else {
+            val orQuery = taskIds.indices.joinToString(" || ") { "taskId = $$it" }
+
+            realm.query<PKVInvoiceEntityV1>(
+                orQuery,
+                *taskIds.toTypedArray()
+            )
+                .query("consumed = false")
+                .count()
+                .asFlow()
+                .map { it > 0 }
+        }
+    }
 }

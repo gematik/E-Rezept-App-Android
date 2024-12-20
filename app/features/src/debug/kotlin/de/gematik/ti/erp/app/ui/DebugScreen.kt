@@ -1,25 +1,28 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file: Suppress("UnusedPrivateMember", "MagicNumber")
 
 package de.gematik.ti.erp.app.ui
 
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -45,13 +48,17 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Switch
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,23 +81,30 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
+import de.gematik.ti.erp.app.debugsettings.pkv.ui.DebugScreenPKV
+import de.gematik.ti.erp.app.debugsettings.qrcode.QrCodeScannerScreen
 import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
-import de.gematik.ti.erp.app.debugsettings.ui.DebugScreenPKV
-import de.gematik.ti.erp.app.debugsettings.ui.EnvironmentSelector
-import de.gematik.ti.erp.app.debugsettings.ui.LoadingButton
+import de.gematik.ti.erp.app.debugsettings.ui.components.ClearTextTrafficSection
+import de.gematik.ti.erp.app.debugsettings.ui.components.ClientIdsSection
+import de.gematik.ti.erp.app.debugsettings.ui.components.EnvironmentSelector
+import de.gematik.ti.erp.app.debugsettings.ui.components.LoadingButton
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.settings.ui.LabelButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.ErezeptOutlineText
+import de.gematik.ti.erp.app.utils.compose.LabelButton
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.erezeptTextFieldColors
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
+import de.gematik.ti.erp.app.utils.extensions.erezeptColors
 import kotlinx.coroutines.launch
 import org.bouncycastle.util.encoders.Base64
 import org.kodein.di.bindProvider
@@ -187,6 +201,7 @@ fun EditablePathComponentWithControl(
             onValueChange = { onValueChange(it, false) },
             label = { Text(label) },
             maxLines = 3,
+            colors = erezeptTextFieldColors(),
             modifier = Modifier
                 .weight(1f)
                 .padding(end = PaddingDefaults.Medium)
@@ -210,7 +225,7 @@ fun DebugScreen(
                 endpointHelper = instance(),
                 cardWallUseCase = instance(),
                 prescriptionUseCase = instance(),
-                invoiceRepository = instance(),
+                saveInvoiceUseCase = instance(),
                 vauRepository = instance(),
                 idpRepository = instance(),
                 idpUseCase = instance(),
@@ -223,6 +238,7 @@ fun DebugScreen(
             )
         }
     }) {
+        val viewModel by rememberViewModel<DebugSettingsViewModel>()
         NavHost(
             navController,
             startDestination = DebugScreenNavigation.DebugMain.path()
@@ -230,6 +246,7 @@ fun DebugScreen(
             composable(DebugScreenNavigation.DebugMain.route) {
                 NavigationAnimation(mode = navMode) {
                     DebugScreenMain(
+                        viewModel = viewModel,
                         onBack = {
                             settingsNavController.popBackStack()
                         },
@@ -241,6 +258,12 @@ fun DebugScreen(
                         },
                         onClickBioMetricSettings = {
                             navController.navigate(DebugScreenNavigation.DebugTimeout.path())
+                        },
+                        onScanQrCode = {
+                            navController.navigate(DebugScreenNavigation.QrCodeScannerScreen.path())
+                        },
+                        onClickLogger = {
+                            navController.navigate(DebugScreenNavigation.LoggerScreen.path())
                         }
                     )
                 }
@@ -248,6 +271,7 @@ fun DebugScreen(
             composable(DebugScreenNavigation.DebugRedeemWithoutFD.route) {
                 NavigationAnimation(mode = navMode) {
                     DebugScreenDirectRedeem(
+                        viewModel = viewModel,
                         onBack = {
                             navController.popBackStack()
                         }
@@ -255,7 +279,6 @@ fun DebugScreen(
                 }
             }
             composable(DebugScreenNavigation.DebugPKV.route) {
-                val viewModel by rememberViewModel<DebugSettingsViewModel>()
                 NavigationAnimation(mode = navMode) {
                     DebugScreenPKV(
                         onSaveInvoiceBundle = {
@@ -272,13 +295,32 @@ fun DebugScreen(
                     navController.popBackStack()
                 }
             }
+            composable(DebugScreenNavigation.QrCodeScannerScreen.route) {
+                QrCodeScannerScreen.Content(
+                    onSaveCertificate = { viewModel.onSetVirtualHealthCardCertificate(it) },
+                    onSavePrivateKey = { viewModel.onSetVirtualHealthCardPrivateKey(it) },
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
+            composable(DebugScreenNavigation.LoggerScreen.route) {
+                LoggerScreen.Content(
+                    onBack = {
+                        navController.popBackStack()
+                    }
+                )
+            }
         }
     }
 }
 
+// TODO: Change to use the correct use-cases
 @Composable
-fun DebugScreenDirectRedeem(onBack: () -> Unit) {
-    val viewModel by rememberViewModel<DebugSettingsViewModel>()
+fun DebugScreenDirectRedeem(
+    viewModel: DebugSettingsViewModel,
+    onBack: () -> Unit
+) {
     val listState = rememberLazyListState()
 
     AnimatedElevationScaffold(
@@ -307,26 +349,29 @@ fun DebugScreenDirectRedeem(onBack: () -> Unit) {
                 DebugCard(
                     title = "Endpoints"
                 ) {
-                    OutlinedTextField(
+                    ErezeptOutlineText(
                         modifier = Modifier.fillMaxWidth(),
                         value = shipmentUrl,
-                        label = { Text("Shipment URL") },
+                        label = "Shipment URL",
+                        placeholder = "Shipment URL",
                         onValueChange = {
                             shipmentUrl = it
                         }
                     )
-                    OutlinedTextField(
+                    ErezeptOutlineText(
                         modifier = Modifier.fillMaxWidth(),
                         value = deliveryUrl,
-                        label = { Text("Delivery URL") },
+                        label = "Delivery URL",
+                        placeholder = "Delivery URL",
                         onValueChange = {
                             deliveryUrl = it
                         }
                     )
-                    OutlinedTextField(
+                    ErezeptOutlineText(
                         modifier = Modifier.fillMaxWidth(),
                         value = onPremiseUrl,
-                        label = { Text("OnPremise URL") },
+                        label = "OnPremise URL",
+                        placeholder = "OnPremise URL",
                         onValueChange = {
                             onPremiseUrl = it
                         }
@@ -360,12 +405,13 @@ fun DebugScreenDirectRedeem(onBack: () -> Unit) {
                 DebugCard(
                     title = "Message"
                 ) {
-                    OutlinedTextField(
+                    ErezeptOutlineText(
                         modifier = Modifier
                             .heightIn(max = 400.dp)
                             .fillMaxWidth(),
                         value = message,
-                        label = { Text("Any Message") },
+                        label = "Any Message",
+                        placeholder = "Any Message",
                         onValueChange = {
                             message = it
                         }
@@ -376,12 +422,13 @@ fun DebugScreenDirectRedeem(onBack: () -> Unit) {
                 DebugCard(
                     title = "Certificates"
                 ) {
-                    OutlinedTextField(
+                    ErezeptOutlineText(
                         modifier = Modifier
                             .heightIn(max = 400.dp)
                             .fillMaxWidth(),
                         value = certificates,
-                        label = { Text("Certificate as PEM") },
+                        label = "Certificate as PEM",
+                        placeholder = "Certificate as PEM",
                         onValueChange = {
                             certificates = it
                         }
@@ -410,12 +457,14 @@ private fun RedeemButton(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DebugScreenMain(
+    viewModel: DebugSettingsViewModel,
     onBack: () -> Unit,
     onClickDirectRedemption: () -> Unit,
     onClickPKV: () -> Unit,
-    onClickBioMetricSettings: () -> Unit
+    onClickBioMetricSettings: () -> Unit,
+    onScanQrCode: () -> Unit,
+    onClickLogger: () -> Unit
 ) {
-    val viewModel by rememberViewModel<DebugSettingsViewModel>()
     val listState = rememberLazyListState()
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
@@ -473,7 +522,7 @@ fun DebugScreenMain(
                         }
                         LabelButton(
                             icon = painterResource(R.drawable.ic_pkv),
-                            text = "PKV"
+                            text = "PKV / GKV Switch"
                         ) {
                             onClickPKV()
                         }
@@ -482,6 +531,12 @@ fun DebugScreenMain(
                             text = "Trigger Prescription Refresh"
                         ) {
                             viewModel.refreshPrescriptions()
+                        }
+                        LabelButton(
+                            icon = Icons.Rounded.Adb,
+                            text = "Logger"
+                        ) {
+                            onClickLogger()
                         }
                     }
                 }
@@ -495,11 +550,11 @@ fun DebugScreenMain(
                         ) {
                             Text(
                                 text = "Original app update",
-                                modifier = Modifier
-                                    .weight(1f)
+                                modifier = Modifier.weight(1f)
                             )
                             Switch(
                                 modifier = Modifier.testTag(TestTag.DebugMenu.FakeAppUpdate),
+                                colors = SwitchDefaults.erezeptColors(),
                                 checked = appUpdateManager,
                                 onCheckedChange = { viewModel.changeAppUpdateManager(it) }
                             )
@@ -521,6 +576,7 @@ fun DebugScreenMain(
                             )
                             Switch(
                                 modifier = Modifier.testTag(TestTag.DebugMenu.FakeNFCCapabilities),
+                                colors = SwitchDefaults.erezeptColors(),
                                 checked = viewModel.debugSettingsData.fakeNFCCapabilities,
                                 onCheckedChange = { viewModel.allowNfc(it) }
                             )
@@ -565,13 +621,29 @@ fun DebugScreenMain(
                     }
                 }
                 item {
-                    VirtualHealthCard(viewModel = viewModel)
+                    VirtualHealthCard(
+                        viewModel = viewModel
+                    ) {
+                        onScanQrCode()
+                    }
                 }
                 item {
                     FeatureToggles(viewModel = viewModel)
                 }
                 item {
                     RotatingLog(viewModel = viewModel)
+                }
+                item {
+                    HorizontalDivider()
+                }
+                item {
+                    ClearTextTrafficSection()
+                }
+                item {
+                    HorizontalDivider()
+                }
+                item {
+                    ClientIdsSection()
                 }
             }
         }
@@ -614,7 +686,11 @@ private fun RotatingLog(modifier: Modifier = Modifier, viewModel: DebugSettingsV
 }
 
 @Composable
-private fun VirtualHealthCard(modifier: Modifier = Modifier, viewModel: DebugSettingsViewModel) {
+private fun VirtualHealthCard(
+    modifier: Modifier = Modifier,
+    viewModel: DebugSettingsViewModel,
+    onScanQrCode: () -> Unit
+) {
     var virtualHealthCardLoading by remember { mutableStateOf(false) }
     var virtualHealthCardError by remember { mutableStateOf<String?>(null) }
     virtualHealthCardError?.let { error ->
@@ -635,8 +711,19 @@ private fun VirtualHealthCard(modifier: Modifier = Modifier, viewModel: DebugSet
 
     DebugCard(modifier, title = "Virtual Health Card", onReset = viewModel::onResetVirtualHealthCard) {
         val scope = rememberCoroutineScope()
+        TextButton(
+            modifier = Modifier.fillMaxWidth(),
+            border = BorderStroke(1.dp, AppTheme.colors.primary600),
+            shape = RoundedCornerShape(8.dp),
+            onClick = onScanQrCode
+        ) {
+            Text(
+                text = "Scan Virtual Health Card",
+                color = AppTheme.colors.primary600
+            )
+        }
 
-        OutlinedTextField(
+        ErezeptOutlineText(
             modifier = Modifier
                 .testTag(TestTag.DebugMenu.CertificateField)
                 .heightIn(max = 144.dp)
@@ -645,7 +732,8 @@ private fun VirtualHealthCard(modifier: Modifier = Modifier, viewModel: DebugSet
             onValueChange = {
                 viewModel.onSetVirtualHealthCardCertificate(it)
             },
-            label = { Text("Certificate in Base64") }
+            label = "Certificate in Base64",
+            placeholder = "Certificate in Base64"
         )
 
         val subjectInfo =
@@ -654,7 +742,7 @@ private fun VirtualHealthCard(modifier: Modifier = Modifier, viewModel: DebugSet
             }
         Text(subjectInfo, style = AppTheme.typography.caption1l)
 
-        OutlinedTextField(
+        ErezeptOutlineText(
             modifier = Modifier
                 .testTag(TestTag.DebugMenu.PrivateKeyField)
                 .heightIn(max = 144.dp)
@@ -663,7 +751,8 @@ private fun VirtualHealthCard(modifier: Modifier = Modifier, viewModel: DebugSet
             onValueChange = {
                 viewModel.onSetVirtualHealthCardPrivateKey(it)
             },
-            label = { Text("Private Key in Base64") }
+            label = "Private Key in Base64",
+            placeholder = "Private Key in Base64"
         )
 
         Button(

@@ -1,33 +1,37 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.asFhirInstant
-import de.gematik.ti.erp.app.utils.asFhirLocalDate
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
+import de.gematik.ti.erp.app.fhir.parser.containedOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
+import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
 import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
+import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirInstant
+import de.gematik.ti.erp.app.utils.asFhirLocalDate
+import de.gematik.ti.erp.app.utils.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -46,38 +50,39 @@ enum class TaskStatus {
     Failed;
 }
 
-fun extractTaskIds(
+data class TaskData(
+    val taskId: String,
+    val status: TaskStatus,
+    val lastModified: FhirTemporal?
+)
+
+@Requirement(
+    "O.Source_2#5",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Sanitization is also done for all FHIR mapping."
+)
+fun extractActualTaskData(
     bundle: JsonElement
-): Pair<Int, List<String>> {
+): Pair<Int, List<TaskData>> {
     val bundleTotal = bundle.containedArrayOrNull("entry")?.size ?: 0
     val resources = bundle
         .findAll("entry.resource")
 
-    val taskIds = resources.mapNotNull { resource ->
+    val tasks = resources.mapNotNull { resource ->
         val profileString = resource
             .contained("meta")
             .contained("profile")
             .contained()
 
         val status = mapTaskStatus(resource.containedString("status"))
-        when {
-            profileString.isProfileValue(
-                "https://gematik.de/fhir/StructureDefinition/ErxTask",
-                "1.1.1"
-            ) && status != TaskStatus.Canceled ->
-                resource
-                    .findAll("identifier")
-                    .filterWith(
-                        "system",
-                        stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID")
-                    )
-                    .first()
-                    .containedString("value")
-
+        val lastModified = resource.contained("lastModified").jsonPrimitive.toFhirTemporal()
+        val taskId = when {
             profileString.isProfileValue(
                 "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
-                "1.2"
-            ) && status != TaskStatus.Canceled ->
+                "1.2",
+                "1.3",
+                "1.4"
+            ) ->
                 resource
                     .findAll("identifier")
                     .filterWith(
@@ -89,9 +94,11 @@ fun extractTaskIds(
 
             else -> null
         }
+
+        taskId?.let { TaskData(it, status, lastModified) }
     }
 
-    return bundleTotal to taskIds.toList()
+    return bundleTotal to tasks.toList()
 }
 
 fun extractTaskAndKBVBundle(
@@ -114,12 +121,12 @@ fun extractTaskAndKBVBundle(
             .contained()
 
         when {
+            // TODO: remove Version 1.2 and 1.3 for GEM_ERP_PR_Task after 15.Jul.2025
             profileString.isProfileValue(
-                "https://gematik.de/fhir/StructureDefinition/ErxTask",
-                "1.1.1"
-            ) || profileString.isProfileValue(
                 "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
-                "1.2"
+                "1.2",
+                "1.3",
+                "1.4"
             ) -> {
                 task = resource
             }
@@ -143,103 +150,13 @@ fun extractTask(
     task: JsonElement,
     process: (
         taskId: String,
-        accessCode: String?,
+        accessCode: String,
         lastModified: FhirTemporal.Instant,
         expiresOn: FhirTemporal.LocalDate?,
         acceptUntil: FhirTemporal.LocalDate?,
         authoredOn: FhirTemporal.Instant,
-        status: TaskStatus
-    ) -> Unit
-) {
-    val profileString = task
-        .contained("meta")
-        .contained("profile")
-        .contained()
-
-    when {
-        profileString.isProfileValue(
-            "https://gematik.de/fhir/StructureDefinition/ErxTask",
-            "1.1.1"
-        ) -> {
-            extractTaskVersion111(task, process)
-        }
-
-        profileString.isProfileValue(
-            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Task",
-            "1.2"
-        ) -> {
-            extractTaskVersion12(task, process)
-        }
-    }
-}
-
-fun extractTaskVersion111(
-    task: JsonElement,
-    process: (
-        taskId: String,
-        accessCode: String?,
-        lastModified: FhirTemporal.Instant,
-        expiresOn: FhirTemporal.LocalDate?,
-        acceptUntil: FhirTemporal.LocalDate?,
-        authoredOn: FhirTemporal.Instant,
-        status: TaskStatus
-    ) -> Unit
-) {
-    val taskId = task
-        .findAll("identifier")
-        .filterWith("system", stringValue("https://gematik.de/fhir/NamingSystem/PrescriptionID"))
-        .first()
-        .containedString("value")
-
-    val accessCode = task
-        .findAll("identifier")
-        .filterWith("system", stringValue("https://gematik.de/fhir/NamingSystem/AccessCode"))
-        .firstOrNull()
-        ?.containedString("value")
-
-    val status = mapTaskStatus(task.containedString("status"))
-    val authoredOn = requireNotNull(task.contained("authoredOn").jsonPrimitive.asFhirInstant()) {
-        "Couldn't parse `authoredOn`"
-    }
-    val lastModified = requireNotNull(task.contained("lastModified").jsonPrimitive.asFhirInstant()) {
-        "Couldn't parse `lastModified`"
-    }
-
-    val expiresOn = task
-        .findAll("extension")
-        .filterWith("url", stringValue("https://gematik.de/fhir/StructureDefinition/ExpiryDate"))
-        .first()
-        .contained("valueDate")
-        .jsonPrimitive.asFhirLocalDate()
-
-    val acceptUntil = task
-        .findAll("extension")
-        .filterWith("url", stringValue("https://gematik.de/fhir/StructureDefinition/AcceptDate"))
-        .first()
-        .contained("valueDate")
-        .jsonPrimitive.asFhirLocalDate()
-
-    process(
-        taskId,
-        accessCode,
-        lastModified,
-        expiresOn,
-        acceptUntil,
-        authoredOn,
-        status
-    )
-}
-
-fun extractTaskVersion12(
-    task: JsonElement,
-    process: (
-        taskId: String,
-        accessCode: String?,
-        lastModified: FhirTemporal.Instant,
-        expiresOn: FhirTemporal.LocalDate?,
-        acceptUntil: FhirTemporal.LocalDate?,
-        authoredOn: FhirTemporal.Instant,
-        status: TaskStatus
+        status: TaskStatus,
+        lastMedicationDispense: FhirTemporal.Instant?
     ) -> Unit
 ) {
     val taskId = task
@@ -252,7 +169,7 @@ fun extractTaskVersion12(
         .findAll("identifier")
         .filterWith("system", stringValue("https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_AccessCode"))
         .firstOrNull()
-        ?.containedString("value")
+        ?.containedStringOrNull("value") ?: "" // 169 and 209 direct assignments have not an access code
 
     val status = mapTaskStatus(task.containedString("status"))
 
@@ -277,6 +194,18 @@ fun extractTaskVersion12(
         .contained("valueDate")
         .jsonPrimitive.asFhirLocalDate()
 
+    val lastMedicationDispense = task
+        .findAll("extension")
+        .filterWith(
+            "url",
+            stringValue(
+                "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_LastMedicationDispense"
+            )
+        )
+        .firstOrNull()
+        ?.containedOrNull("valueInstant")
+        ?.jsonPrimitive?.asFhirInstant()
+
     process(
         taskId,
         accessCode,
@@ -284,7 +213,8 @@ fun extractTaskVersion12(
         expiresOn,
         acceptUntil,
         authoredOn,
-        status
+        status,
+        lastMedicationDispense
     )
 }
 

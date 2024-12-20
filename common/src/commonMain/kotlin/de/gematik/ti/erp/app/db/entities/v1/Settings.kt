@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.db.entities.v1
@@ -30,6 +30,7 @@ import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.Ignore
 import kotlinx.datetime.LocalDateTime
 
+// TODO remove after migration 38
 enum class SettingsAuthenticationMethodV1 {
     HealthCard,
     DeviceSecurity,
@@ -54,6 +55,7 @@ class PasswordEntityV1 : RealmObject {
     }
 }
 
+// end remove
 class PharmacySearchEntityV1 : RealmObject {
     var name: String = ""
     var locationEnabled: Boolean = false
@@ -64,25 +66,31 @@ class PharmacySearchEntityV1 : RealmObject {
 }
 
 @Requirement(
-    "O.Data_1",
+    "O.Data_1#1",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "The settings of the app offer maximum data protection and security on first app start." +
-        "User preferences are asked without discrimination within the onboarding process"
+    rationale = "All user permissions are set to false when the app starts and are changed " +
+        "only when the user modifies them."
 )
 @Requirement(
-    "O.Data_13",
-    sourceSpecification = "BSI-eRp-ePA",
-    rationale = "default settings are not allow screenshots"
+    "A_24525#1",
+    sourceSpecification = "gemSpec_eRp_FdV",
+    rationale = "Tracking is disabled by default."
 )
 class SettingsEntityV1 : RealmObject, Cascading {
+    // TODO remove after migration 38
     var _authenticationMethod: String = Unspecified.toString()
 
     @delegate:Ignore
     var authenticationMethod: SettingsAuthenticationMethodV1 by enumName(::_authenticationMethod)
-
     var authenticationFails: Int = 0
+    var password: PasswordEntityV1? = PasswordEntityV1()
+
+    // end remove
+    var authentication: AuthenticationEntityV1? = AuthenticationEntityV1()
+
     var zoomEnabled: Boolean = false
     var welcomeDrawerShown: Boolean = false
+    var time: RealmInstant = LocalDateTime(2021, 10, 15, 0, 0).toRealmInstant()
     var mainScreenTooltipsShown: Boolean = false
 
     var pharmacySearch: PharmacySearchEntityV1? = PharmacySearchEntityV1()
@@ -93,8 +101,6 @@ class SettingsEntityV1 : RealmObject, Cascading {
 
     var dataProtectionVersionAccepted: RealmInstant = LocalDateTime(2021, 10, 15, 0, 0).toRealmInstant()
 
-    var password: PasswordEntityV1? = PasswordEntityV1()
-
     var latestAppVersionName: String = ""
     var latestAppVersionCode: Int = -1
 
@@ -104,7 +110,21 @@ class SettingsEntityV1 : RealmObject, Cascading {
     var shippingContact: ShippingContactEntityV1? = null
     var mlKitAccepted: Boolean = false
 
+    @Requirement(
+        "O.Data_13#1",
+        "O.Resi_1#6",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Default settings does not allow screenshots",
+        codeLines = 3
+    )
     // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
+    @Requirement(
+        "O.Data_13#1",
+        "O.Resi_1#6",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Default settings does not allow screenshots",
+        codeLines = 3
+    )
     var screenshotsAllowed: Boolean = false
 
     var trackingAllowed: Boolean = false

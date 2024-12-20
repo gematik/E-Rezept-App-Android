@@ -1,98 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <network-security-config>
-    <domain-config cleartextTrafficPermitted="false">
-        <!--RU-DEV-->
-        <domain includeSubdomains="false">erp-dev.app.ti-dienste.de</domain>
-        <pin-set expiration="2030-09-23">
-            <pin digest="SHA-256">RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=</pin>
-            <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
-            <!-- expiration="2031-04-13" -->
-            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
-            <!-- expiration="2030-07-02" -->
-            <pin digest="SHA-256">w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=</pin>
-        </pin-set>
-
-    </domain-config>
-    <domain-config cleartextTrafficPermitted="false">
-        <!--RU-->
-        <domain includeSubdomains="false">erp-ref.app.ti-dienste.de</domain>
-        <pin-set expiration="2030-09-23">
-            <pin digest="SHA-256">RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=</pin>
-            <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
-            <!-- expiration="2031-04-13" -->
-            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
-            <!-- expiration="2030-07-02" -->
-            <pin digest="SHA-256">w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=</pin>
-        </pin-set>
-
-    </domain-config>
-    <domain-config cleartextTrafficPermitted="false">
-        <!--TU-->
-        <domain includeSubdomains="false">erp-test.app.ti-dienste.de</domain>
-        <pin-set expiration="2030-09-23">
-            <pin digest="SHA-256">RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=</pin>
-            <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
-            <!-- expiration="2031-04-13" -->
-            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
-            <!-- expiration="2030-07-02" -->
-            <pin digest="SHA-256">w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=</pin>
-        </pin-set>
-    </domain-config>
-
-    <domain-config cleartextTrafficPermitted="false">
-        <!--PU-->
-        <domain includeSubdomains="false">erp.app.ti-dienste.de</domain>
-        <pin-set expiration="2030-09-23">
-            <pin digest="SHA-256">RRM1dGqnDFsCJXBTHky16vi1obOlCgFFn/yOhI/y+ho=</pin>
-            <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
-            <!-- expiration="2031-04-13" -->
-            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
-            <!-- expiration="2030-07-02" -->
-            <pin digest="SHA-256">w9I8WrpHr1YAS0DugvLGsrI9Vm1yEkZAyllKxemXXf4=</pin>
-        </pin-set>
-    </domain-config>
-
-    <domain-config cleartextTrafficPermitted="false">
-        <!--RU-->
-        <domain includeSubdomains="false">idp-ref.app.ti-dienste.de</domain>
-        <pin-set expiration="2026-09-21">
-            <pin digest="SHA-256">86fLIetopQLDNxFZ0uMI66Xpl1pFgLlHHn9v6kT0i4I=</pin>
-            <pin digest="SHA-256">OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=</pin>
-        </pin-set>
-    </domain-config>
-
-    <domain-config cleartextTrafficPermitted="false">
-        <!--TU-->
-        <domain includeSubdomains="false">idp-test.app.ti-dienste.de</domain>
-        <pin-set expiration="2026-09-21">
-            <pin digest="SHA-256">86fLIetopQLDNxFZ0uMI66Xpl1pFgLlHHn9v6kT0i4I=</pin>
-            <pin digest="SHA-256">OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=</pin>
-        </pin-set>
-    </domain-config>
-
-    <domain-config cleartextTrafficPermitted="false">
-        <!--PU-->
-        <domain includeSubdomains="false">idp.app.ti-dienste.de</domain>
-        <pin-set expiration="2026-09-21">
-            <pin digest="SHA-256">86fLIetopQLDNxFZ0uMI66Xpl1pFgLlHHn9v6kT0i4I=</pin>
-            <pin digest="SHA-256">OD/WDbD3VsfMwwNzzy9MWd9JXppKB77Vb3ST2wn9meg=</pin>
-        </pin-set>
-    </domain-config>
-
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="false">apovzd.app.ti-dienste.de</domain>
-        <pin-set expiration="2030-09-23" >
-            <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
-            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
-        </pin-set>
-    </domain-config>
-
-    <domain-config cleartextTrafficPermitted="false">
-        <domain includeSubdomains="false">apovzd-test.app.ti-dienste.de</domain>
-        <pin-set expiration="2030-09-23" >
-            <pin digest="SHA-256">e0IRz5Tio3GA1Xs4fUVWmH1xHDiH2dMbVtCBSkOIdqM=</pin>
-            <pin digest="SHA-256">qBRjZmOmkSNJL0p70zek7odSIzqs/muR4Jk9xYyCP+E=</pin>
-        </pin-set>
-    </domain-config>
-
+    <base-config cleartextTrafficPermitted="false"/>
+    <!-- The default configuration for apps targeting Android 7.0 (API level 24) to Android 8.1 (API level 27) is as follows: -->
+    <!-- <base-config cleartextTrafficPermitted="true">
+                <trust-anchors>
+                    <certificates src="system" />
+                </trust-anchors>
+            </base-config> -->
+    <!-- Adding base-config cleartextTrafficPermitted="false" for apps targeting Android 8.1 (API level 27) and lower. -->
 </network-security-config>

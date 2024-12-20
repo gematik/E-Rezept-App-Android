@@ -1,26 +1,26 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.profiles.repository
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
+import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
@@ -49,13 +49,16 @@ import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
+import junit.framework.TestCase.assertFalse
+import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
+import org.junit.After
+import org.junit.Before
 import org.junit.Rule
-import kotlin.test.Test
-import kotlin.test.BeforeTest
+import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
@@ -76,7 +79,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     lateinit var repo: DefaultProfilesRepository
 
-    @BeforeTest
+    @Before
     fun setUp() {
         realm = Realm.open(
             RealmConfiguration.Builder(
@@ -117,6 +120,11 @@ class ProfilesRepositoryTest : TestDB() {
         repo = DefaultProfilesRepository(
             realm = realm
         )
+    }
+
+    @After
+    fun tearDown() {
+        realm.close()
     }
 
     @Test
@@ -174,7 +182,7 @@ class ProfilesRepositoryTest : TestDB() {
                 profile.name == defaultProfileName
             }.apply {
                 this?.let {
-                    repo.removeProfile(it.id)
+                    repo.removeProfile(it.id, defaultProfileName)
                 }
             }
         }
@@ -186,7 +194,7 @@ class ProfilesRepositoryTest : TestDB() {
     }
 
     @Test
-    fun `remove last profile - should fail`() = runTest {
+    fun `remove last profile - should create a default profile`() = runTest {
         repo.saveProfile(defaultProfileName, true)
         repo.profiles().first().also { profileList ->
             assertEquals(1, profileList.size)
@@ -194,11 +202,14 @@ class ProfilesRepositoryTest : TestDB() {
                 profile.name == defaultProfileName
             }.apply {
                 this?.let {
-                    assertFails {
-                        repo.removeProfile(it.id)
-                    }
+                    repo.removeProfile(it.id, defaultProfileName1)
                 }
             }
+        }
+        repo.profiles().first().also { profileList ->
+            assertEquals(1, profileList.size)
+            assertEquals(actual = profileList.first().name, expected = defaultProfileName1)
+            assertEquals(actual = profileList.first().active, expected = true)
         }
     }
 
@@ -275,6 +286,58 @@ class ProfilesRepositoryTest : TestDB() {
     }
 
     @Test
+    fun `saveInsuranceInformation when isNewlyCreated is true should set insurantName as profile name`() = runTest {
+        repo.saveProfile(defaultProfileName, true)
+
+        realm.write {
+            val profileEntity = realm.query(ProfileEntityV1::class, "name == $0", defaultProfileName).first().find()
+            profileEntity?.isNewlyCreated = true
+        }
+
+        val profileId = repo.profiles().first().find { it.name == defaultProfileName }?.id
+        if (profileId != null) {
+            repo.saveInsuranceInformation(
+                profileId = profileId,
+                insurantName = defaultInsurantName,
+                insuranceIdentifier = defaultInsuranceIdentifier,
+                insuranceName = defaultInsuranceName
+            )
+        }
+
+        realm.query(ProfileEntityV1::class, "insuranceIdentifier == $0", defaultInsuranceIdentifier).first().find()
+            ?.let { updatedProfile ->
+                assertEquals(defaultInsurantName, updatedProfile.name)
+                assertTrue(updatedProfile.isNewlyCreated)
+            }
+    }
+
+    @Test
+    fun `saveInsuranceInformation when isNewlyCreated is false should retain existing profile name`() = runTest {
+        repo.saveProfile(defaultProfileName, true)
+
+        realm.write {
+            val profileEntity = realm.query(ProfileEntityV1::class, "name == $0", defaultProfileName).first().find()
+            profileEntity?.isNewlyCreated = false
+        }
+
+        val profileId = repo.profiles().first().find { it.name == defaultProfileName }?.id
+        if (profileId != null) {
+            repo.saveInsuranceInformation(
+                profileId = profileId,
+                insurantName = defaultInsurantName,
+                insuranceIdentifier = defaultInsuranceIdentifier,
+                insuranceName = defaultInsuranceName
+            )
+        }
+
+        realm.query(ProfileEntityV1::class, "insuranceIdentifier == $0", defaultInsuranceIdentifier).first().find()
+            ?.let { updatedProfile ->
+                assertEquals(defaultProfileName, updatedProfile.name)
+                assertFalse(updatedProfile.isNewlyCreated)
+            }
+    }
+
+    @Test
     fun `update profile name with id`() = runTest {
         repo.saveProfile(defaultProfileName, true)
         repo.profiles().first().also {
@@ -329,11 +392,11 @@ class ProfilesRepositoryTest : TestDB() {
         val profileImage = byteArrayOf(0x01.toByte(), 0x02.toByte())
         repo.saveProfile(defaultProfileName, true)
         repo.profiles().first().also {
-            assertEquals(null, it[0].personalizedImage)
+            assertEquals(null, it[0].image)
             repo.savePersonalizedProfileImage(it[0].id, profileImage)
         }
         repo.profiles().first().also {
-            it[0].personalizedImage?.let { bytes ->
+            it[0].image?.let { bytes ->
                 assertEquals(0x01.toByte(), bytes[0])
                 assertEquals(0x02.toByte(), bytes[1])
             }
@@ -351,7 +414,7 @@ class ProfilesRepositoryTest : TestDB() {
             repo.clearPersonalizedProfileImage(it[0].id)
         }
         repo.profiles().first().also {
-            assertEquals(null, it[0].personalizedImage)
+            assertEquals(null, it[0].image)
         }
     }
 }

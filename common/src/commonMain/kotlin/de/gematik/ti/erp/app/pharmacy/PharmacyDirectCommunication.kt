@@ -1,25 +1,26 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.pharmacy
 
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.Requirement
+import io.github.aakira.napier.Napier
 import org.bouncycastle.asn1.ASN1EncodableVector
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.ASN1PrintableString
@@ -43,15 +44,14 @@ import org.bouncycastle.cms.jcajce.JceCMSContentEncryptorBuilder
 import org.bouncycastle.cms.jcajce.JceKeyTransRecipientInfoGenerator
 import org.bouncycastle.operator.OutputAEADEncryptor
 import org.bouncycastle.operator.jcajce.JceAsymmetricKeyWrapper
-import io.github.aakira.napier.Napier
 import java.security.spec.MGF1ParameterSpec
 import javax.crypto.spec.OAEPParameterSpec
 import javax.crypto.spec.PSource
 
 const val OidRecipientMail = "1.2.276.0.76.4.173" // komle-recipient-emails
 @Requirement(
-    "A_22778#2",
-    "A_22779#2",
+    "A_22778-01#3",
+    "A_22779-01#3",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "Build and encrypt direct redeem message with pharmacy`s certificate"
 )
@@ -83,7 +83,7 @@ fun buildDirectPharmacyMessage(
     }
     @Requirement(
         "GS-A_4389#3",
-        "GS-A_4390",
+        "GS-A_4390#1",
         sourceSpecification = "gemSpec_Krypt",
         rationale = "Build and encrypt direct redeem message with pharmacy`s certificate"
     )

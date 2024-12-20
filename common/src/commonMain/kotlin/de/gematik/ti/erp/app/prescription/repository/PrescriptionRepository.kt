@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.repository
@@ -26,7 +26,11 @@ import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonElement
 
 interface PrescriptionRepository {
-    suspend fun saveScannedTasks(profileId: ProfileIdentifier, tasks: List<ScannedTaskData.ScannedTask>)
+    suspend fun saveScannedTasks(
+        profileId: ProfileIdentifier,
+        tasks: List<ScannedTaskData.ScannedTask>,
+        medicationString: String
+    )
 
     fun scannedTasks(profileId: ProfileIdentifier): Flow<List<ScannedTaskData.ScannedTask>>
 
@@ -35,13 +39,13 @@ interface PrescriptionRepository {
     suspend fun redeemPrescription(
         profileId: ProfileIdentifier,
         communication: JsonElement,
-        accessCode: String? = null
-    ): Result<Unit>
+        accessCode: String
+    ): Result<JsonElement>
 
-    suspend fun deleteTaskByTaskId(
+    suspend fun deleteRemoteTaskById(
         profileId: ProfileIdentifier,
         taskId: String
-    ): Result<Unit>
+    ): Result<JsonElement?>
 
     suspend fun updateRedeemedOn(taskId: String, timestamp: Instant?)
 
@@ -52,4 +56,10 @@ interface PrescriptionRepository {
     fun loadScannedTaskByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?>
 
     fun loadTaskIds(): Flow<List<String>>
+    suspend fun deleteLocalTaskById(taskId: String)
+    suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean
+    suspend fun redeemScannedTasks(taskIds: List<String>)
+
+    fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>>
+    suspend fun deleteLocalInvoicesById(taskId: String)
 }

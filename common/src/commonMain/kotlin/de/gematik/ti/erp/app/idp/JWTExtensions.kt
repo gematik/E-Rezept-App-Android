@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.idp
 
@@ -33,9 +35,10 @@ import java.security.Signature
 import javax.crypto.SecretKey
 
 @Requirement(
-    "A_21324",
-    sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Generate Key-Verifier using Token-Key and Code-Verifier."
+    "A_21324#1",
+    "A_21323#2",
+    sourceSpecification = "gemSpec_IDP_Frontend",
+    rationale = "Encrypting the key verifier with a JSON Web Encryption (JWE)."
 )
 fun buildKeyVerifier(
     tokenKey: SecretKey,
@@ -83,9 +86,13 @@ suspend fun buildJsonWebSignatureWithHealthCard(
 
 @Requirement(
     "O.Cryp_1#5",
-    "O.Cryp_4#5",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Signature via ecdh ephemeral-static (one time usage)"
+    rationale = "Signature via ecdh ephemeral-static [one time usage]"
+)
+@Requirement(
+    "O.Cryp_4#7",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "One time usage for JWE ECDH-ES Encryption"
 )
 fun buildJsonWebSignatureWithSecureElement(
     builder: JsonWebSignature.() -> Unit,

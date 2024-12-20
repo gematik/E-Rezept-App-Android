@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("UnusedPrivateMember")
 
 package de.gematik.ti.erp.app.utils.compose
 
@@ -34,14 +36,16 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.contentColorFor
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.AddTask
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.Cancel
-import androidx.compose.material3.AlertDialog
+import androidx.compose.material.icons.rounded.Coronavirus
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -50,21 +54,109 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.compose.ErezeptText.ErezeptTextAlignment.Center
-import de.gematik.ti.erp.app.utils.compose.ErezeptText.ErezeptTextAlignment.Default
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.ErezeptText.TextAlignment
+import de.gematik.ti.erp.app.utils.compose.ErezeptText.TextAlignment.Center
+import de.gematik.ti.erp.app.utils.compose.ErezeptText.TextAlignment.Default
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 
+//region Alert dialog with only title and one button
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    okText: String = stringResource(R.string.ok),
+    dismissTextColor: Color? = null,
+    titleAlignment: TextAlignment = Center,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    dismissButtonIcon: ImageVector? = null,
+    onDismissRequest: () -> Unit
+) {
+    InternalErezeptAlertDialog(
+        modifier = modifier,
+        title = title,
+        titleAlignment = titleAlignment,
+        body = null,
+        buttonsArrangement = buttonsArrangement,
+        dismissButtonTestTag = dismissButtonTestTag,
+        dismissText = okText,
+        dismissTextColor = dismissTextColor,
+        dismissButtonIcon = dismissButtonIcon,
+        onConfirmRequest = onDismissRequest,
+        onDismissRequest = onDismissRequest,
+        onDismissButtonRequest = onDismissRequest
+    )
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertDialogWithOnlyTitlePreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with only title and one button",
+            onDismissRequest = {}
+        )
+    }
+}
+
+//endregion
+
+//region Alert dialog with only body and one button
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    body: String,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
+    confirmButtonTestTag: String = TestTag.AlertDialog.ConfirmButton,
+    okText: String = stringResource(R.string.ok),
+    dismissText: String = stringResource(R.string.cancel),
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    onConfirmRequest: () -> Unit,
+    onDismissRequest: () -> Unit
+) {
+    InternalErezeptAlertDialog(
+        modifier = modifier,
+        body = body,
+        buttonsArrangement = buttonsArrangement,
+        confirmText = okText,
+        dismissText = dismissText,
+        confirmButtonTestTag = confirmButtonTestTag,
+        dismissButtonTestTag = dismissButtonTestTag,
+        onConfirmRequest = onConfirmRequest,
+        onDismissRequest = onDismissRequest,
+        onDismissButtonRequest = onDismissRequest
+    )
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertDialogWithOnlyBodyPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            body = "Dialog with only body and two buttons",
+            onConfirmRequest = {},
+            onDismissRequest = {}
+        )
+    }
+}
+
+//endregion
+
+//region Alert dialog with one button
 @Composable
 fun ErezeptAlertDialog(
     modifier: Modifier = Modifier,
     title: String,
     body: String,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
     okText: String = stringResource(R.string.ok),
-    titleAlignment: ErezeptText.ErezeptTextAlignment = Center,
+    titleAlignment: TextAlignment = Center,
     buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
     dismissButtonIcon: ImageVector? = null,
-    onDismissRequest: () -> Unit,
-    onConfirmRequest: () -> Unit
+    onDismissRequest: () -> Unit
 ) {
     InternalErezeptAlertDialog(
         modifier = modifier,
@@ -72,21 +164,58 @@ fun ErezeptAlertDialog(
         titleAlignment = titleAlignment,
         body = body,
         buttonsArrangement = buttonsArrangement,
+        dismissButtonTestTag = dismissButtonTestTag,
         dismissText = okText,
         dismissButtonIcon = dismissButtonIcon,
-        onConfirmRequest = onConfirmRequest,
-        onDismissRequest = onDismissRequest
+        onConfirmRequest = onDismissRequest,
+        onDismissRequest = onDismissRequest,
+        onDismissButtonRequest = onDismissRequest
     )
 }
 
+@LightDarkPreview
+@Composable
+fun ErezeptAlertDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with one button",
+            body = "A dialog is a type of modal window that appears in front of app content to " +
+                "provide critical information, or ask for decision",
+            onDismissRequest = {}
+        )
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertDialogWithIconPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with one button and dismiss icon",
+            titleAlignment = Default,
+            dismissButtonIcon = Icons.AutoMirrored.Filled.ArrowForward,
+            body = "A dialog is a type of modal window that appears in front of app content to " +
+                "provide critical information, or ask for decision",
+            onDismissRequest = {}
+        )
+    }
+}
+//endregion
+
+//region Alert dialog with two buttons
 @Composable
 fun ErezeptAlertDialog(
     modifier: Modifier = Modifier,
     title: String,
-    body: String,
+    titleIcon: ImageVector? = null,
+    bodyText: String,
+    confirmButtonTestTag: String = TestTag.AlertDialog.ConfirmButton,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
     confirmText: String = stringResource(R.string.ok),
     dismissText: String,
-    titleAlignment: ErezeptText.ErezeptTextAlignment = Center,
+    confirmTextColor: Color? = null,
+    dismissTextColor: Color? = null,
+    titleAlignment: TextAlignment = Center,
     buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
     confirmButtonIcon: ImageVector? = null,
     dismissButtonIcon: ImageVector? = null,
@@ -96,6 +225,45 @@ fun ErezeptAlertDialog(
     InternalErezeptAlertDialog(
         modifier = modifier,
         title = title,
+        titleIcon = titleIcon,
+        body = bodyText,
+        confirmText = confirmText,
+        dismissText = dismissText,
+        confirmTextColor = confirmTextColor,
+        dismissTextColor = dismissTextColor,
+        dismissButtonTestTag = dismissButtonTestTag,
+        confirmButtonTestTag = confirmButtonTestTag,
+        confirmButtonIcon = confirmButtonIcon,
+        dismissButtonIcon = dismissButtonIcon,
+        titleAlignment = titleAlignment,
+        buttonsArrangement = buttonsArrangement,
+        onConfirmRequest = onConfirmRequest,
+        onDismissRequest = onDismissRequest,
+        onDismissButtonRequest = onDismissRequest
+    )
+}
+
+// If we need the dismiss button to do something different than the cancel button, use this composable
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    titleIcon: ImageVector? = null,
+    body: String,
+    confirmText: String = stringResource(R.string.ok),
+    dismissText: String,
+    titleAlignment: TextAlignment = Center,
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    confirmButtonIcon: ImageVector? = null,
+    dismissButtonIcon: ImageVector? = null,
+    onConfirmRequest: () -> Unit,
+    onDismissRequest: () -> Unit,
+    onDismissButtonRequest: () -> Unit
+) {
+    InternalErezeptAlertDialog(
+        modifier = modifier,
+        title = title,
+        titleIcon = titleIcon,
         body = body,
         confirmText = confirmText,
         dismissText = dismissText,
@@ -104,113 +272,128 @@ fun ErezeptAlertDialog(
         titleAlignment = titleAlignment,
         buttonsArrangement = buttonsArrangement,
         onConfirmRequest = onConfirmRequest,
-        onDismissRequest = onDismissRequest
+        onDismissRequest = onDismissRequest,
+        onDismissButtonRequest = onDismissButtonRequest
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@LightDarkPreview
 @Composable
-private fun InternalErezeptAlertDialog(
-    modifier: Modifier = Modifier,
-    title: String,
-    titleAlignment: ErezeptText.ErezeptTextAlignment = Center,
-    body: String,
-    confirmText: String? = null,
-    dismissText: String,
-    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
-    confirmButtonIcon: ImageVector? = null,
-    dismissButtonIcon: ImageVector? = null,
-    onConfirmRequest: (() -> Unit)? = null,
-    onDismissRequest: () -> Unit
-) {
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = onDismissRequest
-    ) {
-        Surface(
-            color = AppTheme.colors.neutral025,
-            shape = RoundedCornerShape(SizeDefaults.triple),
-            border = BorderStroke(
-                width = SizeDefaults.eighth,
-                color = AppTheme.colors.neutral400
-            ),
-            contentColor = contentColorFor(AppTheme.colors.neutral025)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = PaddingDefaults.Large)
-            ) {
-                SpacerMedium()
-                ErezeptText.Title(
-                    text = title,
-                    textAlignment = titleAlignment
-                )
-                SpacerMedium()
-                ErezeptText.Body(body)
-                SpacerMedium()
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = buttonsArrangement
-                ) {
-                    TextButton(
-                        modifier = Modifier.testTag(TestTag.AlertDialog.CancelButton),
-                        onClick = onDismissRequest
-                    ) {
-                        Text(dismissText)
-                        dismissButtonIcon?.let { dismissIcon ->
-                            SpacerTiny()
-                            Icon(
-                                imageVector = dismissIcon,
-                                contentDescription = null
-                            )
-                        }
-                    }
-                    letNotNullOnCondition(
-                        first = confirmText,
-                        condition = { onConfirmRequest != null }
-                    ) { text ->
-                        TextButton(
-                            modifier = Modifier.testTag(TestTag.AlertDialog.ConfirmButton),
-                            onClick = {
-                                onConfirmRequest?.invoke()
-                            }
-                        ) {
-                            Text(text)
-                            confirmButtonIcon?.let { confirmIcon ->
-                                SpacerTiny()
-                                Icon(
-                                    imageVector = confirmIcon,
-                                    contentDescription = null
-                                )
-                            }
-                        }
-                    }
-                }
-                SpacerMedium()
-            }
-        }
+fun ErezeptAlertTwoButtonsDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with two buttons",
+            bodyText = "A dialog is a type of modal window that appears in front of app content to " +
+                "provide critical information, or ask for decision",
+            confirmText = "Ok",
+            dismissText = "Cancel",
+            onDismissRequest = {},
+            onConfirmRequest = {}
+        )
     }
 }
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertTwoButtonsWithIconsDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with two buttons and icons",
+            bodyText = "A dialog is a type of modal window that appears in front of app content to " +
+                "provide critical information, or ask for decision",
+            confirmText = "Ok",
+            dismissText = "Cancel",
+            confirmButtonIcon = Icons.Default.AddTask,
+            dismissButtonIcon = Icons.Default.Cancel,
+            onDismissRequest = {},
+            onConfirmRequest = {}
+        )
+    }
+}
+
+//endregion
+
+//region Alert dialog with custom buttons
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    titleIcon: ImageVector? = null,
+    titleAlignment: TextAlignment = Center,
+    bodyAlignment: TextAlignment = Default,
+    body: String,
+    onDismissRequest: () -> Unit,
+    buttons: @Composable ColumnScope.() -> Unit
+) {
+    InternalErezeptAlertDialog(
+        modifier = modifier,
+        title = title,
+        titleIcon = titleIcon,
+        titleAlignment = titleAlignment,
+        bodyAlignment = bodyAlignment,
+        body = body,
+        onDismissRequest = onDismissRequest,
+        buttons = {
+            // centering the buttons
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                Column {
+                    buttons()
+                }
+            }
+        }
+    )
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertMultiButtonsDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            title = "Dialog with composable view for buttons",
+            body = "A dialog is a type of modal window that appears in front of app content to " +
+                "provide critical information, or ask for decision",
+            onDismissRequest = {},
+            buttons = {
+                TextButton(onClick = {}) {
+                    Text("Button 1")
+                }
+                TextButton(onClick = {}) {
+                    Text("Button 2")
+                }
+                TextButton(onClick = {}) {
+                    Text("Button 3")
+                }
+            }
+        )
+    }
+}
+
+//endregion
+
+//region Alert dialog with composable body and one button
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ErezeptAlertDialog(
     modifier: Modifier = Modifier,
     title: String,
-    body: @Composable ColumnScope.() -> Unit,
+    body: (@Composable ColumnScope.() -> Unit),
+    confirmButtonTestTag: String = TestTag.AlertDialog.ConfirmButton,
     okText: String = stringResource(R.string.ok),
     onDismissRequest: () -> Unit
 ) {
-    AlertDialog(
-        modifier = modifier,
-        onDismissRequest = onDismissRequest
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier
     ) {
         Surface(
             color = MaterialTheme.colors.surface,
             shape = RoundedCornerShape(SizeDefaults.triple),
             border = BorderStroke(
-                width = SizeDefaults.eighth,
+                width = SizeDefaults.sixteenth,
                 color = AppTheme.colors.neutral400
             ),
             contentColor = contentColorFor(MaterialTheme.colors.surface)
@@ -226,14 +409,14 @@ fun ErezeptAlertDialog(
                     ErezeptText.Title(title)
                 }
                 SpacerMedium()
-                body()
+                body.invoke(this)
                 SpacerMedium()
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End
                 ) {
                     TextButton(
-                        modifier = Modifier.testTag(TestTag.AlertDialog.ConfirmButton),
+                        modifier = Modifier.testTag(confirmButtonTestTag),
                         onClick = onDismissRequest
                     ) {
                         Text(okText)
@@ -247,13 +430,12 @@ fun ErezeptAlertDialog(
 
 @LightDarkPreview
 @Composable
-fun ErezeptAlertDialogPreview() {
+private fun ErezeptAlertDialogWithNoComposableBodyPreview() {
     PreviewAppTheme {
         ErezeptAlertDialog(
-            title = "Dialog with one button",
-            body = "A dialog is a type of modal window that apperars in front of app content to " +
-                "provide critical information, or ask for decision",
-            onConfirmRequest = {},
+            title = "Alert dialog with no composable body and one button",
+            body = {},
+            okText = stringResource(R.string.ok),
             onDismissRequest = {}
         )
     }
@@ -261,30 +443,96 @@ fun ErezeptAlertDialogPreview() {
 
 @LightDarkPreview
 @Composable
-fun ErezeptAlertDialogWithIconPreview() {
+fun ErezeptAlertDialogWithComposableBodyPreview() {
     PreviewAppTheme {
         ErezeptAlertDialog(
-            title = "Dialog with one button",
-            titleAlignment = Default,
-            dismissButtonIcon = Icons.Default.ArrowForward,
-            body = "A dialog is a type of modal window that apperars in front of app content to " +
-                "provide critical information, or ask for decision",
-            onConfirmRequest = {},
+            title = "Alert dialog with composable body and one button",
+            body = {
+                Text(
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                    text = "BeispielText"
+                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Rounded.Coronavirus, null)
+                }
+            },
             onDismissRequest = {}
         )
     }
 }
 
+//endregion
+
+//region Alert dialog with two buttons and composable body
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    body: @Composable ColumnScope.() -> Unit,
+    confirmButtonTestTag: String = TestTag.AlertDialog.ConfirmButton,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
+    cancelText: String = stringResource(R.string.cancel),
+    okText: String = stringResource(R.string.ok),
+    onDismissRequest: () -> Unit,
+    onConfirmRequest: () -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier
+    ) {
+        Surface(
+            color = MaterialTheme.colors.surface,
+            shape = RoundedCornerShape(SizeDefaults.triple),
+            border = BorderStroke(
+                width = SizeDefaults.eighth,
+                color = AppTheme.colors.neutral400
+            ),
+            contentColor = contentColorFor(MaterialTheme.colors.surface)
+        ) {
+            Column(
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Large)
+            ) {
+                SpacerMedium()
+                ErezeptText.Title(title)
+                SpacerMedium()
+                body()
+                SpacerMedium()
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(
+                        modifier = Modifier.testTag(dismissButtonTestTag),
+                        onClick = onDismissRequest
+                    ) {
+                        Text(cancelText)
+                    }
+                    TextButton(
+                        modifier = Modifier.testTag(confirmButtonTestTag),
+                        onClick = onConfirmRequest
+                    ) {
+                        Text(okText)
+                    }
+                }
+                SpacerMedium()
+            }
+        }
+    }
+}
+
 @LightDarkPreview
 @Composable
-fun ErezeptAlertTwoButtonsDialogPreview() {
+private fun ErezeptAlertDialogWithNoComposableBodyTwoButtonsPreview() {
     PreviewAppTheme {
         ErezeptAlertDialog(
-            title = "Dialog with two buttons",
-            body = "A dialog is a type of modal window that apperars in front of app content to " +
-                "provide critical information, or ask for decision",
-            confirmText = "Ok",
-            dismissText = "Cancel",
+            title = "Alert dialog with no composable body and two buttons",
+            body = {},
+            okText = stringResource(R.string.ok),
             onDismissRequest = {},
             onConfirmRequest = {}
         )
@@ -293,18 +541,190 @@ fun ErezeptAlertTwoButtonsDialogPreview() {
 
 @LightDarkPreview
 @Composable
-fun ErezeptAlertTwoButtonsWithIconsDialogPreview() {
+fun ErezeptAlertDialogWithComposableBodyTwoButtonsPreview() {
     PreviewAppTheme {
         ErezeptAlertDialog(
-            title = "Dialog with two buttons",
-            body = "A dialog is a type of modal window that apperars in front of app content to " +
-                "provide critical information, or ask for decision",
-            confirmText = "Ok",
-            dismissText = "Cancel",
-            confirmButtonIcon = Icons.Default.AddTask,
-            dismissButtonIcon = Icons.Default.Cancel,
+            title = "Alert dialog with composable body and two buttons",
+            body = {
+                Text(
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                    text = "BeispielText"
+                )
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(Icons.Rounded.Coronavirus, null)
+                }
+            },
             onDismissRequest = {},
             onConfirmRequest = {}
         )
+    }
+}
+
+//endregion
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InternalErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String,
+    titleIcon: ImageVector? = null,
+    titleAlignment: TextAlignment = Center,
+    bodyAlignment: TextAlignment = Default,
+    body: String,
+    onDismissRequest: () -> Unit,
+    buttons: @Composable ColumnScope.() -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier.padding(horizontal = PaddingDefaults.Large)
+    ) {
+        Surface(
+            color = AppTheme.colors.neutral025,
+            shape = RoundedCornerShape(SizeDefaults.triple),
+            border = BorderStroke(
+                width = SizeDefaults.eighth,
+                color = AppTheme.colors.neutral400
+            ),
+            contentColor = contentColorFor(AppTheme.colors.neutral025)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PaddingDefaults.Large)
+            ) {
+                titleIcon?.let { titleIcon ->
+                    SpacerMedium()
+                    Icon(
+                        imageVector = titleIcon,
+                        contentDescription = null,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+                SpacerMedium()
+                ErezeptText.Title(
+                    text = title,
+                    textAlignment = titleAlignment
+                )
+                SpacerMedium()
+                ErezeptText.Body(
+                    text = body,
+                    textAlignment = bodyAlignment
+                )
+                SpacerMedium()
+                buttons()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InternalErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    title: String? = null,
+    titleIcon: ImageVector? = null,
+    titleAlignment: TextAlignment = Center,
+    confirmButtonTestTag: String = TestTag.AlertDialog.ConfirmButton,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
+    body: String? = null,
+    confirmText: String? = null,
+    dismissText: String,
+    confirmTextColor: Color? = null,
+    dismissTextColor: Color? = null,
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    confirmButtonIcon: ImageVector? = null,
+    dismissButtonIcon: ImageVector? = null,
+    onConfirmRequest: (() -> Unit)? = null,
+    onDismissRequest: () -> Unit,
+    onDismissButtonRequest: () -> Unit
+) {
+    BasicAlertDialog(
+        onDismissRequest = onDismissRequest,
+        modifier = modifier.padding(horizontal = PaddingDefaults.Large)
+    ) {
+        Surface(
+            color = AppTheme.colors.neutral025,
+            shape = RoundedCornerShape(SizeDefaults.triple),
+            border = BorderStroke(
+                width = SizeDefaults.eighth,
+                color = AppTheme.colors.neutral400
+            ),
+            contentColor = contentColorFor(AppTheme.colors.neutral025)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PaddingDefaults.Large)
+            ) {
+                titleIcon?.let { titleIcon ->
+                    SpacerMedium()
+                    Icon(
+                        imageVector = titleIcon,
+                        contentDescription = null,
+                        modifier = Modifier.align(Alignment.CenterHorizontally)
+                    )
+                }
+                SpacerMedium()
+                title?.let { nonNullTitle ->
+                    ErezeptText.Title(
+                        text = nonNullTitle,
+                        textAlignment = titleAlignment
+                    )
+                    SpacerMedium()
+                }
+                body?.let { nonNullBody ->
+                    ErezeptText.Body(nonNullBody)
+                    SpacerMedium()
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = buttonsArrangement
+                ) {
+                    TextButton(
+                        modifier = Modifier.testTag(dismissButtonTestTag),
+                        onClick = onDismissButtonRequest
+                    ) {
+                        Text(
+                            text = dismissText,
+                            color = dismissTextColor ?: AppTheme.colors.primary600
+                        )
+                        dismissButtonIcon?.let { dismissIcon ->
+                            SpacerTiny()
+                            Icon(
+                                imageVector = dismissIcon,
+                                contentDescription = null
+                            )
+                        }
+                    }
+                    letNotNullOnCondition(
+                        first = confirmText,
+                        condition = { onConfirmRequest != null }
+                    ) { text ->
+                        TextButton(
+                            modifier = Modifier.testTag(confirmButtonTestTag),
+                            onClick = {
+                                onConfirmRequest?.invoke()
+                            }
+                        ) {
+                            Text(
+                                text = text,
+                                color = confirmTextColor ?: AppTheme.colors.primary600
+                            )
+                            confirmButtonIcon?.let { confirmIcon ->
+                                SpacerTiny()
+                                Icon(
+                                    imageVector = confirmIcon,
+                                    contentDescription = null
+                                )
+                            }
+                        }
+                    }
+                }
+                SpacerMedium()
+            }
+        }
     }
 }

@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.detail.presentation
@@ -21,89 +21,150 @@ package de.gematik.ti.erp.app.prescription.detail.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
-import de.gematik.ti.erp.app.prescription.detail.ui.DeletePrescriptionsBridge
-import de.gematik.ti.erp.app.prescription.usecase.GeneratePrescriptionDetailsUseCase
-import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
+import de.gematik.ti.erp.app.base.presentation.GetActiveProfileController
+import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.Features
+import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.usecase.LoadMedicationScheduleByTaskIdUseCase
+import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
+import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
+import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
 import de.gematik.ti.erp.app.prescription.usecase.UpdateScannedTaskNameUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import kotlinx.coroutines.CoroutineScope
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.utils.uistate.UiState
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
+@Suppress("ConstructorParameterNaming")
 @Stable
 class PrescriptionDetailController(
+    getActiveProfileUseCase: GetActiveProfileUseCase,
+    featureToggleManager: FeatureToggleManager,
     private val taskId: String,
-    private val prescriptionUseCase: PrescriptionUseCase,
-    private val activeProfileUseCase: GetActiveProfileUseCase,
-    private val grantConsentUseCase: GrantConsentUseCase,
-    private val generatePrescriptionDetailsUseCase: GeneratePrescriptionDetailsUseCase,
+    private val redeemScannedTaskUseCase: RedeemScannedTaskUseCase,
+    private val deletePrescriptionUseCase: DeletePrescriptionUseCase,
+    private val loadMedicationScheduleByTaskIdUseCase: LoadMedicationScheduleByTaskIdUseCase,
+    private val getPrescriptionByTaskIdUseCase: GetPrescriptionByTaskIdUseCase,
     private val updateScannedTaskNameUseCase: UpdateScannedTaskNameUseCase,
-    private val scope: CoroutineScope
-) : DeletePrescriptionsBridge {
-
-    private val prescription by lazy {
-        generatePrescriptionDetailsUseCase(taskId).stateIn(scope, SharingStarted.Lazily, null)
-    }
-
-    private val activeProfile by lazy {
-        activeProfileUseCase.invoke()
-    }
-
-    fun redeemScannedTask(taskId: String, redeem: Boolean) {
+    private val _profilePrescription:
+        MutableStateFlow<UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>> =
+            MutableStateFlow(UiState.Loading()),
+    val profilePrescription: StateFlow<UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>> =
+        _profilePrescription
+) : GetActiveProfileController(
+    getActiveProfileUseCase = getActiveProfileUseCase,
+    onSuccess = { profile, scope ->
         scope.launch {
-            prescriptionUseCase.redeemScannedTask(taskId, redeem)
+            runCatching {
+                getPrescriptionByTaskIdUseCase(taskId).first()
+            }.fold(
+                onSuccess = {
+                    _profilePrescription.value = UiState.Data(profile to it)
+                },
+                onFailure = {
+                    _profilePrescription.value = UiState.Error(it)
+                }
+            )
+        }
+    },
+    onFailure = { error, _ ->
+        _profilePrescription.value = UiState.Error(error)
+    }
+) {
+
+    val medicationSchedule: StateFlow<MedicationSchedule?> = loadMedicationScheduleByTaskIdUseCase(taskId)
+        .stateIn(controllerScope, SharingStarted.WhileSubscribed(), null)
+
+    private val _prescriptionDeleted by lazy {
+        MutableStateFlow<DeletePrescriptionUseCase.DeletePrescriptionState>(
+            DeletePrescriptionUseCase.DeletePrescriptionState.ValidState.NotDeleted
+        )
+    }
+
+    val prescriptionDeleted: StateFlow<DeletePrescriptionUseCase.DeletePrescriptionState> by lazy {
+        _prescriptionDeleted
+    }
+
+    val isMedicationPlanEnabled: StateFlow<Boolean> =
+        featureToggleManager.isFeatureEnabled(Features.MEDICATION_PLAN)
+            .stateIn(
+                controllerScope,
+                SharingStarted.WhileSubscribed(),
+                false
+            )
+
+    fun redeemScannedTask(
+        taskId: String,
+        redeem: Boolean
+    ) {
+        controllerScope.launch {
+            redeemScannedTaskUseCase(taskId, redeem)
+            refreshActiveProfile()
         }
     }
 
-    fun updateScannedTaskName(taskId: String, name: String) {
-        scope.launch {
-            updateScannedTaskNameUseCase.invoke(taskId, name)
+    fun updateScannedTaskName(
+        taskId: String,
+        name: String
+    ) {
+        controllerScope.launch {
+            updateScannedTaskNameUseCase(taskId, name)
+            refreshActiveProfile()
         }
     }
 
-    override suspend fun deletePrescription(profileId: ProfileIdentifier, taskId: String): Result<Unit> =
-        prescriptionUseCase.deletePrescription(profileId = profileId, taskId = taskId)
-
-    fun grantConsent() {
-        scope.launch {
-            val profile = activeProfile.first()
-            grantConsentUseCase.invoke(profile.id, profile.insurance.insuranceIdentifier)
+    fun deletePrescription(
+        profileId: ProfileIdentifier,
+        taskId: String
+    ) = controllerScope.launch {
+        deletePrescriptionUseCase(profileId, taskId, false).first().apply {
+            _prescriptionDeleted.value = this as DeletePrescriptionUseCase.DeletePrescriptionState
         }
     }
 
-    val prescriptionState
-        @Composable
-        get() = prescription.collectAsStateWithLifecycle()
+    fun deletePrescriptionFromLocal(
+        profileId: ProfileIdentifier,
+        taskId: String
+    ) {
+        controllerScope.launch {
+            deletePrescriptionUseCase(profileId, taskId, true).first().apply {
+                _prescriptionDeleted.value = this as DeletePrescriptionUseCase.DeletePrescriptionState
+            }
+        }
+    }
 
-    val activeProfileState
-        @Composable
-        get() = activeProfile.collectAsStateWithLifecycle(initialValue = null)
+    fun resetDeletePrescriptionState() {
+        _prescriptionDeleted.value = DeletePrescriptionUseCase.DeletePrescriptionState.ValidState.NotDeleted
+    }
 }
 
 @Composable
 fun rememberPrescriptionDetailController(taskId: String): PrescriptionDetailController {
-    val generatePrescriptionDetailsUseCase by rememberInstance<GeneratePrescriptionDetailsUseCase>()
-    val prescriptionUseCase by rememberInstance<PrescriptionUseCase>()
+    val getPrescriptionByTaskIdUseCase by rememberInstance<GetPrescriptionByTaskIdUseCase>()
+    val redeemScannedTaskUseCase by rememberInstance<RedeemScannedTaskUseCase>()
+    val deletePrescriptionUseCase by rememberInstance<DeletePrescriptionUseCase>()
+    val loadMedicationScheduleByTaskIdUseCase by rememberInstance<LoadMedicationScheduleByTaskIdUseCase>()
     val updateScannedTaskNameUseCase by rememberInstance<UpdateScannedTaskNameUseCase>()
-    val activeProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
-    val grantConsentUseCase by rememberInstance<GrantConsentUseCase>()
-    val scope = rememberCoroutineScope()
+    val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
+    val featureToggleManager by rememberInstance<FeatureToggleManager>()
     return remember {
         PrescriptionDetailController(
             taskId = taskId,
-            generatePrescriptionDetailsUseCase = generatePrescriptionDetailsUseCase,
-            prescriptionUseCase = prescriptionUseCase,
+            getPrescriptionByTaskIdUseCase = getPrescriptionByTaskIdUseCase,
+            redeemScannedTaskUseCase = redeemScannedTaskUseCase,
+            deletePrescriptionUseCase = deletePrescriptionUseCase,
+            loadMedicationScheduleByTaskIdUseCase = loadMedicationScheduleByTaskIdUseCase,
             updateScannedTaskNameUseCase = updateScannedTaskNameUseCase,
-            activeProfileUseCase = activeProfileUseCase,
-            grantConsentUseCase = grantConsentUseCase,
-            scope = scope
+            getActiveProfileUseCase = getActiveProfileUseCase,
+            featureToggleManager = featureToggleManager
         )
     }
 }

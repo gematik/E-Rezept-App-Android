@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.cardwall.presentation
@@ -24,8 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.DomainVerifier
+import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.cardwall.model.nfc.card.NfcHealthCard
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallAuthenticationData
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
@@ -34,6 +35,7 @@ import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -44,9 +46,9 @@ import org.kodein.di.compose.rememberInstance
 class CardWallController(
     private val cardWallUseCase: CardWallUseCase,
     private val authenticationUseCase: AuthenticationUseCase,
-    private val dispatchers: DispatchProvider,
     private val domainVerifier: DomainVerifier
-) {
+) : Controller() {
+
     fun doAuthentication(
         profileId: ProfileIdentifier,
         authenticationData: CardWallAuthenticationData,
@@ -55,7 +57,7 @@ class CardWallController(
         val cardChannel = tag.map { NfcHealthCard.connect(it) }
 
         return when (authenticationData) {
-            is CardWallAuthenticationData.AltPairingWithHealthCard ->
+            is CardWallAuthenticationData.SaveCredentialsWithHealthCard ->
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                     authenticationUseCase.pairDeviceWithHealthCardAndSecureElement(
                         profileId = profileId,
@@ -80,6 +82,11 @@ class CardWallController(
                 }
 
             is CardWallAuthenticationData.HealthCard ->
+                @Requirement(
+                    "O.Auth_3#1",
+                    sourceSpecification = "BSI-eRp-ePA",
+                    rationale = "Implementation of the EGK connection"
+                )
                 authenticationUseCase.authenticateWithHealthCard(
                     profileId = profileId,
                     can = authenticationData.cardAccessNumber,
@@ -87,11 +94,11 @@ class CardWallController(
                     cardChannel = cardChannel
                 )
         }
-            .flowOn(dispatchers.io)
+            .flowOn(Dispatchers.IO)
     }
 
-    fun checkNfcEnabled(): Boolean {
-        return cardWallUseCase.checkNfcEnabled()
+    val isNfcEnabled: Boolean by lazy {
+        cardWallUseCase.isNfcEnabled()
     }
 
     val isDomainVerified by lazy { domainVerifier.areDomainsVerified }
@@ -106,13 +113,11 @@ fun rememberCardWallController(): CardWallController {
     val cardWallUseCase by rememberInstance<CardWallUseCase>()
     val authenticationUseCase by rememberInstance<AuthenticationUseCase>()
     val domainVerifier by rememberInstance<DomainVerifier>()
-    val dispatchers by rememberInstance<DispatchProvider>()
     return remember {
         CardWallController(
             cardWallUseCase = cardWallUseCase,
             authenticationUseCase = authenticationUseCase,
-            domainVerifier = domainVerifier,
-            dispatchers = dispatchers
+            domainVerifier = domainVerifier
         )
     }
 }

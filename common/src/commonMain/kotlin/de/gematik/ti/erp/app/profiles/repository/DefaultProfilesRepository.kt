@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.profiles.repository
@@ -24,17 +24,20 @@ import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileColorNamesV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.idp.repository.toSingleSignOnTokenScope
+import de.gematik.ti.erp.app.profiles.mapper.toProfileData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import io.realm.kotlin.Realm
+import io.realm.kotlin.ext.asFlow
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -42,6 +45,11 @@ import kotlinx.datetime.Instant
 
 // TODO: Move to value class
 typealias ProfileIdentifier = String
+
+sealed interface SetToActiveProfile {
+    data object NoChange : SetToActiveProfile
+    data object ChangeActiveState : SetToActiveProfile
+}
 
 class KVNRAlreadyAssignedException(
     message: String,
@@ -56,59 +64,18 @@ class DefaultProfilesRepository(
 ) : ProfileRepository {
     private val lock = Mutex()
 
-    override fun profiles() =
+    override fun profiles(): Flow<List<ProfilesData.Profile>> =
         realm.query<ProfileEntityV1>().asFlow().mapNotNull {
             val hasActiveProfile = it.list.any { profile -> profile.active }
 
-            it.list.mapIndexed { index, profile ->
-                ProfilesData.Profile(
-                    id = profile.id,
-                    color = when (profile.color) {
-                        ProfileColorNamesV1.SPRING_GRAY -> ProfilesData.ProfileColorNames.SPRING_GRAY
-                        ProfileColorNamesV1.SUN_DEW -> ProfilesData.ProfileColorNames.SUN_DEW
-                        ProfileColorNamesV1.PINK -> ProfilesData.ProfileColorNames.PINK
-                        ProfileColorNamesV1.TREE -> ProfilesData.ProfileColorNames.TREE
-                        ProfileColorNamesV1.BLUE_MOON -> ProfilesData.ProfileColorNames.BLUE_MOON
-                    },
-                    avatar = when (profile.avatarFigure) {
-                        AvatarFigureV1.PersonalizedImage -> ProfilesData.Avatar.PersonalizedImage
-                        AvatarFigureV1.FemaleDoctor -> ProfilesData.Avatar.FemaleDoctor
-                        AvatarFigureV1.WomanWithHeadScarf -> ProfilesData.Avatar.WomanWithHeadScarf
-                        AvatarFigureV1.Grandfather -> ProfilesData.Avatar.Grandfather
-                        AvatarFigureV1.BoyWithHealthCard -> ProfilesData.Avatar.BoyWithHealthCard
-                        AvatarFigureV1.OldManOfColor -> ProfilesData.Avatar.OldManOfColor
-                        AvatarFigureV1.WomanWithPhone -> ProfilesData.Avatar.WomanWithPhone
-                        AvatarFigureV1.Grandmother -> ProfilesData.Avatar.Grandmother
-                        AvatarFigureV1.ManWithPhone -> ProfilesData.Avatar.ManWithPhone
-                        AvatarFigureV1.WheelchairUser -> ProfilesData.Avatar.WheelchairUser
-                        AvatarFigureV1.Baby -> ProfilesData.Avatar.Baby
-                        AvatarFigureV1.MaleDoctorWithPhone -> ProfilesData.Avatar.MaleDoctorWithPhone
-                        AvatarFigureV1.FemaleDoctorWithPhone -> ProfilesData.Avatar.FemaleDoctorWithPhone
-                        AvatarFigureV1.FemaleDeveloper -> ProfilesData.Avatar.FemaleDeveloper
-                    },
-                    personalizedImage = profile.personalizedImage,
-                    name = profile.name,
-                    insurantName = profile.insurantName ?: "",
-                    insuranceIdentifier = profile.insuranceIdentifier,
-                    insuranceName = profile.insuranceName,
-                    insuranceType = when (profile.insuranceType) {
-                        InsuranceTypeV1.GKV -> ProfilesData.InsuranceType.GKV
-                        InsuranceTypeV1.PKV -> ProfilesData.InsuranceType.PKV
-                        InsuranceTypeV1.None -> ProfilesData.InsuranceType.None
-                    },
-                    isConsentDrawerShown = profile.isConsentDrawerShown,
-                    lastAuthenticated = profile.lastAuthenticated?.toInstant(),
-                    lastAuditEventSynced = profile.lastAuditEventSynced?.toInstant(),
-                    lastTaskSynced = profile.lastTaskSynced?.toInstant(),
-                    // TODO change architecture of active profile
-                    active = if (!hasActiveProfile && index == 0) {
-                        true
-                    } else {
-                        profile.active
-                    },
-                    singleSignOnTokenScope = profile.idpAuthenticationData?.toSingleSignOnTokenScope()
+            val state = if (it.list.size == 1 && !hasActiveProfile) {
+                SetToActiveProfile.ChangeActiveState
+            } else {
+                SetToActiveProfile.NoChange
+            }
 
-                )
+            it.list.map { profile ->
+                profile.toProfileData(state)
             }
         }.flowOn(dispatcher)
 
@@ -128,13 +95,28 @@ class DefaultProfilesRepository(
                 ProfileEntityV1().apply {
                     this.name = profileName
                     this.active = activate
-                    this.color = ProfileColorNamesV1.values().random()
+                    this.color = ProfileColorNamesV1.entries.toTypedArray().random()
                 }
             )
         }
     }
 
-    // tag::SwitchActiveProfileRepository[]
+    override suspend fun createNewProfile(profileName: String) {
+        realm.write {
+            query<ProfileEntityV1>().find().forEach {
+                it.active = false
+            }
+
+            copyToRealm(
+                ProfileEntityV1().apply {
+                    this.name = profileName
+                    this.active = true
+                    this.color = ProfileColorNamesV1.entries.toTypedArray().random()
+                }
+            )
+        }
+    }
+
     override suspend fun activateProfile(profileId: ProfileIdentifier) {
         realm.write {
             query<ProfileEntityV1>("id != $0", profileId).find().forEach {
@@ -145,15 +127,24 @@ class DefaultProfilesRepository(
             }
         }
     }
-    // end::SwitchActiveProfileRepository[]
 
-    override suspend fun removeProfile(profileId: ProfileIdentifier) {
+    override suspend fun removeProfile(profileId: ProfileIdentifier, profileName: String) {
         lock.withLock {
             realm.writeBlocking {
                 val profiles = query<ProfileEntityV1>().find()
 
                 if (profiles.size == 1) {
-                    error("Can't remove the last profile!")
+                    // create new default profile before deleting the last profile
+                    query<ProfileEntityV1>().find().forEach {
+                        it.active = false
+                    }
+                    copyToRealm(
+                        ProfileEntityV1().apply {
+                            this.name = profileName
+                            this.active = true
+                            this.color = ProfileColorNamesV1.entries.toTypedArray().random()
+                        }
+                    )
                 }
 
                 queryFirst<ProfileEntityV1>("id = $0", profileId)?.let { profileToDelete ->
@@ -162,7 +153,6 @@ class DefaultProfilesRepository(
                             findLatest(it)?.active = true
                         }
                     }
-
                     deleteAll(profileToDelete)
                 }
             }
@@ -205,6 +195,9 @@ class DefaultProfilesRepository(
                     this.insuranceName = insuranceName
                     this.insuranceIdentifier = insuranceIdentifier
                     this.insurantName = insurantName
+                    if (this.isNewlyCreated) {
+                        this.name = insurantName
+                    }
                 }
             }
         }
@@ -214,6 +207,7 @@ class DefaultProfilesRepository(
         realm.write {
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
                 this.name = profileName
+                this.isNewlyCreated = false
             }
         }
     }
@@ -240,6 +234,7 @@ class DefaultProfilesRepository(
         }
     }
 
+    @Suppress("CyclomaticComplexMethod")
     override suspend fun saveAvatarFigure(profileId: ProfileIdentifier, avatar: ProfilesData.Avatar) {
         realm.write {
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
@@ -280,21 +275,36 @@ class DefaultProfilesRepository(
         }
     }
 
-    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier) {
-        realm.write {
+    override suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean {
+        val entity = realm.write {
             queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
                 this.insuranceType = InsuranceTypeV1.PKV
             }
         }
+        return entity?.insuranceType == InsuranceTypeV1.PKV
+    }
+
+    override suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean {
+        val entity = realm.write {
+            queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
+                this.insuranceType = InsuranceTypeV1.GKV
+            }
+        }
+        return entity?.insuranceType == InsuranceTypeV1.GKV
     }
 
     override suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean =
         getProfileById(profileId).first().insuranceType == ProfilesData.InsuranceType.PKV
 
-    private fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile> =
-        profiles().mapNotNull { profiles ->
-            profiles.find {
-                it.id == profileId
-            }
-        }
+    override fun getProfileById(
+        profileId: ProfileIdentifier
+    ): Flow<ProfilesData.Profile> =
+        realm.queryFirst<ProfileEntityV1>("id = $0", profileId)?.asFlow()?.mapNotNull {
+            it.obj?.toProfileData()
+        } ?: emptyFlow()
+
+    override suspend fun isSsoTokenValid(profileId: ProfileIdentifier): Flow<Boolean> =
+        realm.queryFirst<ProfileEntityV1>("id = $0", profileId)
+            ?.asFlow()?.mapNotNull { it.obj?.toProfileData() }
+            ?.map { it.isSSOTokenValid() } ?: flowOf(false)
 }

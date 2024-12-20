@@ -1,35 +1,42 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedBooleanOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
+import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
+@Requirement(
+    "O.Source_2#2",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "Sanitization is also done for all FHIR mapping."
+)
 typealias MedicationDispenseFn<R, Medication> = (
     dispenseId: String,
     patientIdentifier: String, // KVNR
@@ -43,7 +50,7 @@ typealias MedicationDispenseFn<R, Medication> = (
 fun <MedicationDispense, Medication, Ingredient, Ratio, Quantity> extractMedicationDispense(
     resource: JsonElement,
     processMedicationDispense: MedicationDispenseFn<MedicationDispense, Medication>,
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
     ingredientFn: IngredientFn<Ingredient, Ratio>,
     ratioFn: RatioFn<Ratio, Quantity>,
     quantityFn: QuantityFn<Quantity>
@@ -76,9 +83,47 @@ fun <MedicationDispense, Medication, Ingredient, Ratio, Quantity> extractMedicat
     )
 }
 
+fun <MedicationDispense, Medication, Ingredient, Ratio, Quantity> extractMedicationDispenseWithMedication(
+    medicationDispense: JsonElement,
+    medication: JsonElement,
+    processMedicationDispense: MedicationDispenseFn<MedicationDispense, Medication>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
+    ingredientFn: IngredientFn<Ingredient, Ratio>,
+    ratioFn: RatioFn<Ratio, Quantity>,
+    quantityFn: QuantityFn<Quantity>
+): MedicationDispense {
+    val dispenseId = medicationDispense.containedString("id")
+    val patientIdentifier = medicationDispense.contained("subject").contained("identifier").containedString("value")
+    val dispenseMedication = extractDispenseMedication(
+        medication,
+        processMedication,
+        ingredientFn,
+        ratioFn,
+        quantityFn
+    )
+
+    val wasSubstituted = medicationDispense.containedOrNull("substitution")
+        ?.containedBooleanOrNull("wasSubstituted") ?: false
+    val dosageInstruction = medicationDispense.containedOrNull("dosageInstruction")?.containedStringOrNull("text")
+    val performer = medicationDispense.containedArray("performer")[0]
+        .contained("actor").contained("identifier").containedString("value") // Telematik-ID
+    val whenHandedOver = medicationDispense.contained("whenHandedOver").jsonPrimitive.toFhirTemporal()
+        ?: error("error on parsing date of delivery")
+
+    return processMedicationDispense(
+        dispenseId,
+        patientIdentifier,
+        dispenseMedication,
+        wasSubstituted,
+        dosageInstruction,
+        performer,
+        whenHandedOver
+    )
+}
+
 fun <Medication, Ingredient, Ratio, Quantity> extractDispenseMedication(
     resource: JsonElement,
-    processMedication: MedicationFn<Medication, Ingredient, Ratio>,
+    processMedication: MedicationFn<Medication, Medication, Ingredient, Ratio>,
     ingredientFn: IngredientFn<Ingredient, Ratio>,
     ratioFn: RatioFn<Ratio, Quantity>,
     quantityFn: QuantityFn<Quantity>
@@ -129,20 +174,55 @@ fun <Medication, Ingredient, Ratio, Quantity> extractDispenseMedication(
             "1.1.0"
         ) -> extractMedicationFreetextVersion110(resource, quantityFn, ratioFn, processMedication)
 
-        else -> processMedication(
-            "",
-            MedicationProfile.UNKNOWN,
-            MedicationCategory.UNKNOWN,
-            null,
-            null,
-            false,
-            null,
-            null,
-            null,
-            null,
-            listOf(),
-            null,
+        profileString.isProfileValue(
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication",
+            "1.4"
+        ) -> extractEpaMedications(resource, quantityFn, ratioFn, ingredientFn, processMedication)
+
+        profileString.isProfileValue(
+            "https://gematik.de/fhir/epa-medication/StructureDefinition/epa-medication-pharmaceutical-product"
+        ) -> extractEpaMedications(resource, quantityFn, ratioFn, ingredientFn, processMedication)
+
+        else ->
+            processMedication(
+                "",
+                MedicationCategory.UNKNOWN,
+                null,
+                null,
+                false,
+                null,
+                null,
+                null,
+                Identifier(),
+                listOf(),
+                listOf(),
+                null,
+                null
+            )
+    }
+}
+
+fun extractMedicationDispensePairs(bundle: JsonElement): List<Pair<JsonElement, JsonElement>> {
+    val resources = bundle.findAll("entry.resource").toList()
+    val medicationDispenses = resources.filter {
+        it.containedString("resourceType") == "MedicationDispense"
+    }
+    val medications = resources.filter {
+        it.containedString("resourceType") == "Medication"
+    }
+
+    return medicationDispenses.mapNotNull { dispense ->
+        val medicationReference = dispense
+            .contained("medicationReference")
+            .containedString("reference")
+            .substringAfter("urn:uuid:")
+        val medication = medications.find {
+            it.contained("id").containedString() == medicationReference
+        }
+        if (medication != null) {
+            Pair(dispense, medication)
+        } else {
             null
-        )
+        }
     }
 }

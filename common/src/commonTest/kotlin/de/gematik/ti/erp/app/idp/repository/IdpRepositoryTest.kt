@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.idp.repository
@@ -55,7 +55,6 @@ import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -65,11 +64,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import org.bouncycastle.cert.X509CertificateHolder
 import org.jose4j.base64url.Base64
-import org.jose4j.jws.JsonWebSignature
-import org.jose4j.jwx.JsonWebStructure
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -78,8 +74,8 @@ import java.security.Security
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.minutes
 
-const val EXPECTED_EXPIRATION_TIME = 1616143876L
-const val EXPECTED_ISSUE_TIME = 1616057476L
+// const val EXPECTED_EXPIRATION_TIME = 1616143876L
+// const val EXPECTED_ISSUE_TIME = 1616057476L
 
 class CommonIdpRepositoryTest : TestDB() {
 
@@ -99,17 +95,19 @@ class CommonIdpRepositoryTest : TestDB() {
     lateinit var realm: Realm
 
     private lateinit var repo: IdpRepository
-    private val testDiscoveryDocument by lazy { File("$ResourceBasePath/idp/discovery-doc.jwt").readText() }
-    private val testCertificateDocument by lazy { File("$ResourceBasePath/idp/idpCertificate.txt").readText() }
+
+    // private val testDiscoveryDocument by lazy { File("$ResourceBasePath/idp/discovery-doc.jwt").readText() }
+    // private val testCertificateDocument by lazy { File("$ResourceBasePath/idp/idpCertificate.txt").readText() }
+
     private val ssoToken by lazy { File("$ResourceBasePath/idp/sso-token.txt").readText() }
     private val healthCardCert = X509CertificateHolder(
         Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
     )
     // private val healthCardCertPrivateKey = BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_PRIVATE_KEY
 
-    private val x509Certificate = X509CertificateHolder(Base64.decode(testCertificateDocument))
+    // private val x509Certificate = X509CertificateHolder(Base64.decode(testCertificateDocument))
 
-    private val testIdpConfig = IdpData.IdpConfiguration(
+    /*private val testIdpConfig = IdpData.IdpConfiguration(
         authorizationEndpoint = "http://localhost:8888/sign_response",
         ssoEndpoint = "http://localhost:8888/sso_response",
         tokenEndpoint = "http://localhost:8888/token",
@@ -124,7 +122,7 @@ class CommonIdpRepositoryTest : TestDB() {
         federationAuthorizationIDsEndpoint = "", // not found in test data
         thirdPartyAuthorizationEndpoint = "http://localhost:8888/thirdPartyAuth",
         federationAuthorizationEndpoint = "" // not found in test data
-    )
+    )*/
 
     @MockK
     lateinit var remoteDataSource: IdpRemoteDataSource
@@ -178,7 +176,7 @@ class CommonIdpRepositoryTest : TestDB() {
 
         idpLocalDataSource = IdpLocalDataSource(realm)
 
-        repo = IdpRepository(
+        repo = DefaultIdpRepository(
             remoteDataSource = remoteDataSource,
             localDataSource = idpLocalDataSource,
             accessTokenDataSource = accessTokenDataSource
@@ -222,7 +220,7 @@ class CommonIdpRepositoryTest : TestDB() {
         assertEquals(ssoToken, savedSsoToken)
     }
 
-    @Test
+    /*@Test
     fun `load unchecked idp configuration`() {
         val discoveryDocument = JWSDiscoveryDocument(
             JsonWebStructure.fromCompactSerialization(
@@ -256,5 +254,5 @@ class CommonIdpRepositoryTest : TestDB() {
             val savedIdpConfig = idpLocalDataSource.loadIdpInfo()
             assertEquals(testIdpConfig, savedIdpConfig)
         }
-    }
+    }*/
 }

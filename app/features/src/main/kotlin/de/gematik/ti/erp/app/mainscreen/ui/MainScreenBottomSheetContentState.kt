@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.mainscreen.ui
@@ -30,13 +30,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -46,38 +44,37 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.mainscreen.model.EditProfilePictureSelectionState
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomPopUpNames
-import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
+import de.gematik.ti.erp.app.mainscreen.presentation.AppController
+import de.gematik.ti.erp.app.mainscreen.ui.components.EditProfilePicture
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
-import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
-import de.gematik.ti.erp.app.profiles.presentation.ProfileController
-import de.gematik.ti.erp.app.profiles.ui.AvatarPicker
-import de.gematik.ti.erp.app.profiles.ui.ColorPicker
-import de.gematik.ti.erp.app.profiles.ui.ProfileImage
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerLarge
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
-import de.gematik.ti.erp.app.utils.compose.SpacerLarge
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
-import de.gematik.ti.erp.app.utils.compose.SpacerXXLarge
+import java.util.UUID
 
 @Stable
 sealed class MainScreenBottomSheetContentState {
     @Stable
     class EditProfilePicture(
-        val popUp: MainScreenBottomPopUpNames.EditProfilePicture = MainScreenBottomPopUpNames.EditProfilePicture
+        val popUp: MainScreenBottomPopUpNames.EditProfilePicture = MainScreenBottomPopUpNames.EditProfilePicture,
+        val profile: ProfilesUseCaseData.Profile
     ) : MainScreenBottomSheetContentState()
 
     @Stable
     class EditProfileName(
-        val popUp: MainScreenBottomPopUpNames.EditProfileName = MainScreenBottomPopUpNames.EditProfileName
+        val popUp: MainScreenBottomPopUpNames.EditProfileName = MainScreenBottomPopUpNames.EditProfileName,
+        val profile: ProfilesUseCaseData.Profile
     ) : MainScreenBottomSheetContentState()
 
     @Stable
     class AddProfile(
-
         val popUp: MainScreenBottomPopUpNames.AddProfile = MainScreenBottomPopUpNames.AddProfile
     ) : MainScreenBottomSheetContentState()
 
@@ -92,18 +89,24 @@ sealed class MainScreenBottomSheetContentState {
     ) : MainScreenBottomSheetContentState()
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun MainScreenBottomSheetContentState(
     mainNavController: NavController,
-    mainScreenController: MainScreenController,
-    profileController: ProfileController,
+    appController: AppController,
+    profile: ProfilesUseCaseData.Profile,
+    existingProfiles: List<ProfilesUseCaseData.Profile>,
     infoContentState: MainScreenBottomSheetContentState?,
-    profileToRename: ProfilesUseCaseData.Profile,
+    keyboardController: SoftwareKeyboardController?,
     onGrantConsent: () -> Unit,
+    onUpdateProfileName: (ProfileIdentifier, String) -> Unit,
+    onAddProfileName: (String) -> Unit,
+    onClearPersonalizedImage: (ProfileIdentifier) -> Unit,
+    onPickImage: (EditProfilePictureSelectionState) -> Unit,
+    onSelectAvatar: (ProfileIdentifier, ProfilesData.Avatar) -> Unit,
+    onSelectProfileColor: (ProfilesUseCaseData.Profile, ProfilesData.ProfileColorNames) -> Unit,
     onCancel: () -> Unit
 ) {
-    val profile by profileController.getActiveProfileState()
-
     val title = when (infoContentState) {
         is MainScreenBottomSheetContentState.EditProfilePicture ->
             stringResource(R.string.mainscreen_bottom_sheet_edit_profile_image)
@@ -127,7 +130,11 @@ fun MainScreenBottomSheetContentState(
     ) {
         title?.let {
             SpacerMedium()
-            Text(it, style = AppTheme.typography.subtitle1)
+            Text(
+                text = it,
+                style = AppTheme.typography.subtitle1,
+                color = AppTheme.colors.neutral999
+            )
             SpacerMedium()
         }
         LazyColumn(
@@ -137,138 +144,67 @@ fun MainScreenBottomSheetContentState(
                 infoContentState?.let {
                     when (it) {
                         is MainScreenBottomSheetContentState.EditProfilePicture ->
-                            EditProfileAvatar(
-                                profile = profile,
+                            EditProfilePicture(
+                                profile = it.profile,
                                 clearPersonalizedImage = {
-                                    profileController.clearPersonalizedImage(profile.id)
+                                    onClearPersonalizedImage(it.profile.id)
                                 },
-                                onPickPersonalizedImage = {
-                                    mainNavController.navigate(
-                                        ProfileRoutes.ProfileImageCropperScreen.path(
-                                            profileId = profile.id
-                                        )
-                                    )
-                                },
+                                onPickImage = onPickImage,
                                 onSelectAvatar = { avatar ->
-
-                                    profileController.saveAvatarFigure(profile.id, avatar)
+                                    onSelectAvatar(it.profile.id, avatar)
                                 },
                                 onSelectProfileColor = { color ->
-
-                                    profileController.updateProfileColor(profile, color)
+                                    onSelectProfileColor(it.profile, color)
                                 }
                             )
 
-                        is MainScreenBottomSheetContentState.EditProfileName ->
+                        is MainScreenBottomSheetContentState.EditProfileName -> {
                             ProfileSheetContent(
-                                profileController = profileController,
+                                key = UUID.randomUUID().toString(),
+                                existingProfiles = existingProfiles,
+                                keyboardController = keyboardController,
                                 addProfile = false,
-                                profileToEdit = profileToRename,
+                                profileToEdit = it.profile,
+                                onUpdate = onUpdateProfileName,
+                                onAdd = onAddProfileName,
                                 onCancel = onCancel
                             )
+                        }
 
                         is MainScreenBottomSheetContentState.AddProfile ->
                             ProfileSheetContent(
-                                profileController = profileController,
+                                key = UUID.randomUUID().toString(),
+                                existingProfiles = existingProfiles,
+                                keyboardController = keyboardController,
                                 addProfile = true,
                                 profileToEdit = null,
+                                onUpdate = onUpdateProfileName,
+                                onAdd = onAddProfileName,
                                 onCancel = onCancel
                             )
 
                         is MainScreenBottomSheetContentState.Welcome ->
                             ConnectBottomSheetContent(
                                 onClickConnect = {
-                                    mainScreenController.welcomeDrawerShown()
+                                    appController.welcomeDrawerShown()
                                     mainNavController.navigate(
                                         CardWallRoutes.CardWallIntroScreen.path(profile.id)
                                     )
                                 },
                                 onCancel = {
-                                    mainScreenController.welcomeDrawerShown()
+                                    appController.welcomeDrawerShown()
                                     onCancel()
                                 }
                             )
 
                         is MainScreenBottomSheetContentState.GrantConsent ->
                             GrantConsentBottomSheetContent(
-                                onClickGrantConsent = {
-                                    onGrantConsent()
-                                },
-                                onCancel = {
-                                    onCancel()
-                                }
+                                onClickGrantConsent = onGrantConsent,
+                                onCancel = onCancel
                             )
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-private fun EditProfileAvatar(
-    profile: ProfilesUseCaseData.Profile,
-    clearPersonalizedImage: () -> Unit,
-    onPickPersonalizedImage: () -> Unit,
-    onSelectAvatar: (ProfilesData.Avatar) -> Unit,
-    onSelectProfileColor: (ProfilesData.ProfileColorNames) -> Unit
-) {
-    ProfileColorAndImagePickerContent(
-        profile = profile,
-        clearPersonalizedImage = clearPersonalizedImage,
-        onPickPersonalizedImage = onPickPersonalizedImage,
-        onSelectAvatar = onSelectAvatar,
-        onSelectProfileColor = onSelectProfileColor
-    )
-}
-
-@Composable
-private fun ProfileColorAndImagePickerContent(
-    profile: ProfilesUseCaseData.Profile,
-    clearPersonalizedImage: () -> Unit,
-    onPickPersonalizedImage: () -> Unit,
-    onSelectAvatar: (ProfilesData.Avatar) -> Unit,
-    onSelectProfileColor: (ProfilesData.ProfileColorNames) -> Unit
-) {
-    var editableProfile by remember { mutableStateOf(profile) }
-    Column(modifier = Modifier.fillMaxSize()) {
-        SpacerMedium()
-        ProfileImage(editableProfile) {
-            editableProfile = editableProfile.copy(
-                avatar = ProfilesData.Avatar.PersonalizedImage,
-                image = null
-            )
-            clearPersonalizedImage()
-        }
-
-        SpacerXXLarge()
-        AvatarPicker(
-            profile = editableProfile,
-            currentAvatar = editableProfile.avatar,
-            onPickPersonalizedImage = onPickPersonalizedImage,
-            onSelectAvatar = {
-                editableProfile = editableProfile.copy(avatar = it)
-                onSelectAvatar(it)
-            }
-        )
-
-        if (editableProfile.avatar != ProfilesData.Avatar.PersonalizedImage) {
-            SpacerXXLarge()
-            SpacerMedium()
-            Text(
-                stringResource(R.string.edit_profile_background_color),
-                style = AppTheme.typography.h6
-            )
-            SpacerLarge()
-
-            ColorPicker(
-                profileColorName = editableProfile.color,
-                onSelectProfileColor = {
-                    editableProfile = editableProfile.copy(color = it)
-                    onSelectProfileColor(it)
-                }
-            )
-            SpacerLarge()
         }
     }
 }
@@ -326,7 +262,7 @@ private fun ConnectBottomSheet(
         )
         SpacerSmall()
         Text(
-            info,
+            text = info,
             style = AppTheme.typography.body2l,
             textAlign = TextAlign.Center
         )

@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 @file:Suppress("TooManyFunctions")
@@ -33,6 +33,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
@@ -42,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.BuildKonfig
@@ -53,25 +55,29 @@ import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.codeToFormMapping
 import de.gematik.ti.erp.app.prescription.repository.normSizeMapping
 import de.gematik.ti.erp.app.substitutionAllowed
 import de.gematik.ti.erp.app.supplyForm
 import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.UiStateMachine
+import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.extensions.dateTimeMediumText
 import de.gematik.ti.erp.app.utils.extensions.temporalText
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.utils.letNotNullOnCondition
-import io.github.aakira.napier.Napier
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 
+// @TODO: Implement UIStateMachine
 class PrescriptionDetailMedicationScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
@@ -79,43 +85,65 @@ class PrescriptionDetailMedicationScreen(
     @Composable
     override fun Content() {
         val taskId =
-            remember { requireNotNull(navBackStackEntry.arguments?.getString(PrescriptionDetailRoutes.TaskId)) }
+            remember {
+                requireNotNull(
+                    navBackStackEntry.arguments?.getString(PrescriptionDetailRoutes.PRESCRIPTION_DETAIL_NAV_TASK_ID)
+                )
+            }
         val selectedMedication =
             remember {
                 requireNotNull(
                     navBackStackEntry.arguments?.getString(
-                        PrescriptionDetailRoutes.SelectedMedication
+                        PrescriptionDetailRoutes.PRESCRIPTION_DETAIL_NAV_SELECTED_MEDICATION
                     )
                 )
             }
-        Napier.i { "selectedMedication" }
-        Napier.i { selectedMedication }
-        val prescriptionDataMedication = remember(selectedMedication) {
-            fromNavigationString<PrescriptionData.Medication>(selectedMedication)
-        }
+
+        val prescriptionDataMedication =
+            remember(selectedMedication) {
+                fromNavigationString<PrescriptionData.Medication>(selectedMedication)
+            }
         val prescriptionDetailsController = rememberPrescriptionDetailController(taskId)
-        val prescription by prescriptionDetailsController.prescriptionState
-        val syncedPrescription = prescription as? PrescriptionData.Synced
-        val scaffoldState = rememberScaffoldState()
-        val listState = rememberLazyListState()
-        AnimatedElevationScaffold(
-            modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Screen),
-            scaffoldState = scaffoldState,
-            listState = listState,
-            onBack = navController::popBackStack,
-            topBarTitle = stringResource(R.string.synced_medication_detail_header),
-            navigationMode = NavigationBarMode.Back,
-            snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) },
-            actions = {}
-        ) { innerPadding ->
-            PrescriptionDetailMedicationScreenContent(
-                listState,
-                innerPadding,
-                navController,
-                prescriptionDataMedication,
-                syncedPrescription
-            )
-        }
+
+        val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
+
+        UiStateMachine(
+            state = profilePrescriptionData,
+            onLoading = {
+                Center {
+                    CircularProgressIndicator()
+                }
+            },
+            onEmpty = {
+                ErrorScreenComponent()
+            },
+            onError = {
+                ErrorScreenComponent()
+            },
+            onContent = { (_, prescription) ->
+                val syncedPrescription = prescription as? PrescriptionData.Synced
+                val scaffoldState = rememberScaffoldState()
+                val listState = rememberLazyListState()
+                AnimatedElevationScaffold(
+                    modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Screen),
+                    scaffoldState = scaffoldState,
+                    listState = listState,
+                    onBack = navController::popBackStack,
+                    topBarTitle = stringResource(R.string.synced_medication_detail_header),
+                    navigationMode = NavigationBarMode.Back,
+                    snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) },
+                    actions = {}
+                ) { innerPadding ->
+                    PrescriptionDetailMedicationScreenContent(
+                        listState,
+                        innerPadding,
+                        navController,
+                        prescriptionDataMedication,
+                        syncedPrescription
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -127,14 +155,16 @@ private fun PrescriptionDetailMedicationScreenContent(
     prescriptionDataMedication: PrescriptionData.Medication?,
     syncedPrescription: PrescriptionData.Synced?
 ) {
-    val medication = when (prescriptionDataMedication) {
-        is PrescriptionData.Medication.Dispense -> prescriptionDataMedication.medicationDispense.medication
-        is PrescriptionData.Medication.Request -> prescriptionDataMedication.medicationRequest.medication
-        null -> null
-    }
+    val medication =
+        when (prescriptionDataMedication) {
+            is PrescriptionData.Medication.Dispense -> prescriptionDataMedication.medicationDispense.medication
+            is PrescriptionData.Medication.Request -> prescriptionDataMedication.medicationRequest.medication
+            null -> null
+        }
     LazyColumn(
         state = listState,
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxSize()
             .padding(innerPadding)
             .testTag(TestTag.Prescriptions.Details.Medication.Content),
@@ -143,28 +173,18 @@ private fun PrescriptionDetailMedicationScreenContent(
         item {
             SpacerMedium()
         }
-        when (medication) {
-            is SyncedTaskData.MedicationPZN -> pznMedicationInformation(medication)
-            is SyncedTaskData.MedicationIngredient -> ingredientMedicationInformation(medication) {
-                    ingredient ->
-                navController.navigate(
-                    PrescriptionDetailRoutes.PrescriptionDetailIngredientsScreen.path(
-                        selectedIngredient = ingredient.toNavigationString()
+        medication?.let { med ->
+            medicationInformation(
+                med,
+                onClickIngredient = {
+                        ingredient ->
+                    navController.navigate(
+                        PrescriptionDetailRoutes.PrescriptionDetailIngredientsScreen.path(
+                            selectedIngredient = ingredient.toNavigationString()
+                        )
                     )
-                )
-            }
-
-            is SyncedTaskData.MedicationCompounding -> compoundingMedicationInformation(medication) {
-                    ingredient ->
-                navController.navigate(
-                    PrescriptionDetailRoutes.PrescriptionDetailIngredientsScreen.path(
-                        selectedIngredient = ingredient.toNavigationString()
-                    )
-                )
-            }
-
-            is SyncedTaskData.MedicationFreeText -> freeTextMedicationInformation(medication)
-            null -> {}
+                }
+            )
         }
 
         syncedPrescription?.authoredOn?.let { prescriptionInformation(it) }
@@ -221,7 +241,12 @@ private fun LazyListScope.medicationDispense(medicationDispense: SyncedTaskData.
     }
 }
 
-private fun LazyListScope.pznMedicationInformation(medication: SyncedTaskData.MedicationPZN) {
+private fun LazyListScope.medicationInformation(
+    medication: SyncedTaskData.Medication,
+    // onClickMedication: (SyncedTaskData.Medication) -> Unit,
+    // Todo: List contained Medications and navigate to this screen with contained medication
+    onClickIngredient: (SyncedTaskData.Ingredient) -> Unit
+) {
     item {
         Label(
             modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Name),
@@ -232,114 +257,10 @@ private fun LazyListScope.pznMedicationInformation(medication: SyncedTaskData.Me
     letNotNullOnCondition(
         first = medication.amount,
         condition = {
-            medication.amount?.numerator?.value?.isNotNullOrEmpty() == true
-        },
-        transform = {
-            item {
-                AmountLabel(it)
-            }
-        }
-    )
-    medication.normSizeCode?.let {
-        item {
-            NormSizeLabel(it)
-        }
-    }
-    item {
-        PZNLabel(medication.uniqueIdentifier)
-    }
-    medication.form?.let {
-        item {
-            FormLabel(it)
-        }
-    }
-
-    if (medication.category != SyncedTaskData.MedicationCategory.UNKNOWN) {
-        item {
-            CategoryLabel(medication.category)
-        }
-    }
-
-    item {
-        VaccineLabel(medication.vaccine)
-    }
-    medication.lotNumber?.let {
-        item {
-            LotNumberLabel(it)
-        }
-    }
-    medication.expirationDate?.let {
-        item {
-            ExpirationDateLabel(it)
-        }
-    }
-}
-
-private fun LazyListScope.ingredientMedicationInformation(
-    medication: SyncedTaskData.MedicationIngredient,
-    onClickIngredient: (SyncedTaskData.Ingredient) -> Unit
-) {
-    medication.ingredients.forEach { ingredient ->
-        item {
-            IngredientNameLabel(ingredient.text) {
-                onClickIngredient(ingredient)
-            }
-        }
-    }
-    medication.normSizeCode?.let {
-        item {
-            NormSizeLabel(it)
-        }
-    }
-
-    medication.form?.let {
-        item {
-            FormLabel(it)
-        }
-    }
-    letNotNullOnCondition(
-        first = medication.amount,
-        condition = {
-            medication.amount?.numerator?.value?.isNotNullOrEmpty() == true
-        },
-        transform = {
-            item {
-                AmountLabel(it)
-            }
-        }
-    )
-    item {
-        CategoryLabel(medication.category)
-    }
-    item {
-        VaccineLabel(medication.vaccine)
-    }
-    medication.lotNumber?.let {
-        item {
-            LotNumberLabel(it)
-        }
-    }
-    medication.expirationDate?.let {
-        item {
-            ExpirationDateLabel(it)
-        }
-    }
-}
-
-private fun LazyListScope.compoundingMedicationInformation(
-    medication: SyncedTaskData.MedicationCompounding,
-    onClickIngredient: (SyncedTaskData.Ingredient) -> Unit
-) {
-    item {
-        Label(
-            text = medication.name(),
-            label = stringResource(R.string.medication_compounding_name)
-        )
-    }
-    letNotNullOnCondition(
-        first = medication.amount,
-        condition = {
-            medication.amount?.numerator?.value?.isNotNullOrEmpty() == true
+            medication.amount
+                ?.numerator
+                ?.value
+                ?.isNotNullOrEmpty() == true
         },
         transform = {
             item {
@@ -350,6 +271,25 @@ private fun LazyListScope.compoundingMedicationInformation(
     medication.packaging?.let {
         item {
             PackagingLabel(it)
+        }
+    }
+    medication.normSizeCode?.let {
+        item {
+            NormSizeLabel(it)
+        }
+    }
+    item {
+        medication.identifier.pzn?.let {
+            IdentifierLabel(identifier = it, label = stringResource(id = R.string.pres_detail_medication_label_pzn))
+        }
+        medication.identifier.ask?.let {
+            IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_ask))
+        }
+        medication.identifier.atc?.let {
+            IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_atc))
+        }
+        medication.identifier.snomed?.let {
+            IdentifierLabel(identifier = it, label = stringResource(R.string.mediction_detiail_snomed))
         }
     }
     medication.form?.let {
@@ -387,38 +327,12 @@ private fun LazyListScope.compoundingMedicationInformation(
     }
 }
 
-private fun LazyListScope.freeTextMedicationInformation(medication: SyncedTaskData.MedicationFreeText) {
-    item {
-        Label(text = medication.name(), label = stringResource(R.string.medication_freetext_name))
-    }
-    item {
-        CategoryLabel(medication.category)
-    }
-    item {
-        VaccineLabel(medication.vaccine)
-    }
-    medication.form?.let {
-        item {
-            FormLabel(it)
-        }
-    }
-    medication.lotNumber?.let {
-        item {
-            LotNumberLabel(it)
-        }
-    }
-    medication.expirationDate?.let {
-        item {
-            ExpirationDateLabel(it)
-        }
-    }
-}
-
 @Composable
 private fun NormSizeLabel(normSizeCode: String) {
-    val description = normSizeMapping[normSizeCode]?.let { resourceId ->
-        stringResource(resourceId)
-    }
+    val description =
+        normSizeMapping[normSizeCode]?.let { resourceId ->
+            stringResource(resourceId)
+        }
     Label(
         text = "$normSizeCode${description?.let { " - $it" } ?: ""}",
         label = stringResource(id = R.string.pres_detail_medication_label_normsize)
@@ -426,23 +340,25 @@ private fun NormSizeLabel(normSizeCode: String) {
 }
 
 @Composable
-private fun PZNLabel(uniqueIdentifier: String) {
+private fun IdentifierLabel(identifier: String, label: String) {
     Label(
         modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.PZN),
-        text = uniqueIdentifier,
-        label = stringResource(id = R.string.pres_detail_medication_label_pzn)
+        text = identifier,
+        label = label
     )
 }
 
 @Composable
 fun FormLabel(form: String) {
     Label(
-        modifier = Modifier
+        modifier =
+        Modifier
             .testTag(TestTag.Prescriptions.Details.Medication.SupplyForm)
             .semantics {
                 supplyForm = form
             },
-        text = codeToFormMapping[form]?.let { resourceId ->
+        text =
+        codeToFormMapping[form]?.let { resourceId ->
             stringResource(resourceId)
         } ?: form,
         label = stringResource(id = R.string.pres_detail_medication_label_dosage_form)
@@ -452,11 +368,12 @@ fun FormLabel(form: String) {
 @Composable
 private fun DosageInstructionLabel(dosageInstruction: String?) {
     dosageInstruction?.let { instruction ->
-        val text = if (instruction.lowercase() == "dj") {
-            stringResource(R.string.pres_detail_medication_dj)
-        } else {
-            instruction
-        }
+        val text =
+            if (instruction.lowercase() == "dj") {
+                stringResource(R.string.pres_detail_medication_dj)
+            } else {
+                instruction
+            }
 
         Label(
             modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.DosageInstruction),
@@ -479,26 +396,29 @@ private fun QuantityLabel(quantity: Int) {
 
 @Composable
 private fun CategoryLabel(category: SyncedTaskData.MedicationCategory) {
-    val text = when (category) {
-        SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL -> stringResource(R.string.medicines_bandages)
-        SyncedTaskData.MedicationCategory.BTM -> stringResource(R.string.narcotics)
-        SyncedTaskData.MedicationCategory.AMVV -> stringResource(R.string.amvv)
-        else -> null
-    }
+    val text =
+        when (category) {
+            SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL -> stringResource(R.string.medicines_bandages)
+            SyncedTaskData.MedicationCategory.BTM -> stringResource(R.string.narcotics)
+            SyncedTaskData.MedicationCategory.AMVV -> stringResource(R.string.amvv)
+            else -> null
+        }
 
     Label(
-        modifier = Modifier
+        modifier =
+        Modifier
             .testTag(TestTag.Prescriptions.Details.Medication.Category)
             .then(
                 if (BuildKonfig.INTERNAL) {
                     Modifier.semantics {
-                        medicationCategory = when (category) {
-                            SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL -> "00"
-                            SyncedTaskData.MedicationCategory.BTM -> "01"
-                            SyncedTaskData.MedicationCategory.AMVV -> "02"
-                            SyncedTaskData.MedicationCategory.SONSTIGES -> "03"
-                            else -> null
-                        }
+                        medicationCategory =
+                            when (category) {
+                                SyncedTaskData.MedicationCategory.ARZNEI_UND_VERBAND_MITTEL -> "00"
+                                SyncedTaskData.MedicationCategory.BTM -> "01"
+                                SyncedTaskData.MedicationCategory.AMVV -> "02"
+                                SyncedTaskData.MedicationCategory.SONSTIGES -> "03"
+                                else -> null
+                            }
                     }
                 } else {
                     Modifier
@@ -510,7 +430,7 @@ private fun CategoryLabel(category: SyncedTaskData.MedicationCategory) {
 }
 
 @Composable
-private fun AmountLabel(amount: SyncedTaskData.Ratio) {
+private fun AmountLabel(amount: Ratio) {
     Label(
         modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Amount),
         text = "${amount.numerator?.value} ${amount.numerator?.unit}",
@@ -520,11 +440,12 @@ private fun AmountLabel(amount: SyncedTaskData.Ratio) {
 
 @Composable
 private fun BvgLabel(bvg: Boolean) {
-    val text = if (bvg) {
-        stringResource(id = R.string.pres_detail_yes)
-    } else {
-        stringResource(id = R.string.pres_detail_no)
-    }
+    val text =
+        if (bvg) {
+            stringResource(id = R.string.pres_detail_yes)
+        } else {
+            stringResource(id = R.string.pres_detail_no)
+        }
     Label(
         modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.BVG),
         text = text,
@@ -550,13 +471,15 @@ private fun NoteLabel(note: String) {
 
 @Composable
 private fun SubstitutionLabel(substitutionInfo: Boolean) {
-    val text = if (substitutionInfo) {
-        stringResource(id = R.string.pres_detail_yes)
-    } else {
-        stringResource(id = R.string.pres_detail_no)
-    }
+    val text =
+        if (substitutionInfo) {
+            stringResource(id = R.string.pres_detail_yes)
+        } else {
+            stringResource(id = R.string.pres_detail_no)
+        }
     Label(
-        modifier = Modifier
+        modifier =
+        Modifier
             .testTag(TestTag.Prescriptions.Details.Medication.SubstitutionAllowed)
             .semantics {
                 substitutionAllowed = substitutionInfo
@@ -610,11 +533,12 @@ private fun ExpirationDateLabel(expirationDate: FhirTemporal) {
 
 @Composable
 private fun VaccineLabel(isVaccine: Boolean) {
-    val text = if (isVaccine) {
-        stringResource(id = R.string.pres_detail_yes)
-    } else {
-        stringResource(id = R.string.pres_detail_no)
-    }
+    val text =
+        if (isVaccine) {
+            stringResource(id = R.string.pres_detail_yes)
+        } else {
+            stringResource(id = R.string.pres_detail_no)
+        }
     Label(
         text = text,
         label = stringResource(id = R.string.pres_detail_medication_vaccine)

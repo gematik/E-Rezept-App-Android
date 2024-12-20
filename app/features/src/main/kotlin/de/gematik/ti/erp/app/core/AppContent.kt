@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 @file:Suppress("MagicNumber")
@@ -24,6 +24,7 @@ import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.splineBasedDecay
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculateCentroidSize
 import androidx.compose.foundation.gestures.calculatePan
@@ -31,10 +32,13 @@ import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.forEachGesture
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,6 +46,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -54,50 +59,93 @@ import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.debugInspectorInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.toSize
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavHostController
+import com.google.accompanist.navigation.material.BottomSheetNavigator
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.BaseActivity
+import de.gematik.ti.erp.app.base.falseStateFlow
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.demomode.ui.DemoModeStatusBar
 import de.gematik.ti.erp.app.demomode.ui.checkForDemoMode
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.settings.presentation.rememberAccessibilitySettingsController
+import de.gematik.ti.erp.app.settings.presentation.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
 import org.kodein.di.DI
 import kotlin.math.max
 import kotlin.math.min
+
+val LocalBiometricAuthenticator =
+    staticCompositionLocalOf<BiometricAuthenticator> { error("No BiometricAuthenticator provided!") }
 
 val LocalAuthenticator =
     staticCompositionLocalOf<Authenticator> { error("No authenticator provided!") }
 
 val LocalActivity =
-    staticCompositionLocalOf<ComponentActivity> { error("No activity provided!") }
+    staticCompositionLocalOf<ComponentActivity> { error("No ComponentActivity provided!") }
 
 val LocalAnalytics =
-    staticCompositionLocalOf<Analytics> { error("No analytics provided!") }
+    staticCompositionLocalOf<Analytics> { error("No Analytics provided!") }
 
 val LocalDi = staticCompositionLocalOf<DI> { error("No DI provided!") }
+val LocalTimeZone = staticCompositionLocalOf<TimeZone> { error("No Timezone provided!") }
+
+@OptIn(ExperimentalMaterialNavigationApi::class)
+val LocalBottomSheetNavigator =
+    staticCompositionLocalOf<BottomSheetNavigator> { error("No BottomSheetNavigator provided!") }
+
+@OptIn(ExperimentalMaterialApi::class)
+val LocalBottomSheetNavigatorSheetState =
+    staticCompositionLocalOf<ModalBottomSheetState> { error("No BottomSheetNavigator<ModalBottomSheetState> provided!") }
+
+val LocalNavController =
+    staticCompositionLocalOf<NavHostController> { error("No NavHostController provided!") }
 
 @Composable
 fun AppContent(
     content: @Composable () -> Unit
 ) {
-    val settingsController = rememberAccessibilitySettingsController()
-    val zoomState by settingsController.zoomState
+    var isAppInBackground by remember { mutableStateOf(false) }
+    val settingsController = rememberSettingsController()
+    val zoomState by settingsController.zoomState.collectAsStateWithLifecycle()
 
     AppTheme {
         val systemUiController = rememberSystemUiController()
         val useDarkIcons = MaterialTheme.colors.isLight
-        val activity = LocalActivity.current
+        val activity = LocalActivity.current as? BaseActivity
+        val isZoomDisabledTemporarily by activity?.disableZoomTemporarily?.collectAsState() ?: falseStateFlow
+
         SideEffect {
             systemUiController.setSystemBarsColor(Color.Transparent, darkIcons = useDarkIcons)
+        }
+        LifecycleEventObserver { event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME, Lifecycle.Event.ON_START -> {
+                    isAppInBackground = false
+                }
+
+                Lifecycle.Event.ON_PAUSE, Lifecycle.Event.ON_STOP -> {
+                    isAppInBackground = true
+                }
+
+                else -> {
+                    // do nothing
+                }
+            }
         }
         checkForDemoMode(
             demoModeStatusBarColor = AppTheme.colors.yellow500,
@@ -108,11 +156,15 @@ fun AppContent(
                     textColor = AppTheme.colors.neutral900,
                     demoModeActiveText = stringResource(R.string.demo_mode_text),
                     demoModeEndText = stringResource(R.string.demo_mode_cancel_button_text),
-                    onClickDemoModeEnd = { DemoModeIntent.startAppWithNormalMode<MainActivity>(activity) }
+                    onClickDemoModeEnd = { activity?.let { DemoModeIntent.startAppWithNormalMode<MainActivity>(it) } }
                 )
             },
             appContent = {
-                Box(modifier = Modifier.zoomable(enabled = zoomState.zoomEnabled)) {
+                Box(
+                    modifier = Modifier
+                        .switchBlur(isAppInBackground)
+                        .zoomable(enabled = zoomState.zoomEnabled && !isZoomDisabledTemporarily)
+                ) {
                     content()
                 }
             }
@@ -120,7 +172,15 @@ fun AppContent(
     }
 }
 
-fun Modifier.zoomable(
+@Suppress("MagicNumber", "UnusedPrivateMember")
+private fun Modifier.switchBlur(isAppInBackground: Boolean) = this.then(
+    Modifier
+        .blur(if (isAppInBackground) SizeDefaults.sixfoldAndQuarter else SizeDefaults.zero)
+        .graphicsLayer { alpha = if (isAppInBackground) 0.5f else 1f }
+        .background(if (isAppInBackground) Color.Gray.copy(alpha = 0.5f) else Color.Transparent)
+)
+
+private fun Modifier.zoomable(
     minZoom: Float = 1f,
     maxZoom: Float = 3.5f,
     delayInMillis: Long = 1500,

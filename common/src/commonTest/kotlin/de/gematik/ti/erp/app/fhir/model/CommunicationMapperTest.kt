@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 @file:Suppress("ktlint:max-line-length")
@@ -25,15 +25,16 @@ import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
-import org.junit.Test
+import kotlin.test.Test
 import java.io.File
 import kotlin.test.assertEquals
 
 private const val JsonSymbols = "\"{}[]:"
 private const val JsonSymbolsEscaped = "\\\"{}[]:"
 
-private val testBundle by lazy { File("$ResourceBasePath/communications_bundle.json").readText() }
+// TODO: remove Version 1.2 after 30.Jun.2025
 private val testBundleVersion12 by lazy { File("$ResourceBasePath/communications_bundle_version_1_2.json").readText() }
+private val testBundleVersion13 by lazy { File("$ResourceBasePath/communications_bundle_version_1_3.json").readText() }
 
 class CommunicationMapperTest {
     @Test
@@ -95,30 +96,6 @@ class CommunicationMapperTest {
         val payload: String?
     )
 
-    @Suppress("MaxLineLength")
-    private val communications = mapOf(
-        0 to Communication(
-            taskId = "160.000.000.030.926.11",
-            communicationId = "01eb8d02-199b-3080-fe9e-ef29caeda984",
-            orderId = null,
-            profile = CommunicationProfile.ErxCommunicationReply,
-            sentOn = Instant.parse("2022-07-06T15:02:03.984+00:00"),
-            sender = "3-TEST-TID",
-            recipient = "X110535768",
-            payload = "{\"version\":\"1\" , \"supplyOptionsType\":\"shipment\" , \"info_text\":\"11 Info\\/Para + HRcode\\/Para + DMC\\/noPara + URL\\/noPara\" , \"pickUpCodeHR\":\"T11__R03\" , \"pickUpCodeDMC\":\"\" , \"url\":\"\"}"
-        ),
-        3 to Communication(
-            taskId = "160.000.000.030.926.11",
-            communicationId = "01eb8d01-9a8d-99b8-9277-24b66fb07635",
-            orderId = null,
-            profile = CommunicationProfile.ErxCommunicationDispReq,
-            sentOn = Instant.parse("2022-07-06T14:26:32.387+00:00"),
-            sender = "X110535768",
-            recipient = "3-TEST-TID",
-            payload = "{\"version\":\"1\",\"supplyOptionsType\":\"shipment\",\"name\":\"Prinzessin Lars Graf Freiherr von Schinder\",\"address\":[\"Siegburger Str. 155\",\"\",\"51105 Köln\"],\"hint\":\"\",\"phone\":\"01711111111\"}"
-        )
-    )
-
     private val communicationsVersion12 = mapOf(
         0 to Communication(
             taskId = "160.000.033.491.280.78",
@@ -132,29 +109,38 @@ class CommunicationMapperTest {
         )
     )
 
-    @Test
-    fun `parse communications`() {
-        var index = 0
-
-        extractCommunications(
-            Json.parseToJsonElement(testBundle)
-        ) { taskId, communicationId, orderId, profile, sentOn, sender, recipient, payload ->
-            communications[index]?.let { com ->
-                assertEquals(com.taskId, taskId)
-                assertEquals(com.communicationId, communicationId)
-                assertEquals(com.orderId, orderId)
-                assertEquals(com.profile, profile)
-                assertEquals(FhirTemporal.Instant(com.sentOn), sentOn)
-                assertEquals(com.sender, sender)
-                assertEquals(com.recipient, recipient)
-                assertEquals(com.payload, payload)
-            }
-
-            index++
-        }
-
-        assertEquals(15, index)
-    }
+    private val communicationsVersion13 = mapOf(
+        0 to Communication(
+            taskId = "160.000.226.545.733.51",
+            communicationId = "01ebc980-ae10-41f0-5a9f-c8ad61141a66",
+            orderId = null,
+            profile = CommunicationProfile.ErxCommunicationReply,
+            sentOn = Instant.parse("2024-08-14T11:14:38.230Z"),
+            sender = "3-01.2.2023001.16.103",
+            recipient = "X110432693",
+            payload = "Eisern"
+        ),
+        1 to Communication(
+            taskId = "160.000.226.545.733.51",
+            communicationId = "01ebc980-c555-9bf8-66b2-0d434e302916",
+            orderId = null,
+            profile = CommunicationProfile.ErxCommunicationReply,
+            sentOn = Instant.parse("2024-08-14T11:21:08.651Z"),
+            sender = "3-01.2.2023001.16.103",
+            recipient = "X110432693",
+            payload = "Eisern"
+        ),
+        2 to Communication(
+            taskId = "160.000.226.545.733.51",
+            communicationId = "01ebc980-cb72-d730-762e-dd08075f568a",
+            orderId = null,
+            profile = CommunicationProfile.ErxCommunicationReply,
+            sentOn = Instant.parse("2024-08-14T11:22:51.230Z"),
+            sender = "3-01.2.2023001.16.103",
+            recipient = "X110432693",
+            payload = "Eisern"
+        )
+    )
 
     @Test
     fun `parse communications version 1_2`() {
@@ -172,5 +158,28 @@ class CommunicationMapperTest {
                 assertEquals(com.payload, payload)
             }
         }
+    }
+
+    @Test
+    fun `parse communications version 1_3`() {
+        var index = 0
+
+        extractCommunications(
+            Json.parseToJsonElement(testBundleVersion13)
+        ) { taskId, communicationId, orderId, profile, sentOn, sender, recipient, payload ->
+            communicationsVersion13[index]?.let { com ->
+                assertEquals(com.taskId, taskId)
+                assertEquals(com.communicationId, communicationId)
+                assertEquals(com.orderId, orderId)
+                assertEquals(com.profile, profile)
+                assertEquals(FhirTemporal.Instant(com.sentOn), sentOn)
+                assertEquals(com.sender, sender)
+                assertEquals(com.recipient, recipient)
+                assertEquals(com.payload, payload)
+            }
+            index++
+        }
+
+        assertEquals(3, index)
     }
 }

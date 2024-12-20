@@ -1,17 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    <application>
+    
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <!-- Required for Android 10 and below -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <!-- requestLegacyExternalStorage = true is required for Android 10 and below -->
+    <application android:requestLegacyExternalStorage="true">
         <meta-data
             android:name="com.contentsquare.android.autostart"
-            android:value="false"
-            />
+            android:value="false" />
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
             android:exported="false"
-            android:grantUriPermissions="true">
+            android:grantUriPermissions="true"
+            android:localeConfig="@xml/locale_config">
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
@@ -19,24 +31,26 @@
         <activity
             android:name="de.gematik.ti.erp.app.MainActivity"
             android:exported="true"
-            android:screenOrientation="portrait"
             android:launchMode="singleTask"
-            android:windowSoftInputMode="adjustResize">
+            android:screenOrientation="portrait"
+            android:usesCleartextTraffic="false"
+            android:windowSoftInputMode="adjustResize"
+            tools:ignore="DiscouragedApi">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
+                <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
             <intent-filter>
-                <action android:name="android.nfc.action.TAG_DISCOVERED"/>
+                <action android:name="android.nfc.action.TAG_DISCOVERED" />
             </intent-filter>
 
             <intent-filter android:autoVerify="true">
-                <action android:name="android.intent.action.VIEW"/>
+                <action android:name="android.intent.action.VIEW" />
 
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
 
                 <data
                     android:host="das-e-rezept-fuer-deutschland.de"
@@ -54,6 +68,15 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
+        
+        <receiver android:name="de.gematik.ti.erp.app.medicationplan.scheduler.DateTimeChangeReceiver"
+                    android:exported="false">
+                    <intent-filter>
+                        <action android:name="android.intent.action.DATE_CHANGED"/>
+                        <action android:name="android.intent.action.TIME_SET"/>
+                        <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+                    </intent-filter>
+                </receiver>
     </application>
 
 

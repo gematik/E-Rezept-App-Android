@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.utils
@@ -32,6 +32,7 @@ import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
+import kotlinx.datetime.atTime
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toJavaLocalDate
 import kotlinx.datetime.toJavaLocalDateTime
@@ -181,7 +182,7 @@ fun Instant.toStartOfDayInUTC(): Instant {
     return currentLocalDateTime.date.atStartOfDayIn(TimeZone.UTC)
 }
 
-fun Instant.toFormattedDate(): String? {
+fun Instant.toFormattedDate(): String {
     val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
     return this.toLocalDateTime(TimeZone.currentSystemDefault())
         .date.toJavaLocalDate().format(dateFormatter)
@@ -233,11 +234,6 @@ fun JsonPrimitive.asFhirLocalTime(): FhirTemporal.LocalTime? =
         FhirTemporal.LocalTime(LocalTime.parse(it))
     }
 
-fun JsonPrimitive.asLocalDateTime(): FhirTemporal.LocalDateTime? =
-    this.contentOrNull?.let {
-        FhirTemporal.LocalDateTime(LocalDateTime.parse(it))
-    }
-
 fun JsonPrimitive.asFhirLocalDate(): FhirTemporal.LocalDate? =
     this.contentOrNull?.let {
         FhirTemporal.LocalDate(LocalDate.parse(it))
@@ -247,3 +243,28 @@ fun JsonPrimitive.asFhirInstant(): FhirTemporal.Instant? =
     this.contentOrNull?.let {
         FhirTemporal.Instant(Instant.parse(it))
     }
+
+// TODO: find a better place/way for this
+fun LocalTime.toHourMinuteString(): String {
+    return "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
+}
+
+fun Instant.toLocalDate() = this.toLocalDateTime(TimeZone.currentSystemDefault()).date
+fun LocalDate.formattedString(): String {
+    val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy")
+    return this.toJavaLocalDate().format(dateFormatter)
+}
+
+fun LocalDate.formattedStringShort(): String {
+    val dateFormatter = DateTimeFormatter.ofPattern("dd.MM.yy")
+    return this.toJavaLocalDate().format(dateFormatter)
+}
+
+fun LocalDate.isMaxDate() = this == maxLocalDate()
+fun LocalDate.isBeforeCurrentDate(currentDate: LocalDate) = this < currentDate
+fun LocalDate.isInFuture(currentDate: LocalDate) = this > currentDate
+fun LocalDate.atCurrentTime(now: Instant): Instant = this.atTime(now.toLocalDateTime(TimeZone.currentSystemDefault()).time).toInstant(
+    TimeZone.currentSystemDefault()
+)
+
+fun maxLocalDate() = LocalDate.parse("9999-12-31")

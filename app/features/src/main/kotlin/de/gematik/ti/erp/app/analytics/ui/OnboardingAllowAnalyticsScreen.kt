@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.analytics.ui
@@ -37,37 +37,35 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController
+import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
 import de.gematik.ti.erp.app.onboarding.ui.OnboardingBottomBar
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerLarge
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.compose.SpacerLarge
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.annotatedStringBold
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.compose.preview.TestScaffold
 import de.gematik.ti.erp.app.utils.compose.shortToast
 
 @Requirement(
-    "A_19087",
-    "A_19088#1",
-    "A_19091#1",
-    "A_19092",
-    "A_19181-01#1",
+    "A_19091-01#3",
+    "A_19092-01#3",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "Display opt-in for analytics. Full app functionality is available also without opting in."
 )
 class OnboardingAllowAnalyticsScreen(
     override val navController: NavController,
-    override val navBackStackEntry: NavBackStackEntry
+    override val navBackStackEntry: NavBackStackEntry,
+    private val graphController: OnboardingGraphController
 ) : Screen() {
     @Composable
     override fun Content() {
-        val onboardingController = rememberOnboardingController()
         val context = LocalContext.current
         val allowStars = stringResource(R.string.settings_tracking_allow_emoji)
         val allowText = annotatedStringResource(
@@ -82,15 +80,20 @@ class OnboardingAllowAnalyticsScreen(
             navigationMode = NavigationBarMode.Back,
             topBarTitle = stringResource(R.string.settings_tracking_allow_title),
             onBack = {
-                onboardingController.changeAnalyticsState(false)
+                graphController.changeAnalyticsState(false)
                 context.shortToast(disallowText)
                 navController.popBackStack()
             },
             listState = lazyListState,
             bottomBar = {
+                @Requirement(
+                    "O.Data_6#4",
+                    sourceSpecification = "BSI-eRp-ePA",
+                    rationale = "...user opts-in for analytics."
+                )
                 UserConfirmationBottomBar(
                     onClick = {
-                        onboardingController.changeAnalyticsState(true)
+                        graphController.changeAnalyticsState(true)
                         context.shortToast(allowText)
                         navController.popBackStack()
                     }
@@ -106,7 +109,7 @@ class OnboardingAllowAnalyticsScreen(
 }
 
 @Requirement(
-    "A_19091#2",
+    "A_19091-01#2",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "User confirms the opt in"
 )
@@ -124,8 +127,7 @@ private fun UserConfirmationBottomBar(
 }
 
 @Requirement(
-    "A_19089#1",
-    "A_19090",
+    "A_19090-01#2",
     sourceSpecification = "gemSpec_eRp_FdV",
     rationale = "Display explanation of data processing for analytics opt-in"
 )
@@ -186,22 +188,21 @@ private fun AllowAnalyticsContent(
 
 @LightDarkPreview
 @Composable
-fun AllowAnalyticsContentPreview() {
-    val state = rememberLazyListState()
-    PreviewAppTheme {
-        AllowAnalyticsContent(
-            lazyListState = state,
-            paddingValues = PaddingValues(horizontal = PaddingDefaults.Medium)
-        )
-    }
-}
+fun AllowAnalyticsScreenScaffoldPreview() {
+    val lazyListState = rememberLazyListState()
 
-@LightDarkPreview
-@Composable
-fun UserConfirmationBottomBarPreview() {
     PreviewAppTheme {
-        UserConfirmationBottomBar(
-            onClick = {}
-        )
+        TestScaffold(
+            navigationMode = NavigationBarMode.Back,
+            topBarTitle = stringResource(R.string.settings_tracking_allow_title),
+            bottomBar = {
+                UserConfirmationBottomBar {}
+            }
+        ) {
+            AllowAnalyticsContent(
+                lazyListState = lazyListState,
+                paddingValues = it
+            )
+        }
     }
 }

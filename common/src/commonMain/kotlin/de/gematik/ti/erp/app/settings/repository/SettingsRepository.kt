@@ -1,247 +1,43 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.settings.repository
 
-import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.SettingsAuthenticationMethodV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.writeToRealm
+import de.gematik.ti.erp.app.settings.AnalyticsSettings
+import de.gematik.ti.erp.app.settings.AuthenticationSettings
 import de.gematik.ti.erp.app.settings.GeneralSettings
 import de.gematik.ti.erp.app.settings.PharmacySettings
-import de.gematik.ti.erp.app.settings.model.SettingsData
 import io.realm.kotlin.Realm
-import io.realm.kotlin.ext.query
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Instant
 
-@Suppress("TooManyFunctions")
-class SettingsRepository constructor(
-    private val dispatchers: DispatchProvider,
+abstract class SettingsRepository(
+    private val dispatchers: CoroutineDispatcher = Dispatchers.IO,
     private val realm: Realm
-) : GeneralSettings, PharmacySettings {
-    private val settings: Flow<SettingsEntityV1?>
-        get() = realm.query<SettingsEntityV1>().first().asFlow().map { it.obj }
-
-    override val general: Flow<SettingsData.General>
-        get() = realm.query<SettingsEntityV1>().first().asFlow().mapNotNull { query ->
-            query.obj?.let {
-                SettingsData.General(
-                    latestAppVersion = SettingsData.AppVersion(
-                        code = it.latestAppVersionCode,
-                        name = it.latestAppVersionName
-                    ),
-                    onboardingShownIn = if (it.onboardingLatestAppVersionCode != -1) {
-                        SettingsData.AppVersion(
-                            code = it.onboardingLatestAppVersionCode,
-                            name = it.onboardingLatestAppVersionName
-                        )
-                    } else {
-                        null
-                    },
-                    welcomeDrawerShown = it.welcomeDrawerShown,
-                    zoomEnabled = it.zoomEnabled,
-                    userHasAcceptedInsecureDevice = it.userHasAcceptedInsecureDevice,
-                    authenticationFails = it.authenticationFails,
-                    mainScreenTooltipsShown = it.mainScreenTooltipsShown,
-                    mlKitAccepted = it.mlKitAccepted,
-                    screenShotsAllowed = it.screenshotsAllowed,
-                    trackingAllowed = it.trackingAllowed,
-                    userHasAcceptedIntegrityNotOk = it.userHasAcceptedIntegrityNotOk
-                )
-            }
-        }.flowOn(dispatchers.io)
-
-    fun isAnalyticsAllowed() = settings.mapNotNull { settings -> settings?.trackingAllowed }
-
-    // TODO: Not used
-    override val authenticationMode: Flow<SettingsData.AuthenticationMode>
-        get() = realm.query<SettingsEntityV1>().first().asFlow().mapNotNull { query ->
-            query.obj?.let {
-                when (it.authenticationMethod) {
-                    SettingsAuthenticationMethodV1.DeviceSecurity -> SettingsData.AuthenticationMode.DeviceSecurity
-                    SettingsAuthenticationMethodV1.Password -> {
-                        it.password?.let { pw ->
-                            SettingsData.AuthenticationMode.Password(
-                                hash = pw.hash,
-                                salt = pw.salt
-                            )
-                        }
-                    }
-
-                    else -> SettingsData.AuthenticationMode.Unspecified
-                }
-            }
-        }.flowOn(dispatchers.io)
-
-    // TODO: Not used
-    override val pharmacySearch: Flow<SettingsData.PharmacySearch>
-        get() = settings.mapNotNull { settings ->
-            settings?.pharmacySearch?.let {
-                SettingsData.PharmacySearch(
-                    name = it.name,
-                    locationEnabled = it.locationEnabled,
-                    deliveryService = it.filterDeliveryService,
-                    onlineService = it.filterOnlineService,
-                    openNow = it.filterOpenNow
-                )
-            }
-        }.flowOn(dispatchers.io)
-
-    // TODO move to PharmacySearch
-    override suspend fun savePharmacySearch(search: SettingsData.PharmacySearch) {
-        writeToRealm {
-            this.pharmacySearch?.apply {
-                this.name = search.name
-                this.locationEnabled = search.locationEnabled
-                this.filterDeliveryService = search.deliveryService
-                this.filterOnlineService = search.onlineService
-                this.filterOpenNow = search.openNow
-            }
-        }
-    }
-
-    override suspend fun saveZoomPreference(enabled: Boolean) {
-        writeToRealm {
-            this.zoomEnabled = enabled
-        }
-    }
-
-    override suspend fun saveAuthenticationMode(mode: SettingsData.AuthenticationMode) {
-        writeToRealm {
-            this.setAuthenticationMode(mode)
-        }
-    }
-
-    private fun SettingsEntityV1.setAuthenticationMode(mode: SettingsData.AuthenticationMode) {
-        this.authenticationMethod = when (mode) {
-            SettingsData.AuthenticationMode.DeviceSecurity -> SettingsAuthenticationMethodV1.DeviceSecurity
-            is SettingsData.AuthenticationMode.Password -> SettingsAuthenticationMethodV1.Password
-            else -> SettingsAuthenticationMethodV1.Unspecified
-        }
-        if (mode is SettingsData.AuthenticationMode.Password) {
-            this.authenticationMethod = SettingsAuthenticationMethodV1.Password
-            this.password?.apply {
-                this.hash = mode.hash
-                this.salt = mode.salt
-            }
-        } else {
-            this.password?.reset()
-        }
-    }
-
-    override suspend fun saveOnboardingData(
-        authenticationMode: SettingsData.AuthenticationMode,
-        profileName: String,
-        now: Instant
-    ) {
-        withContext(dispatchers.io) {
-            realm.writeToRealm<SettingsEntityV1, Unit> { settings ->
-                copyToRealm(
-                    ProfileEntityV1().apply {
-                        this.name = profileName
-                        this.active = true
-                    }
-                )
-                settings.setAuthenticationMode(authenticationMode)
-                settings.setAcceptedUpdatedDataTerms(now)
-                settings.setOnboardingAppVersion()
-            }
-        }
-    }
-
-    override suspend fun incrementNumberOfAuthenticationFailures() {
-        writeToRealm {
-            this.authenticationFails += 1
-        }
-    }
-
-    override suspend fun resetNumberOfAuthenticationFailures() {
-        writeToRealm {
-            this.authenticationFails = 0
-        }
-    }
-
-    override suspend fun saveWelcomeDrawerShown() {
-        writeToRealm {
-            this.welcomeDrawerShown = true
-        }
-    }
-
-    override suspend fun saveMainScreenTooltipShown() {
-        writeToRealm {
-            this.mainScreenTooltipsShown = true
-        }
-    }
-
-    override suspend fun acceptMlKit() {
-        writeToRealm {
-            this.mlKitAccepted = true
-        }
-    }
-
-    override suspend fun saveAllowScreenshots(allow: Boolean) {
-        writeToRealm {
-            this.screenshotsAllowed = allow
-        }
-    }
-
-    override suspend fun saveAllowTracking(allow: Boolean) {
-        writeToRealm {
-            this.trackingAllowed = allow
-        }
-    }
-
-    override suspend fun acceptInsecureDevice() {
-        writeToRealm {
-            this.userHasAcceptedInsecureDevice = true
-        }
-    }
-
-    override suspend fun acceptIntegrityNotOk() {
-        writeToRealm {
-            this.userHasAcceptedIntegrityNotOk = true
-        }
-    }
-
-    override suspend fun acceptUpdatedDataTerms(now: Instant) {
-        writeToRealm {
-            this.setAcceptedUpdatedDataTerms(now)
-        }
-    }
-
-    private fun SettingsEntityV1.setAcceptedUpdatedDataTerms(now: Instant) {
-        this.dataProtectionVersionAccepted = now.toRealmInstant()
-    }
-
-    private fun SettingsEntityV1.setOnboardingAppVersion() {
-        this.onboardingLatestAppVersionName = this.latestAppVersionName
-        this.onboardingLatestAppVersionCode = this.latestAppVersionCode
-    }
-
-    private suspend fun writeToRealm(block: SettingsEntityV1.() -> Unit) {
-        withContext(dispatchers.io) {
+) : GeneralSettings,
+    PharmacySettings,
+    AnalyticsSettings,
+    AuthenticationSettings {
+    suspend fun writeToRealm(block: SettingsEntityV1.() -> Unit) {
+        withContext(dispatchers) {
             realm.writeToRealm<SettingsEntityV1, Unit> {
                 it.block()
             }

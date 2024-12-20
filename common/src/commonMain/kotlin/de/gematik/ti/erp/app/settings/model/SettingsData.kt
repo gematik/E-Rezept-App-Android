@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.settings.model
 
@@ -31,7 +33,6 @@ object SettingsData {
         val zoomEnabled: Boolean,
         val userHasAcceptedInsecureDevice: Boolean,
         val userHasAcceptedIntegrityNotOk: Boolean,
-        val authenticationFails: Int,
         val mlKitAccepted: Boolean,
         val trackingAllowed: Boolean,
         val screenShotsAllowed: Boolean
@@ -53,17 +54,31 @@ object SettingsData {
             deliveryService || onlineService || openNow
     }
 
-    sealed class AuthenticationMode {
-        data object DeviceSecurity : AuthenticationMode()
-        class Password : AuthenticationMode {
+    @Requirement(
+        "O.Auth_7#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "App authentication is done on a domain-specific basis."
+    )
+    data class Authentication(
+        val password: Password?,
+        val deviceSecurity: Boolean,
+        val failedAuthenticationAttempts: Int
+    ) {
+        val passwordIsSet: Boolean = password != null
+        val methodIsDeviceSecurity: Boolean = deviceSecurity && !passwordIsSet
+        val methodIsPassword: Boolean = passwordIsSet && !deviceSecurity
+        val methodIsUnspecified: Boolean = !deviceSecurity && !passwordIsSet
+        val bothMethodsAvailable: Boolean = deviceSecurity && passwordIsSet
+        val showFailedAuthenticationAttemptsError: Boolean = failedAuthenticationAttempts >= 2
+
+        class Password {
             val hash: ByteArray
             val salt: ByteArray
 
             @Requirement(
-                "O.Pass_5",
+                "O.Pass_5#1",
                 sourceSpecification = "BSI-eRp-ePA",
-                rationale = "Passwords are hashed with a hash function that complies with current " +
-                    "security standards and using appropriate salts."
+                rationale = "Implementation of hashed password with salt as strong secure random value"
             )
             constructor(password: String) {
                 salt = ByteArray(32).apply { secureRandomInstance().nextBytes(this) }
@@ -81,7 +96,7 @@ object SettingsData {
             }
 
             @Requirement(
-                "O.Pass_5#1",
+                "O.Pass_5#2",
                 sourceSpecification = "BSI-eRp-ePA",
                 rationale = "one-way hash function that take arbitrary-sized data and " +
                     "output a fixed-length hash value."
@@ -91,7 +106,5 @@ object SettingsData {
                 return MessageDigest.getInstance("SHA-256").digest(combined)
             }
         }
-
-        data object Unspecified : AuthenticationMode()
     }
 }

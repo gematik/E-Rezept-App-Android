@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.userauthentication.observer
@@ -26,7 +26,6 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.settings.model.SettingsData
-import de.gematik.ti.erp.app.settings.model.SettingsData.AuthenticationMode.Password
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import de.gematik.ti.erp.app.timeouts.repository.TimeoutRepository
 import io.github.aakira.napier.Napier
@@ -54,7 +53,7 @@ import java.time.Duration
 sealed class AuthenticationModeAndMethod {
     data object None : AuthenticationModeAndMethod()
     data object Authenticated : AuthenticationModeAndMethod()
-    data class AuthenticationRequired(val method: SettingsData.AuthenticationMode, val nrOfFailedAuthentications: Int) :
+    data class AuthenticationRequired(val authentication: SettingsData.Authentication) :
         AuthenticationModeAndMethod()
 }
 
@@ -62,11 +61,12 @@ private const val RESET_TIMEOUT = -1L
 
 // tag::AuthenticationUseCase[]
 @Requirement(
-    "O.Auth_8",
+    "O.Auth_9#1",
+    "O.Plat_9#2",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "A Timer is used to measure the time a user is inactive. Every user interaction resets the timer."
+    rationale = "A Timer is observing the app lifecycle to notice a change in app state."
 )
-class InactivityTimeoutObserver(
+class InactivityTimeoutObserver( // TODO: Move to different package
     private val settingsRepository: SettingsRepository,
     private val timeoutRepo: TimeoutRepository,
     dispatcher: CoroutineDispatcher = Dispatchers.Default
@@ -89,31 +89,26 @@ class InactivityTimeoutObserver(
         combineTransform(
             lifecycle,
             authRequired,
-            settingsRepository.authenticationMode,
-            settingsRepository.general
-        ) { lifecycle, authRequired, authenticationMode, settings ->
-            unspecifiedAuthentication = authenticationMode is SettingsData.AuthenticationMode.Unspecified
+            settingsRepository.authentication
+        ) { lifecycle, authRequired, authentication ->
+            unspecifiedAuthentication = authentication.methodIsUnspecified
 
             when (lifecycle) {
                 Lifecycle.Created -> {
-                    this@InactivityTimeoutObserver.authRequired.value = when (authenticationMode) {
-                        SettingsData.AuthenticationMode.Unspecified -> false
-                        else -> true
-                    }
+                    this@InactivityTimeoutObserver.authRequired.value = !authentication.methodIsUnspecified
                     this@InactivityTimeoutObserver.lifecycle.value = Lifecycle.Running
                 }
                 Lifecycle.Started -> {
                     this@InactivityTimeoutObserver.lifecycle.value = Lifecycle.Running
                 }
                 Lifecycle.Running -> {
-                    when (authenticationMode) {
-                        SettingsData.AuthenticationMode.Unspecified ->
-                            emit(AuthenticationModeAndMethod.Authenticated)
-                        else -> if (authRequired) {
+                    if (authentication.methodIsUnspecified) {
+                        emit(AuthenticationModeAndMethod.Authenticated)
+                    } else {
+                        if (authRequired) {
                             emit(
                                 AuthenticationModeAndMethod.AuthenticationRequired(
-                                    authenticationMode,
-                                    settings.authenticationFails
+                                    authentication = authentication
                                 )
                             )
                         } else {
@@ -139,6 +134,12 @@ class InactivityTimeoutObserver(
                             Napier.i { "Restarted inactivity timer for ${Duration.ofMillis(timeout)}" }
                             delay(timeout)
                             requireAuthentication()
+                            @Requirement(
+                                "O.Auth_9#2",
+                                sourceSpecification = "BSI-eRp-ePA",
+                                rationale = "The timer is reset on user interaction",
+                                codeLines = 2
+                            )
                             currentTimeout = RESET_TIMEOUT
                         } else {
                             inactivityTimerChannel.tryEmit(timeoutRepo.getInactivityTimeout().inWholeMilliseconds)
@@ -158,9 +159,15 @@ class InactivityTimeoutObserver(
             .shareIn(scope = scope, started = SharingStarted.Lazily, replay = 1)
     // end::AuthenticationUseCase[]
 
+    @Requirement(
+        "O.Auth_7#1",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "Password check is done in a secure way.",
+        codeLines = 10
+    )
     suspend fun isPasswordValid(password: String): Boolean =
-        settingsRepository.authenticationMode.map {
-            (it as? Password)?.isValid(password) ?: false
+        settingsRepository.authentication.map {
+            it.password?.isValid(password) ?: false
         }.first()
 
     fun resetInactivityTimer() {

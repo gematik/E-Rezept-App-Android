@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.ui
@@ -36,7 +36,7 @@ import de.gematik.ti.erp.app.VisibleDebugTree
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
-import de.gematik.ti.erp.app.data.DebugSettingsData
+import de.gematik.ti.erp.app.debugsettings.data.DebugSettingsData
 import de.gematik.ti.erp.app.debugsettings.data.Environment
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
@@ -45,7 +45,7 @@ import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.invoice.usecase.SaveInvoiceUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -83,9 +83,9 @@ class DebugSettingsViewModel(
     private val endpointHelper: EndpointHelper,
     private val cardWallUseCase: CardWallUseCase,
     private val prescriptionUseCase: PrescriptionUseCase,
+    private val saveInvoiceUseCase: SaveInvoiceUseCase,
     private val vauRepository: VauRepository,
     private val idpRepository: IdpRepository,
-    private val invoiceRepository: InvoiceRepository,
     private val idpUseCase: IdpUseCase,
     private val profilesUseCase: ProfilesUseCase,
     private val featureToggleManager: FeatureToggleManager,
@@ -131,9 +131,9 @@ class DebugSettingsViewModel(
         updateState(
             debugSettingsData.copy(
                 cardAccessNumberIsSet = (
-                        cardWallUseCase.authenticationData(it)
-                            .first().singleSignOnTokenScope as? IdpData.TokenWithHealthCardScope
-                        )?.cardAccessNumber?.isNotEmpty()
+                    cardWallUseCase.authenticationData(it)
+                        .first().singleSignOnTokenScope as? IdpData.TokenWithHealthCardScope
+                    )?.cardAccessNumber?.isNotEmpty()
                     ?: false,
                 activeProfileId = it,
                 bearerToken = idpRepository.decryptedAccessToken(it).first()?.accessToken ?: ""
@@ -146,10 +146,10 @@ class DebugSettingsViewModel(
     }
 
     fun selectEnvironment(environment: Environment) {
-        updateState(getDebugSettingsdataForEnvironment(environment))
+        updateState(getDebugSettingsDataForEnvironment(environment))
     }
 
-    private fun getDebugSettingsdataForEnvironment(environment: Environment): DebugSettingsData {
+    private fun getDebugSettingsDataForEnvironment(environment: Environment): DebugSettingsData {
         return when (environment) {
             Environment.PU -> debugSettingsData.copy(
                 eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_PU,
@@ -241,9 +241,10 @@ class DebugSettingsViewModel(
                     else -> it
                 }
                 idpRepository.saveSingleSignOnToken(
-                    activeProfileId,
-                    newToken
+                    profileId = activeProfileId,
+                    token = newToken
                 )
+                idpRepository.invalidateDecryptedAccessToken(activeProfileId)
                 Napier.d("SSO token is now: $newToken", tag = "Debug Settings")
             }
         }
@@ -388,7 +389,8 @@ class DebugSettingsViewModel(
         viewModelScope.launch {
             val profileId = profilesUseCase.activeProfileId().first()
             val bundle = Json.parseToJsonElement(invoiceBundle)
-            invoiceRepository.saveInvoice(profileId, bundle)
+            saveInvoiceUseCase(profileId, bundle)
+            // invoiceRepository.saveInvoice(profileId, bundle)
         }
     }
 

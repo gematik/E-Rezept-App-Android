@@ -1,26 +1,28 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 @file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.timeouts.datasource.local
 
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.DEFAULT_INACTIVITY_DURATION
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.DEFAULT_PAUSE_DURATION
 import de.gematik.ti.erp.app.timeouts.datasource.local.TimeoutConstant.INACTIVITY_TIMER_ENUM
@@ -45,11 +47,18 @@ object TimeoutConstant {
     const val PAUSE_TIMER_VALUE = "PAUSE_TIMER"
     const val PAUSE_TIMER_ENUM = "PAUSE_TIMER_ENUM"
     const val defaultInactivityValue = 10
-    const val defaultPauseValue = 30
+    const val defaultPauseValue = 60
     val defaultInactivityMetric = DurationUnit.MINUTES
     val defaultPauseMetric = DurationUnit.SECONDS
     val DEFAULT_INACTIVITY_DURATION = 10.minutes
-    val DEFAULT_PAUSE_DURATION = 30.seconds
+
+    @Requirement(
+        "O.Auth_8#4",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "The timer is set to 60 seconds.",
+        codeLines = 2
+    )
+    val DEFAULT_PAUSE_DURATION = 60.seconds
 }
 
 class TimeoutsLocalDataSource(

@@ -1,121 +1,56 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.invoice.repository
 
-import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.fhir.model.extractTaskIdsFromChargeItemBundle
+import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.supervisorScope
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.flow.Flow
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonElement
-import java.net.HttpURLConnection
 
-private const val InvoiceMaxPageSize = 25
+interface InvoiceRepository {
 
-class InvoiceRepository(
-    private val remoteDataSource: InvoiceRemoteDataSource,
-    private val localDataSource: InvoiceLocalDataSource,
-    private val dispatchers: DispatchProvider
-) : ResourcePaging<Int>(dispatchers, InvoiceMaxPageSize, maxPages = 1) {
+    fun getLatestTimeStamp(profileId: ProfileIdentifier): Flow<String?>
 
-    suspend fun downloadInvoices(profileId: ProfileIdentifier) = downloadPaged(profileId) { prev: Int?, next: Int ->
-        (prev ?: 0) + next
-    }.map {
-        it ?: 0
-    }
+    suspend fun downloadChargeItemBundle(profileId: ProfileIdentifier, lastUpdated: String?): Result<JsonElement>
 
-// todo: Dipachers should not to be used here!
-    fun invoices(profileId: ProfileIdentifier) =
-        localDataSource.loadInvoices(profileId).flowOn(dispatchers.io)
+    suspend fun downloadChargeItemByTaskId(profileId: ProfileIdentifier, taskId: String): Result<JsonElement>
 
-    fun invoiceById(taskId: String) =
-        localDataSource.loadInvoiceById(taskId).flowOn(dispatchers.io)
+    suspend fun downloadInvoices(profileId: ProfileIdentifier): Result<Int>
 
-    suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: JsonElement) {
-        localDataSource.saveInvoice(profileId, bundle)
-    }
+    fun invoices(profileId: ProfileIdentifier): Flow<List<InvoiceData.PKVInvoiceRecord>>
 
-    override val tag: String = "InvoiceRepository"
+    fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceData.InvoiceStatus>>
 
-    override suspend fun downloadResource(
-        profileId: ProfileIdentifier,
-        timestamp: String?,
-        count: Int?
-    ): Result<ResourceResult<Int>> =
-        remoteDataSource.getChargeItems(
-            profileId = profileId,
-            lastUpdated = timestamp,
-            count = count
-        ).mapCatching { fhirBundle ->
-            withContext(dispatchers.io) {
-                val (total, taskIds) = extractTaskIdsFromChargeItemBundle(fhirBundle)
+    suspend fun updateInvoiceCommunicationStatus(taskId: String, consumed: Boolean)
 
-                supervisorScope {
-                    val results = taskIds.map { taskId ->
-                        async {
-                            downloadInvoiceWithBundle(taskId = taskId, profileId = profileId)
-                        }
-                    }.awaitAll()
+    fun hasUnreadInvoiceMessages(taskIds: List<String>): Flow<Boolean>
 
-                    // return number of bundles saved to db
-                    ResourceResult(total, results.size)
-                }
-            }
-        }
-    private suspend fun downloadInvoiceWithBundle(
-        taskId: String,
-        profileId: ProfileIdentifier
-    ) = withContext(dispatchers.io) {
-        remoteDataSource.getChargeItemBundleById(profileId, taskId).mapCatching { bundle ->
-            requireNotNull(localDataSource.saveInvoice(profileId, bundle))
-        }
-    }
+    fun invoiceByTaskId(taskId: String): Flow<InvoiceData.PKVInvoiceRecord?>
 
-    suspend fun deleteInvoiceById(
-        taskId: String,
-        profileId: ProfileIdentifier
-    ) = withContext(dispatchers.io) {
-        val result = remoteDataSource.deleteChargeItemById(profileId, taskId)
-            .onSuccess {
-                localDataSource.deleteInvoiceById(taskId)
-            }.onFailure {
-                if (it is ApiCallException) {
-                    when (it.response.code()) {
-                        HttpURLConnection.HTTP_NOT_FOUND,
-                        HttpURLConnection.HTTP_GONE ->
-                            localDataSource.deleteInvoiceById(taskId)
-                    }
-                }
-            }
-        result
-    }
+    suspend fun saveInvoice(profileId: ProfileIdentifier, bundle: JsonElement)
 
-    fun loadInvoiceAttachments(taskId: String) =
-        localDataSource.loadInvoiceAttachments(taskId)
+    suspend fun deleteRemoteInvoiceById(taskId: String, profileId: ProfileIdentifier): Result<Unit>
 
-    override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
-        localDataSource.latestInvoiceModifiedTimestamp(profileId).first()
+    fun loadInvoiceAttachments(taskId: String): List<Triple<String, String, ByteArray>>?
+
+    suspend fun deleteLocalInvoice(taskId: String)
+
+    suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant?
 }

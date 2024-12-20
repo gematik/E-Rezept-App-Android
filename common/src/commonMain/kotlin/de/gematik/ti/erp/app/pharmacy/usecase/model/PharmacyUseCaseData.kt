@@ -1,36 +1,41 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 package de.gematik.ti.erp.app.pharmacy.usecase.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import de.gematik.ti.erp.app.fhir.model.DeliveryPharmacyService
-import de.gematik.ti.erp.app.fhir.model.Location
-import de.gematik.ti.erp.app.fhir.model.OnlinePharmacyService
+import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.fhir.model.OpeningHours
 import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.fhir.model.PharmacyService
-import de.gematik.ti.erp.app.fhir.model.PickUpPharmacyService
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
 private const val DefaultRadiusInMeter = 999 * 1000.0
 
 object PharmacyUseCaseData {
+    @Requirement(
+        "A_20285#5",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = " .. filter pharmacies by different criteria."
+    )
     @Immutable
     data class Filter(
         val nearBy: Boolean = false,
@@ -46,12 +51,13 @@ object PharmacyUseCaseData {
     /**
      * Represents a pharmacy.
      */
+    @Serializable
     @Immutable
     data class Pharmacy(
         val id: String,
         val name: String,
         val address: String?,
-        val location: Location?,
+        val coordinates: Coordinates?,
         val distance: Double?,
         val contacts: PharmacyContacts,
         val provides: List<PharmacyService>,
@@ -59,13 +65,13 @@ object PharmacyUseCaseData {
         val telematikId: String
     ) {
         val isPickupService
-            get() = provides.any { it is PickUpPharmacyService }
+            get() = provides.any { it is PharmacyService.PickUpPharmacyService }
 
         val isDeliveryService
-            get() = provides.any { it is DeliveryPharmacyService }
+            get() = provides.any { it is PharmacyService.DeliveryPharmacyService }
 
         val isOnlineService
-            get() = provides.any { it is OnlinePharmacyService }
+            get() = provides.any { it is PharmacyService.OnlinePharmacyService }
 
         val directRedeemUrlsNotPresent: Boolean
             get() {
@@ -94,11 +100,22 @@ object PharmacyUseCaseData {
         data object Disabled : LocationMode()
 
         @Immutable
-        data class Enabled(val location: Location, val radiusInMeter: Double = DefaultRadiusInMeter) : LocationMode()
+        data class Enabled(
+            val coordinates: Coordinates,
+            val radiusInMeter: Double = DefaultRadiusInMeter
+        ) : LocationMode()
     }
 
     @Immutable
     data class SearchData(val name: String, val filter: Filter, val locationMode: LocationMode)
+
+    @Immutable
+    data class MapsSearchData(
+        val name: String,
+        val filter: Filter,
+        val locationMode: LocationMode,
+        val coordinates: Coordinates?
+    )
 
     /**
      * State with list of pharmacies
@@ -113,9 +130,11 @@ object PharmacyUseCaseData {
         val taskId: String,
         val accessCode: String,
         val title: String?,
+        val isSelfPayerPrescription: Boolean,
         val index: Int?,
         val timestamp: Instant,
-        val substitutionsAllowed: Boolean
+        val substitutionsAllowed: Boolean,
+        val isScanned: Boolean
     )
 
     @Immutable
@@ -163,12 +182,14 @@ object PharmacyUseCaseData {
 
     @Immutable
     data class OrderState(
-        val orders: List<PrescriptionOrder>,
+        val prescriptionOrders: List<PrescriptionOrder>,
+        val selfPayerPrescriptionIds: List<String>,
         val contact: ShippingContact
     ) {
         companion object {
             val Empty = OrderState(
-                orders = emptyList(),
+                prescriptionOrders = emptyList(),
+                selfPayerPrescriptionIds = emptyList(),
                 contact = ShippingContact.EmptyShippingContact
             )
         }

@@ -1,32 +1,33 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.appsecurity.ui
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -39,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
@@ -50,38 +52,38 @@ import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingControlle
 import de.gematik.ti.erp.app.onboarding.ui.SkipOnBoardingButton
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.BottomAppBar
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.SpacerMedium
-import de.gematik.ti.erp.app.utils.compose.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.Toggle
+import de.gematik.ti.erp.app.utils.compose.preview.BooleanPreviewParameterProvider
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import java.util.Locale
 
 @Requirement(
     "O.Plat_1#4",
+    "O.Resi_1#5",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "insecure Devices warning."
+    rationale = "Insecure Devices warning screen that is shown to the user to make a informed decision."
 )
 class InsecureDeviceScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
     val onBack: () -> Unit
 ) : Screen() {
-
     @Composable
     override fun Content() {
         var checked by rememberSaveable { mutableStateOf(false) }
-        val scrollState = rememberScrollState()
-
+        val listState = rememberLazyListState()
         val insecureDeviceController = rememberInsecureDeviceController()
-
         // used here only for skip button
         val onboardingController = rememberOnboardingController()
-
         AnimatedElevationScaffold(
-            elevated = scrollState.value > 0,
+            listState = listState,
             navigationMode = NavigationBarMode.Close,
             bottomBar = {
                 BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
@@ -106,36 +108,7 @@ class InsecureDeviceScreen(
             topBarTitle = stringResource(id = R.string.insecure_device_title),
             onBack = onBack
         ) { innerPadding ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .verticalScroll(scrollState)
-                    .padding(PaddingDefaults.Medium)
-            ) {
-                Image(
-                    painterResource(id = R.drawable.laptop_woman_yellow),
-                    null,
-                    contentScale = ContentScale.FillWidth,
-                    modifier = Modifier.fillMaxSize()
-                )
-                SpacerSmall()
-                Text(
-                    stringResource(id = R.string.insecure_device_header),
-                    style = AppTheme.typography.h6
-                )
-                SpacerSmall()
-                Text(
-                    stringResource(id = R.string.insecure_device_info),
-                    style = AppTheme.typography.body1
-                )
-                Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
-                Toggle(
-                    checked = checked,
-                    onCheckedChange = { checked = it },
-                    description = stringResource(id = R.string.insecure_device_accept)
-                )
-            }
+            InsecureDeviceScreenContent(listState, innerPadding, { checked = it }, checked)
         }
 
         if (BuildConfigExtension.isNonReleaseMode) {
@@ -144,5 +117,61 @@ class InsecureDeviceScreen(
                 navController.finishOnboardingAsSuccessAndOpenPrescriptions()
             }
         }
+    }
+}
+
+@Composable
+private fun InsecureDeviceScreenContent(
+    listState: LazyListState,
+    innerPadding: PaddingValues,
+    onToggle: (Boolean) -> Unit,
+    checked: Boolean
+) {
+    LazyColumn(
+        state = listState,
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
+            .padding(PaddingDefaults.Medium)
+    ) {
+        item {
+            Image(
+                painterResource(id = R.drawable.laptop_woman_yellow),
+                null,
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxSize()
+            )
+            SpacerSmall()
+        }
+        item {
+            Text(
+                stringResource(id = R.string.insecure_device_header),
+                style = AppTheme.typography.h6
+            )
+            SpacerSmall()
+        }
+        item {
+            Text(
+                stringResource(id = R.string.insecure_device_info),
+                style = AppTheme.typography.body1
+            )
+            Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
+        }
+        item {
+            Toggle(
+                checked = checked,
+                onCheckedChange = { onToggle(it) },
+                description = stringResource(id = R.string.insecure_device_accept)
+            )
+        }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun InsecureDeviceScreenPreview(@PreviewParameter(BooleanPreviewParameterProvider::class) checked: Boolean) {
+    val lazyListState = rememberLazyListState()
+    PreviewAppTheme {
+        InsecureDeviceScreenContent(lazyListState, PaddingValues(PaddingDefaults.Medium), { }, checked)
     }
 }

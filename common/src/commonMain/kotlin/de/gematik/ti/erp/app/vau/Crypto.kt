@@ -1,20 +1,22 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
+@file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.vau
 
@@ -150,8 +152,15 @@ object Ecies {
         }
         val ivSpec = IvParameterSpec(ivBytes)
 
+        @Requirement(
+            "GS-A_4357-02#1",
+            "GS-A_4361-02#1",
+            sourceSpecification = "gemSpec_Krypt",
+            rationale = "Ensure that brainpoolP256r1 is used",
+            codeLines = 2
+        )
         val eKp = KeyPairGenerator.getInstance("EC", cryptoConfig.provider)
-            .apply { initialize(ECGenParameterSpec("brainpoolP256r1"), cryptoConfig.random) }
+            .apply { initialize(ECGenParameterSpec(BrainPoolCurves.P256r1), cryptoConfig.random) }
             .generateKeyPair()
 
         val cipher =
@@ -172,7 +181,14 @@ object Ecies {
             val x = BigInteger(1, it.copyOfRange(1, 1 + 32))
             val y = BigInteger(1, it.copyOfRange(1 + 32, 1 + 32 * 2))
 
-            val curveSpec = ECNamedCurveTable.getParameterSpec("brainpoolP256r1")
+            @Requirement(
+                "GS-A_4357-02#4",
+                "GS-A_4361-02#2",
+                sourceSpecification = "gemSpec_Krypt",
+                rationale = "Ensure that brainpoolP256r1 is used",
+                codeLines = 2
+            )
+            val curveSpec = ECNamedCurveTable.getParameterSpec(BrainPoolCurves.P256r1)
             val otherPublicKey = org.bouncycastle.jce.spec.ECPublicKeySpec(
                 curveSpec.curve.createPoint(x, y),
                 curveSpec
@@ -225,6 +241,12 @@ object AesGcm {
         return ivBytes + cipher
     }
 
+    @Requirement(
+        "A_20174#4",
+        sourceSpecification = "gemSpec_Krypt",
+        rationale = "3.1 Decrypting of cipher text.",
+        codeLines = 1
+    )
     fun decrypt(
         aesKey: SecretKey,
         spec: VauAesGcmSpec,

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <!-- [REQ:BSI-eRp-ePA:O.Arch_2#4, O.Arch_4#3]-->
+    <!-- cloud backup is excluded for all data that are saved -->
+    <cloud-backup>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </cloud-backup>
+    <!-- [REQ:BSI-eRp-ePA:O.Arch_2#5, O.Arch_4#4]-->
+    <!-- device to device transfer of app data is also prohibited -->
+    <device-transfer>
+        <exclude domain="root" />
+        <exclude domain="file" />
+        <exclude domain="database" />
+        <exclude domain="sharedpref" />
+        <exclude domain="external" />
+    </device-transfer>
+</data-extraction-rules>

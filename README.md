@@ -1,60 +1,57 @@
-# E-Rezept App
-## Introduction
+<img alt="gematik logo" align="right" width="250" height="47" src="app/features/src/main/res/drawable/gematik_logo_flag_with_background.png"/> <br/> 
 
+# E-Rezept App 
+
+## Table Of Contents
+
+- [About The Project](#about-the-project)
+    - [Release Notes](#release-notes)
+- [Getting Started](#getting-started)
+    - [Prerequisites](#prerequisites)
+    - [Structure](#structure)
+    - [Installation](#installation)
+- [Usage](#usage)
+- [Contributing](#contributing)
+- [Security And Privacy](#security-and-privacy)
+- [License](#license)
+- [Contact](#contact)
+- [Additional Links And Sourcecode](#additional-links-and-sourcecode)
+
+## About The Project
 Prescriptions for medicines that are only available in pharmacies can be issued as electronic prescriptions (e-prescriptions resp. E-Rezepte) for people with public health insurance from 1 July 2021.
 The official gematik E-Rezept App (electronic prescription app) is available to receive and redeem prescriptions digitally. Anyone can download the app for free:
 
 [![Download E-Rezept on the App Store](https://user-images.githubusercontent.com/52454541/126137060-cb8c7ceb-6a72-423d-9079-f3e1a98b2638.png)](https://apps.apple.com/de/app/das-e-rezept/id1511792179)[![Download E-Rezept on the PlayStore](https://user-images.githubusercontent.com/52454541/126138350-a52e1d84-1588-4e8a-86df-189ee4df8bc8.png)](https://play.google.com/store/apps/details?id=de.gematik.ti.erp.app)[![Download E-Rezept on the App Gallery](https://user-images.githubusercontent.com/52454541/126158983-15d73f12-36c6-41ce-8de5-29d10baaed04.png)](https://appgallery.huawei.com/#/app/C104463531)
 
-and login with the health card of the public health insurance. In July 2021, the e-prescription started with a test phase, initially in the focus region Berlin-Brandenburg. The nationwide rollout started three month later in September 2022.
+or as an apk here in GitHub: [Releases](https://github.com/gematik/E-Rezept-App-Android/releases)
+
+Login is possible with the health card or the app of the users public health insurance company. In July 2021, the e-prescription started with a test phase, initially in the focus region Berlin-Brandenburg. The nationwide rollout started three month later in September 2022.
 
 The e-prescriptions are stored in the telematics infrastructure, for which gematik is responsible.
 
 Visit our [FAQ page](https://www.das-e-rezept-fuer-deutschland.de/faq) for more information about the e-prescription.
 
-### Support & Feedback
+### Release Notes
+See [ReleaseNotes.md](./ReleaseNotes.md) for all information regarding the (newest) releases.
 
-For endusers and insurant:
+## Getting Started
+This section provides instructions on how to get started with the project, 
+including setting up the development environment and building the application.
 
-[![E-Rezept Webseite](https://img.shields.io/badge/web-E%20Rezept%20Webseite-green?logo=web.ru&style=flat-square&logoColor=white)](https://www.das-e-rezept-fuer-deutschland.de/)
-[![eMail E-Rezept](https://img.shields.io/badge/email-E%20Rezept%20team-green?logo=mail.ru&style=flat-square&logoColor=white)](mailto:app-feedback@gematik.de)
-[![E-Rezept Support Telephone](https://img.shields.io/badge/phone-E%20Rezept%20Service-green?logo=phone.ru&style=flat-square&logoColor=white)](tel:+498002773777)
+### Prerequisites
+Before you can build and run the application, ensure you have the following prerequisites installed on your system:
 
-Members of the health-industry with functional questions
+- **Android Studio:** The official IDE for Android app development.
+- **Kotlin:** The primary programming language used in this project. Android Studio comes bundled with Kotlin support.
+- **Git:** A distributed version control system used to manage the project's source code.
 
-[![eMail E-Rezept Team](https://img.shields.io/badge/web-E%20Rezept%20Industrie-green?logo=web.ru&style=flat-square&logoColor=white)](https://www.gematik.de/hilfe-kontakt/hersteller/)
+**Getting the Project Code**
 
-IT specialists
-
-[![eMail E-Rezept Fachportal](https://img.shields.io/badge/web-E%20Rezept%20Fachportal-green?logo=web.ru&style=flat-square&logoColor=white)](https://fachportal.gematik.de/anwendungen/elektronisches-rezept)
-[![eMail E-Rezept Team](https://img.shields.io/badge/email-E%20Rezept%20team-green?logo=mail.ru&style=flat-square&logoColor=white)](mailto:app-feedback@gematik.de)
-
-### Data Privacy
-
-You can find the privacy policy for the app at: [https://www.das-e-rezept-fuer-deutschland.de/app/datenschutz](https://www.das-e-rezept-fuer-deutschland.de/app/datenschutz)
-
-### Contributors
-
-We plan to enable contribution to the E-Rezept App in the near future.
-
-### Licensing
-
-The E-Rezept App is licensed under the European Union Public Licence (EUPL); every use of the E-Rezept App Sourcecode must be in compliance with the EUPL.
-
-You will find more details about the EUPL here: [https://joinup.ec.europa.eu/collection/eupl](https://joinup.ec.europa.eu/collection/eupl)
-
-Unless required by applicable law or agreed to in writing, software distributed under the EUPL is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the EUPL for the specific language governing permissions and limitations under the License.
-
-## Development
-
-### Getting started
-
-To get started, build one of the \*Pu\* variants. Currently, the Google and Huawei variants differ only in configuration. The code is identical. This is likely to change soon.
-
-This repository is an [Kotlin Multiplatform Project](https://kotlinlang.org/docs/multiplatform.html) unifying the upcoming E-Rezept App for desktop and the Android App.
+To begin, clone the project's repository from GitHub using the following command in your terminal:
+"git clone https://github.com/gematik/E-Rezept-App-Android.git" or by using the version control tool of Android Studio.
 
 ### Structure
-
+The following graphic provides an overview over the more important parts of the kotlin multiplatform project:
 ```text
 |-- app
 |   `-- android
@@ -77,52 +74,61 @@ This repository is an [Kotlin Multiplatform Project](https://kotlinlang.org/docs
 |           |-- androidTest
 |           |-- main
 |           `-- test
-|   `-- shared-test
+|   `-- test-actions
 |       `-- src
 |           |-- main  
 |-- common
 |   `-- src
 |       |-- androidMain
-|       |-- androidTest
 |       |-- commonMain
 |       |-- commonTest
-|       |-- desktopMain
-|       `-- desktopTest
-|-- desktop
-|   `-- src
-|       |-- jvmMain
-|       `-- jvmTest
-`-- plugins
-    `-- dependencies
+`-- ui-components
+    `-- src
 ```
 
-`plugins/dependencies` is a [composed build](https://docs.gradle.org/current/userguide/composite_builds.html) required by any of the other modules (android, common and desktop) managing the dependencies in one place.
+- **app/android/src/main:** includes build parameters for the android app.
+- **app/android-mock/src/main:** includes build parameters for the android app-mock (mostly used for testing).
+- **app/features/src/main:** includes the core logic of the android app. Including Screens, UseCases and Navigation.
+- **app/demo-mode/src/main:** includes the core logic of the demo-mode of the android app. Including all overwritten Datasources and UseCases
+- **common/src/commonMain:** includes the general logic of app. Most important the localDatasource and it's entities.
 
-The `gradle.properties` file contains all pre-defined properties required to communicate with the FD (**F**ach**D**ienst), IDP (**ID**entity **P**rovider) and the pharmacy lookup service.
-Unfortunately the actual values are not meant to be public.
+### Installation
+To create and install an unsigned debug.apk on your connected android device, run:
+- "./gradlew :app:android:assembleGoogleTuInternalDebug" in your terminal. 
+  - This will create an apk in the following path "app/android/build/outputs/apk/googleTuInternal/debug", which you can then install on your device
+  - run "adb install app/android/build/outputs/apk/googleTuInternal/debug/android-googleTuInternal-debug.apk"
+- or click on the green "run"-Button in the top right of android studio.
 
-### Android
+## Usage
+The installed debug.apk can't communicate to connected servers. It's purpose is for local testing only. To show some data, you can enter the demo-mode via the settings. 
+If you want or need an active app, please download a live version from the sources mentioned in the [About The Project](#about-the-project) section.
 
-To build the Android App choose one variant (e.g. `gradle :android:assembleGooglePuExternalDebug -Pbuildkonfig.flavor=googlePuExternal`):
+## Contributing
+See [Contributing.md](./CONTRIBUTING.md) for all information regarding the the contributing process in this project.
 
-```shell
-gradle :android:assemble(Google|Huawei)Pu(External|Internal)(Debug|Release) -Pbuildkonfig.flavor=(google|huawei)Pu(External|Internal)
-```
+## Security And Privacy
+See [Security.md](./SECURITY.md) for all information regarding the used security and privacy guidelines in this project.
 
-*Note: Currently the android build variant is derived from the `buildkonfig.flavor` property.*
+## License
+See [License.md](./LICENSE.md) for all information regarding the used license.
 
-#### APK
+## Contact
+For endusers and insurant:
 
-The resulting `.apk` can be found in e.g. `app/android/build/outputs/apk/googlePuExternal/debug/`.
+[![E-Rezept Webseite](https://img.shields.io/badge/web-E%20Rezept%20Webseite-green?logo=web.ru&style=flat-square&logoColor=white)](https://www.das-e-rezept-fuer-deutschland.de/)
+[![eMail E-Rezept](https://img.shields.io/badge/email-E%20Rezept%20team-green?logo=mail.ru&style=flat-square&logoColor=white)](mailto:app-feedback@gematik.de)
+[![E-Rezept Support Telephone](https://img.shields.io/badge/phone-E%20Rezept%20Service-green?logo=phone.ru&style=flat-square&logoColor=white)](tel:+498002773777)
 
-Additionally, you can find the latest apk [here](https://github.com/gematik/E-Rezept-App-Android/releases/latest)
+Members of the health-industry with functional questions
 
-#### Visualize Test Tags
+[![eMail E-Rezept Team](https://img.shields.io/badge/web-E%20Rezept%20Industrie-green?logo=web.ru&style=flat-square&logoColor=white)](https://www.gematik.de/hilfe-kontakt/hersteller/)
 
-See [Visualize Test Tags](documentation/test-tags.md)
+IT specialists
 
+[![eMail E-Rezept Fachportal](https://img.shields.io/badge/web-E%20Rezept%20Fachportal-green?logo=web.ru&style=flat-square&logoColor=white)](https://fachportal.gematik.de/anwendungen/elektronisches-rezept)
+[![eMail E-Rezept Team](https://img.shields.io/badge/email-E%20Rezept%20team-green?logo=mail.ru&style=flat-square&logoColor=white)](mailto:app-feedback@gematik.de)
 
-### Links Sourcecode
+### Additional Links And Sourcecode
 
 - [E-Rezept iOS implementation](https://github.com/gematik/E-Rezept-App-iOS)
 - Reference implementation of the [IDP (**ID**entity **P**rovider)](https://github.com/gematik/ref-idp-server)

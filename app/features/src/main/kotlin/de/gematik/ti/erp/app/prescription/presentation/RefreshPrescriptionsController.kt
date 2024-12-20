@@ -1,29 +1,34 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
+import de.gematik.ti.erp.app.api.ErpServiceState
+import de.gematik.ti.erp.app.api.GeneralErrorState
+import de.gematik.ti.erp.app.api.RefreshedState
 import de.gematik.ti.erp.app.authentication.model.PromptAuthenticator
 import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.cardwall.mini.ui.NoneEnrolledException
@@ -32,11 +37,9 @@ import de.gematik.ti.erp.app.cardwall.mini.ui.UserNotAuthenticatedException
 import de.gematik.ti.erp.app.core.LocalAuthenticator
 import de.gematik.ti.erp.app.idp.usecase.IDPConfigException
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
-import de.gematik.ti.erp.app.mainscreen.presentation.MainScreenController
-import de.gematik.ti.erp.app.prescription.ui.GeneralErrorState
-import de.gematik.ti.erp.app.prescription.ui.PrescriptionServiceState
-import de.gematik.ti.erp.app.prescription.ui.RefreshedState
+import de.gematik.ti.erp.app.mainscreen.presentation.AppController
 import de.gematik.ti.erp.app.prescription.usecase.RefreshPrescriptionUseCase
+import de.gematik.ti.erp.app.prescription.usecase.RefreshState
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.vau.interceptor.VauException
 import io.github.aakira.napier.Napier
@@ -58,12 +61,12 @@ import java.net.UnknownHostException
 @Stable
 class RefreshPrescriptionsController(
     private val refreshPrescriptionUseCase: RefreshPrescriptionUseCase,
-    private val mainScreenController: MainScreenController,
+    private val appController: AppController,
     private val authenticator: Authenticator,
     private val scope: CoroutineScope
 ) {
 
-    val isRefreshing
+    val isRefreshing: State<RefreshState>
         @Composable
         get() = refreshPrescriptionUseCase.refreshInProgress.collectAsStateWithLifecycle()
 
@@ -83,11 +86,12 @@ class RefreshPrescriptionsController(
                 GeneralErrorState.NoneEnrolled -> {
                     onShowCardWall()
                 }
+
                 GeneralErrorState.UserNotAuthenticated -> {
                     onUserNotAuthenticated()
                 }
+
                 else -> {
-                    mainScreenController.onRefresh(finalState)
                 }
             }
         }
@@ -96,44 +100,44 @@ class RefreshPrescriptionsController(
     private fun refreshFlow(
         profileId: ProfileIdentifier,
         isUserAction: Boolean
-    ): Flow<PrescriptionServiceState> =
+    ): Flow<ErpServiceState> =
         refreshPrescriptionUseCase.downloadFlow(profileId)
-            .map {
-                RefreshedState(it) as PrescriptionServiceState
-            }
+            .map { RefreshedState(it) }
             .retryWithAuthenticator(
                 isUserAction = isUserAction,
-                authenticate = authenticator.authenticateForPrescriptions(profileId)
+                authenticate = authenticator.getAuthResult(profileId)
             )
             .catchAndTransformRemoteExceptions()
             .flowOn(Dispatchers.IO)
 }
 
 @Composable
-fun rememberRefreshPrescriptionsController(mainScreenController: MainScreenController): RefreshPrescriptionsController {
+fun rememberRefreshPrescriptionsController(appController: AppController): RefreshPrescriptionsController {
     val refreshPrescriptionUseCase by rememberInstance<RefreshPrescriptionUseCase>()
     val authenticator = LocalAuthenticator.current
     val scope = rememberCoroutineScope()
     return remember {
         RefreshPrescriptionsController(
             refreshPrescriptionUseCase = refreshPrescriptionUseCase,
-            mainScreenController = mainScreenController,
+            appController = appController,
             authenticator = authenticator,
             scope = scope
         )
     }
 }
 
-fun Flow<PrescriptionServiceState>.retryWithAuthenticator(
+fun Flow<ErpServiceState>.retryWithAuthenticator(
     isUserAction: Boolean,
     authenticate: Flow<PromptAuthenticator.AuthResult>
 ) =
+// Retries collection of the given flow up to retries times when an exception that
+    // matches the given predicate occurs in the upstream flow.
     retry(1) { throwable ->
         Napier.d("Retry with authenticator", throwable)
 
         when {
-            !isUserAction ->
-                throw CancellationException("Authentication cancelled due `isUserAction = false`")
+            !isUserAction -> throw CancellationException("Authentication cancelled due `isUserAction = false`")
+
             (throwable.cause as? RefreshFlowException)?.isUserAction == true -> {
                 authenticate
                     .first()
@@ -142,20 +146,24 @@ fun Flow<PrescriptionServiceState>.retryWithAuthenticator(
                             PromptAuthenticator.AuthResult.Authenticated -> true
                             PromptAuthenticator.AuthResult.Cancelled ->
                                 throw CancellationException("Authentication dialog cancelled")
+
                             PromptAuthenticator.AuthResult.NoneEnrolled ->
                                 throw NoneEnrolledException()
+
                             PromptAuthenticator.AuthResult.UserNotAuthenticated ->
                                 throw UserNotAuthenticatedException()
+
                             PromptAuthenticator.AuthResult.RedirectLinkNotRight ->
                                 throw RedirectUrlWrongException()
                         }
                     }
             }
+
             else -> false
         }
     }
 
-fun Flow<PrescriptionServiceState>.catchAndTransformRemoteExceptions() =
+fun Flow<ErpServiceState>.catchAndTransformRemoteExceptions() =
     catch { throwable ->
         Napier.d("Try to transform exception", throwable)
 
@@ -165,24 +173,23 @@ fun Flow<PrescriptionServiceState>.catchAndTransformRemoteExceptions() =
 private fun Throwable.walkCause(): GeneralErrorState? =
     cause?.walkCause() ?: transformException()
 
-private fun Throwable.transformException(): GeneralErrorState? =
-    when (this) {
-        is RedirectUrlWrongException -> // TODO Do something with this
-            GeneralErrorState.RedirectUrlForExternalAuthenticationWrong
-        is UserNotAuthenticatedException ->
-            GeneralErrorState.UserNotAuthenticated
-        is NoneEnrolledException ->
-            GeneralErrorState.NoneEnrolled
-        is VauException ->
-            GeneralErrorState.FatalTruststoreState
-        is IDPConfigException -> // TODO use other state
-            GeneralErrorState.FatalTruststoreState
-        is SocketTimeoutException,
-        is UnknownHostException ->
-            GeneralErrorState.NetworkNotAvailable
-        is ApiCallException ->
-            GeneralErrorState.ServerCommunicationFailedWhileRefreshing(
-                this.response.code()
-            )
+@Requirement(
+    "O.Plat_4#4",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = "The error that occurs is captured and transformed. " +
+        "The sensitive data that might come with the errors are transformed so that it is not transmitted."
+)
+private fun Throwable.transformException(): GeneralErrorState? {
+    Napier.e { "Exception transformed $this" }
+
+    return when (this) {
+        is RedirectUrlWrongException -> GeneralErrorState.RedirectUrlForExternalAuthenticationWrong
+        is UserNotAuthenticatedException -> GeneralErrorState.UserNotAuthenticated
+        is NoneEnrolledException -> GeneralErrorState.NoneEnrolled
+        is VauException -> GeneralErrorState.FatalTruststoreState
+        is IDPConfigException -> GeneralErrorState.FatalTruststoreState
+        is SocketTimeoutException, is UnknownHostException -> GeneralErrorState.NetworkNotAvailable
+        is ApiCallException -> GeneralErrorState.ServerCommunicationFailedWhileRefreshing(this.response.code())
         else -> null
     }
+}

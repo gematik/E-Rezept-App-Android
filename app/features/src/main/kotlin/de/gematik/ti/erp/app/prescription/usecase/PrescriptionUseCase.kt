@@ -1,25 +1,24 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.prescription.usecase
 
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.prescription.detail.ui.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
@@ -28,14 +27,10 @@ import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
 import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.usecase.model.PrescriptionUseCaseData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import io.github.aakira.napier.Napier
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.transformLatest
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
@@ -151,24 +146,33 @@ class PrescriptionUseCase(
                 )
         }
 
-    suspend fun saveScannedTasks(profileId: ProfileIdentifier, tasks: List<ScannedTaskData.ScannedTask>) =
-        repository.saveScannedTasks(profileId, tasks)
+    suspend fun saveScannedTasks(
+        profileId: ProfileIdentifier,
+        tasks: List<ScannedTaskData.ScannedTask>,
+        medicationString: String
+    ) {
+        repository.saveScannedTasks(profileId, tasks, medicationString)
+    }
 
-    suspend fun saveScannedCodes(profileId: ProfileIdentifier, scannedCodes: List<ValidScannedCode>) {
+    suspend fun saveScannedCodes(
+        profileId: ProfileIdentifier,
+        scannedCodes: List<ValidScannedCode>,
+        medicationString: String
+    ) {
         val tasks = scannedCodes.flatMap { code ->
             code.extract().mapIndexed { index, (_, taskId, accessCode) ->
                 ScannedTaskData.ScannedTask(
                     profileId = profileId,
                     taskId = taskId,
                     index = index,
-                    name = null,
+                    name = "", // name will be set later
                     accessCode = accessCode,
                     scannedOn = code.raw.scannedOn,
                     redeemedOn = null
                 )
             }
         }
-        tasks.takeIf { it.isNotEmpty() }?.let { saveScannedTasks(profileId, it) }
+        tasks.takeIf { it.isNotEmpty() }?.let { saveScannedTasks(profileId, it, medicationString) }
     }
 
     private fun ValidScannedCode.extract(): List<List<String>> =
@@ -184,32 +188,6 @@ class PrescriptionUseCase(
 
     suspend fun downloadTasks(profileId: ProfileIdentifier): Result<Int> =
         taskRepository.downloadTasks(profileId)
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend fun generatePrescriptionDetails(
-        taskId: String
-    ): Flow<PrescriptionData.Prescription> =
-        repository.loadSyncedTaskByTaskId(taskId).transformLatest { task ->
-            if (task == null) {
-                repository.loadScannedTaskByTaskId(taskId).collectLatest { scannedTask ->
-                    if (scannedTask == null) {
-                        Napier.w("No task `$taskId` found!")
-                    } else {
-                        emit(PrescriptionData.Scanned(task = scannedTask))
-                    }
-                }
-            } else {
-                emit(PrescriptionData.Synced(task = task))
-            }
-        }.flowOn(dispatchers.io)
-
-    suspend fun deletePrescription(profileId: ProfileIdentifier, taskId: String): Result<Unit> {
-        return repository.deleteTaskByTaskId(profileId, taskId)
-    }
-
-    suspend fun redeemScannedTask(taskId: String, redeem: Boolean) {
-        repository.updateRedeemedOn(taskId, if (redeem) Clock.System.now() else null)
-    }
 
     fun getAllTasksWithTaskIdOnly(): Flow<List<String>> =
         repository.loadTaskIds()

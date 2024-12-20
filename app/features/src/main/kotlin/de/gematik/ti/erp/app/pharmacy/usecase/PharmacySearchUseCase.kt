@@ -1,19 +1,19 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.pharmacy.usecase
@@ -28,7 +28,6 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.model.createCommunicationDispenseRequest
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
-import de.gematik.ti.erp.app.pharmacy.model.shippingContact
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyInitialResultsPerPage
@@ -40,17 +39,11 @@ import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
-import kotlinx.coroutines.Dispatchers
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import java.util.UUID
 import kotlin.math.max
-
-// can't be modified; the backend will always return 80 entries on the first page
-const val PharmacyInitialResultsPerPage = 80
-const val PharmacyNextResultsPerPage = 10
 
 class PharmacySearchUseCase(
     private val repository: PharmacyRepository,
@@ -61,6 +54,11 @@ class PharmacySearchUseCase(
 ) {
     data class PharmacyPagingKey(val bundleId: String, val offset: Int)
 
+    @Requirement(
+        "A_20285#3",
+        sourceSpecification = "gemSpec_eRp_FdV",
+        rationale = "pharmacy search paging based on search term and filter criteria set by the user."
+    )
     inner class PharmacyPagingSource(searchData: PharmacyUseCaseData.SearchData) :
         PagingSource<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy>() {
 
@@ -69,7 +67,8 @@ class PharmacySearchUseCase(
         private val filter = run {
             val filterMap = mutableMapOf<String, String>()
             if (locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
-                filterMap += "near" to "${locationMode.location.latitude}|${locationMode.location.longitude}|999|km"
+                filterMap += "near" to "" +
+                    "${locationMode.coordinates.latitude}|${locationMode.coordinates.longitude}|999|km"
             }
             if (searchData.filter.directRedeem) {
                 filterMap += "type" to "DELEGATOR"
@@ -107,6 +106,7 @@ class PharmacySearchUseCase(
                             )
                         }.getOrElse { LoadResult.Error(it) }
                 }
+
                 is LoadParams.Append, is LoadParams.Prepend -> {
                     val key = params.key!!
 
@@ -135,11 +135,9 @@ class PharmacySearchUseCase(
     }
 
     @Requirement(
-        "A_20182",
-        "A_20183",
-        "A_20208",
+        "A_20285#4",
         sourceSpecification = "gemSpec_eRp_FdV",
-        rationale = "Search results are only based on search term and filter criteria set by the user."
+        rationale = "pharmacy search based on search term and filter criteria set by the user."
     )
     suspend fun searchPharmacies(
         searchData: PharmacyUseCaseData.SearchData
@@ -164,69 +162,6 @@ class PharmacySearchUseCase(
         ).flow.flowOn(dispatchers.io)
     }
 
-    fun prescriptionDetailsForOrdering(
-        profileId: ProfileIdentifier
-    ): Flow<PharmacyUseCaseData.OrderState> =
-        combine(
-            shippingContactRepository.shippingContact(),
-            prescriptionRepository.syncedTasks(profileId).map { tasks ->
-                tasks.filter {
-                    it.redeemState().isRedeemable()
-                }
-            },
-            prescriptionRepository.scannedTasks(profileId).map { tasks ->
-                tasks.filter {
-                    it.isRedeemable()
-                    it.communications.isEmpty()
-                }
-            }
-        ) { shippingContacts, syncedTasks, scannedTasks ->
-
-            val shippingContact = if (syncedTasks.isNotEmpty()) {
-                shippingContacts ?: run {
-                    syncedTasks.first().shippingContact().also {
-                        shippingContactRepository.saveShippingContact(it)
-                    }
-                }
-            } else {
-                shippingContacts
-            }
-
-            val tasks = scannedTasks.map { task ->
-                PharmacyUseCaseData.PrescriptionOrder(
-                    taskId = task.taskId,
-                    accessCode = task.accessCode,
-                    title = task.name,
-                    index = task.index,
-                    timestamp = task.scannedOn,
-                    substitutionsAllowed = false
-                )
-            } + syncedTasks.map { task ->
-                PharmacyUseCaseData.PrescriptionOrder(
-                    taskId = task.taskId,
-                    accessCode = task.accessCode!!, // TODO: check, why we get here a nullable!!
-                    title = task.medicationName(),
-                    index = null,
-                    timestamp = task.authoredOn,
-                    substitutionsAllowed = false
-                )
-            }
-
-            PharmacyUseCaseData.OrderState(
-                tasks,
-                PharmacyUseCaseData.ShippingContact(
-                    name = shippingContact?.name ?: "",
-                    line1 = shippingContact?.line1 ?: "",
-                    line2 = shippingContact?.line2 ?: "",
-                    postalCode = shippingContact?.postalCode ?: "",
-                    city = shippingContact?.city ?: "",
-                    telephoneNumber = shippingContact?.telephoneNumber ?: "",
-                    mail = shippingContact?.mail ?: "",
-                    deliveryInformation = shippingContact?.deliveryInformation ?: ""
-                )
-            )
-        }.flowOn(Dispatchers.Default)
-
     suspend fun saveShippingContact(contact: PharmacyUseCaseData.ShippingContact) {
         shippingContactRepository.saveShippingContact(
             mapShippingContact(contact)
@@ -241,7 +176,7 @@ class PharmacySearchUseCase(
         contact: PharmacyUseCaseData.ShippingContact,
         pharmacyTelematikId: String
     ): Result<Unit> {
-        val comDisp = createCommunicationDispenseRequest(
+        val communicationDispenseRequestJson = createCommunicationDispenseRequest(
             orderId = orderId.toString(),
             taskId = order.taskId,
             accessCode = order.accessCode,
@@ -256,7 +191,21 @@ class PharmacySearchUseCase(
             )
         )
 
-        return prescriptionRepository.redeemPrescription(profileId, comDisp, accessCode = order.accessCode)
+        val result = runCatching {
+            prescriptionRepository.redeemPrescription(
+                profileId = profileId,
+                communication = communicationDispenseRequestJson,
+                accessCode = order.accessCode
+            )
+        }.map {
+            if (it.isSuccess) {
+                val result = it.getOrNull()
+                Napier.d { "Redeem prescription successful: $result" }
+            } else {
+                throw it.exceptionOrNull() ?: IllegalStateException("Redeem prescription failed")
+            }
+        }
+        return result
     }
 
     private fun mapShippingContact(contact: PharmacyUseCaseData.ShippingContact) =

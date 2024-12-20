@@ -1,24 +1,26 @@
 /*
- * Copyright (c) 2024 gematik GmbH
- * 
- * Licensed under the EUPL, Version 1.2 or – as soon they will be approved by
- * the European Commission - subsequent versions of the EUPL (the Licence);
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
  * You may not use this work except in compliance with the Licence.
- * You may obtain a copy of the Licence at:
- * 
- *     https://joinup.ec.europa.eu/software/page/eupl
- * 
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the Licence is distributed on an "AS IS" basis,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the Licence for the specific language governing permissions and
- * limitations under the Licence.
- * 
+ *
+ * You find a copy of the Licence in the "Licence" file or at
+ * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the Licence is distributed on an "AS IS" basis,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+ * In case of changes by gematik find details in the "Readme" file.
+ *
+ * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
 package de.gematik.ti.erp.app.navigation
 
-enum class NavigationRouteNames {
+enum class NavigationRouteNames(
+    val doNoTrack: Boolean = false
+) {
     // App-security
     DeviceCheckLoadingScreen,
     InsecureDeviceScreen,
@@ -28,9 +30,13 @@ enum class NavigationRouteNames {
     ProfileScreen,
     ProfileEditPictureScreen,
     ProfileImageCropperScreen,
-    ProfileTokenScreen,
+    ProfileImageEmojiScreen,
+    ProfileImageCameraScreen,
     ProfileAuditEventsScreen,
     ProfilePairedDevicesScreen,
+    ProfileEditPictureBottomSheetScreen,
+    ProfileEditNameBottomSheetScreen,
+    ProfileAddNameBottomSheetScreen,
 
     // Invoices/ pkv
     InvoiceListScreen,
@@ -49,6 +55,17 @@ enum class NavigationRouteNames {
     PrescriptionDetailMedicationIngredientsScreen,
     PrescriptionDetailAccidentInfoScreen,
     PrescriptionDetailTechnicalInfoScreen,
+    PrescriptionDetailSelfPayerPrescriptionBottomSheetScreen,
+    PrescriptionDetailAdditionalFeeNotExemptBottomSheetScreen,
+    PrescriptionDetailAdditionalFeeExemptBottomSheetScreen,
+    PrescriptionDetailFailureBottomSheetScreen,
+    PrescriptionDetailScannedBottomSheetScreen,
+    PrescriptionDetailDirectAssignmentBottomSheetScreen,
+    PrescriptionDetailSubstitutionAllowedBottomSheetScreen,
+    PrescriptionDetailSubstitutionNotAllowedBottomSheetScreen,
+    PrescriptionDetailEmergencyFeeExemptBottomSheetScreen,
+    PrescriptionDetailEmergencyFeeNotExemptBottomSheetScreen,
+    PrescriptionDetailHowLongValidBottomSheetScreen,
 
     // Onboarding
     OnboardingWelcomeScreen,
@@ -66,29 +83,35 @@ enum class NavigationRouteNames {
 
     // Settings
     SettingsScreen,
-    SettingsAccessibilityScreen,
     SettingsProductImprovementScreen,
     SettingsAllowAnalyticsScreen,
-    SettingsDeviceSecurityScreen,
+    SettingsAppSecurityScreen,
     SettingsSetAppPasswordScreen,
     SettingsDataProtectionScreen,
     SettingsTermsOfUseScreen,
     SettingsLegalNoticeScreen,
     SettingsOpenSourceLicencesScreen,
     SettingsAdditionalLicencesScreen,
+    SettingsLanguageScreen,
 
     // MlKit
     MlKit,
     MlKitInformationScreen,
 
-    // Main
+    // Prescriptions
+    PrescriptionsScreen,
+    PrescriptionsArchiveScreen,
     PrescriptionScanScreen,
+    WelcomeDrawerBottomSheetScreen,
+    GrantConsentBottomSheetScreen,
 
-    // sample screen
-    SampleOverviewScreen,
-    BottomSheetSampleScreen,
-    BottomSheetSampleSmallScreen,
-    BottomSheetSampleLargeScreen,
+    // Messages
+    MessageListScreen,
+    MessageDetailScreen,
+    MessageBottomSheetScreen,
+
+    // showcase screen
+    BottomSheetShowcaseScreen,
 
     // tracker
     DemoTrackerScreen,
@@ -108,7 +131,8 @@ enum class NavigationRouteNames {
     CardWallSaveCredentialsScreen,
     CardWallSaveCredentialsInfoScreen,
     CardWallReadCardScreen,
-    CardWallExternalAuthenticationScreen,
+    CardWallGidListScreen,
+    CardWallGidHelpScreen,
 
     // TroubleShooting
     TroubleShootingIntroScreen,
@@ -121,10 +145,34 @@ enum class NavigationRouteNames {
 
     // Pharmacy
     PharmacyStartScreen,
+    PharmacyStartScreenModal,
     PharmacyFilterSheetScreen,
     PharmacySearchListScreen,
     PharmacySearchMapsScreen,
-    PharmacyOrderOverviewScreen,
-    PharmacyEditShippingContactScreen,
-    PharmacyPrescriptionSelectionScreen
+    PharmacyDetailsFromMessageScreen,
+    RedeemOrderOverviewScreen,
+    RedeemEditShippingContactScreen,
+    RedeemPrescriptionSelectionScreen,
+    PharmacyDetailsFromPharmacyScreen,
+
+    // Redeem
+    RedeemMethodSelection,
+    RedeemPrescriptionSelection,
+    RedeemLocal,
+    RedeemOnline,
+
+    // OrderHealthCard
+    OrderHealthCardSelectInsuranceCompanyScreen,
+    OrderHealthCardSelectOptionScreen,
+    OrderHealthCardSelectMethodScreen,
+
+    // MedicationPlan
+    SuccessScreen,
+    ScheduleListScreen,
+    ScheduleScreen,
+    DosageInfoScreen,
+    ScheduleDateRangeScreen,
+
+    // UserAuthentication
+    UserAuthenticationScreen,
 }
