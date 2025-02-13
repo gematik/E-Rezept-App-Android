@@ -689,7 +689,7 @@ private fun InternalErezeptAlertDialog(
                     ) {
                         Text(
                             text = dismissText,
-                            color = dismissTextColor ?: AppTheme.colors.primary600
+                            color = dismissTextColor ?: AppTheme.colors.primary700
                         )
                         dismissButtonIcon?.let { dismissIcon ->
                             SpacerTiny()
@@ -711,7 +711,7 @@ private fun InternalErezeptAlertDialog(
                         ) {
                             Text(
                                 text = text,
-                                color = confirmTextColor ?: AppTheme.colors.primary600
+                                color = confirmTextColor ?: AppTheme.colors.primary700
                             )
                             confirmButtonIcon?.let { confirmIcon ->
                                 SpacerTiny()

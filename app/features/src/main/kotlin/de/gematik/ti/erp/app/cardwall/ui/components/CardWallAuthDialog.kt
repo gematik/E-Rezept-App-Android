@@ -265,7 +265,7 @@ fun CardWallAuthenticationDialog(
                     AuthenticationState.HealthCardPin2RetriesLeft,
                     AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
                     AuthenticationState.HealthCardBlocked -> onUnlockEgk()
-                    else -> if (cardWallController.isNfcEnabled) {
+                    else -> if (cardWallController.isNfcEnabled()) {
                         coroutineScope.launch {
                             toggleAuth.emit(ToggleAuth.ToggleByUser(true))
                         }

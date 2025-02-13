@@ -20,13 +20,15 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 
 import androidx.annotation.VisibleForTesting
 import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessageResources
+import de.gematik.ti.erp.app.messages.domain.model.getTimeState
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -53,17 +55,27 @@ class FetchWelcomeMessageUseCase(
     private fun generateWelcomeMessageFlow(): Flow<InAppMessage?> = inAppMessageRepository.inAppMessages.flatMapLatest { inAppMessages ->
         flow {
             val versionWithoutRC = buildConfigInformation.versionName().substringBefore("-")
-            emit(createWelcomeMessage(versionWithoutRC, inAppMessages))
+            emit(
+                createWelcomeMessage(
+                    version = versionWithoutRC,
+                    inAppMessagesEntity = inAppMessages,
+                    messageTimestamp = inAppMessageRepository.welcomeMessageTimeStamp.firstOrNull()
+                )
+            )
         }
     }
 
-    private fun createWelcomeMessage(version: String, inAppMessagesEntity: List<InAppMessageEntity>): InAppMessage? =
+    private fun createWelcomeMessage(
+        version: String,
+        inAppMessagesEntity: List<InAppMessageEntity>,
+        messageTimestamp: Instant?
+    ): InAppMessage? =
         inAppMessagesEntity.firstOrNull()?.let {
             InAppMessage(
                 id = it.id,
                 from = messageResources.messageFrom,
                 text = messageResources.welcomeMessage,
-                timestamp = Instant.parse(getCurrentTimeAsString()),
+                timeState = getTimeState(messageTimestamp ?: Instant.parse(getCurrentTimeAsString())),
                 tag = messageResources.welcomeMessageTag,
                 isUnread = it.isUnRead,
                 lastMessage = null,

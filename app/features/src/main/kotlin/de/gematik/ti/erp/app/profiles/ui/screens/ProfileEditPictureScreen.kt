@@ -252,7 +252,7 @@ private fun AvatarSelector(
         modifier = modifier.size(SizeDefaults.tenfold),
         shape = CircleShape,
         border = if (selected) {
-            BorderStroke(SizeDefaults.fivefoldHalf, color = AppTheme.colors.primary600)
+            BorderStroke(SizeDefaults.fivefoldHalf, color = AppTheme.colors.primary700)
         } else if (figure != ProfilesData.Avatar.PersonalizedImage) {
             BorderStroke(SizeDefaults.eighth, color = AppTheme.colors.neutral300)
         } else {

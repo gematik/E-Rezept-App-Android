@@ -45,5 +45,6 @@ val MOCK_MESSAGE_01 = OrderUseCaseData.Message(
     pickUpCodeDMC = "Test_01___Rezept_01___abcdefg12345",
     pickUpCodeHR = "T01__R01",
     link = "https://www.tree.fm/forest/33",
-    consumed = false
+    consumed = false,
+    prescriptions = emptyList()
 )

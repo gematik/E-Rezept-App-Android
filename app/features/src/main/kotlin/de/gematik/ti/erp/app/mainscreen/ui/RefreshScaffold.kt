@@ -103,7 +103,7 @@ fun RefreshScaffold(
             SwipeRefreshIndicator(
                 state = s,
                 refreshTriggerDistance = trigger,
-                contentColor = AppTheme.colors.primary600
+                contentColor = AppTheme.colors.primary700
             )
         },
         swipeEnabled = true

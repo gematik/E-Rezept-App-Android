@@ -1,8 +1,14 @@
 [
     {
         "id": "2",
-        "text": "A partir de ahora, utilice la aplicación de recetas electrónicas para registrar su decisión de donar órganos en el **registro digital de donación de órganos**, de forma segura y sencilla.\n\nActualmente hay 9.192 personas en Alemania esperando urgentemente un órgano: cada decisión cuenta y puede salvar vidas.\n\n¡Toma tu decisión hoy y haz una contribución importante al futuro de muchas personas! ❤️‍🩹\n\nEl registro de donación de órganos se puede encontrar en la pestaña \"Configuración\" de esta aplicación.",
-        "timestamp": "2024-11-29T08:00:00.000Z",
+        "text": "A partir de ahora, utilice la aplicación de recetas electrónicas para registrar su decisión de donar órganos en el **registro digital de donación de órganos**, de forma segura y sencilla. \n \n Actualmente hay 9.192 personas en Alemania esperando urgentemente un órgano: cada decisión cuenta y puede salvar vidas. \n \n ¡Toma tu decisión hoy y haz una contribución importante al futuro de muchas personas! ❤️‍🩹 \n \n El registro de donación de órganos se puede encontrar en la pestaña \"Configuración\" de esta aplicación.",
+        "timestamp": "2024-12-19T08:00:00.000Z",
         "version": "1.26.0"
+    },
+    {
+        "id": "3",
+        "text": "**Mejor legibilidad** \n Hemos oscurecido ligeramente el color de nuestra marca para aumentar el contraste de color y así mejorar la legibilidad. \n \n **Funciones optimizadas** \n Hemos actualizado el formato de fecha de envío y corregido la clasificación de los mensajes.",
+        "timestamp": "2025-01-28T08:00:00.000Z",
+        "version": "1.27.0"
     }
 ]

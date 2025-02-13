@@ -417,7 +417,7 @@ private fun SyncedPrescriptionStateInfo(
                     Icons.AutoMirrored.Rounded.KeyboardArrowRight,
                     null,
                     modifier = Modifier.size(SizeDefaults.double),
-                    tint = AppTheme.colors.primary600
+                    tint = AppTheme.colors.primary700
                 )
             }
         }

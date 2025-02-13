@@ -375,7 +375,7 @@ private fun ProfileEditPairedDeviceSection(onShowPairedDevices: () -> Unit) {
             .padding(PaddingDefaults.Medium)
             .semantics(mergeDescendants = true) {}
     ) {
-        Icon(Icons.Rounded.Devices, null, tint = AppTheme.colors.primary600)
+        Icon(Icons.Rounded.Devices, null, tint = AppTheme.colors.primary700)
         Text(stringResource(R.string.settings_login_connected_devices), style = AppTheme.typography.body1)
     }
     SpacerLarge()
@@ -406,7 +406,7 @@ private fun ProfileInvoiceInformation(onClick: () -> Unit) {
                 .padding(PaddingDefaults.Medium)
                 .semantics(mergeDescendants = true) {}
         ) {
-            Icon(Icons.Rounded.EuroSymbol, null, tint = AppTheme.colors.primary600)
+            Icon(Icons.Rounded.EuroSymbol, null, tint = AppTheme.colors.primary700)
             Text(
                 stringResource(
                     R.string.profile_show_invoices
@@ -541,7 +541,7 @@ private fun SecurityAuditEventsSubSection(onClickAuditEvents: () -> Unit) {
             .padding(PaddingDefaults.Medium)
             .semantics(mergeDescendants = true) {}
     ) {
-        Icon(Icons.Outlined.CloudQueue, null, tint = AppTheme.colors.primary600)
+        Icon(Icons.Outlined.CloudQueue, null, tint = AppTheme.colors.primary700)
         Column {
             Text(
                 stringResource(
@@ -881,7 +881,7 @@ private fun ClickableLabeledTextWithIcon(
             Text(content, style = AppTheme.typography.body1)
             Text(description, style = AppTheme.typography.body2l)
         }
-        Icon(icon, contentDescription = null, tint = AppTheme.colors.primary600)
+        Icon(icon, contentDescription = null, tint = AppTheme.colors.primary700)
     }
 }
 
@@ -892,7 +892,7 @@ fun ProfileScreenPreview(
 ) {
     val listState = rememberLazyListState()
     PreviewAppTheme {
-        val color = AppTheme.colors.primary600
+        val color = AppTheme.colors.primary700
         ProfileScreenContent(
             listState = listState,
             profileState = profileState,

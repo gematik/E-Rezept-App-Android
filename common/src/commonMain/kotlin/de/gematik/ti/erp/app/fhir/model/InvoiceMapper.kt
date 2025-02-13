@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.fhir.model
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
+import de.gematik.ti.erp.app.fhir.parser.containedBooleanOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
 import de.gematik.ti.erp.app.fhir.parser.containedDoubleOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedInt
@@ -35,15 +36,17 @@ import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toFhirTemporal
 import de.gematik.ti.erp.app.utils.toFormattedDateTime
 import kotlinx.datetime.Instant
-import kotlinx.datetime.toInstant
 import kotlinx.serialization.json.JsonElement
 
 const val Denominator = 1000.0
 const val IndicatorUrl =
     "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-ZusatzdatenFaktorkennzeichen"
 
-const val AdditionalProductionUrl =
+const val AdditionalProductionUrl12 =
     "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenHerstellung|1.2"
+
+const val AdditionalProductionUrl13 =
+    "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenHerstellung|1.3"
 
 typealias PkvDispenseFn<R> = (
     whenHandedOver: FhirTemporal
@@ -163,8 +166,9 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice> extractInvoiceBundle(
     when {
         profileString.isProfileValue(
             "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-AbgabedatenBundle",
-            "1.2"
-        ) -> extractInvoiceBundleVersion12(
+            "1.2",
+            "1.3"
+        ) -> extractInvoiceBundleVersion12And13(
             bundle,
             processDispense,
             processPharmacyAddress,
@@ -175,7 +179,7 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice> extractInvoiceBundle(
     }
 }
 
-fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersion12(
+fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersion12And13(
     bundle: JsonElement,
     processDispense: PkvDispenseFn<Dispense>,
     processPharmacyAddress: AddressFn<PharmacyAddress>,
@@ -196,21 +200,31 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
         .firstOrNull()
         ?.containedString("value")
 
-    val timestamp = bundle.containedString("timestamp").toInstant()
+    val timestamp = Instant.parse(bundle.containedString("timestamp"))
 
     val additionalDispenses = bundle.findAll("entry.resource")
         .filterWith(
             "meta.profile",
-            stringValue(
-                "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenEinheit|1.2"
+            or(
+                stringValue(
+                    "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenEinheit|1.2"
+                ),
+                stringValue(
+                    "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-ZusatzdatenEinheit|1.3"
+                )
             )
         )
 
     val additionalDispenseData = bundle.findAll("entry.resource")
         .filterWith(
             "meta.profile",
-            stringValue(
-                AdditionalProductionUrl
+            or(
+                stringValue(
+                    AdditionalProductionUrl12
+                ),
+                stringValue(
+                    AdditionalProductionUrl13
+                )
             )
         )
 
@@ -230,7 +244,8 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
         when {
             profileString.isProfileValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abgabeinformationen",
-                "1.2"
+                "1.2",
+                "1.3"
             ) -> {
                 dispense = extractPkvDispense(
                     resource,
@@ -240,7 +255,8 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
 
             profileString.isProfileValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Apotheke",
-                "1.2"
+                "1.2",
+                "1.3"
             ) -> {
                 pharmacy = extractOrganization(
                     resource,
@@ -251,7 +267,8 @@ fun <Dispense, Pharmacy, PharmacyAddress, Invoice, R> extractInvoiceBundleVersio
 
             profileString.isProfileValue(
                 "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-PKV-PR-ERP-Abrechnungszeilen",
-                "1.2"
+                "1.2",
+                "1.3"
             ) -> {
                 invoice = extractInvoice(
                     resource,
@@ -322,6 +339,55 @@ fun <Invoice> extractInvoice(
                 .contained("priceComponent")
                 .containedDouble("factor")
 
+            // Handle Teilmengenabgabe (partial quantity dispensing) for v1.3
+            val partialQuantityDelivery = lineItem
+                .findAll("extension")
+                .filterWith(
+                    "url",
+                    stringValue("http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Zusatzattribute")
+                )
+                .firstOrNull()
+                ?.findAll("extension")
+                ?.filterWith(
+                    "url",
+                    stringValue("ZusatzattributTeilmengenabgabe")
+                )
+                ?.firstOrNull()
+                ?.findAll("extension")
+                ?.filterWith(
+                    "url",
+                    stringValue("Schluessel")
+                )
+                ?.firstOrNull()
+                ?.containedBooleanOrNull("valueBoolean")
+                ?: false
+
+            val spenderPzn = lineItem
+                .findAll("extension")
+                .filterWith(
+                    "url",
+                    stringValue(
+                        "http://fhir.abda.de/eRezeptAbgabedaten/StructureDefinition/DAV-EX-ERP-Zusatzattribute"
+                    )
+                )
+                .firstOrNull()
+                ?.findAll("extension")
+                ?.filterWith(
+                    "url",
+                    stringValue("ZusatzattributTeilmengenabgabe")
+                )
+                ?.firstOrNull()
+                ?.findAll("extension")
+                ?.filterWith(
+                    "url",
+                    stringValue("Spender-PZN")
+                )
+                ?.firstOrNull()
+                ?.contained("valueCodeableConcept")
+                ?.contained("coding")
+                ?.containedString("code")
+                .takeIf { partialQuantityDelivery }
+
             val item = lineItem
                 .findAll("chargeItemCodeableConcept.coding")
                 .filterWith(
@@ -344,7 +410,9 @@ fun <Invoice> extractInvoice(
                                 InvoiceData.ChargeableItem.Description.PZN(code),
                                 text,
                                 factor,
-                                price
+                                price,
+                                partialQuantityDelivery,
+                                spenderPzn
                             )
 
                         "http://TA1.abda.de" ->
@@ -352,7 +420,9 @@ fun <Invoice> extractInvoice(
                                 InvoiceData.ChargeableItem.Description.TA1(code),
                                 text,
                                 factor,
-                                price
+                                price,
+                                partialQuantityDelivery,
+                                spenderPzn
                             )
 
                         "http://fhir.de/sid/gkv/hmnr" ->
@@ -360,7 +430,9 @@ fun <Invoice> extractInvoice(
                                 InvoiceData.ChargeableItem.Description.HMNR(code),
                                 text,
                                 factor,
-                                price
+                                price,
+                                partialQuantityDelivery,
+                                spenderPzn
                             )
 
                         else -> null

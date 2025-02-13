@@ -443,7 +443,7 @@
     <string name="cdw_info_title">Avis</string>
     <string name="cdw_info_accept">Accepter</string>
     <string name="cdw_info_header">Sécurité de vos données de prescription</string>
-    <string name="cdw_info_first">\Cette application utilise le capteur biométrique le plus sécurisé fourni par votre appareil pour sécuriser vos informations d\'identification dans une zone protégée du stockage de l\'appareil.\</string>
+    <string name="cdw_info_first">Cette application utilise le capteur biométrique le plus sécurisé fourni par votre appareil pour sécuriser vos informations d\'identification dans une zone protégée du stockage de l\'appareil.</string>
     <string name="cdw_info_second">La sécurité biométrique de vos données d\'accès vous permet d\'ouvrir cette application à l\'avenir, de consulter, de récupérer, d\'utiliser ou de supprimer des ordonnances sans carte de santé et sans saisir votre code PIN.</string>
     <string name="cdw_info_third">Veuillez vous assurer que les personnes avec lesquelles vous pouvez partager cet appareil et dont les caractéristiques biométriques peuvent être stockées sur cet appareil ont également accès à vos ordonnances.</string>
     <string name="main_fasttrack_error_title">cela n\'a malheureusement pas fonctionné</string>
@@ -1185,8 +1185,23 @@
     <string name="settings_explore_headline">Explorer</string>
     <string name="organ_donation_menu_entry">Registre des dons d\'organes</string>
     <string name="organ_donation_dialog_title">Ouvrir un registre de don d’organes ?</string>
-    <string name="organ_donation_dialog_info">Vous serez redirigé vers le registre des donneurs d’organes. Afin de consulter et de modifier vos données de don d\'organes, vous devez vous y connecter.</string>
+    <string name="organ_donation_dialog_info">Vous serez redirigé vers le site Web du registre des dons d\'organes. Afin de consulter et de modifier vos données de don d\'organes, vous devez vous y connecter.</string>
     <string name="organ_donation_dialog_confirm">Ouvrir</string>
     <string name="organ_donation_dialog_dismiss">Annuler</string>
     <string name="not_active_in_demo_mode_toast">Fonction non active en mode démo</string>
+    <string name="internal_message_from">L\'équipe de l\'application e-prescription</string>
+    <string name="internal_message_tag">Quoi de neuf dans la version de l\'application %s</string>
+    <string name="welcome_text">Bienvenue sur l\'application e-prescription ! Avec cette application, vous pouvez recevoir numériquement des ordonnances électroniques et les envoyer à la pharmacie de votre choix. Que vous souhaitiez y réserver l\'ordonnance pour le récupérer ou la faire livrer à votre domicile, cela dépend entièrement de vous. Bien entendu, vous pouvez également gérer les recettes de votre famille. Afin de recevoir des ordonnances par voie numérique, une inscription est requise. \n \n Ravi de vous avoir ici ! \n Votre équipe d\'application e-prescription  </string>
+    <string name="welcome_tag">🎉 Bienvenue !</string>
+    <string name="pharmacy_search_favorite_toggle">Ajouter aux favoris</string>
+    <string name="pharmacy_search_favorite_toggle_active">actif</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">inactif</string>
+    <string name="pharmacy_search_active_filter">Filtre actif</string>
+    <string name="pharmacy_search_searchbar">Recherche de pharmacie</string>
+    <string name="pharmacy_search_delete_button">Supprimer l\'entrée de recherche</string>
+    <string name="mediction_detiail_ask">Numéro ASK</string>
+    <string name="mediction_detiail_atc">Numéro ATC</string>
+    <string name="all_prescriptions_of_order">Toutes les recettes dans l\'ordre</string>
+    <string name="invoice_details_supply_shortage_fee">Forfait goulot d’étranglement de livraison</string>
+    <string name="message_list_time_state_hours">%s heures</string>
 </resources>

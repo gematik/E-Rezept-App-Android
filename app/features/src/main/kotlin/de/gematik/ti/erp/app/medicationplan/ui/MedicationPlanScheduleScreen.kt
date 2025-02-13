@@ -401,7 +401,7 @@ private fun MedicationScheduleScreenContent(
                 Icon(
                     imageVector = Icons.Sharp.Alarm,
                     contentDescription = null,
-                    tint = AppTheme.colors.primary600,
+                    tint = AppTheme.colors.primary700,
                     modifier = Modifier
                         .size(SizeDefaults.sevenfold)
                 )
@@ -553,7 +553,7 @@ private fun MedicationScheduleScreenContent(
                             Text(
                                 text = stringResource(R.string.medication_schedule_add_notification_time),
                                 style = AppTheme.typography.body1,
-                                color = AppTheme.colors.primary600
+                                color = AppTheme.colors.primary700
                             )
                         }
                     }
@@ -652,7 +652,7 @@ fun IgnoreBatteryOptimizationSection(onIgnoreBatteryOptimizations: () -> Unit) {
         Text(
             stringResource(R.string.battery_optimization_info_label),
             style = AppTheme.typography.body2l,
-            color = AppTheme.colors.primary600
+            color = AppTheme.colors.primary700
         )
     }
 }
@@ -682,7 +682,7 @@ fun DosageInfo(schedule: PrescriptionSchedule, onClickDosageInfo: () -> Unit) {
                 modifier = Modifier,
                 imageVector = Icons.Outlined.Info,
                 contentDescription = null,
-                tint = AppTheme.colors.primary600
+                tint = AppTheme.colors.primary700
             )
         }
         Text(stringResource(R.string.plan_schedule_dosage_instruction_label), style = AppTheme.typography.body2l)

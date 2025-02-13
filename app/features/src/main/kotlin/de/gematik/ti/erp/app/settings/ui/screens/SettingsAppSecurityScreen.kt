@@ -221,7 +221,7 @@ private fun ChangePasswordSection(
         Icon(
             imageVector = Icons.Rounded.ChevronRight,
             contentDescription = null,
-            tint = AppTheme.colors.primary600
+            tint = AppTheme.colors.primary700
         )
     }
 }

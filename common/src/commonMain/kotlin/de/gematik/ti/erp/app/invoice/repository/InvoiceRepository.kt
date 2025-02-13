@@ -38,6 +38,8 @@ interface InvoiceRepository {
 
     fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceData.InvoiceStatus>>
 
+    fun getAllUnreadInvoices(): Flow<List<InvoiceData.InvoiceStatus>>
+
     suspend fun updateInvoiceCommunicationStatus(taskId: String, consumed: Boolean)
 
     fun hasUnreadInvoiceMessages(taskIds: List<String>): Flow<Boolean>

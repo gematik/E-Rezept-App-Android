@@ -59,7 +59,10 @@ class MessageUseCaseTest {
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = "https://example.org",
-            consumed = false
+            consumed = false,
+            prescriptions = emptyList(),
+            taskIds = emptyList(),
+            isTaskIdCountMatching = false
         )
         assertEquals(expected, communication.toMessage())
     }
@@ -84,7 +87,11 @@ class MessageUseCaseTest {
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = null,
-            consumed = false
+            consumed = false,
+            prescriptions = emptyList(),
+            taskIds = emptyList(),
+            isTaskIdCountMatching = false
+
         )
         assertEquals(expected, communication.toMessage())
     }
@@ -109,7 +116,10 @@ class MessageUseCaseTest {
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = null,
-            consumed = false
+            consumed = false,
+            prescriptions = emptyList(),
+            taskIds = emptyList(),
+            isTaskIdCountMatching = false
         )
         assertEquals(expected, communication.toMessage())
     }
@@ -134,7 +144,10 @@ class MessageUseCaseTest {
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = null,
-            consumed = false
+            consumed = false,
+            prescriptions = emptyList(),
+            taskIds = emptyList(),
+            isTaskIdCountMatching = false
         )
         assertEquals(expected, communication.toMessage())
     }

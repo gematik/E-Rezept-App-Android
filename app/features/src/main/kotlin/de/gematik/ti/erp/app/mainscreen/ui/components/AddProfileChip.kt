@@ -66,7 +66,7 @@ fun AddProfileChip(
                 Icons.Rounded.PersonAdd,
                 contentDescription = null,
                 modifier = Modifier.size(SizeDefaults.triple),
-                tint = AppTheme.colors.primary600
+                tint = AppTheme.colors.primary700
             )
         }
         // empty text to achieve same height as profile chips

@@ -455,7 +455,7 @@
     <string name="cdw_info_title">Oznámení</string>
     <string name="cdw_info_accept">Akceptovat</string>
     <string name="cdw_info_header">Zabezpečení vašich údajů o předpisech</string>
-    <string name="cdw_info_first">\Tato aplikace používá nejbezpečnější biometrický senzor poskytovaný vaším zařízením k zabezpečení vašich přihlašovacích údajů v chráněné oblasti úložiště zařízení.\</string>
+    <string name="cdw_info_first">Tato aplikace používá nejbezpečnější biometrický senzor poskytovaný vaším zařízením k zabezpečení vašich přihlašovacích údajů v chráněné oblasti úložiště zařízení.</string>
     <string name="cdw_info_second">Biometrické zabezpečení vašich přístupových údajů vám umožňuje otevřít tuto aplikaci v budoucnu, prohlížet, načítat, uplatňovat nebo mazat recepty bez zdravotní karty a zadání vašeho PIN.</string>
     <string name="cdw_info_third">Zajistěte prosím, aby lidé, se kterými můžete toto zařízení sdílet a jejichž biometrické charakteristiky mohou být v tomto zařízení uloženy, měli také přístup k vašim předpisům.</string>
     <string name="main_fasttrack_error_title">což se bohužel nepovedlo</string>
@@ -1203,8 +1203,23 @@
     <string name="settings_explore_headline">Prozkoumat</string>
     <string name="organ_donation_menu_entry">Registr darování orgánů</string>
     <string name="organ_donation_dialog_title">Otevřít registr dárcovství orgánů?</string>
-    <string name="organ_donation_dialog_info">Budete přesměrováni do registru dárců orgánů. Chcete-li zobrazit a změnit údaje o dárcovství orgánů, musíte se tam přihlásit.</string>
+    <string name="organ_donation_dialog_info">Budete přesměrováni na webovou stránku registru dárcovství orgánů. Chcete-li zobrazit a změnit údaje o dárcovství orgánů, musíte se tam přihlásit.</string>
     <string name="organ_donation_dialog_confirm">OTEVŘENO</string>
     <string name="organ_donation_dialog_dismiss">Zrušit</string>
     <string name="not_active_in_demo_mode_toast">Funkce není aktivní v demo režimu</string>
+    <string name="internal_message_from">Tým aplikace E-recept</string>
+    <string name="internal_message_tag">Co je nového ve verzi aplikace %s</string>
+    <string name="welcome_text">Vítejte v aplikaci elektronického receptu! Pomocí této aplikace můžete digitálně přijímat elektronické recepty a odesílat je do lékárny dle vašeho výběru. Zda si tam chcete recept zarezervovat k vyzvednutí nebo si jej nechat doručit domů, je čistě na vás. Spravovat můžete samozřejmě i rodinné recepty. Aby bylo možné přijímat recepty digitálně, je nutná registrace. \n \n Jsem rád, že jste tady! \n Váš tým aplikace pro elektronické recepty  </string>
+    <string name="welcome_tag">🎉 Vítejte!</string>
+    <string name="pharmacy_search_favorite_toggle">Přidat k oblíbeným</string>
+    <string name="pharmacy_search_favorite_toggle_active">aktivní</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">neaktivní</string>
+    <string name="pharmacy_search_active_filter">Filtr je aktivní</string>
+    <string name="pharmacy_search_searchbar">Hledání v lékárně</string>
+    <string name="pharmacy_search_delete_button">Smazat záznam hledání</string>
+    <string name="mediction_detiail_ask">číslo ASK</string>
+    <string name="mediction_detiail_atc">ATC číslo</string>
+    <string name="all_prescriptions_of_order">Všechny recepty v objednávce</string>
+    <string name="invoice_details_supply_shortage_fee">Paušální sazba s úzkým hrdlem dodávky</string>
+    <string name="message_list_time_state_hours">%s hodin</string>
 </resources>

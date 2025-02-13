@@ -49,14 +49,16 @@ interface CommunicationRepository {
     fun loadScannedByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?>
 
     fun loadDispReqCommunications(orderId: String): Flow<List<Communication>>
-    fun loadFirstDispReqCommunications(profileId: ProfileIdentifier): Flow<List<Communication>>
+    fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<Communication>>
     fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<Communication>>
+    fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<Communication>>
     fun hasUnreadDispenseMessage(taskIds: List<String>, orderId: String): Flow<Boolean>
     fun hasUnreadDispenseMessage(profileId: ProfileIdentifier): Flow<Boolean>
-    fun unreadMessagesCount(consumed: Boolean): Flow<Long>
+    fun unreadMessagesCount(): Flow<Long>
     fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier): Flow<Long>
     fun taskIdsByOrder(orderId: String): Flow<List<String>>
     fun profileByOrderId(orderId: String): Flow<ProfilesData.Profile>
+    fun getAllUnreadMessages(): Flow<List<Communication>>
     suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean)
     suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String)
     suspend fun hasUnreadRepliedMessages(taskIds: List<String>, telematikId: String): Flow<Boolean>

@@ -51,7 +51,7 @@ fun Chip(
     onCheckedChange: (Boolean) -> Unit
 ) {
     val textColor = if (checked) AppTheme.colors.neutral000 else AppTheme.colors.neutral600
-    val backgroundColor = if (checked) AppTheme.colors.primary600 else AppTheme.colors.neutral100
+    val backgroundColor = if (checked) AppTheme.colors.primary700 else AppTheme.colors.neutral100
     Row(
         modifier = modifier
             .clip(RoundedCornerShape(8.dp))

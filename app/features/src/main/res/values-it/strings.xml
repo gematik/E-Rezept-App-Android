@@ -443,7 +443,7 @@
     <string name="cdw_info_title">Avviso</string>
     <string name="cdw_info_accept">Accettare</string>
     <string name="cdw_info_header">Sicurezza dei dati della tua prescrizione</string>
-    <string name="cdw_info_first">\Questa app utilizza il sensore biometrico più sicuro fornito dal tuo dispositivo per proteggere le tue credenziali in un\'area protetta della memoria del dispositivo.\</string>
+    <string name="cdw_info_first">Questa app utilizza il sensore biometrico più sicuro fornito dal tuo dispositivo per proteggere le tue credenziali in un\'area protetta della memoria del dispositivo.</string>
     <string name="cdw_info_second">La sicurezza biometrica dei tuoi dati di accesso ti permetterà di aprire in futuro questa app, visualizzare, recuperare, riscattare o cancellare prescrizioni senza tessera sanitaria e inserendo il PIN.</string>
     <string name="cdw_info_third">Assicurati che anche le persone con cui condividi questo dispositivo e le cui caratteristiche biometriche potrebbero essere memorizzate su questo dispositivo abbiano accesso alle tue prescrizioni.</string>
     <string name="main_fasttrack_error_title">che purtroppo non ha funzionato</string>
@@ -1185,8 +1185,23 @@
     <string name="settings_explore_headline">Esplorare</string>
     <string name="organ_donation_menu_entry">Registro delle donazioni di organi</string>
     <string name="organ_donation_dialog_title">Registro delle donazioni di organi aperto?</string>
-    <string name="organ_donation_dialog_info">Verrai reindirizzato al registro dei donatori di organi. Per visualizzare e modificare i dati sulla donazione degli organi, è necessario effettuare il login lì.</string>
+    <string name="organ_donation_dialog_info">Verrai reindirizzato al sito web del registro delle donazioni di organi. Per visualizzare e modificare i dati sulla donazione degli organi, è necessario effettuare il login lì.</string>
     <string name="organ_donation_dialog_confirm">Aprire</string>
     <string name="organ_donation_dialog_dismiss">Cancellare</string>
     <string name="not_active_in_demo_mode_toast">Funzione non attiva in modalità demo</string>
+    <string name="internal_message_from">Team dell\'app di prescrizione elettronica</string>
+    <string name="internal_message_tag">Novità nella versione dell\'app %s</string>
+    <string name="welcome_text">Benvenuti nell\'app di prescrizione elettronica! Con questa app puoi ricevere digitalmente le prescrizioni elettroniche e inviarle alla farmacia di tua scelta. Sta a te decidere se prenotare la prescrizione lì per il ritiro o fartela consegnare a casa. Naturalmente puoi anche gestire le ricette della tua famiglia. Per ricevere le prescrizioni in formato digitale è necessaria la registrazione. \n \n Sono contento che tu sia qui! \n Il tuo team dell\'app di prescrizione elettronica  </string>
+    <string name="welcome_tag">🎉Benvenuti!</string>
+    <string name="pharmacy_search_favorite_toggle">Aggiungi ai preferiti</string>
+    <string name="pharmacy_search_favorite_toggle_active">attivo</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">inattivo</string>
+    <string name="pharmacy_search_active_filter">Filtro attivo</string>
+    <string name="pharmacy_search_searchbar">Ricerca in farmacia</string>
+    <string name="pharmacy_search_delete_button">Elimina la voce di ricerca</string>
+    <string name="mediction_detiail_ask">Numero dell\'ASK</string>
+    <string name="mediction_detiail_atc">Numero ATC</string>
+    <string name="all_prescriptions_of_order">Tutte le ricette nell\'ordine</string>
+    <string name="invoice_details_supply_shortage_fee">Tariffa forfettaria per colli di bottiglia nella consegna</string>
+    <string name="message_list_time_state_hours">%s ore</string>
 </resources>

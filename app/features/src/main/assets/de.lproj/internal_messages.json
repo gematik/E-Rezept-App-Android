@@ -2,7 +2,13 @@
     {
         "id": "2",
         "text": "Nutzen Sie ab sofort die E-Rezept App, um Ihre Entscheidung zur Organspende im **digitalen Organspenderegister** festzuhalten – sicher und unkompliziert.\u2028\n\nAktuell warten 9.192 Menschen in Deutschland dringend auf ein Organ – jede Entscheidung zählt und kann Leben retten.\n\nTreffen Sie heute Ihre Entscheidung und leisten Sie einen wichtigen Beitrag zur Zukunft vieler Menschen! ❤️‍🩹\n\nDas Organspenderegister finden Sie im Tab „Einstellungen“ in dieser App.",
-        "timestamp": "2024-11-29T08:00:00.000Z",
+        "timestamp": "2024-12-19T08:00:00.000Z",
         "version": "1.26.0"
+    },
+    {
+        "id": "3",
+        "text": "**Bessere Lesbarkeit**\nWir haben unsere Markenfarbe etwas dunkler gestaltet, um die Farbkontraste zu verstärken und dadurch die Lesbarkeit zu verbessern.\n\n**Optimierte Funktionen**\nWir haben das Format der Abgabedaten aktualisiert und die Sortierung der Nachrichten korrigiert.",
+        "timestamp": "2025-01-28T08:00:00.000Z",
+        "version": "1.27.0"
     }
 ]

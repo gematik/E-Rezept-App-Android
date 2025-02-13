@@ -350,7 +350,7 @@ fun ChangeDateDialog(
                                 properties = HintCardDefaults.properties(
                                     backgroundColor = AppTheme.colors.primary100,
                                     contentColor = AppTheme.colors.primary900,
-                                    border = BorderStroke(1.dp, AppTheme.colors.primary600)
+                                    border = BorderStroke(1.dp, AppTheme.colors.primary700)
                                 ),
                                 image = {
                                     Icon(
@@ -359,7 +359,7 @@ fun ChangeDateDialog(
                                         modifier = Modifier
                                             .padding(it)
                                             .requiredSize(24.dp),
-                                        tint = AppTheme.colors.primary600
+                                        tint = AppTheme.colors.primary700
                                     )
                                 },
                                 body = {
@@ -367,7 +367,7 @@ fun ChangeDateDialog(
                                 },
                                 title = null,
                                 close = {
-                                    HintCloseButton(tint = AppTheme.colors.primary600, innerPadding = it) {
+                                    HintCloseButton(tint = AppTheme.colors.primary700, innerPadding = it) {
                                         showHint = false
                                     }
                                 }
@@ -384,12 +384,12 @@ fun ChangeDateDialog(
                         DatePicker(
                             state = datePickerState,
                             colors = DatePickerDefaults.colors(
-                                selectedDayContainerColor = AppTheme.colors.primary600,
+                                selectedDayContainerColor = AppTheme.colors.primary700,
                                 selectedDayContentColor = AppTheme.colors.neutral000,
-                                selectedYearContainerColor = AppTheme.colors.primary600,
+                                selectedYearContainerColor = AppTheme.colors.primary700,
                                 selectedYearContentColor = AppTheme.colors.neutral000,
                                 todayContentColor = AppTheme.colors.neutral600,
-                                todayDateBorderColor = AppTheme.colors.primary600
+                                todayDateBorderColor = AppTheme.colors.primary700
                             ),
                             title = { Text(text = text) },
                             showModeToggle = true
@@ -423,7 +423,7 @@ private fun DateRangeSection(selected: Boolean, text: String, onSelect: () -> Un
             )
             Spacer(modifier = Modifier.weight(1f))
             if (selected) {
-                Icon(Icons.Sharp.Check, null, tint = AppTheme.colors.primary600)
+                Icon(Icons.Sharp.Check, null, tint = AppTheme.colors.primary700)
             }
         }
     }

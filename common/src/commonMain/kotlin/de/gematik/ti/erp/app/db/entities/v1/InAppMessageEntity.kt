@@ -16,7 +16,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package de.gematik.ti.erp.app.db.entities.v1.changelogs
+package de.gematik.ti.erp.app.db.entities.v1
 
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.PrimaryKey

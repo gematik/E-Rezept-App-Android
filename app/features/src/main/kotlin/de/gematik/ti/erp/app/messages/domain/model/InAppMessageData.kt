@@ -20,7 +20,6 @@ package de.gematik.ti.erp.app.messages.domain.model
 
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.LastMessage
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
-import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -28,7 +27,7 @@ data class InAppMessage(
     val id: String,
     val from: String,
     val text: String?,
-    val timestamp: Instant,
+    val timeState: MessageTimeState,
     val prescriptionsCount: Int = 0,
     val tag: String,
     var isUnread: Boolean,

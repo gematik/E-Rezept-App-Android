@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.base.usecase
 
 import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.repository.InAppLocalMessageRepository
@@ -40,8 +40,8 @@ class UpdateInAppMessageUseCase(
         if ((lastUpdatedVersion + 1) < currentVersion) {
             val internalMessages = localMessageRepository.getInternalMessages().first()
             val newInternalMessage = internalMessages.filterMessagesEqualOrGreaterByVersion(lastUpdatedVersion)
-            val inAppLastVersion = newInternalMessage.last().version
             if (newInternalMessage.isNotEmpty()) {
+                val inAppLastVersion = newInternalMessage.last().version
                 val newInAppMessages: List<InAppMessageEntity> = newInternalMessage.map {
                     it.toEntity()
                 }

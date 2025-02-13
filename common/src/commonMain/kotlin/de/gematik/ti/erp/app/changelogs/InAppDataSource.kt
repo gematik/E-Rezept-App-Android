@@ -18,9 +18,11 @@
 
 package de.gematik.ti.erp.app.changelogs
 
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InternalMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntity
 import de.gematik.ti.erp.app.db.queryFirst
+import de.gematik.ti.erp.app.db.toInstant
+import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.writeOrCopyToRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -33,6 +35,8 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 class InAppDataSource(
     private val realm: Realm,
@@ -65,6 +69,13 @@ class InAppDataSource(
                 it.list.firstOrNull()?.showWelcomeMessage ?: false
             }
 
+    val welcomeMessageTimeStamp: Flow<Instant>
+        get() = realm.query<InternalMessageEntity>()
+            .asFlow()
+            .mapNotNull {
+                it.list.firstOrNull()?.welcomeMessageTimeStamp?.toInstant()
+            }
+
     suspend fun setInternalMessageAsRead() {
         withContext(dispatchers) {
             realm.writeOrCopyToRealm(::InternalMessageEntity) { entity ->
@@ -80,6 +91,7 @@ class InAppDataSource(
         withContext(dispatchers) {
             realm.writeOrCopyToRealm(::InternalMessageEntity) { entity ->
                 entity.showWelcomeMessage = true
+                entity.welcomeMessageTimeStamp = Clock.System.now().toRealmInstant()
             }
         }
     }

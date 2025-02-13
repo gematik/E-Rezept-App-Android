@@ -83,7 +83,7 @@ internal fun CommonDrawerScreenContent(
             modifier = modifierPrimary,
             onClick = onClickConnect,
             colors = ButtonDefaults.buttonColors(
-                contentColor = AppTheme.colors.primary600
+                contentColor = AppTheme.colors.primary700
             ),
             contentPadding = PaddingValues(
                 vertical = SizeDefaults.oneHalf,

@@ -92,7 +92,7 @@ class CardWallReadCardScreen(
             },
             nfcPosition = nfcPos
         )
-        if (!cardWallController.isNfcEnabled) {
+        if (!cardWallController.isNfcEnabled()) {
             EnableNfcDialog {
                 navController.popBackStack()
             }

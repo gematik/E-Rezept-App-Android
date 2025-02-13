@@ -84,7 +84,6 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.currencyString
-import de.gematik.ti.erp.app.launchedeffect.LaunchedEffectOnStart
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
@@ -245,10 +244,6 @@ class InvoiceListScreen(
             onShow = { pullToRefreshState.endRefresh() },
             onGrantConsent = { consentController.grantChargeConsent(profileId) }
         )
-
-        LaunchedEffectOnStart {
-            consentController.getChargeConsent(profileId)
-        }
 
         LaunchedEffect(isConsentNotGranted) {
             if (isConsentNotGranted) {
@@ -615,8 +610,8 @@ private fun HeadingPerYear(
     Row(
         modifier =
         Modifier
-            .fillMaxWidth()
-            .padding(horizontal = PaddingDefaults.Medium),
+            .padding(horizontal = PaddingDefaults.Medium)
+            .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -632,7 +627,7 @@ private fun HeadingPerYear(
                 currency
             ),
             style = AppTheme.typography.subtitle2,
-            color = AppTheme.colors.primary600
+            color = AppTheme.colors.primary700
         )
     }
 }

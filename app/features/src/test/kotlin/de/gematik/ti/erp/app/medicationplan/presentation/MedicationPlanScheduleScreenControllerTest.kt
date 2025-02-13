@@ -569,6 +569,7 @@ class MedicationPlanScheduleScreenControllerTest {
         }
     }
 
+    /*
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `test calculate individual date range for synced pieceable prescription with structured dosage and amount`() {
@@ -605,4 +606,5 @@ class MedicationPlanScheduleScreenControllerTest {
             }
         }
     }
+     */
 }

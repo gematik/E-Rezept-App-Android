@@ -422,10 +422,10 @@ private fun LinkToInvoiceList(
         Text(
             text = stringResource(R.string.link_to_invoice_list),
             style = AppTheme.typography.body2,
-            color = AppTheme.colors.primary600
+            color = AppTheme.colors.primary700
         )
         SpacerTiny()
-        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.primary600)
+        Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.primary700)
     }
 }
 

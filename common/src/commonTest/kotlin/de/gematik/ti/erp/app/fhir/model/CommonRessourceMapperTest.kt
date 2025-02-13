@@ -18,6 +18,11 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
+import de.gematik.ti.erp.app.fhir.parser.containedOrNull
+import de.gematik.ti.erp.app.fhir.parser.containedString
+import de.gematik.ti.erp.app.fhir.parser.containedStringOrNull
+import de.gematik.ti.erp.app.fhir.parser.findAll
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -50,6 +55,102 @@ class CommonRessourceMapperTest {
         )
 
         assertEquals(ReturnType.Organization, result)
+    }
+
+    @Test
+    fun `test organization address for both _line extensions and line fallback values in PZN-8 v1_3`() {
+        val bundle = Json.parseToJsonElement(chargeItem_pzn_8_v1_3)
+
+        extractInvoiceKBVAndErpPrBundle(bundle) { _, _, _, kbvBundle, _ ->
+            val organization = kbvBundle
+                .findAll("entry")
+                .find { it.containedOrNull("resource")?.containedString("resourceType") == "Organization" }
+                ?.containedOrNull("resource")
+
+            requireNotNull(organization)
+
+            // Test address _line extensions
+            val address = organization.containedOrNull("address")
+            requireNotNull(address)
+
+            val lineExt = address.containedArrayOrNull("_line")?.firstOrNull()?.containedArrayOrNull("extension")
+            val streetName = lineExt?.find {
+                it.containedString("url") == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName"
+            }?.containedStringOrNull("valueString")
+            val houseNumber = lineExt?.find {
+                it.containedString("url") == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber"
+            }?.containedStringOrNull("valueString")
+
+            assertEquals("Herbert-Lewin-Platz", streetName)
+            assertEquals("2", houseNumber)
+
+            // Test address line (fallback)
+            val originalLine = address.containedArrayOrNull("line")?.firstOrNull()?.containedString()
+            assertEquals("Herbert-Lewin-Platz 2", originalLine)
+
+            extractOrganization(
+                organization,
+                processAddress = { line, postalCode, city ->
+                    assertEquals(listOf("Herbert-Lewin-Platz 2"), line)
+                    assertEquals("10623", postalCode)
+                    assertEquals("Berlin", city)
+                    ReturnType.Address
+                },
+                processOrganization = { name, address, _, _, _, _ ->
+                    assertEquals("MVZ", name)
+                    assertEquals(ReturnType.Address, address)
+                    ReturnType.Organization
+                }
+            )
+        }
+    }
+
+    @Test
+    fun `test patient address for both _line extensions and line fallback values in PZN-8 v1_3`() {
+        val bundle = Json.parseToJsonElement(chargeItem_pzn_8_v1_3)
+
+        extractInvoiceKBVAndErpPrBundle(bundle) { _, _, _, kbvBundle, _ ->
+            val patient = kbvBundle
+                .findAll("entry")
+                .find { it.containedOrNull("resource")?.containedString("resourceType") == "Patient" }
+                ?.containedOrNull("resource")
+
+            requireNotNull(patient)
+
+            // Test address _line extensions
+            val address = patient.containedOrNull("address")
+            requireNotNull(address)
+
+            val lineExt = address.containedArrayOrNull("_line")?.firstOrNull()?.containedArrayOrNull("extension")
+            val streetName = lineExt?.find {
+                it.containedString("url") == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName"
+            }?.containedStringOrNull("valueString")
+            val houseNumber = lineExt?.find {
+                it.containedString("url") == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber"
+            }?.containedStringOrNull("valueString")
+
+            assertEquals("Blumenweg", streetName)
+            assertEquals("18", houseNumber)
+
+            // Test address line (fallback)
+            val originalLine = address.containedArrayOrNull("line")?.firstOrNull()?.containedString()
+            assertEquals("Blumenweg 18", originalLine)
+
+            extractPatientVersion110(
+                patient,
+                processAddress = { line, postalCode, city ->
+                    assertEquals(listOf("Blumenweg 18"), line)
+                    assertEquals("26427", postalCode)
+                    assertEquals("Esens", city)
+                    ReturnType.Address
+                },
+                processPatient = { name, address, _, _ ->
+                    assertEquals("Paula Privati", name)
+                    assertEquals(ReturnType.Address, address)
+                    ReturnType.Patient
+                }
+            )
+        }
     }
 
     @Test

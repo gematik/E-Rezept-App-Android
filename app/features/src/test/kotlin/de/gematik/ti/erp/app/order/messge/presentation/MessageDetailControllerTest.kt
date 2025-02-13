@@ -30,18 +30,20 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCa
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessageAsReadUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationByCommunicationIdUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationByOrderIdAndCommunicationIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase.Companion.CommunicationIdentifier
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
 import de.gematik.ti.erp.app.messages.presentation.MessageDetailController
+import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA
-import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_ID
+import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA_WITH_TASK_ID
 import de.gematik.ti.erp.app.mocks.order.model.MOCK_MESSAGE
 import de.gematik.ti.erp.app.mocks.order.model.MOCK_PROFILE
+import de.gematik.ti.erp.app.mocks.order.model.MOCK_SYNCED_TASK_DATA_01_NEW
 import de.gematik.ti.erp.app.mocks.order.model.ORDER_DETAIL
 import de.gematik.ti.erp.app.mocks.order.model.ORDER_ID
 import de.gematik.ti.erp.app.mocks.order.model.TASK_ID
+import de.gematik.ti.erp.app.mocks.order.model.TELEMATIK_ID
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_GET_MESSAGE_TAG
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_ID
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_TAG
@@ -108,8 +110,7 @@ class MessageDetailControllerTest {
     private lateinit var fetchInAppMessageUseCase: FetchInAppMessageUseCase
     private lateinit var fetchWelcomeMessageUseCase: FetchWelcomeMessageUseCase
     private lateinit var setInternalMessageIsReadUseCase: SetInternalMessageAsReadUseCase
-    private lateinit var updateCommunicationByCommunicationIdUseCase: UpdateCommunicationByCommunicationIdUseCase
-    private lateinit var updateCommunicationByOrderIdAndCommunicationIdUseCase: UpdateCommunicationByOrderIdAndCommunicationIdUseCase
+    private lateinit var updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase
     private lateinit var updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase
     private lateinit var getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase
     private lateinit var getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase
@@ -147,11 +148,7 @@ class MessageDetailControllerTest {
             invoiceRepository = invoiceRepository,
             dispatcher = dispatcher
         )
-        updateCommunicationByCommunicationIdUseCase = UpdateCommunicationByCommunicationIdUseCase(
-            repository = communicationRepository,
-            dispatcher = dispatcher
-        )
-        updateCommunicationByOrderIdAndCommunicationIdUseCase = UpdateCommunicationByOrderIdAndCommunicationIdUseCase(
+        updateCommunicationConsumedStatusUseCase = UpdateCommunicationConsumedStatusUseCase(
             repository = communicationRepository,
             dispatcher = dispatcher
         )
@@ -178,14 +175,18 @@ class MessageDetailControllerTest {
             fetchInAppMessageUseCase = fetchInAppMessageUseCase,
             fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
             setInternalMessageIsReadUseCase = setInternalMessageIsReadUseCase,
-            updateCommunicationByCommunicationIdUseCase = updateCommunicationByCommunicationIdUseCase,
-            updateCommunicationByOrderIdAndCommunicationIdUseCase = updateCommunicationByOrderIdAndCommunicationIdUseCase,
+            updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase
         )
 
         every { clock.now() } returns Instant.parse(WELCOME_MESSAGE_TIMESTAMP)
+        every { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(false)
+        every { invoiceRepository.invoiceByTaskId(TASK_ID) } returns flowOf(null)
+        every { communicationRepository.taskIdsByOrder(ORDER_ID) } returns flowOf(listOf(TASK_ID))
+        every { communicationRepository.loadScannedByTaskId(TASK_ID) } returns flowOf(null)
+        coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -197,16 +198,12 @@ class MessageDetailControllerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `when orderId is not provided`() {
-        coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
-
         testScope.runTest {
             controllerUnderTest.init()
             advanceUntilIdle()
-
             val messagesResult = controllerUnderTest.messages.first()
             val orderStateResult = controllerUnderTest.order.first()
             val pharmacyStateResult = controllerUnderTest.pharmacy.first()
-
             assert(messagesResult.isLoadingState)
             assert(orderStateResult.isErrorState)
             assert(pharmacyStateResult.isEmptyState)
@@ -216,42 +213,29 @@ class MessageDetailControllerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `when orderId is provided and returns data successfully`() {
-        val testMessages = listOf(MOCK_MESSAGE)
-
-        every { getRepliedMessagesUseCase(ORDER_ID, "") } returns flowOf(testMessages)
-        every { getMessageUsingOrderIdUseCase(ORDER_ID) } returns flowOf(ORDER_DETAIL)
-        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.success(
-            PharmacyServices(listOf(PHARMACY_DATA_FHIR), "", 1)
-        )
-
-        every { communicationRepository.taskIdsByOrder(ORDER_ID) } returns flowOf(listOf(TASK_ID))
-        every { communicationRepository.loadRepliedCommunications(listOf(TASK_ID), any()) } returns flowOf(
-            listOf(COMMUNICATION_DATA)
-        )
-        every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(
+        val expectedMessages = listOf(MOCK_MESSAGE)
+        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.success(PharmacyServices(listOf(PHARMACY_DATA_FHIR), "", 1))
+        every { communicationRepository.loadRepliedCommunications(listOf(TASK_ID), any()) } returns flowOf(listOf(COMMUNICATION_DATA_WITH_TASK_ID))
+        every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(listOf(COMMUNICATION_DATA_WITH_TASK_ID))
+        every { communicationRepository.loadPharmacies() } returns flowOf(
             listOf(
-                COMMUNICATION_DATA
+                CachedPharmacy(
+                    name = "Apotheke Adelheid Ulmendorfer TEST-ONLY",
+                    telematikId = TELEMATIK_ID
+                )
             )
         )
-        every { communicationRepository.loadPharmacies() } returns flowOf(emptyList())
-        every { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(false)
-        every { invoiceRepository.invoiceByTaskId(TASK_ID) } returns flowOf(null)
-        every { invoiceRepository.invoiceByTaskId(eq(TASK_ID)) } returns flowOf(null)
-        every { communicationRepository.loadSyncedByTaskId(TASK_ID) } returns flowOf(null)
-        every { communicationRepository.loadScannedByTaskId(TASK_ID) } returns flowOf(null)
+        every { communicationRepository.loadSyncedByTaskId(TASK_ID) } returns flowOf(MOCK_SYNCED_TASK_DATA_01_NEW)
         coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
-        coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
 
         testScope.runTest {
             controllerUnderTest.init()
             advanceUntilIdle()
-
             val messagesResult = controllerUnderTest.messages.first()
             val orderStateResult = controllerUnderTest.order.first()
             val pharmacyStateResult = controllerUnderTest.pharmacy.first()
             val actualMessages = messagesResult.data
-
-            assertEquals(testMessages, actualMessages)
+            assertEquals(expectedMessages, actualMessages)
             assert(orderStateResult.isDataState)
             assertEquals(ORDER_DETAIL, orderStateResult.data)
             assert(pharmacyStateResult.isDataState)
@@ -264,21 +248,14 @@ class MessageDetailControllerTest {
     fun `when orderId is provided but messages and order data are not found`() {
         every { getRepliedMessagesUseCase(ORDER_ID, "") } returns flowOf(emptyList())
         every { getMessageUsingOrderIdUseCase(ORDER_ID) } returns flowOf(null)
-        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.success(
-            PharmacyServices(emptyList(), "", 0)
-        )
-
+        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.success(PharmacyServices(emptyList(), "", 0))
         every { communicationRepository.taskIdsByOrder(ORDER_ID) } returns flowOf(emptyList())
         every { communicationRepository.loadRepliedCommunications(emptyList(), "") } returns flowOf(emptyList())
         every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(emptyList())
         every { communicationRepository.loadPharmacies() } returns flowOf(emptyList())
-        every { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(false)
-        every { invoiceRepository.invoiceByTaskId(any()) } returns flowOf(null)
         every { communicationRepository.loadSyncedByTaskId(any()) } returns flowOf(null)
-        every { communicationRepository.loadScannedByTaskId(any()) } returns flowOf(null)
         coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
         coEvery { communicationRepository.setCommunicationStatus(any(), any()) } returns Unit
-        coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
 
         testScope.runTest {
             controllerUnderTest.init()
@@ -302,7 +279,6 @@ class MessageDetailControllerTest {
         coEvery {
             pharmacyRepository.searchPharmacyByTelematikId(any())
         } throws IllegalArgumentException("Pharmacy error")
-        coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
 
         testScope.runTest {
             controllerUnderTest.init()
@@ -334,8 +310,7 @@ class MessageDetailControllerTest {
             fetchInAppMessageUseCase = fetchInAppMessageUseCase,
             fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
             setInternalMessageIsReadUseCase = setInternalMessageIsReadUseCase,
-            updateCommunicationByCommunicationIdUseCase = updateCommunicationByCommunicationIdUseCase,
-            updateCommunicationByOrderIdAndCommunicationIdUseCase = updateCommunicationByOrderIdAndCommunicationIdUseCase,
+            updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase
@@ -369,8 +344,7 @@ class MessageDetailControllerTest {
             fetchInAppMessageUseCase = fetchInAppMessageUseCase,
             fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
             setInternalMessageIsReadUseCase = setInternalMessageIsReadUseCase,
-            updateCommunicationByCommunicationIdUseCase = updateCommunicationByCommunicationIdUseCase,
-            updateCommunicationByOrderIdAndCommunicationIdUseCase = updateCommunicationByOrderIdAndCommunicationIdUseCase,
+            updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase
@@ -409,8 +383,7 @@ class MessageDetailControllerTest {
             fetchInAppMessageUseCase = fetchInAppMessageUseCase,
             fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
             setInternalMessageIsReadUseCase = setInternalMessageIsReadUseCase,
-            updateCommunicationByCommunicationIdUseCase = updateCommunicationByCommunicationIdUseCase,
-            updateCommunicationByOrderIdAndCommunicationIdUseCase = updateCommunicationByOrderIdAndCommunicationIdUseCase,
+            updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase
@@ -419,7 +392,7 @@ class MessageDetailControllerTest {
         testScope.runTest {
             controllerUnderTest.init()
             advanceUntilIdle()
-            val messageList = controllerUnderTest._localMessages.value
+            val messageList = controllerUnderTest.localMessages.value
             assertNotNull(messageList)
             assertEquals(messageList, listOf(welcomeMessage))
         }
@@ -428,40 +401,25 @@ class MessageDetailControllerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `consumeAllMessages updates communication statuses correctly`() {
-        val mockMessages = listOf(MOCK_MESSAGE)
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
-        every { getRepliedMessagesUseCase(ORDER_ID, "") } returns flowOf(mockMessages)
-        every { getMessageUsingOrderIdUseCase(ORDER_ID) } returns flowOf(ORDER_DETAIL)
-        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.success(
-            PharmacyServices(emptyList(), "", 0)
-        )
-
-        every { communicationRepository.taskIdsByOrder(ORDER_ID) } returns flowOf(listOf(TASK_ID))
-        every { communicationRepository.loadRepliedCommunications(listOf(TASK_ID), any()) } returns flowOf(
+        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.success(PharmacyServices(listOf(PHARMACY_DATA_FHIR), "", 1))
+        every { communicationRepository.loadAllRepliedCommunications(listOf(TASK_ID)) } returns flowOf(listOf(COMMUNICATION_DATA_WITH_TASK_ID))
+        every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(listOf(COMMUNICATION_DATA_WITH_TASK_ID))
+        every { communicationRepository.loadPharmacies() } returns flowOf(
             listOf(
-                COMMUNICATION_DATA
+                CachedPharmacy(
+                    name = "Apotheke Adelheid Ulmendorfer TEST-ONLY",
+                    telematikId = TELEMATIK_ID
+                )
             )
         )
-        every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(
-            listOf(
-                COMMUNICATION_DATA
-            )
-        )
-        every { communicationRepository.loadPharmacies() } returns flowOf(emptyList())
-        every { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(false)
-        every { invoiceRepository.invoiceByTaskId(TASK_ID) } returns flowOf(null)
-        coEvery { invoiceRepository.updateInvoiceCommunicationStatus(TASK_ID, true) } just Runs
-        every { communicationRepository.loadSyncedByTaskId(TASK_ID) } returns flowOf(null)
-        every { communicationRepository.loadScannedByTaskId(TASK_ID) } returns flowOf(null)
+        every { communicationRepository.loadSyncedByTaskId(TASK_ID) } returns flowOf(MOCK_SYNCED_TASK_DATA_01_NEW)
         coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
         coEvery { communicationRepository.setCommunicationStatus(any(), any()) } just Runs
-        coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
+        coEvery { invoiceRepository.updateInvoiceCommunicationStatus(TASK_ID, true) } just Runs
 
-        val updateCommunicationByOrderIdAndCommunicationIdUseCase = spyk(
-            UpdateCommunicationByOrderIdAndCommunicationIdUseCase(communicationRepository, dispatcher)
-        )
-        val updateCommunicationByCommunicationIdUseCase = spyk(
-            UpdateCommunicationByCommunicationIdUseCase(communicationRepository, dispatcher)
+        val updateCommunicationConsumedStatusUseCase = spyk(
+            UpdateCommunicationConsumedStatusUseCase(communicationRepository, dispatcher)
         )
 
         controllerUnderTest = MessageDetailController(
@@ -472,8 +430,7 @@ class MessageDetailControllerTest {
             fetchInAppMessageUseCase = fetchInAppMessageUseCase,
             fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
             setInternalMessageIsReadUseCase = setInternalMessageIsReadUseCase,
-            updateCommunicationByCommunicationIdUseCase = updateCommunicationByCommunicationIdUseCase,
-            updateCommunicationByOrderIdAndCommunicationIdUseCase = updateCommunicationByOrderIdAndCommunicationIdUseCase,
+            updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase
@@ -482,20 +439,16 @@ class MessageDetailControllerTest {
         testScope.runTest {
             controllerUnderTest.init()
             advanceUntilIdle()
-
             controllerUnderTest.consumeAllMessages {}
             advanceUntilIdle()
 
-            coVerify(exactly = 1) { updateCommunicationByOrderIdAndCommunicationIdUseCase(ORDER_ID) }
-            coVerify(exactly = 1) { updateCommunicationByCommunicationIdUseCase(COMMUNICATION_ID) }
+            coVerify(exactly = 1) {
+                updateCommunicationConsumedStatusUseCase(
+                    CommunicationIdentifier.Order(
+                        ORDER_ID
+                    )
+                )
+            }
         }
     }
-}
-
-interface Clock {
-    fun now(): Instant
-}
-
-class SystemClock : Clock {
-    override fun now(): Instant = Clock.System.now()
 }

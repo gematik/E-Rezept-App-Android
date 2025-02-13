@@ -238,7 +238,7 @@ private fun BasePharmacyDetailsContent(
                         Text(
                             text = pharmacy.singleLineAddress(),
                             style = AppTheme.typography.subtitle2,
-                            color = AppTheme.colors.primary600,
+                            color = AppTheme.colors.primary700,
                             textDecoration = TextDecoration.Underline,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis

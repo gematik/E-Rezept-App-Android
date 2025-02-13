@@ -25,7 +25,9 @@ import de.gematik.ti.erp.app.db.entities.v1.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntity
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
@@ -34,8 +36,6 @@ import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SingleSignOnTokenScopeV1
 import de.gematik.ti.erp.app.db.entities.v1.TruststoreEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InternalMessageEntity
 import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
@@ -67,10 +67,11 @@ import io.realm.kotlin.ext.copyFromRealm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.nanoseconds
 
-const val ACTUAL_SCHEMA_VERSION = 41L
+const val ACTUAL_SCHEMA_VERSION = 42L
 
 @Requirement(
     "O.Source_2#1",
@@ -300,6 +301,13 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                                 this.pzn = syncedTask.medicationRequest?.medication?.uniqueIdentifier
                             }
                         }
+                    }
+                }
+
+                // migration needed since the welcome message timestamp was set to the current time everytime time the app was started
+                if (migrationStartedFrom < 42) {
+                    query<InternalMessageEntity>().find().forEach { internalMessage ->
+                        internalMessage.welcomeMessageTimeStamp = Clock.System.now().toRealmInstant()
                     }
                 }
             }

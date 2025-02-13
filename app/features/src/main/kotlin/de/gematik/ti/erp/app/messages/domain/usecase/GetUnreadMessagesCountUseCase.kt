@@ -41,7 +41,7 @@ class GetUnreadMessagesCountUseCase(
 ) {
     operator fun invoke(profileId: ProfileIdentifier): Flow<Long> {
         return combine(
-            communicationRepository.unreadMessagesCount(consumed = false),
+            communicationRepository.unreadMessagesCount(),
             getUnreadInvoiceCount(profileId),
             inAppMessageRepository.counter
         ) { unreadMessagesCount, unreadInvoiceCount, counter ->
@@ -60,7 +60,7 @@ class GetUnreadMessagesCountUseCase(
 
                 val taskIdConsumedMap = invoiceStatusList.associate { it.taskId to it.consumed }
 
-                val requestCommunicationFlow = communicationRepository.loadFirstDispReqCommunications(profileId)
+                val requestCommunicationFlow = communicationRepository.loadDispReqCommunicationsByProfileId(profileId)
                 val replyCommunicationFlow = communicationRepository.loadRepliedCommunications(
                     invoiceStatusList.map { it.taskId },
                     ""
@@ -74,7 +74,7 @@ class GetUnreadMessagesCountUseCase(
                     val unreadReplyTaskIds = filterUnreadTaskIds(replyFlow, taskIdConsumedMap)
 
                     // Combine both request and reply task IDs and remove duplicates
-                    (unreadRequestTaskIds + unreadReplyTaskIds).toSet().size.toLong()
+                    if ((unreadRequestTaskIds + unreadReplyTaskIds).toSet().isNotEmpty()) 1 else 0L
                 }
             }
             .onEmpty {

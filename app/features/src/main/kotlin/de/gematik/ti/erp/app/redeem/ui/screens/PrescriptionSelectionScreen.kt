@@ -27,6 +27,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.Icon
@@ -37,6 +38,7 @@ import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -45,6 +47,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -57,16 +60,23 @@ import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.prescriptionIds
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
+import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionPreview
+import de.gematik.ti.erp.app.redeem.ui.preview.PrescriptionSelectionPreviewParameter
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils.dateFormatter
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
-import de.gematik.ti.erp.app.utils.extensions.dateTimeShortText
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toJavaLocalDateTime
+import kotlinx.datetime.toLocalDateTime
 
 class PrescriptionSelectionScreen(
     override val navController: NavController,
@@ -111,10 +121,8 @@ class PrescriptionSelectionScreen(
             onBack()
         }
 
-        AnimatedElevationScaffold(
-            modifier = Modifier.testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Screen),
+        PrescriptionSelectionScreenScaffold(
             topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
-            navigationMode = NavigationBarMode.Back,
             listState = listState,
             onBack = onBack
         ) {
@@ -159,6 +167,24 @@ class PrescriptionSelectionScreen(
 }
 
 @Composable
+fun PrescriptionSelectionScreenScaffold(
+    topBarTitle: String,
+    listState: LazyListState,
+    onBack: () -> Unit,
+    content: @Composable () -> Unit
+) {
+    AnimatedElevationScaffold(
+        modifier = Modifier.testTag(TestTag.PharmacySearch.OrderPrescriptionSelection.Screen),
+        topBarTitle = topBarTitle,
+        navigationMode = NavigationBarMode.Back,
+        listState = listState,
+        onBack = onBack
+    ) {
+        content()
+    }
+}
+
+@Composable
 private fun PrescriptionItem(
     modifier: Modifier,
     prescription: PharmacyUseCaseData.PrescriptionOrder,
@@ -179,7 +205,12 @@ private fun PrescriptionItem(
                 prescriptionId = prescription.taskId
             }
     ) {
-        val prescriptionDateTime = remember(prescription) { dateTimeShortText(prescription.timestamp) }
+        val prescriptionDateTime = remember(prescription) {
+            dateFormatter.format(
+                prescription.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
+            )
+        }
+
         Column(Modifier.weight(1f)) {
             Text(
                 prescription.title
@@ -199,7 +230,7 @@ private fun PrescriptionItem(
                 Icon(
                     Icons.Rounded.CheckCircle,
                     null,
-                    tint = AppTheme.colors.primary600
+                    tint = AppTheme.colors.primary700
                 )
             } else {
                 Icon(
@@ -231,6 +262,60 @@ private fun NextButton(
                 onClick = onNext
             ) {
                 Text(stringResource(R.string.rx_selection_next))
+            }
+        }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun PrescriptionSelectionScreenPreview(
+    @PreviewParameter(PrescriptionSelectionPreviewParameter::class) previewData: PrescriptionSelectionPreview
+) {
+    val mockListState = rememberLazyListState()
+    val selectedOrders = remember {
+        mutableStateListOf<PharmacyUseCaseData.PrescriptionOrder>().apply {
+            addAll(previewData.selectedOrders)
+        }
+    }
+
+    val onCheckedChange = { order: PharmacyUseCaseData.PrescriptionOrder, isChecked: Boolean ->
+        if (isChecked) {
+            selectedOrders.add(order)
+        } else {
+            selectedOrders.remove(order)
+        }
+    }
+
+    PreviewAppTheme {
+        PrescriptionSelectionScreenScaffold(
+            topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
+            listState = mockListState,
+            onBack = { }
+        ) {
+            Column(Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f),
+                    state = mockListState
+                ) {
+                    previewData.orders.forEach { prescriptionOrder ->
+                        item {
+                            PrescriptionItem(
+                                modifier = Modifier,
+                                prescription = prescriptionOrder,
+                                checked = prescriptionOrder in selectedOrders,
+                                onCheckedChange = { isChecked ->
+                                    onCheckedChange(prescriptionOrder, isChecked)
+                                }
+                            )
+                        }
+                    }
+                }
+                NextButton(
+                    enabled = selectedOrders.isNotEmpty(),
+                    onNext = {}
+                )
             }
         }
     }

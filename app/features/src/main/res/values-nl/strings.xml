@@ -443,7 +443,7 @@
     <string name="cdw_info_title">Kennisgeving</string>
     <string name="cdw_info_accept">Aanvaarden</string>
     <string name="cdw_info_header">Beveiliging van uw receptgegevens</string>
-    <string name="cdw_info_first">\Deze app maakt gebruik van de veiligste biometrische sensor die door uw apparaat wordt geleverd om uw inloggegevens te beveiligen in een beschermd gebied van de apparaatopslag.\</string>
+    <string name="cdw_info_first">Deze app maakt gebruik van de veiligste biometrische sensor die door uw apparaat wordt geleverd om uw inloggegevens in een beschermd gebied van de apparaatopslag te beveiligen.</string>
     <string name="cdw_info_second">Door de biometrische beveiliging van uw toegangsgegevens kunt u deze app in de toekomst openen, recepten bekijken, opvragen, inwisselen of verwijderen zonder zorgpas en het invoeren van uw pincode.</string>
     <string name="cdw_info_third">Zorg ervoor dat mensen met wie u dit apparaat deelt en wier biometrische kenmerken mogelijk op dit apparaat zijn opgeslagen, ook toegang hebben tot uw recepten.</string>
     <string name="main_fasttrack_error_title">dat werkte helaas niet</string>
@@ -1185,8 +1185,23 @@
     <string name="settings_explore_headline">Ontdekken</string>
     <string name="organ_donation_menu_entry">Register voor orgaandonatie</string>
     <string name="organ_donation_dialog_title">Register orgaandonatie openen?</string>
-    <string name="organ_donation_dialog_info">U wordt doorgestuurd naar het orgaandonorregister. Om uw orgaandonatiegegevens te bekijken en te wijzigen, moet u daar inloggen.</string>
+    <string name="organ_donation_dialog_info">U wordt doorgestuurd naar de website van het orgaandonatieregister. Om uw orgaandonatiegegevens te bekijken en te wijzigen, moet u daar inloggen.</string>
     <string name="organ_donation_dialog_confirm">Open</string>
     <string name="organ_donation_dialog_dismiss">Annuleren</string>
     <string name="not_active_in_demo_mode_toast">Functie niet actief in demomodus</string>
+    <string name="internal_message_from">App-team voor e-recepten</string>
+    <string name="internal_message_tag">Wat is er nieuw in de app-versie %s</string>
+    <string name="welcome_text">Welkom bij de e-receptenapp! Met deze app kunt u digitaal e-recepten ontvangen en naar een apotheek naar keuze sturen. Of u het recept daar wilt reserveren om af te halen of bij u thuis wilt laten bezorgen, is geheel aan u. Natuurlijk kunt u ook de recepten van uw gezin beheren. Om recepten digitaal te ontvangen is registratie vereist. \n \n Fijn dat je er bent! \n Uw app-team voor e-recepten  </string>
+    <string name="welcome_tag">🎉Welkom!</string>
+    <string name="pharmacy_search_favorite_toggle">Toevoegen aan favorieten</string>
+    <string name="pharmacy_search_favorite_toggle_active">actief</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">inactief</string>
+    <string name="pharmacy_search_active_filter">Filter actief</string>
+    <string name="pharmacy_search_searchbar">Apotheek zoeken</string>
+    <string name="pharmacy_search_delete_button">Zoekopdracht verwijderen</string>
+    <string name="mediction_detiail_ask">ASK-nummer</string>
+    <string name="mediction_detiail_atc">ATC-nummer</string>
+    <string name="all_prescriptions_of_order">Alle recepten op volgorde</string>
+    <string name="invoice_details_supply_shortage_fee">Leveringsknelpunt vast tarief</string>
+    <string name="message_list_time_state_hours">%s uur</string>
 </resources>

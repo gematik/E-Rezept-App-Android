@@ -99,7 +99,7 @@ fun ScannedPrescriptionOverview(
                 ) {
                     val date = dateWithIntroductionString(R.string.prs_low_detail_scanned_on, prescription.scannedOn)
                     Text(date, style = AppTheme.typography.body2l)
-                    Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.primary600)
+                    Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.primary700)
                 }
                 if (prescription.task.communications.isNotEmpty()) {
                     SpacerShortMedium()

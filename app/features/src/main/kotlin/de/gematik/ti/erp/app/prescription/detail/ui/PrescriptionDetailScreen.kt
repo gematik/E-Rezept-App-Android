@@ -145,7 +145,8 @@ class PrescriptionDetailScreen(
                 LaunchedEffect(Unit) {
                     if (activeProfileIsPKVProfile &&
                         ssoTokenValid &&
-                        consentState == ConsentState.ValidState.UnknownConsent
+                        consentState == ConsentState.ValidState.UnknownConsent &&
+                        !consentGranted
                     ) {
                         consentController.getChargeConsent(profile.id)
                     }
@@ -191,12 +192,6 @@ class PrescriptionDetailScreen(
                         )
                     }
                 )
-
-                LaunchedEffect(Unit) {
-                    if (ssoTokenValid && consentState == ConsentState.ValidState.UnknownConsent && !consentGranted) {
-                        consentController.getChargeConsent(profile.id)
-                    }
-                }
 
                 if (activeProfileIsPKVProfile) {
                     val actionString = stringResource(R.string.consent_action_to_invoices)

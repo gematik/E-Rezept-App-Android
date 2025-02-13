@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AutoFixHigh
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Timeline
@@ -31,7 +32,6 @@ import androidx.compose.material.icons.rounded.ZoomIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.settings.model.SettingsActions
@@ -103,14 +103,14 @@ fun GlobalSettingsSection(
 
         if (isDemoMode) {
             LabelButton(
-                icon = painterResource(R.drawable.magic_wand_filled),
+                icon = Icons.Outlined.AutoFixHigh,
                 stringResource(R.string.demo_mode_settings_end_title)
             ) {
                 settingsActions.onClickDemoModeEnd()
             }
         } else {
             LabelButton(
-                icon = painterResource(R.drawable.magic_wand_filled),
+                icon = Icons.Outlined.AutoFixHigh,
                 stringResource(R.string.demo_mode_settings_title)
             ) {
                 settingsActions.onClickDemoMode()

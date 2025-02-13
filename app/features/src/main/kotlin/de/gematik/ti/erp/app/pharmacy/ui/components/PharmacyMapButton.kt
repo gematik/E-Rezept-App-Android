@@ -41,7 +41,7 @@ internal fun PharmacyMapButton(onClick: () -> Unit) {
         shape = RoundedCornerShape(SizeDefaults.double),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = AppTheme.colors.neutral050,
-            contentColor = AppTheme.colors.primary600
+            contentColor = AppTheme.colors.primary700
         ),
         elevation = ButtonDefaults.elevation(),
         modifier = Modifier.size(SizeDefaults.sevenfold),

@@ -286,7 +286,7 @@ fun DirectAssignmentChip(
         icon = Icons.Outlined.Info,
         textColor = AppTheme.colors.primary900,
         backgroundColor = AppTheme.colors.primary100,
-        iconColor = AppTheme.colors.primary600
+        iconColor = AppTheme.colors.primary700
     )
 
 @Composable
@@ -303,7 +303,7 @@ fun SubstitutionNotAllowedChip(
         icon = Icons.Outlined.Info,
         textColor = AppTheme.colors.primary900,
         backgroundColor = AppTheme.colors.primary100,
-        iconColor = AppTheme.colors.primary600
+        iconColor = AppTheme.colors.primary700
     )
 
 @Composable

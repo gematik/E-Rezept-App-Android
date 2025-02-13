@@ -1,8 +1,14 @@
 [
     {
         "id": "2",
-        "text": "Fra nu af kan du bruge e-recept-appen til at registrere din beslutning om at donere organer i det **digitale organdonationsregister** - sikkert og nemt.\n\nDer er i øjeblikket 9.192 mennesker i Tyskland, der akut venter på et organ - hver beslutning tæller og kan redde liv.\n\nTræf din beslutning i dag og giv et vigtigt bidrag til mange menneskers fremtid! ❤️‍🩹\n\nOrgandonationsregistret kan findes under fanen \"Indstillinger\" i denne app.",
-        "timestamp": "2024-11-29T08:00:00.000Z",
+        "text": "Fra nu af kan du bruge e-recept-appen til at registrere din beslutning om at donere organer i det **digitale organdonationsregister** - sikkert og nemt. \n \n Der er i øjeblikket 9.192 mennesker i Tyskland, der akut venter på et organ - hver beslutning tæller og kan redde liv. \n \n Træf din beslutning i dag og giv et vigtigt bidrag til mange menneskers fremtid! ❤️‍🩹 \n \n Organdonationsregistret kan findes under fanen \"Indstillinger\" i denne app.",
+        "timestamp": "2024-12-19T08:00:00.000Z",
         "version": "1.26.0"
+    },
+    {
+        "id": "3",
+        "text": "**Bedre læsbarhed** \n Vi har gjort vores mærkefarve lidt mørkere for at øge farvekontrasten og derved forbedre læsbarheden. \n \n **Optimerede funktioner** \n Vi har opdateret indsendelsesdatoformatet og rettet sorteringen af ​​beskeder.",
+        "timestamp": "2025-01-28T08:00:00.000Z",
+        "version": "1.27.0"
     }
 ]

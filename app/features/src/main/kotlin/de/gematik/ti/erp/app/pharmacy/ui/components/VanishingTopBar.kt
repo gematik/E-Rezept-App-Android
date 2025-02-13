@@ -114,7 +114,7 @@ private fun VanishingTopBar(
                     Icon(
                         Icons.Rounded.ArrowBack,
                         contentDescription = null,
-                        tint = AppTheme.colors.primary600,
+                        tint = AppTheme.colors.primary700,
                         modifier = Modifier.size(24.dp)
                     )
                 }

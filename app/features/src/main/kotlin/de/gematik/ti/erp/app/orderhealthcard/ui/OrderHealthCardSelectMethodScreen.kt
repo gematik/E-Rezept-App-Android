@@ -318,7 +318,7 @@ private fun ContactMethod(
         modifier = modifier,
         onClick = onClick,
         shape = RoundedCornerShape(SizeDefaults.one),
-        contentColor = AppTheme.colors.primary600,
+        contentColor = AppTheme.colors.primary700,
         border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral300),
         backgroundColor = AppTheme.colors.neutral050,
         elevation = SizeDefaults.zero

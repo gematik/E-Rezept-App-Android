@@ -73,6 +73,9 @@ class DefaultInvoiceRepository(
     override fun getInvoiceTaskIdAndConsumedStatus(profileId: ProfileIdentifier): Flow<List<InvoiceData.InvoiceStatus>> =
         localDataSource.getInvoiceTaskIdAndConsumedStatus(profileId)
 
+    override fun getAllUnreadInvoices(): Flow<List<InvoiceData.InvoiceStatus>> =
+        localDataSource.getAllUnreadInvoices()
+
     override suspend fun updateInvoiceCommunicationStatus(taskId: String, consumed: Boolean) {
         localDataSource.updateInvoiceCommunicationStatus(taskId, consumed)
     }

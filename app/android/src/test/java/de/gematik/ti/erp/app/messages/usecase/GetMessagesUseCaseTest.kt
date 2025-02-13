@@ -19,14 +19,14 @@
 package de.gematik.ti.erp.app.messages.usecase
 
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
+import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_DISP_REQ_COMMUNICATION_01
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_ORDER_01
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_PHARMACY_O1
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_PROFILE
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_TASK_ID_01
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.coEvery
 import io.mockk.impl.annotations.InjectMockKs
@@ -58,7 +58,7 @@ class GetMessagesUseCaseTest {
         coEvery { profileRepository.profiles() } returns flowOf(listOf(MOCK_PROFILE))
 
         coEvery {
-            communicationRepository.loadFirstDispReqCommunications(any())
+            communicationRepository.loadDispReqCommunicationsByProfileId(any())
         } returns flowOf(listOf(MOCK_DISP_REQ_COMMUNICATION_01))
 
         coEvery {

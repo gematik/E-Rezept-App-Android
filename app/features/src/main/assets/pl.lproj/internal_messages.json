@@ -1,8 +1,14 @@
 [
     {
         "id": "2",
-        "text": "Od teraz możesz korzystać z aplikacji e-recepty i rejestrować swoją decyzję o oddaniu narządów w **cyfrowym rejestrze dawstwa narządów** – bezpiecznie i łatwo.\n\nObecnie w Niemczech 9 192 osób pilnie oczekuje na narząd – każda decyzja ma znaczenie i może uratować życie.\n\nPodejmij decyzję już dziś i wnieś istotny wkład w przyszłość wielu ludzi! ❤️‍🩹\n\nRejestr dawstwa narządów można znaleźć w zakładce „Ustawienia” w tej aplikacji.",
-        "timestamp": "2024-11-29T08:00:00.000Z",
+        "text": "Od teraz możesz korzystać z aplikacji e-recepty i rejestrować swoją decyzję o oddaniu narządów w **cyfrowym rejestrze dawstwa narządów** – bezpiecznie i łatwo. \n \n Obecnie w Niemczech 9 192 osób pilnie oczekuje na narząd – każda decyzja ma znaczenie i może uratować życie. \n \n Podejmij decyzję już dziś i wnieś istotny wkład w przyszłość wielu ludzi! ❤️‍🩹 \n \n Rejestr dawstwa narządów można znaleźć w zakładce „Ustawienia” w tej aplikacji.",
+        "timestamp": "2024-12-19T08:00:00.000Z",
         "version": "1.26.0"
+    },
+    {
+        "id": "3",
+        "text": "**Lepsza czytelność** \n Przyciemniliśmy nieco kolor naszej marki, aby zwiększyć kontrast kolorów i tym samym poprawić czytelność. \n \n **Zoptymalizowane funkcje** \n Zaktualizowaliśmy format daty przesłania i poprawiliśmy sortowanie wiadomości.",
+        "timestamp": "2025-01-28T08:00:00.000Z",
+        "version": "1.27.0"
     }
 ]

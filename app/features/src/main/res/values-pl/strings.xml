@@ -455,7 +455,7 @@
     <string name="cdw_info_title">Wskazówka</string>
     <string name="cdw_info_accept">Zaakceptować</string>
     <string name="cdw_info_header">Bezpieczeństwo danych Twojej recepty</string>
-    <string name="cdw_info_first">\Ta aplikacja wykorzystuje najbezpieczniejszy czujnik biometryczny udostępniany przez Twoje urządzenie, aby zabezpieczyć Twoje dane uwierzytelniające w chronionym obszarze pamięci urządzenia.\</string>
+    <string name="cdw_info_first">Ta aplikacja wykorzystuje najbezpieczniejszy czujnik biometryczny dostarczony przez Twoje urządzenie, aby zabezpieczyć Twoje dane uwierzytelniające w chronionym obszarze pamięci urządzenia.</string>
     <string name="cdw_info_second">Biometryczne zabezpieczenie Twoich danych dostępowych umożliwia otwieranie tej aplikacji w przyszłości bez karty zdrowia i podawania kodu PIN, a także przeglądanie, wywoływanie, realizowanie lub kasowanie recept.</string>
     <string name="cdw_info_third">Pamiętaj, że osoby, które oprócz Ciebie korzystają z Tego urządzenia i których cechy biometryczne mogą być zapisane w tym urządzeniu, także uzyskają dostęp do Twoich recept.</string>
     <string name="main_fasttrack_error_title">Niestety nie udało się</string>
@@ -1203,8 +1203,23 @@
     <string name="settings_explore_headline">Badać</string>
     <string name="organ_donation_menu_entry">Rejestr dawstwa narządów</string>
     <string name="organ_donation_dialog_title">Otwarty rejestr dawstwa narządów?</string>
-    <string name="organ_donation_dialog_info">Zostaniesz przekierowany do rejestru dawców narządów. Aby przeglądać i zmieniać dane dotyczące dawstwa narządów, musisz się tam zalogować.</string>
+    <string name="organ_donation_dialog_info">Zostaniesz przekierowany na stronę internetową rejestru dawstwa narządów. Aby przeglądać i zmieniać dane dotyczące dawstwa narządów, musisz się tam zalogować.</string>
     <string name="organ_donation_dialog_confirm">Otwarte</string>
     <string name="organ_donation_dialog_dismiss">Anulować</string>
     <string name="not_active_in_demo_mode_toast">Funkcja nieaktywna w trybie demonstracyjnym</string>
+    <string name="internal_message_from">Zespół aplikacji e-recepty</string>
+    <string name="internal_message_tag">Co nowego w wersji aplikacji %s</string>
+    <string name="welcome_text">Witamy w aplikacji e-recepty! Dzięki tej aplikacji możesz cyfrowo otrzymywać e-recepty i wysyłać je do wybranej apteki. To, czy chcesz zarezerwować tam receptę do odbioru, czy też zamówić dostawę do domu, zależy wyłącznie od Ciebie. Oczywiście możesz także zarządzać przepisami swojej rodziny. Aby otrzymywać recepty w formie cyfrowej, wymagana jest rejestracja. \n \n Miło Cię tu gościć! \n Twój zespół ds. aplikacji e-recept  </string>
+    <string name="welcome_tag">🎉 Witamy!</string>
+    <string name="pharmacy_search_favorite_toggle">Dodaj do ulubionych</string>
+    <string name="pharmacy_search_favorite_toggle_active">aktywny</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">nieaktywny</string>
+    <string name="pharmacy_search_active_filter">Filtr aktywny</string>
+    <string name="pharmacy_search_searchbar">Wyszukiwanie apteki</string>
+    <string name="pharmacy_search_delete_button">Usuń wpis wyszukiwania</string>
+    <string name="mediction_detiail_ask">numer ASK</string>
+    <string name="mediction_detiail_atc">Numer ATC</string>
+    <string name="all_prescriptions_of_order">Wszystkie przepisy w kolejności</string>
+    <string name="invoice_details_supply_shortage_fee">Stawka ryczałtowa za wąskie gardło w dostawie</string>
+    <string name="message_list_time_state_hours">%s godzina</string>
 </resources>

@@ -126,11 +126,8 @@ fun <R> JsonElement.extractAddress(addressFn: AddressFn<R>): R {
     val address = this
         .containedOrNull("address")
 
-    val line = address
-        ?.containedArrayOrNull("line")
-        ?.map {
-            it.containedString()
-        }
+    val line = address?.getLineAddressFromExtensions()
+        ?: address?.containedArrayOrNull("line")?.map { it.containedString() }
 
     val postalCode = address
         ?.containedStringOrNull("postalCode")
@@ -139,6 +136,25 @@ fun <R> JsonElement.extractAddress(addressFn: AddressFn<R>): R {
         ?.containedStringOrNull("city")
 
     return addressFn(line, postalCode, city)
+}
+
+private fun JsonElement.getLineAddressFromExtensions(): List<String>? {
+    val lineExt = this.containedArrayOrNull("_line")?.firstOrNull()
+        ?.containedArrayOrNull("extension")
+
+    val streetName = lineExt?.find {
+        it.containedString("url") == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName"
+    }?.containedStringOrNull("valueString")
+
+    val houseNumber = lineExt?.find {
+        it.containedString("url") == "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber"
+    }?.containedStringOrNull("valueString")
+
+    return if (!streetName.isNullOrEmpty() && !houseNumber.isNullOrEmpty()) {
+        listOf("$streetName $houseNumber")
+    } else {
+        null
+    }
 }
 fun JsonElement.extractHumanName(): String? {
     return this

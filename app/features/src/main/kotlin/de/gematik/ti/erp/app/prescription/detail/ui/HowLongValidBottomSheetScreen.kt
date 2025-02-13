@@ -149,7 +149,7 @@ class HowLongValidBottomSheetScreen(
             androidx.compose.material.Icon(
                 Icons.AutoMirrored.Rounded.ArrowForward,
                 null,
-                tint = AppTheme.colors.primary600,
+                tint = AppTheme.colors.primary700,
                 modifier = Modifier.size(SizeDefaults.double)
             )
             androidx.compose.material.Text(endText, style = AppTheme.typography.subtitle2l)

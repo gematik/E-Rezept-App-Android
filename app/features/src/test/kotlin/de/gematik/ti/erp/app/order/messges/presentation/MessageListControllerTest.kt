@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.order.messges.presentation
 
 import android.content.Context
+import app.cash.turbine.test
 import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
 import de.gematik.ti.erp.app.featuretoggle.model.NewFeature
 import de.gematik.ti.erp.app.featuretoggle.repository.NewFeaturesRepository
@@ -30,8 +31,8 @@ import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessageResources
 import de.gematik.ti.erp.app.messages.domain.repository.InAppLocalMessageRepository
 import de.gematik.ti.erp.app.messages.domain.usecase.FetchInAppMessageUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.FetchWelcomeMessageUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.messages.presentation.MessageListController
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.mocks.order.model.CACHED_PHARMACY
@@ -56,6 +57,7 @@ import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isLoadingState
 import io.mockk.MockKAnnotations
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -121,7 +123,7 @@ class MessageListControllerTest {
         coEvery { communicationRepository.loadSyncedByTaskId(any()) } returns flowOf(null)
         coEvery { communicationRepository.loadScannedByTaskId(any()) } returns flowOf(null)
         coEvery { communicationRepository.taskIdsByOrder(any()) } returns flowOf(listOf(TASK_ID))
-        coEvery { communicationRepository.loadFirstDispReqCommunications(any()) } returns flowOf(listOf(COMMUNICATION_DATA))
+        coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(listOf(COMMUNICATION_DATA))
         coEvery { communicationRepository.loadRepliedCommunications(any(), any()) } returns flowOf(emptyList())
         coEvery { communicationRepository.loadDispReqCommunications(any()) } returns flowOf(emptyList())
         coEvery { inAppMessageRepository.inAppMessages } returns flowOf(internalEntity)
@@ -154,6 +156,16 @@ class MessageListControllerTest {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        clearMocks(
+            communicationRepository,
+            profileRepository,
+            invoiceRepository,
+            inAppMessageRepository,
+            messageResources,
+            localMessageRepository,
+            buildConfigInformation,
+            newFeatureRepository
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -170,18 +182,11 @@ class MessageListControllerTest {
 
         testScope.runTest {
             advanceUntilIdle()
-            val orders = controllerUnderTest.viewState.first()
-
-            val isOrderFeatureChangeSeen = controllerUnderTest.isMessagesListFeatureChangeSeen.first()
-            println("Feature change seen: $isOrderFeatureChangeSeen")
+            val orders = controllerUnderTest.messagesList.first()
 
             // orders check
-            val data: List<InAppMessage>? = orders.messagesList.data
-            println("Orders state: $data")
+            val data: List<InAppMessage>? = orders.data
             assertEquals(inAppMessagesMore, data)
-
-            // isOrderFeatureChangeSeen check
-            assertEquals(true, isOrderFeatureChangeSeen)
         }
     }
 
@@ -199,13 +204,28 @@ class MessageListControllerTest {
         }
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `show the feature change bar if more than one profile is present`() {
+        coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { profileRepository.profiles() } returns flowOf(listOf(API_MOCK_PROFILE, API_MOCK_PROFILE.copy(id = "2", active = false)))
+        testScope.runTest {
+            advanceUntilIdle()
+            controllerUnderTest.isMessagesListFeatureChangeSeen.test {
+                val isOrderFeatureChangeSeen = awaitItem()
+                // if more than one profile is present, only then the actual value is used
+                assertEquals(false, isOrderFeatureChangeSeen)
+            }
+        }
+    }
+
     @Test
     fun `start the controller on loading state`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
         testScope.runTest {
-            val orders = controllerUnderTest.viewState.first()
+            val orders = controllerUnderTest.messagesList.first()
             // orders check
-            assert(orders.messagesList.isLoadingState)
+            assert(orders.isLoadingState)
         }
     }
 
@@ -216,9 +236,9 @@ class MessageListControllerTest {
         coEvery { communicationRepository.loadScannedByTaskId(any()) } throws Exception("Test exception")
         testScope.runTest {
             advanceUntilIdle()
-            val orders = controllerUnderTest.viewState.first()
+            val orders = controllerUnderTest.messagesList.first()
             // orders check
-            assert(orders.messagesList.isErrorState)
+            assert(orders.isErrorState)
         }
     }
 
@@ -227,12 +247,12 @@ class MessageListControllerTest {
     fun `show empty state on no communications`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
         coEvery { inAppMessageRepository.inAppMessages } returns flowOf(emptyList())
-        coEvery { communicationRepository.loadFirstDispReqCommunications(any()) } returns flowOf(emptyList())
+        coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(emptyList())
         testScope.runTest {
             advanceUntilIdle()
-            val orders = controllerUnderTest.viewState.first()
+            val orders = controllerUnderTest.messagesList.first()
             // orders check
-            assertEquals(true, orders.messagesList.isEmptyState)
+            assertEquals(true, orders.isEmptyState)
         }
     }
 
@@ -244,9 +264,9 @@ class MessageListControllerTest {
         coEvery { profileRepository.profiles() } returns flowOf(emptyList())
         testScope.runTest {
             advanceUntilIdle()
-            val orders = controllerUnderTest.viewState.first()
+            val orders = controllerUnderTest.messagesList.first()
             // orders check
-            assertEquals(true, orders.messagesList.isEmptyState)
+            assertEquals(true, orders.isEmptyState)
         }
     }
 
@@ -259,9 +279,9 @@ class MessageListControllerTest {
         coEvery { fetchInAppMessageUseCase.invoke() } returns flowOf(inAppMessages)
         testScope.runTest {
             advanceUntilIdle()
-            val orders = controllerUnderTest.viewState.first()
+            val orders = controllerUnderTest.messagesList.first()
             // orders check
-            assertEquals(true, orders.messagesList.isDataState)
+            assertEquals(true, orders.isDataState)
         }
     }
 

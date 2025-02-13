@@ -102,7 +102,7 @@ private fun ExternalAuthenticationScreenHeader(
                 Icon(
                     Icons.AutoMirrored.Rounded.ArrowForward,
                     contentDescription = null,
-                    tint = AppTheme.colors.primary600
+                    tint = AppTheme.colors.primary700
                 )
             }
         )

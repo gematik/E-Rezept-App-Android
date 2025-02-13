@@ -21,9 +21,9 @@ package de.gematik.ti.erp.app.messages.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import de.gematik.ti.erp.app.messages.presentation.ui.components.MessageBottomSheetScreen
-import de.gematik.ti.erp.app.messages.presentation.ui.screens.MessageDetailScreen
-import de.gematik.ti.erp.app.messages.presentation.ui.screens.MessageListScreen
+import de.gematik.ti.erp.app.messages.ui.components.MessageBottomSheetScreen
+import de.gematik.ti.erp.app.messages.ui.screens.MessageDetailScreen
+import de.gematik.ti.erp.app.messages.ui.screens.MessageListScreen
 import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown

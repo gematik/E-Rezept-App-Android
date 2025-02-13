@@ -104,10 +104,10 @@ fun AppTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable ()
     MaterialTheme(
         typography = materialTypo,
         colors = Colors(
-            primary = colors.primary600,
-            primaryVariant = colors.primary600,
-            secondary = colors.primary600,
-            secondaryVariant = colors.primary600,
+            primary = colors.primary700,
+            primaryVariant = colors.primary700,
+            secondary = colors.primary700,
+            secondaryVariant = colors.primary700,
             background = colors.neutral025,
             surface = colors.neutral000,
             error = colors.red500,

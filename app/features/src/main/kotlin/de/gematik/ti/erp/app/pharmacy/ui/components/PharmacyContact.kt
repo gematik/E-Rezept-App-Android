@@ -135,7 +135,7 @@ private fun ContactLabel(
         Text(
             text = text,
             style = AppTheme.typography.body1,
-            color = AppTheme.colors.primary600
+            color = AppTheme.colors.primary700
         )
         SpacerTiny()
         Text(

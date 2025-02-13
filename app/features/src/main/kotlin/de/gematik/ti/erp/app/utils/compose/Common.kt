@@ -237,7 +237,7 @@ fun annotatedLinkString(uri: String, text: String, tag: String = "URL"): Annotat
     buildAnnotatedString {
         pushStringAnnotation(tag, uri)
         pushStyle(AppTheme.typography.subtitle2.toSpanStyle())
-        pushStyle(SpanStyle(color = AppTheme.colors.primary600))
+        pushStyle(SpanStyle(color = AppTheme.colors.primary700))
         append(text)
         pop()
         pop()
@@ -248,7 +248,7 @@ fun annotatedLinkString(uri: String, text: String, tag: String = "URL"): Annotat
 fun annotatedLinkStringLight(uri: String, text: String, tag: String = "URL"): AnnotatedString =
     buildAnnotatedString {
         pushStringAnnotation(tag, uri)
-        pushStyle(SpanStyle(color = AppTheme.colors.primary500))
+        pushStyle(SpanStyle(color = AppTheme.colors.primary700))
         append(text)
         pop()
         pop()
@@ -357,7 +357,7 @@ fun LabeledSwitch(
         modifier = modifier,
         enabled = enabled
     ) {
-        val iconColorTint = if (enabled) AppTheme.colors.primary600 else AppTheme.colors.primary300
+        val iconColorTint = if (enabled) AppTheme.colors.primary700 else AppTheme.colors.primary300
         val textColor = if (enabled) AppTheme.colors.neutral900 else AppTheme.colors.neutral600
         val descriptionColor = if (enabled) AppTheme.colors.neutral600 else AppTheme.colors.neutral400
 
@@ -441,7 +441,7 @@ fun LabelButton(
             .padding(PaddingDefaults.Medium)
             .semantics(mergeDescendants = true) {}
     ) {
-        Icon(icon, null, tint = AppTheme.colors.primary600)
+        Icon(icon, null, tint = AppTheme.colors.primary700)
         SpacerMedium()
         Text(
             modifier = Modifier.weight(1f),
@@ -553,7 +553,7 @@ fun annotatedLinkUnderlined(fullText: String, clickableText: String, tag: String
     return buildAnnotatedString {
         append(fullText)
         addStyle(
-            style = SpanStyle(color = AppTheme.colors.primary600, textDecoration = TextDecoration.Underline),
+            style = SpanStyle(color = AppTheme.colors.primary700, textDecoration = TextDecoration.Underline),
             start = startIndex,
             end = endIndex
         )

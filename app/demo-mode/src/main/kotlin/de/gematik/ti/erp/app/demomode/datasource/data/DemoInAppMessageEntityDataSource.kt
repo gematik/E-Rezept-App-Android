@@ -18,9 +18,9 @@
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 
 val inAppMessageEntity = InAppMessageEntity().apply {
     id = "01"
-    this.version = "1.27.1"
+    this.version = "2.27.1"
 }

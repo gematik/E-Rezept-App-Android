@@ -56,11 +56,11 @@ class GetUnreadMessagesCountUseCaseTest {
 
     @Before
     fun setup() {
-        coEvery { communicationRepository.unreadMessagesCount(any()) } returns flowOf(15L)
+        coEvery { communicationRepository.unreadMessagesCount() } returns flowOf(Companion.COUNTER_NUMBER)
         coEvery {
             invoiceRepository.getInvoiceTaskIdAndConsumedStatus(any())
         } returns flowOf(listOf(InvoiceData.InvoiceStatus(taskId = "taskId1", consumed = false)))
-        coEvery { communicationRepository.loadFirstDispReqCommunications(any()) } returns flowOf(emptyList())
+        coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(emptyList())
         coEvery { communicationRepository.loadRepliedCommunications(any(), any()) } returns flowOf(emptyList())
         coEvery { inAppMessageRepository.counter } returns flowOf(0L)
         useCase = GetUnreadMessagesCountUseCase(communicationRepository, inAppMessageRepository, invoiceRepository, dispatcher)
@@ -73,5 +73,9 @@ class GetUnreadMessagesCountUseCaseTest {
         val resultOrders = useCase(profileId).single()
 
         assertEquals(expectedUnreadCount, resultOrders)
+    }
+
+    companion object {
+        private const val COUNTER_NUMBER = 15L
     }
 }

@@ -176,26 +176,6 @@ private fun IntegrityWarningScreenContent(
                 style = AppTheme.typography.body1
             )
         }
-        // Todo wait for new uri from security staff
-        //            val uriHandler = LocalUriHandler.current
-        //            SpacerMedium()
-        //            Text(
-        //                stringResource(R.string.insecure_device_safetynet_more_info),
-        //                style = AppTheme.typography.body2,
-        //                color = AppTheme.colors.neutral600
-        //            )
-        //            SpacerSmall()
-        //            val link = stringResource(R.string.insecure_device_safetynet_link)
-        //            TextButton(
-        //                modifier = Modifier.align(Alignment.End),
-        //                onClick = { uriHandler.openUri(link) }
-        //            ) {
-        //                Text(
-        //                    stringResource(id = R.string.insecure_device_safetynet_link_text),
-        //                    style = AppTheme.typography.body2,
-        //                    color = AppTheme.colors.primary600
-        //                )
-        //            }
         item {
             Spacer(modifier = Modifier.height(PaddingDefaults.XXLarge))
             Toggle(

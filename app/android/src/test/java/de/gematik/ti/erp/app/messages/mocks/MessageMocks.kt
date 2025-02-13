@@ -85,7 +85,7 @@ object MessageMocks {
         start = null
     )
 
-    private val MOCK_PRESCRIPTION_01 = Prescription.SyncedPrescription(
+    val MOCK_PRESCRIPTION_01 = Prescription.SyncedPrescription(
         taskId = MOCK_TASK_ID_01,
         name = null,
         redeemedOn = null,
@@ -101,7 +101,7 @@ object MessageMocks {
         prescriptionChipInformation = MOCK_CHIP_INFO
     )
 
-    private val MOCK_PRESCRIPTION_02 = Prescription.SyncedPrescription(
+    val MOCK_PRESCRIPTION_02 = Prescription.SyncedPrescription(
         taskId = MOCK_TASK_ID_02,
         name = null,
         redeemedOn = null,
@@ -333,7 +333,8 @@ object MessageMocks {
         pickUpCodeDMC = "Test_01___Rezept_01___abcdefg12345",
         pickUpCodeHR = "T01__R01",
         link = "https://www.tree.fm/forest/33",
-        consumed = false
+        consumed = false,
+        prescriptions = listOf(MOCK_PRESCRIPTION_01)
     )
 
     internal val MOCK_MESSAGE_02 = OrderUseCaseData.Message(
@@ -343,7 +344,8 @@ object MessageMocks {
         pickUpCodeDMC = "Test_01___Rezept_02___abcdefg12345",
         pickUpCodeHR = "T01__R02",
         link = "https://www.tree.fm/forest/35",
-        consumed = false
+        consumed = false,
+        prescriptions = listOf(MOCK_PRESCRIPTION_02)
     )
 
     internal val MOCK_PROFILE = ProfilesData.Profile(

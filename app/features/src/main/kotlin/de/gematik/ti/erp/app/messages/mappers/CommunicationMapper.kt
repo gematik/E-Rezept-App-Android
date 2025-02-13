@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.messages.mappers
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.pharmacy.repository.model.CommunicationPayloadInbox
 import de.gematik.ti.erp.app.prescription.model.Communication
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
@@ -49,7 +50,10 @@ fun Communication.toMessage(): OrderUseCaseData.Message {
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = null,
-        consumed = consumed
+        consumed = consumed,
+        prescriptions = emptyList<Prescription>(),
+        taskIds = taskIds,
+        isTaskIdCountMatching = isTaskIdCountMatching
     )
 
     return payload?.let { nonNullPayload ->
@@ -62,7 +66,10 @@ fun Communication.toMessage(): OrderUseCaseData.Message {
                 pickUpCodeDMC = inbox.pickUpCodeDMC?.takeUnless { it.isBlank() },
                 pickUpCodeHR = inbox.pickUpCodeHR?.takeUnless { it.isBlank() },
                 link = inbox.url?.takeUnless { it.isBlank() }?.takeIf { isValidUrl(it) },
-                consumed = consumed
+                consumed = consumed,
+                prescriptions = emptyList<Prescription>(),
+                taskIds = taskIds,
+                isTaskIdCountMatching = isTaskIdCountMatching
             )
         } catch (ignored: SerializationException) {
             Napier.d { "No payload, default message" }

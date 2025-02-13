@@ -1,8 +1,14 @@
 [
     {
         "id": "2",
-        "text": "Utilisez désormais l'application de prescription électronique pour enregistrer votre décision de donner vos organes dans le **registre numérique des dons d'organes** - en toute sécurité et facilement.\n\nEn Allemagne, 9 192 personnes attendent actuellement un organe de toute urgence : chaque décision compte et peut sauver des vies.\n\nPrenez votre décision aujourd'hui et apportez une contribution importante à l'avenir de nombreuses personnes ! ❤️‍🩹\n\nLe registre des dons d'organes se trouve dans l'onglet « Paramètres » de cette application.",
-        "timestamp": "2024-11-29T08:00:00.000Z",
+        "text": "Utilisez désormais l'application de prescription électronique pour enregistrer votre décision de donner vos organes dans le **registre numérique des dons d'organes** - en toute sécurité et facilement. \n \n En Allemagne, 9 192 personnes attendent actuellement un organe de toute urgence : chaque décision compte et peut sauver des vies. \n \n Prenez votre décision aujourd'hui et apportez une contribution importante à l'avenir de nombreuses personnes ! ❤️‍🩹 \n \n Le registre des dons d'organes se trouve dans l'onglet « Paramètres » de cette application.",
+        "timestamp": "2024-12-19T08:00:00.000Z",
         "version": "1.26.0"
+    },
+    {
+        "id": "3",
+        "text": "**Meilleure lisibilité** \n Nous avons rendu la couleur de notre marque légèrement plus foncée pour augmenter le contraste des couleurs et ainsi améliorer la lisibilité. \n \n **Fonctionnalités optimisées** \n Nous avons mis à jour le format de la date d'envoi et corrigé le tri des messages.",
+        "timestamp": "2025-01-28T08:00:00.000Z",
+        "version": "1.27.0"
     }
 ]

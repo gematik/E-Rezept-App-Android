@@ -239,13 +239,13 @@ private fun SelectableCard(
     }
 
     val checkIconTint = if (selected) {
-        AppTheme.colors.primary600
+        AppTheme.colors.primary700
     } else {
         AppTheme.colors.neutral400
     }
 
     val cardBorderStroke = if (selected) {
-        BorderStroke(SizeDefaults.quarter, AppTheme.colors.primary600)
+        BorderStroke(SizeDefaults.quarter, AppTheme.colors.primary700)
     } else {
         BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral300)
     }
@@ -271,7 +271,7 @@ private fun SelectableCard(
             Icon(
                 startIcon,
                 null,
-                tint = AppTheme.colors.primary600
+                tint = AppTheme.colors.primary700
             )
 
             Text(

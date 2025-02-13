@@ -29,27 +29,42 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 
+private const val IN_APP_MESSAGE_FILE_NAME = "internal_messages.json"
+private const val IN_APP_MESSAGE_FOLDER_NAME = "lproj"
+
 class InAppLocalMessageRepository(
     private val messageResources: InAppMessageResources
 ) {
     fun getInternalMessages(): Flow<List<InAppMessage>> = flow {
-        val language = messageResources.language // Get device language
-        val fileName = "$language.lproj/internal_messages.json" // Construct path to file in assets
         emit(
             try {
-                val jsonString = messageResources.assets.open(fileName).bufferedReader().use { it.readText() }
-                val message: List<LocalInAppJsonMessage> = Json.decodeFromString<List<LocalInAppJsonMessage>>(jsonString)
-                message.map {
-                    it.toInAppMessage(
-                        messageResources.messageFrom,
-                        messageResources.getMessageTag(it.version),
-                        it.timestamp?.let { time -> Instant.parse(time) } ?: Clock.System.now()
-                    )
+                val language = messageResources.language
+                val filePath = "$language.$IN_APP_MESSAGE_FOLDER_NAME/$IN_APP_MESSAGE_FILE_NAME" // Construct path to file in assets
+                if (messageResources.assets.list("$language.$IN_APP_MESSAGE_FOLDER_NAME")?.contains(IN_APP_MESSAGE_FILE_NAME) == true) {
+                    getInAppMessageFromAssets(filePath = filePath, messageResources = messageResources)
+                } else { // show german message if device language is not supported
+                    getInAppMessageFromAssets(filePath = "de.$IN_APP_MESSAGE_FOLDER_NAME/$IN_APP_MESSAGE_FILE_NAME", messageResources = messageResources)
                 }
             } catch (e: Exception) {
                 Napier.e("Error reading internal messages: ${e.stackTraceToString()}")
-                emptyList()
+                emptyList<InAppMessage>()
             }
+
+        )
+    }
+}
+
+private fun getInAppMessageFromAssets(
+    filePath: String,
+    messageResources: InAppMessageResources
+): List<InAppMessage> {
+    val jsonString = messageResources.assets.open(filePath).bufferedReader().use { it.readText() }
+    val message: List<LocalInAppJsonMessage> = Json.decodeFromString<List<LocalInAppJsonMessage>>(jsonString)
+    return message.map {
+        it.toInAppMessage(
+            messageResources.messageFrom,
+            messageResources.getMessageTag(it.version),
+            it.timestamp?.let { time -> Instant.parse(time) } ?: Clock.System.now()
         )
     }
 }

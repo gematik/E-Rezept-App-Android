@@ -82,7 +82,7 @@ internal fun UserAuthenticationBottomErrorSection(
                         stringResource(id = R.string.auth_link_to_gematik_helptext),
                         annotation = stringResource(id = R.string.auth_link_to_gematik_q_and_a),
                         tag = "URL",
-                        linkColor = AppTheme.colors.primary500
+                        linkColor = AppTheme.colors.primary700
                     )
 
                 val uriHandler = LocalUriHandler.current

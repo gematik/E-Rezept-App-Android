@@ -203,7 +203,7 @@ class DemoCommunicationRepository(
             flowOf(emptyList())
         }
 
-    override fun loadFirstDispReqCommunications(profileId: ProfileIdentifier): Flow<List<Communication>> =
+    override fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<Communication>> =
         try {
             loadOrdersByProfileId(profileId).mapNotNull { communications ->
                 communications.asSequence().filter {
@@ -219,6 +219,19 @@ class DemoCommunicationRepository(
         }
 
     override fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<Communication>> =
+        try {
+            dataSource.communications
+                .mapNotNull { communications ->
+                    communications
+                        .filter { it.taskId in taskIds && it.profile == ErxCommunicationReply }
+                        .sortedByDescending { it.sentOn }
+                        .map { it.toSyncedTaskDataCommunication() }
+                }.flowOn(dispatcher)
+        } catch (e: Throwable) {
+            flowOf(emptyList())
+        }
+
+    override fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<Communication>> =
         try {
             dataSource.communications
                 .mapNotNull { communications ->
@@ -252,7 +265,7 @@ class DemoCommunicationRepository(
             flowOf(false)
         }
 
-    override fun unreadMessagesCount(consumed: Boolean): Flow<Long> =
+    override fun unreadMessagesCount(): Flow<Long> =
         try {
             dataSource.communications.mapNotNull { communications ->
                 communications.filter {
@@ -286,6 +299,10 @@ class DemoCommunicationRepository(
                 profiles.find { it.id == communication.profileId }?.toProfile()
             }.flowOn(dispatcher)
         }
+
+    override fun getAllUnreadMessages(): Flow<List<Communication>> {
+        return flowOf(emptyList())
+    }
 
     override suspend fun setCommunicationStatus(communicationId: String, consumed: Boolean) {
         withContext(dispatcher) {

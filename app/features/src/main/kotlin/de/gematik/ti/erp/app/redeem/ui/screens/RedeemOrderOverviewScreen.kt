@@ -449,7 +449,7 @@ private fun ContactSelectionButton(
             Text(
                 stringResource(R.string.pharmacy_order_add_contacts),
                 style = AppTheme.typography.subtitle1,
-                color = AppTheme.colors.primary600
+                color = AppTheme.colors.primary700
             )
         } else {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -498,7 +498,7 @@ private fun ContactSelectionButton(
                 Text(
                     stringResource(R.string.pharmacy_order_change_contacts),
                     style = AppTheme.typography.subtitle2,
-                    color = AppTheme.colors.primary600
+                    color = AppTheme.colors.primary700
                 )
             }
         }
@@ -588,7 +588,7 @@ private fun PharmacySelectionButton(
             Text(
                 stringResource(R.string.pharmacy_order_change_order),
                 style = AppTheme.typography.subtitle2,
-                color = AppTheme.colors.primary600
+                color = AppTheme.colors.primary700
             )
         }
     }

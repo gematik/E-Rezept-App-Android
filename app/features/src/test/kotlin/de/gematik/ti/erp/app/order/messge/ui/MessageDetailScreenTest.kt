@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.order.messge.ui
 
-import de.gematik.ti.erp.app.messages.presentation.ui.preview.MessageOrderDetailPreviewParameterProvider
-import de.gematik.ti.erp.app.messages.presentation.ui.screens.MessageDetailScreenWithPharmacyPreview
+import de.gematik.ti.erp.app.messages.ui.preview.MessageOrderDetailPreviewParameterProvider
+import de.gematik.ti.erp.app.messages.ui.screens.MessageDetailScreenWithPharmacyPreview
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
