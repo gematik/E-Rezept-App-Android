@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.usecase
 
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationByOrderIdAndCommunicationIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import io.mockk.coEvery
@@ -40,7 +40,7 @@ class UpdateCommunicationByOrderIdUseCaseTest {
     private val repository: CommunicationRepository = mockk()
 
     @InjectMockKs
-    private lateinit var useCase: UpdateCommunicationByOrderIdAndCommunicationIdUseCase
+    private lateinit var useCase: UpdateCommunicationConsumedStatusUseCase
 
     @Before
     fun setup() {
@@ -57,7 +57,7 @@ class UpdateCommunicationByOrderIdUseCaseTest {
             repository.setCommunicationStatus(any(), any())
         } returns Unit
 
-        useCase = UpdateCommunicationByOrderIdAndCommunicationIdUseCase(repository, dispatcher)
+        useCase = UpdateCommunicationConsumedStatusUseCase(repository, dispatcher)
     }
 
     @Test
@@ -72,12 +72,19 @@ class UpdateCommunicationByOrderIdUseCaseTest {
                 MessageMocks.MOCK_DISP_REQ_COMMUNICATION_02
             )
         )
+        coEvery {
+            repository.taskIdsByOrder(any())
+        } returns flowOf(listOf(MessageMocks.MOCK_TASK_ID_01, MessageMocks.MOCK_TASK_ID_02))
+
+        coEvery {
+            repository.loadAllRepliedCommunications(any())
+        } returns flowOf(listOf())
 
         coEvery {
             repository.setCommunicationStatus(capture(communicationIdsCaptured), true)
         } returns Unit
 
-        useCase(MessageMocks.MOCK_ORDER_ID)
+        useCase(UpdateCommunicationConsumedStatusUseCase.Companion.CommunicationIdentifier.Order(MessageMocks.MOCK_ORDER_ID))
 
         assertEquals(
             communicationIdsCaptured,

@@ -97,8 +97,8 @@ class CardWallController(
             .flowOn(Dispatchers.IO)
     }
 
-    val isNfcEnabled: Boolean by lazy {
-        cardWallUseCase.isNfcEnabled()
+    fun isNfcEnabled(): Boolean {
+        return cardWallUseCase.isNfcEnabled()
     }
 
     val isDomainVerified by lazy { domainVerifier.areDomainsVerified }

@@ -55,6 +55,9 @@ import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TextButton
@@ -84,6 +87,7 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.debugsettings.pkv.ui.DebugScreenPKV
+import de.gematik.ti.erp.app.debugsettings.presentation.DebugSettingsViewModel
 import de.gematik.ti.erp.app.debugsettings.qrcode.QrCodeScannerScreen
 import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClearTextTrafficSection
@@ -93,6 +97,7 @@ import de.gematik.ti.erp.app.debugsettings.ui.components.LoadingButton
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
@@ -234,6 +239,9 @@ fun DebugScreen(
                 pharmacyDirectRedeemUseCase = instance(),
                 getAppUpdateManagerFlagUseCase = instance(),
                 changeAppUpdateManagerFlagUseCase = instance(),
+                markAllUnreadMessagesAsReadUseCase = instance(),
+                deletePrescriptionUseCase = instance(),
+                getTaskIdsUseCase = instance(),
                 dispatchers = instance()
             )
         }
@@ -467,9 +475,12 @@ fun DebugScreenMain(
 ) {
     val listState = rememberLazyListState()
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     val appUpdateManager by viewModel.appUpdateManagerState
+    val messageMarkingLoading by viewModel.messageMarkingLoadingState
+    val prescriptionDeletionLoading by viewModel.prescriptionDeletionLoadingState
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -487,6 +498,7 @@ fun DebugScreenMain(
             navigationMode = NavigationBarMode.Close,
             listState = listState,
             topBarTitle = "Debug Settings",
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             onBack = onBack
         ) { innerPadding ->
 
@@ -532,6 +544,7 @@ fun DebugScreenMain(
                         ) {
                             viewModel.refreshPrescriptions()
                         }
+
                         LabelButton(
                             icon = Icons.Rounded.Adb,
                             text = "Logger"
@@ -540,6 +553,82 @@ fun DebugScreenMain(
                         }
                     }
                 }
+
+                item {
+                    DebugCard(
+                        title = "Batch Actions"
+                    ) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                viewModel.markAllUnreadMessagesAsRead { result ->
+                                    result.fold(
+                                        onSuccess = {
+                                            snackbarHostState.showSnackbar(
+                                                message = "All messages marked as read",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        },
+                                        onFailure = { error ->
+                                            snackbarHostState.showSnackbar(
+                                                message = error.message ?: "Failed to mark messages as read",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
+                                    )
+                                }
+                            },
+                            enabled = !messageMarkingLoading
+                        ) {
+                            if (messageMarkingLoading) {
+                                CircularProgressIndicator(
+                                    Modifier.size(SizeDefaults.triple),
+                                    strokeWidth = SizeDefaults.quarter,
+                                    color = AppTheme.colors.neutral600
+                                )
+                                SpacerSmall()
+                            }
+                            Text("Mark All Messages As Read", textAlign = TextAlign.Center)
+                        }
+
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                viewModel.deleteAllPrescriptions(
+                                    profileId = viewModel.debugSettingsData.activeProfileId,
+                                    deleteLocallyOnly = false
+                                ) { result ->
+                                    result.fold(
+                                        onSuccess = {
+                                            snackbarHostState.showSnackbar(
+                                                message = "Successfully deleted all prescriptions",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        },
+                                        onFailure = { error ->
+                                            snackbarHostState.showSnackbar(
+                                                message = error.message ?: "Failed to delete prescriptions",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
+                                    )
+                                }
+                            },
+                            enabled = !prescriptionDeletionLoading
+                        ) {
+                            if (prescriptionDeletionLoading) {
+                                CircularProgressIndicator(
+                                    Modifier.size(SizeDefaults.triple),
+                                    strokeWidth = SizeDefaults.quarter,
+                                    color = AppTheme.colors.neutral600
+                                )
+                                SpacerSmall()
+                            }
+                            Text("Delete All Prescriptions", textAlign = TextAlign.Center)
+                        }
+                    }
+                }
+
                 item {
                     DebugCard(
                         title = "App Update"
@@ -583,6 +672,7 @@ fun DebugScreenMain(
                         }
                     }
                 }
+
                 item {
                     DebugCard(
                         title = "Authentication"
@@ -713,13 +803,13 @@ private fun VirtualHealthCard(
         val scope = rememberCoroutineScope()
         TextButton(
             modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, AppTheme.colors.primary600),
+            border = BorderStroke(1.dp, AppTheme.colors.primary700),
             shape = RoundedCornerShape(8.dp),
             onClick = onScanQrCode
         ) {
             Text(
                 text = "Scan Virtual Health Card",
-                color = AppTheme.colors.primary600
+                color = AppTheme.colors.primary700
             )
         }
 

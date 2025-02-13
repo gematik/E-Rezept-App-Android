@@ -246,7 +246,7 @@ class CardWallIntroScreen(
                 ) {
                     CardWallIntroScreenContent(
                         isNfcAvailable = isNfcAvailable,
-                        isNfcEnabled = cardWallController.isNfcEnabled,
+                        isNfcEnabled = { cardWallController.isNfcEnabled() },
                         isDomainVerified = isDomainVerified,
                         listState = lazyListState,
                         showEnableNFCDialog = { nfcDisabledEvent.trigger(Unit) },
@@ -284,7 +284,7 @@ private fun CardWallIntroScreenContent(
     isNfcAvailable: Boolean,
     isDomainVerified: Boolean,
     listState: LazyListState,
-    isNfcEnabled: Boolean,
+    isNfcEnabled: () -> Boolean,
     insuranceName: String?,
     showEnableNFCDialog: () -> Unit,
     onClickHealthCardAuth: () -> Unit,
@@ -367,7 +367,7 @@ private fun LazyListScope.SubTitleHeader() {
 @OptIn(ExperimentalMaterialApi::class)
 private fun LazyListScope.HealthCardLoginSection(
     isNfcAvailable: Boolean,
-    isNfcEnabled: Boolean,
+    isNfcEnabled: () -> Boolean,
     onClickWithEnabledNfc: () -> Unit,
     onClickWithDisabledNfc: () -> Unit
 ) {
@@ -384,7 +384,7 @@ private fun LazyListScope.HealthCardLoginSection(
                         .semanticsHeading(),
                     style = AppTheme.typography.subtitle2,
                     fontWeight = FontWeight.Bold,
-                    color = AppTheme.colors.primary600
+                    color = AppTheme.colors.primary700
                 )
             }
             Card(
@@ -392,12 +392,12 @@ private fun LazyListScope.HealthCardLoginSection(
                     .padding(bottom = PaddingDefaults.Medium)
                     .fillMaxWidth(),
                 shape = RoundedCornerShape(SizeDefaults.double),
-                border = if (isNfcAvailable) BorderStroke(SizeDefaults.quarter, color = AppTheme.colors.primary600) else null,
+                border = if (isNfcAvailable) BorderStroke(SizeDefaults.quarter, color = AppTheme.colors.primary700) else null,
                 elevation = SizeDefaults.zero,
                 backgroundColor = AppTheme.colors.neutral050,
                 enabled = isNfcAvailable,
                 onClick = {
-                    if (isNfcEnabled) {
+                    if (isNfcEnabled()) {
                         onClickWithEnabledNfc()
                     } else {
                         onClickWithDisabledNfc()
@@ -446,7 +446,7 @@ private fun LazyListScope.HealthCardLoginSection(
                             .align(Alignment.CenterVertically),
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = null,
-                        tint = if (isNfcAvailable) AppTheme.colors.primary600 else AppTheme.colors.neutral300
+                        tint = if (isNfcAvailable) AppTheme.colors.primary700 else AppTheme.colors.neutral300
                     )
                 }
             }
@@ -572,7 +572,7 @@ fun CardWallIntroScreenContentPreview(
         CardWallIntroScreenContent(
             listState = rememberLazyListState(),
             isNfcAvailable = state.isNfcAvailable,
-            isNfcEnabled = state.isNfcEnabled,
+            isNfcEnabled = { state.isNfcEnabled },
             isDomainVerified = state.isDomainVerified,
             insuranceName = null,
             showEnableNFCDialog = { },

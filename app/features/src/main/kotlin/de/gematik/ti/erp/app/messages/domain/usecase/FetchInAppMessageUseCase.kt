@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessageResources
+import de.gematik.ti.erp.app.messages.domain.model.getTimeState
 import de.gematik.ti.erp.app.messages.domain.repository.InAppLocalMessageRepository
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
 import kotlinx.coroutines.flow.Flow
@@ -28,23 +29,60 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Instant
 
+/**
+ * Use case for fetching and transforming in-app messages to display in the UI.
+ *
+ * This use case combines internal and external message sources to provide a unified
+ * flow of in-app messages, applying transformations to enrich the data.
+ *
+ * @param inAppMessageRepository Repository for retrieving in-app message configurations and data.
+ * @param localMessageRepository Repository for managing local/internal in-app messages.
+ * @param messageResources Resources used for enriching message content (e.g., tags, sender details).
+ *
+ * * ### Testing Note:
+ *  * - When `showWelcomeMessage` is **false**, the application can display changelog messages on a fresh installation.
+ *  *   This behavior can be used to validate the handling of changelog messages during testing scenarios.
+ */
 class FetchInAppMessageUseCase(
     private val inAppMessageRepository: InAppMessageRepository,
     private val localMessageRepository: InAppLocalMessageRepository,
     private val messageResources: InAppMessageResources
-
 ) {
+    /**
+     * Invokes the use case to fetch and process in-app messages.
+     *
+     * The use case performs the following steps:
+     * - Checks if a welcome message should be shown using [inAppMessageRepository.showWelcomeMessage].
+     * - Retrieves external in-app messages from [inAppMessageRepository.inAppMessages].
+     * - Combines the above with internal messages fetched from [localMessageRepository.getInternalMessages].
+     * - Drops the welcome message if it should not be shown.
+     * - Maps the messages to [InAppMessage] objects, enriching them with:
+     *   - A formatted sender name from [messageResources.messageFrom].
+     *   - A formatted tag using [messageResources.getMessageTag].
+     *   - Unread status based on external message data.
+     *
+     * @return A [Flow] of lists of [InAppMessage] objects for display in the UI.
+     */
     suspend operator fun invoke(): Flow<List<InAppMessage>> {
+        // Check if the welcome message should be displayed
         val showWelcomeMessage = inAppMessageRepository.showWelcomeMessage.first()
+
+        // Fetch external in-app messages
         val inAppMessageEntities = inAppMessageRepository.inAppMessages.first()
+
+        // Fetch internal in-app messages from local storage
         val internalMessages = localMessageRepository.getInternalMessages()
+
+        // Process and transform internal messages
         return internalMessages.map {
+            // Optionally drop the welcome message based on the flag
             it.drop(if (showWelcomeMessage) 1 else 0)
                 .map { inAppMessage ->
+                    // Map the raw message data to a fully constructed InAppMessage object
                     InAppMessage(
                         id = inAppMessage.id,
                         from = messageResources.messageFrom,
-                        timestamp = Instant.parse(inAppMessage.timestamp.toString()),
+                        timeState = getTimeState(Instant.parse(inAppMessage.timeState.timestamp.toString())),
                         text = inAppMessage.text,
                         tag = messageResources.getMessageTag(inAppMessage.version),
                         version = inAppMessage.version,

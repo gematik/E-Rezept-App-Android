@@ -128,7 +128,7 @@ private fun AnalyticsInfo(
     text: String
 ) {
     Row(Modifier.fillMaxWidth()) {
-        Icon(icon, null, tint = AppTheme.colors.primary600)
+        Icon(icon, null, tint = AppTheme.colors.primary700)
         SpacerMedium()
         Text(
             text = text,

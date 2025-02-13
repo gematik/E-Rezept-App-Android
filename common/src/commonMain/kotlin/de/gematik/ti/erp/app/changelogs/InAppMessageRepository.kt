@@ -18,9 +18,10 @@
 
 package de.gematik.ti.erp.app.changelogs
 
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import io.realm.kotlin.types.RealmList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 
 interface InAppMessageRepository {
 
@@ -33,6 +34,8 @@ interface InAppMessageRepository {
     val lastUpdatedVersion: Flow<String?>
 
     val showWelcomeMessage: Flow<Boolean>
+
+    val welcomeMessageTimeStamp: Flow<Instant>
 
     suspend fun setInternalMessageAsRead()
 

@@ -100,7 +100,7 @@ fun SettingsAdditionalLicencesScreenContent(
                     stringResource(id = R.string.license_pharmacy_search_web_link),
                     annotation = stringResource(id = R.string.license_pharmacy_search_web_link),
                     tag = "URL",
-                    linkColor = AppTheme.colors.primary500
+                    linkColor = AppTheme.colors.primary700
                 )
 
             val uriHandler = LocalUriHandler.current

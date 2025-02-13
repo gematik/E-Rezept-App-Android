@@ -27,6 +27,11 @@ data class CardWallSaveCredentialsScreenPreviewData(
     val showFutureLogOutHint: Boolean
 )
 
+data class CardWallSaveCredentialsInfoScreenPreviewData(
+    val name: String,
+    val isBiometricStrong: Boolean
+)
+
 class CardWallSaveCredentialsPreviewParameterProvider :
     PreviewParameterProvider<CardWallSaveCredentialsScreenPreviewData> {
     override val values = sequenceOf(
@@ -44,6 +49,20 @@ class CardWallSaveCredentialsPreviewParameterProvider :
             name = "AuthenticationMethod.HealthCard",
             selectedAuthMode = AuthenticationMethod.HealthCard,
             showFutureLogOutHint = true
+        )
+    )
+}
+
+class CardWallSaveCredentialsInfoPreviewParameterProvider :
+    PreviewParameterProvider<CardWallSaveCredentialsInfoScreenPreviewData> {
+    override val values = sequenceOf(
+        CardWallSaveCredentialsInfoScreenPreviewData(
+            name = "BiometricStrong",
+            isBiometricStrong = true
+        ),
+        CardWallSaveCredentialsInfoScreenPreviewData(
+            name = "BiometricWeak",
+            isBiometricStrong = false
         )
     )
 }

@@ -140,7 +140,7 @@ private fun ProfileImageSelectorDialog(
 @Composable
 private fun ProfileImageSelectorButton(
     text: String,
-    tint: Color = AppTheme.colors.primary600,
+    tint: Color = AppTheme.colors.primary700,
     onClick: () -> Unit
 ) {
     TextButton(onClick = onClick) {

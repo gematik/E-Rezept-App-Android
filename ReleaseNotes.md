@@ -1,3 +1,11 @@
+# Release 1.27.0
+- changed: main color of the app became darker to allow for more contrast
+- changed: optimized messages
+- added: spanish and irish are now supported
+- Bug fixes
+- infrastructure/ project improvements
+- UX improvements
+
 # Release 1.26.0
 - added: link to organ donation register in settings
 - added: in-app notification about the latest changes

@@ -84,7 +84,7 @@ fun TertiaryButton(
     border: BorderStroke? = BorderStroke(width = 1.dp, color = AppTheme.colors.neutral300),
     colors: ButtonColors = ButtonDefaults.buttonColors(
         backgroundColor = AppTheme.colors.neutral050,
-        contentColor = AppTheme.colors.primary600
+        contentColor = AppTheme.colors.primary700
     ),
     contentPadding: PaddingValues = PaddingValues(
         horizontal = PaddingDefaults.Large,
@@ -244,7 +244,7 @@ fun OutlinedIconButton(
         Icon(
             imageVector = imageVector,
             contentDescription = contentDescription,
-            tint = AppTheme.colors.primary600,
+            tint = AppTheme.colors.primary700,
             modifier = Modifier.size(SizeDefaults.triple)
         )
     }

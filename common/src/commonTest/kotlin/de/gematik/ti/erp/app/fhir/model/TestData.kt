@@ -159,42 +159,97 @@ val task_bundle_version_1_3 by lazy {
     File("$ResourceBasePath/fhir/task_bundle_vers_1_3.json").readText()
 }
 
+// for PKV profile v1.2
 val charge_item_bundle_version_1_2 by lazy {
-    File("$ResourceBasePath/fhir/pkv/charge_item_bundle_vers_1_2.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/charge_item_bundle_vers_1_2.json").readText()
 }
 
 val chargeItem_freetext by lazy {
-    File("$ResourceBasePath/fhir/pkv/Freitext-Verordnung.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/Freitext-Verordnung.json").readText()
 }
 
 val chargeItem_pzn_1 by lazy {
-    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_1.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/PZN-Verordnung_Nr_1.json").readText()
 }
 
 val chargeItem_pzn_2 by lazy {
-    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_2.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/PZN-Verordnung_Nr_2.json").readText()
 }
 
 val chargeItem_pzn_3 by lazy {
-    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_3.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/PZN-Verordnung_Nr_3.json").readText()
 }
 
 val chargeItem_pzn_5 by lazy {
-    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_5.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/PZN-Verordnung_Nr_5.json").readText()
 }
 
 val chargeItem_pzn_6 by lazy {
-    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_6.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/PZN-Verordnung_Nr_6.json").readText()
 }
 
 val chargeItem_pzn_7 by lazy {
-    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_7.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/PZN-Verordnung_Nr_7.json").readText()
 }
 
 val chargeItem_pzn_8 by lazy {
-    File("$ResourceBasePath/fhir/pkv/PZN-Verordnung_Nr_8.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/PZN-Verordnung_Nr_8.json").readText()
 }
 
 val chargeItem_compounding by lazy {
-    File("$ResourceBasePath/fhir/pkv/Rezeptur-Verordnung_Nr_1.json").readText()
+    File("$ResourceBasePath/fhir/pkv/pkv1_2/Rezeptur-Verordnung_Nr_1.json").readText()
+}
+
+// for PKV profile v1.3
+
+val chargeItem_pzn_1_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_1.json").readText()
+}
+
+val chargeItem_pzn_2_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_2.json").readText()
+}
+
+val chargeItem_pzn_3_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_3.json").readText()
+}
+
+val chargeItem_pzn_5_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_5.json").readText()
+}
+
+val chargeItem_pzn_6_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_6.json").readText()
+}
+
+val chargeItem_pzn_7_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_7.json").readText()
+}
+
+val chargeItem_pzn_8_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_8.json").readText()
+}
+
+val chargeItem_pzn_14_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_14.json").readText()
+}
+
+val chargeItem_pzn_15_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_15.json").readText()
+}
+
+val chargeItem_pzn_16_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_16.json").readText()
+}
+
+val erp_charge_bundle_1_4 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/erp_charge_bundle_1_4.json").readText()
+}
+
+val chargeItem_pzn_18_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/PZN-Verordnung_Nr_18.json").readText()
+}
+
+val chargeItem_freetext_v1_3 by lazy {
+    File("$ResourceBasePath/fhir/pkv/pkv1_3/Freitext-Verordnung.json").readText()
 }

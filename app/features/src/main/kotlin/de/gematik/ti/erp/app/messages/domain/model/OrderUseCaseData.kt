@@ -70,7 +70,10 @@ object OrderUseCaseData {
         val pickUpCodeDMC: String?,
         val pickUpCodeHR: String?,
         val link: String?,
-        val consumed: Boolean
+        val consumed: Boolean,
+        val prescriptions: List<Prescription?>,
+        val taskIds: List<String> = emptyList(),
+        val isTaskIdCountMatching: Boolean = false
     ) {
         enum class Type {
             All,

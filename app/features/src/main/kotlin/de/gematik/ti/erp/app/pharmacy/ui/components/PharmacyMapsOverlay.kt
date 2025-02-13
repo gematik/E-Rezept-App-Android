@@ -95,7 +95,7 @@ fun BoxScope.pharmacyMapsOverlay(
                 Icon(
                     Icons.Rounded.Close,
                     contentDescription = null,
-                    tint = AppTheme.colors.primary600,
+                    tint = AppTheme.colors.primary700,
                     modifier = Modifier.size(SizeDefaults.triple)
                 )
             }
@@ -112,7 +112,7 @@ fun BoxScope.pharmacyMapsOverlay(
             Icon(
                 Icons.Outlined.Tune,
                 contentDescription = null,
-                tint = AppTheme.colors.primary600,
+                tint = AppTheme.colors.primary700,
                 modifier = Modifier.size(SizeDefaults.triple)
             )
         }
@@ -148,7 +148,7 @@ fun BoxScope.pharmacyMapsOverlay(
                         else -> Icon(
                             Icons.Rounded.MyLocation,
                             contentDescription = null,
-                            tint = AppTheme.colors.primary600,
+                            tint = AppTheme.colors.primary700,
                             modifier = Modifier.size(SizeDefaults.triple)
                         )
                     }

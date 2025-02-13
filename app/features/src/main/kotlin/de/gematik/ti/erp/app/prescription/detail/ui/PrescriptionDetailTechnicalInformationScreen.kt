@@ -35,6 +35,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -43,13 +44,19 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
+import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailTechnicalInfoPreviewParameter
+import de.gematik.ti.erp.app.prescription.model.PrescriptionData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.Label
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.uistate.UiState
 
 class PrescriptionDetailTechnicalInformationScreen(
     override val navController: NavController,
@@ -65,38 +72,49 @@ class PrescriptionDetailTechnicalInformationScreen(
         val prescriptionDetailsController = rememberPrescriptionDetailController(taskId)
         val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
 
-        UiStateMachine(
-            state = profilePrescriptionData,
-            onLoading = {
-                Center {
-                    CircularProgressIndicator()
-                }
-            },
-            onEmpty = {
-                ErrorScreenComponent()
-            },
-            onError = {
-                ErrorScreenComponent()
-            },
-            onContent = { (_, prescription) ->
-                val listState = rememberLazyListState()
-                AnimatedElevationScaffold(
-                    modifier = Modifier.testTag(TestTag.Prescriptions.Details.TechnicalInformation.Screen),
-                    topBarTitle = stringResource(R.string.pres_detail_technical_information),
-                    listState = listState,
-                    onBack = navController::popBackStack,
-                    navigationMode = NavigationBarMode.Back
-                ) { innerPadding ->
-                    PrescriptionDetailTechnicalInformationScreen(
-                        listState,
-                        innerPadding,
-                        prescription.taskId,
-                        prescription.accessCode
-                    )
-                }
-            }
+        PrescriptionDetailTechnicalInformationContent(
+            profilePrescriptionData = profilePrescriptionData,
+            onBack = navController::popBackStack
         )
     }
+}
+
+@Composable
+fun PrescriptionDetailTechnicalInformationContent(
+    profilePrescriptionData: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>,
+    onBack: () -> Unit
+) {
+    UiStateMachine(
+        state = profilePrescriptionData,
+        onLoading = {
+            Center {
+                CircularProgressIndicator()
+            }
+        },
+        onEmpty = {
+            ErrorScreenComponent()
+        },
+        onError = {
+            ErrorScreenComponent()
+        },
+        onContent = { (_, prescription) ->
+            val listState = rememberLazyListState()
+            AnimatedElevationScaffold(
+                modifier = Modifier.testTag(TestTag.Prescriptions.Details.TechnicalInformation.Screen),
+                topBarTitle = stringResource(R.string.pres_detail_technical_information),
+                listState = listState,
+                onBack = onBack,
+                navigationMode = NavigationBarMode.Back
+            ) { innerPadding ->
+                PrescriptionDetailTechnicalInformationScreen(
+                    listState = listState,
+                    innerPadding = innerPadding,
+                    taskId = prescription.taskId,
+                    accessCode = prescription.accessCode
+                )
+            }
+        }
+    )
 }
 
 @Composable
@@ -132,5 +150,19 @@ private fun PrescriptionDetailTechnicalInformationScreen(
             )
             SpacerMedium()
         }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun PrescriptionDetailTechnicalInformationScreenPreview(
+    @PreviewParameter(PrescriptionDetailTechnicalInfoPreviewParameter::class)
+    previewUiState: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>
+) {
+    PreviewAppTheme {
+        PrescriptionDetailTechnicalInformationContent(
+            profilePrescriptionData = previewUiState,
+            onBack = {}
+        )
     }
 }

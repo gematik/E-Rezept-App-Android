@@ -26,8 +26,8 @@ import de.gematik.ti.erp.app.theme.AppTheme
 fun SwitchDefaults.erezeptColors() = colors(
     checkedTrackColor = AppTheme.colors.primary200,
     uncheckedTrackColor = AppTheme.colors.neutral200,
-    checkedThumbColor = AppTheme.colors.primary600,
+    checkedThumbColor = AppTheme.colors.primary700,
     uncheckedThumbColor = AppTheme.colors.neutral400,
-    checkedBorderColor = AppTheme.colors.primary600,
+    checkedBorderColor = AppTheme.colors.primary700,
     uncheckedBorderColor = AppTheme.colors.neutral400
 )

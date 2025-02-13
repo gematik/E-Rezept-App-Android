@@ -90,7 +90,7 @@ private fun RedeemSection(modifier: Modifier = Modifier, text: String, image: Pa
             .border(
                 width = SizeDefaults.quarter,
                 shape = shape,
-                color = AppTheme.colors.primary600
+                color = AppTheme.colors.primary700
             )
             .clip(shape)
             .clickable(
@@ -113,7 +113,7 @@ private fun RedeemSection(modifier: Modifier = Modifier, text: String, image: Pa
             modifier = Modifier.align(Alignment.CenterHorizontally),
             textAlign = TextAlign.Center,
             style = AppTheme.typography.subtitle2,
-            color = AppTheme.colors.primary600
+            color = AppTheme.colors.primary700
         )
     }
 }

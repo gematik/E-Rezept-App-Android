@@ -42,35 +42,14 @@ object PkvHtmlTemplate {
 
     private fun createArticle(
         text: String,
-        bruttoAmount: Double
-    ) = """
-        <div>$text</div>
-        <div></div>
-        <div></div>
-        <div>${bruttoAmount.currencyString()}</div>
-    """.trimIndent()
-
-    private fun createArticle(
-        text: String,
         pzn: String,
         factor: Double,
-        bruttoAmount: Double
+        bruttoAmount: Double?
     ) = """
         <div>$text</div>
         <div>$pzn</div>
         <div>${factor.currencyString()}</div>
-        <div>${bruttoAmount.currencyString()}</div>
-    """.trimIndent()
-
-    private fun createArticle(
-        text: String,
-        pzn: String,
-        factor: Double
-    ) = """
-        <div>$text</div>
-        <div>$pzn</div>
-        <div>${factor.currencyString()}</div>
-        <div></div>
+        <div>${bruttoAmount?.currencyString() ?: ""}</div>
     """.trimIndent()
 
     @Suppress("CyclomaticComplexMethod")
@@ -96,33 +75,81 @@ object PkvHtmlTemplate {
         val multiplePrescriptionInfo = createMultiplePrescriptionInfo(
             medicationRequest.multiplePrescriptionInfo
         )
-        val articlesHtml = createArticlesPriceData(
-            medication,
-            taskId,
-            multiplePrescriptionInfo,
-            articles.map {
-                val pzn = when (it.description) {
-                    is InvoiceData.ChargeableItem.Description.HMNR -> it.description.hmnr
-                    is InvoiceData.ChargeableItem.Description.PZN -> it.description.pzn
-                    is InvoiceData.ChargeableItem.Description.TA1 -> it.description.ta1
+        // Process articles with Teilmengenabgabe support
+        val processedArticles = articles.flatMap { article ->
+            val baseArticle = run {
+                val pzn = when (article.description) {
+                    is InvoiceData.ChargeableItem.Description.HMNR -> article.description.hmnr
+                    is InvoiceData.ChargeableItem.Description.PZN -> article.description.pzn
+                    is InvoiceData.ChargeableItem.Description.TA1 -> article.description.ta1
                 }
 
                 val text = when (medicationRequest.medication) {
                     is SyncedTaskData.Medication -> if (medicationRequest.medication.identifier.pzn == pzn) {
                         "wie verordnet"
                     } else {
-                        it.text
+                        article.text
                     }
-                    else -> { it.text }
+                    else -> article.text
                 }
 
                 createArticle(
                     text = text,
                     pzn = pzn,
-                    factor = it.factor,
-                    bruttoAmount = it.price.value
+                    factor = article.factor,
+                    bruttoAmount = article.price.value
                 )
-            },
+            }
+
+            // Add Teilmengenabgabe entry if applicable
+            val teilmengenArticle = if (article.partialQuantityDelivery && article.spenderPzn != null) {
+                createArticle(
+                    text = "Teilmenge aus",
+                    pzn = article.spenderPzn,
+                    factor = 0.0,
+                    bruttoAmount = null
+                )
+            } else {
+                null
+            }
+
+            if (teilmengenArticle != null) {
+                listOf(baseArticle, teilmengenArticle)
+            } else {
+                listOf(baseArticle)
+            }
+        }
+
+        // Process fees with PZN display
+        val processedFees = fees.map { fee ->
+            val pzn = when (fee.description) {
+                is InvoiceData.ChargeableItem.Description.HMNR -> fee.description.hmnr
+                is InvoiceData.ChargeableItem.Description.PZN -> fee.description.pzn
+                is InvoiceData.ChargeableItem.Description.TA1 -> fee.description.ta1
+            }
+            val article = when (InvoiceData.SpecialPZN.valueOfPZN(pzn)) {
+                InvoiceData.SpecialPZN.EmergencyServiceFee -> "Notdienstgebühr"
+                InvoiceData.SpecialPZN.BTMFee -> "BTM-Gebühr"
+                InvoiceData.SpecialPZN.TPrescriptionFee -> "T-Rezept Gebühr"
+                InvoiceData.SpecialPZN.ProvisioningCosts -> "Beschaffungskosten"
+                InvoiceData.SpecialPZN.DeliveryServiceCosts -> "Botendienst"
+                InvoiceData.SpecialPZN.SupplyShortageFee -> "Lieferengpass-Pauschale"
+                null -> error("wrong mapping")
+            }
+
+            createArticle(
+                text = article,
+                pzn = pzn,
+                factor = 0.0,
+                bruttoAmount = fee.price.value
+            )
+        }
+
+        val articlesHtml = createArticlesPriceData(
+            medication,
+            taskId,
+            multiplePrescriptionInfo,
+            processedArticles,
             additionalDispenseItems.map {
                 val pzn = when (it.description) {
                     is InvoiceData.ChargeableItem.Description.HMNR -> it.description.hmnr
@@ -133,32 +160,12 @@ object PkvHtmlTemplate {
                 createArticle(
                     text = it.text,
                     pzn = pzn,
-                    factor = it.factor
+                    factor = 0.0,
+                    bruttoAmount = null
                 )
             },
             additionalInformation
         )
-
-        val additionalFees = fees.map {
-            val number = when (it.description) {
-                is InvoiceData.ChargeableItem.Description.HMNR -> it.description.hmnr
-                is InvoiceData.ChargeableItem.Description.PZN -> it.description.pzn
-                is InvoiceData.ChargeableItem.Description.TA1 -> it.description.ta1
-            }
-            val article = when (InvoiceData.SpecialPZN.valueOfPZN(number)) {
-                InvoiceData.SpecialPZN.EmergencyServiceFee -> "Notdienstgebühr"
-                InvoiceData.SpecialPZN.BTMFee -> "BTM-Gebühr"
-                InvoiceData.SpecialPZN.TPrescriptionFee -> "T-Rezept Gebühr"
-                InvoiceData.SpecialPZN.ProvisioningCosts -> "Beschaffungskosten"
-                InvoiceData.SpecialPZN.DeliveryServiceCosts -> "Botendienst"
-                null -> error("wrong mapping")
-            }
-
-            createArticle(
-                text = article,
-                bruttoAmount = it.price.value
-            )
-        }
         val header = if (fees.isNotEmpty()) {
             """<div class="header" style="padding-top: 0.5em;">Zusätzliche Gebühren [€]</div>
             <div></div>
@@ -168,7 +175,7 @@ object PkvHtmlTemplate {
         } else {
             ""
         }
-        val feesHtml = createFeesPriceData(totalBruttoAmount, additionalFees, header)
+        val feesHtml = createFeesPriceData(totalBruttoAmount, processedFees, header)
 
         return articlesHtml.plus(feesHtml)
     }
@@ -225,7 +232,7 @@ object PkvHtmlTemplate {
     ) = """
         <div class="frame">
             <div class="content costs">
-              <div class= header style="grid-area: 1/span 4;">Arzneimittel-ID: $taskId $multiplePrescriptionInfo</div>
+              <div class="header" style="grid-area: 1/span 4;">Arzneimittel-ID: $taskId $multiplePrescriptionInfo</div>
               <div style="grid-area: 2/span 4;">$requestMedication</div>
                 <div>&nbsp;</div>
                 <div></div>
@@ -240,7 +247,6 @@ object PkvHtmlTemplate {
                 <div style="grid-area: 6/span 4; padding-top: 2em">${additionalInformation.joinToString("</br>")}</div>
             </div>
         </div>
-    </div>
     """.trimIndent()
 
     fun createHTML(invoice: InvoiceData.PKVInvoiceRecord): String {
@@ -291,7 +297,7 @@ fun createPkvHtmlInvoiceTemplate(
     pharmacy: String,
     dispensedOn: String,
     priceData: String
-) = """
+): String = """
     <!DOCTYPE html>
     <html lang="de">
     <head>
@@ -370,8 +376,8 @@ fun createPkvHtmlInvoiceTemplate(
 
     </style>
     <body>
-    <h1>Digitaler Beleg zur Abrechnung Ihres E-Rezeptes</h1>
-    <sub>Bitte leiten Sie diesen Beleg über die App an Ihre Versicherung weiter.</sub>
+        <h1>Digitaler Beleg zur Abrechnung Ihres E-Rezeptes</h1>
+        <sub>Bitte leiten Sie diesen Beleg über die App an Ihre Versicherung weiter.</sub>
     <div class="frame">
         <h5>Patient</h5>
         <div class="content">

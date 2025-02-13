@@ -32,7 +32,9 @@ data class Communication(
     val sender: String,
     val recipient: String,
     val payload: String?,
-    val consumed: Boolean
+    val consumed: Boolean,
+    val taskIds: List<String> = emptyList(),
+    val isTaskIdCountMatching: Boolean = false
 )
 
 enum class CommunicationProfile {

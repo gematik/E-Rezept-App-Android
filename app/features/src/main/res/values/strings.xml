@@ -467,7 +467,7 @@
     <string name="cdw_info_title">Hinweis</string>
     <string name="cdw_info_accept">Akzeptieren</string>
     <string name="cdw_info_header">Sicherheit Ihrer Rezeptdaten</string>
-    <string name="cdw_info_first">\Diese App verwendet den sichersten biometrischen Sensor, der von Ihrem Gerät zur Verfügung gestellt wird, um Ihre Zugangsdaten in einem geschützten Bereich des Gerätespeichers zu sichern.\</string>
+    <string name="cdw_info_first">Diese App verwendet den sichersten biometrischen Sensor, der von Ihrem Gerät zur Verfügung gestellt wird, um Ihre Zugangsdaten in einem geschützten Bereich des Gerätespeichers zu sichern.</string>
     <string name="cdw_info_second">Die biometrische Sicherung Ihrer Zugangsdaten erlaubt es, diese App in Zukunft ohne Gesundheitskarte und Eingabe der PIN zu öffnen, Rezepte einzusehen, abzurufen, einzulösen oder zu löschen.</string>
     <string name="cdw_info_third">Bitte achten Sie darauf, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und deren biometrische Merkmale auf diesem Gerät gespeichert sein könnten, ebenfalls Zugriff auf Ihre Rezepte erhalten.</string>
     <string name="main_fasttrack_error_title">Das hat leider nicht geklappt</string>
@@ -1233,7 +1233,7 @@
     <string name="settings_explore_headline">Erkunden</string>
     <string name="organ_donation_menu_entry">Organspenderegister</string>
     <string name="organ_donation_dialog_title">Organspenderegister öffnen?</string>
-    <string name="organ_donation_dialog_info">Sie werden zum Organspenderegister weitergeleitet. Um Ihre Daten zur Organspende einsehen und ändern zu können, müssen Sie sich dort anmelden.</string>
+    <string name="organ_donation_dialog_info">Sie werden zur Webseite des Organspenderegisters weitergeleitet. Um Ihre Daten zur Organspende einsehen und ändern zu können, müssen Sie sich dort anmelden.</string>
     <string name="organ_donation_dialog_confirm">Öffnen</string>
     <string name="organ_donation_dialog_dismiss">Abbrechen</string>
     <string name="not_active_in_demo_mode_toast">Funktion im Demo-Modus nicht aktiv</string>
@@ -1245,10 +1245,15 @@
     <string name="pharmacy_search_favorite_toggle_active">aktiv</string>
     <string name="pharmacy_search_favorite_toggle_inactive">inaktiv</string>
     <string name="pharmacy_search_active_filter">Filter aktiv</string>
-    <string name="google_maps_button">Google Maps</string>
+    <string name="google_maps_button" translatable="false">Google Maps</string>
     <string name="pharmacy_search_searchbar">Apothekensuche</string>
     <string name="pharmacy_search_delete_button">Sucheingabe löschen</string>
     <string name="mediction_detiail_ask">ASK-Nummer</string>
     <string name="mediction_detiail_atc">ATC-Nummer</string>
-    <string name="mediction_detiail_snomed">Snomed</string>
+    <string name="mediction_detiail_snomed" translatable="false">Snomed</string>
+    <string name="all_prescriptions_of_order">Alle Rezepte der Bestellung</string>
+    <string name="invoice_details_supply_shortage_fee">Lieferengpass-Pauschale</string>
+    <string name="message_list_time_state_hours">%s Uhr</string>
+    <string name="language_selection_es">Spanisch</string>
+    <string name="language_selection_ga">Irisch</string>
 </resources>

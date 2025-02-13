@@ -443,7 +443,7 @@
     <string name="cdw_info_title">Not</string>
     <string name="cdw_info_accept">Kabul</string>
     <string name="cdw_info_header">Reçete verilerinizin güvenliği</string>
-    <string name="cdw_info_first">\Bu uygulama, kimlik bilgilerinizi cihaz depolama alanının korumalı bir alanında güvence altına almak için cihazınız tarafından sağlanan en güvenli biyometrik sensörü kullanır.\</string>
+    <string name="cdw_info_first">Bu uygulama, kimlik bilgilerinizi cihaz depolama alanının korumalı bir alanında güvence altına almak için cihazınız tarafından sağlanan en güvenli biyometrik sensörü kullanır.</string>
     <string name="cdw_info_second">Erişim verilerinizin biyometrik olarak kaydedilmesi, bu uygulamaya bundan sonra sağlık kartı olmadan ve PIN girmeden giriş yapılmasına, reçetelerin görüntülenmesine, açılmasına, kullanılmasına veya silinmesine olanak sağlar.</string>
     <string name="cdw_info_third">Lütfen bu cihazı paylaşabileceğiniz ve biyometrik özellikleri bu cihazda saklanabilecek kişilerin de reçetelerinize erişebildiğinden emin olunuz.</string>
     <string name="main_fasttrack_error_title">Bu maalesef olmadı</string>
@@ -1185,8 +1185,23 @@
     <string name="settings_explore_headline">Keşfetmek</string>
     <string name="organ_donation_menu_entry">Organ bağışı kaydı</string>
     <string name="organ_donation_dialog_title">Organ bağışı kaydı açılsın mı?</string>
-    <string name="organ_donation_dialog_info">Organ bağışçısı kayıt sayfasına yönlendirileceksiniz. Organ bağışı verilerinizi görüntülemek ve değiştirmek için buraya giriş yapmalısınız.</string>
+    <string name="organ_donation_dialog_info">Organ bağışçısı kayıt web sitesine yönlendirileceksiniz. Organ bağışı verilerinizi görüntülemek ve değiştirmek için buraya giriş yapmalısınız.</string>
     <string name="organ_donation_dialog_confirm">Açık</string>
     <string name="organ_donation_dialog_dismiss">İptal etmek</string>
     <string name="not_active_in_demo_mode_toast">İşlev demo modunda etkin değil</string>
+    <string name="internal_message_from">E-reçete uygulama ekibi</string>
+    <string name="internal_message_tag">Uygulama sürümündeki yenilikler %s</string>
+    <string name="welcome_text">E-reçete uygulamasına hoş geldiniz! Bu uygulama ile e-reçeteleri dijital olarak alabilir ve istediğiniz eczaneye gönderebilirsiniz. Reçeteyi teslim almak üzere orada rezerve etmek mi yoksa evinize teslim edilmesini mi istediğiniz tamamen size bağlıdır. Elbette ailenizin tariflerini de yönetebilirsiniz. Reçetelerin dijital ortamda alınabilmesi için kayıt olunması gerekmektedir. \n \n Burada olmana sevindim! \n E-reçete uygulama ekibiniz  </string>
+    <string name="welcome_tag">🎉 Hoş geldiniz!</string>
+    <string name="pharmacy_search_favorite_toggle">Favorilere ekle</string>
+    <string name="pharmacy_search_favorite_toggle_active">aktif</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">aktif değil</string>
+    <string name="pharmacy_search_active_filter">Filtre etkin</string>
+    <string name="pharmacy_search_searchbar">Eczane arama</string>
+    <string name="pharmacy_search_delete_button">Arama girişini sil</string>
+    <string name="mediction_detiail_ask">ASK numarası</string>
+    <string name="mediction_detiail_atc">ATC numarası</string>
+    <string name="all_prescriptions_of_order">Tüm tarifler sırayla</string>
+    <string name="invoice_details_supply_shortage_fee">Teslimat darboğazı sabit ücreti</string>
+    <string name="message_list_time_state_hours">%s saat</string>
 </resources>

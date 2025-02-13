@@ -493,7 +493,26 @@ class InvoiceLocalDataSource(
                 }
             }
 
+    fun getAllUnreadInvoices(): Flow<List<InvoiceData.InvoiceStatus>> =
+        realm.query<PKVInvoiceEntityV1>("consumed = false")
+            .asFlow()
+            .map { invoices ->
+                invoices.list.map { invoice ->
+                    InvoiceData.InvoiceStatus(taskId = invoice.taskId, consumed = invoice.consumed)
+                }
+            }
+
     suspend fun updateInvoiceCommunicationStatus(taskId: String, consumed: Boolean) {
+        realm.tryWrite {
+            this.query<PKVInvoiceEntityV1>("taskId == $0", taskId)
+                .first()
+                .find()?.apply {
+                    this.consumed = consumed
+                } ?: Napier.w("Task ID $taskId not found, unable to update consumed status")
+        }
+    }
+
+    suspend fun updateRepliedCommunicationStatus(taskId: String, consumed: Boolean) {
         realm.tryWrite {
             this.query<PKVInvoiceEntityV1>("taskId == $0", taskId)
                 .first()

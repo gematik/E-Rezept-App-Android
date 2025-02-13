@@ -159,8 +159,8 @@ private fun LanguageSelectionItem(
             RadioButton(
                 selected = checked,
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = AppTheme.colors.primary600,
-                    unselectedColor = AppTheme.colors.primary600
+                    selectedColor = AppTheme.colors.primary700,
+                    unselectedColor = AppTheme.colors.primary700
                 ),
                 onClick = {
                     onCheckedChange(!checked)

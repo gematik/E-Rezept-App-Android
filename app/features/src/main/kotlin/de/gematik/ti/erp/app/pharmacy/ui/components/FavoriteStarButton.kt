@@ -49,7 +49,7 @@ internal fun FavoriteStarButton(
     val color = if (isMarked) {
         AppTheme.colors.yellow500
     } else {
-        AppTheme.colors.primary600
+        AppTheme.colors.primary700
     }
 
     val icon = if (isMarked) {

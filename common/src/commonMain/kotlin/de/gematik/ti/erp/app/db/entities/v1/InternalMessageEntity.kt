@@ -16,9 +16,10 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package de.gematik.ti.erp.app.db.entities.v1.changelogs
+package de.gematik.ti.erp.app.db.entities.v1
 
 import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 
@@ -27,5 +28,6 @@ class InternalMessageEntity : RealmObject {
     var lastUpdatedVersion: String? = null
     var counter: Long = 0
     var showWelcomeMessage: Boolean? = null
+    var welcomeMessageTimeStamp: RealmInstant? = null
     var inAppMessageEntity: RealmList<InAppMessageEntity> = realmListOf()
 }

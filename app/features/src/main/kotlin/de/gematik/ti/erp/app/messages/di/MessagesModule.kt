@@ -25,15 +25,16 @@ import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessageResources
 import de.gematik.ti.erp.app.messages.domain.repository.InAppLocalMessageRepository
 import de.gematik.ti.erp.app.messages.domain.usecase.FetchInAppMessageUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.FetchWelcomeMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.FetchWelcomeMessageUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.MarkAllUnreadMessagesAsReadUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SaveLocalCommunicationUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessageAsReadUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationByCommunicationIdUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationByOrderIdAndCommunicationIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationLocalDataSource
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
@@ -53,8 +54,9 @@ val messagesModule = DI.Module("messagesModule") {
     bindProvider { GetMessageUsingOrderIdUseCase(instance(), instance()) }
     bindProvider { GetProfileByOrderIdUseCase(instance()) }
     bindProvider { GetUnreadMessagesCountUseCase(instance(), instance(), instance()) }
-    bindProvider { UpdateCommunicationByOrderIdAndCommunicationIdUseCase(instance(), instance()) }
-    bindProvider { UpdateCommunicationByCommunicationIdUseCase(instance()) }
+    bindProvider { MarkAllUnreadMessagesAsReadUseCase(instance(), instance(), instance()) }
+    bindProvider { SaveLocalCommunicationUseCase(instance()) }
+    bindProvider { UpdateCommunicationConsumedStatusUseCase(instance()) }
     bindProvider { UpdateInvoicesByOrderIdAndTaskIdUseCase(instance(), instance()) }
     bindProvider { UpdateInAppMessageUseCase(instance(), instance(), instance()) }
     bindProvider { InAppMessageResources(instance()) }

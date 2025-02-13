@@ -62,6 +62,9 @@ object SizeDefaults {
     /** `12dp` in design specification. */
     val oneHalf: Dp get() = multiple(1.5)
 
+    /** `14dp` in design specification. */
+    val oneThreeQuarter: Dp get() = multiple(1.75)
+
     /** `16dp` in design specification. */
     val double: Dp get() = multiple(2.0)
 

@@ -449,7 +449,7 @@
     <string name="cdw_info_title">Înștiințare</string>
     <string name="cdw_info_accept">Accept</string>
     <string name="cdw_info_header">Securitatea datelor dumneavoastră de prescripție</string>
-    <string name="cdw_info_first">\Această aplicație folosește cel mai sigur senzor biometric furnizat de dispozitivul dvs. pentru a vă securiza acreditările într-o zonă protejată a stocării dispozitivului.\</string>
+    <string name="cdw_info_first">Această aplicație folosește cel mai sigur senzor biometric furnizat de dispozitiv pentru a vă securiza acreditările într-o zonă protejată a stocării dispozitivului.</string>
     <string name="cdw_info_second">Securitatea biometrică a datelor dvs. de acces vă permite să deschideți această aplicație în viitor, să vizualizați, să preluați, să răscumpărați sau să ștergeți rețetele fără un card de sănătate și să introduceți codul PIN.</string>
     <string name="cdw_info_third">Vă rugăm să vă asigurați că persoanele cu care puteți partaja acest dispozitiv și ale căror caracteristici biometrice pot fi stocate pe acest dispozitiv au și acces la rețetele dvs.</string>
     <string name="main_fasttrack_error_title">care din pacate nu a functionat</string>
@@ -1194,8 +1194,23 @@
     <string name="settings_explore_headline">Explora</string>
     <string name="organ_donation_menu_entry">Registrul donărilor de organe</string>
     <string name="organ_donation_dialog_title">Deschideți registrul donării de organe?</string>
-    <string name="organ_donation_dialog_info">Veți fi redirecționat către registrul donatorilor de organe. Pentru a vizualiza și modifica datele despre donarea de organe, trebuie să vă conectați acolo.</string>
+    <string name="organ_donation_dialog_info">Veți fi redirecționat către site-ul web al registrului donării de organe. Pentru a vizualiza și modifica datele despre donarea de organe, trebuie să vă conectați acolo.</string>
     <string name="organ_donation_dialog_confirm">Deschide</string>
     <string name="organ_donation_dialog_dismiss">Anula</string>
     <string name="not_active_in_demo_mode_toast">Funcția nu este activă în modul demo</string>
+    <string name="internal_message_from">Echipa aplicației e-rețete</string>
+    <string name="internal_message_tag">Ce este nou în versiunea aplicației %s</string>
+    <string name="welcome_text">Bine ați venit la aplicația e-rețetă! Cu această aplicație puteți primi digital rețete electronice și le puteți trimite la o farmacie la alegere. Dacă doriți să rezervați rețeta acolo pentru ridicare sau să vi se livreze acasă, depinde în totalitate de dvs. Desigur, poți gestiona și rețetele familiei tale. Pentru a primi rețetele digital, este necesară înregistrarea. \n \n Mă bucur că ești aici! \n Echipa dvs. de aplicație e-rețetă  </string>
+    <string name="welcome_tag">🎉 Bine ați venit!</string>
+    <string name="pharmacy_search_favorite_toggle">Adăugați la favorite</string>
+    <string name="pharmacy_search_favorite_toggle_active">activ</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">inactiv</string>
+    <string name="pharmacy_search_active_filter">Filtrul activ</string>
+    <string name="pharmacy_search_searchbar">Căutare farmacie</string>
+    <string name="pharmacy_search_delete_button">Ștergeți intrarea de căutare</string>
+    <string name="mediction_detiail_ask">Număr ASK</string>
+    <string name="mediction_detiail_atc">numărul ATC</string>
+    <string name="all_prescriptions_of_order">Toate retetele in comanda</string>
+    <string name="invoice_details_supply_shortage_fee">Rată fixă ​​de livrare</string>
+    <string name="message_list_time_state_hours">%s ora</string>
 </resources>

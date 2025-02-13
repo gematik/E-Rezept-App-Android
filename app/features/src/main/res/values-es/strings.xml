@@ -443,7 +443,7 @@
     <string name="cdw_info_title">Nota</string>
     <string name="cdw_info_accept">Aceptar</string>
     <string name="cdw_info_header">Seguridad de los datos de sus recetas</string>
-    <string name="cdw_info_first">\Esta aplicación utiliza el sensor biométrico más seguro proporcionado por su dispositivo para proteger sus credenciales en un área protegida del almacenamiento del dispositivo.\</string>
+    <string name="cdw_info_first">Esta aplicación utiliza el sensor biométrico más seguro proporcionado por su dispositivo para proteger sus credenciales en un área protegida del almacenamiento del dispositivo.</string>
     <string name="cdw_info_second">El uso de protección biométrica para sus datos de acceso significa que en el futuro podrá iniciar esta aplicación sin su tarjeta médica ni PIN para ver, recuperar, canjear o eliminar recetas.</string>
     <string name="cdw_info_third">Tenga en cuenta que las personas con quienes pueda compartir este dispositivo y cuyos datos biométricos puedan estar almacenados en este dispositivo también podrán tener acceso a sus recetas.</string>
     <string name="main_fasttrack_error_title">Lamentablemente eso no funcionó.</string>
@@ -1185,8 +1185,23 @@
     <string name="settings_explore_headline">Explorar</string>
     <string name="organ_donation_menu_entry">registro de donación de órganos</string>
     <string name="organ_donation_dialog_title">¿Abrir registro de donación de órganos?</string>
-    <string name="organ_donation_dialog_info">Serás redirigido al registro de donantes de órganos. Para poder ver y cambiar sus datos de donación de órganos, debe iniciar sesión allí.</string>
+    <string name="organ_donation_dialog_info">Serás redirigido al sitio web del registro de donación de órganos. Para poder ver y cambiar sus datos de donación de órganos, debe iniciar sesión allí.</string>
     <string name="organ_donation_dialog_confirm">Abierto</string>
     <string name="organ_donation_dialog_dismiss">Cancelar</string>
     <string name="not_active_in_demo_mode_toast">Función no activa en modo demo</string>
+    <string name="internal_message_from">Equipo de la aplicación de recetas electrónicas</string>
+    <string name="internal_message_tag">Novedades de la versión de la aplicación %s</string>
+    <string name="welcome_text">¡Bienvenido a la aplicación de recetas electrónicas! Con esta aplicación puedes recibir recetas electrónicas digitalmente y enviarlas a la farmacia de tu elección. Si desea reservar la receta allí para recogerla o recibirla en su domicilio, depende totalmente de usted. Por supuesto, también podrás gestionar las recetas de tu familia. Para recibir recetas digitales es necesario registrarse. \n \n ¡Me alegra que estés aquí! \n Su equipo de aplicaciones de recetas electrónicas  </string>
+    <string name="welcome_tag">🎉 ¡Bienvenido!</string>
+    <string name="pharmacy_search_favorite_toggle">Añadir a favoritos</string>
+    <string name="pharmacy_search_favorite_toggle_active">activo</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">inactivo</string>
+    <string name="pharmacy_search_active_filter">Filtro activo</string>
+    <string name="pharmacy_search_searchbar">Búsqueda de farmacias</string>
+    <string name="pharmacy_search_delete_button">Eliminar entrada de búsqueda</string>
+    <string name="mediction_detiail_ask">número ASK</string>
+    <string name="mediction_detiail_atc">número ATC</string>
+    <string name="all_prescriptions_of_order">Todas las recetas en orden.</string>
+    <string name="invoice_details_supply_shortage_fee">Tarifa plana de cuello de botella en la entrega</string>
+    <string name="message_list_time_state_hours">%s en punto</string>
 </resources>

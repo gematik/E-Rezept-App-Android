@@ -163,7 +163,7 @@ private fun MlKitInformationScreenContent(
                     context.handleIntent(providePhoneIntent(phoneNumber))
                 }
             ) {
-                Icon(Icons.Rounded.Phone, null, tint = AppTheme.colors.primary600)
+                Icon(Icons.Rounded.Phone, null, tint = AppTheme.colors.primary700)
                 SpacerMedium()
                 Text(
                     modifier = Modifier.weight(1f),

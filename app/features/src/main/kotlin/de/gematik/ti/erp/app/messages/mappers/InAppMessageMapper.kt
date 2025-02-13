@@ -18,9 +18,10 @@
 
 package de.gematik.ti.erp.app.messages.mappers
 
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.LocalInAppJsonMessage
+import de.gematik.ti.erp.app.messages.domain.model.getTimeState
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
 import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.datetime.Instant
@@ -29,7 +30,7 @@ fun LocalInAppJsonMessage.toInAppMessage(from: String, tag: String, timeStamp: I
     return InAppMessage(
         id = id,
         from = from,
-        timestamp = timeStamp,
+        timeState = getTimeState(timeStamp),
         text = text,
         tag = tag,
         isUnread = true,

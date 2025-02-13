@@ -43,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -55,6 +56,8 @@ import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
 import de.gematik.ti.erp.app.cardwall.presentation.SaveCredentialsController
 import de.gematik.ti.erp.app.cardwall.presentation.rememberSaveCredentialsScreenController
+import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsInfoPreviewParameterProvider
+import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsInfoScreenPreviewData
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -63,8 +66,10 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.rememberContentPadding
 import kotlinx.coroutines.launch
 
@@ -238,5 +243,27 @@ private fun CardWallSaveCredentialsInfoScreenBottomBar(
                 )
             }
         }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun CardWallSaveCredentialsInfoScreenPreview(
+    @PreviewParameter(CardWallSaveCredentialsInfoPreviewParameterProvider::class) previewData:
+        CardWallSaveCredentialsInfoScreenPreviewData
+) {
+    PreviewAppTheme {
+        CardWallSaveCredentialsInfoScreenScaffold(
+            listState = rememberLazyListState(),
+            onAccept = {},
+            onBack = {},
+            content = { paddingValues ->
+                CardWallSaveCredentialsInfoScreenContent(
+                    listState = rememberLazyListState(),
+                    biometricStrong = previewData.isBiometricStrong,
+                    innerPadding = paddingValues
+                )
+            }
+        )
     }
 }

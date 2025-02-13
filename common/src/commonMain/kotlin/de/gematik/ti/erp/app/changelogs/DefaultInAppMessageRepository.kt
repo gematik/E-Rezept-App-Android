@@ -18,9 +18,10 @@
 
 package de.gematik.ti.erp.app.changelogs
 
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import io.realm.kotlin.types.RealmList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 
 class DefaultInAppMessageRepository(
     private val inAppDataSource: InAppDataSource
@@ -39,6 +40,9 @@ class DefaultInAppMessageRepository(
 
     override val showWelcomeMessage: Flow<Boolean> =
         inAppDataSource.showWelcomeMessage
+
+    override val welcomeMessageTimeStamp: Flow<Instant>
+        get() = inAppDataSource.welcomeMessageTimeStamp
 
     override suspend fun setInternalMessageAsRead() =
         inAppDataSource.setInternalMessageAsRead()

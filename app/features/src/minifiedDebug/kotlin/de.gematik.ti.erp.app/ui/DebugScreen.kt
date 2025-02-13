@@ -16,6 +16,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+@file: Suppress("UnusedPrivateMember", "MagicNumber")
+
 package de.gematik.ti.erp.app.ui
 
 import android.content.Intent
@@ -46,15 +48,20 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Adb
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -80,6 +87,7 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.debugsettings.pkv.ui.DebugScreenPKV
+import de.gematik.ti.erp.app.debugsettings.presentation.DebugSettingsViewModel
 import de.gematik.ti.erp.app.debugsettings.qrcode.QrCodeScannerScreen
 import de.gematik.ti.erp.app.debugsettings.timeout.DebugTimeoutScreen
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClearTextTrafficSection
@@ -89,6 +97,7 @@ import de.gematik.ti.erp.app.debugsettings.ui.components.LoadingButton
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AlertDialog
@@ -98,11 +107,11 @@ import de.gematik.ti.erp.app.utils.compose.LabelButton
 import de.gematik.ti.erp.app.utils.compose.NavigationAnimation
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.OutlinedDebugButton
+import de.gematik.ti.erp.app.utils.compose.erezeptTextFieldColors
 import de.gematik.ti.erp.app.utils.compose.navigationModeState
 import de.gematik.ti.erp.app.utils.extensions.erezeptColors
 import kotlinx.coroutines.launch
 import org.bouncycastle.util.encoders.Base64
-import org.kodein.di.Copy
 import org.kodein.di.bindProvider
 import org.kodein.di.compose.rememberViewModel
 import org.kodein.di.compose.subDI
@@ -111,7 +120,7 @@ import java.io.ByteArrayOutputStream
 import java.time.LocalDateTime
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
-@file: Suppress("UnusedPrivateMember", "MagicNumber")
+
 @Composable
 fun DebugCard(
     modifier: Modifier = Modifier,
@@ -192,11 +201,12 @@ fun EditablePathComponentWithControl(
     content: @Composable ((Boolean) -> Unit) -> Unit
 ) {
     Row(verticalAlignment = Alignment.CenterVertically, modifier = modifier.fillMaxWidth()) {
-        ErezeptOutlineText(
+        TextField(
             value = textFieldValue,
             onValueChange = { onValueChange(it, false) },
             label = { Text(label) },
             maxLines = 3,
+            colors = erezeptTextFieldColors(),
             modifier = Modifier
                 .weight(1f)
                 .padding(end = PaddingDefaults.Medium)
@@ -213,29 +223,29 @@ fun DebugScreen(
     val navController = rememberNavController()
     val navMode by navController.navigationModeState(DebugScreenNavigation.DebugMain.path())
 
-    subDI(
-        copy = Copy.All,
-        diBuilder = {
-            bindProvider {
-                DebugSettingsViewModel(
-                    visibleDebugTree = instance(),
-                    endpointHelper = instance(),
-                    cardWallUseCase = instance(),
-                    prescriptionUseCase = instance(),
-                    saveInvoiceUseCase = instance(),
-                    vauRepository = instance(),
-                    idpRepository = instance(),
-                    idpUseCase = instance(),
-                    profilesUseCase = instance(),
-                    featureToggleManager = instance(),
-                    pharmacyDirectRedeemUseCase = instance(),
-                    getAppUpdateManagerFlagUseCase = instance(),
-                    changeAppUpdateManagerFlagUseCase = instance(),
-                    dispatchers = instance()
-                )
-            }
+    subDI(diBuilder = {
+        bindProvider {
+            DebugSettingsViewModel(
+                visibleDebugTree = instance(),
+                endpointHelper = instance(),
+                cardWallUseCase = instance(),
+                prescriptionUseCase = instance(),
+                saveInvoiceUseCase = instance(),
+                vauRepository = instance(),
+                idpRepository = instance(),
+                idpUseCase = instance(),
+                profilesUseCase = instance(),
+                featureToggleManager = instance(),
+                pharmacyDirectRedeemUseCase = instance(),
+                getAppUpdateManagerFlagUseCase = instance(),
+                changeAppUpdateManagerFlagUseCase = instance(),
+                markAllUnreadMessagesAsReadUseCase = instance(),
+                deletePrescriptionUseCase = instance(),
+                getTaskIdsUseCase = instance(),
+                dispatchers = instance()
+            )
         }
-    ) {
+    }) {
         val viewModel by rememberViewModel<DebugSettingsViewModel>()
         NavHost(
             navController,
@@ -313,6 +323,7 @@ fun DebugScreen(
     }
 }
 
+// TODO: Change to use the correct use-cases
 @Composable
 fun DebugScreenDirectRedeem(
     viewModel: DebugSettingsViewModel,
@@ -349,7 +360,8 @@ fun DebugScreenDirectRedeem(
                     ErezeptOutlineText(
                         modifier = Modifier.fillMaxWidth(),
                         value = shipmentUrl,
-                        label = { Text("Shipment URL") },
+                        label = "Shipment URL",
+                        placeholder = "Shipment URL",
                         onValueChange = {
                             shipmentUrl = it
                         }
@@ -357,7 +369,8 @@ fun DebugScreenDirectRedeem(
                     ErezeptOutlineText(
                         modifier = Modifier.fillMaxWidth(),
                         value = deliveryUrl,
-                        label = { Text("Delivery URL") },
+                        label = "Delivery URL",
+                        placeholder = "Delivery URL",
                         onValueChange = {
                             deliveryUrl = it
                         }
@@ -365,7 +378,8 @@ fun DebugScreenDirectRedeem(
                     ErezeptOutlineText(
                         modifier = Modifier.fillMaxWidth(),
                         value = onPremiseUrl,
-                        label = { Text("OnPremise URL") },
+                        label = "OnPremise URL",
+                        placeholder = "OnPremise URL",
                         onValueChange = {
                             onPremiseUrl = it
                         }
@@ -404,7 +418,8 @@ fun DebugScreenDirectRedeem(
                             .heightIn(max = 400.dp)
                             .fillMaxWidth(),
                         value = message,
-                        label = { Text("Any Message") },
+                        label = "Any Message",
+                        placeholder = "Any Message",
                         onValueChange = {
                             message = it
                         }
@@ -420,7 +435,8 @@ fun DebugScreenDirectRedeem(
                             .heightIn(max = 400.dp)
                             .fillMaxWidth(),
                         value = certificates,
-                        label = { Text("Certificate as PEM") },
+                        label = "Certificate as PEM",
+                        placeholder = "Certificate as PEM",
                         onValueChange = {
                             certificates = it
                         }
@@ -459,9 +475,12 @@ fun DebugScreenMain(
 ) {
     val listState = rememberLazyListState()
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
     val appUpdateManager by viewModel.appUpdateManagerState
+    val messageMarkingLoading by viewModel.messageMarkingLoadingState
+    val prescriptionDeletionLoading by viewModel.prescriptionDeletionLoadingState
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -479,6 +498,7 @@ fun DebugScreenMain(
             navigationMode = NavigationBarMode.Close,
             listState = listState,
             topBarTitle = "Debug Settings",
+            snackbarHost = { SnackbarHost(snackbarHostState) },
             onBack = onBack
         ) { innerPadding ->
 
@@ -514,7 +534,7 @@ fun DebugScreenMain(
                         }
                         LabelButton(
                             icon = painterResource(R.drawable.ic_pkv),
-                            text = "PKV"
+                            text = "PKV / GKV Switch"
                         ) {
                             onClickPKV()
                         }
@@ -524,6 +544,7 @@ fun DebugScreenMain(
                         ) {
                             viewModel.refreshPrescriptions()
                         }
+
                         LabelButton(
                             icon = Icons.Rounded.Adb,
                             text = "Logger"
@@ -532,6 +553,82 @@ fun DebugScreenMain(
                         }
                     }
                 }
+
+                item {
+                    DebugCard(
+                        title = "Batch Actions"
+                    ) {
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                viewModel.markAllUnreadMessagesAsRead { result ->
+                                    result.fold(
+                                        onSuccess = {
+                                            snackbarHostState.showSnackbar(
+                                                message = "All messages marked as read",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        },
+                                        onFailure = { error ->
+                                            snackbarHostState.showSnackbar(
+                                                message = error.message ?: "Failed to mark messages as read",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
+                                    )
+                                }
+                            },
+                            enabled = !messageMarkingLoading
+                        ) {
+                            if (messageMarkingLoading) {
+                                CircularProgressIndicator(
+                                    Modifier.size(SizeDefaults.triple),
+                                    strokeWidth = SizeDefaults.quarter,
+                                    color = AppTheme.colors.neutral600
+                                )
+                                SpacerSmall()
+                            }
+                            Text("Mark All Messages As Read", textAlign = TextAlign.Center)
+                        }
+
+                        Button(
+                            modifier = Modifier.fillMaxWidth(),
+                            onClick = {
+                                viewModel.deleteAllPrescriptions(
+                                    profileId = viewModel.debugSettingsData.activeProfileId,
+                                    deleteLocallyOnly = false
+                                ) { result ->
+                                    result.fold(
+                                        onSuccess = {
+                                            snackbarHostState.showSnackbar(
+                                                message = "Successfully deleted all prescriptions",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        },
+                                        onFailure = { error ->
+                                            snackbarHostState.showSnackbar(
+                                                message = error.message ?: "Failed to delete prescriptions",
+                                                duration = SnackbarDuration.Short
+                                            )
+                                        }
+                                    )
+                                }
+                            },
+                            enabled = !prescriptionDeletionLoading
+                        ) {
+                            if (prescriptionDeletionLoading) {
+                                CircularProgressIndicator(
+                                    Modifier.size(SizeDefaults.triple),
+                                    strokeWidth = SizeDefaults.quarter,
+                                    color = AppTheme.colors.neutral600
+                                )
+                                SpacerSmall()
+                            }
+                            Text("Delete All Prescriptions", textAlign = TextAlign.Center)
+                        }
+                    }
+                }
+
                 item {
                     DebugCard(
                         title = "App Update"
@@ -542,8 +639,7 @@ fun DebugScreenMain(
                         ) {
                             Text(
                                 text = "Original app update",
-                                modifier = Modifier
-                                    .weight(1f)
+                                modifier = Modifier.weight(1f)
                             )
                             Switch(
                                 modifier = Modifier.testTag(TestTag.DebugMenu.FakeAppUpdate),
@@ -564,7 +660,8 @@ fun DebugScreenMain(
                         ) {
                             Text(
                                 text = "Fake NFC Capability",
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier
+                                    .weight(1f)
                             )
                             Switch(
                                 modifier = Modifier.testTag(TestTag.DebugMenu.FakeNFCCapabilities),
@@ -575,6 +672,7 @@ fun DebugScreenMain(
                         }
                     }
                 }
+
                 item {
                     DebugCard(
                         title = "Authentication"
@@ -619,9 +717,9 @@ fun DebugScreenMain(
                         onScanQrCode()
                     }
                 }
-                /*item {
+                item {
                     FeatureToggles(viewModel = viewModel)
-                }*/
+                }
                 item {
                     RotatingLog(viewModel = viewModel)
                 }
@@ -705,13 +803,13 @@ private fun VirtualHealthCard(
         val scope = rememberCoroutineScope()
         TextButton(
             modifier = Modifier.fillMaxWidth(),
-            border = BorderStroke(1.dp, AppTheme.colors.primary600),
+            border = BorderStroke(1.dp, AppTheme.colors.primary700),
             shape = RoundedCornerShape(8.dp),
             onClick = onScanQrCode
         ) {
             Text(
                 text = "Scan Virtual Health Card",
-                color = AppTheme.colors.primary600
+                color = AppTheme.colors.primary700
             )
         }
 
@@ -724,7 +822,8 @@ private fun VirtualHealthCard(
             onValueChange = {
                 viewModel.onSetVirtualHealthCardCertificate(it)
             },
-            label = { Text("Certificate in Base64") }
+            label = "Certificate in Base64",
+            placeholder = "Certificate in Base64"
         )
 
         val subjectInfo =
@@ -742,7 +841,8 @@ private fun VirtualHealthCard(
             onValueChange = {
                 viewModel.onSetVirtualHealthCardPrivateKey(it)
             },
-            label = { Text("Private Key in Base64") }
+            label = "Private Key in Base64",
+            placeholder = "Private Key in Base64"
         )
 
         Button(

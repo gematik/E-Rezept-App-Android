@@ -133,7 +133,7 @@ fun Banner(
                         modifier = Modifier
                             .padding(horizontal = PaddingDefaults.MediumPlus)
                             .weight(MAX_WEIGHT),
-                        color = AppTheme.colors.primary600,
+                        color = AppTheme.colors.primary700,
                         text = title
                     )
                 }
@@ -326,7 +326,7 @@ private fun BottomTextBannerPreview() {
             text = "Bitte aktivieren Sie in Ihren Einstellungen das Öffnen von Links, um fortzufahren",
             bottomIcon = BannerClickableTextIcon(
                 text = "Lorem ipsum dolor sit amet",
-                icon = BannerIcon.Custom(Icons.AutoMirrored.Filled.ArrowForward, AppTheme.colors.primary600)
+                icon = BannerIcon.Custom(Icons.AutoMirrored.Filled.ArrowForward, AppTheme.colors.primary700)
             ) {},
             onClickClose = {}
         )

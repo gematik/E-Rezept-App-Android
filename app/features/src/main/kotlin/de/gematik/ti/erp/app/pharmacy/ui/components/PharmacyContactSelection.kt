@@ -140,7 +140,7 @@ private fun RowScope.PharmacyContactButton(
             Icon(
                 icon,
                 null,
-                tint = AppTheme.colors.primary600,
+                tint = AppTheme.colors.primary700,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally)
                     .size(SizeDefaults.fourfold)

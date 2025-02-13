@@ -443,7 +443,7 @@
     <string name="cdw_info_title">Note</string>
     <string name="cdw_info_accept">Accept</string>
     <string name="cdw_info_header">Security of your prescription data</string>
-    <string name="cdw_info_first">\This app uses the most secure biometric sensor provided by your device to store your credentials in a protected area of the device\'s storage.\</string>
+    <string name="cdw_info_first">This app uses the most secure biometric sensor provided by your device to store your credentials in a protected area of the device storage.</string>
     <string name="cdw_info_second">Using biometric protection for your access data means that you can launch this app in future without your medical card and PIN in order to view, retrieve, redeem or delete prescriptions.</string>
     <string name="cdw_info_third">Please be aware that people with whom you may share this device and whose biometrics may be stored on this device may also have access to your prescriptions.</string>
     <string name="main_fasttrack_error_title">Unfortunately that didn\'t work</string>
@@ -1185,8 +1185,23 @@
     <string name="settings_explore_headline">Explore</string>
     <string name="organ_donation_menu_entry">organ donation register</string>
     <string name="organ_donation_dialog_title">Open organ donation register?</string>
-    <string name="organ_donation_dialog_info">You will be redirected to the organ donation register. In order to view and change your organ donation data, you must log in there.</string>
+    <string name="organ_donation_dialog_info">You will be redirected to the organ donation register website. In order to view and change your organ donation data, you must log in there.</string>
     <string name="organ_donation_dialog_confirm">Open</string>
     <string name="organ_donation_dialog_dismiss">Cancel</string>
     <string name="not_active_in_demo_mode_toast">Function not active in demo mode</string>
+    <string name="internal_message_from">E-Prescription App Team</string>
+    <string name="internal_message_tag">New features in app version %s</string>
+    <string name="welcome_text">Welcome to the e-prescription app! With this app you can receive e-prescriptions digitally and send them to a pharmacy of your choice. It is up to you whether you want to reserve the prescription there for collection or have it delivered to your home. Of course you can also manage your family\'s prescriptions. To receive prescriptions digitally you must register. \n \n Nice to have you here! \n Your e-prescription app team  </string>
+    <string name="welcome_tag">🎉 Welcome!</string>
+    <string name="pharmacy_search_favorite_toggle">Add to Favorites</string>
+    <string name="pharmacy_search_favorite_toggle_active">active</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">inactive</string>
+    <string name="pharmacy_search_active_filter">Filter active</string>
+    <string name="pharmacy_search_searchbar">Pharmacy search</string>
+    <string name="pharmacy_search_delete_button">Delete search entry</string>
+    <string name="mediction_detiail_ask">ASK number</string>
+    <string name="mediction_detiail_atc">ATC number</string>
+    <string name="all_prescriptions_of_order">All prescriptions of the order</string>
+    <string name="invoice_details_supply_shortage_fee">Delivery bottleneck flat rate</string>
+    <string name="message_list_time_state_hours">%s clock</string>
 </resources>

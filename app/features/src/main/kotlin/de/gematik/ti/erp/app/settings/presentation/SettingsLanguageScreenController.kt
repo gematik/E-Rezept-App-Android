@@ -50,7 +50,9 @@ enum class LanguageCode(val code: String, val resource: Int) {
     RO("ro", R.string.language_selection_ro),
     RU("ru", R.string.language_selection_ru),
     TR("tr", R.string.language_selection_tr),
-    UK("uk", R.string.language_selection_uk);
+    UK("uk", R.string.language_selection_uk),
+    ES("es", R.string.language_selection_es),
+    GA("ga", R.string.language_selection_ga);
 
     @Composable
     fun mapToName() = stringResource(resource)

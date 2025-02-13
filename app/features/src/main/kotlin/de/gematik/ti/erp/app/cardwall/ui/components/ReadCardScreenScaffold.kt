@@ -270,7 +270,7 @@ private fun TroubleShootingButton(onTroubleshooting: () -> Unit) {
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(
             backgroundColor = AppTheme.colors.neutral050,
-            contentColor = AppTheme.colors.primary600
+            contentColor = AppTheme.colors.primary700
         )
     ) {
         Icon(Icons.Rounded.HelpOutline, contentDescription = null)

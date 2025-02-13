@@ -18,8 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.ui.components
 
-import de.gematik.ti.erp.app.messages.presentation.ui.components.MessageBottomSheetScreenContentPreview
-import de.gematik.ti.erp.app.messages.presentation.ui.preview.MessagesPreviewParameterProvider
+import de.gematik.ti.erp.app.messages.ui.preview.MessagesPreviewParameterProvider
 import de.gematik.ti.erp.app.screenshot.BaseComponentScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test

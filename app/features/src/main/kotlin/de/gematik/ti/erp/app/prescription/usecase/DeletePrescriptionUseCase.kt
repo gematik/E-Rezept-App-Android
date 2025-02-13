@@ -28,7 +28,6 @@ import de.gematik.ti.erp.app.api.HTTP_METHOD_NOT_ALLOWED
 import de.gematik.ti.erp.app.api.HTTP_TOO_MANY_REQUESTS
 import de.gematik.ti.erp.app.api.HTTP_UNAUTHORIZED
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
-import de.gematik.ti.erp.app.prescription.presentation.catchAndTransformRemoteExceptions
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -121,7 +120,7 @@ class DeletePrescriptionUseCase(
                         }
                     )
             }
-        ).catchAndTransformRemoteExceptions().flowOn(dispatcher)
+        ).flowOn(dispatcher)
 
     /**
      * Map the error states to the corresponding [DeletePrescriptionState.ErrorState]
@@ -129,22 +128,19 @@ class DeletePrescriptionUseCase(
      * <a href="https://github.com/gematik/api-erp/blob/master/docs/erp_versicherte.adoc#ein-e-rezept-löschen">
      * gemSpec_eRp_FdV</a>
      */
-    private fun mapDeleteErrorStates(error: Throwable): DeletePrescriptionState.ErrorState {
-        if (error.cause?.cause is UnknownHostException) {
-            return DeletePrescriptionState.ErrorState.NoInternet
-        } else {
-            return when ((error as? ApiCallException)?.response?.code()) {
-                HTTP_BAD_REQUEST -> DeletePrescriptionState.ErrorState.BadRequest // 400
-                HTTP_UNAUTHORIZED -> DeletePrescriptionState.ErrorState.Unauthorized // 401
-                HTTP_FORBIDDEN -> DeletePrescriptionState.ErrorState.ErpWorkflowBlocked // 403
-                HTTP_METHOD_NOT_ALLOWED -> DeletePrescriptionState.ErrorState.MethodNotAllowed // 405
-                HTTP_TOO_MANY_REQUESTS -> DeletePrescriptionState.ErrorState.TooManyRequests // 429
-                HTTP_INTERNAL_ERROR -> DeletePrescriptionState.ErrorState.InternalError // 500
 
-                else -> {
-                    // silent fail
-                    DeletePrescriptionState.ErrorState.Unknown
-                }
+    private fun mapDeleteErrorStates(error: Throwable): DeletePrescriptionState.ErrorState {
+        return if (error.cause?.cause is UnknownHostException) {
+            DeletePrescriptionState.ErrorState.NoInternet
+        } else {
+            when ((error as? ApiCallException)?.response?.code()) {
+                HTTP_BAD_REQUEST -> DeletePrescriptionState.ErrorState.BadRequest
+                HTTP_UNAUTHORIZED -> DeletePrescriptionState.ErrorState.Unauthorized
+                HTTP_FORBIDDEN -> DeletePrescriptionState.ErrorState.ErpWorkflowBlocked
+                HTTP_METHOD_NOT_ALLOWED -> DeletePrescriptionState.ErrorState.MethodNotAllowed
+                HTTP_TOO_MANY_REQUESTS -> DeletePrescriptionState.ErrorState.TooManyRequests
+                HTTP_INTERNAL_ERROR -> DeletePrescriptionState.ErrorState.InternalError
+                else -> DeletePrescriptionState.ErrorState.Unknown
             }
         }
     }

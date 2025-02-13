@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.di
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.debugsettings.data.Environment
 
 /**
  * Documentation: documentation-internal/variants/build_variants.adoc
@@ -71,6 +72,8 @@ class EndpointHelper(
             else -> return url
         }
     }
+
+    fun getCurrentEnvironment(): Environment = Environment.PU
 
     private fun overrideSwitchKey(uri: EndpointUri): String {
         return uri.preferenceKey + "_ACTIVE"

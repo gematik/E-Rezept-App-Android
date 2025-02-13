@@ -443,7 +443,7 @@
     <string name="cdw_info_title">Varsel</string>
     <string name="cdw_info_accept">Acceptere</string>
     <string name="cdw_info_header">Sikkerhed for dine receptdata</string>
-    <string name="cdw_info_first">\Denne app bruger den mest sikre biometriske sensor fra din enhed til at sikre dine legitimationsoplysninger i et beskyttet område af enhedens lager.\</string>
+    <string name="cdw_info_first">Denne app bruger den mest sikre biometriske sensor fra din enhed til at sikre dine legitimationsoplysninger i et beskyttet område af enhedens lager.</string>
     <string name="cdw_info_second">Den biometriske sikkerhed af dine adgangsdata giver dig mulighed for at åbne denne app i fremtiden, se, hente, indløse eller slette recepter uden et sundhedskort og indtaste din pinkode.</string>
     <string name="cdw_info_third">Sørg for, at personer, som du må dele denne enhed med, og hvis biometriske karakteristika kan være gemt på denne enhed, også har adgang til dine recepter.</string>
     <string name="main_fasttrack_error_title">det virkede desværre ikke</string>
@@ -1185,8 +1185,23 @@
     <string name="settings_explore_headline">Udforske</string>
     <string name="organ_donation_menu_entry">Organdonationsregister</string>
     <string name="organ_donation_dialog_title">Åbent organdonationsregister?</string>
-    <string name="organ_donation_dialog_info">Du vil blive omdirigeret til organdonorregistret. For at se og ændre dine organdonationsdata skal du logge ind der.</string>
+    <string name="organ_donation_dialog_info">Du vil blive omdirigeret til webstedet for organdonationsregistret. For at se og ændre dine organdonationsdata skal du logge ind der.</string>
     <string name="organ_donation_dialog_confirm">Åben</string>
     <string name="organ_donation_dialog_dismiss">Ophæve</string>
     <string name="not_active_in_demo_mode_toast">Funktionen er ikke aktiv i demotilstand</string>
+    <string name="internal_message_from">E-recept app team</string>
+    <string name="internal_message_tag">Hvad er nyt i appversionen %s</string>
+    <string name="welcome_text">Velkommen til e-recept-appen! Med denne app kan du digitalt modtage e-recepter og sende dem til et apotek efter eget valg. Om du vil reservere recepten der til afhentning eller få den leveret hjem til dig er helt op til dig. Du kan selvfølgelig også administrere din families opskrifter. For at modtage recepter digitalt kræves tilmelding. \n \n Dejligt at have dig her! \n Dit e-recept-app-team  </string>
+    <string name="welcome_tag">🎉 Velkommen!</string>
+    <string name="pharmacy_search_favorite_toggle">Tilføj til favoritter</string>
+    <string name="pharmacy_search_favorite_toggle_active">aktiv</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">inaktiv</string>
+    <string name="pharmacy_search_active_filter">Filter aktivt</string>
+    <string name="pharmacy_search_searchbar">Apotek søgning</string>
+    <string name="pharmacy_search_delete_button">Slet søgepost</string>
+    <string name="mediction_detiail_ask">ASK nummer</string>
+    <string name="mediction_detiail_atc">ATC nummer</string>
+    <string name="all_prescriptions_of_order">Alle opskrifter i rækkefølgen</string>
+    <string name="invoice_details_supply_shortage_fee">Flaskehals ved levering fast pris</string>
+    <string name="message_list_time_state_hours">%s kl</string>
 </resources>

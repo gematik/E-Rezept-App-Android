@@ -106,7 +106,7 @@ object DebugTimeoutScreen {
                         )
                         Card(
                             modifier = Modifier.weight(0.6f),
-                            border = BorderStroke(0.5.dp, AppTheme.colors.primary600)
+                            border = BorderStroke(0.5.dp, AppTheme.colors.primary700)
                         ) {
                             TextButton(
                                 onClick = {
@@ -157,7 +157,7 @@ object DebugTimeoutScreen {
                         )
                         Card(
                             modifier = Modifier.weight(0.6f),
-                            border = BorderStroke(0.5.dp, AppTheme.colors.primary600)
+                            border = BorderStroke(0.5.dp, AppTheme.colors.primary700)
                         ) {
                             TextButton(
                                 onClick = {

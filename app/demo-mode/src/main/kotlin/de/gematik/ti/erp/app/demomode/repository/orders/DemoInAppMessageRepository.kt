@@ -21,10 +21,11 @@
 package de.gematik.ti.erp.app.demomode.repository.orders
 
 import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import io.realm.kotlin.types.RealmList
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.Instant
 
 class DemoInAppMessageRepository(
     private val demoModeDataSource: DemoModeDataSource
@@ -43,6 +44,9 @@ class DemoInAppMessageRepository(
 
     override val showWelcomeMessage: Flow<Boolean>
         get() = demoModeDataSource.showWelcomeMessage
+
+    override val welcomeMessageTimeStamp: Flow<Instant>
+        get() = demoModeDataSource.welcomeMessageTimeStamp
 
     override suspend fun setInternalMessageAsRead() {
         // No-op

@@ -455,7 +455,7 @@
     <string name="cdw_info_title">הודעה</string>
     <string name="cdw_info_accept">לְקַבֵּל</string>
     <string name="cdw_info_header">אבטחת נתוני המרשם שלך</string>
-    <string name="cdw_info_first">\אפליקציה זו משתמשת בחיישן הביומטרי המאובטח ביותר שסופק על ידי המכשיר שלך כדי לאבטח את האישורים שלך באזור מוגן של אחסון המכשיר.\</string>
+    <string name="cdw_info_first">אפליקציה זו משתמשת בחיישן הביומטרי המאובטח ביותר שסופק על ידי המכשיר שלך כדי לאבטח את האישורים שלך באזור מוגן של אחסון המכשיר.</string>
     <string name="cdw_info_second">האבטחה הביומטרית של נתוני הגישה שלך מאפשרת לך לפתוח את האפליקציה הזו בעתיד, להציג, לאחזר, לממש או למחוק מרשמים ללא כרטיס בריאות והקלדת ה-PIN שלך.</string>
     <string name="cdw_info_third">אנא ודא שלאנשים שאיתם אתה עשוי לחלוק מכשיר זה ואשר המאפיינים הביומטריים שלהם עשויים להיות מאוחסנים במכשיר זה, יש גם גישה למרשמים שלך.</string>
     <string name="main_fasttrack_error_title">שלצערי לא עבד</string>
@@ -1203,8 +1203,23 @@
     <string name="settings_explore_headline">לַחקוֹר</string>
     <string name="organ_donation_menu_entry">מרשם תרומת איברים</string>
     <string name="organ_donation_dialog_title">פנקס תרומת איברים פתוח?</string>
-    <string name="organ_donation_dialog_info">אתה תופנה לפנקס תרומת איברים. על מנת לצפות ולשנות את נתוני תרומת האיברים שלך, עליך להתחבר לשם.</string>
+    <string name="organ_donation_dialog_info">אתה תופנה לאתר רישום תורמי האיברים. כדי להציג ולשנות את נתוני תרומת האיברים שלך, עליך להתחבר לשם.</string>
     <string name="organ_donation_dialog_confirm">לִפְתוֹחַ</string>
     <string name="organ_donation_dialog_dismiss">לְבַטֵל</string>
     <string name="not_active_in_demo_mode_toast">הפונקציה לא פעילה במצב הדגמה</string>
+    <string name="internal_message_from">צוות אפליקציית מרשם אלקטרוני</string>
+    <string name="internal_message_tag">מה חדש בגרסת האפליקציה %s</string>
+    <string name="welcome_text">ברוכים הבאים לאפליקציית המרשם האלקטרוני! באמצעות אפליקציה זו תוכלו לקבל באופן דיגיטלי מרשמים אלקטרוניים ולשלוח אותם לבית מרקחת לבחירתכם. אם ברצונך לשריין שם את המרשם לאיסוף או לקבל אותו עד הבית תלוי בך. כמובן שתוכלו גם לנהל את המתכונים של המשפחה שלכם. על מנת לקבל מרשמים בצורה דיגיטלית נדרשת הרשמה. \n \n שמח שאתה כאן! \n צוות אפליקציית המרשם האלקטרוני שלך  </string>
+    <string name="welcome_tag">🎉 ברוכים הבאים!</string>
+    <string name="pharmacy_search_favorite_toggle">הוסף למועדפים</string>
+    <string name="pharmacy_search_favorite_toggle_active">פָּעִיל</string>
+    <string name="pharmacy_search_favorite_toggle_inactive">לֹא פָּעִיל</string>
+    <string name="pharmacy_search_active_filter">מסנן פעיל</string>
+    <string name="pharmacy_search_searchbar">חיפוש בבית מרקחת</string>
+    <string name="pharmacy_search_delete_button">מחק את רשומת החיפוש</string>
+    <string name="mediction_detiail_ask">מספר ASK</string>
+    <string name="mediction_detiail_atc">מספר ATC</string>
+    <string name="all_prescriptions_of_order">כל המתכונים לפי הסדר</string>
+    <string name="invoice_details_supply_shortage_fee">צוואר בקבוק במשלוח תעריף קבוע</string>
+    <string name="message_list_time_state_hours">השעה %s</string>
 </resources>

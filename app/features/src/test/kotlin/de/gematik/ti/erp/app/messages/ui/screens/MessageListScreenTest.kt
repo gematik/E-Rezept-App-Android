@@ -18,8 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.ui.screens
 
-import de.gematik.ti.erp.app.messages.presentation.ui.preview.MessageListParameterProvider
-import de.gematik.ti.erp.app.messages.presentation.ui.screens.MessageScreenContentPreview
+import de.gematik.ti.erp.app.messages.ui.preview.MessageListParameterProvider
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test

@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.presentation
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
@@ -30,8 +31,8 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCa
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessageAsReadUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationByCommunicationIdUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationByOrderIdAndCommunicationIdUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase.Companion.CommunicationIdentifier
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
@@ -55,14 +56,13 @@ class MessageDetailController(
     private val fetchInAppMessageUseCase: FetchInAppMessageUseCase,
     private val fetchWelcomeMessageUseCase: FetchWelcomeMessageUseCase,
     private val setInternalMessageIsReadUseCase: SetInternalMessageAsReadUseCase,
-    private val updateCommunicationByCommunicationIdUseCase: UpdateCommunicationByCommunicationIdUseCase,
-    private val updateCommunicationByOrderIdAndCommunicationIdUseCase: UpdateCommunicationByOrderIdAndCommunicationIdUseCase,
+    private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase,
     private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase,
     private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase,
     private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase
 ) : Controller() {
 
-    val _localMessages = MutableStateFlow<List<InAppMessage?>>(listOf())
+    internal val _localMessages = MutableStateFlow<List<InAppMessage?>>(listOf())
     private val _messages = MutableStateFlow<UiState<List<OrderUseCaseData.Message>>>(UiState.Loading())
     private val _order = MutableStateFlow<UiState<OrderUseCaseData.OrderDetail>>(UiState.Loading())
     private val _pharmacy = MutableStateFlow<UiState<PharmacyUseCaseData.Pharmacy>>(UiState.Loading())
@@ -98,7 +98,7 @@ class MessageDetailController(
             }.catch {
                 _localMessages.value = listOf()
             }.collect { messagesList ->
-                _localMessages.value = messagesList.sortedByDescending { it.timestamp }
+                _localMessages.value = messagesList.sortedByDescending { it.timeState.timestamp }
             }
         }
     }
@@ -129,15 +129,17 @@ class MessageDetailController(
                 if (state.isDataState) {
                     state.data?.pharmacy?.id?.let { telematikId ->
                         val result = runCatching {
-                            getRepliedMessagesUseCase(orderId, telematikId)
+                            getRepliedMessagesUseCase(orderId, telematikId).firstOrNull()
                         }
-
                         result.fold(onSuccess = { messages ->
-                            val messageList = messages.firstOrNull() ?: emptyList()
+                            val messageList = messages ?: emptyList()
                             if (messageList.isEmpty()) {
                                 _messages.value = UiState.Empty()
                             } else {
-                                _messages.value = UiState.Data(messageList)
+                                val newMessageList = messageList.map {
+                                    it.copy(prescriptions = getPrescriptions(it.taskIds, state.data))
+                                }
+                                _messages.value = UiState.Data(newMessageList)
                             }
                         }, onFailure = {
                                 _messages.value = UiState.Error(it)
@@ -148,16 +150,21 @@ class MessageDetailController(
         }
     }
 
+    @VisibleForTesting
+    fun getPrescriptions(taskIds: List<String>, order: OrderUseCaseData.OrderDetail) = taskIds.map { taskId ->
+        order.taskDetailedBundles.first { it.prescription?.taskId == taskId }.prescription
+    }
+
     fun consumeAllMessages(onMessagesConsumed: () -> Unit) {
         controllerScope.launch {
             // Marks the replied messages as read
             _messages.value.data?.forEach { message ->
-                updateCommunicationByCommunicationIdUseCase(message.communicationId)
+                updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Communication(message.communicationId))
             }
 
             // Marks the dispense request and invoice messages as read
             _order.value.data?.let { orderDetail ->
-                updateCommunicationByOrderIdAndCommunicationIdUseCase(orderDetail.orderId)
+                updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Order(orderDetail.orderId))
                 updateInvoicesByOrderIdAndTaskIdUseCase(orderDetail.orderId)
             }
 
@@ -198,8 +205,7 @@ fun rememberMessageDetailController(
     val fetchInAppMessageUseCase: FetchInAppMessageUseCase by rememberInstance()
     val setInternalMessageAsReadUseCase: SetInternalMessageAsReadUseCase by rememberInstance()
     val fetchWelcomeMessageUseCase: FetchWelcomeMessageUseCase by rememberInstance()
-    val updateCommunicationByCommunicationIdUseCase: UpdateCommunicationByCommunicationIdUseCase by rememberInstance()
-    val updateCommunicationByOrderIdAndCommunicationIdUseCase: UpdateCommunicationByOrderIdAndCommunicationIdUseCase by rememberInstance()
+    val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase by rememberInstance()
     val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase by rememberInstance()
     val getPharmacyByTelematikIdUseCase by rememberInstance<GetPharmacyByTelematikIdUseCase>()
     val getProfileByOrderIdUseCase by rememberInstance<GetProfileByOrderIdUseCase>()
@@ -213,8 +219,7 @@ fun rememberMessageDetailController(
             fetchInAppMessageUseCase = fetchInAppMessageUseCase,
             fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
             setInternalMessageIsReadUseCase = setInternalMessageAsReadUseCase,
-            updateCommunicationByCommunicationIdUseCase = updateCommunicationByCommunicationIdUseCase,
-            updateCommunicationByOrderIdAndCommunicationIdUseCase = updateCommunicationByOrderIdAndCommunicationIdUseCase,
+            updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase

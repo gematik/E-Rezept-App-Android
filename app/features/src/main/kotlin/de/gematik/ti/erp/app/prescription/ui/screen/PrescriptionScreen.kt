@@ -305,97 +305,6 @@ class PrescriptionsScreen(
                 onGetChargeConsent = { profileId -> consentController.getChargeConsent(profileId) }
             )
         )
-
-        Box(
-            Modifier
-                .fillMaxSize()
-                .nestedScroll(pullToRefreshState.nestedScrollConnection)
-        ) {
-            Scaffold(
-                isFloatingActionButtonDocked = true,
-                floatingActionButtonPosition = FabPosition.End,
-                topBar = {
-                    MultiProfileTopAppBar(
-                        multiProfileData = controller.multiProfileData,
-                        elevated = topBarElevated,
-                        onClickAddProfile = { navController.navigate(ProfileRoutes.ProfileAddNameBottomSheetScreen.path()) },
-                        onClickChangeProfileName = { profile -> navController.navigate(ProfileRoutes.ProfileEditNameBottomSheetScreen.path(profile.id)) },
-                        onClickAddPrescription = {
-                            when {
-                                mlKitAccepted -> navController.navigate(PrescriptionRoutes.PrescriptionScanScreen.path())
-                                else -> navController.navigate(MlKitRoutes.MlKitScreen.path())
-                            }
-                        },
-                        switchActiveProfile = { profile ->
-                            controller.disablePrescriptionRefresh()
-                            controller.switchActiveProfile(profile.id)
-                        }
-                    )
-                },
-                floatingActionButton = {
-                    if (hasRedeemableTasks) {
-                        RedeemFloatingActionButton(
-                            modifier = fabPadding?.applicationScaffoldPadding?.let { Modifier.padding(it) } ?: Modifier,
-                            onClick = {
-                                navController.navigate(RedeemRoutes.RedeemMethodSelection.path())
-                            }
-                        )
-                    }
-                }
-            ) {
-                Column {
-                    ProfileSection(
-                        profileData = profileData,
-                        consentState = consentState,
-                        pullToRefreshState = pullToRefreshState,
-                        onRefresh = {
-                            controller.refreshDownload()
-                        },
-                        onGetConsent = { profileId ->
-                            consentController.getChargeConsent(profileId)
-                        },
-                        onChooseAuthenticationMethod = { profileId ->
-                            controller.chooseAuthenticationMethod(profileId)
-                        }
-                    )
-                    PrescriptionsSection(
-                        modifier = Modifier.padding(it),
-                        listState = listState,
-                        activeProfile = profileData,
-                        activePrescriptions = activePrescriptions,
-                        isArchiveEmpty = isArchiveEmpty,
-                        onClickRefresh = controller::refreshDownload,
-                        onClickLogin = {
-                            profileData.data?.let { activeProfile ->
-                                controller.chooseAuthenticationMethod(activeProfile.id)
-                            }
-                        },
-                        onClickAvatar = {
-                            profileData.data?.let { activeProfile ->
-                                navController.navigate(
-                                    ProfileRoutes.ProfileEditPictureBottomSheetScreen.path(activeProfile.id)
-                                )
-                            }
-                        },
-                        onElevateTopBar = { topBarElevated = it },
-                        onClickArchive = {
-                            navController.navigate(PrescriptionRoutes.PrescriptionsArchiveScreen.path())
-                        },
-                        onClickPrescription = { taskId ->
-                            navController.navigate(
-                                PrescriptionDetailRoutes.PrescriptionDetailScreen.path(taskId)
-                            )
-                        }
-                    )
-                }
-            }
-            PullToRefresh(
-                modifier = Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = SizeDefaults.sixfoldAndQuarter),
-                pullToRefreshState = pullToRefreshState
-            )
-        }
     }
 }
 
@@ -513,22 +422,6 @@ private fun ProfileSection(
         },
         onContent = { activeProfile ->
             val ssoTokenValid = activeProfile.isSSOTokenValid()
-            LaunchedEffect(activeProfile) {
-                if (activeProfile.isPkv()) {
-                    ConsentValidator.validateAndExecute(
-                        isSsoTokenValid = ssoTokenValid,
-                        consentState = consentState,
-                        getChargeConsent = {
-                            onRefresh()
-                            onGetConsent(activeProfile.id)
-                        },
-                        onConsentGranted = onRefresh
-                    )
-                } else {
-                    onRefresh()
-                }
-            }
-
             @Requirement(
                 "A_24857#1",
                 sourceSpecification = "gemSpec_eRp_FdV",

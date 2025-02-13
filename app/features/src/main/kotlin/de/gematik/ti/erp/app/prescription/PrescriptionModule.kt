@@ -33,6 +33,7 @@ import de.gematik.ti.erp.app.prescription.usecase.GetArchivedPrescriptionsUseCas
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesDetailStateUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesSnapshotStateUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
+import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RefreshPrescriptionUseCase
@@ -77,6 +78,7 @@ val prescriptionModule =
         bindProvider { UpdateScannedTaskNameUseCase(instance()) }
         bindProvider { RedeemScannedTaskUseCase(instance()) }
         bindProvider { GetPrescriptionByTaskIdUseCase(instance()) }
+        bindProvider { GetTaskIdsUseCase(instance()) }
         bindProvider { GetDownloadResourcesDetailStateUseCase(instance()) }
         bindProvider { GetDownloadResourcesSnapshotStateUseCase(instance()) }
     }

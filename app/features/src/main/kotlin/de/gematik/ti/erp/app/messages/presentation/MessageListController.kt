@@ -31,10 +31,10 @@ import de.gematik.ti.erp.app.featuretoggle.usecase.IsNewFeatureSeenUseCase
 import de.gematik.ti.erp.app.featuretoggle.usecase.MarkNewFeatureSeenUseCase
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
+import de.gematik.ti.erp.app.messages.domain.model.getTimeState
 import de.gematik.ti.erp.app.messages.domain.usecase.FetchInAppMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.FetchWelcomeMessageUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
-import de.gematik.ti.erp.app.messages.presentation.ui.model.ViewState
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -48,6 +48,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
+@Suppress("StaticFieldLeak")
 @Stable
 class MessageListController(
     private val getMessagesUseCase: GetMessagesUseCase,
@@ -59,11 +60,11 @@ class MessageListController(
     private val context: Context
 ) : Controller() {
 
-    private val _viewState: MutableStateFlow<ViewState> = MutableStateFlow(ViewState(isMessagesListFeatureChangeSeen = false, messagesList = UiState.Loading()))
+    private val _messagesList: MutableStateFlow<UiState<List<InAppMessage>>> = MutableStateFlow(UiState.Loading())
     private val _isMessagesListFeatureChangeSeen: MutableStateFlow<Boolean> = MutableStateFlow(true)
 
-    val viewState: StateFlow<ViewState> = _viewState.asStateFlow()
     val isMessagesListFeatureChangeSeen: StateFlow<Boolean> = _isMessagesListFeatureChangeSeen.asStateFlow()
+    val messagesList: StateFlow<UiState<List<InAppMessage>>> = _messagesList.asStateFlow()
 
     init {
         fetchMessagesList()
@@ -77,17 +78,17 @@ class MessageListController(
                 getProfilesUseCase.invoke().first() to isNewFeatureSeenUseCase.invoke(NewFeature.ORDERS_SCREEN_NO_PROFILE_BAR)
             }.fold(onSuccess = { (profiles, isSeen) ->
                 val hasMultipleProfiles = profiles.size > 1
-                _viewState.value = viewState.value.copy(isMessagesListFeatureChangeSeen = if (hasMultipleProfiles) isSeen else true)
+                _isMessagesListFeatureChangeSeen.value = if (hasMultipleProfiles) isSeen else true
             }, onFailure = {
                     // don't show the feature change if there is an error
-                    _viewState.value = viewState.value.copy(isMessagesListFeatureChangeSeen = true)
+                    _isMessagesListFeatureChangeSeen.value = true
                 })
         }
     }
 
     fun retryFetchMessagesList() {
         controllerScope.launch {
-            _viewState.value = viewState.value.copy(messagesList = UiState.Loading())
+            _messagesList.value = UiState.Loading()
             delay(AnimationTime.SHORT_DELAY)
             fetchMessagesList()
         }
@@ -95,22 +96,22 @@ class MessageListController(
 
     private fun fetchMessagesList() {
         controllerScope.launch {
-            _viewState.value = viewState.value.copy(messagesList = UiState.Loading())
+            _messagesList.value = UiState.Loading()
             combine(
                 fetchInAppMessageUseCase.invoke(),
                 fetchWelcomeMessageUseCase.invoke()
             ) { localMessages, welcomeMessage ->
                 val inAppMessages = localMessages.toMutableList()
                 welcomeMessage?.let { inAppMessages.add(it) }
-                inAppMessages.sortByDescending { it.timestamp }
+                inAppMessages.sortByDescending { it.timeState.timestamp }
                 combineMessages(inAppMessages.first())
             }.catch { exception ->
-                _viewState.value = viewState.value.copy(messagesList = UiState.Error(exception))
+                _messagesList.value = UiState.Error(exception)
             }.collect { messagesList ->
                 if (messagesList.isEmpty()) {
-                    _viewState.value = viewState.value.copy(messagesList = UiState.Empty())
+                    _messagesList.value = UiState.Empty()
                 } else {
-                    _viewState.value = viewState.value.copy(messagesList = UiState.Data(messagesList))
+                    _messagesList.value = UiState.Data(messagesList)
                 }
             }
         }
@@ -123,7 +124,8 @@ class MessageListController(
             InAppMessage(
                 id = it.orderId,
                 from = it.pharmacy.name,
-                timestamp = it.sentOn,
+                timeState = getTimeState(it.sentOn),
+                // timestamp = it.sentOn,
                 text = getMessageText(it.latestCommunicationMessage, it.pharmacy.name),
                 prescriptionsCount = it.prescriptions.size,
                 tag = "",
@@ -136,7 +138,7 @@ class MessageListController(
         return buildList {
             addAll(remoteMessages)
             add(localMessages)
-        }.sortedByDescending { it.timestamp }
+        }.sortedByDescending { it.timeState.timestamp }
     }
 
     private fun getMessageText(latestCommunicationMessage: OrderUseCaseData.LastMessage?, pharmacy: String): String {
@@ -144,16 +146,15 @@ class MessageListController(
         when (latestCommunicationMessage?.profile) {
             CommunicationProfile.ErxCommunicationReply -> {
                 val lastMessageDetails = latestCommunicationMessage.lastMessageDetails
-                when {
+                messageDetails = when {
                     lastMessageDetails.pickUpCodeDMC != null || lastMessageDetails.pickUpCodeHR != null ->
-                        messageDetails =
-                            context.getString(R.string.order_pickup_general_message)
+                        context.getString(R.string.order_pickup_general_message)
 
-                    lastMessageDetails.link != null -> messageDetails = lastMessageDetails.message ?: context.getString(R.string.order_message_link)
+                    lastMessageDetails.link != null -> lastMessageDetails.message ?: context.getString(R.string.order_message_link)
 
-                    lastMessageDetails.message != null -> messageDetails = lastMessageDetails.message
+                    lastMessageDetails.message != null -> lastMessageDetails.message
 
-                    else -> messageDetails = context.getString(R.string.order_message_empty)
+                    else -> context.getString(R.string.order_message_empty)
                 }
             }
 

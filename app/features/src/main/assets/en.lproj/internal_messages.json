@@ -1,8 +1,14 @@
 [
     {
         "id": "2",
-        "text": "Use the e-prescription app now to record your decision to donate organs in the **digital organ donation register** – safely and easily.\n\nThere are currently 9,192 people in Germany waiting urgently for an organ – every decision counts and can save lives.\n\nMake your decision today and make an important contribution to the future of many people! ❤️‍🩹\n\nYou can find the organ donation register in the “Settings” tab in this app.",
-        "timestamp": "2024-11-29T08:00:00.000Z",
+        "text": "Use the e-prescription app now to record your decision to donate organs in the **digital organ donation register** – safely and easily. \n \n There are currently 9,192 people in Germany urgently waiting for an organ – every decision counts and can save lives. \n \n Make your decision today and make an important contribution to the future of many people! ❤️‍🩹 \n \n You can find the organ donation register in the “Settings” tab in this app.",
+        "timestamp": "2024-12-19T08:00:00.000Z",
         "version": "1.26.0"
+    },
+    {
+        "id": "3",
+        "text": "**Improved readability** \n We've made our brand color a little darker to increase color contrast and thereby improve readability. \n \n **Optimized features** \n We've updated the format of the submission dates and corrected the sorting of the messages.",
+        "timestamp": "2025-01-28T08:00:00.000Z",
+        "version": "1.27.0"
     }
 ]

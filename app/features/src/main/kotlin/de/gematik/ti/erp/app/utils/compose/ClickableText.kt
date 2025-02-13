@@ -41,7 +41,7 @@ fun ClickableText(
     @StringRes textWithPlaceholdersRes: Int,
     clickText: ClickText,
     textStyle: TextStyle,
-    linkTextStyle: SpanStyle = SpanStyle(color = AppTheme.colors.primary600),
+    linkTextStyle: SpanStyle = SpanStyle(color = AppTheme.colors.primary700),
     text: String = stringResource(id = textWithPlaceholdersRes)
 ) {
     data class TextData(

@@ -161,7 +161,7 @@ fun MedicationNotificationSuccessScreenBottomBar(onClickMedicationPlan: () -> Un
     BottomAppBar(
         backgroundColor = MaterialTheme.colors.surface
     ) {
-        val color = AppTheme.colors.primary600
+        val color = AppTheme.colors.primary700
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -183,7 +183,7 @@ fun EmptyScreenImage() {
     Icon(
         imageVector = Icons.Sharp.Alarm,
         contentDescription = null,
-        tint = AppTheme.colors.primary600,
+        tint = AppTheme.colors.primary700,
         modifier = Modifier
             .size(SizeDefaults.sevenfold)
     )

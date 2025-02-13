@@ -213,7 +213,7 @@ private fun ContactSection() {
 
 @Composable
 fun PhoneContact(context: Context, phoneInfo: String, phoneContact: String, icon: ImageVector) {
-    val color = AppTheme.colors.primary500
+    val color = AppTheme.colors.primary700
     val annotatedPhoneText =
         provideLinkForString(phoneInfo, phoneContact, "phone", linkColor = color)
 
@@ -242,7 +242,7 @@ fun EmailContact(
     emailAddress: String,
     emailIcon: ImageVector
 ) {
-    val color = AppTheme.colors.primary500
+    val color = AppTheme.colors.primary700
     val annotatedEmail =
         provideLinkForString(emailText, annotation = emailAddress, "email", linkColor = color)
     Row(
@@ -271,7 +271,7 @@ fun EmailContact(
 
 @Composable
 fun LinkToWeb(linkInfo: String, link: String, icon: ImageVector) {
-    val color = AppTheme.colors.primary500
+    val color = AppTheme.colors.primary700
     val uriHandler = LocalUriHandler.current
     val annotatedLink =
         provideLinkForString(linkInfo, annotation = link, tag = "URL", linkColor = color)

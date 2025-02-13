@@ -61,7 +61,7 @@ data class PharmacyPortalText(
             end = end
         )
         addStyle(
-            SpanStyle(color = AppTheme.colors.primary600),
+            SpanStyle(color = AppTheme.colors.primary700),
             start,
             end
         )

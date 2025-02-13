@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.demomode.datasource
 
-import de.gematik.ti.erp.app.db.entities.v1.changelogs.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoAuditEventInfo
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPharmacyInfo.demoFavouritePharmacy
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPrescriptionInfo.DemoScannedPrescription.demoScannedTask01
@@ -40,6 +40,7 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -146,16 +147,19 @@ class DemoModeDataSource {
         MutableStateFlow(mutableListOf(inAppMessageEntity))
 
     val counter: MutableStateFlow<Long> =
-        MutableStateFlow(1)
+        MutableStateFlow(0)
 
     val lastVersion: MutableStateFlow<String> =
-        MutableStateFlow("1.26.0")
+        MutableStateFlow("demo.version")
 
     val lastUpdatedVersion: MutableStateFlow<String> =
-        MutableStateFlow("1.26.0")
+        MutableStateFlow("demo.version")
 
     val showWelcomeMessage: MutableStateFlow<Boolean> =
         MutableStateFlow(false)
+
+    val welcomeMessageTimeStamp: MutableStateFlow<Instant> =
+        MutableStateFlow(Clock.System.now().minus(12.hours))
 
     /**
      * Data source for the a [profileCommunicationLog] communication log that a particular profile has downloaded the information

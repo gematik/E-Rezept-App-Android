@@ -77,12 +77,12 @@ fun FilterButtonSection(
                 .padding(horizontal = PaddingDefaults.Small, vertical = SizeDefaults.threeQuarter),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(Icons.Rounded.Tune, null, Modifier.size(SizeDefaults.double), tint = AppTheme.colors.primary600)
+            Icon(Icons.Rounded.Tune, null, Modifier.size(SizeDefaults.double), tint = AppTheme.colors.primary700)
             SpacerSmall()
             Text(
                 stringResource(R.string.search_pharmacies_filter),
                 style = AppTheme.typography.subtitle2,
-                color = AppTheme.colors.primary600
+                color = AppTheme.colors.primary700
             )
         }
         if (filter.isAnySet()) {

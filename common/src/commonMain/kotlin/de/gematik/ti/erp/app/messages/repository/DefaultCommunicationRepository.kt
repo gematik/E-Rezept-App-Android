@@ -160,13 +160,18 @@ class DefaultCommunicationRepository(
     override fun loadDispReqCommunications(orderId: String): Flow<List<Communication>> =
         communicationLocalDataSource.loadDispReqCommunications(orderId).flowOn(dispatchers.io)
 
-    override fun loadFirstDispReqCommunications(profileId: ProfileIdentifier): Flow<List<Communication>> =
-        communicationLocalDataSource.loadFirstDispReqCommunications(profileId).flowOn(dispatchers.io)
+    override fun loadDispReqCommunicationsByProfileId(profileId: ProfileIdentifier): Flow<List<Communication>> =
+        communicationLocalDataSource.loadDispReqCommunicationsByProfileId(profileId).flowOn(dispatchers.io)
 
     override fun loadRepliedCommunications(taskIds: List<String>, telematikId: String): Flow<List<Communication>> =
         communicationLocalDataSource.loadRepliedCommunications(
             taskIds = taskIds,
             telematikId = telematikId
+        ).flowOn(dispatchers.io)
+
+    override fun loadAllRepliedCommunications(taskIds: List<String>): Flow<List<Communication>> =
+        communicationLocalDataSource.loadAllRepliedCommunications(
+            taskIds = taskIds
         ).flowOn(dispatchers.io)
 
     override fun hasUnreadDispenseMessage(taskIds: List<String>, orderId: String): Flow<Boolean> =
@@ -175,8 +180,11 @@ class DefaultCommunicationRepository(
     override fun hasUnreadDispenseMessage(profileId: ProfileIdentifier): Flow<Boolean> =
         communicationLocalDataSource.hasUnreadDispenseMessage(profileId).flowOn(dispatchers.io)
 
-    override fun unreadMessagesCount(consumed: Boolean): Flow<Long> =
-        communicationLocalDataSource.unreadMessagesCount(consumed)
+    override fun unreadMessagesCount(): Flow<Long> =
+        communicationLocalDataSource.unreadMessagesCount()
+
+    override fun getAllUnreadMessages(): Flow<List<Communication>> =
+        communicationLocalDataSource.getAllUnreadMessages().flowOn(dispatchers.io)
 
     override fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier): Flow<Long> =
         communicationLocalDataSource.unreadPrescriptionsInAllOrders(profileId).flowOn(dispatchers.io)

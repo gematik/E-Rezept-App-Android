@@ -105,7 +105,7 @@ fun NoConsentGrantedCard(
                 Icons.Rounded.ModelTraining,
                 null,
                 modifier = Modifier.size(40.dp),
-                tint = AppTheme.colors.primary600
+                tint = AppTheme.colors.primary700
             )
         },
         button = {

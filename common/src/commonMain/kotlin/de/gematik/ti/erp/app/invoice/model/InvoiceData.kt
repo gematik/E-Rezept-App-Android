@@ -30,7 +30,8 @@ object InvoiceData {
         BTMFee("02567001"),
         TPrescriptionFee("06460688"),
         ProvisioningCosts("09999637"),
-        DeliveryServiceCosts("06461110");
+        DeliveryServiceCosts("06461110"),
+        SupplyShortageFee("17717446");
 
         companion object {
             fun isAnyOf(pzn: String): Boolean = entries.any { it.value == pzn }
@@ -68,7 +69,9 @@ object InvoiceData {
         val description: Description,
         val text: String,
         val factor: Double,
-        val price: PriceComponent
+        val price: PriceComponent,
+        val partialQuantityDelivery: Boolean = false,
+        val spenderPzn: String? = null
     ) {
 
         sealed interface Description {
