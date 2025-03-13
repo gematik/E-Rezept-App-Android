@@ -22,28 +22,50 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import de.gematik.ti.erp.app.navigation.renderComposable
-import de.gematik.ti.erp.app.redeem.ui.screens.PrescriptionSelectionScreen
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
 import de.gematik.ti.erp.app.redeem.ui.screens.HowToRedeemScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.LocalRedeemScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.OnlineRedeemPreferencesScreen
+import de.gematik.ti.erp.app.redeem.ui.screens.PrescriptionSelectionScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.RedeemEditShippingContactScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.RedeemOrderOverviewScreen
 import org.kodein.di.DI
 import org.kodein.di.instance
 
+/**
+ * Defines the navigation graph for the redemption process.
+ *
+ * This function sets up a subgraph for all screens related to the redemption process.
+ * It utilizes `renderComposable` to define each screen and its route.
+ *
+ * @param dependencyInjector The dependency injection container providing required instances.
+ * @param startDestination The initial screen of the redemption process. Defaults to [RedeemRoutes.RedeemMethodSelection].
+ * @param navController The navigation controller responsible for managing navigation between screens.
+ */
 @Suppress("LongMethod")
 fun NavGraphBuilder.redeemGraph(
     dependencyInjector: DI,
     startDestination: String = RedeemRoutes.RedeemMethodSelection.route,
     navController: NavController
 ) {
+    /**
+     * Retrieves the controller for handling online redemption processes.
+     * This controller is shared across multiple screens in this subgraph.
+     */
     val onlineRedeemController by dependencyInjector.instance<OnlineRedeemGraphController>()
 
     navigation(
         startDestination = startDestination,
         route = RedeemRoutes.subGraphName()
     ) {
+        /**
+         * Screen: [HowToRedeemScreen]
+         *
+         * This screen allows the user to select a redemption method.
+         * It acts as the entry point to decide between redeeming from the app or using the data-matrix code.
+         *
+         * [RedeemRoutes.RedeemMethodSelection] provides the route and arguments for this screen.
+         */
         renderComposable(
             route = RedeemRoutes.RedeemMethodSelection.route,
             arguments = RedeemRoutes.RedeemMethodSelection.arguments
@@ -55,6 +77,14 @@ fun NavGraphBuilder.redeemGraph(
             )
         }
 
+        /**
+         * Screen: [LocalRedeemScreen]
+         *
+         * This screen handles the redemption process for local pharmacies.
+         * It allows users to redeem prescriptions in person through a data-matrix code.
+         *
+         * [RedeemRoutes.RedeemLocal] provides the route and arguments for this screen.
+         */
         renderComposable(
             route = RedeemRoutes.RedeemLocal.route,
             arguments = RedeemRoutes.RedeemLocal.arguments
@@ -65,6 +95,14 @@ fun NavGraphBuilder.redeemGraph(
             )
         }
 
+        /**
+         * Screen: [OnlineRedeemPreferencesScreen]
+         *
+         * This screen lets users set preferences for online redemption.
+         * The user can select all the prescriptions that are possible or select a subset by deciding on this screen.
+         *
+         * [RedeemRoutes.RedeemOnlinePreferences] provides the route and arguments for this screen.
+         */
         renderComposable(
             route = RedeemRoutes.RedeemOnlinePreferences.route,
             arguments = RedeemRoutes.RedeemOnlinePreferences.arguments
@@ -76,6 +114,14 @@ fun NavGraphBuilder.redeemGraph(
             )
         }
 
+        /**
+         * Screen: [PrescriptionSelectionScreen]
+         *
+         * This screen allows users to select prescriptions to redeem.
+         * It retrieves available prescriptions and displays them for selection.
+         *
+         * [RedeemRoutes.RedeemPrescriptionSelection] provides the route and arguments for this screen.
+         */
         renderComposable(
             route = RedeemRoutes.RedeemPrescriptionSelection.route,
             arguments = RedeemRoutes.RedeemPrescriptionSelection.arguments
@@ -86,6 +132,16 @@ fun NavGraphBuilder.redeemGraph(
                 controller = onlineRedeemController
             )
         }
+
+        /**
+         * Screen: [RedeemOrderOverviewScreen]
+         *
+         * Displays an overview of the user's redemption order before finalizing the process.
+         * Users can review selected prescriptions, pharmacy, address.
+         * If the user is not logged in, they will be taken to the login process from here.
+         *
+         * [RedeemRoutes.RedeemOrderOverviewScreen] provides the route and arguments for this screen.
+         */
         renderComposable(
             route = RedeemRoutes.RedeemOrderOverviewScreen.route,
             arguments = RedeemRoutes.RedeemOrderOverviewScreen.arguments
@@ -96,6 +152,15 @@ fun NavGraphBuilder.redeemGraph(
                 graphController = onlineRedeemController
             )
         }
+
+        /**
+         * Screen: [RedeemEditShippingContactScreen]
+         *
+         * Allows the user to modify the shipping address or contact information
+         * before finalizing the redemption order.
+         *
+         * [RedeemRoutes.RedeemEditShippingContactScreen] provides the route and arguments for this screen.
+         */
         renderComposable(
             route = RedeemRoutes.RedeemEditShippingContactScreen.route,
             arguments = RedeemRoutes.RedeemEditShippingContactScreen.arguments

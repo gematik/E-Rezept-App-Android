@@ -16,7 +16,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package de.gematik.ti.erp.app.utils.compose
+package de.gematik.ti.erp.app.button
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box

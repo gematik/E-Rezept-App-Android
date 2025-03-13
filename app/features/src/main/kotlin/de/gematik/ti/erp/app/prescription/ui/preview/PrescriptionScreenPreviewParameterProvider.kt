@@ -22,7 +22,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.LayoutDirection
 import de.gematik.ti.erp.app.app.ApplicationInnerPadding
 import de.gematik.ti.erp.app.consent.model.ConsentState
-import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarFlowWrapper
+import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
+import de.gematik.ti.erp.app.mainscreen.model.ProfileLifecycleState
 import de.gematik.ti.erp.app.prescription.ui.model.ConsentClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.MultiProfileTopAppBarClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionsScreenContentClickAction
@@ -33,7 +34,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 data class PrescriptionScreenPreviewData(
     val name: String,
-    val multiProfileAppBarFlowWrapper: MultiProfileAppBarFlowWrapper,
+    val multiProfileAppBarWrapper: MultiProfileAppBarWrapper,
     val profileData: UiState<ProfilesUseCaseData.Profile>,
     val activePrescription: UiState<List<Prescription>>,
     val isArchivedEmpty: Boolean,
@@ -66,11 +67,38 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
     override val values: Sequence<PrescriptionScreenPreviewData>
         get() = sequenceOf(
             PrescriptionScreenPreviewData(
-                name = "empty-prescriptions-user-logged-out",
-                multiProfileAppBarFlowWrapper = MultiProfileAppBarFlowWrapper(
+                name = "some-prescriptions-user-error",
+                multiProfileAppBarWrapper = MultiProfileAppBarWrapper(
+                    profileLifecycleState = ProfileLifecycleState(
+                        isProfileRefreshing = MutableStateFlow(false),
+                        networkStatus = MutableStateFlow(false),
+                        isTokenValid = MutableStateFlow(true),
+                        isRegistered = MutableStateFlow(true)
+                    ),
                     activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE),
-                    existingProfiles = MutableStateFlow(listOf(MOCK_MODEL_PROFILE, MOCK_MODEL_PROFILE_2)),
-                    isProfileRefreshing = MutableStateFlow(false)
+                    existingProfiles = MutableStateFlow(listOf(MOCK_MODEL_PROFILE, MOCK_MODEL_PROFILE_2))
+                ),
+                profileData = UiState.Data(MOCK_MODEL_PROFILE),
+                activePrescription = UiState.Data(
+                    listOf(
+                        MOCK_PRESCRIPTION_SELF_PAYER,
+                        MOCK_PRESCRIPTION_DIRECT_ASSIGNMENT
+                    )
+                ),
+                isArchivedEmpty = true,
+                hasRedeemableTasks = false
+            ),
+            PrescriptionScreenPreviewData(
+                name = "empty-prescriptions-user-logged-out",
+                multiProfileAppBarWrapper = MultiProfileAppBarWrapper(
+                    profileLifecycleState = ProfileLifecycleState(
+                        isProfileRefreshing = MutableStateFlow(false),
+                        networkStatus = MutableStateFlow(true),
+                        isTokenValid = MutableStateFlow(false),
+                        isRegistered = MutableStateFlow(true)
+                    ),
+                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE),
+                    existingProfiles = MutableStateFlow(listOf(MOCK_MODEL_PROFILE, MOCK_MODEL_PROFILE_2))
                 ),
                 profileData = UiState.Data(MOCK_MODEL_PROFILE),
                 activePrescription = UiState.Empty(),
@@ -79,10 +107,15 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
             ),
             PrescriptionScreenPreviewData(
                 name = "with-prescriptions-user-logged-in",
-                multiProfileAppBarFlowWrapper = MultiProfileAppBarFlowWrapper(
-                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE_LOGGED_IN),
+                multiProfileAppBarWrapper = MultiProfileAppBarWrapper(
                     existingProfiles = MutableStateFlow(listOf(MOCK_MODEL_PROFILE_LOGGED_IN)),
-                    isProfileRefreshing = MutableStateFlow(false)
+                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE_LOGGED_IN),
+                    profileLifecycleState = ProfileLifecycleState(
+                        isProfileRefreshing = MutableStateFlow(false),
+                        networkStatus = MutableStateFlow(true),
+                        isRegistered = MutableStateFlow(true),
+                        isTokenValid = MutableStateFlow(true)
+                    )
                 ),
                 profileData = UiState.Data(MOCK_MODEL_PROFILE_LOGGED_IN),
                 activePrescription = UiState.Data(
@@ -116,10 +149,15 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
              */
             PrescriptionScreenPreviewData(
                 name = "with-prescriptions-user-invalid",
-                multiProfileAppBarFlowWrapper = MultiProfileAppBarFlowWrapper(
-                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE_LOGGED_INVALID),
+                multiProfileAppBarWrapper = MultiProfileAppBarWrapper(
                     existingProfiles = MutableStateFlow(listOf(MOCK_MODEL_PROFILE_LOGGED_INVALID, MOCK_MODEL_PROFILE)),
-                    isProfileRefreshing = MutableStateFlow(false)
+                    activeProfile = MutableStateFlow(MOCK_MODEL_PROFILE_LOGGED_INVALID),
+                    profileLifecycleState = ProfileLifecycleState(
+                        isProfileRefreshing = MutableStateFlow(false),
+                        networkStatus = MutableStateFlow(true),
+                        isRegistered = MutableStateFlow(true),
+                        isTokenValid = MutableStateFlow(false)
+                    )
                 ),
                 profileData = UiState.Data(MOCK_MODEL_PROFILE_LOGGED_INVALID),
                 activePrescription = UiState.Data(

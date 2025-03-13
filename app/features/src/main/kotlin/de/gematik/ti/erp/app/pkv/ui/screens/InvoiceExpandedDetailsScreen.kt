@@ -32,15 +32,18 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
-import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate.joinMedicationInfo
 import de.gematik.ti.erp.app.invoice.model.currencyString
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvNavigationArguments.Companion.getPkvNavigationArguments
 import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
+import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceListScreenPreviewData
+import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceListScreenPreviewParameterProvider
+import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -48,7 +51,9 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.LabeledText
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 class InvoiceExpandedDetailsScreen(
     override val navController: NavController,
@@ -68,59 +73,61 @@ class InvoiceExpandedDetailsScreen(
                     }
                 }
             }
-            AnimatedElevationScaffold(
-                modifier = Modifier.imePadding(),
-                topBarTitle = joinMedicationInfo(invoice?.medicationRequest),
-                navigationMode = NavigationBarMode.Back,
+            InvoiceExpandedDetailsScreenScaffold(
                 listState = listState,
-                actions = {},
+                invoice = invoice,
                 onBack = { navController.popBackStack() }
-            ) { _ ->
-                InvoiceExpandedDetailsScreenContent(
-                    listState = listState,
-                    invoice = invoice
-                )
-            }
+            )
         }
     }
 }
 
 @Composable
-private fun InvoiceExpandedDetailsScreenContent(
+private fun InvoiceExpandedDetailsScreenScaffold(
     listState: LazyListState,
-    invoice: InvoiceData.PKVInvoiceRecord?
+    invoice: InvoiceData.PKVInvoiceRecord?,
+    onBack: () -> Unit
 ) {
-    LazyColumn(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = PaddingDefaults.Medium),
-        state = listState,
-        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
-    ) {
-        invoice?.let {
-            item {
-                InvoiceMedicationHeader(it)
-            }
-            item {
-                LabeledText(description = stringResource(R.string.invoice_task_id), content = it.taskId)
-            }
-            item {
-                PatientLabel(it.patient)
-            }
-            item {
-                PractitionerLabel(it.practitioner, it.practitionerOrganization)
-            }
-            item {
-                PharmacyLabel(it.pharmacyOrganization)
-            }
-            item {
-                LabeledText(
-                    description = stringResource(R.string.invoice_redeemed_on),
-                    content = it.whenHandedOver?.formattedString()
-                )
-            }
-            item {
-                PriceData(it.invoice)
+    AnimatedElevationScaffold(
+        modifier = Modifier.imePadding(),
+        topBarTitle = "",
+        navigationMode = NavigationBarMode.Back,
+        listState = listState,
+        actions = {},
+        onBack = onBack
+    ) { _ ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = PaddingDefaults.Medium),
+            state = listState,
+            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
+        ) {
+            invoice?.let {
+                item {
+                    InvoiceMedicationHeader(it)
+                }
+                item {
+                    LabeledText(description = stringResource(R.string.invoice_task_id), content = it.taskId)
+                }
+                item {
+                    PatientLabel(it.patient)
+                }
+                item {
+                    PractitionerLabel(it.practitioner, it.practitionerOrganization)
+                }
+                item {
+                    PharmacyLabel(it.pharmacyOrganization)
+                }
+                item {
+                    LabeledText(
+                        description = stringResource(R.string.invoice_redeemed_on),
+                        content = it.whenHandedOver?.formattedString()
+                    )
+                }
+                item {
+                    PriceData(it.invoice)
+                }
             }
         }
     }
@@ -246,4 +253,19 @@ private fun PatientLabel(patient: SyncedTaskData.Patient) {
             patient.birthdate?.formattedString()?.let { stringResource(R.string.invoice_born_on, it) }
         )
     )
+}
+
+@LightDarkPreview
+@Composable
+fun invoiceExpandedDetailsScreenContentPreview(
+    @PreviewParameter(InvoiceListScreenPreviewParameterProvider::class) previewData: InvoiceListScreenPreviewData
+) {
+    PreviewAppTheme {
+        val mockListState = LazyListState()
+        InvoiceExpandedDetailsScreenScaffold(
+            onBack = {},
+            listState = mockListState,
+            invoice = PkvMockData.invoiceRecord
+        )
+    }
 }

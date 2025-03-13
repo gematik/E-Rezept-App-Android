@@ -181,4 +181,12 @@ class EndpointHelper(
             BuildKonfig.APP_TRUST_ANCHOR_BASE64
         }
     }
+
+    fun getClientId() = when (getCurrentEnvironment()) {
+        Environment.PU -> BuildKonfig.CLIENT_ID_PU
+        Environment.TU -> BuildKonfig.CLIENT_ID_TU
+        Environment.RU -> BuildKonfig.CLIENT_ID_RU
+        Environment.RUDEV -> BuildKonfig.CLIENT_ID_RU
+        Environment.TR -> BuildKonfig.CLIENT_ID_RU
+    }
 }

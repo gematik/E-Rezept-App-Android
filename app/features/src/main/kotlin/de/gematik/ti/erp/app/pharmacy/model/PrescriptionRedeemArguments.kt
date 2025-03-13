@@ -29,7 +29,7 @@ internal fun orderID(): UUID = UUID.randomUUID()
 sealed class PrescriptionRedeemArguments(
     open val profile: ProfilesUseCaseData.Profile? = null,
     open val orderId: UUID,
-    open val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionOrder>,
+    open val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
     open val redeemOption: PharmacyScreenData.OrderOption,
     open val pharmacy: PharmacyUseCaseData.Pharmacy,
     open val contact: PharmacyUseCaseData.ShippingContact
@@ -53,7 +53,7 @@ sealed class PrescriptionRedeemArguments(
     data class LoggedInUserRedemptionArguments(
         override val profile: ProfilesUseCaseData.Profile,
         override val orderId: UUID,
-        override val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionOrder>,
+        override val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
         override val redeemOption: PharmacyScreenData.OrderOption,
         override val pharmacy: PharmacyUseCaseData.Pharmacy,
         override val contact: PharmacyUseCaseData.ShippingContact
@@ -62,7 +62,7 @@ sealed class PrescriptionRedeemArguments(
     // arguments required to redeem a prescription for a first time user who has never logged in
     data class DirectRedemptionArguments(
         override val orderId: UUID,
-        override val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionOrder>,
+        override val prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
         override val redeemOption: PharmacyScreenData.OrderOption,
         override val pharmacy: PharmacyUseCaseData.Pharmacy,
         override val contact: PharmacyUseCaseData.ShippingContact
@@ -79,7 +79,7 @@ sealed class PrescriptionRedeemArguments(
                 profile.isDirectRedeemEnabled -> {
                     DirectRedemptionArguments(
                         orderId = this,
-                        prescriptionOrderInfos = order.prescriptionOrders,
+                        prescriptionOrderInfos = order.prescriptionsInOrder,
                         redeemOption = redeemOption,
                         pharmacy = pharmacy,
                         contact = order.contact
@@ -90,7 +90,7 @@ sealed class PrescriptionRedeemArguments(
                     LoggedInUserRedemptionArguments(
                         profile = profile,
                         orderId = this,
-                        prescriptionOrderInfos = order.prescriptionOrders,
+                        prescriptionOrderInfos = order.prescriptionsInOrder,
                         redeemOption = redeemOption,
                         pharmacy = pharmacy,
                         contact = order.contact

@@ -12,18 +12,26 @@ plugins {
     id("base-multiplatform-library")
     id("com.codingfeline.buildkonfig")
     id("de.gematik.ti.erp.dependency-overrides")
+    alias(libs.plugins.compose.compiler)
 }
-fun getGitHash() =
-    if (File("${rootDir.path}/.git").exists()) {
+fun getGitHash(): String {
+    val gitDir = File("${rootDir.path}/.git")
+    if (!gitDir.exists()) {
+        println("Git directory not found: ${gitDir.path}")
+        return "n/a"
+    }
+    return try {
         val stdout = ByteArrayOutputStream()
         exec {
             commandLine = listOf("git", "rev-parse", "--short", "HEAD")
             standardOutput = stdout
         }
         stdout.toString().trim()
-    } else {
+    } catch (e: Exception) {
+        println("Failed to retrieve git hash: ${e.message}")
         "n/a"
     }
+}
 
 // versioning
 val VERSION_NAME: String by overrides()

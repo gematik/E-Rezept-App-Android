@@ -114,7 +114,7 @@
     <string name="technical_hotline_info">Гореща телефонна линия</string>
     <string name="main_scan_acc">Отворете скенер за рецепти</string>
     <string name="main_settings_acc">Настройки</string>
-    <string name="settings_screenshots_toggle_text">Потискане на екранни снимки</string>
+    <string name="settings_screenshots_toggle_text">Разрешаване на екранни снимки</string>
     <string name="settings_tracking_dialog_title">Позволявате ли на E-Prescription да анализира анонимно вашето поведение при използване?</string>
     <string name="pres_detail_technical_information">Техническа информация</string>
     <string name="settings_biometric_dialog_title">Сигурност на вашите данни за рецепта</string>
@@ -160,7 +160,7 @@
     <string name="consistent_password">Повтарящи се пароли</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Грешка 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Вашата здравна карта е невалидна. Може би вашата карта е изтекла? Моля, свържете се с вашата здравноосигурителна компания.</string>
-    <string name="auth_error_failed_auths_headline">Неуспешни опити за влизане</string>
+    <string name="auth_error_failed_auths_headline">За съжаление това не проработи</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Бяха открити %s неуспешни опита за влизане.</item>
         <item quantity="other">Открити са %s неуспешни опита за влизане.</item>
@@ -484,7 +484,7 @@
     <string name="time_description_today">В %s часа</string>
     <string name="orders_cart_ready">Количката за пазаруване е готова</string>
     <string name="orders_cart_ready_info">Рецептата е добавена във вашата количка. Моля, посетете уебсайта на аптеката, за да завършите поръчката.</string>
-    <string name="orders_open_cart_link">Отворете количката за пазаруване</string>
+    <string name="orders_open_cart_link">връзка към вашата аптека</string>
     <string name="orders_code_info">Покажете този код за събиране в аптеката.</string>
     <string name="orders_code_title">Кодът за получаване е получен</string>
     <string name="orders_no_message_title">Съобщението не може да се покаже</string>
@@ -576,7 +576,7 @@
     <string name="pres_detail_medication_label_handed_over">издадена на:</string>
     <string name="synced_medication_ingredient_header">активна съставка</string>
     <string name="medication_overview_prescribed_header">Предписано</string>
-    <string name="medication_overview_dispenses_header">Получете</string>
+    <string name="medication_overview_dispenses_header">получено</string>
     <string name="pres_details_exp_da_title">Какво е директно възлагане?</string>
     <string name="pres_details_exp_da_info">При директно насочване рецепта от практика или болница се изпълнява директно в аптека. Застрахованите лица не трябва да предприемат никакви действия и не могат да се намесват в процеса на обратно изкупуване. \n\n Директните препоръки са изброени в приложението за електронна рецепта, за да направи лечението ви по-прозрачно за вас.</string>
     <string name="pres_details_exp_no_em_fee_title">Такса за спешни услуги</string>
@@ -643,7 +643,6 @@
     <string name="search_pharmacies_location_na_settings">Настройки</string>
     <string name="search_pharmacies_location_na_services">Споделете местоположение в Настройки.</string>
     <string name="pharmacy_maps_header">Близо до мен</string>
-    <string name="mainscreen_profile_chip_content_description">Натиснете и задръжте, за да редактирате името.</string>
     <string name="profile_edit_name_for_rename_info">Въведете новото име за профила.</string>
     <string name="mainscreen_welcome_drawer_info">За да получавате дигитално рецепти от вашата практика, трябва да сте влезли.</string>
     <string name="mainscreen_welcome_drawer_header">Получаване на рецепти дигитално?</string>
@@ -1060,14 +1059,14 @@
     <string name="invoices_deleted">Разходните ви бележки са изтрити</string>
     <string name="invoices_detail_title">Разходна бележка</string>
     <string name="paired_devices_biometrics_error_login_title">Изисква се регистрация</string>
-    <string name="paired_devices_biometrics_error_login_description">Моля, влезте, за да видите свързаните устройства.</string>
+    <string name="paired_devices_biometrics_error_login_description">Моля, влезте и запазете данните си за вход, за да видите свързаните устройства.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Регистрирам</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Регистрирам</string>
     <string name="cdw_intro_auth_gid_app_required">Свържете се с %s застраховка</string>
     <string name="a11y_card_wall_card_hand">Здравна карта на смартфон</string>
     <string name="not_logged_in">Не сте влезли в системата</string>
     <string name="logged_in">Регистриран</string>
-    <string name="a11y_refresh">опресняване</string>
+    <string name="refresh">опресняване</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Ще получите регистрационни файлове за достъп, ако сте влезли в услугата за рецепти.</string>
     <string name="paired_devices_error_login_title">Изисква се регистрация</string>
     <string name="paired_devices_error_login_description">Моля, влезте със здравната си карта и запазете данните си за вход с биометрични данни, за да видите свързаните устройства.</string>
@@ -1175,7 +1174,7 @@
     <string name="settings_app_security_change_password">Промяна на паролата</string>
     <string name="invoices_delete_not_logged_in_description">За да изтриете, трябва да бъде установена връзка със сървъра за рецепти</string>
     <string name="provided">Стоките са готови</string>
-    <string name="provided_on_hour">Стоките са готови от %s</string>
+    <string name="provided_at_hour">Стоките са готови от %s</string>
     <string name="provided_now">Стоките са готови току-що</string>
     <string name="provided_minutes_ago">Стоките са готови от %s минути</string>
     <string name="provided_on_date">Стоките са готови от %s</string>
@@ -1204,4 +1203,15 @@
     <string name="all_prescriptions_of_order">Всички рецепти по реда</string>
     <string name="invoice_details_supply_shortage_fee">Фиксирана такса за затруднения в доставката</string>
     <string name="message_list_time_state_hours">%s часа</string>
+    <string name="language_selection_es">испански</string>
+    <string name="language_selection_ga">ирландски</string>
+    <string name="profile_screen_login_hint">За да получавате рецепти автоматично, трябва да сте влезли.</string>
+    <string name="profile_screen_login_button">Регистрирайте се</string>
+    <string name="error_redeemable_prescription_title">рецептата не може да бъде осребрена</string>
+    <string name="error_redeemable_prescription_generic_error">Рецептата „ %1$s ” вече не може да се използва. Може вече да сте го осребрили по друг начин или може да е изтрит.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Рецептата „ %1$s ” вече е осребрена или в момента се изкупува.</string>
+    <string name="error_redeemable_prescription_deleted">Рецептата „ %1$s ” вече е изтрита и следователно вече не може да бъде осребрена.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Следните рецепти не са или вече не могат да бъдат използвани: %1$s \n Може вече да сте ги използвали по друг начин или може да са били изтрити. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Продължете без тези рецепти</string>
+    <string name="error_redeemable_prescription_cancel_order">Отмени поръчката</string>
 </resources>

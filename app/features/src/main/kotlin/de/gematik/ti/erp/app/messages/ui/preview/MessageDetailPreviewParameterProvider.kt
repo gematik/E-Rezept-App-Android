@@ -104,7 +104,7 @@ object MessageSheetsPreviewData {
     val PICK_HR_CODE_MESSAGE_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = null,
+        content = null,
         pickUpCodeDMC = null,
         pickUpCodeHR = "pickUpCodeHR",
         link = null,
@@ -115,7 +115,7 @@ object MessageSheetsPreviewData {
     val PICK_DMC_HR_CODE_MESSAGE_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = null,
+        content = null,
         pickUpCodeDMC = "pickUpCodeDMC",
         pickUpCodeHR = "pickUpCodeHR",
         link = null,
@@ -126,7 +126,7 @@ object MessageSheetsPreviewData {
     val PICK_DMC_HR_CODE_MESSAGE_WITH_MSG_PAYLOAD_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = "message from the pharmacy!",
+        content = "message from the pharmacy!",
         pickUpCodeDMC = "pickUpCodeDMC",
         pickUpCodeHR = "pickUpCodeHR",
         link = null,
@@ -140,7 +140,7 @@ object MessageSheetsPreviewData {
     val PICK_DMC_HR_CODE_MESSAGE_WITH_MSG_PAYLOAD_WITH_LINK_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = "message from the pharmacy!",
+        content = "message from the pharmacy!",
         pickUpCodeDMC = "pickUpCodeDMC",
         pickUpCodeHR = "pickUpCodeHR",
         link = null,
@@ -151,7 +151,7 @@ object MessageSheetsPreviewData {
     val PICK_DMC_HR_CODE_MESSAGE_NO_MSG_PAYLOAD_WITH_LINK_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = null,
+        content = null,
         pickUpCodeDMC = "pickUpCodeDMC",
         pickUpCodeHR = "pickUpCodeHR",
         link = null,
@@ -162,7 +162,7 @@ object MessageSheetsPreviewData {
     val REPLIED_PICK_DMC_HR_CODE_MESSAGE_NO_MSG_PAYLOAD_WITH_LINK_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = null,
+        content = null,
         pickUpCodeDMC = "pickUpCodeDMC",
         pickUpCodeHR = "pickUpCodeHR",
         link = null,
@@ -173,7 +173,7 @@ object MessageSheetsPreviewData {
     val PICK_DMC_CODE_MESSAGE_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = null,
+        content = null,
         pickUpCodeDMC = "pickUpCodeDMC",
         pickUpCodeHR = null,
         link = "https://this.is.a.link.de",
@@ -187,7 +187,7 @@ object MessageSheetsPreviewData {
     val MESSAGE_WITH_URL_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = null,
+        content = null,
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = "https://this.is.a.link.de",
@@ -200,7 +200,7 @@ object MessageSheetsPreviewData {
     val MESSAGE_WITH_Only_Message_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = "message from the pharmacy!",
+        content = "message from the pharmacy!",
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = null,
@@ -215,7 +215,7 @@ object MessageSheetsPreviewData {
     val EMPTY_MESSAGE_PREVIEW = OrderUseCaseData.Message(
         communicationId = "123",
         sentOn = time,
-        message = null,
+        content = null,
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = null,

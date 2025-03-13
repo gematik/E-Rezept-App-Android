@@ -26,7 +26,6 @@ internal object Versions {
     }
 
     internal const val BUILD_TOOLS_VERSION = "34.0.0"
-    internal const val KOTLIN_COMPILER_EXTENSION_VERSION = "1.5.3"
 
     internal object JavaVersion {
         const val KOTLIN_OPTIONS_JVM_TARGET = "17"

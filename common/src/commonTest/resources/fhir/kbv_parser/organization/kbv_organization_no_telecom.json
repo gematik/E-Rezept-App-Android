@@ -1,0 +1,22 @@
+{
+  "resourceType": "Organization",
+  "id": "5d3f4ac0-2b44-4d48-b363-e63efa72973b",
+  "meta": {
+    "profile": ["https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0"]
+  },
+  "identifier": [{
+    "type": {
+      "coding": [{"system": "http://terminology.hl7.org/CodeSystem/v2-0203", "code": "BSNR"}]
+    },
+    "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR",
+    "value": "721111100"
+  }],
+  "name": "MVZ",
+  "address": [{
+    "type": "both",
+    "line": ["Herbert-Lewin-Platz 2"],
+    "city": "Berlin",
+    "postalCode": "10623",
+    "country": "D"
+  }]
+}

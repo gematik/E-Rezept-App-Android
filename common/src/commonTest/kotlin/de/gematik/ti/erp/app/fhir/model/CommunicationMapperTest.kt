@@ -25,8 +25,8 @@ import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
-import kotlin.test.Test
 import java.io.File
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 private const val JsonSymbols = "\"{}[]:"
@@ -35,6 +35,7 @@ private const val JsonSymbolsEscaped = "\\\"{}[]:"
 // TODO: remove Version 1.2 after 30.Jun.2025
 private val testBundleVersion12 by lazy { File("$ResourceBasePath/communications_bundle_version_1_2.json").readText() }
 private val testBundleVersion13 by lazy { File("$ResourceBasePath/communications_bundle_version_1_3.json").readText() }
+private val testBundleVersion14 by lazy { File("$ResourceBasePath/communications_bundle_version_1_4.json").readText() }
 
 class CommunicationMapperTest {
     @Test
@@ -142,6 +143,19 @@ class CommunicationMapperTest {
         )
     )
 
+    private val communicationsVersion14 = mapOf(
+        0 to Communication(
+            taskId = "160.000.226.545.733.51",
+            communicationId = "01ebc980-ae10-41f0-5a9f-c8ad61141a66",
+            orderId = null,
+            profile = CommunicationProfile.ErxCommunicationReply,
+            sentOn = Instant.parse("2024-08-14T11:14:38.230Z"),
+            sender = "3-01.2.2023001.16.103",
+            recipient = "X110432693",
+            payload = "Eisern"
+        )
+    )
+
     @Test
     fun `parse communications version 1_2`() {
         extractCommunications(
@@ -168,6 +182,28 @@ class CommunicationMapperTest {
             Json.parseToJsonElement(testBundleVersion13)
         ) { taskId, communicationId, orderId, profile, sentOn, sender, recipient, payload ->
             communicationsVersion13[index]?.let { com ->
+                assertEquals(com.taskId, taskId)
+                assertEquals(com.communicationId, communicationId)
+                assertEquals(com.orderId, orderId)
+                assertEquals(com.profile, profile)
+                assertEquals(FhirTemporal.Instant(com.sentOn), sentOn)
+                assertEquals(com.sender, sender)
+                assertEquals(com.recipient, recipient)
+                assertEquals(com.payload, payload)
+            }
+            index++
+        }
+
+        assertEquals(3, index)
+    }
+
+    @Test
+    fun `parse communications version 1_4`() {
+        var index = 0
+        extractCommunications(
+            Json.parseToJsonElement(testBundleVersion14)
+        ) { taskId, communicationId, orderId, profile, sentOn, sender, recipient, payload ->
+            communicationsVersion14[index]?.let { com ->
                 assertEquals(com.taskId, taskId)
                 assertEquals(com.communicationId, communicationId)
                 assertEquals(com.orderId, orderId)

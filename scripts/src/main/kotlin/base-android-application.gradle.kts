@@ -7,14 +7,12 @@ import extensions.BuildNames.versionCatalogLibrary
 import extensions.Versions.BUILD_TOOLS_VERSION
 import extensions.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
 import extensions.Versions.JavaVersion.PROJECT_JAVA_VERSION
-import extensions.Versions.KOTLIN_COMPILER_EXTENSION_VERSION
 import extensions.Versions.SdkVersions.COMPILE_SDK_VERSION
 import extensions.Versions.SdkVersions.MIN_SDK_VERSION
 import extensions.Versions.SdkVersions.TARGET_SDK_VERSION
 import extensions.androidTestExtension
 import extensions.androidxAppBundle
 import extensions.checks
-import extensions.composeAppBundle
 import extensions.databaseBundle
 import extensions.datetimeBundle
 import extensions.desugarLibrary
@@ -23,7 +21,6 @@ import extensions.imageBundle
 import extensions.junitExtension
 import extensions.lifecycleBundle
 import extensions.napierLibrary
-import extensions.navigationComposeLibrary
 import extensions.networkBundle
 import extensions.pdfboxBundle
 import extensions.processPhoenixBundle
@@ -42,6 +39,7 @@ plugins {
     id("org.owasp.dependencycheck")
     id("com.jaredsburrows.license")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
+    id("compose-convention")
 }
 
 afterEvaluate {
@@ -53,8 +51,8 @@ afterEvaluate {
         }
     }
 }
-
-val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named(versionCatalogLibrary)
+val versionCatalog: VersionCatalog = extensions.getByType<VersionCatalogsExtension>()
+    .named(versionCatalogLibrary)
 
 licenseReport {
     generateCsvReport = false
@@ -65,7 +63,6 @@ licenseReport {
 
 android {
     buildToolsVersion = BUILD_TOOLS_VERSION
-    composeOptions.kotlinCompilerExtensionVersion = KOTLIN_COMPILER_EXTENSION_VERSION
     compileSdk = COMPILE_SDK_VERSION
     defaultConfig {
         minSdk = MIN_SDK_VERSION
@@ -92,7 +89,6 @@ android {
         targetCompatibility = PROJECT_JAVA_VERSION
     }
     testOptions {
-        this.emulatorControl
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
         animationsDisabled = true
         emulatorSnapshots.compressSnapshots = true
@@ -126,34 +122,31 @@ android {
 
     buildFeatures {
         buildConfig = true
-        compose = true
     }
 }
 
 dependencies {
-    implementation(libs.pdfboxBundle) {
+    implementation(versionCatalog.pdfboxBundle) {
         exclude(group = "org.bouncycastle")
     }
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation(libs.datetimeBundle)
-    debugImplementation(libs.processPhoenixBundle)
-    implementation(libs.androidxAppBundle)
-    implementation(libs.lifecycleBundle)
-    implementation(libs.trackingBundle)
-    implementation(libs.composeAppBundle)
-    compileOnly(libs.databaseBundle)
-    implementation(libs.networkBundle)
-    implementation(libs.serializationBundle)
-    compileOnly(libs.diComposeLibrary)
-    implementation(libs.napierLibrary)
-    coreLibraryDesugaring(libs.desugarLibrary)
-    implementation(libs.navigationComposeLibrary)
-    implementation(libs.imageBundle)
+    implementation(versionCatalog.datetimeBundle)
+    debugImplementation(versionCatalog.processPhoenixBundle)
+    implementation(versionCatalog.androidxAppBundle)
+    implementation(versionCatalog.lifecycleBundle)
+    implementation(versionCatalog.trackingBundle)
+    compileOnly(versionCatalog.databaseBundle)
+    implementation(versionCatalog.networkBundle)
+    implementation(versionCatalog.serializationBundle)
+    compileOnly(versionCatalog.diComposeLibrary)
+    implementation(versionCatalog.napierLibrary)
+    coreLibraryDesugaring(versionCatalog.desugarLibrary)
+    implementation(versionCatalog.imageBundle)
 
-    androidTestExtension(libs)
-    testExtension(libs)
-    junitExtension(libs)
+    androidTestExtension(versionCatalog)
+    testExtension(versionCatalog)
+    junitExtension(versionCatalog)
 }
 
 secrets {

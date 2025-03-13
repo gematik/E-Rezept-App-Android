@@ -58,22 +58,9 @@ enum class LanguageCode(val code: String, val resource: Int) {
     fun mapToName() = stringResource(resource)
 
     companion object {
-        val codes = entries.map { it.code }
-
         fun fromCode(code: String) = entries.firstOrNull { it.code == code }
     }
 }
-
-/**
- * Maps a language code to its name
- *
- * TODO: team session - this should be moved to a more appropriate place (utility class?)
- *
- * @param code The language code to map
- * @return The name of the language
- */
-@Composable
-fun mapLanguageCodeToName(code: String): String? = LanguageCode.fromCode(code)?.mapToName()
 
 @Composable
 fun rememberSettingsLanguageScreenController(): SettingsLanguageScreenController {

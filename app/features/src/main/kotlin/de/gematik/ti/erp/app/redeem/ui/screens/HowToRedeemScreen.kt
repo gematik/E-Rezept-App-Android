@@ -66,7 +66,7 @@ class HowToRedeemScreen(
 
     @Composable
     override fun Content() {
-        val prescriptions by controller.redeemableOrderState()
+        val prescriptions by controller.redeemableOrderState
         val listState = rememberLazyListState()
         HowToRedeemScreenScaffold(
             listState = listState,

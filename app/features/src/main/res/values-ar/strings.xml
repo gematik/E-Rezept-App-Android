@@ -122,7 +122,7 @@
     <string name="technical_hotline_info">الخط الهاتفي الساخن</string>
     <string name="main_scan_acc">فتح الماسح الضوئي للوصفات الطبية</string>
     <string name="main_settings_acc">الإعدادات</string>
-    <string name="settings_screenshots_toggle_text">منع أخذ لقطات الشاشة</string>
+    <string name="settings_screenshots_toggle_text">السماح بلقطات الشاشة</string>
     <string name="settings_tracking_dialog_title">هل تسمح للوصفة الطبية الإلكترونية بتحليل سلوك الاستخدام الخاص بك بشكل مجهول؟</string>
     <string name="pres_detail_technical_information">معلومات تقنية</string>
     <string name="settings_biometric_dialog_title">أمان بيانات وصفاتك</string>
@@ -168,7 +168,7 @@
     <string name="consistent_password">كلمة المرور المكرر مطابقة</string>
     <string name="cdw_nfc_error_title_invalid_certificate">خطأ 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">شهادة بطاقتك الصحية غير صالحة. ربما انتهت صلاحية بطاقتك؟ يرجى الاتصال بشركة التأمين الصحي الخاصة بك.</string>
-    <string name="auth_error_failed_auths_headline">محاولات تسجيل دخول غير ناجحة</string>
+    <string name="auth_error_failed_auths_headline">لسوء الحظ، هذا لم ينجح</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="zero"></item>
         <item quantity="one">تم اكتشاف %s محاولات تسجيل الدخول غير الناجحة.</item>
@@ -508,7 +508,7 @@
     <string name="time_description_today">في الساعة %s</string>
     <string name="orders_cart_ready">عربة التسوق جاهزة</string>
     <string name="orders_cart_ready_info">تمت إضافة الوصفة إلى سلة التسوق الخاصة بك. برجاء الدخول إلى موقع الصيدلية لإتمام الطلب.</string>
-    <string name="orders_open_cart_link">فتح عربة التسوق</string>
+    <string name="orders_open_cart_link">رابط إلى الصيدلية الخاصة بك</string>
     <string name="orders_code_info">أظهر رمز التجميع هذا في الصيدلية.</string>
     <string name="orders_code_title">الحصول على كود الاستلام</string>
     <string name="orders_no_message_title">لا يمكن عرض الرسالة</string>
@@ -604,7 +604,7 @@
     <string name="pres_detail_medication_label_handed_over">الصادر في:</string>
     <string name="synced_medication_ingredient_header">المادة الفعالة</string>
     <string name="medication_overview_prescribed_header">المنصوص عليها</string>
-    <string name="medication_overview_dispenses_header">استلام</string>
+    <string name="medication_overview_dispenses_header">تلقى</string>
     <string name="pres_details_exp_da_title">ما هو التكليف المباشر؟</string>
     <string name="pres_details_exp_da_info">مع الإحالة المباشرة، يتم صرف الوصفة الطبية من عيادة أو مستشفى مباشرة في الصيدلية. لا يتعين على الأشخاص المؤمن عليهم اتخاذ أي إجراء ولا يمكنهم التدخل في عملية الاسترداد. \n\n يتم إدراج الإحالات المباشرة في تطبيق الوصفات الطبية الإلكترونية لجعل علاجك أكثر شفافية بالنسبة لك.</string>
     <string name="pres_details_exp_no_em_fee_title">رسوم خدمة الطوارئ</string>
@@ -671,7 +671,6 @@
     <string name="search_pharmacies_location_na_settings">الإعدادات</string>
     <string name="search_pharmacies_location_na_services">مشاركة الموقع في الإعدادات.</string>
     <string name="pharmacy_maps_header">قريب مني</string>
-    <string name="mainscreen_profile_chip_content_description">اضغط مع الاستمرار لتحرير الاسم.</string>
     <string name="profile_edit_name_for_rename_info">أدخل الاسم الجديد للملف الشخصي.</string>
     <string name="mainscreen_welcome_drawer_info">لتلقي الوصفات الطبية رقميًا من عيادتك، يجب عليك تسجيل الدخول.</string>
     <string name="mainscreen_welcome_drawer_header">تلقي الوصفات الطبية رقميا؟</string>
@@ -1096,14 +1095,14 @@
     <string name="invoices_deleted">لقد تم حذف إيصالات النفقات الخاصة بك</string>
     <string name="invoices_detail_title">إيصال التكلفة</string>
     <string name="paired_devices_biometrics_error_login_title">التسجيل مطلوب</string>
-    <string name="paired_devices_biometrics_error_login_description">الرجاء تسجيل الدخول لعرض الأجهزة المتصلة.</string>
+    <string name="paired_devices_biometrics_error_login_description">يرجى تسجيل الدخول وحفظ تفاصيل تسجيل الدخول الخاصة بك لعرض الأجهزة المتصلة.</string>
     <string name="paired_devices_biometrics_error_login_button_text">يسجل</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">يسجل</string>
     <string name="cdw_intro_auth_gid_app_required">الاتصال بالتأمين %s</string>
     <string name="a11y_card_wall_card_hand">البطاقة الصحية على الهاتف الذكي</string>
     <string name="not_logged_in">لم يتم تسجيل الدخول</string>
     <string name="logged_in">مسجل</string>
-    <string name="a11y_refresh">ينعش</string>
+    <string name="refresh">ينعش</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">تتلقى بروتوكل الدخول بعد التسجيل في خدمة الوصفات الطبية.</string>
     <string name="paired_devices_error_login_title">التسجيل مطلوب</string>
     <string name="paired_devices_error_login_description">يرجى تسجيل الدخول باستخدام بطاقتك الصحية وحفظ تفاصيل تسجيل الدخول الخاصة بك مع القياسات الحيوية لعرض الأجهزة المتصلة.</string>
@@ -1211,7 +1210,7 @@
     <string name="settings_app_security_change_password">تغيير كلمة المرور</string>
     <string name="invoices_delete_not_logged_in_description">للحذف، يجب إنشاء اتصال بخادم الوصفة الطبية</string>
     <string name="provided">البضائع جاهزة</string>
-    <string name="provided_on_hour">البضائع جاهزة منذ %s</string>
+    <string name="provided_at_hour">البضائع جاهزة منذ %s</string>
     <string name="provided_now">لقد كانت البضائع جاهزة للتو</string>
     <string name="provided_minutes_ago">كانت البضائع جاهزة لمدة %s دقيقة</string>
     <string name="provided_on_date">البضائع جاهزة منذ %s</string>
@@ -1240,4 +1239,15 @@
     <string name="all_prescriptions_of_order">جميع الوصفات بالترتيب</string>
     <string name="invoice_details_supply_shortage_fee">معدل ثابت لاختناق التسليم</string>
     <string name="message_list_time_state_hours">%s الساعة</string>
+    <string name="language_selection_es">الأسبانية</string>
+    <string name="language_selection_ga">الأيرلندية</string>
+    <string name="profile_screen_login_hint">لتلقي الوصفات تلقائيًا، يجب عليك تسجيل الدخول.</string>
+    <string name="profile_screen_login_button">يسجل</string>
+    <string name="error_redeemable_prescription_title">لا يمكن استرداد الوصفة الطبية</string>
+    <string name="error_redeemable_prescription_generic_error">لم يعد من الممكن استرداد الوصفة الطبية \"%1$s\". ربما تكون قد استبدلتها بالفعل بطريقة أخرى أو ربما تم إلغاؤها.</string>
+    <string name="error_redeemable_prescription_not_redeemable">الوصفة الطبية \" %1$s \" تم استردادها بالفعل أو يتم استردادها حاليًا.</string>
+    <string name="error_redeemable_prescription_deleted">لقد تم بالفعل حذف الوصفة \" %1$s \" وبالتالي لم يعد من الممكن استردادها.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n الوصفات التالية غير قابلة للاسترداد أو لم تعد قابلة للاسترداد: %1$s \n ربما تكون قد استبدلتها بالفعل بطريقة أخرى أو ربما تم حذفها. \n</string>
+    <string name="error_redeemable_prescription_continue_without">استمر بدون هذه الوصفات</string>
+    <string name="error_redeemable_prescription_cancel_order">إلغاء الطلب</string>
 </resources>

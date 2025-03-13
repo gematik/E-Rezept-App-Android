@@ -51,7 +51,6 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.settings.presentation.LanguageCode
-import de.gematik.ti.erp.app.settings.presentation.mapLanguageCodeToName
 import de.gematik.ti.erp.app.settings.presentation.rememberSettingsLanguageScreenController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -73,7 +72,7 @@ class SettingsLanguageScreen(
     override fun Content() {
         val controller = rememberSettingsLanguageScreenController()
         val languages = controller.languageList
-
+        context.resources
         val lazyListState = rememberLazyListState()
 
         val selectedLanguage = remember {
@@ -98,7 +97,7 @@ class SettingsLanguageScreen(
 @Composable
 private fun SettingsLanguageScreenContent(
     lazyListState: LazyListState,
-    languages: List<String>,
+    languages: List<LanguageCode>,
     selectedLanguage: String?
 ) {
     LazyColumn(
@@ -115,23 +114,21 @@ private fun SettingsLanguageScreenContent(
         }
 
         itemsIndexed(languages) { index, languageCode ->
-            mapLanguageCodeToName(code = languageCode)?.let {
-                LanguageSelectionItem(
-                    isFirstItem = index == 0,
-                    language = it,
-                    checked = languageCode == selectedLanguage ||
-                        (languageCode == "iw" && selectedLanguage == "he"),
-                    onCheckedChange = { checked ->
-                        if (checked) {
-                            AppCompatDelegate.setApplicationLocales(
-                                LocaleListCompat.forLanguageTags(
-                                    languageCode
-                                )
+            LanguageSelectionItem(
+                isFirstItem = index == 0,
+                language = languageCode.mapToName(),
+                checked = languageCode.code == selectedLanguage ||
+                    (languageCode.code == "iw" && selectedLanguage == "he"),
+                onCheckedChange = { checked ->
+                    if (checked) {
+                        AppCompatDelegate.setApplicationLocales(
+                            LocaleListCompat.forLanguageTags(
+                                languageCode.code
                             )
-                        }
+                        )
                     }
-                )
-            }
+                }
+            )
         }
     }
 }
@@ -202,7 +199,7 @@ fun SettingsLanguageScreenScaffoldPreview(
             topBarTitle = stringResource(R.string.language_selection_title),
             navigationMode = NavigationBarMode.Back
         ) {
-            SettingsLanguageScreenContent(listState, LanguageCode.codes, selectedLanguage)
+            SettingsLanguageScreenContent(listState, LanguageCode.entries, selectedLanguage)
         }
     }
 }

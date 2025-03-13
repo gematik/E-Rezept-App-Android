@@ -28,6 +28,8 @@ import de.gematik.ti.erp.app.api.HTTP_METHOD_NOT_ALLOWED
 import de.gematik.ti.erp.app.api.HTTP_TOO_MANY_REQUESTS
 import de.gematik.ti.erp.app.api.HTTP_UNAUTHORIZED
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException
+import de.gematik.ti.erp.app.invoice.mapper.mapUnitToInvoiceError
+import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -44,7 +46,8 @@ import java.net.UnknownHostException
     rationale = "User can delete a locally and remotely stored prescription and all its linked resources."
 )
 class DeletePrescriptionUseCase(
-    private val repository: PrescriptionRepository,
+    private val prescriptionRepository: PrescriptionRepository,
+    private val invoiceRepository: InvoiceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     sealed interface DeletePrescriptionState : ErpServiceState {
@@ -79,19 +82,20 @@ class DeletePrescriptionUseCase(
         deleteLocallyOnly: Boolean
     ): Flow<ErpServiceState> =
         flowOf(
-            if (!repository.wasProfileEverAuthenticated(profileId) || deleteLocallyOnly) {
+            if (!prescriptionRepository.wasProfileEverAuthenticated(profileId) || deleteLocallyOnly) {
                 // delete local saved tasks, if sso token is null
                 // (profile was never connected and has imported/scanned task)
-                repository.deleteLocalTaskById(taskId)
-                repository.deleteLocalInvoicesById(taskId)
+                prescriptionRepository.deleteLocalTaskById(taskId)
+                invoiceRepository.deleteLocalInvoiceById(taskId)
                 DeletePrescriptionState.ValidState.Deleted
             } else {
-                repository
+                prescriptionRepository
                     .deleteRemoteTaskById(profileId = profileId, taskId = taskId)
                     .fold(
                         onSuccess = {
-                            repository.deleteLocalTaskById(taskId)
-                            repository.deleteLocalInvoicesById(taskId)
+                            prescriptionRepository.deleteLocalTaskById(taskId)
+                            invoiceRepository.deleteRemoteInvoiceById(taskId = taskId, profileId = profileId)
+                                .mapUnitToInvoiceError { invoiceRepository.deleteLocalInvoiceById(taskId) }
                             DeletePrescriptionState.ValidState.Deleted
                         },
                         onFailure = {
@@ -101,7 +105,8 @@ class DeletePrescriptionUseCase(
                                         HttpURLConnection.HTTP_GONE,
                                         HttpURLConnection.HTTP_NOT_FOUND
                                         -> {
-                                            repository.deleteLocalTaskById(taskId)
+                                            prescriptionRepository.deleteLocalTaskById(taskId)
+                                            invoiceRepository.deleteLocalInvoiceById(taskId)
                                             DeletePrescriptionState.ValidState.Deleted
                                         }
 

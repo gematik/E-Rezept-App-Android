@@ -45,7 +45,7 @@ class LocalRedeemScreenController(
     private val getRedeemableTasksForDmCodesUseCase: GetRedeemableTasksForDmCodesUseCase,
     private val getDMCodesForLocalRedeemUseCase: GetDMCodesForLocalRedeemUseCase,
     private val redeemScannedTasksUseCase: RedeemScannedTasksUseCase,
-    private val _prescriptionOrders: MutableStateFlow<List<PharmacyUseCaseData.PrescriptionOrder>> =
+    private val _prescriptionOrders: MutableStateFlow<List<PharmacyUseCaseData.PrescriptionInOrder>> =
         MutableStateFlow(emptyList()),
     private val _showSingleCodes: MutableStateFlow<Boolean> = MutableStateFlow(false),
     private val _dmCodes: MutableStateFlow<UiState<List<DMCode>>> = MutableStateFlow(UiState.Loading())
@@ -99,7 +99,7 @@ class LocalRedeemScreenController(
 ) {
     val showSingleCodes: StateFlow<Boolean> = _showSingleCodes
     val dmCodes: StateFlow<UiState<List<DMCode>>> = _dmCodes
-    val prescriptionOrders: StateFlow<List<PharmacyUseCaseData.PrescriptionOrder>> = _prescriptionOrders
+    val prescriptionOrders: StateFlow<List<PharmacyUseCaseData.PrescriptionInOrder>> = _prescriptionOrders
     private val _activeProfileId: MutableStateFlow<ProfileIdentifier> = MutableStateFlow("")
     val activeProfileId: StateFlow<ProfileIdentifier> = _activeProfileId
     fun switchSingleCode() {

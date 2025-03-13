@@ -120,7 +120,7 @@
     <string name="technical_hotline_info">Beolíne teileafóin</string>
     <string name="main_scan_acc">Oscail scanóir le haghaidh oidis</string>
     <string name="main_settings_acc">Socruithe</string>
-    <string name="settings_screenshots_toggle_text">Scrios screenshots</string>
+    <string name="settings_screenshots_toggle_text">Ceadaigh screenshots</string>
     <string name="settings_tracking_dialog_title">An gceadaíonn tú do R-Oideas anailís a dhéanamh ar d’iompraíocht úsáide gan ainm?</string>
     <string name="pres_detail_technical_information">Eolas teicniúil</string>
     <string name="settings_biometric_dialog_title">Slándáil do shonraí oidis</string>
@@ -166,7 +166,7 @@
     <string name="consistent_password">Meaitseálann an pasfhocal arís agus arís eile</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Earráid 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Tá do theastas cárta sláinte neamhbhailí. B\'fhéidir go bhfuil do chárta imithe in éag? Déan teagmháil le do chuideachta árachais sláinte le do thoil.</string>
-    <string name="auth_error_failed_auths_headline">Iarrachtaí logáil isteach nár éirigh leo</string>
+    <string name="auth_error_failed_auths_headline">Ar an drochuair, níor oibrigh sin</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Braitheadh %s iarracht logáil isteach nár éirigh leo.</item>
         <item quantity="two"></item>
@@ -502,7 +502,7 @@
     <string name="time_description_today">Ag %s chlog</string>
     <string name="orders_cart_ready">Tá cart siopadóireachta réidh</string>
     <string name="orders_cart_ready_info">Cuireadh an t-oideas le do thralaí siopadóireachta. Téigh go dtí láithreán gréasáin na cógaisíochta chun an t-ordú a chomhlánú.</string>
-    <string name="orders_open_cart_link">Oscail cart siopadóireachta</string>
+    <string name="orders_open_cart_link">nasc chuig do chógaslann</string>
     <string name="orders_code_info">Taispeáin an cód bailiúcháin seo ag an gcógaslann.</string>
     <string name="orders_code_title">Faigh cód piocadh</string>
     <string name="orders_no_message_title">Ní féidir an teachtaireacht a thaispeáint</string>
@@ -597,7 +597,7 @@
     <string name="pres_detail_medication_label_handed_over">eisithe ar:</string>
     <string name="synced_medication_ingredient_header">Substaint ghníomhach</string>
     <string name="medication_overview_prescribed_header">Forordaithe</string>
-    <string name="medication_overview_dispenses_header">Faigh</string>
+    <string name="medication_overview_dispenses_header">Faighte</string>
     <string name="pres_details_exp_da_title">Cad is tasc díreach ann?</string>
     <string name="pres_details_exp_da_info">Le tarchur díreach, líontar oideas ó chleachtas nó ó ospidéal go díreach ag cógaslann. Ní gá do dhaoine árachaithe aon bheart a dhéanamh agus ní féidir leo idirghabháil a dhéanamh sa phróiseas fuascailte.\n Liostaítear atreoruithe díreacha san aip ríomh-oidis chun do chóireáil a dhéanamh níos trédhearcaí duit.</string>
     <string name="pres_details_exp_no_em_fee_title">Táille seirbhíse éigeandála</string>
@@ -664,7 +664,6 @@
     <string name="search_pharmacies_location_na_settings">Socruithe</string>
     <string name="search_pharmacies_location_na_services">Roinn suíomh sna Socruithe.</string>
     <string name="pharmacy_maps_header">In aice liom</string>
-    <string name="mainscreen_profile_chip_content_description">Brúigh agus coinnigh chun an t-ainm a chur in eagar.</string>
     <string name="profile_edit_name_for_rename_info">Cuir isteach an t-ainm nua don phróifíl.</string>
     <string name="mainscreen_welcome_drawer_info">Chun oidis a fháil go digiteach ó do chleachtas, ní mór duit a bheith logáilte isteach.</string>
     <string name="mainscreen_welcome_drawer_header">An bhfuil tú ag fáil oidis go digiteach?</string>
@@ -1087,14 +1086,14 @@
     <string name="invoices_deleted">Scriosadh d\'admhálacha costais</string>
     <string name="invoices_detail_title">Admháil costais</string>
     <string name="paired_devices_biometrics_error_login_title">Clárú riachtanach</string>
-    <string name="paired_devices_biometrics_error_login_description">Logáil isteach le do thoil chun féachaint ar ghléasanna nasctha.</string>
+    <string name="paired_devices_biometrics_error_login_description">Logáil isteach le do thoil agus sábháil do shonraí logáil isteach chun féachaint ar ghléasanna nasctha.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Logáil isteach</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Logáil isteach</string>
     <string name="cdw_intro_auth_gid_app_required">Ag nascadh le %s Insurance</string>
     <string name="a11y_card_wall_card_hand">Cárta sláinte a chuig do smartphone</string>
     <string name="not_logged_in">Gan logáil isteach</string>
     <string name="logged_in">Logáilte isteach</string>
-    <string name="a11y_refresh">athnuachan</string>
+    <string name="refresh">athnuachan</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Gheobhaidh tú logaí rochtana nuair a bheidh tú logáilte isteach sa tseirbhís oidis.</string>
     <string name="paired_devices_error_login_title">Clárú ag teastáil</string>
     <string name="paired_devices_error_login_description">Logáil isteach le do chárta sláinte agus sábháil do shonraí logáil isteach le bithmhéadracht chun na gléasanna nasctha a fheiceáil.</string>
@@ -1202,7 +1201,7 @@
     <string name="settings_app_security_change_password">Athraigh Pasfhocal</string>
     <string name="invoices_delete_not_logged_in_description">Chun scriosadh, ní mór nasc leis an bhFreastalaí Oideas a bhunú</string>
     <string name="provided">Tá earraí réidh</string>
-    <string name="provided_on_hour">Tá earraí réidh ó %s</string>
+    <string name="provided_at_hour">Tá earraí réidh ó %s</string>
     <string name="provided_now">Tá earraí réidh díreach anois</string>
     <string name="provided_minutes_ago">Tá na hearraí réidh le %s nóiméad</string>
     <string name="provided_on_date">Tá earraí réidh ó %s</string>
@@ -1231,4 +1230,15 @@
     <string name="all_prescriptions_of_order">Gach oidis san ord</string>
     <string name="invoice_details_supply_shortage_fee">Scrogall seachadta ráta comhréidh</string>
     <string name="message_list_time_state_hours">%s a chlog</string>
+    <string name="language_selection_es">Spáinnis</string>
+    <string name="language_selection_ga">Gaeilge</string>
+    <string name="profile_screen_login_hint">Chun oidis a fháil go huathoibríoch, ní mór duit a bheith logáilte isteach.</string>
+    <string name="profile_screen_login_button">Clár</string>
+    <string name="error_redeemable_prescription_title">ní féidir oideas a fhuascailt</string>
+    <string name="error_redeemable_prescription_generic_error">Níl an t-oideas “ %1$s ” infhuascailte a thuilleadh. Seans go bhfuil sé fuascailte agat cheana féin ar bhealach eile nó b’fhéidir gur scriosadh é.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Tá an oideas “ %1$s ” fuascailte cheana nó á fhuascailt faoi láthair.</string>
+    <string name="error_redeemable_prescription_deleted">Tá an t-oideas “ %1$s ” scriosta cheana agus ní féidir é a fhuascailt a thuilleadh.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Níl na hoidis seo a leanas infhuascailte nó ní féidir iad a fhuascailt a thuilleadh: %1$s \n Seans go bhfuil tú tar éis iad a fhuascailt ar bhealach eile cheana féin nó seans gur scriosadh iad. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Lean ort gan na hoidis seo</string>
+    <string name="error_redeemable_prescription_cancel_order">Cealaigh ordú</string>
 </resources>

@@ -74,10 +74,12 @@ open class GetActiveProfileController(
                     _isRedemptionAllowed.value = profile.isRedemptionAllowed()
                     _activeProfile.value = UiState.Data(profile)
                     onSuccess?.invoke(profile, controllerScope)
+                    onRefreshProfileAction.trigger(false)
                 },
                 onFailure = {
                     _activeProfile.value = UiState.Error(it)
                     onFailure?.invoke(it, controllerScope)
+                    onRefreshProfileAction.trigger(false)
                 }
             )
             onRefreshProfileAction.trigger(false)

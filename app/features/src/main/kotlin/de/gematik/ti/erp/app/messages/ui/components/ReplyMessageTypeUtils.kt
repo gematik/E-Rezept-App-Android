@@ -39,10 +39,13 @@ fun getTitleForMessageType(message: OrderUseCaseData.Message): String? {
 fun getDescriptionForMessageType(message: OrderUseCaseData.Message): String {
     return handleMessageType(
         message = message,
-        onPickupCode = { stringResource(R.string.order_pickup_general_message) },
-        onLinkWithMessage = { message.message.orEmpty() },
+        onPickupCode = {
+            message.content?.takeIf { it.isNotEmpty() }
+                ?: stringResource(R.string.order_pickup_general_message)
+        },
+        onLinkWithMessage = { message.content.orEmpty() },
         onLinkOnly = { stringResource(R.string.order_message_link) },
-        onTextOnly = { message.message.orEmpty() },
+        onTextOnly = { message.content.orEmpty() },
         onEmpty = { stringResource(R.string.order_message_empty) }
     )
 }
@@ -58,9 +61,9 @@ fun <T> handleMessageType(
 ): T {
     return when {
         message.pickUpCodeDMC != null || message.pickUpCodeHR != null -> onPickupCode()
-        message.link != null && message.message != null -> onLinkWithMessage()
+        message.link != null && message.content != null -> onLinkWithMessage()
         message.link != null -> onLinkOnly()
-        message.message != null -> onTextOnly()
+        message.content != null -> onTextOnly()
         else -> onEmpty()
     }
 }

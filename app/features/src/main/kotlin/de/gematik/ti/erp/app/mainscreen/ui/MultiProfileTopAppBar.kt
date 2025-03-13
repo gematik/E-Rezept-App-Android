@@ -46,7 +46,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.animated.AnimationTime
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarFlowWrapper
+import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
+import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState.IsError.rememberProfileIconState
 import de.gematik.ti.erp.app.mainscreen.ui.components.AddProfileChip
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -55,11 +56,12 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.TopAppBarWithContent
+import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.delay
 
 @Composable
 internal fun MultiProfileTopAppBar(
-    multiProfileData: MultiProfileAppBarFlowWrapper,
+    multiProfileData: MultiProfileAppBarWrapper,
     elevated: Boolean,
     onClickAddPrescription: () -> Unit,
     onClickChangeProfileName: (profile: Profile) -> Unit,
@@ -114,7 +116,7 @@ private fun MainScreenTopBarTitle() {
 
 @Composable
 private fun ProfilesChipBar(
-    multiProfileData: MultiProfileAppBarFlowWrapper,
+    multiProfileData: MultiProfileAppBarWrapper,
     onClickChangeActiveProfile: (Profile) -> Unit,
     onClickChangeProfileName: (profile: Profile) -> Unit,
     onClickAddProfile: () -> Unit
@@ -122,9 +124,11 @@ private fun ProfilesChipBar(
     val rowState = rememberLazyListState()
 
     // flows are collected inside the composable to avoid recomposition when the states change
-    val activeProfile by multiProfileData.activeProfile.collectAsStateWithLifecycle()
     val profiles by multiProfileData.existingProfiles.collectAsStateWithLifecycle()
-    val refreshState by multiProfileData.isProfileRefreshing.collectAsStateWithLifecycle()
+
+    val activeProfile by multiProfileData.activeProfile.collectAsStateWithLifecycle()
+
+    val profileIconState by rememberProfileIconState(multiProfileData.profileLifecycleState, UiState.Data(activeProfile))
 
     val indexOfActiveProfile by remember(multiProfileData.existingProfiles, multiProfileData.activeProfile) {
         mutableIntStateOf(profiles.indexOfFirst { it.id == activeProfile.id }.plus(1))
@@ -149,8 +153,8 @@ private fun ProfilesChipBar(
         items(profiles) { profile ->
             ProfileChip(
                 profile = profile,
+                profileIconState = profileIconState,
                 selected = profile.id == activeProfile.id,
-                refreshState = refreshState,
                 onClickChangeProfileName = onClickChangeProfileName,
                 onClickChip = onClickChangeActiveProfile
             )

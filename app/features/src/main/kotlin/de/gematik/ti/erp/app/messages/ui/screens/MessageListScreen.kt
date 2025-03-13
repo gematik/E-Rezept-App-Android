@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.messages.ui.screens
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,12 @@ class MessageListScreen(
         val messagesList by messagesController.messagesList.collectAsStateWithLifecycle()
         val isMessagesListFeatureChangeSeen by messagesController.isMessagesListFeatureChangeSeen.collectAsStateWithLifecycle()
         var showOrderFeatureChangedLabel by remember(isMessagesListFeatureChangeSeen) { mutableStateOf(!isMessagesListFeatureChangeSeen) }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                messagesController.trackMessageCount()
+            }
+        }
 
         MessageListScreenContent(
             messagesList = messagesList,

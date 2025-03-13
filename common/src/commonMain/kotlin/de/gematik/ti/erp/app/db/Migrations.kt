@@ -71,7 +71,7 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.nanoseconds
 
-const val ACTUAL_SCHEMA_VERSION = 42L
+const val ACTUAL_SCHEMA_VERSION = 43L
 
 @Requirement(
     "O.Source_2#1",
@@ -308,6 +308,14 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 if (migrationStartedFrom < 42) {
                     query<InternalMessageEntity>().find().forEach { internalMessage ->
                         internalMessage.welcomeMessageTimeStamp = Clock.System.now().toRealmInstant()
+                    }
+                }
+
+                if (migrationStartedFrom < 43) {
+                    query<InternalMessageEntity>().find().forEach { internalMessage ->
+                        if(internalMessage.showWelcomeMessage == null){
+                            internalMessage.showWelcomeMessage = false
+                        }
                     }
                 }
             }

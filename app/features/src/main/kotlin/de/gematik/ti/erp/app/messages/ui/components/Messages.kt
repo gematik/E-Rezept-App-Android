@@ -264,7 +264,7 @@ fun combineMessagesAndSort(
         MessageDetailCombinedMessage(
             type = IN_APP,
             message = OrderUseCaseData.Message(
-                message = local?.text.orEmpty(),
+                content = local?.text.orEmpty(),
                 additionalInfo = local?.tag.orEmpty(),
                 sentOn = Instant.parse(local?.timeState?.timestamp.toString()),
                 communicationId = local?.id.orEmpty(),

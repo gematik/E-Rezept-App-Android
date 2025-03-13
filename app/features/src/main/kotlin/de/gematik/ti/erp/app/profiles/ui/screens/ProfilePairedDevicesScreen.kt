@@ -57,6 +57,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
@@ -107,7 +108,7 @@ class ProfilePairedDevicesScreen(
 
         with(controller) {
             showCardWallEvent.listen { id ->
-                navController.navigate(CardWallRoutes.CardWallIntroScreen.path(id))
+                navController.navigate(CardWallIntroScreen.path(id))
             }
             showCardWallWithFilledCanEvent.listen { cardWallData ->
                 navController.navigate(
@@ -119,10 +120,7 @@ class ProfilePairedDevicesScreen(
             }
             showGidEvent.listen { gidData ->
                 navController.navigate(
-                    CardWallRoutes.CardWallIntroScreen.pathWithGid(
-                        profileIdentifier = gidData.profileId,
-                        gidEventData = gidData
-                    )
+                    CardWallIntroScreen.pathWithGid(gidData)
                 )
             }
         }

@@ -166,7 +166,7 @@ class GetMessagesUseCase(
     private fun Communication?.generatePreviewMessage(pharmacyName: String): OrderUseCaseData.LastMessageDetails? {
         return when (this?.profile) {
             CommunicationProfile.ErxCommunicationDispReq -> OrderUseCaseData.LastMessageDetails(
-                message = pharmacyName,
+                content = pharmacyName,
                 pickUpCodeDMC = null,
                 pickUpCodeHR = null,
                 link = null
@@ -175,7 +175,7 @@ class GetMessagesUseCase(
             CommunicationProfile.ErxCommunicationReply -> {
                 val messageData = toMessage()
                 OrderUseCaseData.LastMessageDetails(
-                    message = messageData.message,
+                    content = messageData.content,
                     pickUpCodeDMC = messageData.pickUpCodeDMC,
                     pickUpCodeHR = messageData.pickUpCodeHR,
                     link = messageData.link

@@ -41,7 +41,7 @@ import kotlinx.coroutines.flow.mapNotNull
 
 /**
  * Gets the activeProfile from the [profileRepository]. Then it gets redeemed (scanned and synced) tasks for this
- * profile from the [prescriptionRepository] and converts them into [PharmacyUseCaseData.PrescriptionOrder].
+ * profile from the [prescriptionRepository] and converts them into [PharmacyUseCaseData.PrescriptionInOrder].
  *
  * Now it checks the [shippingContactRepository] for a shipping contact, if not present gets it from
  * the [prescriptionRepository] and saves it into the [shippingContactRepository].
@@ -71,11 +71,11 @@ class GetOrderStateUseCase(
                 val selfPayerPrescriptionIds = orders.filter { it.isSelfPayerPrescription }.map { it.taskId }
                 val shippingContact = updatedContact?.toModel() ?: EmptyShippingContact
                 PharmacyUseCaseData.OrderState(
-                    prescriptionOrders = orders,
+                    prescriptionsInOrder = orders,
                     selfPayerPrescriptionIds = selfPayerPrescriptionIds,
                     contact = shippingContact
                 )
-            }.flowOn(dispatcher)
+            }
         }.flowOn(dispatcher)
 
     private suspend fun PharmacyData.ShippingContact.updateShippingContactRepo():

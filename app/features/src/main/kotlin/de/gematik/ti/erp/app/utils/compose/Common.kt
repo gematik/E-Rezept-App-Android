@@ -28,6 +28,7 @@ import android.content.pm.ResolveInfo
 import android.content.res.Resources
 import android.net.Uri
 import android.text.format.DateFormat
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.annotation.PluralsRes
@@ -38,6 +39,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -83,8 +85,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -93,8 +98,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
+import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -1062,4 +1070,96 @@ fun rememberContentPadding(innerPadding: PaddingValues) = remember(innerPadding)
             end = PaddingDefaults.Medium
         )
     }
+}
+
+@Composable
+fun createPhoneNumberAnnotations(
+    text: String,
+    textColor: Color = LocalContentColor.current,
+    phoneNumberColor: Color = AppTheme.colors.primary600,
+    tag: String = TestTag.Orders.Messages.PhoneNumber
+): AnnotatedString = remember(text, textColor, phoneNumberColor) {
+    buildAnnotatedString {
+        val matcher = Patterns.PHONE.matcher(text)
+        var lastIndex = 0
+
+        while (matcher.find()) {
+            if (matcher.start() > lastIndex) {
+                withStyle(SpanStyle(color = textColor)) {
+                    append(text.substring(lastIndex, matcher.start()))
+                }
+            }
+
+            val phoneNumber = matcher.group()
+            pushStringAnnotation(tag, phoneNumber)
+            withStyle(
+                style = SpanStyle(
+                    color = phoneNumberColor,
+                    textDecoration = TextDecoration.Underline
+                )
+            ) {
+                append(phoneNumber)
+            }
+            pop()
+
+            lastIndex = matcher.end()
+        }
+
+        if (lastIndex < text.length) {
+            withStyle(SpanStyle(color = textColor)) {
+                append(text.substring(lastIndex))
+            }
+        }
+    }
+}
+
+@Composable
+fun ClickableAnnotatedText(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    style: TextStyle = TextStyle.Default,
+    softWrap: Boolean = true,
+    overflow: TextOverflow = TextOverflow.Clip,
+    maxLines: Int = Int.MAX_VALUE,
+    onClick: (AnnotatedString.Range<String>) -> Unit,
+    onLongPress: (() -> Unit)? = null
+) {
+    val textColor = style.color.takeOrElse {
+        LocalContentColor.current.copy(alpha = LocalContentAlpha.current)
+    }
+
+    var textLayoutResult by remember { mutableStateOf<TextLayoutResult?>(null) }
+
+    Box(
+        modifier = modifier.pointerInput(Unit) {
+            detectTapGestures(
+                onTap = { offset ->
+                    textLayoutResult?.let { layout ->
+                        val position = layout.getOffsetForPosition(offset)
+                        text.getStringAnnotations(position, position)
+                            .firstOrNull()?.let(onClick)
+                    }
+                },
+                onLongPress = { onLongPress?.invoke() }
+            )
+        }
+    ) {
+        Text(
+            onTextLayout = { textLayoutResult = it },
+            text = text,
+            style = style.copy(color = textColor),
+            softWrap = softWrap,
+            overflow = overflow,
+            maxLines = maxLines
+        )
+    }
+}
+
+fun copyToClipboardWithHaptic(
+    text: String,
+    clipboardManager: ClipboardManager,
+    hapticFeedback: HapticFeedback
+) {
+    clipboardManager.setText(AnnotatedString(text))
+    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
 }

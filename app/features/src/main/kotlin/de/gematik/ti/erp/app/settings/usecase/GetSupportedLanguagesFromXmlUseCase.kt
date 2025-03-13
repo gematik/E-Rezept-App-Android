@@ -18,33 +18,57 @@
 
 package de.gematik.ti.erp.app.settings.usecase
 
+import android.content.res.Resources
+import de.gematik.ti.erp.app.settings.presentation.LanguageCode
 import io.github.aakira.napier.Napier
 import org.xmlpull.v1.XmlPullParser
 
 class GetSupportedLanguagesFromXmlUseCase(
-    private val parser: XmlResourceParserWrapper
+    private val parser: XmlResourceParserWrapper,
+    val resources: Resources
 ) {
-    private var eventType = parser.getEventType()
-
-    @Suppress("NestedBlockDepth")
-    operator fun invoke(): List<String> {
-        val languages = mutableListOf<String>()
-
-        try {
-            parser.next()
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                if (eventType == XmlPullParser.START_TAG && parser.name() == "locale") {
-                    val language = parser.getAttributeValue()
-                    language?.let {
-                        languages.add(language)
-                    }
-                }
-                eventType = parser.next()
-            }
-        } catch (e: Exception) {
-            Napier.e("Error while parsing locales_config.xml: $e")
-            return emptyList()
-        }
-        return languages
+    operator fun invoke(): List<LanguageCode> {
+        val languageCodes = parseLanguages(parser)
+        return sortLanguageCodes(languageCodes, resources)
     }
+}
+
+@Suppress("NestedBlockDepth")
+private fun parseLanguages(
+    parser: XmlResourceParserWrapper
+): List<LanguageCode> {
+    val languageCodes = mutableListOf<LanguageCode>()
+    try {
+        while (parser.next() != XmlPullParser.END_DOCUMENT) {
+            if (isLocaleTag(parser)) {
+                parseLanguageCode(parser)?.let { languageCodes.add(it) }
+            }
+        }
+    } catch (e: Exception) {
+        Napier.e("Error while parsing locales_config.xml: $e")
+    }
+    return languageCodes
+}
+
+private fun isLocaleTag(
+    parser: XmlResourceParserWrapper
+): Boolean {
+    return parser.getEventType() == XmlPullParser.START_TAG && parser.name() == "locale"
+}
+
+private fun parseLanguageCode(
+    parser: XmlResourceParserWrapper
+): LanguageCode? {
+    val language = parser.getAttributeValue() ?: return null
+    return LanguageCode.fromCode(language)
+}
+
+private fun sortLanguageCodes(
+    languageCodes: List<LanguageCode>,
+    resources: Resources
+): List<LanguageCode> {
+    val sortedCodes = languageCodes
+        .filterNot { it == LanguageCode.DE } // Remove German temporarily
+        .sortedBy { resources.getString(it.resource) }
+    return listOf(LanguageCode.DE) + sortedCodes // Add German at the beginning, so it's always top
 }

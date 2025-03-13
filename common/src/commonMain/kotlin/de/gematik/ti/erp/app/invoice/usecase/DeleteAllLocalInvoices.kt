@@ -32,7 +32,7 @@ class DeleteAllLocalInvoices(
     ): Result<Unit> = withContext(dispatcher) {
         try {
             taskIds.forEach {
-                invoiceRepository.deleteLocalInvoice(taskId = it)
+                invoiceRepository.deleteLocalInvoiceById(taskId = it)
             }
             return@withContext Result.success(Unit)
         } catch (e: Throwable) {

@@ -22,6 +22,8 @@ import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
@@ -33,6 +35,7 @@ import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
@@ -109,7 +112,10 @@ class ProfilesRepositoryTest : TestDB() {
                     PKVInvoiceEntityV1::class,
                     InvoiceEntityV1::class,
                     ChargeableItemV1::class,
-                    PriceComponentV1::class
+                    PriceComponentV1::class,
+                    AuthenticationEntityV1::class,
+                    AuthenticationPasswordEntityV1::class,
+                    IdentifierEntityV1::class
                 )
             )
                 .schemaVersion(ACTUAL_SCHEMA_VERSION)
@@ -135,26 +141,16 @@ class ProfilesRepositoryTest : TestDB() {
     }
 
     @Test
-    fun `save profile - profiles should return activated profile`() = runTest {
-        repo.saveProfile(defaultProfileName1, true)
-        repo.profiles().first().also {
-            assertEquals(1, it.size)
-            assertEquals(defaultProfileName1, it[0].name)
-            assertEquals(true, it[0].active)
-        }
-    }
-
-    @Test
     fun `activate profile should activate profile and deactivate other profiles`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
-        repo.saveProfile(defaultProfileName1, false)
+        repo.createNewProfile(defaultProfileName1)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also {
             assertEquals(2, it.size)
             it.find { profile ->
                 profile.name == defaultProfileName1
             }.apply {
-                this?.let { defaultProfile2 ->
-                    repo.activateProfile(defaultProfile2.id)
+                this?.let { defaultProfile1 ->
+                    repo.activateProfile(defaultProfile1.id)
                     repo.profiles().first().also { profileList ->
                         profileList.find { profile ->
                             profile.name == defaultProfileName
@@ -174,8 +170,8 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `remove active profile - should remove profile and activate an other profile`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
-        repo.saveProfile(defaultProfileName1, false)
+        repo.createNewProfile(defaultProfileName1)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also { profileList ->
             assertEquals(2, profileList.size)
             profileList.find { profile ->
@@ -195,7 +191,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `remove last profile - should create a default profile`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also { profileList ->
             assertEquals(1, profileList.size)
             profileList.find { profile ->
@@ -215,7 +211,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `saveInsuranceInformation - should save InsuranceInformation to profile`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also { profileList ->
             profileList.find { profile ->
                 profile.name == defaultProfileName
@@ -239,7 +235,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `saveInsuranceInformation on profile with other insuranceId  - should fail`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also { profileList ->
             profileList.find { profile ->
                 profile.name == defaultProfileName
@@ -268,8 +264,8 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `saveInsuranceInformation save the same insuranceId on 2 profiles - should fail`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
-        repo.saveProfile(defaultProfileName1, true)
+        repo.createNewProfile(defaultProfileName)
+        repo.createNewProfile(defaultProfileName1)
 
         repo.profiles().first().also { profileList ->
             assertFails {
@@ -287,11 +283,12 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `saveInsuranceInformation when isNewlyCreated is true should set insurantName as profile name`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
-
         realm.write {
-            val profileEntity = realm.query(ProfileEntityV1::class, "name == $0", defaultProfileName).first().find()
-            profileEntity?.isNewlyCreated = true
+            ProfileEntityV1().apply {
+                this.name = defaultProfileName
+                this.active = true
+                this.isNewlyCreated = true
+            }
         }
 
         val profileId = repo.profiles().first().find { it.name == defaultProfileName }?.id
@@ -313,7 +310,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `saveInsuranceInformation when isNewlyCreated is false should retain existing profile name`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
 
         realm.write {
             val profileEntity = realm.query(ProfileEntityV1::class, "name == $0", defaultProfileName).first().find()
@@ -339,7 +336,7 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `update profile name with id`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also {
             repo.updateProfileName(it[0].id, defaultProfileName1)
         }
@@ -350,8 +347,8 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `update profile color`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
-        ProfilesData.ProfileColorNames.values().forEach { colorName ->
+        repo.createNewProfile(defaultProfileName)
+        ProfilesData.ProfileColorNames.entries.forEach { colorName ->
             repo.profiles().first().also {
                 repo.updateProfileColor(it[0].id, colorName)
             }
@@ -364,7 +361,7 @@ class ProfilesRepositoryTest : TestDB() {
     @Test
     fun `update last authenticated`() = runTest {
         val now = Clock.System.now()
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also {
             assertEquals(null, it[0].lastAuthenticated)
             repo.updateLastAuthenticated(it[0].id, now)
@@ -376,8 +373,8 @@ class ProfilesRepositoryTest : TestDB() {
 
     @Test
     fun `save avatar figure`() = runTest {
-        repo.saveProfile(defaultProfileName, true)
-        ProfilesData.Avatar.values().forEach { figure ->
+        repo.createNewProfile(defaultProfileName)
+        ProfilesData.Avatar.entries.forEach { figure ->
             repo.profiles().first().also {
                 repo.saveAvatarFigure(it[0].id, figure)
             }
@@ -390,7 +387,7 @@ class ProfilesRepositoryTest : TestDB() {
     @Test
     fun `save personalized profile image`() = runTest {
         val profileImage = byteArrayOf(0x01.toByte(), 0x02.toByte())
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also {
             assertEquals(null, it[0].image)
             repo.savePersonalizedProfileImage(it[0].id, profileImage)
@@ -406,7 +403,7 @@ class ProfilesRepositoryTest : TestDB() {
     @Test
     fun `clear personalized profile image`() = runTest {
         val profileImage = byteArrayOf(0x01.toByte(), 0x02.toByte())
-        repo.saveProfile(defaultProfileName, true)
+        repo.createNewProfile(defaultProfileName)
         repo.profiles().first().also {
             repo.savePersonalizedProfileImage(it[0].id, profileImage)
         }

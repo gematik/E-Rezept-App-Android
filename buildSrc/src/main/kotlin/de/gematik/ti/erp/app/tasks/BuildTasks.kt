@@ -37,6 +37,10 @@ private const val GIT_HASH = "git-hash"
 private const val FORCED_VERSION_CODE = "v-code"
 private const val FORCED_VERSION_NAME = "v-name"
 
+/**
+ * Registers a task to build the Play Store bundle.
+ * This task calculates the version code and name, then executes the build script.
+ */
 internal fun TaskContainer.buildPlayStoreBundle() {
     register(TaskNames.buildPlayStoreBundle) {
         runDependencyTasks()
@@ -57,10 +61,13 @@ internal fun TaskContainer.buildPlayStoreBundle() {
                 errorOutput = System.out
             }
         }
-        finalizedBy(TaskNames.copyPlayStoreBundle)
     }
 }
 
+/**
+ * Registers a task to build the Play Store APK.
+ * This task calculates the version code and name, appends the git hash if available, then executes the build script.
+ */
 internal fun TaskContainer.buildPlayStoreApp() {
     register(TaskNames.buildPlayStoreApp) {
         runDependencyTasks()
@@ -85,6 +92,10 @@ internal fun TaskContainer.buildPlayStoreApp() {
     }
 }
 
+/**
+ * Registers a task to build the App Gallery bundle.
+ * This task calculates the version code and name, then executes the build script.
+ */
 internal fun TaskContainer.buildAppGalleryBundle() {
     register(TaskNames.buildAppGalleryBundle) {
         runDependencyTasks()
@@ -105,12 +116,15 @@ internal fun TaskContainer.buildAppGalleryBundle() {
                 errorOutput = System.out
             }
         }
-        finalizedBy(TaskNames.copyAppGalleryBundle)
     }
 }
 
-internal fun TaskContainer.buildGoogleTuApp() {
-    register(TaskNames.buildGoogleTuApp) {
+/**
+ * Registers a task to build the TU release APK.
+ * This task calculates the version code and name, appends the git hash if available, then executes the build script.
+ */
+internal fun TaskContainer.buildTuReleaseApp() {
+    register(TaskNames.buildTuReleaseApp) {
         runDependencyTasks()
         val buildCondition = BuildAppFlavoursPlugin.BuildCondition.GoogleTuApk
         doLast {
@@ -130,10 +144,13 @@ internal fun TaskContainer.buildGoogleTuApp() {
                 errorOutput = System.out
             }
         }
-        finalizedBy(TaskNames.copyGoogleTuApp)
     }
 }
 
+/**
+ * Registers a task to build the Konny APK.
+ * This task calculates the version code and name, appends the git hash if available, then executes the build script.
+ */
 internal fun TaskContainer.buildKonnyApp() {
     register(TaskNames.buildKonnyApp) {
         runDependencyTasks()
@@ -155,14 +172,17 @@ internal fun TaskContainer.buildKonnyApp() {
                 errorOutput = System.out
             }
         }
-        finalizedBy(TaskNames.copyKonnyApp)
     }
 }
 
-internal fun TaskContainer.buildDebugApp() {
-    register(TaskNames.buildDebugApp) {
+/**
+ * Registers a task to build the TU debug APK.
+ * This task calculates the version code and name, appends the git hash if available, then executes the build script.
+ */
+internal fun TaskContainer.buildTuDebugApp() {
+    register(TaskNames.buildTuDebugApp) {
         runDependencyTasks()
-        val buildCondition = BuildAppFlavoursPlugin.BuildCondition.DebugApk
+        val buildCondition = BuildAppFlavoursPlugin.BuildCondition.DebugTuApk
         doLast {
             val (versionCode, versionName) = project.calculateVersionCodeName(isRC = true)
             val gitHash = project.getGitHash()
@@ -180,10 +200,13 @@ internal fun TaskContainer.buildDebugApp() {
                 errorOutput = System.out
             }
         }
-        finalizedBy(TaskNames.copyDebugApp)
     }
 }
 
+/**
+ * Registers a task to build the mock APK.
+ * This task calculates the version code and name, appends the git hash if available, then executes the build script.
+ */
 internal fun TaskContainer.buildMockApp() {
     register(TaskNames.buildMockApp) {
         runDependencyTasks()
@@ -206,21 +229,23 @@ internal fun TaskContainer.buildMockApp() {
                 errorOutput = System.out
             }
         }
-        finalizedBy(TaskNames.copyMockApp)
     }
 }
 
+/**
+ * Registers a task to build the minified debug APK.
+ * This task calculates the version code and name, appends the git hash if available, then executes the build script.
+ */
 internal fun TaskContainer.buildMinifiedApp() {
     register(TaskNames.buildMinifiedApp) {
         runDependencyTasks()
         doLast {
             executionOfBuildMinifiedApp()
         }
-        finalizedBy(TaskNames.copyMinifiedApp)
     }
 }
 
-internal fun Task.executionOfBuildMinifiedApp() {
+private fun Task.executionOfBuildMinifiedApp() {
     val buildCondition = BuildAppFlavoursPlugin.BuildCondition.MinifiedDebugApk
     val (versionCode, versionName) = project.calculateVersionCodeName(isRC = true)
     val gitHash = project.getGitHash()
@@ -265,7 +290,7 @@ internal fun TaskContainer.buildMinifiedKonnyApp() {
 
 private fun Project.calculateVersionCodeName(isRC: Boolean = false): Pair<Int, String> =
     try {
-        letNotNull(getForcedVersionCode(), getForcedVersionName()) { versionCode, versionName ->
+        letNotNull(getUserGivenVersionCode(), getUserGivenVersionName()) { versionCode, versionName ->
             val codeToGo = versionCode.toInt()
             val nameToGo = if (isRC) versionName.extractRCVersion() else versionName.extractVersion()
             print("Using given code and name $codeToGo $nameToGo")
@@ -293,8 +318,8 @@ private fun Project.getVersionCodeName(isReleaseCandidate: Boolean = false): Pai
 
 // external values from jenkins / commandline
 private fun Project.getGitHash(): String? = findProperty(GIT_HASH) as? String
-private fun Project.getForcedVersionName(): String? = findProperty(FORCED_VERSION_NAME) as? String
-private fun Project.getForcedVersionCode(): String? = findProperty(FORCED_VERSION_CODE) as? String
+private fun Project.getUserGivenVersionName(): String? = findProperty(FORCED_VERSION_NAME) as? String
+private fun Project.getUserGivenVersionCode(): String? = findProperty(FORCED_VERSION_CODE) as? String
 
 private fun Task.runDependencyTasks() {
     dependsOn(TaskNames.versionApp)

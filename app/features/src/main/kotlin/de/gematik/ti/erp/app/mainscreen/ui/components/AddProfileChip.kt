@@ -36,7 +36,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -46,12 +52,16 @@ fun AddProfileChip(
     onClickAddProfile: () -> Unit
 ) {
     val shape = RoundedCornerShape(SizeDefaults.one)
-
+    val description = stringResource(id = R.string.add_profile)
     Surface(
         modifier = Modifier
             .clip(shape)
             .clickable {
                 onClickAddProfile()
+            }
+            .semantics {
+                role = Role.Button
+                contentDescription = description
             }
             .height(IntrinsicSize.Max)
             .testTag(TestTag.Main.AddProfileButton),

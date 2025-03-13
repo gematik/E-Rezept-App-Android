@@ -71,7 +71,7 @@ val settingsModule = DI.Module("settingsModule") {
         context.resources.getXml(resId)
     }
     bindProvider<XmlResourceParserWrapper> { DefaultXmlResourceParserWrapper(instance()) }
-    bindProvider { GetSupportedLanguagesFromXmlUseCase(instance()) }
+    bindProvider { GetSupportedLanguagesFromXmlUseCase(instance(), instance()) }
 }
 
 val settingsRepositoryModule = DI.Module("settingsRepositoryModule") {

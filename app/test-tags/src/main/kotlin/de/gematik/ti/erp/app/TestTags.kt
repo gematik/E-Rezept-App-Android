@@ -232,6 +232,7 @@ object TestTag {
             val Link by tagName()
             val LinkButton by tagName()
             val Text by tagName()
+            val PhoneNumber by tagName()
             val Code by tagName()
             val CodeLabelContent by tagName()
             val Empty by tagName()

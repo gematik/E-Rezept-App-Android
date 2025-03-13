@@ -145,7 +145,8 @@ class DebugSettingsViewModel(
         multiProfile = false,
         activeProfileId = "",
         virtualHealthCardCert = HealthCardCert,
-        virtualHealthCardPrivateKey = HealthCardCertPrivateKey
+        virtualHealthCardPrivateKey = HealthCardCertPrivateKey,
+        clientId = endpointHelper.getClientId()
     )
 
     suspend fun state() {

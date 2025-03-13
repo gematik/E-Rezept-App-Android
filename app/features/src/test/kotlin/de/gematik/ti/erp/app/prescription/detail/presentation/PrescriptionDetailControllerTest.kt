@@ -18,8 +18,12 @@
 
 package de.gematik.ti.erp.app.prescription.detail.presentation
 
+import de.gematik.ti.erp.app.api.ApiCallException
+import de.gematik.ti.erp.app.api.HTTP_GONE
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.fhir.model.json
+import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.logger.model.Response
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.medicationplan.usecase.LoadMedicationScheduleByTaskIdUseCase
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
@@ -38,6 +42,7 @@ import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isLoadingState
 import io.mockk.MockKAnnotations
+import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
@@ -54,14 +59,17 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.rules.TestWatcher
+import java.net.HttpURLConnection
 
 class PrescriptionDetailControllerTest : TestWatcher() {
 
     private val prescriptionRepository: PrescriptionRepository = mockk()
+    private val invoiceRepository: InvoiceRepository = mockk()
     private val featureToggleManager: FeatureToggleManager = mockk()
     private val medicationPlanRepository: MedicationPlanRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
@@ -99,7 +107,8 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             )
         )
         deletePrescriptionUseCase = DeletePrescriptionUseCase(
-            repository = prescriptionRepository,
+            prescriptionRepository = prescriptionRepository,
+            invoiceRepository = invoiceRepository,
             dispatcher = dispatcher
         )
         updateScannedTaskNameUseCase = spyk(
@@ -132,6 +141,11 @@ class PrescriptionDetailControllerTest : TestWatcher() {
     @After
     fun tearDown() {
         Dispatchers.resetMain()
+        clearMocks(
+            invoiceRepository,
+            prescriptionRepository,
+            profileRepository
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -241,7 +255,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             prescriptionRepository.deleteRemoteTaskById(any(), any())
         } returns Result.success(json.parseToJsonElement("{}"))
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
-        coEvery { prescriptionRepository.deleteLocalInvoicesById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
         coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
 
         testScope.runTest {
@@ -253,7 +267,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         }
         coVerify(exactly = 1) { prescriptionRepository.deleteRemoteTaskById("profileId", "taskId") }
         coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalInvoicesById("taskId") }
+        coVerify(exactly = 1) { invoiceRepository.deleteRemoteInvoiceById("taskId", "profileId") }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -263,7 +277,8 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             prescriptionRepository.deleteRemoteTaskById(any(), any())
         } returns Result.success(json.parseToJsonElement("{}"))
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
-        coEvery { prescriptionRepository.deleteLocalInvoicesById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
         coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns false
 
         testScope.runTest {
@@ -275,14 +290,16 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         }
         coVerify(exactly = 0) { prescriptionRepository.deleteRemoteTaskById("profileId", "taskId") }
         coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalInvoicesById("taskId") }
+        coVerify(exactly = 0) { invoiceRepository.deleteRemoteInvoiceById("taskId", "profileId") }
+        coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `Delete prescription locally should only remove local prescription and invoices`() {
         coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
-        coEvery { prescriptionRepository.deleteLocalInvoicesById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
         coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
 
         testScope.runTest {
@@ -294,7 +311,66 @@ class PrescriptionDetailControllerTest : TestWatcher() {
         }
         coVerify(exactly = 0) { prescriptionRepository.deleteRemoteTaskById("profileId", "taskId") }
         coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
-        coVerify(exactly = 1) { prescriptionRepository.deleteLocalInvoicesById("taskId") }
+        coVerify(exactly = 0) { invoiceRepository.deleteRemoteInvoiceById("taskId", "profileId") }
+        coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `Delete prescription but deleteRemoteTask fails`() {
+        coEvery {
+            prescriptionRepository.deleteRemoteTaskById(any(), any())
+        } returns Result.failure(
+            ApiCallException(
+                message = "Error executing safe api call",
+                response = retrofit2.Response.error<Any>(HttpURLConnection.HTTP_GONE, "Error executing safe api call".toResponseBody(null))
+            )
+        )
+        coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.success(Unit)
+        coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
+
+        testScope.runTest {
+            advanceUntilIdle()
+            controllerUnderTest.deletePrescription("profileId", "taskId")
+        }
+        coVerify(exactly = 1) {
+            deletePrescriptionUseCase.invoke(profileId = "profileId", taskId = "taskId", deleteLocallyOnly = false)
+        }
+        coVerify(exactly = 1) { prescriptionRepository.deleteRemoteTaskById("profileId", "taskId") }
+        coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
+        coVerify(exactly = 0) { invoiceRepository.deleteRemoteInvoiceById("taskId", "profileId") }
+        coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `Delete prescription but deleteRemoteInvoice fails`() {
+        coEvery {
+            prescriptionRepository.deleteRemoteTaskById(any(), any())
+        } returns Result.success(json.parseToJsonElement("{}"))
+        coEvery { prescriptionRepository.deleteLocalTaskById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteLocalInvoiceById(any()) } returns Unit
+        coEvery { invoiceRepository.deleteRemoteInvoiceById(any(), any()) } returns Result.failure(
+            ApiCallException(
+                message = "Error executing safe api call",
+                response = retrofit2.Response.error<Any>(HttpURLConnection.HTTP_GONE, "Error executing safe api call".toResponseBody(null))
+            )
+        )
+        coEvery { prescriptionRepository.wasProfileEverAuthenticated(any()) } returns true
+
+        testScope.runTest {
+            controllerUnderTest.deletePrescription("profileId", "taskId")
+            advanceUntilIdle()
+        }
+        coVerify(exactly = 1) {
+            deletePrescriptionUseCase.invoke(profileId = "profileId", taskId = "taskId", deleteLocallyOnly = false)
+        }
+        coVerify(exactly = 1) { prescriptionRepository.deleteRemoteTaskById("profileId", "taskId") }
+        coVerify(exactly = 1) { prescriptionRepository.deleteLocalTaskById("taskId") }
+        coVerify(exactly = 1) { invoiceRepository.deleteRemoteInvoiceById("taskId", "profileId") }
+        coVerify(exactly = 1) { invoiceRepository.deleteLocalInvoiceById("taskId") }
     }
 
     @Test

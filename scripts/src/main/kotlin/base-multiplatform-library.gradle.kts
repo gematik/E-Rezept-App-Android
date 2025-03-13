@@ -3,6 +3,7 @@
 import extensions.BuildNames.minifiedDebug
 import extensions.BuildNames.targetDesktop
 import extensions.BuildNames.versionCatalogLibrary
+import extensions.RealmPaparazziFix
 import extensions.Versions.BUILD_TOOLS_VERSION
 import extensions.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
 import extensions.Versions.JavaVersion.PROJECT_JAVA_VERSION
@@ -14,7 +15,6 @@ import extensions.cryptoBundle
 import extensions.databaseBundle
 import extensions.datetimeBundle
 import extensions.diKotlinBundle
-import extensions.excludeList
 import extensions.junitBundle
 import extensions.kotlinTestBundle
 import extensions.multiplatformPagingLibrary
@@ -32,32 +32,10 @@ plugins {
     id("quality-detekt")
     id("io.realm.kotlin")
     id("org.jetbrains.compose")
-    id("jacoco")
 }
 
-tasks.withType<Test> {
-    useJUnitPlatform()
-}
-
-// JaCoCo configuration for Desktop
-tasks.register<JacocoReport>("jacocoTestReportKmm") {
-    dependsOn("desktopTest")
-
-    reports {
-        xml.required.set(true)
-        html.required.set(true)
-    }
-
-    val jvmClasses = fileTree("build/classes/kotlin/desktop/main").apply {
-        excludeList()
-    }
-    val jvmSourceFiles = files("src/desktopMain/kotlin")
-    classDirectories.setFrom(jvmClasses)
-    sourceDirectories.setFrom(jvmSourceFiles)
-    executionData.setFrom(fileTree("build").include("**/desktopTest.exec"))
-}
-
-val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named(versionCatalogLibrary)
+val versionCatalog: VersionCatalog = extensions.getByType<VersionCatalogsExtension>()
+    .named(versionCatalogLibrary)
 
 kotlin {
     androidTarget {
@@ -72,35 +50,36 @@ kotlin {
           val commonMain by getting {
              dependencies {
                  implementation(kotlin("reflect"))
-                 implementation(libs.multiplatformPagingLibrary)
-                 implementation(libs.coroutinesCoreLibrary)
-                 implementation(libs.datetimeBundle)
-                 implementation(libs.databaseBundle)
-                 implementation(libs.cryptoBundle)
-                 implementation(libs.serializationBundle)
-                 implementation(libs.napierLibrary)
-                 implementation(libs.networkBundle)
-                 implementation(libs.diKotlinBundle)
+                 implementation(versionCatalog.multiplatformPagingLibrary)
+                 implementation(versionCatalog.coroutinesCoreLibrary)
+                 implementation(versionCatalog.datetimeBundle)
+                 implementation(versionCatalog.databaseBundle)
+                 implementation(versionCatalog.cryptoBundle)
+                 implementation(versionCatalog.serializationBundle)
+                 implementation(versionCatalog.napierLibrary)
+                 implementation(versionCatalog.networkBundle)
+                 implementation(versionCatalog.diKotlinBundle)
+                 implementation(RealmPaparazziFix.realmKotlinV3)
              }
          }
          val commonTest by getting {
              dependencies {
-                 implementation(libs.databaseBundle)
-                 implementation(libs.coroutinesTestBundle)
-                 implementation(libs.serializationBundle)
-                 implementation(libs.kotlinTestBundle)
-                 implementation(libs.junitBundle)
-                 implementation(libs.cryptoBundle)
-                 implementation(libs.datetimeBundle)
-                 implementation(libs.networkRetrofitLibrary)
-                 implementation(libs.networkOkhttpMockWebServerLibrary)
+                 implementation(versionCatalog.databaseBundle)
+                 implementation(versionCatalog.coroutinesTestBundle)
+                 implementation(versionCatalog.serializationBundle)
+                 implementation(versionCatalog.kotlinTestBundle)
+                 implementation(versionCatalog.junitBundle)
+                 implementation(versionCatalog.cryptoBundle)
+                 implementation(versionCatalog.datetimeBundle)
+                 implementation(versionCatalog.networkRetrofitLibrary)
+                 implementation(versionCatalog.networkOkhttpMockWebServerLibrary)
              }
          }
          val desktopTest by getting {
              dependencies {
                  dependsOn(commonTest)
-                 implementation(libs.cryptoBundle)
-                 implementation(libs.datetimeBundle)
+                 implementation(versionCatalog.cryptoBundle)
+                 implementation(versionCatalog.datetimeBundle)
              }
          }
       }

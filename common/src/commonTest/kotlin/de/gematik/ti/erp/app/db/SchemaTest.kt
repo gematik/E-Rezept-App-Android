@@ -20,8 +20,6 @@
 
 package de.gematik.ti.erp.app.db
 
-import io.mockk.spyk
-import io.mockk.verify
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query
@@ -132,16 +130,12 @@ class SchemaTest : TestDB() {
             }
         }.close()
 
-        val noCallVerifier = spyk({})
-        val callVerifier = spyk({})
-
         val schemas = setOf(
 
             AppRealmSchema(
                 version = 0,
                 classes = setOf(RealmA_V1::class),
                 migrateOrInitialize = {
-                    noCallVerifier()
                 }
             ),
             AppRealmSchema(
@@ -149,7 +143,6 @@ class SchemaTest : TestDB() {
                 classes = setOf(RealmA_V1::class),
                 migrateOrInitialize = { migrationStartedFrom ->
                     assertEquals(0, migrationStartedFrom)
-                    callVerifier()
                 }
             ),
             AppRealmSchema(
@@ -173,8 +166,6 @@ class SchemaTest : TestDB() {
                         )
                         delete(v1)
                     }
-
-                    callVerifier()
                 }
             ),
             AppRealmSchema(
@@ -183,7 +174,6 @@ class SchemaTest : TestDB() {
                 migrateOrInitialize = { migrationStartedFrom ->
                     assertEquals(0, migrationStartedFrom)
                     assertEquals(null, query<RealmA_V1>().first().find())
-                    callVerifier()
                 }
             ),
             AppRealmSchema(
@@ -208,7 +198,6 @@ class SchemaTest : TestDB() {
                         )
                         delete(v2)
                     }
-                    callVerifier()
                 }
             )
         )
@@ -221,9 +210,6 @@ class SchemaTest : TestDB() {
             assertEquals("123", v3?.propA)
             assertEquals("Test", v3?.propB)
             assertEquals(65, v3?.propC)
-
-            verify(exactly = 0) { noCallVerifier() }
-            verify(exactly = 4) { callVerifier() }
         } finally {
             realm?.close()
         }

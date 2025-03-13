@@ -134,6 +134,11 @@ class MockPrescriptionsRepository(
             list.find { it.taskId == taskId }
         }.flowOn(dispatcher)
 
+    override fun loadSyncedTasksByTaskIds(taskIds: List<String>) =
+        dataSource.syncedTasks
+            .map { list -> list.filter { task -> task.taskId in taskIds } }
+            .flowOn(dispatcher)
+
     override fun loadScannedTaskByTaskId(taskId: String) =
         dataSource.scannedTasks.mapNotNull { list ->
             list.find { it.taskId == taskId }
@@ -163,9 +168,5 @@ class MockPrescriptionsRepository(
 
     override fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>> {
         return flowOf(emptyList())
-    }
-
-    override suspend fun deleteLocalInvoicesById(taskId: String) {
-        // do nothing
     }
 }

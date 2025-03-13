@@ -20,16 +20,12 @@
 
 package de.gematik.ti.erp.app.prescription.ui.screen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.FabPosition
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarResult
@@ -45,46 +41,40 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.app.ApplicationInnerPadding
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isFinished
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.NotStarted
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarFlowWrapper
+import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.ui.MultiProfileTopAppBar
 import de.gematik.ti.erp.app.mainscreen.ui.RedeemFloatingActionButton
 import de.gematik.ti.erp.app.mlkit.navigation.MlKitRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
-import de.gematik.ti.erp.app.pkv.presentation.ConsentValidator
 import de.gematik.ti.erp.app.pkv.presentation.rememberConsentController
 import de.gematik.ti.erp.app.pkv.ui.screens.HandleConsentState
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.presentation.rememberPrescriptionsController
+import de.gematik.ti.erp.app.prescription.ui.components.PrescriptionsSection
+import de.gematik.ti.erp.app.prescription.ui.components.ProfileLoadingSection
 import de.gematik.ti.erp.app.prescription.ui.components.UserNotAuthenticatedDialog
-import de.gematik.ti.erp.app.prescription.ui.components.archiveSection
-import de.gematik.ti.erp.app.prescription.ui.components.emptyContentSection
-import de.gematik.ti.erp.app.prescription.ui.components.prescriptionContentSection
-import de.gematik.ti.erp.app.prescription.ui.components.profileConnectorSection
 import de.gematik.ti.erp.app.prescription.ui.model.ConsentClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.MultiProfileTopAppBarClickAction
 import de.gematik.ti.erp.app.prescription.ui.model.PrescriptionsScreenContentClickAction
@@ -92,18 +82,13 @@ import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionScreenPreviewDa
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.pulltorefresh.PullToRefresh
-import de.gematik.ti.erp.app.pulltorefresh.extensions.trigger
 import de.gematik.ti.erp.app.pulltorefresh.extensions.triggerEnd
 import de.gematik.ti.erp.app.pulltorefresh.extensions.triggerStart
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.UiStateMachine
-import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
@@ -155,7 +140,7 @@ class PrescriptionsScreen(
 
         with(controller) {
             showCardWallEvent.listen { profileId ->
-                navController.navigate(CardWallRoutes.CardWallIntroScreen.path(profileId))
+                navController.navigate(CardWallIntroScreen.path(profileId))
             }
             showCardWallWithFilledCanEvent.listen { cardWallData ->
                 navController.navigate(
@@ -173,8 +158,7 @@ class PrescriptionsScreen(
             }
             showGidEvent.listen { gidData ->
                 navController.navigate(
-                    CardWallRoutes.CardWallIntroScreen.pathWithGid(
-                        profileIdentifier = gidData.profileId,
+                    CardWallIntroScreen.pathWithGid(
                         gidEventData = gidData
                     )
                 )
@@ -209,7 +193,7 @@ class PrescriptionsScreen(
             dialogScaffold = dialog,
             onShowCardWall = {
                 profileData.data?.let { activeProfile ->
-                    navController.navigate(CardWallRoutes.CardWallIntroScreen.path(activeProfile.id))
+                    navController.navigate(CardWallIntroScreen.path(activeProfile.id))
                 }
             }
         )
@@ -220,7 +204,7 @@ class PrescriptionsScreen(
             dialog = dialog,
             onShowCardWall = {
                 profileData.data?.let { activeProfile ->
-                    navController.navigate(CardWallRoutes.CardWallIntroScreen.path(activeProfile.id))
+                    navController.navigate(CardWallIntroScreen.path(activeProfile.id))
                 }
             },
             onRetry = { consentContext ->
@@ -313,7 +297,7 @@ class PrescriptionsScreen(
 fun PrescriptionsScreenScaffold(
     pullToRefreshState: PullToRefreshState,
     listState: LazyListState,
-    multiProfileData: MultiProfileAppBarFlowWrapper,
+    multiProfileData: MultiProfileAppBarWrapper,
     profileData: UiState<ProfilesUseCaseData.Profile>,
     activePrescriptions: UiState<List<Prescription>>,
     fabPadding: ApplicationInnerPadding?,
@@ -353,7 +337,7 @@ fun PrescriptionsScreenScaffold(
             }
         ) {
             Column {
-                ProfileSection(
+                ProfileLoadingSection(
                     profileData = profileData,
                     consentState = consentState,
                     pullToRefreshState = pullToRefreshState,
@@ -364,6 +348,7 @@ fun PrescriptionsScreenScaffold(
                 PrescriptionsSection(
                     modifier = Modifier.padding(it),
                     listState = listState,
+                    profileLifecycleState = multiProfileData.profileLifecycleState,
                     activeProfile = profileData,
                     activePrescriptions = activePrescriptions,
                     isArchiveEmpty = isArchiveEmpty,
@@ -394,154 +379,6 @@ fun PrescriptionsScreenScaffold(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ProfileSection(
-    profileData: UiState<ProfilesUseCaseData.Profile>,
-    pullToRefreshState: PullToRefreshState,
-    consentState: ConsentState,
-    onGetConsent: (id: ProfileIdentifier) -> Unit,
-    onChooseAuthenticationMethod: (id: ProfileIdentifier) -> Unit,
-    onRefresh: () -> Unit
-) {
-    UiStateMachine(
-        state = profileData,
-        onError = {
-            ErrorScreenComponent(
-                onClickRetry = onRefresh
-            )
-        },
-        onEmpty = {
-            Center {
-                CircularProgressIndicator()
-            }
-        },
-        onLoading = {
-            Center {
-                CircularProgressIndicator()
-            }
-        },
-        onContent = { activeProfile ->
-            val ssoTokenValid = activeProfile.isSSOTokenValid()
-            @Requirement(
-                "A_24857#1",
-                sourceSpecification = "gemSpec_eRp_FdV",
-                rationale = "Refreshing the prescription list happens only if the user is authenticated. " +
-                    "If the user is not authenticated, the user is prompted to authenticate."
-            )
-            with(pullToRefreshState) {
-                trigger(
-                    block = {
-                        if (activeProfile.isPkv()) {
-                            ConsentValidator.validateAndExecute(
-                                isSsoTokenValid = ssoTokenValid,
-                                consentState = consentState,
-                                getChargeConsent = {
-                                    onRefresh()
-                                    onGetConsent(activeProfile.id)
-                                },
-                                onConsentGranted = onRefresh
-                            )
-                        } else {
-                            onRefresh()
-                        }
-                    },
-                    onNavigation = {
-                        if (!ssoTokenValid) {
-                            endRefresh()
-                            onChooseAuthenticationMethod(activeProfile.id)
-                        }
-                    }
-                )
-            }
-        }
-    )
-}
-
-@Composable
-private fun PrescriptionsSection(
-    modifier: Modifier = Modifier,
-    listState: LazyListState,
-    activeProfile: UiState<ProfilesUseCaseData.Profile>,
-    activePrescriptions: UiState<List<Prescription>>,
-    isArchiveEmpty: Boolean,
-    onElevateTopBar: (Boolean) -> Unit,
-    onClickPrescription: (String) -> Unit,
-    onClickLogin: () -> Unit,
-    onClickRefresh: () -> Unit,
-    onClickAvatar: () -> Unit,
-    onClickArchive: () -> Unit
-) {
-    LaunchedEffect(Unit) {
-        snapshotFlow {
-            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
-        }.collect {
-            onElevateTopBar(it)
-        }
-    }
-
-    UiStateMachine(
-        state = activePrescriptions,
-        onLoading = {
-            Center {
-                CircularProgressIndicator()
-            }
-        },
-        onError = {
-            ErrorScreenComponent(
-                onClickRetry = onClickLogin
-            )
-        },
-        onEmpty = {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(TestTag.Prescriptions.Content),
-                state = listState,
-                contentPadding = PaddingValues(bottom = SizeDefaults.eightfoldAndThreeQuarter),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
-            ) {
-                emptyContentSection(
-                    activeProfile = activeProfile,
-                    onClickConnect = onClickLogin,
-                    onClickAvatar = onClickAvatar
-                )
-                archiveSection(
-                    isArchiveEmpty = isArchiveEmpty,
-                    onClickArchive = onClickArchive
-                )
-            }
-        },
-        onContent = { prescriptions ->
-            LazyColumn(
-                modifier = modifier
-                    .fillMaxSize()
-                    .testTag(TestTag.Prescriptions.Content),
-                state = listState,
-                contentPadding = PaddingValues(bottom = SizeDefaults.eightfoldAndThreeQuarter),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Top
-            ) {
-                profileConnectorSection(
-                    activeProfile = activeProfile,
-                    onClickAvatar = onClickAvatar,
-                    onClickLogin = onClickLogin,
-                    onClickRefresh = onClickRefresh
-                )
-                prescriptionContentSection(
-                    activePrescriptions = prescriptions,
-                    onClickPrescription = onClickPrescription
-                )
-                archiveSection(
-                    isArchiveEmpty = isArchiveEmpty,
-                    onClickArchive = onClickArchive
-                )
-            }
-        }
-    )
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
 @LightDarkPreview
 @Composable
 fun PrescriptionsScreenScaffoldPreview(
@@ -554,7 +391,7 @@ fun PrescriptionsScreenScaffoldPreview(
             activePrescriptions = data.activePrescription,
             isArchiveEmpty = data.isArchivedEmpty,
             hasRedeemableTasks = data.hasRedeemableTasks,
-            multiProfileData = data.multiProfileAppBarFlowWrapper,
+            multiProfileData = data.multiProfileAppBarWrapper,
             profileData = data.profileData,
             consentState = data.consentState,
             isTopBarElevated = data.isTopBarElevated,

@@ -55,8 +55,15 @@ internal fun String.extractMajorVersion(): String? {
 
 internal fun String.extractRCVersion(): String {
     // Make R1.19.1-RC2 to 1.19.1-RC2
-    val regex = Regex("^R(.+)$")
-    return regex.replace(this, "$1")
+    // Make 1.19.1 to 1.19.1-RC1
+    val regex = Regex("^R(.+)$") // Remove leading "R"
+    val version = regex.replace(this, "$1")
+
+    return if (!version.contains("-RC")) {
+        "$version-RC1" // if there is no RC given we assume its the first one
+    } else {
+        version
+    }
 }
 
 internal fun String.sanitizeForGitLab() = "$this.0"

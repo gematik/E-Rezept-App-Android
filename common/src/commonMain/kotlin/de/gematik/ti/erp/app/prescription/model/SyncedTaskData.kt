@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.AdditionalFee.entries
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.CoverageType.valueOf
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
@@ -192,6 +194,7 @@ object SyncedTaskData {
             }
         }
 
+        @Suppress("CyclomaticComplexMethod")
         fun state(now: Instant = currentTime, delta: Duration = CommunicationWaitStateDelta): TaskState =
             when {
                 medicationRequest.multiplePrescriptionInfo.indicator &&

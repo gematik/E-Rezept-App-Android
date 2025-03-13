@@ -108,7 +108,7 @@ class InvoiceDetailScreenPreviewParameterProvider : PreviewParameterProvider<Inv
     )
 }
 
-private object PkvMockData {
+object PkvMockData {
     val chargeItem = InvoiceData.ChargeableItem(
         description = InvoiceData.ChargeableItem.Description.PZN("pzn"),
         text = "text",

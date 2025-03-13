@@ -22,7 +22,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListScope
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Icon
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.ArrowDownward
@@ -32,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.prescription.ui.MainScreenAvatar
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.ProfileConnectionState
@@ -48,15 +51,19 @@ import de.gematik.ti.erp.app.utils.uistate.UiState
 
 fun LazyListScope.emptyContentSection(
     activeProfile: UiState<ProfilesUseCaseData.Profile>,
+    profileIconState: ProfileIconState,
     onClickConnect: () -> Unit,
-    onClickAvatar: () -> Unit
+    onClickAvatar: () -> Unit,
+    isRegistered: Boolean
 ) {
     item {
         Spacer(modifier = Modifier.size(SizeDefaults.tenfold))
         UiStateMachine(activeProfile) { profile ->
             MainScreenAvatar(
                 activeProfile = profile,
-                onClickAvatar = onClickAvatar
+                profileIconState = profileIconState,
+                onClickAvatar = onClickAvatar,
+                isRegistered = isRegistered
             )
         }
     }

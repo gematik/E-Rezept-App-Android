@@ -114,7 +114,7 @@
     <string name="technical_hotline_info">Telefon hattı</string>
     <string name="main_scan_acc">Reçeteler için tarayıcıyı açın</string>
     <string name="main_settings_acc">Ayarlar</string>
-    <string name="settings_screenshots_toggle_text">Ekran görüntülerini gizle</string>
+    <string name="settings_screenshots_toggle_text">Ekran görüntülerine izin ver</string>
     <string name="settings_tracking_dialog_title">E-Reçetenin kullanım davranışınızı anonim olarak analiz etmesine izin veriyor musunuz?</string>
     <string name="pres_detail_technical_information">Teknik bilgiler</string>
     <string name="settings_biometric_dialog_title">Reçete verilerinizin güvenliği</string>
@@ -160,7 +160,7 @@
     <string name="consistent_password">Tekrarlanan şifre eşleşiyor</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Hata 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Sağlık kartı belgeniz geçersiz. Belki kartınızın süresi dolmuştur? Lütfen sağlık sigortası şirketinizle iletişime geçin.</string>
-    <string name="auth_error_failed_auths_headline">Başarısız oturum açma denemesi</string>
+    <string name="auth_error_failed_auths_headline">Maalesef işe yaramadı</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Başarısız oturum açma denemelerinin %s tespit edildi.</item>
         <item quantity="other">%s başarısız oturum açma girişimi algılandı.</item>
@@ -484,7 +484,7 @@
     <string name="time_description_today">saat %s s\'de</string>
     <string name="orders_cart_ready">Alışveriş sepeti hazır</string>
     <string name="orders_cart_ready_info">Tarif sepetinize eklendi. Siparişi tamamlamak için lütfen eczanenin web sitesine gidin.</string>
-    <string name="orders_open_cart_link">Alışveriş sepetini aç</string>
+    <string name="orders_open_cart_link">eczanenize bağlantı</string>
     <string name="orders_code_info">Bu koleksiyon kodunu eczanede gösterin.</string>
     <string name="orders_code_title">Teslim alma kodu alındı</string>
     <string name="orders_no_message_title">Mesaj gösterilemiyor</string>
@@ -576,7 +576,7 @@
     <string name="pres_detail_medication_label_handed_over">üzerinde yayınlanan:</string>
     <string name="synced_medication_ingredient_header">Etken madde</string>
     <string name="medication_overview_prescribed_header">Reçeteli</string>
-    <string name="medication_overview_dispenses_header">Almak</string>
+    <string name="medication_overview_dispenses_header">Kabul edilmiş</string>
     <string name="pres_details_exp_da_title">Doğrudan görev nedir?</string>
     <string name="pres_details_exp_da_info">Doğrudan yönlendirmede, bir muayenehaneden veya hastaneden alınan reçete doğrudan eczanede doldurulur. Sigortalıların herhangi bir işlem yapmasına gerek yoktur ve geri ödeme sürecine müdahale edemezler. \n\n Tedavinizi sizin için daha şeffaf hale getirmek için e-reçete uygulamasında doğrudan yönlendirmeler listelenir.</string>
     <string name="pres_details_exp_no_em_fee_title">Acil servis ücreti</string>
@@ -643,7 +643,6 @@
     <string name="search_pharmacies_location_na_settings">Ayarlar</string>
     <string name="search_pharmacies_location_na_services">Ayarlar\'da konumu paylaşın.</string>
     <string name="pharmacy_maps_header">Bana yakın</string>
-    <string name="mainscreen_profile_chip_content_description">Adı düzenlemek için basılı tutun.</string>
     <string name="profile_edit_name_for_rename_info">Profil için yeni adı girin.</string>
     <string name="mainscreen_welcome_drawer_info">Muayenehanenizden dijital olarak reçete almak için oturum açmalısınız.</string>
     <string name="mainscreen_welcome_drawer_header">Reçeteleri dijital olarak mı alıyorsunuz?</string>
@@ -1060,14 +1059,14 @@
     <string name="invoices_deleted">Masraf makbuzlarınız silindi</string>
     <string name="invoices_detail_title">Maliyet makbuzu</string>
     <string name="paired_devices_biometrics_error_login_title">Kayıt gerekli</string>
-    <string name="paired_devices_biometrics_error_login_description">Bağlı cihazları görüntülemek için lütfen oturum açın.</string>
+    <string name="paired_devices_biometrics_error_login_description">Bağlı cihazları görüntülemek için lütfen giriş yapın ve giriş bilgilerinizi kaydedin.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Giriş yapmak</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Giriş yapmak</string>
     <string name="cdw_intro_auth_gid_app_required">%s Sigortaya bağlanın</string>
     <string name="a11y_card_wall_card_hand">Akıllı telefonda sağlık kartı</string>
     <string name="not_logged_in">Oturum açılmamış</string>
     <string name="logged_in">Kayıtlı</string>
-    <string name="a11y_refresh">yenileme</string>
+    <string name="refresh">yenileme</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Reçete hizmetlerine kaydolduysanız erişim protokolleri alırsınız.</string>
     <string name="paired_devices_error_login_title">Kayıt gerekli</string>
     <string name="paired_devices_error_login_description">Bağlı cihazları görüntülemek için lütfen sağlık kartınızla giriş yapın ve biyometri ile giriş bilgilerinizi kaydedin.</string>
@@ -1175,7 +1174,7 @@
     <string name="settings_app_security_change_password">Şifre değiştir</string>
     <string name="invoices_delete_not_logged_in_description">Silmek için Reçete Sunucusu ile bağlantı kurulmalıdır</string>
     <string name="provided">Mallar hazır</string>
-    <string name="provided_on_hour">Mallar %s tarihinden beri hazır.</string>
+    <string name="provided_at_hour">Mallar %s tarihinden beri hazır.</string>
     <string name="provided_now">Mallar şimdi hazır</string>
     <string name="provided_minutes_ago">Ürünler %s dakikadır hazır</string>
     <string name="provided_on_date">Mallar %s tarihinden beri hazır.</string>
@@ -1204,4 +1203,15 @@
     <string name="all_prescriptions_of_order">Tüm tarifler sırayla</string>
     <string name="invoice_details_supply_shortage_fee">Teslimat darboğazı sabit ücreti</string>
     <string name="message_list_time_state_hours">%s saat</string>
+    <string name="language_selection_es">İspanyol</string>
+    <string name="language_selection_ga">İrlandalı</string>
+    <string name="profile_screen_login_hint">Tarifleri otomatik olarak alabilmeniz için giriş yapmanız gerekmektedir.</string>
+    <string name="profile_screen_login_button">Kayıt olmak</string>
+    <string name="error_redeemable_prescription_title">reçete kullanılamaz</string>
+    <string name="error_redeemable_prescription_generic_error">“ %1$s ” tarifi artık kullanılamaz. Başka bir şekilde kullanmış olabilirsiniz veya silinmiş olabilir.</string>
+    <string name="error_redeemable_prescription_not_redeemable">“ %1$s ” reçetesi zaten kullanılmış veya şu anda kullanılıyor.</string>
+    <string name="error_redeemable_prescription_deleted">“ %1$s ” tarifi zaten silindi ve bu nedenle artık kurtarılamaz.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Aşağıdaki tarifler kullanılamaz veya artık kullanılamaz: %1$s \n Bunları başka bir şekilde kullanmış olabilirsiniz veya silinmiş olabilirler. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Bu tarifler olmadan devam edin</string>
+    <string name="error_redeemable_prescription_cancel_order">Siparişi iptal et</string>
 </resources>

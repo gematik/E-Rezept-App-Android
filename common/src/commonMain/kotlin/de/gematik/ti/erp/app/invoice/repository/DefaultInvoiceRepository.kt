@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.fhir.model.extractTaskIdsFromChargeItemBundle
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
@@ -33,7 +32,6 @@ import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonElement
-import java.net.HttpURLConnection
 
 private const val InvoiceMaxPageSize = 25
 
@@ -94,19 +92,7 @@ class DefaultInvoiceRepository(
         taskId: String,
         profileId: ProfileIdentifier
     ): Result<Unit> = withContext(dispatchers.io) {
-        val result = remoteDataSource.deleteChargeItemById(profileId, taskId)
-            .onSuccess {
-                deleteLocalInvoice(taskId)
-            }.onFailure {
-                if (it is ApiCallException) {
-                    when (it.response.code()) {
-                        HttpURLConnection.HTTP_NOT_FOUND,
-                        HttpURLConnection.HTTP_GONE ->
-                            localDataSource.deleteInvoiceById(taskId)
-                    }
-                }
-            }
-        result
+        remoteDataSource.deleteChargeItemById(profileId, taskId)
     }
 
     override fun loadInvoiceAttachments(taskId: String): List<Triple<String, String, ByteArray>>? =
@@ -115,7 +101,7 @@ class DefaultInvoiceRepository(
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
         localDataSource.latestInvoiceModifiedTimestamp(profileId).first()
 
-    override suspend fun deleteLocalInvoice(taskId: String) =
+    override suspend fun deleteLocalInvoiceById(taskId: String): Unit =
         localDataSource.deleteInvoiceById(taskId)
 
     override suspend fun downloadResource(

@@ -40,12 +40,6 @@ internal val VersionCatalog.androidxTestArchCoreBundle: Provider<ExternalModuleD
 internal val VersionCatalog.animationBundle: Provider<ExternalModuleDependencyBundle>
     get() = getBundle("animation")
 
-internal val VersionCatalog.composeAppBundle: Provider<ExternalModuleDependencyBundle>
-    get() = getBundle("compose-app")
-
-internal val VersionCatalog.composeBundle: Provider<ExternalModuleDependencyBundle>
-    get() = getBundle("compose")
-
 internal val VersionCatalog.composeTestBundle: Provider<ExternalModuleDependencyBundle>
     get() = getBundle("composetest")
 
@@ -138,5 +132,11 @@ internal val VersionCatalog.mockkAndroidBundle: Provider<ExternalModuleDependenc
 
 internal val VersionCatalog.detektComposeRules: Provider<ExternalModuleDependencyBundle>
     get() = getBundle("qualitydetektcomposerules")
+
+internal val VersionCatalog.composeLibsWithBomBundle: Provider<ExternalModuleDependencyBundle>
+    get() = getBundle("composeLibsWithBom")
+
+internal val VersionCatalog.composeLibsWithoutBomBundle: Provider<ExternalModuleDependencyBundle>
+    get() = getBundle("composeLibsWithoutBom")
 
 private fun VersionCatalog.getBundle(bundle: String) = findBundle(bundle).get()

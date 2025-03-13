@@ -18,13 +18,59 @@
 
 package de.gematik.ti.erp.app.prescription.ui.preview
 
+import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import org.bouncycastle.util.encoders.Base64
+import java.util.UUID
+import kotlin.time.Duration.Companion.days
+
+private val validSingleSignOnToken = IdpData.SingleSignOnToken(
+    token = UUID.randomUUID().toString(),
+    expiresOn = Clock.System.now().plus(200.days),
+    validOn = Clock.System.now().minus(20.days)
+)
+
+private val invalidSingleSignOnToken = IdpData.SingleSignOnToken(
+    token = UUID.randomUUID().toString(),
+    expiresOn = Clock.System.now().plus(200.days),
+    validOn = Clock.System.now().plus(20.days)
+)
+
+private const val CAN = "123123"
+private val healthCardCertificate = Base64.decode(BuildKonfig.DEFAULT_VIRTUAL_HEALTH_CARD_CERTIFICATE)
+
+val PREVIEW_ACTIVE_PROFILE = ProfilesUseCaseData.Profile(
+    id = "1",
+    name = "Max Mustermann",
+    insurance = ProfileInsuranceInformation(
+        insuranceType = ProfilesUseCaseData.InsuranceType.GKV
+    ),
+    isActive = true,
+    color = ProfilesData.ProfileColorNames.SPRING_GRAY,
+    lastAuthenticated = Instant.parse("2024-08-01T10:00:00Z"),
+    ssoTokenScope = IdpData.DefaultToken(
+        token = validSingleSignOnToken,
+        cardAccessNumber = CAN,
+        healthCardCertificate = healthCardCertificate
+    ),
+    avatar = ProfilesData.Avatar.ManWithPhone,
+    image = null
+)
+
+val PREVIEW_INVALID_PROFILE = PREVIEW_ACTIVE_PROFILE.copy(
+    ssoTokenScope = IdpData.DefaultToken(
+        token = invalidSingleSignOnToken,
+        cardAccessNumber = CAN,
+        healthCardCertificate = healthCardCertificate
+    )
+)
 
 val MOCK_MODEL_PROFILE = ProfilesUseCaseData.Profile(
     id = "id-1",

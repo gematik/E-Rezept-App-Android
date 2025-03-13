@@ -101,7 +101,7 @@ val COMMUNICATION_DATA_WITH_TASK_ID = Communication(
 val MOCK_MESSAGE = OrderUseCaseData.Message(
     communicationId = COMMUNICATION_ID,
     sentOn = DATE_2024_01_01,
-    message = null,
+    content = null,
     pickUpCodeDMC = null,
     pickUpCodeHR = null,
     link = null,
@@ -197,7 +197,7 @@ val inAppMessage = listOf(
 
 )
 
-val inAppMessagesMore = listOf(
+val inAppMessagesFiltered = listOf(
     InAppMessage(
         id = ORDER_ID,
         from = "",
@@ -211,16 +211,16 @@ val inAppMessagesMore = listOf(
         version = ""
     ),
     InAppMessage(
-        id = ORDER_ID,
+        id = WELCOME_MESSAGE_ID,
         from = WELCOME_MESSAGE_FROM,
-        text = "This is a long message to see how it looks like when the message is long and how the UI should handle it properly",
+        text = WELCOME_MESSAGE_TEXT,
         timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 0,
-        tag = WELCOME_MESSAGE_GET_MESSAGE_TAG,
-        isUnread = false,
+        tag = WELCOME_MESSAGE_TAG,
+        isUnread = true,
         lastMessage = null,
         messageProfile = CommunicationProfile.InApp,
-        version = ""
+        version = WELCOME_MESSAGE_VERSION
     )
 )
 
@@ -267,7 +267,7 @@ val welcomeMessage =
 
 var internalEntity = listOf(
     InAppMessageEntity().apply {
-        id = "01"
+        id = "1"
         this.version = "1.27.1"
     }
 )

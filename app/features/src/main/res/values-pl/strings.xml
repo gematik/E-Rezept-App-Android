@@ -118,7 +118,7 @@
     <string name="technical_hotline_info">Infolinia telefoniczna</string>
     <string name="main_scan_acc">Otwórz skaner recept</string>
     <string name="main_settings_acc">Ustawienia</string>
-    <string name="settings_screenshots_toggle_text">Blokuj tworzenie zrzutów ekranu</string>
+    <string name="settings_screenshots_toggle_text">Zezwalaj na zrzuty ekranu</string>
     <string name="settings_tracking_dialog_title">Czy pozwalasz, aby E-Recepta analizowała Twoje zachowania w sposób anonimowy?</string>
     <string name="pres_detail_technical_information">Informacje techniczne</string>
     <string name="settings_biometric_dialog_title">Bezpieczeństwo danych Twojej recepty</string>
@@ -164,7 +164,7 @@
     <string name="consistent_password">Ponownie wprowadzone hasło zgadza się</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Błąd 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Zaświadczenie o Twojej karcie zdrowia jest nieważne. Może Twoja karta utraciła ważność? Skontaktuj się ze swoją firmą zajmującą się ubezpieczeniem zdrowotnym.</string>
-    <string name="auth_error_failed_auths_headline">Nieudane próby logowania</string>
+    <string name="auth_error_failed_auths_headline">Niestety to nie zadziałało</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Wykryto %s nieudanych prób logowania.</item>
         <item quantity="few"></item>
@@ -496,7 +496,7 @@
     <string name="time_description_today">O godzinie %s</string>
     <string name="orders_cart_ready">Koszyk jest gotowy</string>
     <string name="orders_cart_ready_info">Przepis został dodany do Twojego koszyka. Aby dokończyć zamówienie, należy wejść na stronę apteki.</string>
-    <string name="orders_open_cart_link">Otwórz koszyk</string>
+    <string name="orders_open_cart_link">link do Twojej apteki</string>
     <string name="orders_code_info">Pokaż ten kod kolekcji w aptece.</string>
     <string name="orders_code_title">Otrzymano kod odbioru</string>
     <string name="orders_no_message_title">Wiadomość nie może zostać wyświetlona</string>
@@ -590,7 +590,7 @@
     <string name="pres_detail_medication_label_handed_over">wydane w:</string>
     <string name="synced_medication_ingredient_header">Substancja czynna</string>
     <string name="medication_overview_prescribed_header">Przepisane</string>
-    <string name="medication_overview_dispenses_header">Odbierać</string>
+    <string name="medication_overview_dispenses_header">Otrzymane</string>
     <string name="pres_details_exp_da_title">Co to jest zlecenie bezpośrednie?</string>
     <string name="pres_details_exp_da_info">W przypadku bezpośredniego skierowania recepta z przychodni lub szpitala realizowana jest bezpośrednio w aptece. Osoby ubezpieczone nie muszą podejmować żadnych działań i nie mogą ingerować w proces umorzenia. \n\n Bezpośrednie skierowania są wymienione w aplikacji do e-recepty, dzięki czemu leczenie jest dla Ciebie bardziej przejrzyste.</string>
     <string name="pres_details_exp_no_em_fee_title">Opłata za obsługę w nagłych wypadkach</string>
@@ -657,7 +657,6 @@
     <string name="search_pharmacies_location_na_settings">Ustawienia</string>
     <string name="search_pharmacies_location_na_services">Udostępnij lokalizację w Ustawieniach.</string>
     <string name="pharmacy_maps_header">Blisko mnie</string>
-    <string name="mainscreen_profile_chip_content_description">Naciśnij i przytrzymaj, aby edytować nazwę.</string>
     <string name="profile_edit_name_for_rename_info">Wprowadź nową nazwę profilu.</string>
     <string name="mainscreen_welcome_drawer_info">Aby otrzymywać recepty w formie cyfrowej ze swojej przychodni, musisz się zalogować.</string>
     <string name="mainscreen_welcome_drawer_header">Otrzymywać recepty cyfrowo?</string>
@@ -1078,14 +1077,14 @@
     <string name="invoices_deleted">Twoje rachunki za wydatki zostały usunięte</string>
     <string name="invoices_detail_title">Rachunek kosztów</string>
     <string name="paired_devices_biometrics_error_login_title">Wymagana rejestracja</string>
-    <string name="paired_devices_biometrics_error_login_description">Zaloguj się, aby zobaczyć podłączone urządzenia.</string>
+    <string name="paired_devices_biometrics_error_login_description">Zaloguj się i zapisz dane logowania, aby zobaczyć podłączone urządzenia.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Rejestr</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Rejestr</string>
     <string name="cdw_intro_auth_gid_app_required">Połącz się z %s Ubezpieczeniem</string>
     <string name="a11y_card_wall_card_hand">Karta zdrowia na smartfonie</string>
     <string name="not_logged_in">Nie zalogowano</string>
     <string name="logged_in">Zarejestrowany</string>
-    <string name="a11y_refresh">odświeżać</string>
+    <string name="refresh">odświeżać</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Otrzymasz protokoły dostępu, jeśli jesteś zalogowany w aplikacji E-recepta.</string>
     <string name="paired_devices_error_login_title">Wymagana rejestracja</string>
     <string name="paired_devices_error_login_description">Zaloguj się przy użyciu swojej karty zdrowia i zapisz dane logowania za pomocą danych biometrycznych, aby wyświetlić podłączone urządzenia.</string>
@@ -1193,7 +1192,7 @@
     <string name="settings_app_security_change_password">Zmień hasło</string>
     <string name="invoices_delete_not_logged_in_description">Aby usunąć, należy nawiązać połączenie z serwerem Prescription Server</string>
     <string name="provided">Towar jest gotowy</string>
-    <string name="provided_on_hour">Towary są gotowe od %s</string>
+    <string name="provided_at_hour">Towary są gotowe od %s</string>
     <string name="provided_now">Towar był już gotowy</string>
     <string name="provided_minutes_ago">Towary są gotowe od %s minut</string>
     <string name="provided_on_date">Towary są gotowe od %s</string>
@@ -1222,4 +1221,15 @@
     <string name="all_prescriptions_of_order">Wszystkie przepisy w kolejności</string>
     <string name="invoice_details_supply_shortage_fee">Stawka ryczałtowa za wąskie gardło w dostawie</string>
     <string name="message_list_time_state_hours">%s godzina</string>
+    <string name="language_selection_es">hiszpański</string>
+    <string name="language_selection_ga">irlandzki</string>
+    <string name="profile_screen_login_hint">Aby automatycznie otrzymywać przepisy, musisz się zalogować.</string>
+    <string name="profile_screen_login_button">Rejestr</string>
+    <string name="error_redeemable_prescription_title">Recepty nie można zrealizować</string>
+    <string name="error_redeemable_prescription_generic_error">Recepta \"%1$s\" nie może być już zrealizowana. Recepta mogła już zostać zrealizowana w inny sposób lub mogła zostać anulowana.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Recepta \"%1$s\" została już zrealizowana lub jest w trakcie realizacji.</string>
+    <string name="error_redeemable_prescription_deleted">Przepis \"%1$s\" został już anulowany i dlatego nie można go już zrealizować.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Następujące przepisy nie są możliwe do zrealizowania lub nie można ich już zrealizować: %1$s \n Być może zostały już zrealizowane w inny sposób lub zostały usunięte. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Kontynuuj bez tych przepisów</string>
+    <string name="error_redeemable_prescription_cancel_order">Anuluj zamówienie</string>
 </resources>

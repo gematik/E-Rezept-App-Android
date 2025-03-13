@@ -52,7 +52,7 @@ interface InvoiceRepository {
 
     fun loadInvoiceAttachments(taskId: String): List<Triple<String, String, ByteArray>>?
 
-    suspend fun deleteLocalInvoice(taskId: String)
+    suspend fun deleteLocalInvoiceById(taskId: String)
 
     suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant?
 }

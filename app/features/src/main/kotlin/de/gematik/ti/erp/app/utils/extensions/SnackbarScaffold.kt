@@ -78,18 +78,6 @@ fun SnackbarHostState.show(
     scope.launch { showSnackbar(message = message) }
 }
 
-fun SnackbarHostState.showIndefinite(
-    message: String,
-    scope: CoroutineScope
-) {
-    scope.launch {
-        showSnackbar(
-            message = message,
-            duration = SnackbarDuration.Indefinite
-        )
-    }
-}
-
 object SnackbarScaffoldCompositionLocal {
     val current: SnackbarScaffold
         @Composable

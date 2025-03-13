@@ -97,15 +97,9 @@ class SettingsController(
         allowScreenshotsUseCase.invoke(true)
     }
 
-    fun onEnableZoom() {
+    fun onToggleEnableZoom(enabled: Boolean) {
         viewModelScope.launch {
-            saveZoomPreferenceUseCase.invoke(true)
-        }
-    }
-
-    fun onDisableZoom() {
-        viewModelScope.launch {
-            saveZoomPreferenceUseCase.invoke(false)
+            saveZoomPreferenceUseCase.invoke(enabled)
         }
     }
 

@@ -69,7 +69,7 @@ val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
     bindProvider { GetShippingContactValidationUseCase() }
     bindProvider { PharmacyDirectRedeemUseCase(instance()) } // TODO: Only used in debug process on testing
     bindProvider { PharmacyMapsUseCase(instance(), instance(), instance()) }
-    bindProvider { PharmacySearchUseCase(instance(), instance(), instance(), instance(), instance()) }
+    bindProvider { PharmacySearchUseCase(instance(), instance(), instance()) }
     bindProvider { PharmacyOverviewUseCase(instance(), instance()) }
     bindProvider { GetOverviewPharmaciesUseCase(instance()) }
     bindProvider { GetOrderStateUseCase(instance(), instance(), instance()) }

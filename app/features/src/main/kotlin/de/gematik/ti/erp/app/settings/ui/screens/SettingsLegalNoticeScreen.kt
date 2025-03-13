@@ -119,7 +119,7 @@ private fun LegalNoticeScreenContent(
             ResponsibilitySection()
         }
         item {
-            ContactSection()
+            ContactOptionsSection()
         }
         item {
             HintSection()
@@ -185,7 +185,7 @@ private fun LogoSection() {
 }
 
 @Composable
-private fun ContactSection() {
+private fun ContactOptionsSection() {
     val context = LocalContext.current
     SpacerLarge()
     Text(

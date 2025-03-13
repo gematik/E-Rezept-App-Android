@@ -28,12 +28,17 @@ internal object BuildNames {
     const val androidTestUtil = "androidTestUtil"
     const val testImplementation = "testImplementation"
     const val testCompileOnly = "testCompileOnly"
+    const val implementation = "implementation"
 
     // virtual devices
     val pixel5Api30 = VirtualDevice("pixel5api30", "Pixel 5", 30, "aosp-atd")
     val pixel8Api34 = VirtualDevice("pixel8api34", "Pixel 8", 34, "aosp-atd")
 
-    const val jacocoToolsVersion = "0.8.7"
+    const val jacocoToolsVersion = "0.8.11"
+}
+
+internal object RealmPaparazziFix {
+    const val realmKotlinV3 = "io.realm.kotlin:library-base:3.0.0"
 }
 
 internal data class VirtualDevice(

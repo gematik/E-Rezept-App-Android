@@ -54,6 +54,7 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
@@ -109,7 +110,7 @@ class ProfileAuditEventsScreen(
                 pullToRefreshState.endRefresh()
             }
             showCardWallEvent.listen { id ->
-                navController.navigate(CardWallRoutes.CardWallIntroScreen.path(id))
+                navController.navigate(CardWallIntroScreen.path(id))
             }
             showCardWallWithFilledCanEvent.listen { cardWallData ->
                 navController.navigate(
@@ -121,8 +122,7 @@ class ProfileAuditEventsScreen(
             }
             showGidEvent.listen { gidData ->
                 navController.navigate(
-                    CardWallRoutes.CardWallIntroScreen.pathWithGid(
-                        profileIdentifier = gidData.profileId,
+                    CardWallIntroScreen.pathWithGid(
                         gidEventData = gidData
                     )
                 )

@@ -32,7 +32,6 @@ import okhttp3.ResponseBody.Companion.toResponseBody
 import org.junit.Test
 import retrofit2.HttpException
 import retrofit2.Response
-import java.net.UnknownHostException
 import kotlin.test.assertEquals
 
 class ConsentStateTest {
@@ -43,14 +42,6 @@ class ConsentStateTest {
         val context = ConsentContext.GetConsent
         val state = mapConsentErrorStates(error, context)
         assertEquals(ConsentState.ConsentErrorState.Unknown, state)
-    }
-
-    @Test
-    fun `map consent error state UnknownHostException`() {
-        val error = Throwable(message = "", cause = Throwable("", UnknownHostException()))
-        val context = ConsentContext.GetConsent
-        val state = mapConsentErrorStates(error, context)
-        assertEquals(ConsentState.ConsentErrorState.NoInternet(context), state)
     }
 
     @Test

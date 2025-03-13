@@ -55,17 +55,6 @@ class DemoProfilesRepository(
         it.find { profile -> profile.active }?.toProfile()
     }
 
-    override suspend fun saveProfile(profileName: String, activate: Boolean) {
-        withContext(dispatcher) {
-            dataSource.profiles.value = dataSource.profiles
-                .updateAndGet { profileList ->
-                    val profiles = profileList.deactivateAllProfiles()
-                    profiles.add(profileName.create())
-                    profiles
-                }
-        }
-    }
-
     override suspend fun createNewProfile(profileName: String) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles

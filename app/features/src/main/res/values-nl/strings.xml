@@ -114,7 +114,7 @@
     <string name="technical_hotline_info">Telefonische hotline</string>
     <string name="main_scan_acc">Open scanner voor recepten</string>
     <string name="main_settings_acc">Instellingen</string>
-    <string name="settings_screenshots_toggle_text">Schermafbeeldingen onderdrukken</string>
+    <string name="settings_screenshots_toggle_text">Schermafbeeldingen toestaan</string>
     <string name="settings_tracking_dialog_title">Staat u toe dat E-Prescription uw gebruiksgedrag anoniem analyseert?</string>
     <string name="pres_detail_technical_information">Technische informatie</string>
     <string name="settings_biometric_dialog_title">Beveiliging van uw receptgegevens</string>
@@ -160,7 +160,7 @@
     <string name="consistent_password">Herhaalde wachtwoordovereenkomsten</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Fout 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Uw gezondheidskaartcertificaat is ongeldig. Misschien is uw kaart verlopen? Neem dan contact op met uw zorgverzekeraar.</string>
-    <string name="auth_error_failed_auths_headline">Mislukte inlogpogingen</string>
+    <string name="auth_error_failed_auths_headline">Helaas werkte dat niet</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Er zijn %s mislukte inlogpogingen gedetecteerd.</item>
         <item quantity="other">Er zijn %s mislukte inlogpogingen gedetecteerd.</item>
@@ -484,7 +484,7 @@
     <string name="time_description_today">Om %s uur</string>
     <string name="orders_cart_ready">Winkelwagen is klaar</string>
     <string name="orders_cart_ready_info">Het recept is toegevoegd aan uw winkelwagen. Ga naar de website van de apotheek om de bestelling af te ronden.</string>
-    <string name="orders_open_cart_link">Winkelwagen openen</string>
+    <string name="orders_open_cart_link">link naar uw apotheek</string>
     <string name="orders_code_info">Toon deze afhaalcode bij de apotheek.</string>
     <string name="orders_code_title">Ophaalcode ontvangen</string>
     <string name="orders_no_message_title">Bericht kan niet worden getoond</string>
@@ -643,7 +643,6 @@
     <string name="search_pharmacies_location_na_settings">Instellingen</string>
     <string name="search_pharmacies_location_na_services">Deel locatie in Instellingen.</string>
     <string name="pharmacy_maps_header">Dicht bij mij</string>
-    <string name="mainscreen_profile_chip_content_description">Houd ingedrukt om de naam te bewerken.</string>
     <string name="profile_edit_name_for_rename_info">Voer de nieuwe naam voor het profiel in.</string>
     <string name="mainscreen_welcome_drawer_info">Om recepten digitaal te ontvangen vanuit uw praktijk, moet u ingelogd zijn.</string>
     <string name="mainscreen_welcome_drawer_header">Recepten digitaal ontvangen?</string>
@@ -1060,14 +1059,14 @@
     <string name="invoices_deleted">Uw onkostenbewijzen zijn verwijderd</string>
     <string name="invoices_detail_title">Kostenontvangst</string>
     <string name="paired_devices_biometrics_error_login_title">Registratie vereist</string>
-    <string name="paired_devices_biometrics_error_login_description">Log in om aangesloten apparaten te bekijken.</string>
+    <string name="paired_devices_biometrics_error_login_description">Meld u aan en sla uw inloggegevens op om de aangesloten apparaten te bekijken.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Register</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Register</string>
     <string name="cdw_intro_auth_gid_app_required">Maak verbinding met %s Verzekeringen</string>
     <string name="a11y_card_wall_card_hand">Gezondheidskaart op smartphone</string>
     <string name="not_logged_in">Niet ingelogd</string>
     <string name="logged_in">Geregistreerd</string>
-    <string name="a11y_refresh">vernieuwen</string>
+    <string name="refresh">vernieuwen</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">U ontvangt toegangslogboeken als u bent ingelogd bij de receptenservice.</string>
     <string name="paired_devices_error_login_title">Registratie vereist</string>
     <string name="paired_devices_error_login_description">Log in met uw zorgkaart en sla uw inloggegevens met biometrie op om de aangesloten apparaten te bekijken.</string>
@@ -1175,7 +1174,7 @@
     <string name="settings_app_security_change_password">Wachtwoord wijzigen</string>
     <string name="invoices_delete_not_logged_in_description">Om te verwijderen moet er een verbinding met de Receptserver tot stand worden gebracht</string>
     <string name="provided">Goederen zijn klaar</string>
-    <string name="provided_on_hour">Goederen zijn gereed sinds %s</string>
+    <string name="provided_at_hour">Goederen zijn gereed sinds %s</string>
     <string name="provided_now">De goederen zijn zojuist klaargemaakt</string>
     <string name="provided_minutes_ago">Goederen zijn al %s minuten gereed</string>
     <string name="provided_on_date">Goederen zijn gereed sinds %s</string>
@@ -1204,4 +1203,15 @@
     <string name="all_prescriptions_of_order">Alle recepten op volgorde</string>
     <string name="invoice_details_supply_shortage_fee">Leveringsknelpunt vast tarief</string>
     <string name="message_list_time_state_hours">%s uur</string>
+    <string name="language_selection_es">Spaans</string>
+    <string name="language_selection_ga">Iers</string>
+    <string name="profile_screen_login_hint">Om automatisch recepten te ontvangen, moet u ingelogd zijn.</string>
+    <string name="profile_screen_login_button">Register</string>
+    <string name="error_redeemable_prescription_title">Recept niet inwisselbaar</string>
+    <string name="error_redeemable_prescription_generic_error">Het recept \"%1$s\" kan niet langer worden ingewisseld. Mogelijk hebt u het al op een andere manier ingewisseld of is het geannuleerd.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Het recept \"%1$s\" is al ingewisseld of wordt momenteel ingewisseld.</string>
+    <string name="error_redeemable_prescription_deleted">Het recept \"%1$s\" is al geannuleerd en kan dus niet meer worden ingewisseld.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n De volgende recepten zijn niet (meer) inwisselbaar: %1$s \n Mogelijk hebt u ze al op een andere manier ingewisseld of zijn ze verwijderd. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Ga door zonder deze recepten</string>
+    <string name="error_redeemable_prescription_cancel_order">Bestelling annuleren</string>
 </resources>

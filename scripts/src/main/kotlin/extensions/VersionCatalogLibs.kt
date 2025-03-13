@@ -72,4 +72,7 @@ internal val VersionCatalog.playAppUpdateLibrary: Provider<MinimalExternalModule
 internal val VersionCatalog.gematikRulesLibrary: Provider<MinimalExternalModuleDependency>
     get() = getLibrary("rules")
 
+internal val VersionCatalog.composeBomLibrary: Provider<MinimalExternalModuleDependency>
+    get() = getLibrary("androidx-compose-bom")
+
 private fun VersionCatalog.getLibrary(library: String) = findLibrary(library).get()

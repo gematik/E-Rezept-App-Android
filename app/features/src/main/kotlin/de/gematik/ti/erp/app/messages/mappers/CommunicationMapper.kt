@@ -46,7 +46,7 @@ fun Communication.toMessage(): OrderUseCaseData.Message {
     val defaultValues = OrderUseCaseData.Message(
         communicationId = communicationId,
         sentOn = sentOn,
-        message = null,
+        content = null,
         pickUpCodeDMC = null,
         pickUpCodeHR = null,
         link = null,
@@ -62,7 +62,7 @@ fun Communication.toMessage(): OrderUseCaseData.Message {
             OrderUseCaseData.Message(
                 communicationId = communicationId,
                 sentOn = sentOn,
-                message = inbox.infoText?.takeUnless { it.isBlank() },
+                content = inbox.infoText?.takeUnless { it.isBlank() },
                 pickUpCodeDMC = inbox.pickUpCodeDMC?.takeUnless { it.isBlank() },
                 pickUpCodeHR = inbox.pickUpCodeHR?.takeUnless { it.isBlank() },
                 link = inbox.url?.takeUnless { it.isBlank() }?.takeIf { isValidUrl(it) },

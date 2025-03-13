@@ -26,20 +26,13 @@ import kotlinx.datetime.Instant
 interface InAppMessageRepository {
 
     val inAppMessages: Flow<List<InAppMessageEntity>>
-
     val counter: Flow<Long>
-
     val lastVersion: Flow<String?>
-
     val lastUpdatedVersion: Flow<String?>
-
     val showWelcomeMessage: Flow<Boolean>
-
-    val welcomeMessageTimeStamp: Flow<Instant>
+    val welcomeMessageTimeStamp: Flow<Instant?>
 
     suspend fun setInternalMessageAsRead()
-
     suspend fun setShowWelcomeMessage()
-
     suspend fun updateChangeLogs(newChangeLogs: RealmList<InAppMessageEntity>, lastVersion: String, inAppLastVersion: String)
 }

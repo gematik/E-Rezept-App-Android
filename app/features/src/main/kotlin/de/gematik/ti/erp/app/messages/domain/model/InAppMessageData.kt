@@ -20,10 +20,12 @@ package de.gematik.ti.erp.app.messages.domain.model
 
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.LastMessage
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class InAppMessage(
+    @PrimaryKey
     val id: String,
     val from: String,
     val text: String?,

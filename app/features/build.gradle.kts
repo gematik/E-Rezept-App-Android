@@ -5,6 +5,7 @@ plugins {
     id("de.gematik.ti.erp.names")
     id("jacoco")
     alias(libs.plugins.paparazzi)
+    alias(libs.plugins.compose.compiler)
 }
 
 val namesPlugin = AppDependencyNamesPlugin()

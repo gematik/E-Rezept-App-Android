@@ -126,7 +126,7 @@ object PharmacyUseCaseData {
     )
 
     @Immutable
-    data class PrescriptionOrder(
+    data class PrescriptionInOrder(
         val taskId: String,
         val accessCode: String,
         val title: String?,
@@ -182,13 +182,17 @@ object PharmacyUseCaseData {
 
     @Immutable
     data class OrderState(
-        val prescriptionOrders: List<PrescriptionOrder>,
+        val prescriptionsInOrder: List<PrescriptionInOrder>,
         val selfPayerPrescriptionIds: List<String>,
         val contact: ShippingContact
     ) {
+        val selfPayerPrescriptionNames = prescriptionsInOrder
+            .filter { it.taskId in this.selfPayerPrescriptionIds }
+            .mapNotNull { it.title }
+
         companion object {
             val Empty = OrderState(
-                prescriptionOrders = emptyList(),
+                prescriptionsInOrder = emptyList(),
                 selfPayerPrescriptionIds = emptyList(),
                 contact = ShippingContact.EmptyShippingContact
             )

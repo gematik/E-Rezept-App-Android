@@ -118,7 +118,7 @@
     <string name="technical_hotline_info">Telefonická horká linka</string>
     <string name="main_scan_acc">Otevřete skener pro recepty</string>
     <string name="main_settings_acc">Nastavení</string>
-    <string name="settings_screenshots_toggle_text">Potlačit snímky obrazovky</string>
+    <string name="settings_screenshots_toggle_text">Povolit snímky obrazovky</string>
     <string name="settings_tracking_dialog_title">Umožňujete E-Prescription anonymně analyzovat vaše chování při používání?</string>
     <string name="pres_detail_technical_information">Technické informace</string>
     <string name="settings_biometric_dialog_title">Zabezpečení vašich údajů o předpisech</string>
@@ -164,7 +164,7 @@
     <string name="consistent_password">Opakovaná hesla se shodují</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Chyba 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Váš certifikát zdravotní karty je neplatný. Možná vypršela platnost vaší karty? Kontaktujte prosím svou zdravotní pojišťovnu.</string>
-    <string name="auth_error_failed_auths_headline">Neúspěšné pokusy o přihlášení</string>
+    <string name="auth_error_failed_auths_headline">Bohužel to nefungovalo</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Bylo zjištěno %s neúspěšných pokusů o přihlášení.</item>
         <item quantity="few"></item>
@@ -496,7 +496,7 @@
     <string name="time_description_today">V %s hodin</string>
     <string name="orders_cart_ready">Nákupní košík je připraven</string>
     <string name="orders_cart_ready_info">Recept byl přidán do vašeho košíku. Pro dokončení objednávky přejděte na webovou stránku lékárny.</string>
-    <string name="orders_open_cart_link">Otevřete nákupní košík</string>
+    <string name="orders_open_cart_link">odkaz na vaši lékárnu</string>
     <string name="orders_code_info">Ukažte tento kód sbírky v lékárně.</string>
     <string name="orders_code_title">Kód vyzvednutí přijat</string>
     <string name="orders_no_message_title">Zprávu nelze zobrazit</string>
@@ -590,7 +590,7 @@
     <string name="pres_detail_medication_label_handed_over">vydáno dne:</string>
     <string name="synced_medication_ingredient_header">aktivní složka</string>
     <string name="medication_overview_prescribed_header">Předepsané</string>
-    <string name="medication_overview_dispenses_header">Dostávat</string>
+    <string name="medication_overview_dispenses_header">Přijato</string>
     <string name="pres_details_exp_da_title">Co je to přímé zadání?</string>
     <string name="pres_details_exp_da_info">S přímým doporučením je recept z praxe nebo nemocnice vyplněn přímo v lékárně. Pojištěnci nemusejí činit žádnou akci a nemohou zasahovat do procesu odkupu. \n\n Přímá doporučení jsou uvedena v aplikaci e-recept, aby pro vás byla vaše léčba transparentnější.</string>
     <string name="pres_details_exp_no_em_fee_title">Poplatek za pohotovostní službu</string>
@@ -657,7 +657,6 @@
     <string name="search_pharmacies_location_na_settings">Nastavení</string>
     <string name="search_pharmacies_location_na_services">Sdílejte polohu v Nastavení.</string>
     <string name="pharmacy_maps_header">Blízko mě</string>
-    <string name="mainscreen_profile_chip_content_description">Stisknutím a podržením upravíte jméno.</string>
     <string name="profile_edit_name_for_rename_info">Zadejte nový název profilu.</string>
     <string name="mainscreen_welcome_drawer_info">Chcete-li přijímat recepty digitálně ze své praxe, musíte být přihlášeni.</string>
     <string name="mainscreen_welcome_drawer_header">Dostávat recepty digitálně?</string>
@@ -1078,14 +1077,14 @@
     <string name="invoices_deleted">Vaše účtenky o výdajích byly smazány</string>
     <string name="invoices_detail_title">Potvrzení o nákladech</string>
     <string name="paired_devices_biometrics_error_login_title">Je nutná registrace</string>
-    <string name="paired_devices_biometrics_error_login_description">Pro zobrazení připojených zařízení se prosím přihlaste.</string>
+    <string name="paired_devices_biometrics_error_login_description">Pro zobrazení připojených zařízení se prosím přihlaste a uložte své přihlašovací údaje.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Registrovat</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Registrovat</string>
     <string name="cdw_intro_auth_gid_app_required">Připojte se k pojištění %s</string>
     <string name="a11y_card_wall_card_hand">Zdravotní karta na smartphonu</string>
     <string name="not_logged_in">Nejste přihlášeni</string>
     <string name="logged_in">Registrovaný</string>
-    <string name="a11y_refresh">osvěžit</string>
+    <string name="refresh">osvěžit</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Přístupové protokoly obdržíte, pokud jste přihlášeni ke službě předpisu.</string>
     <string name="paired_devices_error_login_title">Je nutná registrace</string>
     <string name="paired_devices_error_login_description">Přihlaste se prosím pomocí své zdravotní karty a uložte své přihlašovací údaje s biometrií, abyste mohli zobrazit připojená zařízení.</string>
@@ -1193,7 +1192,7 @@
     <string name="settings_app_security_change_password">Změnit heslo</string>
     <string name="invoices_delete_not_logged_in_description">Chcete-li odstranit, musí být vytvořeno připojení k serveru Prescription Server</string>
     <string name="provided">Zboží je připraveno</string>
-    <string name="provided_on_hour">Zboží je připraveno od %s</string>
+    <string name="provided_at_hour">Zboží je připraveno od %s</string>
     <string name="provided_now">Zboží je právě připraveno</string>
     <string name="provided_minutes_ago">Zboží je připraveno %s minut</string>
     <string name="provided_on_date">Zboží je připraveno od %s</string>
@@ -1222,4 +1221,15 @@
     <string name="all_prescriptions_of_order">Všechny recepty v objednávce</string>
     <string name="invoice_details_supply_shortage_fee">Paušální sazba s úzkým hrdlem dodávky</string>
     <string name="message_list_time_state_hours">%s hodin</string>
+    <string name="language_selection_es">španělština</string>
+    <string name="language_selection_ga">irština</string>
+    <string name="profile_screen_login_hint">Chcete-li dostávat recepty automaticky, musíte být přihlášeni.</string>
+    <string name="profile_screen_login_button">Rejstřík</string>
+    <string name="error_redeemable_prescription_title">recept nelze proplatit</string>
+    <string name="error_redeemable_prescription_generic_error">Recept „ %1$s “ již nelze uplatnit. Možná jste jej již uplatnili jiným způsobem nebo byl smazán.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Předpis „ %1$s “ již byl uplatněn nebo se právě uplatňuje.</string>
+    <string name="error_redeemable_prescription_deleted">Recept „ %1$s “ již byl smazán, a proto jej již nelze uplatnit.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Následující recepty nelze nebo již nelze uplatnit: %1$s \n Možná jste je již uplatnili jiným způsobem nebo byly smazány. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Pokračujte bez těchto receptů</string>
+    <string name="error_redeemable_prescription_cancel_order">Zrušit objednávku</string>
 </resources>

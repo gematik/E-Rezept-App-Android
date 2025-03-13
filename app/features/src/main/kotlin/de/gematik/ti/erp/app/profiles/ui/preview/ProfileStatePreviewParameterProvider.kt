@@ -34,6 +34,7 @@ class ProfileStatePreviewParameterProvider : PreviewParameterProvider<UiState<Pr
         UiState.Error(Throwable("Error")),
         gkvProfileState,
         pkvProfileState,
+        neverAuthenticatedGkvProfileState,
         profileMissingImageState
     )
 }

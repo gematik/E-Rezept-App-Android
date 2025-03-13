@@ -160,6 +160,136 @@ val prescriptionStatePreviews: Sequence<PrescriptionStatePreview>
         // toDo: add more states such as later redeemable for multiple prescriptions and so on
     )
 
+private val serverDate = Instant.parse("2023-01-01T22:00:00Z")
+
+val prescriptionStatePreviewsNearDayEnd: Sequence<PrescriptionStatePreview>
+    get() = sequenceOf(
+        PrescriptionStatePreview(
+            name = "Server: $serverDate, " +
+                "Actual: ${serverDate.toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                sentOn = serverDate,
+                toTelematikId = ""
+            ),
+            now = serverDate.plus(1.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(1.hours)}, " +
+                "Actual: ${serverDate.plus(1.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                sentOn = serverDate.plus(1.hours),
+                toTelematikId = ""
+            ),
+            now = serverDate.plus(2.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(2.hours)}, " +
+                "Actual: ${serverDate.plus(2.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                sentOn = serverDate.plus(2.hours),
+                toTelematikId = ""
+            ),
+            now = serverDate.plus(3.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(3.hours)}, " +
+                "Actual: ${serverDate.plus(3.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Pending(
+                sentOn = serverDate.plus(3.hours),
+                toTelematikId = ""
+            ),
+            now = serverDate.plus(4.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: $serverDate, " +
+                "Actual: ${serverDate.toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                lastModified = serverDate
+            ),
+            now = serverDate.plus(1.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(1.hours)}, " +
+                "Actual: ${serverDate.plus(1.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                lastModified = serverDate.plus(1.hours)
+            ),
+            now = serverDate.plus(2.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(2.hours)}, " +
+                "Actual: ${serverDate.plus(2.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                lastModified = serverDate.plus(2.hours)
+            ),
+            now = serverDate.plus(3.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(3.hours)}, " +
+                "Actual: ${serverDate.plus(3.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.InProgress(
+                lastModified = serverDate.plus(3.hours)
+            ),
+            now = serverDate.plus(4.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: $serverDate, " +
+                "Actual: ${serverDate.toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                lastMedicationDispense = serverDate
+            ),
+            now = serverDate.plus(1.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(1.hours)}, " +
+                "Actual: ${serverDate.plus(1.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                lastMedicationDispense = serverDate.plus(1.hours)
+            ),
+            now = serverDate.plus(2.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(2.hours)}, " +
+                "Actual: ${serverDate.plus(2.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                lastMedicationDispense = serverDate.plus(2.hours)
+            ),
+            now = serverDate.plus(3.hours)
+        ),
+        PrescriptionStatePreview(
+            name = "Server: ${serverDate.plus(3.hours)}, " +
+                "Actual: ${serverDate.plus(3.hours).toLocalDateTime(
+                    TimeZone.of("Europe/Berlin")
+                )}",
+            prescriptionState = SyncedTaskData.SyncedTask.Provided(
+                lastMedicationDispense = serverDate.plus(3.hours)
+            ),
+            now = serverDate.plus(4.hours)
+        )
+        // toDo: add more states such as later redeemable for multiple prescriptions and so on
+    )
 class PrescriptionStatePreviewParameterProvider : PreviewParameterProvider<PrescriptionStatePreview> {
     override val values = prescriptionStatePreviews
 }

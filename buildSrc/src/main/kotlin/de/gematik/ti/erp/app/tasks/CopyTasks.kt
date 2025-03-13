@@ -121,6 +121,9 @@ internal fun TaskContainer.copyGoogleTuApp() {
             println("in ${androidProject.name} sub-project")
             val sourceDir = androidProject.buildDir
             doLast {
+                // Delete existing files in the output directory
+                project.outputFile().listFiles()?.forEach { it.delete() }
+
                 val inputFile = sourceDir.resolve("$TU_EXTERNAL_APP_APK_PATH/$TU_EXTERNAL_APP_APK_FILE")
                 if (inputFile.exists()) {
                     project copyFileFrom inputFile
@@ -144,7 +147,7 @@ internal fun TaskContainer.copyDebugApp() {
         project.makeAppOutputDirectoryIfNotExists()
         project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
             println("in ${androidProject.name} sub-project")
-            val sourceDir = androidProject.buildDir
+            val sourceDir = androidProject.layout.buildDirectory.get().asFile
             doLast {
                 val inputFile =
                     sourceDir.resolve("$TU_INTERNAL_APP_APK_PATH/$TU_INTERNAL_APP_APK_FILE")

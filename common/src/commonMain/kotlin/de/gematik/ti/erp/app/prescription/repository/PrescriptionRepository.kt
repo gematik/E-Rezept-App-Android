@@ -53,6 +53,10 @@ interface PrescriptionRepository {
 
     fun loadSyncedTaskByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?>
 
+    fun loadSyncedTasksByTaskIds(taskIds: List<String>): Flow<List<SyncedTaskData.SyncedTask>>
+
+    fun loadScannedTasksByTaskIds(taskIds: List<String>): Flow<List<ScannedTaskData.ScannedTask>>
+
     fun loadScannedTaskByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?>
 
     fun loadTaskIds(): Flow<List<String>>
@@ -61,5 +65,4 @@ interface PrescriptionRepository {
     suspend fun redeemScannedTasks(taskIds: List<String>)
 
     fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>>
-    suspend fun deleteLocalInvoicesById(taskId: String)
 }

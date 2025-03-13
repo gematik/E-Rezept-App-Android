@@ -22,6 +22,22 @@ import java.io.File
 
 const val ResourceBasePath = "src/commonTest/resources/"
 
+val taskMetadataBundleKbvBundle by lazy {
+    File("$ResourceBasePath/fhir/bundle_seperation_parser/task_metadata_bundle_kbv_bundle.json").readText()
+}
+
+val kbvBundle_110_1 by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/kbv_cleaned_20250212_175155.json").readText()
+}
+
+val kbvBundle_110_2 by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/kbv_cleaned_20250212_175156.json").readText()
+}
+
+val kbvBundle_110_3 by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/kbv_with_different_full_url.json").readText()
+}
+
 val taskJson_vers_1_2 by lazy {
     File("$ResourceBasePath/fhir/task_vers_1_2.json").readText()
 }
@@ -31,6 +47,26 @@ val taskJson_vers_1_3 by lazy {
 
 val organizationJson by lazy {
     File("$ResourceBasePath/fhir/organization.json").readText()
+}
+
+val organizationAllPresentJson by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/organization/kbv_organization_all_present.json").readText()
+}
+
+val organizationNoAddressJson by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/organization/kbv_organization_no_address.json").readText()
+}
+
+val organizationNoEmailJson by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/organization/kbv_organization_no_email.json").readText()
+}
+
+val organizationNoFaxJson by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/organization/kbv_organization_no_fax.json").readText()
+}
+
+val organizationNoTelecomJson by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/organization/kbv_organization_no_telecom.json").readText()
 }
 
 val patientJson_vers_1_0_2 by lazy {
@@ -49,8 +85,16 @@ val practitionerJson by lazy {
     File("$ResourceBasePath/fhir/practitioner.json").readText()
 }
 
+val practitionerJson110 by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/practitioner/practitioner_vers_1_1_0.json").readText()
+}
+
 val insuranceInformationJson by lazy {
     File("$ResourceBasePath/fhir/insurance_information.json").readText()
+}
+
+val insuranceInformationJson110 by lazy {
+    File("$ResourceBasePath/fhir/kbv_parser/coverage/coverage_vers_1_1_0.json").readText()
 }
 
 val quantityJson by lazy {

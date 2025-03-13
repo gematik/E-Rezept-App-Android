@@ -18,7 +18,10 @@
 
 package de.gematik.ti.erp.app.profiles.presentation
 
+import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
+import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
@@ -56,7 +59,7 @@ class ProfileScreenControllerTest {
     private val idpRepository: IdpRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
-
+    private val biometricAuthenticator = mockk<BiometricAuthenticator>()
     private lateinit var controllerUnderTest: ProfileScreenController
 
     // tested by CombineSelectedProfileWithAllProfilesControllerTest
@@ -70,6 +73,9 @@ class ProfileScreenControllerTest {
     private lateinit var switchActiveProfileUseCase: SwitchActiveProfileUseCase
     private lateinit var updateProfileUseCase: UpdateProfileUseCase
     private lateinit var getActiveProfileUseCase: GetActiveProfileUseCase
+    private lateinit var chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase
+
+    private val networkStatusTracker = mockk<NetworkStatusTracker>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -84,6 +90,8 @@ class ProfileScreenControllerTest {
         switchActiveProfileUseCase = spyk(SwitchActiveProfileUseCase(profileRepository, dispatcher))
         updateProfileUseCase = spyk(UpdateProfileUseCase(profileRepository, dispatcher))
         getActiveProfileUseCase = spyk(GetActiveProfileUseCase(profileRepository, dispatcher))
+        chooseAuthenticationDataUseCase = spyk(ChooseAuthenticationDataUseCase(profileRepository, idpRepository, dispatcher))
+        every { networkStatusTracker.networkStatus } returns flowOf(true)
         controllerUnderTest = ProfileScreenController(
             profileId = PROFILE_ID,
             getProfileByIdUseCase = getProfileByIdUseCase,
@@ -93,7 +101,10 @@ class ProfileScreenControllerTest {
             logoutProfileUseCase = logoutProfileUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
             updateProfileUseCase = updateProfileUseCase,
-            getActiveProfileUseCase = getActiveProfileUseCase
+            getActiveProfileUseCase = getActiveProfileUseCase,
+            chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+            biometricAuthenticator = biometricAuthenticator,
+            networkStatusTracker = networkStatusTracker
         )
     }
 

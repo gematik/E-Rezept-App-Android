@@ -34,13 +34,15 @@ import de.gematik.ti.erp.app.api.httpErrorState
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
-import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarFlowWrapper
+import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
+import de.gematik.ti.erp.app.mainscreen.model.ProfileLifecycleState
 import de.gematik.ti.erp.app.prescription.model.PrescriptionErrorState
 import de.gematik.ti.erp.app.prescription.usecase.GetActivePrescriptionsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetArchivedPrescriptionsUseCase
@@ -52,8 +54,8 @@ import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
-import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
@@ -102,6 +104,7 @@ class PrescriptionsController(
     private val saveToolTipsShownUseCase: SaveToolTipsShownUseCase,
     private val switchActiveProfileUseCase: SwitchActiveProfileUseCase,
     private val hasRedeemableTasksUseCase: HasRedeemableTasksUseCase,
+    private val networkStatusTracker: NetworkStatusTracker,
     // events
     val refreshEvent: ComposableEvent<Boolean> = ComposableEvent(),
     val onUserNotAuthenticatedErrorEvent: ComposableEvent<Unit> = ComposableEvent(),
@@ -113,6 +116,7 @@ class PrescriptionsController(
     getProfilesUseCase = getProfilesUseCase,
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
     biometricAuthenticator = biometricAuthenticator,
+    networkStatusTracker = networkStatusTracker,
     onActiveProfileSuccess = { _, scope ->
         scope.launch {
             localPrescriptionsRefreshTrigger.value = !localPrescriptionsRefreshTrigger.value
@@ -131,6 +135,7 @@ class PrescriptionsController(
         }
 
         onRefreshProfileAction.listen(controllerScope) { isRefreshing ->
+            Napier.i(tag = "Profile") { "profile refresh state $isRefreshing" }
             updateProfileRefreshingState(isRefreshing)
         }
     }
@@ -277,12 +282,22 @@ class PrescriptionsController(
     val resourcesDownloadedState: SharedFlow<DownloadResourcesState> = snapshotStateUseCase()
 
     val multiProfileData by lazy {
-        MultiProfileAppBarFlowWrapper(
-            existingProfiles = getProfilesUseCase()
-                .stateIn(controllerScope, Eagerly, listOf(MultiProfileAppBarFlowWrapper.DEFAULT_EMPTY_PROFILE)),
-            activeProfile = getActiveProfileUseCase()
-                .stateIn(controllerScope, Eagerly, MultiProfileAppBarFlowWrapper.DEFAULT_EMPTY_PROFILE),
-            isProfileRefreshing = _isProfileRefreshing.asStateFlow()
+
+        getActiveProfileUseCase()
+            .map { it.isSSOTokenValid() }
+            .stateIn(controllerScope, Eagerly, MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE)
+
+        MultiProfileAppBarWrapper(
+            existingProfiles = getProfilesUseCase().stateIn(controllerScope, Eagerly, listOf(MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE)),
+            activeProfile = getActiveProfileUseCase().stateIn(controllerScope, Eagerly, MultiProfileAppBarWrapper.DEFAULT_EMPTY_PROFILE),
+            profileLifecycleState = ProfileLifecycleState(
+                networkStatus = networkStatusTracker.networkStatus.stateIn(controllerScope, Eagerly, false),
+                isProfileRefreshing = _isProfileRefreshing.asStateFlow(),
+                isTokenValid = getActiveProfileUseCase().map { it.isSSOTokenValid() }
+                    .stateIn(controllerScope, Eagerly, false),
+                isRegistered = getActiveProfileUseCase().map { it.lastAuthenticated != null }
+                    .stateIn(controllerScope, Eagerly, false)
+            )
         )
     }
 
@@ -326,6 +341,7 @@ fun rememberPrescriptionsController(): PrescriptionsController {
     val downloadAllResourcesUseCase by rememberInstance<DownloadAllResourcesUseCase>()
     val chooseAuthenticationDataUseCase by rememberInstance<ChooseAuthenticationDataUseCase>()
     val getDownloadResourcesSnapshotStateUseCase by rememberInstance<GetDownloadResourcesSnapshotStateUseCase>()
+    val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
     val tracker by rememberInstance<Tracker>()
     val hasRedeemableTasksUseCase by rememberInstance<HasRedeemableTasksUseCase>()
 
@@ -348,6 +364,7 @@ fun rememberPrescriptionsController(): PrescriptionsController {
             switchActiveProfileUseCase = switchActiveProfileUseCase,
             snapshotStateUseCase = getDownloadResourcesSnapshotStateUseCase,
             tracker = tracker,
+            networkStatusTracker = networkStatusTracker,
             hasRedeemableTasksUseCase = hasRedeemableTasksUseCase,
             biometricAuthenticator = biometricAuthenticator
         )

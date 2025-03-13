@@ -31,7 +31,7 @@ class GetDMCodesForLocalRedeemUseCase {
     }
 
     operator fun invoke(
-        prescriptionOrders: Flow<List<PharmacyUseCaseData.PrescriptionOrder>>,
+        prescriptionOrders: Flow<List<PharmacyUseCaseData.PrescriptionInOrder>>,
         showSingleCodes: Flow<Boolean>
     ): Flow<List<DMCode>> = combine(prescriptionOrders, showSingleCodes) { orders, showSingleCode ->
 

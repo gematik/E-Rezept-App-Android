@@ -43,10 +43,10 @@ class TaskRemoteDataSource(
 
     suspend fun taskWithKBVBundle(
         profileId: ProfileIdentifier,
-        taskID: String
+        taskId: String
     ) = safeApiCall(
-        errorMessage = "error while downloading KBV Bundle $taskID"
-    ) { service.getTaskWithKBVBundle(profileId = profileId, id = taskID) }
+        errorMessage = "error while downloading KBV Bundle $taskId"
+    ) { service.getTaskWithKBVBundle(profileId = profileId, id = taskId) }
 
     suspend fun loadBundleOfMedicationDispenses(
         profileId: ProfileIdentifier,

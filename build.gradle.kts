@@ -32,6 +32,8 @@ plugins {
     alias(libs.plugins.kotlin.serialization) apply false
     alias(libs.plugins.detekt)
 
+    alias(libs.plugins.compose.compiler) apply false
+
     // test
     alias(libs.plugins.paparazzi) apply false
     id("jacoco")
@@ -131,6 +133,11 @@ tasks.withType<DependencyUpdatesTask> {
         // allows unstable to unstable updates but not stable to unstable
         isUnstable(candidate.version) && !isUnstable(currentVersion)
     }
+}
+
+tasks.withType<Test> {
+    ignoreFailures = false
+    maxParallelForks = 1 // Optional
 }
 
 // config changes for security vulnerabilities

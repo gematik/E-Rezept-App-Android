@@ -27,7 +27,6 @@ interface ProfileRepository {
     fun activeProfile(): Flow<ProfilesData.Profile>
     fun getProfileById(profileId: ProfileIdentifier): Flow<ProfilesData.Profile>
     suspend fun isSsoTokenValid(profileId: ProfileIdentifier): Flow<Boolean>
-    suspend fun saveProfile(profileName: String, activate: Boolean)
     suspend fun createNewProfile(profileName: String)
     suspend fun activateProfile(profileId: ProfileIdentifier)
     suspend fun removeProfile(profileId: ProfileIdentifier, profileName: String)

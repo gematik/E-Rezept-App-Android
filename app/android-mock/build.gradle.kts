@@ -7,6 +7,7 @@ plugins {
     id("base-android-application")
     id("de.gematik.ti.erp.names")
     id("de.gematik.ti.erp.dependency-overrides")
+    alias(libs.plugins.compose.compiler)
 }
 
 val VERSION_CODE: String by overrides()

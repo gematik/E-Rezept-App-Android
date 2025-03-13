@@ -218,7 +218,7 @@ class GetMessagesUseCaseTest {
                 hasUnreadMessages = true,
                 latestCommunicationMessage = LastMessage(
                     lastMessageDetails = LastMessageDetails(
-                        message = "",
+                        content = "",
                         pickUpCodeDMC = null,
                         pickUpCodeHR = null,
                         link = null
@@ -243,7 +243,7 @@ class GetMessagesUseCaseTest {
                 hasUnreadMessages = false,
                 latestCommunicationMessage = LastMessage(
                     lastMessageDetails = LastMessageDetails(
-                        message = "",
+                        content = "",
                         pickUpCodeDMC = null,
                         pickUpCodeHR = null,
                         link = null
@@ -286,7 +286,7 @@ class GetMessagesUseCaseTest {
                 hasUnreadMessages = true,
                 latestCommunicationMessage = LastMessage(
                     lastMessageDetails = LastMessageDetails(
-                        message = null,
+                        content = null,
                         pickUpCodeDMC = null,
                         pickUpCodeHR = null,
                         link = null
@@ -311,7 +311,7 @@ class GetMessagesUseCaseTest {
                 hasUnreadMessages = true,
                 latestCommunicationMessage = LastMessage(
                     lastMessageDetails = LastMessageDetails(
-                        message = null,
+                        content = null,
                         pickUpCodeDMC = null,
                         pickUpCodeHR = null,
                         link = null

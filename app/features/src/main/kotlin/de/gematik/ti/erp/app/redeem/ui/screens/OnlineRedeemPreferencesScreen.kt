@@ -66,7 +66,7 @@ class OnlineRedeemPreferencesScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
-        val prescriptions by controller.redeemableOrderState()
+        val prescriptions by controller.redeemableOrderState
         val listState = rememberLazyListState()
         AnimatedElevationScaffold(
             topBarTitle = "",
@@ -95,7 +95,7 @@ class OnlineRedeemPreferencesScreen(
 @Composable
 fun OnlineRedeemPreferencesScreenScaffold(
     listState: LazyListState,
-    prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>,
+    prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>,
     onNavigateToRedeemSelection: () -> Unit,
     onNavigateToPharmacyStart: () -> Unit,
     onResetPrescriptionSelection: () -> Unit
@@ -154,7 +154,7 @@ fun OnlineRedeemPreferencesScreenScaffold(
 @Composable
 fun OnlineRedeemPreferencesScreenPreview(
     @PreviewParameter(OnlineRedeemPreferencesScreenPreviewParameterProvider::class)
-    prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>
+    prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>
 ) {
     val listState = rememberLazyListState()
 

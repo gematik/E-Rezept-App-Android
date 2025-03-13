@@ -114,7 +114,7 @@
     <string name="technical_hotline_info">Ligne d\'assistance téléphonique</string>
     <string name="main_scan_acc">Scanner ouvert pour les ordonnances</string>
     <string name="main_settings_acc">Paramètres</string>
-    <string name="settings_screenshots_toggle_text">Supprimer les captures d\'écran</string>
+    <string name="settings_screenshots_toggle_text">Autoriser les captures d\'écran</string>
     <string name="settings_tracking_dialog_title">Autorisez-vous E-Prescription à analyser votre comportement d’utilisation de manière anonyme ?</string>
     <string name="pres_detail_technical_information">Informations techniques</string>
     <string name="settings_biometric_dialog_title">Sécurité de vos données de prescription</string>
@@ -160,7 +160,7 @@
     <string name="consistent_password">Correspondances de mot de passe répétées</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Erreur 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Votre certificat de carte santé n’est pas valide. Peut-être que votre carte est expirée ? Veuillez contacter votre caisse d\'assurance maladie.</string>
-    <string name="auth_error_failed_auths_headline">Tentatives de connexion infructueuses</string>
+    <string name="auth_error_failed_auths_headline">Malheureusement, cela n\'a pas fonctionné</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">%s tentatives de connexion infructueuses ont été détectées.</item>
         <item quantity="other">%s tentatives de connexion infructueuses ont été détectées.</item>
@@ -484,7 +484,7 @@
     <string name="time_description_today">À %s heures</string>
     <string name="orders_cart_ready">Le panier est prêt</string>
     <string name="orders_cart_ready_info">La recette a été ajoutée à votre panier. Veuillez vous rendre sur le site Web de la pharmacie pour finaliser la commande.</string>
-    <string name="orders_open_cart_link">Ouvrir le panier</string>
+    <string name="orders_open_cart_link">lien vers votre pharmacie</string>
     <string name="orders_code_info">Présentez ce code de collecte à la pharmacie.</string>
     <string name="orders_code_title">Code de retrait reçu</string>
     <string name="orders_no_message_title">Le message ne peut pas s\'afficher</string>
@@ -576,7 +576,7 @@
     <string name="pres_detail_medication_label_handed_over">publié le:</string>
     <string name="synced_medication_ingredient_header">ingrédient actif</string>
     <string name="medication_overview_prescribed_header">Prescrit</string>
-    <string name="medication_overview_dispenses_header">Recevoir</string>
+    <string name="medication_overview_dispenses_header">Reçu</string>
     <string name="pres_details_exp_da_title">Qu\'est-ce qu\'une mission directe ?</string>
     <string name="pres_details_exp_da_info">Avec référence directe, une ordonnance d\'un cabinet ou d\'un hôpital est exécutée directement en pharmacie. Les assurés n’ont aucune démarche à effectuer et ne peuvent intervenir dans le processus de rachat. \n\n Les références directes sont répertoriées dans l\'application de prescription électronique pour rendre votre traitement plus transparent pour vous.</string>
     <string name="pres_details_exp_no_em_fee_title">Frais de service d\'urgence</string>
@@ -643,7 +643,6 @@
     <string name="search_pharmacies_location_na_settings">Paramètres</string>
     <string name="search_pharmacies_location_na_services">Partager la position dans Paramètres.</string>
     <string name="pharmacy_maps_header">Près de moi</string>
-    <string name="mainscreen_profile_chip_content_description">Maintenez enfoncé pour modifier le nom.</string>
     <string name="profile_edit_name_for_rename_info">Entrez le nouveau nom du profil.</string>
     <string name="mainscreen_welcome_drawer_info">Pour recevoir des ordonnances numériquement de votre cabinet, vous devez être connecté.</string>
     <string name="mainscreen_welcome_drawer_header">Recevoir des ordonnances par voie numérique ?</string>
@@ -1060,14 +1059,14 @@
     <string name="invoices_deleted">Vos reçus de dépenses ont été supprimés</string>
     <string name="invoices_detail_title">Reçu des coûts</string>
     <string name="paired_devices_biometrics_error_login_title">Inscription requise</string>
-    <string name="paired_devices_biometrics_error_login_description">Veuillez vous connecter pour afficher les appareils connectés.</string>
+    <string name="paired_devices_biometrics_error_login_description">Veuillez vous connecter et enregistrer vos informations de connexion pour afficher les appareils connectés.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Registre</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Registre</string>
     <string name="cdw_intro_auth_gid_app_required">Connectez-vous à %s Assurance</string>
     <string name="a11y_card_wall_card_hand">Carte santé sur smartphone</string>
     <string name="not_logged_in">Non connecté</string>
     <string name="logged_in">Inscrit</string>
-    <string name="a11y_refresh">rafraîchir</string>
+    <string name="refresh">rafraîchir</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Vous recevrez des journaux d\'accès si vous êtes connecté au service de prescription.</string>
     <string name="paired_devices_error_login_title">Inscription requise</string>
     <string name="paired_devices_error_login_description">Veuillez vous connecter avec votre carte de santé et enregistrer vos informations de connexion avec biométrie pour visualiser les appareils connectés.</string>
@@ -1175,7 +1174,7 @@
     <string name="settings_app_security_change_password">Changer le mot de passe</string>
     <string name="invoices_delete_not_logged_in_description">Pour supprimer, une connexion au Prescription Server doit être établie</string>
     <string name="provided">Les marchandises sont prêtes</string>
-    <string name="provided_on_hour">Les marchandises sont prêtes depuis %s</string>
+    <string name="provided_at_hour">Les marchandises sont prêtes depuis %s</string>
     <string name="provided_now">Les marchandises sont prêtes à l\'instant</string>
     <string name="provided_minutes_ago">Les marchandises sont prêtes depuis %s minutes</string>
     <string name="provided_on_date">Les marchandises sont prêtes depuis %s</string>
@@ -1204,4 +1203,15 @@
     <string name="all_prescriptions_of_order">Toutes les recettes dans l\'ordre</string>
     <string name="invoice_details_supply_shortage_fee">Forfait goulot d’étranglement de livraison</string>
     <string name="message_list_time_state_hours">%s heures</string>
+    <string name="language_selection_es">Espagnol</string>
+    <string name="language_selection_ga">irlandais</string>
+    <string name="profile_screen_login_hint">Pour recevoir automatiquement les recettes, vous devez être connecté.</string>
+    <string name="profile_screen_login_button">Registre</string>
+    <string name="error_redeemable_prescription_title">Recette non utilisable</string>
+    <string name="error_redeemable_prescription_generic_error">La recette « %1$s » n\'est plus échangeable. Vous l\'avez peut-être déjà utilisé d\'une autre manière ou il a peut-être été supprimé.</string>
+    <string name="error_redeemable_prescription_not_redeemable">L\'ordonnance « %1$s » a déjà été utilisée ou est en cours d\'utilisation.</string>
+    <string name="error_redeemable_prescription_deleted">La recette « %1$s » a déjà été supprimée et ne peut donc plus être utilisée.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n    Les recettes suivantes ne sont pas ou plus échangeables %1$s \n Il est possible que vous les ayez déjà échangées par un autre moyen ou qu\'elles aient été supprimées.\n</string>
+    <string name="error_redeemable_prescription_continue_without">Continuer sans ces recettes</string>
+    <string name="error_redeemable_prescription_cancel_order">Annuler la commande</string>
 </resources>

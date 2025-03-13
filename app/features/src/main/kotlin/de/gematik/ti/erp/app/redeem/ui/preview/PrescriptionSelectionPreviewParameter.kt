@@ -24,9 +24,9 @@ import kotlinx.datetime.Instant
 
 data class PrescriptionSelectionPreview(
     val name: String,
-    val orders: List<PharmacyUseCaseData.PrescriptionOrder>,
-    val selectedOrders: List<PharmacyUseCaseData.PrescriptionOrder>,
-    val onCheckedChange: (PharmacyUseCaseData.PrescriptionOrder, Boolean) -> Unit
+    val orders: List<PharmacyUseCaseData.PrescriptionInOrder>,
+    val selectedOrders: List<PharmacyUseCaseData.PrescriptionInOrder>,
+    val onCheckedChange: (PharmacyUseCaseData.PrescriptionInOrder, Boolean) -> Unit
 )
 
 class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<PrescriptionSelectionPreview> {
@@ -37,7 +37,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
             PrescriptionSelectionPreview(
                 name = "NoPrescriptionsSelected",
                 orders = listOf(
-                    PharmacyUseCaseData.PrescriptionOrder(
+                    PharmacyUseCaseData.PrescriptionInOrder(
                         taskId = "1",
                         accessCode = "ABC123",
                         title = "Prescription for Cold Medicine",
@@ -47,7 +47,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         substitutionsAllowed = true,
                         isScanned = false
                     ),
-                    PharmacyUseCaseData.PrescriptionOrder(
+                    PharmacyUseCaseData.PrescriptionInOrder(
                         taskId = "2",
                         accessCode = "DEF456",
                         title = "Prescription for Pain Relief",
@@ -64,7 +64,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
             PrescriptionSelectionPreview(
                 name = "OnePrescriptionSelected",
                 orders = listOf(
-                    PharmacyUseCaseData.PrescriptionOrder(
+                    PharmacyUseCaseData.PrescriptionInOrder(
                         taskId = "1",
                         accessCode = "ABC123",
                         title = "Prescription for Cold Medicine",
@@ -74,7 +74,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                         substitutionsAllowed = true,
                         isScanned = false
                     ),
-                    PharmacyUseCaseData.PrescriptionOrder(
+                    PharmacyUseCaseData.PrescriptionInOrder(
                         taskId = "2",
                         accessCode = "DEF456",
                         title = "Prescription for Pain Relief",
@@ -86,7 +86,7 @@ class PrescriptionSelectionPreviewParameter : PreviewParameterProvider<Prescript
                     )
                 ),
                 selectedOrders = listOf(
-                    PharmacyUseCaseData.PrescriptionOrder(
+                    PharmacyUseCaseData.PrescriptionInOrder(
                         taskId = "1",
                         accessCode = "ABC123",
                         title = "Prescription for Cold Medicine",

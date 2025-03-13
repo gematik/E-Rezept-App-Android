@@ -56,7 +56,7 @@ fun GematikErrorDialog(
             SpacerSmall()
             ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_uuid))
             ErezeptText.Body(
-                modifier = Modifier.basicMarquee(delayMillis = MARQUEE_DELAY),
+                modifier = Modifier.basicMarquee(repeatDelayMillis = MARQUEE_DELAY),
                 text = error.gematikUuid,
                 maxLines = 1
             )
