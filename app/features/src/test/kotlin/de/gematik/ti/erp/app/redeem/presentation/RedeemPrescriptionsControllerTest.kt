@@ -21,8 +21,10 @@ package de.gematik.ti.erp.app.redeem.presentation
 import app.cash.turbine.test
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HTTP_INTERNAL_ERROR
+import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
 import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.profile.model.MODEL_PROFILE
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments
@@ -31,6 +33,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.redeem.mocks.RedeemMocks.testCertificate
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
+import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnDirectUseCase
 import de.gematik.ti.erp.app.redeem.usecase.RedeemPrescriptionsOnLoggedInUseCase
 import io.mockk.MockKAnnotations
@@ -40,6 +43,7 @@ import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -66,12 +70,14 @@ class RedeemPrescriptionsControllerTest {
     private val prescriptionRepository: PrescriptionRepository = mockk()
     private val communicationRepository: CommunicationRepository = mockk()
     private val pharmacyRepository: PharmacyRepository = mockk()
+    private val downloadAllResourcesUseCase: DownloadAllResourcesUseCase = mockk()
 
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
 
     private lateinit var redeemPrescriptionsOnLoggedInUseCase: RedeemPrescriptionsOnLoggedInUseCase
     private lateinit var redeemPrescriptionsOnDirectUseCase: RedeemPrescriptionsOnDirectUseCase
+    private lateinit var getReadyPrescriptionsByTaskIdsUseCase: GetReadyPrescriptionsByTaskIdsUseCase
 
     private lateinit var controllerUnderTest: RedeemPrescriptionsController
 
@@ -82,10 +88,19 @@ class RedeemPrescriptionsControllerTest {
         Dispatchers.setMain(dispatcher)
 
         coEvery { pharmacyRepository.markPharmacyAsOftenUsed(any()) } returns Unit
+        coEvery { downloadAllResourcesUseCase.invoke(any()) } returns Result.success(1)
+        coEvery { prescriptionRepository.loadSyncedTasksByTaskIds(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK))
+        coEvery { prescriptionRepository.loadScannedTasksByTaskIds(any()) } returns flowOf(emptyList())
 
         redeemPrescriptionsOnLoggedInUseCase = spyk(RedeemPrescriptionsOnLoggedInUseCase(prescriptionRepository, pharmacyRepository, dispatcher))
         redeemPrescriptionsOnDirectUseCase = spyk(RedeemPrescriptionsOnDirectUseCase(communicationRepository, pharmacyRepository, dispatcher))
-        controllerUnderTest = RedeemPrescriptionsController(redeemPrescriptionsOnLoggedInUseCase, redeemPrescriptionsOnDirectUseCase)
+        getReadyPrescriptionsByTaskIdsUseCase = spyk(GetReadyPrescriptionsByTaskIdsUseCase(prescriptionRepository, dispatcher))
+        controllerUnderTest = RedeemPrescriptionsController(
+            redeemPrescriptionsOnLoggedInUseCase,
+            redeemPrescriptionsOnDirectUseCase,
+            downloadAllResourcesUseCase,
+            getReadyPrescriptionsByTaskIdsUseCase
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -144,8 +159,8 @@ class RedeemPrescriptionsControllerTest {
                     prescriptionOrderInfos = directRedeemArguments.prescriptionOrderInfos,
                     contact = directRedeemArguments.contact,
                     pharmacy = directRedeemArguments.pharmacy,
-                    onProcessStart = any(),
-                    onProcessEnd = any()
+                    onRedeemProcessStart = any(),
+                    onRedeemProcessEnd = any()
                 )
             }
 
@@ -157,8 +172,8 @@ class RedeemPrescriptionsControllerTest {
                     prescriptionOrderInfos = any(),
                     contact = any(),
                     pharmacy = any(),
-                    onProcessStart = any(),
-                    onProcessEnd = any()
+                    onRedeemProcessStart = any(),
+                    onRedeemProcessEnd = any()
                 )
             }
         }
@@ -185,6 +200,7 @@ class RedeemPrescriptionsControllerTest {
 
                 // state after processing
                 val emittedState = awaitItem()
+                println(emittedState)
                 assert(emittedState is RedeemedPrescriptionState.OrderCompleted)
 
                 // results within the state
@@ -202,8 +218,8 @@ class RedeemPrescriptionsControllerTest {
                     prescriptionOrderInfos = any(),
                     contact = any(),
                     pharmacy = any(),
-                    onProcessStart = any(),
-                    onProcessEnd = any()
+                    onRedeemProcessStart = any(),
+                    onRedeemProcessEnd = any()
                 )
             }
 
@@ -215,8 +231,8 @@ class RedeemPrescriptionsControllerTest {
                     prescriptionOrderInfos = loggedInRedeemArguments.prescriptionOrderInfos,
                     contact = loggedInRedeemArguments.contact,
                     pharmacy = loggedInRedeemArguments.pharmacy,
-                    onProcessStart = any(),
-                    onProcessEnd = any()
+                    onRedeemProcessStart = any(),
+                    onRedeemProcessEnd = any()
                 )
             }
         }
@@ -436,10 +452,10 @@ class RedeemPrescriptionsControllerTest {
         private val orderId = UUID.randomUUID()
 
         private const val telematikId = "9-2.58.00000040"
-        private const val taskId = "task-id-1"
+        private const val taskId = "active-synced-task-id-1"
         private const val pharmacyId = "pharmacy-id-1"
         private val prescriptionsForOrders = listOf(
-            PharmacyUseCaseData.PrescriptionOrder(
+            PharmacyUseCaseData.PrescriptionInOrder(
                 taskId = taskId,
                 accessCode = "access-code-1",
                 title = "title-1",

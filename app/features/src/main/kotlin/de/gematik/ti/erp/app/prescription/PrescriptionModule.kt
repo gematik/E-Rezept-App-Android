@@ -39,6 +39,7 @@ import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RefreshPrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.SaveWelcomeMessageUseCase
 import de.gematik.ti.erp.app.prescription.usecase.UpdateScannedTaskNameUseCase
+import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -74,10 +75,11 @@ val prescriptionModule =
         }
         bindProvider { GetActivePrescriptionsUseCase(instance()) }
         bindProvider { GetArchivedPrescriptionsUseCase(instance()) }
-        bindProvider { DeletePrescriptionUseCase(instance()) }
+        bindProvider { DeletePrescriptionUseCase(instance(), instance()) }
         bindProvider { UpdateScannedTaskNameUseCase(instance()) }
         bindProvider { RedeemScannedTaskUseCase(instance()) }
         bindProvider { GetPrescriptionByTaskIdUseCase(instance()) }
+        bindProvider { GetReadyPrescriptionsByTaskIdsUseCase(instance()) }
         bindProvider { GetTaskIdsUseCase(instance()) }
         bindProvider { GetDownloadResourcesDetailStateUseCase(instance()) }
         bindProvider { GetDownloadResourcesSnapshotStateUseCase(instance()) }

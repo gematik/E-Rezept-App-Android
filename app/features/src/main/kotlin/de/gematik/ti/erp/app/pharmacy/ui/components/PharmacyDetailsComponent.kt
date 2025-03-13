@@ -54,8 +54,8 @@ import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArgu
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.presentation.rememberPharmacyDetailsController
 import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyPortalText
-import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyPreviewData
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyPreviewParameterProvider
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySheetFromMessagesParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -308,7 +308,7 @@ private fun BasePharmacyDetailsContent(
 fun PharmacyDetailsScreenFromPharmacyPreview(
     @PreviewParameter(
         PharmacyPreviewParameterProvider::class
-    ) pharmacy: PharmacyUseCaseData.Pharmacy?
+    ) pharmacy: PharmacyUseCaseData.Pharmacy
 ) {
     PreviewAppTheme {
         BasePharmacyDetailsContent(
@@ -316,7 +316,7 @@ fun PharmacyDetailsScreenFromPharmacyPreview(
             isMarkedAsFavorite = true,
             isDirectRedeemEnabled = false,
             onChangeFavoriteState = {},
-            pharmacy = pharmacy ?: PharmacyPreviewData.LOCAL_PICKUP_ONLY_DATA,
+            pharmacy = pharmacy,
             clickableText = PharmacyPortalText().urlText(),
             onClickPhone = {},
             onClickMail = {},
@@ -335,13 +335,17 @@ fun PharmacyDetailsScreenFromPharmacyPreview(
 @Suppress("MagicNumber")
 @LightDarkPreview
 @Composable
-fun PharmacyDetailsScreenFromMessagePreview() {
+fun PharmacyDetailsScreenFromMessagePreview(
+    @PreviewParameter(
+        PharmacySheetFromMessagesParameterProvider::class
+    ) pharmacy: PharmacyUseCaseData.Pharmacy
+) {
     PreviewAppTheme {
         BasePharmacyDetailsContent(
             openExternalMap = {},
             isMarkedAsFavorite = true,
             onChangeFavoriteState = {},
-            pharmacy = PharmacyPreviewData.ALL_PRESENT_DATA,
+            pharmacy = pharmacy,
             clickableText = PharmacyPortalText().urlText(),
             onClickPhone = {},
             onClickMail = {},

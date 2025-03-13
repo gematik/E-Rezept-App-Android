@@ -98,10 +98,10 @@ class PharmacyRedeemInterceptor : Interceptor {
     }
 }
 
-class UserAgentHeaderInterceptor : Interceptor {
+class UserAgentHeaderInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-            .header("User-Agent", "${BuildKonfig.USER_AGENT}/${BuildKonfig.CLIENT_ID}")
+            .header("User-Agent", "${BuildKonfig.USER_AGENT}/${endpointHelper.getClientId()}")
             .build()
 
         return chain.proceed(request)

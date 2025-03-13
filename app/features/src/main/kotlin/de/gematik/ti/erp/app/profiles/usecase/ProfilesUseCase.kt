@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
@@ -36,8 +35,7 @@ fun List<ProfilesUseCaseData.Profile>.activeProfile() =
 
 // TODO: Used only in test and debug-viewmodel. Remove it from there too.
 class ProfilesUseCase(
-    private val profilesRepository: ProfileRepository,
-    private val idpRepository: IdpRepository
+    private val profilesRepository: ProfileRepository
 ) {
 
     val profiles: Flow<List<ProfilesUseCaseData.Profile>>
@@ -81,12 +79,6 @@ class ProfilesUseCase(
 
     val activeProfile: Flow<ProfilesUseCaseData.Profile> =
         profiles.map { it.activeProfile() }
-
-    suspend fun addProfile(newProfileName: String, activate: Boolean = false) {
-        sanitizedProfileName(newProfileName)?.also { profileName ->
-            profilesRepository.saveProfile(profileName.trim(), activate = activate)
-        } ?: error("invalid profile name `$newProfileName`")
-    }
 
     suspend fun updateProfileName(profileId: ProfileIdentifier, newProfileName: String) {
         sanitizedProfileName(newProfileName)?.also { profileName ->

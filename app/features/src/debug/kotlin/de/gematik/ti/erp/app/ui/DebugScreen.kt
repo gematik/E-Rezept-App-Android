@@ -733,7 +733,7 @@ fun DebugScreenMain(
                     HorizontalDivider()
                 }
                 item {
-                    ClientIdsSection()
+                    ClientIdsSection(viewModel.debugSettingsData.clientId)
                 }
             }
         }

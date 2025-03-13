@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
+import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.InAppMessageResources
 import de.gematik.ti.erp.app.messages.domain.model.getTimeState
@@ -46,7 +47,8 @@ import kotlinx.datetime.Instant
 class FetchInAppMessageUseCase(
     private val inAppMessageRepository: InAppMessageRepository,
     private val localMessageRepository: InAppLocalMessageRepository,
-    private val messageResources: InAppMessageResources
+    private val messageResources: InAppMessageResources,
+    private val buildConfigInformation: BuildConfigInformation
 ) {
     /**
      * Invokes the use case to fetch and process in-app messages.
@@ -66,32 +68,42 @@ class FetchInAppMessageUseCase(
     suspend operator fun invoke(): Flow<List<InAppMessage>> {
         // Check if the welcome message should be displayed
         val showWelcomeMessage = inAppMessageRepository.showWelcomeMessage.first()
-
+        val lastVersion = inAppMessageRepository.lastVersion.first()
         // Fetch external in-app messages
         val inAppMessageEntities = inAppMessageRepository.inAppMessages.first()
-
         // Fetch internal in-app messages from local storage
         val internalMessages = localMessageRepository.getInternalMessages()
+        val currentVersion = buildConfigInformation.versionName().substringBefore("-")
 
         // Process and transform internal messages
-        return internalMessages.map {
-            // Optionally drop the welcome message based on the flag
-            it.drop(if (showWelcomeMessage) 1 else 0)
-                .map { inAppMessage ->
-                    // Map the raw message data to a fully constructed InAppMessage object
-                    InAppMessage(
-                        id = inAppMessage.id,
-                        from = messageResources.messageFrom,
-                        timeState = getTimeState(Instant.parse(inAppMessage.timeState.timestamp.toString())),
-                        text = inAppMessage.text,
-                        tag = messageResources.getMessageTag(inAppMessage.version),
-                        version = inAppMessage.version,
-                        isUnread = inAppMessageEntities.find { it.id == inAppMessage.id }?.isUnRead ?: false,
-                        lastMessage = null,
-                        messageProfile = CommunicationProfile.InApp,
-                        prescriptionsCount = 0
-                    )
+        return internalMessages.map { messages ->
+            if (lastVersion.isNullOrBlank()) {
+                // ONLY show welcome message on new install
+                messages.filter { msg ->
+                    msg.text == messageResources.welcomeMessage
                 }
+            } else {
+                // For updates, show welcome and changelog messages
+                messages.filter { msg ->
+                    when {
+                        msg.text == messageResources.welcomeMessage -> showWelcomeMessage
+                        else -> msg.version == currentVersion
+                    }
+                }
+            }.map { inAppMessage ->
+                InAppMessage(
+                    id = inAppMessage.id,
+                    from = messageResources.messageFrom,
+                    timeState = getTimeState(Instant.parse(inAppMessage.timeState.timestamp.toString())),
+                    text = inAppMessage.text,
+                    tag = messageResources.getMessageTag(inAppMessage.version),
+                    version = inAppMessage.version,
+                    isUnread = inAppMessageEntities.find { it.id == inAppMessage.id }?.isUnRead ?: false,
+                    lastMessage = null,
+                    messageProfile = CommunicationProfile.InApp,
+                    prescriptionsCount = 0
+                )
+            }
         }
     }
 }

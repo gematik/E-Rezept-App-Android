@@ -82,6 +82,12 @@ class DefaultPrescriptionRepository(
     override fun loadSyncedTaskByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?> =
         localDataSource.loadSyncedTaskByTaskId(taskId)
 
+    override fun loadSyncedTasksByTaskIds(taskIds: List<String>): Flow<List<SyncedTaskData.SyncedTask>> =
+        localDataSource.loadSyncedTasksByTaskIds(taskIds)
+
+    override fun loadScannedTasksByTaskIds(taskIds: List<String>): Flow<List<ScannedTaskData.ScannedTask>> =
+        localDataSource.loadScannedTasksByTaskIds(taskIds)
+
     override fun loadScannedTaskByTaskId(taskId: String): Flow<ScannedTaskData.ScannedTask?> =
         localDataSource.loadScannedTaskByTaskId(taskId)
 
@@ -89,9 +95,6 @@ class DefaultPrescriptionRepository(
 
     override suspend fun deleteLocalTaskById(taskId: String) {
         localDataSource.deleteTask(taskId)
-    }
-    override suspend fun deleteLocalInvoicesById(taskId: String) {
-        localDataSource.deleteInvoices(taskId)
     }
 
     override suspend fun wasProfileEverAuthenticated(profileId: ProfileIdentifier): Boolean =

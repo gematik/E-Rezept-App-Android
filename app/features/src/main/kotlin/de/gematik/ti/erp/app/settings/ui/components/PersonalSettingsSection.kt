@@ -19,10 +19,8 @@
 package de.gematik.ti.erp.app.settings.ui.components
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.AutoFixHigh
 import androidx.compose.material.icons.outlined.Medication
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Timeline
@@ -34,93 +32,62 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.settings.model.SettingsActions
+import de.gematik.ti.erp.app.settings.model.PersonalSettingsClickActions
 import de.gematik.ti.erp.app.settings.presentation.SettingStatesData
 import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.LabelButton
 import de.gematik.ti.erp.app.utils.compose.LabeledSwitch
+import de.gematik.ti.erp.app.utils.extensions.sectionPadding
 
 @Suppress("LongParameterList", "FunctionNaming")
 @Composable
-fun GlobalSettingsSection(
-    isDemoMode: Boolean,
+fun PersonalSettingsSection(
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotState: State<Boolean>,
     isMedicationPlanEnabled: Boolean,
-    onEnableZoom: () -> Unit,
-    onDisableZoom: () -> Unit,
-    onAllowScreenshots: () -> Unit,
-    onDisallowScreenshots: () -> Unit,
-    settingsActions: SettingsActions,
-    onClickMedicationPlan: () -> Unit
+    personalSettingsClickActions: PersonalSettingsClickActions
 ) {
     Column {
         Text(
             text = stringResource(R.string.settings_personal_settings_header),
             style = AppTheme.typography.h6,
-            modifier = Modifier.padding(
-                start = PaddingDefaults.Medium,
-                end = PaddingDefaults.Medium,
-                bottom = PaddingDefaults.Small,
-                top = PaddingDefaults.Medium
-            )
+            modifier = Modifier.sectionPadding()
         )
-
         if (isMedicationPlanEnabled) {
             LabelButton(
                 Icons.Outlined.Medication,
                 stringResource(R.string.medication_plan_settings_title)
             ) {
-                onClickMedicationPlan()
+                personalSettingsClickActions.onClickMedicationPlan()
             }
         }
         LabelButton(icon = Icons.Rounded.Language, text = stringResource(R.string.settings_language_label)) {
-            settingsActions.onClickLanguageSettings()
+            personalSettingsClickActions.onClickLanguageSettings()
         }
         LabelButton(
             Icons.Outlined.Timeline,
             stringResource(R.string.settings_product_improvement_header)
         ) {
-            settingsActions.onClickProductImprovementSettings()
+            personalSettingsClickActions.onClickProductImprovementSettings()
         }
         LabelButton(
             Icons.Outlined.Security,
             stringResource(R.string.settings_app_security_header)
         ) {
-            settingsActions.onClickDeviceSecuritySettings()
+            personalSettingsClickActions.onClickDeviceSecuritySettings()
         }
-
-        ZoomSection(zoomChecked = zoomState.value.zoomEnabled) { zoomEnabled ->
-            if (zoomEnabled) onEnableZoom() else onDisableZoom()
+        ZoomSwitch(zoomChecked = zoomState.value.zoomEnabled) { zoomEnabled ->
+            personalSettingsClickActions.onToggleEnableZoom(zoomEnabled)
         }
-
-        AllowScreenShotsSection(
+        AllowScreenShotsSwitch(
             screenShotsAllowed = screenShotState.value,
-            onAllowScreenshots = onAllowScreenshots,
-            onDisallowScreenshots = onDisallowScreenshots
+            onToggleScreenshots = personalSettingsClickActions.onToggleScreenshots
         )
-
-        if (isDemoMode) {
-            LabelButton(
-                icon = Icons.Outlined.AutoFixHigh,
-                stringResource(R.string.demo_mode_settings_end_title)
-            ) {
-                settingsActions.onClickDemoModeEnd()
-            }
-        } else {
-            LabelButton(
-                icon = Icons.Outlined.AutoFixHigh,
-                stringResource(R.string.demo_mode_settings_title)
-            ) {
-                settingsActions.onClickDemoMode()
-            }
-        }
     }
 }
 
 @Composable
-private fun ZoomSection(
+private fun ZoomSwitch(
     modifier: Modifier = Modifier,
     zoomChecked: Boolean,
     onZoomChange: (Boolean) -> Unit
@@ -135,15 +102,14 @@ private fun ZoomSection(
 }
 
 @Composable
-private fun AllowScreenShotsSection(
+private fun AllowScreenShotsSwitch(
     screenShotsAllowed: Boolean,
-    onAllowScreenshots: () -> Unit,
-    onDisallowScreenshots: () -> Unit
+    onToggleScreenshots: (Boolean) -> Unit
 ) {
     LabeledSwitch(
         checked = screenShotsAllowed,
         onCheckedChange = { checked ->
-            if (checked) onAllowScreenshots() else onDisallowScreenshots()
+            onToggleScreenshots(checked)
         },
         icon = Icons.Rounded.Camera,
         header = stringResource(R.string.settings_screenshots_toggle_text)

@@ -22,6 +22,7 @@ import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
@@ -61,7 +62,9 @@ class DefaultSettingsRepositoryTest : TestDB() {
                     PasswordEntityV1::class,
                     ShippingContactEntityV1::class,
                     PharmacySearchEntityV1::class,
-                    AddressEntityV1::class
+                    AddressEntityV1::class,
+                    AuthenticationPasswordEntityV1::class,
+                    AuthenticationEntityV1::class
                 )
             )
                 .schemaVersion(ACTUAL_SCHEMA_VERSION)

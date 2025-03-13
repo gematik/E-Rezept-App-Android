@@ -118,7 +118,7 @@
     <string name="technical_hotline_info">Телефон гарячої лінії</string>
     <string name="main_scan_acc">Відкрити сканер для рецептів</string>
     <string name="main_settings_acc">Налаштування</string>
-    <string name="settings_screenshots_toggle_text">Придушити скріншоти</string>
+    <string name="settings_screenshots_toggle_text">Дозволити знімки екрана</string>
     <string name="settings_tracking_dialog_title">Чи дозволяєте ви E-Prescription анонімно аналізувати вашу поведінку при використанні?</string>
     <string name="pres_detail_technical_information">Технічна інформація</string>
     <string name="settings_biometric_dialog_title">Безпека ваших даних рецепта</string>
@@ -164,7 +164,7 @@
     <string name="consistent_password">Паролі не збігаються</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Помилка 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Ваша медична картка недійсна. Можливо у вас закінчився термін дії картки? Будь ласка, зв\'яжіться зі своєю медичною страховою компанією.</string>
-    <string name="auth_error_failed_auths_headline">Невдалі спроби входу</string>
+    <string name="auth_error_failed_auths_headline">На жаль, це не спрацювало</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Виявлено %s невдалих спроб входу.</item>
         <item quantity="few"></item>
@@ -496,7 +496,7 @@
     <string name="time_description_today">О %s годині</string>
     <string name="orders_cart_ready">Кошик для покупок готовий</string>
     <string name="orders_cart_ready_info">Рецепт додано у ваш кошик. Щоб оформити замовлення, перейдіть на сайт аптеки.</string>
-    <string name="orders_open_cart_link">Відкрити кошик</string>
+    <string name="orders_open_cart_link">посилання на вашу аптеку</string>
     <string name="orders_code_info">Покажіть цей код колекції в аптеці.</string>
     <string name="orders_code_title">Отримати код для самовивозу</string>
     <string name="orders_no_message_title">Неможливо відобразити повідомлення</string>
@@ -590,7 +590,7 @@
     <string name="pres_detail_medication_label_handed_over">видано:</string>
     <string name="synced_medication_ingredient_header">Активна речовина</string>
     <string name="medication_overview_prescribed_header">Прописаний</string>
-    <string name="medication_overview_dispenses_header">Отримати</string>
+    <string name="medication_overview_dispenses_header">Отримано</string>
     <string name="pres_details_exp_da_title">Що таке пряме доручення?</string>
     <string name="pres_details_exp_da_info">При прямому направленні рецепт від практики або лікарні виписується безпосередньо в аптеці. Застраховані особи не повинні вживати жодних дій і не можуть втручатися в процес викупу. \n\n Прямі напрямки перераховані в додатку для електронних рецептів, щоб зробити ваше лікування більш прозорим для вас.</string>
     <string name="pres_details_exp_no_em_fee_title">Плата за аварійну службу</string>
@@ -657,7 +657,6 @@
     <string name="search_pharmacies_location_na_settings">Налаштування</string>
     <string name="search_pharmacies_location_na_services">Поділитися місцезнаходженням у налаштуваннях.</string>
     <string name="pharmacy_maps_header">Поруч зі мною</string>
-    <string name="mainscreen_profile_chip_content_description">Натисніть і утримуйте, щоб змінити назву.</string>
     <string name="profile_edit_name_for_rename_info">Введіть нову назву для профілю.</string>
     <string name="mainscreen_welcome_drawer_info">Щоб отримати рецепти в цифровому вигляді від вашої практики, ви повинні увійти в систему.</string>
     <string name="mainscreen_welcome_drawer_header">Отримувати рецепти в цифровому вигляді?</string>
@@ -1078,14 +1077,14 @@
     <string name="invoices_deleted">Ваші квитанції видалено</string>
     <string name="invoices_detail_title">Витратна квитанція</string>
     <string name="paired_devices_biometrics_error_login_title">Потрібна реєстрація</string>
-    <string name="paired_devices_biometrics_error_login_description">Увійдіть, щоб переглянути підключені пристрої.</string>
+    <string name="paired_devices_biometrics_error_login_description">Увійдіть і збережіть дані для входу, щоб переглянути підключені пристрої.</string>
     <string name="paired_devices_biometrics_error_login_button_text">зареєструватися</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">зареєструватися</string>
     <string name="cdw_intro_auth_gid_app_required">Підключіться до %s Insurance</string>
     <string name="a11y_card_wall_card_hand">Медична картка на смартфон</string>
     <string name="not_logged_in">Не в системі</string>
     <string name="logged_in">Зареєстрований</string>
-    <string name="a11y_refresh">оновити</string>
+    <string name="refresh">оновити</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Ви отримаєте протоколи доступу, якщо ви увійшли в службу рецептів.</string>
     <string name="paired_devices_error_login_title">Потрібна реєстрація</string>
     <string name="paired_devices_error_login_description">Будь ласка, увійдіть за допомогою своєї картки здоров’я та збережіть дані для входу з біометричними даними, щоб переглянути підключені пристрої.</string>
@@ -1193,7 +1192,7 @@
     <string name="settings_app_security_change_password">Змінити пароль</string>
     <string name="invoices_delete_not_logged_in_description">Для видалення необхідно встановити з’єднання з сервером рецептів</string>
     <string name="provided">Товар готовий</string>
-    <string name="provided_on_hour">Товари були готові з %s</string>
+    <string name="provided_at_hour">Товари були готові з %s</string>
     <string name="provided_now">Товар тільки зараз готовий</string>
     <string name="provided_minutes_ago">Товари готові протягом %s хвилин</string>
     <string name="provided_on_date">Товари були готові з %s</string>
@@ -1222,4 +1221,15 @@
     <string name="all_prescriptions_of_order">Всі рецепти по порядку</string>
     <string name="invoice_details_supply_shortage_fee">Фіксована плата за вузьке місце доставки</string>
     <string name="message_list_time_state_hours">%s година</string>
+    <string name="language_selection_es">Іспанська</string>
+    <string name="language_selection_ga">ірландський</string>
+    <string name="profile_screen_login_hint">Щоб автоматично отримувати рецепти, ви повинні увійти в систему.</string>
+    <string name="profile_screen_login_button">зареєструватися</string>
+    <string name="error_redeemable_prescription_title">Рецепт не підлягає обміну</string>
+    <string name="error_redeemable_prescription_generic_error">Рецепт \"%1$s\" більше не можна викупити. Можливо, ви вже використали його в інший спосіб або він був скасований.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Рецепт \"%1$s\" вже викуплений або знаходиться в процесі викупу.</string>
+    <string name="error_redeemable_prescription_deleted">Рецепт \"%1$s\" вже анульовано, тому його більше не можна викупити.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Наступні рецепти більше не активуються або не доступні: %1$s \n Можливо, ви вже використали їх іншим способом або їх видалили. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Продовжуйте без цих рецептів</string>
+    <string name="error_redeemable_prescription_cancel_order">Скасувати замовлення</string>
 </resources>

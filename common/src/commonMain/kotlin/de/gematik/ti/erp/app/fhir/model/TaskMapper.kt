@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.fhir.model.TaskStatus.entries
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
@@ -32,22 +33,29 @@ import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.asFhirInstant
 import de.gematik.ti.erp.app.utils.asFhirLocalDate
 import de.gematik.ti.erp.app.utils.toFhirTemporal
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
-enum class TaskStatus {
-    Ready,
-    InProgress,
-    Completed,
-    Other,
-    Draft,
-    Requested,
-    Received,
-    Accepted,
-    Rejected,
-    Canceled,
-    OnHold,
-    Failed;
+enum class TaskStatus(val status: String) {
+    Ready("ready"),
+    InProgress("in-progress"),
+    Completed("completed"),
+    Canceled("cancelled"),
+    Accepted("accepted"),
+    Draft("draft"),
+    Failed("failed"),
+    OnHold("on-hold"),
+    Requested("requested"),
+    Received("received"),
+    Rejected("rejected"),
+    Other("other"); // Default fallback
+
+    companion object {
+        fun fromString(status: String): TaskStatus {
+            return entries.firstOrNull { it.status == status } ?: Other
+        }
+    }
 }
 
 data class TaskData(
@@ -56,6 +64,11 @@ data class TaskData(
     val lastModified: FhirTemporal?
 )
 
+@Deprecated(
+    "Use de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleParser.kt",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser.kt"),
+    level = DeprecationLevel.WARNING
+)
 @Requirement(
     "O.Source_2#5",
     sourceSpecification = "BSI-eRp-ePA",
@@ -101,6 +114,11 @@ fun extractActualTaskData(
     return bundleTotal to tasks.toList()
 }
 
+@Deprecated(
+    "Use de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleParser.kt",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleSeperationParser.kt"),
+    level = DeprecationLevel.WARNING
+)
 fun extractTaskAndKBVBundle(
     bundle: JsonElement,
     process: (
@@ -108,6 +126,7 @@ fun extractTaskAndKBVBundle(
         bundleResource: JsonElement
     ) -> Unit
 ) {
+    Napier.e { bundle.toString() }
     val resources = bundle
         .findAll("entry.resource")
 
@@ -146,6 +165,11 @@ fun extractTaskAndKBVBundle(
     process(task, kbvBundle)
 }
 
+@Deprecated(
+    "Use de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleParser.kt",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleParser.kt"),
+    level = DeprecationLevel.WARNING
+)
 fun extractTask(
     task: JsonElement,
     process: (

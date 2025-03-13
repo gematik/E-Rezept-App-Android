@@ -40,8 +40,8 @@ class ConsentRepositoryTest {
 
     private lateinit var consentRepository: ConsentRepository
 
-    private val consentNotGrantedJson by lazy { File("$ResourceBasePath/fhir/pkv/consent_not_granted.json").readText() }
-    private val consentGrantedJson by lazy { File("$ResourceBasePath/fhir/pkv/consent_granted.json").readText() }
+    private val consentNotGrantedJson by lazy { File("$ResourceBasePath/fhir/pkv/pkv1_2/consent_not_granted.json").readText() }
+    private val consentGrantedJson by lazy { File("$ResourceBasePath/fhir/pkv/pkv1_2/consent_granted.json").readText() }
 
     @Before
     fun setup() {

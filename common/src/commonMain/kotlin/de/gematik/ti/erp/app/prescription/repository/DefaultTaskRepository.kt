@@ -21,23 +21,33 @@ package de.gematik.ti.erp.app.prescription.repository
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
-import de.gematik.ti.erp.app.fhir.model.extractActualTaskData
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.findAll
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleSeparationParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskKbvParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
+import kotlinx.serialization.json.JsonElement
 
 private const val TasksMaxPageSize = 50
 
 class DefaultTaskRepository(
     private val remoteDataSource: TaskRemoteDataSource,
     private val localDataSource: TaskLocalDataSource,
+    private val taskEntryParser: TaskEntryParser,
+    private val taskBundleSeparationParser: TaskBundleSeparationParser,
+    private val taskMetadataParser: TaskMetadataParser,
+    private val taskKbvParser: TaskKbvParser,
     private val dispatchers: DispatchProvider
 ) : ResourcePaging<Int>(dispatchers, TasksMaxPageSize, maxPages = 1), TaskRepository {
 
@@ -50,58 +60,77 @@ class DefaultTaskRepository(
 
     override val tag: String = javaClass::getSimpleName.name
 
+    private suspend fun processTaskEntry(profileId: ProfileIdentifier, data: FhirTaskEntryDataErpModel): Result<Unit> {
+        return data.lastModified?.let { lastModified ->
+            if (data.status == TaskStatus.Canceled) {
+                localDataSource.updateTaskStatus(data.id, data.status, data.lastModified)
+                Result.success(Unit)
+            } else {
+                fetchKbvJsonDataForTaskId(profileId, data.id)
+                    .mapCatching { taskMetaDataAndKbvBundle ->
+                        processTaskBundle(profileId, data.id, taskMetaDataAndKbvBundle).getOrThrow()
+                    }
+            }
+        } ?: Result.failure(IllegalStateException("Missing lastModified for task ${data.id}"))
+    }
+
+    private suspend fun processTaskBundle(profileId: String, taskId: String, taskMetaDataAndKbvBundle: JsonElement): Result<Unit> {
+        return taskBundleSeparationParser.extract(taskMetaDataAndKbvBundle)?.let { (metaDataBundle, kbvDataBundle) ->
+            val metaData = metaDataBundle.value.let(taskMetadataParser::extract)
+            val kbvData = kbvDataBundle.value.let(taskKbvParser::extract)
+            if (metaData != null) {
+                localDataSource.saveTaskMetaData(profileId, metaData)
+            } else {
+                Result.failure(IllegalStateException("Failed to parse meta task bundle for taskId: $taskId"))
+            }
+            if (kbvData != null) {
+                localDataSource.saveTaskKbvData(taskId, kbvData)
+                    .map { taskResult ->
+                        if (taskResult.isCompleted || taskResult.lastMedicationDispense != null) {
+                            // TODO: to be changed to use kotlinx.serialization
+                            downloadMedicationDispenses(profileId, taskId)
+                        }
+                    }
+            } else {
+                Napier.e("Failed to parse KBV bundle for taskId: $taskId")
+                localDataSource.markTaskAsIncomplete(taskId, IllegalStateException("Failed to parse KBV bundle for taskId: $taskId"))
+                Result.failure(IllegalStateException("Failed to parse task bundle for taskId: $taskId"))
+            }
+        } ?: Result.failure(IllegalStateException("Failed to parse task bundle for taskId: $taskId"))
+    }
+
     override suspend fun downloadResource(
         profileId: ProfileIdentifier,
         timestamp: String?,
         count: Int?
     ): Result<ResourceResult<Int>> =
-        remoteDataSource.getTasks(
-            profileId = profileId,
-            lastUpdated = timestamp,
-            count = count
-        ).mapCatching { fhirBundle ->
-            withContext(dispatchers.io) {
-                val (total, taskData) = extractActualTaskData(fhirBundle)
+        remoteDataSource.getTasks(profileId = profileId, lastUpdated = timestamp, count = count)
+            .mapCatching { fhirBundle ->
+                withContext(dispatchers.io) {
+                    val (totalEntries, taskEntries) = taskEntryParser.extract(fhirBundle)
+                        ?.let { it.bundleTotal to it.taskEntries }
+                        ?: (0 to emptyList<FhirTaskEntryDataErpModel>())
 
-                supervisorScope {
-                    val results = taskData.map { data ->
-                        async {
-                            data.lastModified?.let {
-                                if (data.status == TaskStatus.Canceled) {
-                                    localDataSource.updateTaskStatus(data.taskId, data.status, data.lastModified)
-                                    Result.success(Unit)
-                                } else {
-                                    downloadTaskWithKBVBundle(taskId = data.taskId, profileId = profileId).map {
-                                        if (it.isCompleted || it.lastMedicationDispense != null) {
-                                            // download medication dispenses only if task was successfully
-                                            // downloaded and status is completed or last medication dispense
-                                            downloadMedicationDispenses(
-                                                profileId,
-                                                data.taskId
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }.awaitAll()
-                    // throw if any result is not parsed correctly
-                    results.find { it?.isFailure ?: false }?.getOrThrow()
+                    supervisorScope {
+                        val results = taskEntries.map { data ->
+                            async { processTaskEntry(profileId, data) }
+                        }.awaitAll()
 
-                    // return number of updated tasks
-                    ResourceResult(total, results.size)
+                        // throw if any result is not parsed correctly
+                        results.find { it.isFailure }?.getOrThrow()
+
+                        // return number of updated tasks
+                        ResourceResult(totalEntries, results.size)
+                    }
                 }
             }
-        }
 
-    private suspend fun downloadTaskWithKBVBundle(
-        taskId: String,
-        profileId: ProfileIdentifier
-    ): Result<TaskLocalDataSource.SaveTaskResult> = withContext(dispatchers.io) {
-        remoteDataSource.taskWithKBVBundle(profileId, taskId).mapCatching { bundle ->
-            requireNotNull(localDataSource.saveTask(profileId, bundle))
-        }
-    }
+    private suspend fun fetchKbvJsonDataForTaskId(
+        profileId: ProfileIdentifier,
+        taskId: String
+    ): Result<JsonElement> = remoteDataSource
+        .taskWithKBVBundle(profileId, taskId)
+        .mapCatching { requireNotNull(it) { "Task with KBV Bundle not found for taskId: $taskId" } }
 
     private suspend fun downloadMedicationDispenses(
         profileId: ProfileIdentifier,
@@ -116,6 +145,7 @@ class DefaultTaskRepository(
                 "1.4" -> {
                     localDataSource.saveMedicationDispensesWithMedications(taskId, bundle)
                 }
+
                 else -> resources.forEach { dispense ->
                     localDataSource.saveMedicationDispense(taskId, dispense)
                 }

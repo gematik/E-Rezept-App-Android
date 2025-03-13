@@ -16,7 +16,7 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
-package de.gematik.ti.erp.app.prescription.ui.model
+package de.gematik.ti.erp.app.prescription.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.Dp

@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.HttpErrorState.ErrorWithCause
 import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.collectResult
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
@@ -72,6 +73,7 @@ class InvoiceController(
     getActiveProfileUseCase: GetActiveProfileUseCase,
     chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
     biometricAuthenticator: BiometricAuthenticator,
+    networkStatusTracker: NetworkStatusTracker,
     private val profileId: ProfileIdentifier,
     private val downloadInvoicesUseCase: DownloadInvoicesUseCase,
     private val getInvoicesByProfileUseCase: GetInvoicesByProfileUseCase,
@@ -87,6 +89,7 @@ class InvoiceController(
     getActiveProfileUseCase = getActiveProfileUseCase,
     getProfilesUseCase = getProfilesUseCase,
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+    networkStatusTracker = networkStatusTracker,
     biometricAuthenticator = biometricAuthenticator
 ) {
     private val getInvoicesTrigger: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -292,6 +295,7 @@ class InvoiceController(
 @Composable
 fun rememberInvoiceController(profileId: ProfileIdentifier): InvoiceController {
     val biometricAuthenticator = LocalBiometricAuthenticator.current
+    val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
 
     val getInvoicesByProfileUseCase by rememberInstance<GetInvoicesByProfileUseCase>()
     val getInvoiceByTaskIdUseCase by rememberInstance<GetInvoiceByTaskIdUseCase>()
@@ -312,6 +316,7 @@ fun rememberInvoiceController(profileId: ProfileIdentifier): InvoiceController {
         InvoiceController(
             profileId = profileId,
             biometricAuthenticator = biometricAuthenticator,
+            networkStatusTracker = networkStatusTracker,
             downloadInvoicesUseCase = downloadInvoicesUseCase,
             getProfilesUseCase = getProfilesUseCase,
             getProfileByIdUseCase = getProfileByIdUseCase,

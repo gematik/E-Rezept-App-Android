@@ -36,7 +36,7 @@ class GetRedeemableTasksForDmCodesUseCase(
     operator fun invoke(
         profileId: ProfileIdentifier
 
-    ): Flow<List<PharmacyUseCaseData.PrescriptionOrder>> =
+    ): Flow<List<PharmacyUseCaseData.PrescriptionInOrder>> =
         combine(
             prescriptionRepository.syncedTasks(profileId).mapNotNull { tasks ->
                 tasks.filter {
@@ -55,7 +55,7 @@ class GetRedeemableTasksForDmCodesUseCase(
                     }
             }
         ) { syncedTasks, scannedTasks ->
-            val prescriptionOrderList = mutableListOf<PharmacyUseCaseData.PrescriptionOrder>()
+            val prescriptionOrderList = mutableListOf<PharmacyUseCaseData.PrescriptionInOrder>()
             prescriptionOrderList.addAll(scannedTasks)
             prescriptionOrderList.addAll(syncedTasks)
             prescriptionOrderList

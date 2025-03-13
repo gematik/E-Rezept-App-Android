@@ -18,27 +18,32 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.components
 
+import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySheetFromMessagesParameterProvider
 import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
 
 class PharmacyDetailsFromMessageScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(config) {
-
     @Test
     fun screenShotTest() {
-        paparazzi.snapshot {
-            PharmacyDetailsScreenFromMessagePreview()
+        val testParameters = PharmacySheetFromMessagesParameterProvider().values.toList()
+        testParameters.forEachIndexed { index, pharmacy ->
+            paparazzi.snapshot("parameter_$index") {
+                PharmacyDetailsScreenFromMessagePreview(pharmacy = pharmacy)
+            }
         }
     }
 }
 
 class PharmacyDetailsFromMessageScreenAccessibilityTest(config: ScreenshotConfig) : BaseAccessibilityTest(config) {
-
     @Test
     fun screenShotTest() {
-        paparazzi.accessibilitySnapshot {
-            PharmacyDetailsScreenFromMessagePreview()
+        val testParameters = PharmacySheetFromMessagesParameterProvider().values.toList()
+        testParameters.forEachIndexed { index, pharmacy ->
+            paparazzi.accessibilitySnapshot("parameter_$index") {
+                PharmacyDetailsScreenFromMessagePreview(pharmacy)
+            }
         }
     }
 }

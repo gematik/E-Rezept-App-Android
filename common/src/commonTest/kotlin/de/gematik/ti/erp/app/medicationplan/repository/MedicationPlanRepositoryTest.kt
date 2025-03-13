@@ -60,10 +60,8 @@ class MedicationPlanRepositoryTest {
 
     @Test
     fun `load all medicationSchedules`() = runTest {
-        val newMedicationSchedule = MEDICATION_SCHEDULE
         coEvery { localDataSource.loadAllMedicationSchedules() } returns flowOf(listOf(MEDICATION_SCHEDULE))
-
         repository.loadAllMedicationSchedules()
-        coVerify(exactly = 2) { localDataSource.loadAllMedicationSchedules() }
+        coVerify(exactly = 1) { localDataSource.loadAllMedicationSchedules() }
     }
 }

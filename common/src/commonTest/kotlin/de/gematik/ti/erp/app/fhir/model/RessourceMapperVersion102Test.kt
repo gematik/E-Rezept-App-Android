@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.fhir.parser.Year
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.asFhirTemporal
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
@@ -87,16 +87,8 @@ class RessourceMapperVersion102Test {
     @Test
     fun `process medicationPzn version 1_0_2`() {
         val medicationPznJson = Json.parseToJsonElement(medicationPznJson_vers_1_0_2)
-        val result = extractPZNMedication(
+        val result = extractPZNMedication<ReturnType, ReturnType, ReturnType, ReturnType>(
             medicationPznJson,
-            quantityFn = { _, _ ->
-                ReturnType.Quantity
-            },
-            ratioFn = { numerator, denominator ->
-                assertEquals(ReturnType.Quantity, numerator)
-                assertEquals(ReturnType.Quantity, denominator)
-                ReturnType.Ratio
-            },
             processMedication = {
                     text, medicationCategory, form, amount, vaccine,
                     manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier, ingredientMedication,
@@ -114,6 +106,14 @@ class RessourceMapperVersion102Test {
                 assertEquals(null, lotnumber)
                 assertEquals(null, expirationDate)
                 ReturnType.Medication
+            },
+            ratioFn = { numerator, denominator ->
+                assertEquals(ReturnType.Quantity, numerator)
+                assertEquals(ReturnType.Quantity, denominator)
+                ReturnType.Ratio
+            },
+            quantityFn = { _, _ ->
+                ReturnType.Quantity
             }
         )
         assertEquals(ReturnType.Medication, result)
@@ -124,7 +124,7 @@ class RessourceMapperVersion102Test {
         val medicationIngredientJson = Json.parseToJsonElement(medicationIngredientJson_vers_1_0_2)
         val result = extractMedicationIngredient(
             medicationIngredientJson,
-            quantityFn = { _, _ ->
+            quantityFn = { value, unit ->
                 ReturnType.Quantity
             },
             ratioFn = { numerator, denominator ->
@@ -205,7 +205,7 @@ class RessourceMapperVersion102Test {
     @Test
     fun `process medication freetext version 1_0_2`() {
         val medicationFreetextJson = Json.parseToJsonElement(medicationFreetextJson_vers_1_0_2)
-        val result = extractMedicationFreetext(
+        val result = extractMedicationFreetext<ReturnType, ReturnType, ReturnType, ReturnType>(
             medicationFreetextJson,
             quantityFn = { _, _ ->
                 ReturnType.Quantity

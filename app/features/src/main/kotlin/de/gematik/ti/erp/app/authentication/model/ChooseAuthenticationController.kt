@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationSuccess
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.presentation.GetProfileByIdController
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
@@ -61,6 +62,7 @@ abstract class ChooseAuthenticationController(
     getProfilesUseCase: GetProfilesUseCase,
     getActiveProfileUseCase: GetActiveProfileUseCase,
     private val chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
+    private val networkStatusTracker: NetworkStatusTracker,
     private val biometricAuthenticator: BiometricAuthenticator,
     override val onSelectedProfileSuccess: ((ProfilesUseCaseData.Profile, CoroutineScope) -> Unit)? = null,
     override val onSelectedProfileFailure: ((Throwable, CoroutineScope) -> Unit)? = null,
@@ -126,7 +128,10 @@ abstract class ChooseAuthenticationController(
 
                                 is AuthenticationResult.BiometricResult.BiometricStarted,
                                 is AuthenticationResult.BiometricResult.BiometricSuccess -> {
-                                    onRefreshProfileAction.trigger(true)
+                                    // inform that the biometric can be successful only when the network is available
+                                    if (networkStatusTracker.networkStatus.first()) {
+                                        onRefreshProfileAction.trigger(true)
+                                    }
                                 }
 
                                 is AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationStarted,
@@ -168,6 +173,7 @@ abstract class ChooseAuthenticationController(
 
 @Composable
 fun rememberChooseAuthenticationController(): ChooseAuthenticationController {
+    val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
     val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
@@ -180,6 +186,7 @@ fun rememberChooseAuthenticationController(): ChooseAuthenticationController {
             getProfileByIdUseCase = getProfileByIdUseCase,
             getProfilesUseCase = getProfilesUseCase,
             chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+            networkStatusTracker = networkStatusTracker,
             biometricAuthenticator = biometricAuthenticator
         ) {}
     }

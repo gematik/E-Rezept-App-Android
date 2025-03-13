@@ -114,7 +114,7 @@
     <string name="technical_hotline_info">Línea telefónica directa</string>
     <string name="main_scan_acc">Escáner abierto para recetas</string>
     <string name="main_settings_acc">Ajustes</string>
-    <string name="settings_screenshots_toggle_text">Suprimir capturas de pantalla</string>
+    <string name="settings_screenshots_toggle_text">Permitir capturas de pantalla</string>
     <string name="settings_tracking_dialog_title">¿Permite que E-Prescription analice su comportamiento de uso de forma anónima?</string>
     <string name="pres_detail_technical_information">Información técnica</string>
     <string name="settings_biometric_dialog_title">Seguridad de los datos de sus recetas</string>
@@ -160,7 +160,7 @@
     <string name="consistent_password">Coincidencias de contraseñas repetidas</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Error 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">El certificado de su tarjeta sanitaria no es válido. ¿Su tarjeta ha caducado? Póngase en contacto con su compañía de seguros médicos.</string>
-    <string name="auth_error_failed_auths_headline">Intentos de inicio de sesión fallidos</string>
+    <string name="auth_error_failed_auths_headline">Desafortunadamente eso no funcionó.</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Se detectaron %s intentos de inicio de sesión fallidos.</item>
         <item quantity="other">Se detectaron %s intentos de inicio de sesión fallidos.</item>
@@ -484,7 +484,7 @@
     <string name="time_description_today">A %s en punto</string>
     <string name="orders_cart_ready">El carrito de compras está listo</string>
     <string name="orders_cart_ready_info">La receta se ha añadido a su cesta de la compra. Por favor, acceda al sitio web de la farmacia para completar el pedido.</string>
-    <string name="orders_open_cart_link">Abrir carrito de compras</string>
+    <string name="orders_open_cart_link">Enlace a su farmacia</string>
     <string name="orders_code_info">Muestra este código de colección en la farmacia.</string>
     <string name="orders_code_title">Recibir código de recogida</string>
     <string name="orders_no_message_title">No se puede mostrar el mensaje</string>
@@ -576,7 +576,7 @@
     <string name="pres_detail_medication_label_handed_over">emitido el:</string>
     <string name="synced_medication_ingredient_header">Sustancia activa</string>
     <string name="medication_overview_prescribed_header">Prescrito</string>
-    <string name="medication_overview_dispenses_header">Recibir</string>
+    <string name="medication_overview_dispenses_header">Recibió</string>
     <string name="pres_details_exp_da_title">¿Qué es una cesión directa?</string>
     <string name="pres_details_exp_da_info">Con la derivación directa, una receta de un consultorio o de un hospital se completa directamente en una farmacia. Los asegurados no tienen que realizar ninguna acción y no pueden intervenir en el proceso de canje.\n Las derivaciones directas se enumeran en la aplicación de recetas electrónicas para que su tratamiento sea más transparente para usted.</string>
     <string name="pres_details_exp_no_em_fee_title">Tarifa de servicio de emergencia</string>
@@ -643,7 +643,6 @@
     <string name="search_pharmacies_location_na_settings">Ajustes</string>
     <string name="search_pharmacies_location_na_services">Compartir ubicación en Configuración.</string>
     <string name="pharmacy_maps_header">Cerca de mi</string>
-    <string name="mainscreen_profile_chip_content_description">Mantenga presionado para editar el nombre.</string>
     <string name="profile_edit_name_for_rename_info">Introduzca el nuevo nombre para el perfil.</string>
     <string name="mainscreen_welcome_drawer_info">Para recibir recetas de forma digital desde su consultorio, debe iniciar sesión.</string>
     <string name="mainscreen_welcome_drawer_header">¿Recibir recetas digitalmente?</string>
@@ -1060,14 +1059,14 @@
     <string name="invoices_deleted">Sus recibos de gastos han sido eliminados</string>
     <string name="invoices_detail_title">Recibo de gastos</string>
     <string name="paired_devices_biometrics_error_login_title">Es necesario registrarse</string>
-    <string name="paired_devices_biometrics_error_login_description">Inicie sesión para ver los dispositivos conectados.</string>
+    <string name="paired_devices_biometrics_error_login_description">Inicie sesión y guarde sus datos de inicio de sesión para ver los dispositivos conectados.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Acceso</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Acceso</string>
     <string name="cdw_intro_auth_gid_app_required">Conectando a %s Seguros</string>
     <string name="a11y_card_wall_card_hand">Tarjeta sanitaria en tu smartphone</string>
     <string name="not_logged_in">No ha iniciado sesión</string>
     <string name="logged_in">Iniciado sesión</string>
-    <string name="a11y_refresh">refrescar</string>
+    <string name="refresh">refrescar</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Recibirá registros de acceso cuando inicie sesión en el servicio de recetas.</string>
     <string name="paired_devices_error_login_title">Es necesario registrarse</string>
     <string name="paired_devices_error_login_description">Inicie sesión con su tarjeta sanitaria y guarde sus datos de acceso con biometría para ver los dispositivos conectados.</string>
@@ -1175,7 +1174,7 @@
     <string name="settings_app_security_change_password">Cambiar la contraseña</string>
     <string name="invoices_delete_not_logged_in_description">Para eliminar, se debe establecer una conexión con Prescription Server</string>
     <string name="provided">Los productos están listos.</string>
-    <string name="provided_on_hour">Los productos han estado listos desde %s</string>
+    <string name="provided_at_hour">Los productos han estado listos desde %s</string>
     <string name="provided_now">Los productos han estado listos hace un momento.</string>
     <string name="provided_minutes_ago">Los productos han estado listos durante %s minutos</string>
     <string name="provided_on_date">Los productos han estado listos desde %s</string>
@@ -1204,4 +1203,15 @@
     <string name="all_prescriptions_of_order">Todas las recetas en orden.</string>
     <string name="invoice_details_supply_shortage_fee">Tarifa plana de cuello de botella en la entrega</string>
     <string name="message_list_time_state_hours">%s en punto</string>
+    <string name="language_selection_es">Español</string>
+    <string name="language_selection_ga">irlandés</string>
+    <string name="profile_screen_login_hint">Para recibir recetas automáticamente, debes estar conectado.</string>
+    <string name="profile_screen_login_button">Registro</string>
+    <string name="error_redeemable_prescription_title">La receta no se puede canjear</string>
+    <string name="error_redeemable_prescription_generic_error">La receta \"%1$s\" ya no puede canjearse. Es posible que ya la haya canjeado de otra forma o que haya sido anulada.</string>
+    <string name="error_redeemable_prescription_not_redeemable">La receta \"%1$s\" ya ha sido canjeada o está siendo canjeada.</string>
+    <string name="error_redeemable_prescription_deleted">La receta \"%1$s\" ya ha sido cancelada y, por lo tanto, ya no puede canjearse.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Las siguientes recetas no son canjeables o ya no se pueden canjear: %1$s \n Es posible que ya las hayas canjeado de otra manera o que hayan sido eliminadas. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Continuar sin estas recetas</string>
+    <string name="error_redeemable_prescription_cancel_order">Cancelar pedido</string>
 </resources>

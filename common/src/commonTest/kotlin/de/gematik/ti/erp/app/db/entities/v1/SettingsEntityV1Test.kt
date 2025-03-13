@@ -39,7 +39,9 @@ class SettingsEntityV1Test : TestDB() {
                     PasswordEntityV1::class,
                     ShippingContactEntityV1::class,
                     PharmacySearchEntityV1::class,
-                    AddressEntityV1::class
+                    AddressEntityV1::class,
+                    AuthenticationEntityV1::class,
+                    AuthenticationPasswordEntityV1::class
                 )
             )
                 .schemaVersion(0)

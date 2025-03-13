@@ -47,6 +47,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -55,7 +56,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.disabled
-import androidx.compose.ui.semantics.isOpaque
+import androidx.compose.ui.semantics.invisibleToUser
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -364,7 +365,7 @@ private fun LazyListScope.SubTitleHeader() {
 }
 
 @Suppress("FunctionName")
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, ExperimentalComposeUiApi::class)
 private fun LazyListScope.HealthCardLoginSection(
     isNfcAvailable: Boolean,
     isNfcEnabled: () -> Boolean,
@@ -415,7 +416,7 @@ private fun LazyListScope.HealthCardLoginSection(
                                     role = Role.Button
                                 } else {
                                     disabled()
-                                    isOpaque()
+                                    invisibleToUser()
                                 }
                             }
                     ) {

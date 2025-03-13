@@ -44,7 +44,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import org.bouncycastle.asn1.ASN1ObjectIdentifier
 import org.bouncycastle.asn1.DERSet
@@ -88,18 +87,18 @@ class RedeemPrescriptionsOnDirectUseCase(
     private val pharmacyRepository: PharmacyRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         orderId: UUID,
         redeemOption: PharmacyScreenData.OrderOption,
-        prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionOrder>,
+        prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
         contact: PharmacyUseCaseData.ShippingContact,
         pharmacy: PharmacyUseCaseData.Pharmacy,
-        onProcessStart: () -> Unit,
-        onProcessEnd: () -> Unit
+        onRedeemProcessStart: () -> Unit = {},
+        onRedeemProcessEnd: () -> Unit = {}
     ): Flow<RedeemedPrescriptionState.OrderCompleted> =
         flow {
             withContext(dispatcher) {
-                onProcessStart()
+                onRedeemProcessStart()
 
                 val certificates = loadCertificates(pharmacy.id).getOrThrow()
 
@@ -127,7 +126,7 @@ class RedeemPrescriptionsOnDirectUseCase(
                     .mapValues { (prescriptionOrderInfo, redeemResult) ->
                         redeemResult.fold(
                             onSuccess = {
-                                onProcessEnd()
+                                onRedeemProcessEnd()
                                 Napier.i { "Prescription (direct) ${prescriptionOrderInfo.title} redeemed successfully" }
                                 try {
                                     // save the communication to the database
@@ -149,7 +148,7 @@ class RedeemPrescriptionsOnDirectUseCase(
                             },
                             onFailure = { error ->
                                 Napier.e { "Error on prescription (direct) ${prescriptionOrderInfo.title} redemption ${error.stackTraceToString()}" }
-                                onProcessEnd()
+                                onRedeemProcessEnd()
                                 when (error) {
                                     is ApiCallException -> RedeemedPrescriptionState.Error(
                                         errorState = error.response.httpErrorState()
@@ -176,7 +175,7 @@ class RedeemPrescriptionsOnDirectUseCase(
 
     private fun createCommunication(
         orderId: UUID,
-        prescription: PharmacyUseCaseData.PrescriptionOrder,
+        prescription: PharmacyUseCaseData.PrescriptionInOrder,
         contact: PharmacyUseCaseData.ShippingContact,
         redeemOption: PharmacyScreenData.OrderOption
     ): String {

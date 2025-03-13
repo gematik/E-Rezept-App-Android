@@ -46,10 +46,9 @@ object CardWallRoutes : NavigationRoutes {
         )
 
         fun pathWithGid(
-            profileIdentifier: ProfileIdentifier,
             gidEventData: GidEventData
         ) = path(
-            CARD_WALL_NAV_PROFILE_ID to profileIdentifier,
+            CARD_WALL_NAV_PROFILE_ID to gidEventData.profileId,
             GID_AUTH_INFORMATION to gidEventData.toNavigationString()
         )
     }

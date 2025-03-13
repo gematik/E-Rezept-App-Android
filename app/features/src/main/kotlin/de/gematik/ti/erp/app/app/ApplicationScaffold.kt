@@ -57,9 +57,10 @@ import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.settings.navigation.SettingsNavigationScreens
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.utils.compose.SimpleBanner
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
+import de.gematik.ti.erp.app.utils.compose.SimpleBanner
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
+import de.gematik.ti.erp.app.utils.extensions.LocalUiScopeScaffold
 
 @Composable
 fun ApplicationScaffold(
@@ -121,7 +122,8 @@ fun ApplicationScaffold(
     }
 
     CompositionLocalProvider(
-        LocalSnackbarScaffold provides snackbarHostState
+        LocalSnackbarScaffold provides snackbarHostState,
+        LocalUiScopeScaffold provides scope
     ) {
         val snackbar = LocalSnackbarScaffold.current
         val layoutDirection = LocalLayoutDirection.current

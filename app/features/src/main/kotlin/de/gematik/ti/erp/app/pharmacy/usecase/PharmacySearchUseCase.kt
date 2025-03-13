@@ -25,30 +25,19 @@ import androidx.paging.PagingSource
 import androidx.paging.PagingState
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.fhir.model.CommunicationPayload
-import de.gematik.ti.erp.app.fhir.model.createCommunicationDispenseRequest
-import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyInitialResultsPerPage
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyNextResultsPerPage
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
-import java.util.UUID
 import kotlin.math.max
 
 class PharmacySearchUseCase(
     private val repository: PharmacyRepository,
-    private val shippingContactRepository: ShippingContactRepository,
-    private val prescriptionRepository: PrescriptionRepository,
     private val settingsRepository: SettingsRepository,
     private val dispatchers: DispatchProvider
 ) {
@@ -161,62 +150,4 @@ class PharmacySearchUseCase(
             pagingSourceFactory = { PharmacyPagingSource(searchData) }
         ).flow.flowOn(dispatchers.io)
     }
-
-    suspend fun saveShippingContact(contact: PharmacyUseCaseData.ShippingContact) {
-        shippingContactRepository.saveShippingContact(
-            mapShippingContact(contact)
-        )
-    }
-
-    suspend fun redeemPrescription(
-        profileId: ProfileIdentifier,
-        redeemOption: RemoteRedeemOption,
-        orderId: UUID,
-        order: PharmacyUseCaseData.PrescriptionOrder,
-        contact: PharmacyUseCaseData.ShippingContact,
-        pharmacyTelematikId: String
-    ): Result<Unit> {
-        val communicationDispenseRequestJson = createCommunicationDispenseRequest(
-            orderId = orderId.toString(),
-            taskId = order.taskId,
-            accessCode = order.accessCode,
-            recipientTID = pharmacyTelematikId,
-            payload = CommunicationPayload(
-                version = 1,
-                supplyOptionsType = redeemOption.type,
-                name = contact.name,
-                address = listOf(contact.line1, contact.line2, contact.postalCode, contact.city),
-                phone = contact.telephoneNumber,
-                hint = contact.deliveryInformation
-            )
-        )
-
-        val result = runCatching {
-            prescriptionRepository.redeemPrescription(
-                profileId = profileId,
-                communication = communicationDispenseRequestJson,
-                accessCode = order.accessCode
-            )
-        }.map {
-            if (it.isSuccess) {
-                val result = it.getOrNull()
-                Napier.d { "Redeem prescription successful: $result" }
-            } else {
-                throw it.exceptionOrNull() ?: IllegalStateException("Redeem prescription failed")
-            }
-        }
-        return result
-    }
-
-    private fun mapShippingContact(contact: PharmacyUseCaseData.ShippingContact) =
-        PharmacyData.ShippingContact(
-            name = contact.name.trim(),
-            line1 = contact.line1.trim(),
-            line2 = contact.line2.trim(),
-            postalCode = contact.postalCode.trim(),
-            city = contact.city.trim(),
-            telephoneNumber = contact.telephoneNumber.trim(),
-            mail = contact.mail.trim(),
-            deliveryInformation = contact.deliveryInformation.trim()
-        )
 }

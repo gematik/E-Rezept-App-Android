@@ -43,9 +43,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
@@ -55,6 +58,8 @@ import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
+import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewData
+import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailPreviewParameterProvider
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -67,9 +72,11 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.Label
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.dateTimeMediumText
 import de.gematik.ti.erp.app.utils.extensions.temporalText
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
@@ -551,4 +558,20 @@ private fun LotNumberLabel(lotNumber: String) {
         text = lotNumber,
         label = stringResource(id = R.string.pres_detail_medication_label_lot_number)
     )
+}
+
+@LightDarkPreview
+@Composable
+fun PrescriptionDetailMedicationScreenPreview(
+    @PreviewParameter(PrescriptionDetailPreviewParameterProvider::class) previewData: PrescriptionDetailPreviewData
+) {
+    PreviewAppTheme {
+        PrescriptionDetailMedicationScreenContent(
+            listState = rememberLazyListState(),
+            innerPadding = PaddingValues(0.dp),
+            navController = rememberNavController(),
+            prescriptionDataMedication = previewData.prescriptionDataMedication,
+            syncedPrescription = previewData.syncedPrescription
+        )
+    }
 }

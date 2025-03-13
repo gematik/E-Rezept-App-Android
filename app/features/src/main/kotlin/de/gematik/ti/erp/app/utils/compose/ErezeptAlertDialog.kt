@@ -335,13 +335,11 @@ fun ErezeptAlertDialog(
         onDismissRequest = onDismissRequest,
         buttons = {
             // centering the buttons
-            Box(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.Center
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Column {
-                    buttons()
-                }
+                buttons()
             }
         }
     )

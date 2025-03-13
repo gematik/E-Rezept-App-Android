@@ -24,6 +24,8 @@ import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpAuthenticationDataEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
@@ -36,6 +38,7 @@ import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
@@ -166,7 +169,10 @@ class CommonIdpRepositoryTest : TestDB() {
                     PKVInvoiceEntityV1::class,
                     InvoiceEntityV1::class,
                     ChargeableItemV1::class,
-                    PriceComponentV1::class
+                    PriceComponentV1::class,
+                    IdentifierEntityV1::class,
+                    AuthenticationEntityV1::class,
+                    AuthenticationPasswordEntityV1::class
                 )
             )
                 .schemaVersion(ACTUAL_SCHEMA_VERSION)
@@ -210,7 +216,7 @@ class CommonIdpRepositoryTest : TestDB() {
             healthCardCert
         )
 
-        profileRepository.saveProfile(defaultProfileName1, true)
+        profileRepository.createNewProfile(defaultProfileName1)
 
         val testProfile = profileRepository.profiles().first()[0]
 

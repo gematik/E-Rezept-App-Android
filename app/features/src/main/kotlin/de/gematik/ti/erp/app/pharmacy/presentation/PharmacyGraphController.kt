@@ -107,7 +107,7 @@ class DefaultPharmacyGraphController(
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val _hasRedeemableOrders by lazy {
-        _orderState.map { it.prescriptionOrders.isNotEmpty() }.mapLatest { return@mapLatest it }
+        _orderState.map { it.prescriptionsInOrder.isNotEmpty() }.mapLatest { return@mapLatest it }
     }
 
     private val _filter = MutableStateFlow(PharmacyUseCaseData.Filter())

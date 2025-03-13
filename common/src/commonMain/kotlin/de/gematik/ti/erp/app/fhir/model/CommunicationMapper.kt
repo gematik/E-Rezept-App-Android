@@ -18,6 +18,13 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+/*
+ * Copyright 2024, gematik GmbH
+ *
+ * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+ * European Commission – subsequent versions of the EUPL (the "Licence").
+ */
+
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
@@ -29,63 +36,49 @@ import de.gematik.ti.erp.app.fhir.parser.profileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.asFhirInstant
+import io.github.aakira.napier.Napier
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonPrimitive
 
-// TODO: Can use kotlinx.serialization to create a Communication object and then deserilize to string for better performance
-/**
- * Template version 1.2
- * Changes
- * - profile
- * - recipient.system
- *
- */
+@Serializable
+private data class CommunicationRequest(
+    val resourceType: String = "Communication",
+    val meta: CommunicationMeta,
+    val identifier: List<CommunicationIdentifier>,
+    val status: String = "unknown",
+    val basedOn: List<CommunicationBasedOn>,
+    val recipient: List<CommunicationRecipient>,
+    val payload: List<CommunicationPayloadWrapper>
+)
 
-// TODO: switch GEM_ERP_PR_Communication_DispReq to 1.4 between 15.01.2025 and 15.Jul.2025
-//  (version 1.2 and 1.3 of GEM_ERP_PR_Communication_DispReq are valid until 15.Jul.2025)
-private fun templateVersion12(
-    orderId: String,
-    reference: String,
-    payload: String,
-    recipientTID: String
-) = """
-{
-  "resourceType": "Communication",
-  "meta": {
-    "profile": [
-      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.2"
-    ]
-  },
-  "identifier": [
-    {
-      "system": "https://gematik.de/fhir/NamingSystem/OrderID",
-      "value": $orderId
-    }
-  ],
-  "status": "unknown",
-  "basedOn": [
-    {
-      "reference": $reference
-    }
-  ],
-  "recipient": [
-    {
-      "identifier": {
-        "system": "https://gematik.de/fhir/sid/telematik-id",
-        "value": $recipientTID
-      }
-    }
-  ],
-  "payload": [
-    {
-      "contentString": $payload
-    }
-  ]
-}
-""".trimIndent()
+@Serializable
+private data class CommunicationMeta(
+    val profile: List<String>
+)
+
+@Serializable
+private data class CommunicationIdentifier(
+    val system: String,
+    val value: String
+)
+
+@Serializable
+private data class CommunicationBasedOn(
+    val reference: String
+)
+
+@Serializable
+private data class CommunicationRecipient(
+    val identifier: CommunicationIdentifier
+)
+
+@Serializable
+private data class CommunicationPayloadWrapper(
+    val contentString: String
+)
 
 val json = Json {
     encodeDefaults = true
@@ -99,17 +92,37 @@ fun createCommunicationDispenseRequest(
     recipientTID: String,
     payload: CommunicationPayload
 ): JsonElement {
-    val payloadString = json.encodeToString(payload)
-    val reference = "Task/$taskId/\$accept?ac=$accessCode"
-
-    val templateString = templateVersion12(
-        orderId = JsonPrimitive(orderId).toString(),
-        reference = JsonPrimitive(reference).toString(),
-        payload = JsonPrimitive(payloadString).toString(),
-        recipientTID = JsonPrimitive(recipientTID).toString()
+    val communicationRequest = CommunicationRequest(
+        meta = CommunicationMeta(
+            profile = listOf("https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.2")
+        ),
+        identifier = listOf(
+            CommunicationIdentifier(
+                system = "https://gematik.de/fhir/NamingSystem/OrderID",
+                value = orderId
+            )
+        ),
+        basedOn = listOf(
+            CommunicationBasedOn(
+                reference = "Task/$taskId/\$accept?ac=$accessCode"
+            )
+        ),
+        recipient = listOf(
+            CommunicationRecipient(
+                identifier = CommunicationIdentifier(
+                    system = "https://gematik.de/fhir/sid/telematik-id",
+                    value = recipientTID
+                )
+            )
+        ),
+        payload = listOf(
+            CommunicationPayloadWrapper(
+                contentString = json.encodeToString(payload)
+            )
+        )
     )
 
-    return json.parseToJsonElement(templateString)
+    return json.parseToJsonElement(json.encodeToString(communicationRequest))
 }
 
 enum class CommunicationProfile {
@@ -129,9 +142,9 @@ fun extractCommunications(
         payload: String?
     ) -> Unit
 ): Int {
+    Napier.d { "bundle $bundle" }
     val bundleTotal = bundle.containedArrayOrNull("entry")?.size ?: 0
-    val resources = bundle
-        .findAll("entry.resource")
+    val resources = bundle.findAll("entry.resource")
 
     resources.forEach { resource ->
         val profileString = resource
@@ -139,24 +152,21 @@ fun extractCommunications(
             .contained("profile")
             .contained()
 
-        // TODO: add version 1.4 for GEM_ERP_PR_Communication_DispReq and GEM_ERP_PR_Communication_Reply
-        //  with changes and between 15.01.2025 and 15.Jul.2025
-        // TODO: remove Version 1.2 and 1.3 after 15.Jul.2025
         val profile = when {
             profileValue(
                 "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq",
                 "1.2",
                 "1.3",
                 "1.4"
-            ).invoke(
-                profileString
-            ) ->
+            ).invoke(profileString) ->
                 CommunicationProfile.ErxCommunicationDispReq
 
+            // TODO:
             profileValue(
                 "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply",
                 "1.2",
-                "1.3"
+                "1.3",
+                "1.4"
             ).invoke(profileString) ->
                 CommunicationProfile.ErxCommunicationReply
 
@@ -164,7 +174,7 @@ fun extractCommunications(
         }
 
         val reference = resource.contained("basedOn").containedString("reference")
-        val taskId = reference.split("/", limit = 3)[1] // Task/160.000.000.036.519.13/$accept?ac=...
+        val taskId = reference.split("/", limit = 3)[1]
 
         val orderId = resource
             .findAll("identifier")

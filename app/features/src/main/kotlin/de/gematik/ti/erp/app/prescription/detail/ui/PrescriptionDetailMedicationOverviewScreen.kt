@@ -39,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -47,8 +48,10 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberPrescriptionDetailController
+import de.gematik.ti.erp.app.prescription.detail.ui.preview.PrescriptionDetailMedicationOverviewPreviewParameter
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
@@ -56,9 +59,12 @@ import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.Label
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.uistate.UiState
 
 class PrescriptionDetailMedicationOverviewScreen(
     override val navController: NavController,
@@ -73,11 +79,43 @@ class PrescriptionDetailMedicationOverviewScreen(
         } ?: ""
 
         val prescriptionDetailsController = rememberPrescriptionDetailController(taskId)
-
         val profilePrescriptionData by prescriptionDetailsController.profilePrescription.collectAsStateWithLifecycle()
 
-        UiStateMachine(
+        PrescriptionDetailMedicationOverviewScreenScaffold(
             state = profilePrescriptionData,
+            onBack = navController::popBackStack,
+            onNavigateToMedicationDetail = { labelTaskId, selectedMedication ->
+                navController.navigate(
+                    PrescriptionDetailRoutes.PrescriptionDetailMedicationScreen.path(
+                        taskId = labelTaskId,
+                        selectedMedication = selectedMedication
+                    )
+                )
+            }
+        )
+    }
+}
+
+@Composable
+private fun PrescriptionDetailMedicationOverviewScreenScaffold(
+    state: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>,
+    onBack: () -> Unit,
+    onNavigateToMedicationDetail: (String, String) -> Unit
+) {
+    val scaffoldState = rememberScaffoldState()
+    val listState = rememberLazyListState()
+
+    AnimatedElevationScaffold(
+        scaffoldState = scaffoldState,
+        listState = listState,
+        onBack = onBack,
+        topBarTitle = stringResource(R.string.synced_medication_detail_header),
+        navigationMode = NavigationBarMode.Back,
+        snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) },
+        actions = {}
+    ) { innerPadding ->
+        UiStateMachine(
+            state = state,
             onLoading = {
                 Center {
                     CircularProgressIndicator()
@@ -91,27 +129,15 @@ class PrescriptionDetailMedicationOverviewScreen(
             },
             onContent = { (_, prescription) ->
                 val syncedPrescription = prescription as? PrescriptionData.Synced
-                val scaffoldState = rememberScaffoldState()
-                val listState = rememberLazyListState()
-                AnimatedElevationScaffold(
-                    scaffoldState = scaffoldState,
-                    listState = listState,
-                    onBack = navController::popBackStack,
-                    topBarTitle = stringResource(R.string.synced_medication_detail_header),
-                    navigationMode = NavigationBarMode.Back,
-                    snackbarHost = { SnackbarHost(it, modifier = Modifier.navigationBarsPadding()) },
-                    actions = {}
-                ) { innerPadding ->
-                    syncedPrescription?.medicationRequest?.medication?.let { medication ->
-                        PrescriptionDetailMedicationOverviewScreenContent(
-                            listState,
-                            innerPadding,
-                            navController,
-                            medication,
-                            syncedPrescription,
-                            taskId
-                        )
-                    }
+                syncedPrescription?.medicationRequest?.medication?.let { medication ->
+                    PrescriptionDetailMedicationOverviewScreenContent(
+                        listState = listState,
+                        innerPadding = innerPadding,
+                        medication = medication,
+                        syncedPrescription = syncedPrescription,
+                        taskId = syncedPrescription.taskId,
+                        onLabelClick = onNavigateToMedicationDetail
+                    )
                 }
             }
         )
@@ -122,15 +148,14 @@ class PrescriptionDetailMedicationOverviewScreen(
 private fun PrescriptionDetailMedicationOverviewScreenContent(
     listState: LazyListState,
     innerPadding: PaddingValues,
-    navController: NavController,
     medication: SyncedTaskData.Medication,
     syncedPrescription: PrescriptionData.Synced,
-    taskId: String
+    taskId: String,
+    onLabelClick: (String, String) -> Unit
 ) {
     LazyColumn(
         state = listState,
-        modifier =
-        Modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(innerPadding),
         contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
@@ -147,14 +172,9 @@ private fun PrescriptionDetailMedicationOverviewScreenContent(
                 text = medication.name(),
                 label = null,
                 onClick = {
-                    navController.navigate(
-                        PrescriptionDetailRoutes.PrescriptionDetailMedicationScreen.path(
-                            taskId = taskId,
-                            selectedMedication =
-                            PrescriptionData.Medication
-                                .Request(syncedPrescription.medicationRequest)
-                                .toNavigationString()
-                        )
+                    onLabelClick(
+                        taskId,
+                        PrescriptionData.Medication.Request(syncedPrescription.medicationRequest).toNavigationString()
                     )
                 }
             )
@@ -170,24 +190,35 @@ private fun PrescriptionDetailMedicationOverviewScreenContent(
         }
 
         syncedPrescription.medicationDispenses.forEach { dispense ->
-            // TODO: add tracking event (with dispenseId + performer) in case of medication is null
             dispense.medication?.let { medication ->
                 item {
                     Label(
                         text = medication.name(),
                         label = null,
                         onClick = {
-                            navController.navigate(
-                                PrescriptionDetailRoutes.PrescriptionDetailMedicationScreen.path(
-                                    taskId = taskId,
-                                    selectedMedication =
-                                    PrescriptionData.Medication.Dispense(dispense).toNavigationString()
-                                )
+                            onLabelClick(
+                                taskId,
+                                PrescriptionData.Medication.Dispense(dispense).toNavigationString()
                             )
                         }
                     )
                 }
             }
         }
+    }
+}
+
+@LightDarkPreview
+@Composable
+fun PrescriptionDetailMedicationOverviewScreenPreview(
+    @PreviewParameter(PrescriptionDetailMedicationOverviewPreviewParameter::class)
+    state: UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>
+) {
+    PreviewAppTheme {
+        PrescriptionDetailMedicationOverviewScreenScaffold(
+            state = state,
+            onBack = {},
+            onNavigateToMedicationDetail = { _, _ -> }
+        )
     }
 }

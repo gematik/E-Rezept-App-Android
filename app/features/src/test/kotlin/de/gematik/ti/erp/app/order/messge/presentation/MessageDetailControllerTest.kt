@@ -132,7 +132,8 @@ class MessageDetailControllerTest {
         fetchInAppMessageUseCase = FetchInAppMessageUseCase(
             inAppMessageRepository = inAppMessageRepository,
             localMessageRepository = localMessageRepository,
-            messageResources = messageResources
+            messageResources = messageResources,
+            buildConfigInformation = buildConfigInformation
         )
         getActiveProfileUseCase = GetActiveProfileUseCase(
             repository = profileRepository,
@@ -166,7 +167,7 @@ class MessageDetailControllerTest {
             dispatcher = dispatcher
         )
         fetchWelcomeMessageUseCase = spyk(FetchWelcomeMessageUseCase(inAppMessageRepository, buildConfigInformation, messageResources))
-        fetchInAppMessageUseCase = spyk(FetchInAppMessageUseCase(inAppMessageRepository, localMessageRepository, messageResources))
+        fetchInAppMessageUseCase = spyk(FetchInAppMessageUseCase(inAppMessageRepository, localMessageRepository, messageResources, buildConfigInformation))
         controllerUnderTest = MessageDetailController(
             orderId = ORDER_ID,
             isLocalMessage = false,
@@ -297,6 +298,7 @@ class MessageDetailControllerTest {
     fun `fetch inapp messages from local database`() {
         val mockMessages = inAppMessage
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
         coEvery { fetchInAppMessageUseCase.invoke() } returns flowOf(mockMessages)
         every { getMessageUsingOrderIdUseCase(ORDER_ID) } returns flowOf(null)
         coEvery { inAppMessageRepository.setInternalMessageAsRead() } returns Unit
@@ -333,6 +335,7 @@ class MessageDetailControllerTest {
         coEvery { inAppMessageRepository.setInternalMessageAsRead() } returns Unit
         coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
         coEvery { localMessageRepository.getInternalMessages() } returns flowOf(emptyList())
         coEvery { inAppMessageRepository.inAppMessages } returns flowOf(emptyList())
 
@@ -366,6 +369,7 @@ class MessageDetailControllerTest {
         coEvery { fetchWelcomeMessageUseCase.invoke() } returns flowOf(welcomeMessage)
         coEvery { inAppMessageRepository.setInternalMessageAsRead() } returns Unit
         coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(true)
         coEvery { localMessageRepository.getInternalMessages() } returns flowOf(emptyList())
         coEvery { messageResources.messageFrom } returns (WELCOME_MESSAGE_ID)
@@ -394,7 +398,7 @@ class MessageDetailControllerTest {
             advanceUntilIdle()
             val messageList = controllerUnderTest.localMessages.value
             assertNotNull(messageList)
-            assertEquals(messageList, listOf(welcomeMessage))
+            assertEquals(listOf(welcomeMessage), messageList)
         }
     }
 

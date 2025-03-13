@@ -27,21 +27,22 @@ import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 
 inline fun Result<Unit>.mapUnitToInvoiceError(
-    transform: (Unit) -> InvoiceResult
+    deleteLocalInvoiceById: () -> Unit
 ): Result<InvoiceResult> {
     return try {
-        when {
-            isSuccess -> {
-                runCatching { transform(this.getOrThrow()) }
-            }
-
-            else -> {
+        this.fold(
+            onSuccess = {
+                deleteLocalInvoiceById()
+                Result.success(InvoiceResult.InvoiceSuccess.SuccessOnDeletion)
+            },
+            onFailure = {
+                deleteLocalInvoiceById()
                 when (val exception = this.exceptionOrNull()) {
                     is ApiCallException -> Result.failure(InvoiceError(exception.response.httpErrorState()))
                     else -> Result.failure(InvoiceError(HttpErrorState.Unknown))
                 }
             }
-        }
+        )
     } catch (e: Exception) {
         Napier.e { "ErrorOnDeletion: ${e.message}" }
         Result.failure(InvoiceError(HttpErrorState.ErrorWithCause(e.message ?: "Unknown error on invoice charge bundle download")))

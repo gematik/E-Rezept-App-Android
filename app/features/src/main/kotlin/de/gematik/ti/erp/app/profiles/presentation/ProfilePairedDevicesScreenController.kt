@@ -85,6 +85,7 @@ class ProfilePairedDevicesScreenController(
     getProfilesUseCase = getProfilesUseCase,
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
     biometricAuthenticator = biometricAuthenticator,
+    networkStatusTracker = networkStatusTracker,
     onSelectedProfileSuccess = { profile, coroutineScope ->
         coroutineScope.launch {
             refreshTrigger.emit(profile)

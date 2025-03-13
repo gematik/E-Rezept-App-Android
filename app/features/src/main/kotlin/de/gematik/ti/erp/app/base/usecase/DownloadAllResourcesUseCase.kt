@@ -31,6 +31,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
 import kotlinx.coroutines.flow.first
@@ -52,7 +53,6 @@ class DownloadAllResourcesUseCase(
     private val networkStatusTracker: NetworkStatusTracker,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-
     suspend operator fun invoke(profileId: ProfileIdentifier): Result<Int> =
         withContext(dispatcher) {
             val resultChannel = Channel<Result<Int>>()
@@ -78,7 +78,7 @@ class DownloadAllResourcesUseCase(
         val profileId: ProfileIdentifier
     )
 
-    private val scope = CoroutineScope(dispatcher)
+    private val scope = CoroutineScope(dispatcher + SupervisorJob()) // to allow it to run even if the viewmodel is cleared
 
     private val requestChannel =
         Channel<Request>(
@@ -98,8 +98,8 @@ class DownloadAllResourcesUseCase(
         }
     }
 
-    private suspend fun handleDownloadRequest(request: Request) {
-        try {
+    private suspend fun handleDownloadRequest(request: Request) =
+        runCatching {
             val profileId = request.profileId
             stateRepository.updateSnapshotState(DownloadResourcesState.NotStarted)
             if (networkStatusTracker.networkStatus.first()) { // tell in progress only if nw is connected
@@ -123,19 +123,23 @@ class DownloadAllResourcesUseCase(
             }
             Napier.i { "Refresh finished for $profileId with $newPrescriptionsCount new prescriptions" }
             request.resultChannel.send(Result.success(newPrescriptionsCount))
-        } catch (e: CancellationException) {
-            Napier.e(e) { "CancellationException on downloading resources" }
-            request.resultChannel.close(e)
-        } catch (e: Exception) {
-            Napier.e(e) { "Error downloading resources" }
-            request.resultChannel.send(Result.failure(e))
-        } finally {
+        }.onFailure { error ->
+            when (error) {
+                is CancellationException -> {
+                    Napier.e(error) { "CancellationException on downloading resources" }
+                    request.resultChannel.close(error)
+                }
+                else -> {
+                    Napier.e(error) { "Error downloading resources" }
+                    request.resultChannel.send(Result.failure(error))
+                }
+            }
+        }.finally {
             with(stateRepository) {
                 updateSnapshotState(DownloadResourcesState.Finished)
                 updateDetailState(DownloadResourcesState.Finished)
             }
         }
-    }
 
     private suspend fun downloadTasks(profileId: ProfileIdentifier): Int =
         withContext(NonCancellable) {
@@ -178,5 +182,10 @@ class DownloadAllResourcesUseCase(
             Napier.e(it) { "Error downloading resources" }
             block(it)
         }
+    }
+
+    private inline fun <T> Result<T>.finally(block: () -> Unit): Result<T> {
+        block()
+        return this
     }
 }

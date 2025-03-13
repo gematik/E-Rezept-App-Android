@@ -19,12 +19,10 @@
 package de.gematik.ti.erp.app.profiles.usecase
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.DefaultProfilesRepository
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.protocol.repository.DefaultAuditEventsRepository
 import io.mockk.MockKAnnotations
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -41,12 +39,6 @@ class ProfilesUseCaseTest {
 
     @MockK(relaxed = true)
     lateinit var profilesRepository: DefaultProfilesRepository
-
-    @MockK
-    lateinit var idpRepository: IdpRepository
-
-    @MockK
-    lateinit var auditEventsRepository: DefaultAuditEventsRepository
 
     @get:Rule
     val coroutineRule = CoroutineTestRule()
@@ -68,8 +60,7 @@ class ProfilesUseCaseTest {
         MockKAnnotations.init(this)
 
         profilesUseCase = ProfilesUseCase(
-            profilesRepository = profilesRepository,
-            idpRepository = idpRepository
+            profilesRepository = profilesRepository
         )
     }
 

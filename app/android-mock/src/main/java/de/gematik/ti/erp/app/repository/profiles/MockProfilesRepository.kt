@@ -49,17 +49,6 @@ class MockProfilesRepository(
         it.find { profile -> profile.active }
     }
 
-    override suspend fun saveProfile(profileName: String, activate: Boolean) {
-        withContext(dispatcher) {
-            dataSource.profiles.value = dataSource.profiles
-                .updateAndGet { profileList ->
-                    val profiles = profileList.deactivateAllProfiles()
-                    profiles.add(profileName.create())
-                    profiles
-                }
-        }
-    }
-
     override suspend fun createNewProfile(profileName: String) {
         withContext(dispatcher) {
             dataSource.profiles.value = dataSource.profiles
@@ -82,8 +71,16 @@ class MockProfilesRepository(
         }
     }
 
-    override suspend fun removeProfile(profileId: ProfileIdentifier) {
+    override suspend fun removeProfile(profileId: ProfileIdentifier, profileName: String) {
         withContext(dispatcher) {
+            if (dataSource.profiles.value.size == 1) {
+                dataSource.profiles.value = dataSource.profiles
+                    .updateAndGet { profileList ->
+                        val profiles = profileList.deactivateAllProfiles()
+                        profiles.add(profileName.create())
+                        profiles
+                    }
+            }
             dataSource.profiles.value = dataSource.profiles
                 .updateAndGet { profiles ->
                     profiles.removeIf { profile -> profile.id == profileId }

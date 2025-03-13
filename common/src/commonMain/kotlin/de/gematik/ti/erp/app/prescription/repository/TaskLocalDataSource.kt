@@ -18,42 +18,35 @@
 
 package de.gematik.ti.erp.app.prescription.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CoverageTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationCategoryV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.QuantityEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.RatioEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.TaskStatusV1
 import de.gematik.ti.erp.app.db.queryFirst
+import de.gematik.ti.erp.app.db.safeWrite
 import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.tryWrite
 import de.gematik.ti.erp.app.db.writeToRealm
-import de.gematik.ti.erp.app.fhir.model.AccidentType
 import de.gematik.ti.erp.app.fhir.model.MedicationCategory
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
-import de.gematik.ti.erp.app.fhir.model.extractKBVBundle
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispense
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispensePairs
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispenseWithMedication
-import de.gematik.ti.erp.app.fhir.model.extractTask
-import de.gematik.ti.erp.app.fhir.model.extractTaskAndKBVBundle
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskDataErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMetaDataErpModel
+import de.gematik.ti.erp.app.prescription.errors.PrescriptionDataNotFoundException
+import de.gematik.ti.erp.app.prescription.mapper.DatabaseMappers.toDatabaseModel
 import de.gematik.ti.erp.app.prescription.model.Communication
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
 import de.gematik.ti.erp.app.prescription.model.Quantity
@@ -62,6 +55,7 @@ import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.FhirTemporal
+import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.toRealmList
@@ -107,227 +101,97 @@ class TaskLocalDataSource(
 
     private val mutex = Mutex()
 
-    @Suppress("LongMethod", "ComplexMethod")
-    suspend fun saveTask(profileId: ProfileIdentifier, bundle: JsonElement): SaveTaskResult? = mutex.withLock {
-        return realm.tryWrite {
-            queryFirst<ProfileEntityV1>("id = $0", profileId)?.let { profile ->
-                lateinit var taskEntity: SyncedTaskEntityV1
+    private fun MutableRealm.findProfile(profileId: ProfileIdentifier): ProfileEntityV1 {
+        return queryFirst<ProfileEntityV1>("id = $0", profileId)
+            ?: throw PrescriptionDataNotFoundException("ProfileEntity with id $profileId not found in database")
+    }
 
-                extractTaskAndKBVBundle(
-                    bundle,
-                    process = { taskResource, bundleResource ->
-                        extractTask(
-                            task = taskResource,
-                            process = { taskId: String, accessCode: String, lastModified: FhirTemporal.Instant,
-                                expiresOn: FhirTemporal.LocalDate?, acceptUntil: FhirTemporal.LocalDate?,
-                                authoredOn: FhirTemporal.Instant, status: TaskStatus,
-                                lastMedicationDispense: FhirTemporal.Instant? ->
+    private fun MutableRealm.findTask(taskId: String): SyncedTaskEntityV1 {
+        return queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)
+            ?: throw PrescriptionDataNotFoundException("SyncedTaskEntity with taskId $taskId not found in database")
+    }
 
-                                taskEntity = queryFirst("taskId = $0", taskId) ?: run {
-                                    copyToRealm(SyncedTaskEntityV1()).also {
-                                        profile.syncedTasks += it
-                                    }
-                                }
+    private fun MutableRealm.findOrCreateTask(taskId: String, profileEntity: ProfileEntityV1): SyncedTaskEntityV1 {
+        return queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId) ?: copyToRealm(SyncedTaskEntityV1())
+            .also { profileEntity.syncedTasks += it }
+    }
 
-                                taskEntity.apply {
-                                    this.parent = profile
-                                    this.taskId = taskId
-                                    this.accessCode = accessCode
-                                    this.lastModified = lastModified.value.toRealmInstant()
-                                    this.status = status.toTaskStatusV1()
-                                    this.expiresOn =
-                                        expiresOn?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
-                                    this.lastMedicationDispense = lastMedicationDispense?.toInstant()?.toRealmInstant()
-                                    this.acceptUntil =
-                                        acceptUntil?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
-                                    this.authoredOn = authoredOn.value.toRealmInstant()
-                                }
-                            }
-                        )
-
-                        try {
-                            extractKBVBundle(
-                                bundleResource,
-                                processOrganization = { name, address, bsnr, iknr, phone, mail ->
-                                    OrganizationEntityV1().apply {
-                                        this.name = name
-                                        this.address = address
-                                        this.uniqueIdentifier = bsnr
-                                        this.phone = phone
-                                        this.mail = mail
-                                    }
-                                },
-                                processPatient = { name, address, birthDate, insuranceIdentifier ->
-                                    PatientEntityV1().apply {
-                                        this.name = name
-                                        this.address = address
-                                        this.dateOfBirth = birthDate
-                                        this.insuranceIdentifier = insuranceIdentifier
-                                    }
-                                },
-                                processPractitioner = { name, qualification, practitionerIdentifier ->
-                                    PractitionerEntityV1().apply {
-                                        this.name = name
-                                        this.qualification = qualification
-                                        this.practitionerIdentifier = practitionerIdentifier
-                                    }
-                                },
-                                processInsuranceInformation = { name, statusCode, coverageType ->
-                                    InsuranceInformationEntityV1().apply {
-                                        this.name = name
-                                        this.statusCode = statusCode
-                                        this.coverageType = CoverageTypeV1.mapTo(coverageType)
-                                    }
-                                },
-                                processAddress = { line, postalCode, city ->
-                                    AddressEntityV1().apply {
-                                        this.line1 = line?.getOrNull(0) ?: ""
-                                        this.line2 = line?.getOrNull(1) ?: ""
-                                        this.postalCode = postalCode ?: ""
-                                        this.city = city ?: ""
-                                    }
-                                },
-                                processQuantity = { value, unit ->
-                                    QuantityEntityV1().apply {
-                                        this.value = value
-                                        this.unit = unit
-                                    }
-                                },
-                                processRatio = { numerator, denominator ->
-                                    RatioEntityV1().apply {
-                                        this.numerator = numerator
-                                        this.denominator = denominator
-                                    }
-                                },
-                                processIngredient = { text, form, identifier, amount, strength ->
-                                    IngredientEntityV1().apply {
-                                        this.text = text
-                                        this.form = form
-                                        this.number = number
-                                        this.amount = amount
-                                        this.identifier = identifier.toIdentifierEntityV1()
-                                        this.strength = strength
-                                    }
-                                },
-                                processMedication = {
-                                        text,
-                                        medicationCategory,
-                                        form,
-                                        amount,
-                                        vaccine,
-                                        manufacturingInstructions,
-                                        packaging,
-                                        normSizeCode,
-                                        identifier,
-                                        _,
-                                        ingredients,
-                                        _,
-                                        _ ->
-                                    MedicationEntityV1().apply {
-                                        this.text = text ?: ""
-                                        this.medicationCategory = when (medicationCategory) {
-                                            MedicationCategory.ARZNEI_UND_VERBAND_MITTEL ->
-                                                MedicationCategoryV1.ARZNEI_UND_VERBAND_MITTEL
-
-                                            MedicationCategory.BTM -> MedicationCategoryV1.BTM
-                                            MedicationCategory.AMVV -> MedicationCategoryV1.AMVV
-                                            MedicationCategory.SONSTIGES -> MedicationCategoryV1.SONSTIGES
-                                            else -> MedicationCategoryV1.UNKNOWN
-                                        }
-                                        this.form = form
-                                        this.amount = amount
-                                        this.vaccine = vaccine
-                                        this.manufacturingInstructions = manufacturingInstructions
-                                        this.packaging = packaging
-                                        this.normSizeCode = normSizeCode
-                                        this.identifier = identifier.toIdentifierEntityV1()
-                                        this.ingredients = ingredients.toRealmList()
-                                    }
-                                },
-                                processMultiplePrescriptionInfo = { indicator, numbering, start, end ->
-                                    MultiplePrescriptionInfoEntityV1().apply {
-                                        this.indicator = indicator
-                                        this.numbering = numbering
-                                        this.start = start?.toInstant(TimeZone.UTC)?.toRealmInstant()
-                                        this.end = end?.toInstant(TimeZone.UTC)?.toRealmInstant()
-                                    }
-                                },
-                                processMedicationRequest = {
-                                        authoredOn,
-                                        dateOfAccident,
-                                        location,
-                                        accidentType,
-                                        emergencyFee,
-                                        substitutionAllowed,
-                                        dosageInstruction,
-                                        quantity,
-                                        multiplePrescriptionInfo,
-                                        note,
-                                        bvg,
-                                        additionalFee
-                                    ->
-                                    MedicationRequestEntityV1().apply {
-                                        this.authoredOn = authoredOn
-                                        this.dateOfAccident =
-                                            dateOfAccident?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
-                                        this.location = location
-                                        this.accidentType = when (accidentType) {
-                                            AccidentType.Unfall -> AccidentTypeV1.Unfall
-                                            AccidentType.Arbeitsunfall -> AccidentTypeV1.Arbeitsunfall
-                                            AccidentType.Berufskrankheit -> AccidentTypeV1.Berufskrankheit
-                                            AccidentType.None -> AccidentTypeV1.None
-                                        }
-                                        this.emergencyFee = emergencyFee
-                                        this.substitutionAllowed = substitutionAllowed
-                                        this.dosageInstruction = dosageInstruction
-                                        this.quantity = quantity
-                                        this.multiplePrescriptionInfo = multiplePrescriptionInfo
-                                        this.note = note
-                                        this.bvg = bvg
-                                        this.additionalFee = additionalFee
-                                    }
-                                },
-                                savePVSIdentifier = { pvsId: String? ->
-                                    taskEntity.apply {
-                                        this.pvsIdentifier = pvsId ?: ""
-                                    }
-                                },
-                                save = { organization,
-                                    patient,
-                                    practitioner,
-                                    insuranceInformation,
-                                    medication,
-                                    medicationRequest ->
-                                    taskEntity.apply {
-                                        this.organization = organization
-                                        this.patient = patient
-                                        this.practitioner = practitioner
-                                        this.insuranceInformation = insuranceInformation
-                                        this.medicationRequest = medicationRequest.apply {
-                                            this.medication = medication
-                                        }
-                                    }
-                                }
-                            )
-                        } catch (expected: Exception) {
-                            taskEntity.apply {
-                                this.isIncomplete = true
-                                this.failureToReport = expected.message ?: ""
-                            }
-                        }
-                    }
-                )
-
-                // delete scanned task
-                queryFirst<ScannedTaskEntityV1>("taskId = $0", taskEntity.taskId)?.let { delete(it) }
-
-                SaveTaskResult(
-                    isCompleted = taskEntity.status == TaskStatusV1.Completed,
-                    lastModified = taskEntity.lastModified.toInstant()
-                )
+    private fun MutableRealm.updateTaskEntityWithMetaData(
+        taskEntity: SyncedTaskEntityV1,
+        profileEntity: ProfileEntityV1,
+        model: FhirTaskMetaDataErpModel
+    ): Result<Unit> {
+        return runCatching {
+            with(taskEntity) {
+                parent = profileEntity
+                taskId = model.taskId
+                accessCode = model.accessCode
+                lastModified = model.lastModified.value.toRealmInstant()
+                status = model.status.toTaskStatusV1()
+                expiresOn = model.expiresOn?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
+                lastMedicationDispense = model.lastMedicationDispense?.toInstant()?.toRealmInstant()
+                acceptUntil = model.acceptUntil?.value?.atStartOfDayIn(TimeZone.UTC)?.toRealmInstant()
+                authoredOn = model.authoredOn.value.toRealmInstant()
             }
         }
     }
+
+    suspend fun saveTaskMetaData(profileId: ProfileIdentifier, model: FhirTaskMetaDataErpModel): Result<Unit> =
+        mutex.withLock {
+            realm.safeWrite {
+                val profileEntity = findProfile(profileId)
+                val taskEntity = findOrCreateTask(model.taskId, profileEntity)
+                updateTaskEntityWithMetaData(taskEntity, profileEntity, model)
+            }
+        }
+
+    suspend fun markTaskAsIncomplete(
+        taskId: String,
+        error: Throwable
+    ) =
+        runCatching {
+            mutex.withLock {
+                realm.safeWrite {
+                    val taskEntity = findTask(taskId)
+                    taskEntity.apply {
+                        this.isIncomplete = true
+                        this.failureToReport = error.message ?: ""
+                    }
+                }
+            }
+        }
+
+    suspend fun saveTaskKbvData(
+        taskId: String,
+        model: FhirTaskDataErpModel
+    ): Result<SaveTaskResult> =
+        runCatching {
+            mutex.withLock {
+                realm.safeWrite {
+                    val taskEntity = findTask(taskId)
+
+                    with(taskEntity) {
+                        pvsIdentifier = model.pvsId ?: ""
+                        organization = model.organization?.toDatabaseModel()
+                        patient = model.patient?.toDatabaseModel()
+                        practitioner = model.practitioner?.toDatabaseModel()
+                        insuranceInformation = model.coverage?.toDatabaseModel()
+                        medicationRequest = model.medicationRequest?.toDatabaseModel()?.apply {
+                            medication = model.medication?.toDatabaseModel()
+                        }
+                    }
+
+                    // after saving the SyncedTaskEntityV1 for the given taskId,
+                    // delete the ScannedTaskEntityV1 if present since we have already downloaded the task
+                    queryFirst<ScannedTaskEntityV1>("taskId = $0", taskEntity.taskId)?.let { delete(it) }
+
+                    SaveTaskResult(
+                        isCompleted = taskEntity.status == TaskStatusV1.Completed,
+                        lastModified = taskEntity.lastModified.toInstant()
+                    )
+                }
+            }
+        }
 
     private fun TaskStatus.toTaskStatusV1(): TaskStatusV1 {
         return when (this) {
@@ -520,6 +384,7 @@ class TaskLocalDataSource(
     }
 }
 
+@Suppress("CyclomaticComplexMethod")
 fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
     SyncedTaskData.SyncedTask(
         profileId = this.parent!!.id,

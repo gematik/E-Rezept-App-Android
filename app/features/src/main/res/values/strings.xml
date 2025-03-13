@@ -121,7 +121,7 @@
     <string name="technical_hotline_info">Telefonische Hotline</string>
     <string name="main_scan_acc">Scanner für Rezepte öffnen</string>
     <string name="main_settings_acc">Einstellungen</string>
-    <string name="settings_screenshots_toggle_text">Screenshots unterdrücken</string>
+    <string name="settings_screenshots_toggle_text">Screenshots erlauben</string>
     <string name="settings_tracking_dialog_title">Erlauben Sie E-Rezept Ihr Nutzungsverhalten anonym zu analysieren?</string>
     <string name="pres_detail_technical_information">Technische Informationen</string>
     <string name="settings_biometric_dialog_title">Sicherheit Ihrer Rezeptdaten</string>
@@ -172,9 +172,9 @@
     <string name="consistent_password">Wiederholtes Passwort stimmt überein</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Fehler 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Das Zertifikat Ihrer Gesundheitskarte ist ungültig. Ist Ihre Karte möglicherweise abgelaufen? Bitte kontaktieren Sie Ihre Krankenversicherung.</string>
-    <string name="auth_error_failed_auths_headline">Erfolglose Anmeldeversuche</string>
+    <string name="auth_error_failed_auths_headline">Das hat leider nicht geklappt</string>
     <plurals name="auth_error_failed_auths_info">
-        <item quantity="one">Es wurde %s erfolgloser Anmeldeversuche festgestellt.</item>
+        <item quantity="one">Es wurde %s erfolgloser Anmeldeversuch festgestellt.</item>
         <item quantity="other">Es wurden %s erfolglose Anmeldeversuche festgestellt.</item>
     </plurals>
     <string name="token_headline">Tokens</string>
@@ -509,7 +509,7 @@
     <string name="time_description_today">Um %s Uhr</string>
     <string name="orders_cart_ready">Warenkorb steht bereit</string>
     <string name="orders_cart_ready_info">Das Rezept wurde Ihrem Warenkorb hinzugefügt. Bitte wechseln Sie nun auf die Website der Apotheke, um die Bestellung abzuschließen.</string>
-    <string name="orders_open_cart_link">Warenkorb öffnen</string>
+    <string name="orders_open_cart_link">Link Ihrer Apotheke</string>
     <string name="orders_code_info">Zeigen Sie diesen Abholcode in der Apotheke vor.</string>
     <string name="orders_code_title">Abholcode erhalten</string>
     <string name="orders_no_message_title">Nachricht kann nicht angezeigt werden</string>
@@ -671,7 +671,6 @@
     <string name="search_pharmacies_location_na_settings">Einstellungen</string>
     <string name="search_pharmacies_location_na_services">Standort in den Einstellungen freigeben.</string>
     <string name="pharmacy_maps_header">In meiner Nähe</string>
-    <string name="mainscreen_profile_chip_content_description">Gedrückt halten, um den Namen zu bearbeiten.</string>
     <string name="profile_edit_name_for_rename_info">Geben Sie den neuen Namen für das Profil ein.</string>
     <string name="mainscreen_welcome_drawer_info">Um Rezepte digital von Ihrer Praxis zu empfangen, müssen Sie angemeldet sein.</string>
     <string name="mainscreen_welcome_drawer_header">Rezepte digital empfangen?</string>
@@ -696,6 +695,9 @@
     <string name="pharmacy_order_delivery">Lieferung per Bote</string>
     <string name="pharmacy_order_mail">Lieferung per Versand</string>
     <string name="pharmacy_order_nr_of_prescriptions">%s Rezepte</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">Rezepte</string>
+    <string name="pharmacy_order_no_prescriptions">Rezepte wählen</string>
+    <string name="pharmacy_order_no_prescriptions_error">Bitte wählen Sie ein Rezept</string>
     <string name="pharmacy_order_not_possible_title">Einlösen nicht möglich</string>
     <string name="pharmacy_order_not_possible_desc">Ein oder mehrere Rezepte konnten nicht eingelöst werden.</string>
     <string name="pharmacy_order_no_selected_prescriptions_title">Kein Rezept gewählt</string>
@@ -1102,14 +1104,15 @@
     <string name="invoices_deleted">Ihre Kostenbelege wurde gelöscht</string>
     <string name="invoices_detail_title">Kostenbeleg</string>
     <string name="paired_devices_biometrics_error_login_title">Anmeldung notwendig</string>
-    <string name="paired_devices_biometrics_error_login_description">Bitte melden Sie sich an, um die verbundenen Geräte anzuzeigen.</string>
+    <string name="paired_devices_biometrics_error_login_description">Bitte melden Sie sich an und speichern Sie die Zugangsdaten, um die verbundenen Geräte anzuzeigen.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Anmelden</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Anmelden</string>
     <string name="cdw_intro_auth_gid_app_required">Verbinden mit %s Versicherung</string>
     <string name="a11y_card_wall_card_hand">Gesundheitskarte am Smartphone</string>
     <string name="not_logged_in">Nicht angemeldet</string>
+    <string name="no_login_state_no_internet">Kein Internet</string>
     <string name="logged_in">Angemeldet</string>
-    <string name="a11y_refresh">refresh</string>
+    <string name="refresh">Aktualisieren</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Sie erhalten Zugriffsprotokolle, wenn Sie am Rezeptdienst angemeldet sind.</string>
     <string name="paired_devices_error_login_title">Anmeldung notwendig</string>
     <string name="paired_devices_error_login_description">Bitte melden Sie sich mit Ihrer Gesundheitskarte an und speichern Sie Ihre Anmeldedaten mit Biometrie, um die verbundenen Geräte anzuzeigen.</string>
@@ -1223,7 +1226,7 @@
     <string name="settings_app_security_change_password">Passwort ändern</string>
     <string name="invoices_delete_not_logged_in_description">Zum Löschen muss eine Verbindung zum  Rezeptserver hergestellt werden</string>
     <string name="provided">Ware steht bereit</string>
-    <string name="provided_on_hour">Ware steht bereit seit %s</string>
+    <string name="provided_at_hour">Ware steht bereit seit %s Uhr</string>
     <string name="provided_now">Ware steht bereit seit gerade eben</string>
     <string name="provided_minutes_ago">Ware steht bereit seit %s Minuten</string>
     <string name="provided_on_date">Ware steht bereit seit %s</string>
@@ -1256,4 +1259,19 @@
     <string name="message_list_time_state_hours">%s Uhr</string>
     <string name="language_selection_es">Spanisch</string>
     <string name="language_selection_ga">Irisch</string>
+    <string name="gesund_bund_de" translatable="false">gesund.bund.de</string>
+    <string name="profile_screen_login_hint">Um Rezepte automatisch zu erhalten, müssen Sie angemeldet sein.</string>
+    <string name="profile_screen_login_button">Anmelden</string>
+    <string name="edit_profile_name">Profilnamen bearbeiten</string>
+    <string name="activate_profile">Profil auswählen</string>
+    <string name="add_profile">Profil hinzufügen</string>
+    <string name="inactive_description">nicht ausgewählt</string>
+    <string name="active_description">ausgewählt</string>
+    <string name="error_redeemable_prescription_title">Rezept nicht einlösbar</string>
+    <string name="error_redeemable_prescription_generic_error">Das Rezept „%1$s“ ist nicht mehr einlösbar. Möglicherweise haben Sie es bereits auf anderem Weg eingelöst oder es wurde gelöscht.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Das Rezept „%1$s“ ist bereits eingelöst oder im Moment in Einlösung.</string>
+    <string name="error_redeemable_prescription_deleted">Das Rezept „%1$s“ ist bereits gelöscht und kann daher nicht mehr eingelöst werden.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n    Die folgenden Rezepte sind nicht oder nicht mehr einlösbar:%1$s \n Möglicherweise haben Sie sie bereits auf anderem Weg eingelöst oder sie wurden gelöscht.\n</string>
+    <string name="error_redeemable_prescription_continue_without">Ohne diese Rezepte fortfahren</string>
+    <string name="error_redeemable_prescription_cancel_order">Bestellung verwerfen</string>
 </resources>

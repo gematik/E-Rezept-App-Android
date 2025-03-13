@@ -29,9 +29,9 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Clock
 
-class PrescriptionPreviewParameterProvider : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionOrder>> {
+class PrescriptionPreviewParameterProvider : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionInOrder>> {
 
-    override val values: Sequence<List<PharmacyUseCaseData.PrescriptionOrder>>
+    override val values: Sequence<List<PharmacyUseCaseData.PrescriptionInOrder>>
         get() = sequenceOf(
             PharmacyOrders,
             emptyPharmacyOrders
@@ -70,11 +70,36 @@ val emptyGkvProfile = ProfilesUseCaseData.Profile(
     isActive = false
 )
 
+val neverAuthenticatedGkvProfile = ProfilesUseCaseData.Profile(
+    id = "1",
+    name = "Profile 1",
+    color = ProfilesData.ProfileColorNames.PINK,
+    avatar = ProfilesData.Avatar.Baby,
+    lastAuthenticated = null,
+    ssoTokenScope = null,
+    insurance = ProfileInsuranceInformation(
+        insurantName = "",
+        insuranceName = "",
+        insuranceIdentifier = "",
+        insuranceType = ProfilesUseCaseData.InsuranceType.NONE
+    ),
+    isActive = true
+)
+
 val gkvProfileState = UiState(
     data = ProfileCombinedData(
         selectedProfile = gkvProfile,
         profiles = listOf(
             gkvProfile
+        )
+    )
+)
+
+val neverAuthenticatedGkvProfileState = UiState(
+    data = ProfileCombinedData(
+        selectedProfile = emptyGkvProfile,
+        profiles = listOf(
+            emptyGkvProfile
         )
     )
 )

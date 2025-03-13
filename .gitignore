@@ -18,6 +18,11 @@ signing.properties
 erp-release-keystore-huawei.jks
 erp-release-keystore-play.jks
 requirements-report.html
+ci/local_play_store_credentials.json
+/fastlane/.idea/
+/fastlane/report.xml
+/fastlane/README.md
+
 Jenkinsfile
 Nightly.Jenkinsfile
 Archive.Jenkinsfile
@@ -51,4 +56,4 @@ app/android/src/androidTest
 ci
 requirements
 gutachter
-
+fastlane

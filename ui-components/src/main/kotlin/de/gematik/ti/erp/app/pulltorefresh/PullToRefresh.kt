@@ -38,19 +38,22 @@ fun PullToRefresh(
     pullToRefreshState: PullToRefreshState,
     color: Color = AppTheme.colors.primary400
 ) {
+    val isActive = pullToRefreshState.isRefreshing || pullToRefreshState.progress > 0.0f
     // Surface is not used here, as we do not want its input-blocking behaviour, since the indicator
     // is typically displayed above other (possibly) interactive indicator.
-    Box(
-        modifier = modifier
-            .size(SizeDefaults.fivefold)
-            .graphicsLayer {
-                translationY = pullToRefreshState.verticalOffset - size.height
-            }
-            .background(color = Color.Transparent, shape = CircleShape)
-    ) {
-        PullToRefreshIndicator(
-            state = pullToRefreshState,
-            color = color
-        )
+    if (isActive) {
+        Box(
+            modifier = modifier
+                .size(SizeDefaults.fivefold)
+                .graphicsLayer {
+                    translationY = pullToRefreshState.verticalOffset - size.height
+                }
+                .background(color = Color.Transparent, shape = CircleShape)
+        ) {
+            PullToRefreshIndicator(
+                state = pullToRefreshState,
+                color = color
+            )
+        }
     }
 }

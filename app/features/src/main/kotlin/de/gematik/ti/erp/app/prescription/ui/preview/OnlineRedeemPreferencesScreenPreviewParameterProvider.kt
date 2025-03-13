@@ -24,9 +24,9 @@ import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScre
 import de.gematik.ti.erp.app.prescription.ui.preview.OnlineRedeemPreferencesScreenPreviewData.emptyPharmacyOrders
 import kotlinx.datetime.Instant
 
-class OnlineRedeemPreferencesScreenPreviewParameterProvider : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionOrder>> {
+class OnlineRedeemPreferencesScreenPreviewParameterProvider : PreviewParameterProvider<List<PharmacyUseCaseData.PrescriptionInOrder>> {
 
-    override val values: Sequence<List<PharmacyUseCaseData.PrescriptionOrder>>
+    override val values: Sequence<List<PharmacyUseCaseData.PrescriptionInOrder>>
         get() = sequenceOf(
             PharmacyOrders,
             emptyPharmacyOrders
@@ -37,7 +37,7 @@ object OnlineRedeemPreferencesScreenPreviewData {
     val time = Instant.parse("2021-11-25T15:20:00Z")
 
     val PharmacyOrders = listOf(
-        PharmacyUseCaseData.PrescriptionOrder(
+        PharmacyUseCaseData.PrescriptionInOrder(
             taskId = "1",
             accessCode = "ABC123",
             title = "Prescription 1",
@@ -47,7 +47,7 @@ object OnlineRedeemPreferencesScreenPreviewData {
             substitutionsAllowed = true,
             isScanned = false
         ),
-        PharmacyUseCaseData.PrescriptionOrder(
+        PharmacyUseCaseData.PrescriptionInOrder(
             taskId = "2",
             accessCode = "XYZ456",
             title = "Prescription 2",
@@ -57,7 +57,7 @@ object OnlineRedeemPreferencesScreenPreviewData {
             substitutionsAllowed = false,
             isScanned = true
         ),
-        PharmacyUseCaseData.PrescriptionOrder(
+        PharmacyUseCaseData.PrescriptionInOrder(
             taskId = "2",
             accessCode = "XYZ456",
             title = "Prescription 2",
@@ -68,5 +68,5 @@ object OnlineRedeemPreferencesScreenPreviewData {
             isScanned = true
         )
     )
-    val emptyPharmacyOrders = emptyList<PharmacyUseCaseData.PrescriptionOrder>()
+    val emptyPharmacyOrders = emptyList<PharmacyUseCaseData.PrescriptionInOrder>()
 }

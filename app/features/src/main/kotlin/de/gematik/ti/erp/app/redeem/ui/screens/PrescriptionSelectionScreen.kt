@@ -54,7 +54,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.Screen
-import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
+import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes.PharmacyStartScreenModal
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.prescriptionIds
@@ -66,14 +66,14 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
-import de.gematik.ti.erp.app.utils.compose.ComposableEvent
-import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils.dateFormatter
-import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
+import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
+import de.gematik.ti.erp.app.utils.extensions.LocalUiScopeScaffold
+import de.gematik.ti.erp.app.utils.extensions.showWithDismissButton
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -85,41 +85,38 @@ class PrescriptionSelectionScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
-        val snackbar = LocalSnackbar.current
-        val isOrderOverviewMode = navBackStackEntry.arguments?.getBoolean(RedeemRoutes.REDEEM_NAV_MODAL_BEHAVIOUR) ?: false
-        val selectedOrderState by controller.selectedOrderState()
-        val orderState by controller.redeemableOrderState()
-        val emptyOrdersCheckEvent = ComposableEvent<Unit>()
+        val snackbar = LocalSnackbarScaffold.current
+        val isOrderOverviewMode = navBackStackEntry.arguments?.getBoolean(RedeemRoutes.REDEEM_NAV_MODAL_BEHAVIOUR) == true
+        val selectedOrderState by controller.selectedOrderState
+        val orderState by controller.redeemableOrderState
+        val scope = LocalUiScopeScaffold.current
+        val closeText = stringResource(R.string.cdw_troubleshooting_close_button)
 
         val listState = rememberLazyListState()
         val snackbarText = stringResource(R.string.pharmacy_order_no_selected_prescriptions_desc)
 
-        emptyOrdersCheckEvent.listen {
-            if (selectedOrderState.prescriptionOrders.isEmpty()) {
-                snackbar.show(snackbarText)
-            }
+        val isEmptySelectionStateOnOrderOverview = isOrderOverviewMode && selectedOrderState.prescriptionsInOrder.isEmpty()
+
+        val orderOverviewModeOnEmptyNavigation: () -> Unit = {
+            controller.updatePrescriptionSelectionFailureFlag()
+            snackbar.showWithDismissButton(message = snackbarText, scope = scope, actionLabel = closeText)
+            navController.popBackStack()
+        }
+
+        val normalBackNavigation: () -> Unit = {
+            controller.onResetPrescriptionSelection()
+            navController.popBackStack()
         }
 
         val onBack: () -> Unit = {
             when {
-                !isOrderOverviewMode -> {
-                    controller.onResetPrescriptionSelection()
-                    navController.popBackStack()
-                }
-
-                isOrderOverviewMode && selectedOrderState.prescriptionOrders.isEmpty() -> {
-                    snackbar.show(snackbarText)
-                }
-
-                else -> {
-                    navController.popBackStack()
-                }
+                !isOrderOverviewMode -> normalBackNavigation()
+                isEmptySelectionStateOnOrderOverview -> orderOverviewModeOnEmptyNavigation()
+                else -> navController.popBackStack()
             }
         }
 
-        BackHandler {
-            onBack()
-        }
+        BackHandler(onBack = onBack)
 
         PrescriptionSelectionScreenScaffold(
             topBarTitle = stringResource(R.string.pharmacy_order_select_prescriptions),
@@ -136,28 +133,29 @@ class PrescriptionSelectionScreen(
                         },
                     state = listState
                 ) {
-                    orderState.forEach { prescriptionOrder ->
-                        item(key = "prescription-${prescriptionOrder.taskId}") {
+                    orderState.forEach { prescriptionInOrder ->
+                        item(key = "prescription-${prescriptionInOrder.taskId}") {
                             PrescriptionItem(
                                 modifier = Modifier,
-                                prescription = prescriptionOrder,
-                                checked = prescriptionOrder in selectedOrderState.prescriptionOrders,
+                                prescription = prescriptionInOrder,
+                                checked = prescriptionInOrder in selectedOrderState.prescriptionsInOrder,
                                 onCheckedChange = { isChanged ->
-                                    controller.onPrescriptionSelectionChanged(prescriptionOrder, isChanged)
-                                    emptyOrdersCheckEvent.trigger()
+                                    controller.onPrescriptionSelectionChanged(prescriptionInOrder, isChanged)
                                 }
                             )
                         }
                     }
                 }
                 NextButton(
-                    enabled = selectedOrderState.prescriptionOrders.isNotEmpty(),
+                    enabled = when {
+                        isOrderOverviewMode -> true
+                        else -> selectedOrderState.prescriptionsInOrder.isNotEmpty()
+                    },
                     onNext = {
                         when {
+                            isEmptySelectionStateOnOrderOverview -> orderOverviewModeOnEmptyNavigation()
                             isOrderOverviewMode -> navController.popBackStack()
-                            else -> navController.navigate(
-                                PharmacyRoutes.PharmacyStartScreenModal.path(taskId = "")
-                            )
+                            else -> navController.navigate(PharmacyStartScreenModal.path(taskId = ""))
                         }
                     }
                 )
@@ -187,7 +185,7 @@ fun PrescriptionSelectionScreenScaffold(
 @Composable
 private fun PrescriptionItem(
     modifier: Modifier,
-    prescription: PharmacyUseCaseData.PrescriptionOrder,
+    prescription: PharmacyUseCaseData.PrescriptionInOrder,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -274,12 +272,12 @@ fun PrescriptionSelectionScreenPreview(
 ) {
     val mockListState = rememberLazyListState()
     val selectedOrders = remember {
-        mutableStateListOf<PharmacyUseCaseData.PrescriptionOrder>().apply {
+        mutableStateListOf<PharmacyUseCaseData.PrescriptionInOrder>().apply {
             addAll(previewData.selectedOrders)
         }
     }
 
-    val onCheckedChange = { order: PharmacyUseCaseData.PrescriptionOrder, isChecked: Boolean ->
+    val onCheckedChange = { order: PharmacyUseCaseData.PrescriptionInOrder, isChecked: Boolean ->
         if (isChecked) {
             selectedOrders.add(order)
         } else {

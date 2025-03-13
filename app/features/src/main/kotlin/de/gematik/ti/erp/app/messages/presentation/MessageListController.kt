@@ -23,6 +23,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import de.gematik.ti.erp.app.analytics.model.TrackedEvent
+import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.animated.AnimationTime
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.features.R
@@ -38,6 +40,7 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -57,6 +60,7 @@ class MessageListController(
     private val fetchWelcomeMessageUseCase: FetchWelcomeMessageUseCase,
     private val isNewFeatureSeenUseCase: IsNewFeatureSeenUseCase,
     private val markNewFeatureSeenUseCase: MarkNewFeatureSeenUseCase,
+    private val tracker: Tracker,
     private val context: Context
 ) : Controller() {
 
@@ -104,7 +108,7 @@ class MessageListController(
                 val inAppMessages = localMessages.toMutableList()
                 welcomeMessage?.let { inAppMessages.add(it) }
                 inAppMessages.sortByDescending { it.timeState.timestamp }
-                combineMessages(inAppMessages.first())
+                combineMessages(inAppMessages.firstOrNull())
             }.catch { exception ->
                 _messagesList.value = UiState.Error(exception)
             }.collect { messagesList ->
@@ -118,7 +122,7 @@ class MessageListController(
     }
 
     private suspend fun combineMessages(
-        localMessages: InAppMessage
+        localMessages: InAppMessage?
     ): List<InAppMessage> {
         val remoteMessages = getMessagesUseCase.invoke().map {
             InAppMessage(
@@ -137,7 +141,7 @@ class MessageListController(
         }
         return buildList {
             addAll(remoteMessages)
-            add(localMessages)
+            localMessages?.let { add(it) }
         }.sortedByDescending { it.timeState.timestamp }
     }
 
@@ -147,12 +151,14 @@ class MessageListController(
             CommunicationProfile.ErxCommunicationReply -> {
                 val lastMessageDetails = latestCommunicationMessage.lastMessageDetails
                 messageDetails = when {
-                    lastMessageDetails.pickUpCodeDMC != null || lastMessageDetails.pickUpCodeHR != null ->
-                        context.getString(R.string.order_pickup_general_message)
+                    (lastMessageDetails.pickUpCodeDMC != null || lastMessageDetails.pickUpCodeHR != null) -> {
+                        lastMessageDetails.content?.takeIf { it.isNotEmpty() }
+                            ?: context.getString(R.string.order_pickup_general_message)
+                    }
 
-                    lastMessageDetails.link != null -> lastMessageDetails.message ?: context.getString(R.string.order_message_link)
+                    lastMessageDetails.link != null -> lastMessageDetails.content ?: context.getString(R.string.order_message_link)
 
-                    lastMessageDetails.message != null -> lastMessageDetails.message
+                    lastMessageDetails.content != null -> lastMessageDetails.content
 
                     else -> context.getString(R.string.order_message_empty)
                 }
@@ -160,7 +166,7 @@ class MessageListController(
 
             CommunicationProfile.ErxCommunicationDispReq -> messageDetails = context.getString(
                 R.string.orders_prescription_sent_to,
-                latestCommunicationMessage.lastMessageDetails.message ?: pharmacy
+                latestCommunicationMessage.lastMessageDetails.content ?: pharmacy
             )
 
             else -> return context.getString(R.string.order_message_empty)
@@ -173,6 +179,15 @@ class MessageListController(
             markNewFeatureSeenUseCase.invoke(NewFeature.ORDERS_SCREEN_NO_PROFILE_BAR)
         }
     }
+
+    fun trackMessageCount() {
+        controllerScope.launch {
+            messagesList.first { it.isDataState }.data?.let { messages ->
+                val messageCount = messages.size
+                tracker.trackEvent(TrackedEvent.MessageCount(messageCount))
+            }
+        }
+    }
 }
 
 @Composable
@@ -183,6 +198,7 @@ fun rememberMessageListController(): MessageListController {
     val fetchWelcomeMessageUseCase by rememberInstance<FetchWelcomeMessageUseCase>()
     val isNewFeatureSeenUseCase by rememberInstance<IsNewFeatureSeenUseCase>()
     val markNewFeatureSeenUseCase by rememberInstance<MarkNewFeatureSeenUseCase>()
+    val tracker by rememberInstance<Tracker>()
     val context = LocalContext.current
     return remember {
         MessageListController(
@@ -192,6 +208,7 @@ fun rememberMessageListController(): MessageListController {
             fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
             isNewFeatureSeenUseCase = isNewFeatureSeenUseCase,
             markNewFeatureSeenUseCase = markNewFeatureSeenUseCase,
+            tracker = tracker,
             context = context
         )
     }

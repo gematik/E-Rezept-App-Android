@@ -62,7 +62,7 @@ val messagesModule = DI.Module("messagesModule") {
     bindProvider { InAppMessageResources(instance()) }
     bindProvider { InAppLocalMessageRepository(instance()) }
     bindProvider { FetchWelcomeMessageUseCase(instance(), instance(), instance()) }
-    bindProvider { FetchInAppMessageUseCase(instance(), instance(), instance()) }
+    bindProvider { FetchInAppMessageUseCase(instance(), instance(), instance(), instance()) }
     bindProvider { SetInternalMessageAsReadUseCase(instance()) }
 }
 

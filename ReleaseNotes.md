@@ -1,3 +1,13 @@
+# Release 1.28.0
+- changed: message detail and message overview show the latest message
+- changed: sort languages
+- changed: prescription state is checked for ready state before redeeming
+- changed: parsing of prescriptions
+- added: support for communication reply version 1.4
+- added: detecting phone number in message detail screen
+- infrastructure/ project improvements
+- Bug fixes
+
 # Release 1.27.0
 - changed: main color of the app became darker to allow for more contrast
 - changed: optimized messages

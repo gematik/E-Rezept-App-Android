@@ -20,14 +20,14 @@ package de.gematik.ti.erp.app.plugins.buildapp
 
 import de.gematik.ti.erp.app.ErpPlugin
 import de.gematik.ti.erp.app.tasks.buildAppGalleryBundle
-import de.gematik.ti.erp.app.tasks.buildDebugApp
-import de.gematik.ti.erp.app.tasks.buildGoogleTuApp
 import de.gematik.ti.erp.app.tasks.buildKonnyApp
 import de.gematik.ti.erp.app.tasks.buildMinifiedApp
 import de.gematik.ti.erp.app.tasks.buildMinifiedKonnyApp
 import de.gematik.ti.erp.app.tasks.buildMockApp
 import de.gematik.ti.erp.app.tasks.buildPlayStoreApp
 import de.gematik.ti.erp.app.tasks.buildPlayStoreBundle
+import de.gematik.ti.erp.app.tasks.buildTuDebugApp
+import de.gematik.ti.erp.app.tasks.buildTuReleaseApp
 import de.gematik.ti.erp.app.tasks.copyAppGalleryBundle
 import de.gematik.ti.erp.app.tasks.copyDebugApp
 import de.gematik.ti.erp.app.tasks.copyGoogleTuApp
@@ -45,9 +45,9 @@ class BuildAppFlavoursPlugin : ErpPlugin {
             buildPlayStoreBundle()
             buildPlayStoreApp()
             buildAppGalleryBundle()
-            buildGoogleTuApp()
+            buildTuReleaseApp()
             buildKonnyApp()
-            buildDebugApp()
+            buildTuDebugApp()
             buildMockApp()
             buildMinifiedApp()
             buildMinifiedKonnyApp()
@@ -73,7 +73,7 @@ class BuildAppFlavoursPlugin : ErpPlugin {
         GoogleTuApk("assembleGoogleTuExternalRelease", "googleTuExternal"),
         KonnyApk("assembleKonnektathonRuInternalDebug", "konnektathonRuInternal"),
         MinifiedKonnyApk("assembleKonnektathonRuInternalMinifiedDebug", "konnektathonRuInternal"),
-        DebugApk("assembleGoogleTuInternalDebug", "googleTuInternal"),
+        DebugTuApk("assembleGoogleTuInternalDebug", "googleTuInternal"),
         MinifiedDebugApk("assembleGoogleTuInternalMinifiedDebug", "googleTuInternal"),
         MockApk("assembleDebug", "googleTuInternal")
     }

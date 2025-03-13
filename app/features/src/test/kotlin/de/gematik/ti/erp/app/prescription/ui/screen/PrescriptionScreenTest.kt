@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription.ui.screen
 
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionScreenPreviewParameterProvider
+import de.gematik.ti.erp.app.screenshot.BaseAccessibilityTest
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
 import org.junit.Test
@@ -32,6 +33,19 @@ class PrescriptionScreenTest(config: ScreenshotConfig) : BaseScreenshotTest(conf
                 name = "PrescriptionScreen_${item.name}"
             ) {
                 PrescriptionsScreenScaffoldPreview(data = item)
+            }
+        }
+    }
+}
+
+class PrescriptionScreenAccessibilityTest(val config: ScreenshotConfig) : BaseAccessibilityTest(config = config) {
+
+    @Test
+    fun screenShotTest() {
+        val params = PrescriptionScreenPreviewParameterProvider().values.toList()
+        params.forEach {
+            paparazzi.accessibilitySnapshot(it.name) {
+                PrescriptionsScreenScaffoldPreview(it)
             }
         }
     }

@@ -44,8 +44,7 @@ class DeleteInvoiceUseCase(
             }
             invoiceRepository.deleteRemoteInvoiceById(taskId = taskId, profileId = profileId)
                 .mapUnitToInvoiceError {
-                    invoiceRepository.deleteLocalInvoice(taskId = taskId)
-                    InvoiceResult.InvoiceSuccess.SuccessOnDeletion
+                    invoiceRepository.deleteLocalInvoiceById(taskId = taskId)
                 }
         }
 }

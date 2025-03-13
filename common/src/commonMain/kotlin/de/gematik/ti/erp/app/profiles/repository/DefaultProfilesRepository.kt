@@ -84,23 +84,6 @@ class DefaultProfilesRepository(
             it.find { profile -> profile.active }
         }
 
-    override suspend fun saveProfile(profileName: String, activate: Boolean) {
-        realm.write {
-            if (activate) {
-                query<ProfileEntityV1>().find().forEach {
-                    it.active = false
-                }
-            }
-            copyToRealm(
-                ProfileEntityV1().apply {
-                    this.name = profileName
-                    this.active = activate
-                    this.color = ProfileColorNamesV1.entries.toTypedArray().random()
-                }
-            )
-        }
-    }
-
     override suspend fun createNewProfile(profileName: String) {
         realm.write {
             query<ProfileEntityV1>().find().forEach {

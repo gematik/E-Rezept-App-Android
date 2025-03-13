@@ -32,6 +32,19 @@ inline fun <A, B, R> Pair<A?, B?>.letNotNull(transform: (A, B) -> R): R? {
     }
 }
 
+inline fun <A, B, R> letNotNull(
+    first: A?,
+    second: B?,
+    transform: (A, B) -> R,
+    noinline elseBlock: (() -> Unit) = {} // Default empty lambda
+): R? =
+    if (first != null && second != null) {
+        transform(first, second)
+    } else {
+        elseBlock()
+        null
+    }
+
 inline fun <A, B, R> letNotNull(first: A?, second: B?, transform: (A, B) -> R): R? =
     if (first != null && second != null) {
         transform(first, second)

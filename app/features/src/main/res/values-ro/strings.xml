@@ -116,7 +116,7 @@
     <string name="technical_hotline_info">Linie telefonică fierbinte</string>
     <string name="main_scan_acc">Deschideți scanerul pentru rețete</string>
     <string name="main_settings_acc">Setări</string>
-    <string name="settings_screenshots_toggle_text">Suprimați capturile de ecran</string>
+    <string name="settings_screenshots_toggle_text">Permite capturi de ecran</string>
     <string name="settings_tracking_dialog_title">Permiteți E-Prescription să vă analizeze comportamentul de utilizare în mod anonim?</string>
     <string name="pres_detail_technical_information">Informații tehnice</string>
     <string name="settings_biometric_dialog_title">Securitatea datelor dumneavoastră de prescripție</string>
@@ -162,7 +162,7 @@
     <string name="consistent_password">Parola repetată se potrivește</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Eroare 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Certificatul cardului de sănătate este invalid. Poate că cardul tău a expirat? Vă rugăm să contactați compania dumneavoastră de asigurări de sănătate.</string>
-    <string name="auth_error_failed_auths_headline">Încercări de conectare nereușite</string>
+    <string name="auth_error_failed_auths_headline">Din păcate, asta nu a funcționat</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">Au fost detectate %s încercări de conectare nereușite.</item>
         <item quantity="few"></item>
@@ -490,7 +490,7 @@
     <string name="time_description_today">La ora %s</string>
     <string name="orders_cart_ready">Coșul de cumpărături este gata</string>
     <string name="orders_cart_ready_info">Rețeta a fost adăugată în coșul dumneavoastră. Vă rugăm să accesați site-ul farmaciei pentru a finaliza comanda.</string>
-    <string name="orders_open_cart_link">Deschideți coșul de cumpărături</string>
+    <string name="orders_open_cart_link">link către farmacia dumneavoastră</string>
     <string name="orders_code_info">Arată acest cod de colectare la farmacie.</string>
     <string name="orders_code_title">Cod de preluare primit</string>
     <string name="orders_no_message_title">Mesajul nu poate fi afișat</string>
@@ -583,7 +583,7 @@
     <string name="pres_detail_medication_label_handed_over">emis la:</string>
     <string name="synced_medication_ingredient_header">ingredient activ</string>
     <string name="medication_overview_prescribed_header">Prescris</string>
-    <string name="medication_overview_dispenses_header">A primi</string>
+    <string name="medication_overview_dispenses_header">Primit</string>
     <string name="pres_details_exp_da_title">Ce este o misiune directă?</string>
     <string name="pres_details_exp_da_info">Cu trimitere directă, o rețetă de la un cabinet sau spital este completată direct la o farmacie. Asigurații nu trebuie să întreprindă nicio măsură și nu pot interveni în procesul de răscumpărare. \n\n Recomandările directe sunt enumerate în aplicația e-rețetă pentru a face tratamentul mai transparent pentru dvs.</string>
     <string name="pres_details_exp_no_em_fee_title">Taxa de serviciu de urgenta</string>
@@ -650,7 +650,6 @@
     <string name="search_pharmacies_location_na_settings">Setări</string>
     <string name="search_pharmacies_location_na_services">Partajați locația în Setări.</string>
     <string name="pharmacy_maps_header">Aproape de mine</string>
-    <string name="mainscreen_profile_chip_content_description">Apăsați lung pentru a edita numele.</string>
     <string name="profile_edit_name_for_rename_info">Introduceți noul nume pentru profil.</string>
     <string name="mainscreen_welcome_drawer_info">Pentru a primi rețete digital de la cabinetul dumneavoastră, trebuie să fiți autentificat.</string>
     <string name="mainscreen_welcome_drawer_header">Primiți rețete digital?</string>
@@ -1069,14 +1068,14 @@
     <string name="invoices_deleted">chitanțele dvs. de cheltuieli au fost șterse</string>
     <string name="invoices_detail_title">Chitanța costurilor</string>
     <string name="paired_devices_biometrics_error_login_title">Este necesară înregistrarea</string>
-    <string name="paired_devices_biometrics_error_login_description">Vă rugăm să vă conectați pentru a vedea dispozitivele conectate.</string>
+    <string name="paired_devices_biometrics_error_login_description">Vă rugăm să vă conectați și să salvați detaliile de conectare pentru a vedea dispozitivele conectate.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Inregistreaza-te</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Inregistreaza-te</string>
     <string name="cdw_intro_auth_gid_app_required">Conectați-vă la %s Asigurări</string>
     <string name="a11y_card_wall_card_hand">Card de sănătate pe smartphone</string>
     <string name="not_logged_in">Neconectat</string>
     <string name="logged_in">Înregistrat</string>
-    <string name="a11y_refresh">reîmprospăta</string>
+    <string name="refresh">reîmprospăta</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Veți primi jurnalele de acces dacă sunteți autentificat la serviciul de prescripție medicală.</string>
     <string name="paired_devices_error_login_title">Este necesară înregistrarea</string>
     <string name="paired_devices_error_login_description">Vă rugăm să vă conectați cu cardul de sănătate și să salvați detaliile de conectare cu datele biometrice pentru a vedea dispozitivele conectate.</string>
@@ -1184,7 +1183,7 @@
     <string name="settings_app_security_change_password">Schimbaţi parola</string>
     <string name="invoices_delete_not_logged_in_description">Pentru a șterge, trebuie stabilită o conexiune la Prescription Server</string>
     <string name="provided">Marfa este gata</string>
-    <string name="provided_on_hour">Mărfurile sunt gata de la %s</string>
+    <string name="provided_at_hour">Mărfurile sunt gata de la %s</string>
     <string name="provided_now">Marfa a fost gata chiar acum</string>
     <string name="provided_minutes_ago">Bunurile au fost gata de %s minute</string>
     <string name="provided_on_date">Mărfurile sunt gata de la %s</string>
@@ -1213,4 +1212,15 @@
     <string name="all_prescriptions_of_order">Toate retetele in comanda</string>
     <string name="invoice_details_supply_shortage_fee">Rată fixă ​​de livrare</string>
     <string name="message_list_time_state_hours">%s ora</string>
+    <string name="language_selection_es">spaniolă</string>
+    <string name="language_selection_ga">irlandez</string>
+    <string name="profile_screen_login_hint">Pentru a primi automat rețete, trebuie să fiți autentificat.</string>
+    <string name="profile_screen_login_button">Registru</string>
+    <string name="error_redeemable_prescription_title">Prescripția nu poate fi preschimbată</string>
+    <string name="error_redeemable_prescription_generic_error">Rețeta \"%1$s\" nu mai poate fi răscumpărată. Este posibil să o fi răscumpărat deja în alt mod sau este posibil să fi fost anulată.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Rețeta \"%1$s\" a fost deja preschimbată sau este în curs de preschimbare.</string>
+    <string name="error_redeemable_prescription_deleted">Rețeta \"%1$s\" a fost deja anulată și, prin urmare, nu mai poate fi răscumpărată.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Următoarele rețete nu sunt sau nu mai pot fi valorificate: %1$s \n Este posibil să le fi valorificat deja într-un alt mod sau să fi fost șterse. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Continuați fără aceste rețete</string>
+    <string name="error_redeemable_prescription_cancel_order">Anulați comanda</string>
 </resources>

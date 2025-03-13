@@ -56,9 +56,9 @@ data class UniversalLinkToken(
         fun URI.toUniversalLinkToken(): UniversalLinkToken? {
             val entries = getQueryPairs()
 
-            ((entries findIdentifierFor Code) to (entries findIdentifierFor State))
+            return ((entries findIdentifierFor Code) to (entries findIdentifierFor State))
                 .letNotNull { code, state ->
-                    return UniversalLinkToken(
+                    UniversalLinkToken(
                         code = code,
                         state = state,
                         redirectUri = (entries findIdentifierFor Kk_app_redirect_uri)
@@ -69,7 +69,7 @@ data class UniversalLinkToken(
                     )
                 } ?: run {
                 Napier.e { "mandatory parameters ${Code.name.lowercase()} and ${State.name.lowercase()} missing" }
-                return null
+                null
             }
         }
 

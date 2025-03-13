@@ -55,7 +55,7 @@ class MessageUseCaseTest {
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
             sentOn = Instant.fromEpochSeconds(123456),
-            message = "Hi!",
+            content = "Hi!",
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = "https://example.org",
@@ -83,7 +83,7 @@ class MessageUseCaseTest {
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
             sentOn = Instant.fromEpochSeconds(123456),
-            message = null,
+            content = null,
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = null,
@@ -112,7 +112,7 @@ class MessageUseCaseTest {
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
             sentOn = Instant.fromEpochSeconds(123456),
-            message = null,
+            content = null,
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = null,
@@ -140,7 +140,7 @@ class MessageUseCaseTest {
         val expected = OrderUseCaseData.Message(
             communicationId = "CID123456",
             sentOn = Instant.fromEpochSeconds(123456),
-            message = null,
+            content = null,
             pickUpCodeDMC = null,
             pickUpCodeHR = null,
             link = null,

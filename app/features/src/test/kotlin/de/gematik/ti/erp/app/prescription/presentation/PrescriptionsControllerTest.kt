@@ -139,6 +139,7 @@ class PrescriptionsControllerTest : TestWatcher() {
         every { profileRepository.activeProfile() } returns flowOf(API_MOCK_PROFILE)
         every { downloadResourcesStateRepository.snapshotState() } returns snapshotState
         every { downloadResourcesStateRepository.detailState() } returns detailState
+        every { networkStatusTracker.networkStatus } returns flowOf(true)
 
         getActiveProfileUseCase = GetActiveProfileUseCase(
             repository = profileRepository,
@@ -222,7 +223,8 @@ class PrescriptionsControllerTest : TestWatcher() {
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
             hasRedeemableTasksUseCase = hasRedeemableTasksUseCase,
-            tracker = tracker
+            tracker = tracker,
+            networkStatusTracker = networkStatusTracker
         )
     }
 
@@ -514,7 +516,8 @@ class PrescriptionsControllerTest : TestWatcher() {
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
             hasRedeemableTasksUseCase = hasRedeemableTasksUseCase,
-            tracker = tracker
+            tracker = tracker,
+            networkStatusTracker = networkStatusTracker
         )
 
         testScope.runTest {
@@ -596,7 +599,8 @@ class PrescriptionsControllerTest : TestWatcher() {
             saveToolTipsShownUseCase = saveToolTipsShownUseCase,
             switchActiveProfileUseCase = switchActiveProfileUseCase,
             hasRedeemableTasksUseCase = hasRedeemableTasksUseCase,
-            tracker = tracker
+            tracker = tracker,
+            networkStatusTracker = networkStatusTracker
         )
         testScope.runTest {
             advanceUntilIdle()

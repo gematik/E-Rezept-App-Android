@@ -1,0 +1,60 @@
+{
+  "resourceType": "Coverage",
+  "id": "1b89236c-ab14-4e92-937e-5af0b59d0cd4",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0"
+    ]
+  },
+  "extension": [
+    {
+      "url": "http://fhir.de/StructureDefinition/gkv/besondere-personengruppe",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_PERSONENGRUPPE",
+        "code": "00"
+      }
+    },
+    {
+      "url": "http://fhir.de/StructureDefinition/gkv/dmp-kennzeichen",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DMP",
+        "code": "05"
+      }
+    },
+    {
+      "url": "http://fhir.de/StructureDefinition/gkv/wop",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_ITA_WOP",
+        "code": "17"
+      }
+    },
+    {
+      "url": "http://fhir.de/StructureDefinition/gkv/versichertenart",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS",
+        "code": "5"
+      }
+    }
+  ],
+  "status": "active",
+  "type": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/versicherungsart-de-basis",
+        "code": "GKV"
+      }
+    ]
+  },
+  "beneficiary": {
+    "reference": "Patient/93866fdc-3e50-4902-a7e9-891b54737b5e"
+  },
+  "payor": [
+    {
+      "identifier": {
+        "system": "http://fhir.de/sid/arge-ik/iknr",
+        "value": "109719018"
+      },
+      "display": "AOK Nordost"
+    }
+  ]
+}

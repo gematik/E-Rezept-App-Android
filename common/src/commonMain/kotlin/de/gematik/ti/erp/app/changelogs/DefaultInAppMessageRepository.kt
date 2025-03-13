@@ -41,7 +41,7 @@ class DefaultInAppMessageRepository(
     override val showWelcomeMessage: Flow<Boolean> =
         inAppDataSource.showWelcomeMessage
 
-    override val welcomeMessageTimeStamp: Flow<Instant>
+    override val welcomeMessageTimeStamp: Flow<Instant?>
         get() = inAppDataSource.welcomeMessageTimeStamp
 
     override suspend fun setInternalMessageAsRead() =

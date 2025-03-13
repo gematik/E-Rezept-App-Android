@@ -64,6 +64,7 @@ import de.gematik.ti.erp.app.utils.compose.BigFontDarkPreview
 import de.gematik.ti.erp.app.utils.compose.DarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.gotoCoordinates
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 
 @Composable
 fun PharmacyContactSelection(
@@ -77,34 +78,40 @@ fun PharmacyContactSelection(
             .height(IntrinsicSize.Min),
         horizontalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
     ) {
-        PharmacyContactButton(
-            modifier = Modifier
-                .testTag(TestTag.PharmacySearch.OrderOptions.PickUpOptionButton),
-            text = stringResource(R.string.pharmacy_contact_map_two_lines),
-            icon = Icons.Outlined.PinDrop,
+        if (pharmacy.coordinates != null) {
+            PharmacyContactButton(
+                modifier = Modifier
+                    .testTag(TestTag.PharmacySearch.OrderOptions.PickUpOptionButton),
+                text = stringResource(R.string.pharmacy_contact_map_two_lines),
+                icon = Icons.Outlined.PinDrop,
 
-            onClick = {
-                pharmacy.coordinates?.let { context.gotoCoordinates(it) }
-            }
-        )
-        PharmacyContactButton(
-            modifier = Modifier
-                .testTag(TestTag.PharmacySearch.OrderOptions.CourierDeliveryOptionButton),
-            text = stringResource(R.string.pharmacy_contact_phone_two_lines),
-            icon = Icons.Outlined.Phone,
-            onClick = {
-                onPhoneClicked(pharmacy.contacts.phone)
-            }
-        )
-        PharmacyContactButton(
-            modifier = Modifier
-                .testTag(TestTag.PharmacySearch.OrderOptions.MailDeliveryOptionButton),
-            text = stringResource(R.string.pharmacy_contact_email_two_lines),
-            icon = Icons.Outlined.MailOutline,
-            onClick = {
-                onMailClicked(pharmacy.contacts.mail)
-            }
-        )
+                onClick = {
+                    pharmacy.coordinates?.let { context.gotoCoordinates(it) }
+                }
+            )
+        }
+        if (pharmacy.contacts.phone.isNotNullOrEmpty()) {
+            PharmacyContactButton(
+                modifier = Modifier
+                    .testTag(TestTag.PharmacySearch.OrderOptions.CourierDeliveryOptionButton),
+                text = stringResource(R.string.pharmacy_contact_phone_two_lines),
+                icon = Icons.Outlined.Phone,
+                onClick = {
+                    onPhoneClicked(pharmacy.contacts.phone)
+                }
+            )
+        }
+        if (pharmacy.contacts.mail.isNotNullOrEmpty()) {
+            PharmacyContactButton(
+                modifier = Modifier
+                    .testTag(TestTag.PharmacySearch.OrderOptions.MailDeliveryOptionButton),
+                text = stringResource(R.string.pharmacy_contact_email_two_lines),
+                icon = Icons.Outlined.MailOutline,
+                onClick = {
+                    onMailClicked(pharmacy.contacts.mail)
+                }
+            )
+        }
     }
 }
 

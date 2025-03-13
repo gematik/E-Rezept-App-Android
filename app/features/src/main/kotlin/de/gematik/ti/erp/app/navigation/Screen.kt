@@ -30,6 +30,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.core.IntentHandler
+import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
@@ -74,9 +76,13 @@ abstract class Screen {
         @Composable
         get() = rememberPullToRefreshState()
 
-    val scope: CoroutineScope
+    val uiScope: CoroutineScope
         @Composable
         get() = rememberCoroutineScope()
+
+    val intentHandler: IntentHandler
+        @Composable
+        get() = LocalIntentHandler.current
 
     /**
      * The composable content that is shown in the screen should be placed in [Content]

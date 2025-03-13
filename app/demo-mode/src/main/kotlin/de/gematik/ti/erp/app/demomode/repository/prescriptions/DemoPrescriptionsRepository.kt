@@ -162,6 +162,17 @@ class DemoPrescriptionsRepository(
             list.find { it.taskId == taskId }
         }.flowOn(dispatcher)
 
+    override fun loadSyncedTasksByTaskIds(taskIds: List<String>): Flow<List<SyncedTask>> =
+        dataSource.syncedTasks
+            .map { list -> list.filter { task -> task.taskId in taskIds } }
+            .flowOn(dispatcher)
+
+    override fun loadScannedTasksByTaskIds(taskIds: List<String>): Flow<List<ScannedTask>> {
+        return dataSource.scannedTasks.map { list ->
+            list.filter { task -> task.taskId in taskIds }
+        }.flowOn(dispatcher)
+    }
+
     override fun loadScannedTaskByTaskId(taskId: String) =
         dataSource.scannedTasks.mapNotNull { list ->
             list.find { it.taskId == taskId }
@@ -190,8 +201,4 @@ class DemoPrescriptionsRepository(
     }
 
     override fun loadAllTaskIds(profileId: ProfileIdentifier): Flow<List<String>> = loadTaskIds()
-
-    override suspend fun deleteLocalInvoicesById(taskId: String) {
-        // do nothing
-    }
 }

@@ -50,7 +50,6 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import java.util.UUID
@@ -73,19 +72,19 @@ class RedeemPrescriptionsOnLoggedInUseCase(
     private val pharmacyRepository: PharmacyRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(
+    operator fun invoke(
         profileId: ProfileIdentifier,
         redeemOption: PharmacyScreenData.OrderOption,
         orderId: UUID,
-        prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionOrder>,
+        prescriptionOrderInfos: List<PharmacyUseCaseData.PrescriptionInOrder>,
         contact: PharmacyUseCaseData.ShippingContact,
         pharmacy: PharmacyUseCaseData.Pharmacy,
-        onProcessStart: () -> Unit,
-        onProcessEnd: () -> Unit
+        onRedeemProcessStart: () -> Unit = {},
+        onRedeemProcessEnd: () -> Unit = {}
     ): Flow<RedeemedPrescriptionState.OrderCompleted> =
         flow {
             withContext(dispatcher) {
-                onProcessStart()
+                onRedeemProcessStart()
                 prescriptionOrderInfos
                     .map { prescriptionOrderInfo ->
                         async {
@@ -121,12 +120,12 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                         redeemResult.fold(
                             onSuccess = { jsonElement ->
                                 Napier.i { "Prescription redeemed successfully (${prescriptionOrderInfo.title} ): $jsonElement" }
-                                onProcessEnd()
+                                onRedeemProcessEnd()
                                 RedeemedPrescriptionState.Success
                             },
                             onFailure = { error ->
                                 Napier.e { "Error on prescription redemption (${prescriptionOrderInfo.title}) ${error.stackTraceToString()}" }
-                                onProcessEnd()
+                                onRedeemProcessEnd()
                                 when (error) {
                                     is ApiCallException -> RedeemedPrescriptionState.Error(
                                         errorState = error.response.httpErrorState()

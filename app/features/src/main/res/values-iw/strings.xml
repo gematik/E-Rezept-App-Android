@@ -118,7 +118,7 @@
     <string name="technical_hotline_info">מוקד טלפוני</string>
     <string name="main_scan_acc">פתח סורק למרשמים</string>
     <string name="main_settings_acc">הגדרות</string>
-    <string name="settings_screenshots_toggle_text">הדחק צילומי מסך</string>
+    <string name="settings_screenshots_toggle_text">אפשר צילומי מסך</string>
     <string name="settings_tracking_dialog_title">האם אתה מאפשר למרשם אלקטרוני לנתח את התנהגות השימוש שלך באופן אנונימי?</string>
     <string name="pres_detail_technical_information">מידע טכני</string>
     <string name="settings_biometric_dialog_title">אבטחת נתוני המרשם שלך</string>
@@ -164,7 +164,7 @@
     <string name="consistent_password">התאמות חוזרות ונשנות של סיסמא</string>
     <string name="cdw_nfc_error_title_invalid_certificate">שגיאה 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">תעודת כרטיס הבריאות שלך לא תקפה. אולי פג תוקף הכרטיס שלך? נא לפנות לקופת החולים שלך.</string>
-    <string name="auth_error_failed_auths_headline">ניסיונות התחברות לא מוצלחים</string>
+    <string name="auth_error_failed_auths_headline">למרבה הצער, זה לא עבד</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">זוהו %s ניסיונות התחברות לא מוצלחים.</item>
         <item quantity="two"></item>
@@ -496,7 +496,7 @@
     <string name="time_description_today">בשעה %s</string>
     <string name="orders_cart_ready">עגלת הקניות מוכנה</string>
     <string name="orders_cart_ready_info">המתכון התווסף לעגלת הקניות שלך. נא להיכנס לאתר בית המרקחת להשלמת ההזמנה.</string>
-    <string name="orders_open_cart_link">פתיחת עגלת קניות</string>
+    <string name="orders_open_cart_link">קישור לבית המרקחת שלך</string>
     <string name="orders_code_info">הצג את קוד האיסוף הזה בבית המרקחת.</string>
     <string name="orders_code_title">קוד איסוף התקבל</string>
     <string name="orders_no_message_title">אין אפשרות להציג את ההודעה</string>
@@ -590,7 +590,7 @@
     <string name="pres_detail_medication_label_handed_over">הונפק ב:</string>
     <string name="synced_medication_ingredient_header">רכיב פעיל</string>
     <string name="medication_overview_prescribed_header">רשום</string>
-    <string name="medication_overview_dispenses_header">לְקַבֵּל</string>
+    <string name="medication_overview_dispenses_header">התקבל</string>
     <string name="pres_details_exp_da_title">מהי משימה ישירה?</string>
     <string name="pres_details_exp_da_info">עם הפניה ישירה, מרשם מרופא או בית חולים ממולא ישירות בבית מרקחת. מבוטחים אינם חייבים לבצע כל פעולה ואינם יכולים להתערב בתהליך הפדיון. \n\n הפניות ישירות מופיעות באפליקציית המרשם האלקטרוני כדי להפוך את הטיפול שלך לשקוף יותר עבורך.</string>
     <string name="pres_details_exp_no_em_fee_title">עמלת שירות חירום</string>
@@ -657,7 +657,6 @@
     <string name="search_pharmacies_location_na_settings">הגדרות</string>
     <string name="search_pharmacies_location_na_services">שתף מיקום בהגדרות.</string>
     <string name="pharmacy_maps_header">קרוב אליי</string>
-    <string name="mainscreen_profile_chip_content_description">לחץ והחזק כדי לערוך את השם.</string>
     <string name="profile_edit_name_for_rename_info">הזן את השם החדש עבור הפרופיל.</string>
     <string name="mainscreen_welcome_drawer_info">כדי לקבל מרשמים באופן דיגיטלי מהמרפאה שלך, עליך להיות מחובר.</string>
     <string name="mainscreen_welcome_drawer_header">מקבלים מרשמים בצורה דיגיטלית?</string>
@@ -1078,14 +1077,14 @@
     <string name="invoices_deleted">קבלות ההוצאות שלך נמחקו</string>
     <string name="invoices_detail_title">קבלת עלות</string>
     <string name="paired_devices_biometrics_error_login_title">נדרשת הרשמה</string>
-    <string name="paired_devices_biometrics_error_login_description">אנא היכנס כדי להציג מכשירים מחוברים.</string>
+    <string name="paired_devices_biometrics_error_login_description">אנא היכנס ושמור את פרטי ההתחברות שלך כדי להציג מכשירים מחוברים.</string>
     <string name="paired_devices_biometrics_error_login_button_text">לִרְשׁוֹם</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">לִרְשׁוֹם</string>
     <string name="cdw_intro_auth_gid_app_required">התחבר לביטוח %s</string>
     <string name="a11y_card_wall_card_hand">כרטיס בריאות בסמארטפון</string>
     <string name="not_logged_in">לא מחובר</string>
     <string name="logged_in">רָשׁוּם</string>
-    <string name="a11y_refresh">לְרַעֲנֵן</string>
+    <string name="refresh">לְרַעֲנֵן</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">תקבל יומני גישה אם אתה מחובר לשירות המרשם.</string>
     <string name="paired_devices_error_login_title">נדרשת הרשמה</string>
     <string name="paired_devices_error_login_description">אנא התחבר עם כרטיס הבריאות שלך ושמור את פרטי הכניסה שלך עם ביומטריה כדי לראות את המכשירים המחוברים.</string>
@@ -1193,7 +1192,7 @@
     <string name="settings_app_security_change_password">שנה סיסמה</string>
     <string name="invoices_delete_not_logged_in_description">כדי למחוק, יש ליצור חיבור לשרת המרשם</string>
     <string name="provided">הסחורה מוכנה</string>
-    <string name="provided_on_hour">הסחורה מוכנה מאז %s</string>
+    <string name="provided_at_hour">הסחורה מוכנה מאז %s</string>
     <string name="provided_now">הסחורה הייתה מוכנה זה עתה</string>
     <string name="provided_minutes_ago">הסחורה מוכנה במשך %s דקות</string>
     <string name="provided_on_date">הסחורה מוכנה מאז %s</string>
@@ -1222,4 +1221,15 @@
     <string name="all_prescriptions_of_order">כל המתכונים לפי הסדר</string>
     <string name="invoice_details_supply_shortage_fee">צוואר בקבוק במשלוח תעריף קבוע</string>
     <string name="message_list_time_state_hours">השעה %s</string>
+    <string name="language_selection_es">סְפָרַדִית</string>
+    <string name="language_selection_ga">אִירִית</string>
+    <string name="profile_screen_login_hint">כדי לקבל מתכונים אוטומטית, עליך להיות מחובר.</string>
+    <string name="profile_screen_login_button">לִרְשׁוֹם</string>
+    <string name="error_redeemable_prescription_title">לא ניתן לממש מרשם</string>
+    <string name="error_redeemable_prescription_generic_error">המתכון \" %1$s \" אינו ניתן עוד למימוש. ייתכן שכבר מימשת אותו בדרך אחרת או שהוא נמחק.</string>
+    <string name="error_redeemable_prescription_not_redeemable">המרשם \" %1$s \" כבר מומש או נמצא כעת במימוש.</string>
+    <string name="error_redeemable_prescription_deleted">המתכון \" %1$s \" כבר נמחק ולכן לא ניתן עוד למימוש.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n המתכונים הבאים אינם ניתנים או לא ניתנים עוד למימוש: %1$s \n ייתכן שכבר מימשת אותם בדרך אחרת או שהם נמחקו. \n</string>
+    <string name="error_redeemable_prescription_continue_without">המשך בלי המתכונים האלה</string>
+    <string name="error_redeemable_prescription_cancel_order">בטל הזמנה</string>
 </resources>

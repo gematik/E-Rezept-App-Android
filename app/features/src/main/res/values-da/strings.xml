@@ -114,7 +114,7 @@
     <string name="technical_hotline_info">Telefon hotline</string>
     <string name="main_scan_acc">Åbn scanner for recepter</string>
     <string name="main_settings_acc">Indstillinger</string>
-    <string name="settings_screenshots_toggle_text">Undertryk skærmbilleder</string>
+    <string name="settings_screenshots_toggle_text">Tillad skærmbilleder</string>
     <string name="settings_tracking_dialog_title">Tillader du E-Recept at analysere din brugsadfærd anonymt?</string>
     <string name="pres_detail_technical_information">Teknisk information</string>
     <string name="settings_biometric_dialog_title">Sikkerhed for dine receptdata</string>
@@ -160,7 +160,7 @@
     <string name="consistent_password">Gentagne password-matches</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Fejl 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Dit sundhedskortbevis er ugyldigt. Måske er dit kort udløbet? Kontakt venligst dit sygeforsikringsselskab.</string>
-    <string name="auth_error_failed_auths_headline">Mislykkede loginforsøg</string>
+    <string name="auth_error_failed_auths_headline">Det virkede desværre ikke</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">%s mislykkede loginforsøg blev fundet.</item>
         <item quantity="other">%s mislykkede loginforsøg blev fundet.</item>
@@ -484,7 +484,7 @@
     <string name="time_description_today">Klokken %s</string>
     <string name="orders_cart_ready">Indkøbskurven er klar</string>
     <string name="orders_cart_ready_info">Opskriften er blevet tilføjet til din indkøbskurv. Gå til apotekets hjemmeside for at fuldføre ordren.</string>
-    <string name="orders_open_cart_link">Åben indkøbskurv</string>
+    <string name="orders_open_cart_link">link til dit apotek</string>
     <string name="orders_code_info">Vis denne afhentningskode på apoteket.</string>
     <string name="orders_code_title">Afhentningskode modtaget</string>
     <string name="orders_no_message_title">Meddelelsen kan ikke vises</string>
@@ -576,7 +576,7 @@
     <string name="pres_detail_medication_label_handed_over">udstedt den:</string>
     <string name="synced_medication_ingredient_header">aktiv ingrediens</string>
     <string name="medication_overview_prescribed_header">Foreskrevet</string>
-    <string name="medication_overview_dispenses_header">Modtage</string>
+    <string name="medication_overview_dispenses_header">Modtaget</string>
     <string name="pres_details_exp_da_title">Hvad er en direkte opgave?</string>
     <string name="pres_details_exp_da_info">Med direkte henvisning udfyldes en recept fra en praksis eller hospital direkte på et apotek. Forsikrede behøver ikke at foretage sig noget og kan ikke gribe ind i indløsningsprocessen. \n\n Direkte henvisninger er angivet i e-recept-appen for at gøre din behandling mere gennemsigtig for dig.</string>
     <string name="pres_details_exp_no_em_fee_title">Akut servicegebyr</string>
@@ -643,7 +643,6 @@
     <string name="search_pharmacies_location_na_settings">Indstillinger</string>
     <string name="search_pharmacies_location_na_services">Del placering i Indstillinger.</string>
     <string name="pharmacy_maps_header">Tæt på mig</string>
-    <string name="mainscreen_profile_chip_content_description">Tryk og hold for at redigere navnet.</string>
     <string name="profile_edit_name_for_rename_info">Indtast det nye navn til profilen.</string>
     <string name="mainscreen_welcome_drawer_info">For at modtage recepter digitalt fra din praksis skal du være logget ind.</string>
     <string name="mainscreen_welcome_drawer_header">Modtage recepter digitalt?</string>
@@ -1060,14 +1059,14 @@
     <string name="invoices_deleted">Dine udgiftskvitteringer er blevet slettet</string>
     <string name="invoices_detail_title">Omkostningskvittering</string>
     <string name="paired_devices_biometrics_error_login_title">Tilmelding nødvendig</string>
-    <string name="paired_devices_biometrics_error_login_description">Log venligst ind for at se tilsluttede enheder.</string>
+    <string name="paired_devices_biometrics_error_login_description">Log ind og gem dine loginoplysninger for at se tilsluttede enheder.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Tilmeld</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Tilmeld</string>
     <string name="cdw_intro_auth_gid_app_required">Opret forbindelse til %s forsikring</string>
     <string name="a11y_card_wall_card_hand">Sundhedskort på smartphone</string>
     <string name="not_logged_in">Ikke logget ind</string>
     <string name="logged_in">Registreret</string>
-    <string name="a11y_refresh">opfriske</string>
+    <string name="refresh">opfriske</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Du vil modtage adgangslogfiler, hvis du er logget ind på receptservicen.</string>
     <string name="paired_devices_error_login_title">Tilmelding nødvendig</string>
     <string name="paired_devices_error_login_description">Log venligst ind med dit sundhedskort og gem dine loginoplysninger med biometri for at se de tilsluttede enheder.</string>
@@ -1175,7 +1174,7 @@
     <string name="settings_app_security_change_password">Skift adgangskode</string>
     <string name="invoices_delete_not_logged_in_description">For at slette skal der oprettes forbindelse til receptserveren</string>
     <string name="provided">Varerne er klar</string>
-    <string name="provided_on_hour">Varerne har været klar siden %s</string>
+    <string name="provided_at_hour">Varerne har været klar siden %s</string>
     <string name="provided_now">Varerne har været klar lige nu</string>
     <string name="provided_minutes_ago">Varerne har været klar i %s minutter</string>
     <string name="provided_on_date">Varerne har været klar siden %s</string>
@@ -1204,4 +1203,15 @@
     <string name="all_prescriptions_of_order">Alle opskrifter i rækkefølgen</string>
     <string name="invoice_details_supply_shortage_fee">Flaskehals ved levering fast pris</string>
     <string name="message_list_time_state_hours">%s kl</string>
+    <string name="language_selection_es">spansk</string>
+    <string name="language_selection_ga">irsk</string>
+    <string name="profile_screen_login_hint">For at modtage opskrifter automatisk skal du være logget ind.</string>
+    <string name="profile_screen_login_button">Register</string>
+    <string name="error_redeemable_prescription_title">Recept kan ikke indløses</string>
+    <string name="error_redeemable_prescription_generic_error">Recepten \"%1$s\" kan ikke længere indløses. Du har måske allerede indløst den på en anden måde, eller den er blevet annulleret.</string>
+    <string name="error_redeemable_prescription_not_redeemable">Recepten \"%1$s\" er allerede blevet indløst eller er ved at blive indløst.</string>
+    <string name="error_redeemable_prescription_deleted">Opskriften \"%1$s\" er allerede blevet annulleret og kan derfor ikke længere indløses.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n Følgende opskrifter kan ikke eller længere indløses: %1$s \n Du har muligvis allerede indløst dem på en anden måde, eller de kan være blevet slettet. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Fortsæt uden disse opskrifter</string>
+    <string name="error_redeemable_prescription_cancel_order">Annuller ordre</string>
 </resources>

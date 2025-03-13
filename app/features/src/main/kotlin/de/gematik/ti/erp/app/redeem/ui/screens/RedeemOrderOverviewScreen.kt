@@ -18,7 +18,6 @@
 
 package de.gematik.ti.erp.app.redeem.ui.screens
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -31,14 +30,12 @@ import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Phone
 import androidx.compose.material.rememberScaffoldState
@@ -47,9 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -65,8 +60,11 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
+import de.gematik.ti.erp.app.button.ButtonWithConditionalHint
+import de.gematik.ti.erp.app.button.ButtonWithConditionalHintData
+import de.gematik.ti.erp.app.button.FlatButton
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
-import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
@@ -74,6 +72,8 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.Companion.from
+import de.gematik.ti.erp.app.pharmacy.model.orderID
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.pharmacy.ui.components.TopBarColor
 import de.gematik.ti.erp.app.pharmacy.ui.components.VideoContent
@@ -83,13 +83,23 @@ import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
 import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState.ValidShippingContactState.OK
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.redeem.model.RedeemEventModel.ProcessStateEvent
+import de.gematik.ti.erp.app.redeem.model.RedeemEventModel.RedeemClickEvent
+import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
+import de.gematik.ti.erp.app.redeem.presentation.RedeemOrderOverviewScreenController
+import de.gematik.ti.erp.app.redeem.presentation.RedeemPrescriptionsController
 import de.gematik.ti.erp.app.redeem.presentation.rememberOrderOverviewScreenController
+import de.gematik.ti.erp.app.redeem.presentation.rememberRedeemPrescriptionsController
+import de.gematik.ti.erp.app.redeem.ui.components.ErrorOnRedeemablePrescriptionDialog
+import de.gematik.ti.erp.app.redeem.ui.components.PrescriptionRedeemAlertDialog
 import de.gematik.ti.erp.app.redeem.ui.components.RedeemButton
+import de.gematik.ti.erp.app.redeem.ui.components.RedeemStateHandler.handleRedeemedState
 import de.gematik.ti.erp.app.redeem.ui.components.SelfPayerPrescriptionWarning
+import de.gematik.ti.erp.app.redeem.ui.components.selectVideoSource
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -97,13 +107,17 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerShortMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
-import de.gematik.ti.erp.app.utils.compose.AcceptDialog
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.NavigateBackButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.letNotNull
+import de.gematik.ti.erp.app.utils.uistate.UiState
+import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 private const val OrderSuccessVideoAspectRatio = 1.69f
 
@@ -114,67 +128,96 @@ class RedeemOrderOverviewScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
-        val intentHandler = LocalIntentHandler.current
+        val scope = uiScope
+
         navBackStackEntry.onReturnAction(RedeemRoutes.RedeemOrderOverviewScreen) {
             // reload profile when user comes back to this screen to check for valid sso token
             graphController.refreshActiveProfile()
         }
+
         val navigationArguments = RedeemRouteBackStackEntryArguments(navBackStackEntry)
+        val taskId = navBackStackEntry.arguments?.getString(RedeemRoutes.REDEEM_NAV_TASK_ID)
 
-        letNotNull(
-            navigationArguments.getPharmacy(),
-            navigationArguments.getOrderOption()
-        ) { pharmacy, orderOption ->
+        val pharmacy = navigationArguments.getPharmacy()
+        val orderOption = navigationArguments.getOrderOption()
 
-            val appController = rememberAppController()
-            val controller = rememberOrderOverviewScreenController()
+        val appController = rememberAppController()
+        val orderOverviewController = rememberOrderOverviewScreenController()
+        val redeemController = rememberRedeemPrescriptionsController()
 
-            val activeProfile by graphController.activeProfile.collectAsStateWithLifecycle()
-            val isRedemptionAllowed by graphController.isRedemptionAllowed.collectAsStateWithLifecycle()
-            val isProfileRefreshing by controller.isProfileRefreshing.collectAsStateWithLifecycle()
+        val isLoadingIndicatorShown by orderOverviewController.isLoadingIndicatorShown.collectAsStateWithLifecycle()
+        val orderHasError by orderOverviewController.orderHasError.collectAsStateWithLifecycle()
 
-            val taskId = navBackStackEntry.arguments?.getString(RedeemRoutes.REDEEM_NAV_TASK_ID) ?: ""
+        val activeProfile by graphController.activeProfile.collectAsStateWithLifecycle()
+        val isRedemptionAllowed by graphController.isRedemptionAllowed.collectAsStateWithLifecycle()
+        val selectedOrderState by graphController.selectedOrderState
+        val redeemPrescriptionState by redeemController.redeemedState.collectAsStateWithLifecycle()
+        val isProfileRefreshing by orderOverviewController.isProfileRefreshing.collectAsStateWithLifecycle()
 
-            LaunchedEffect(Unit) {
-                if (taskId.isNotEmpty()) {
-                    graphController.deselectPrescriptions(taskId)
-                }
-            }
-
-            val selectedOrderState by graphController.selectedOrderState()
-
-            val shippingContactState = remember(selectedOrderState, orderOption) {
+        val shippingContactState = letNotNull(pharmacy, orderOption) { _, _ ->
+            remember(selectedOrderState, orderOption) {
                 graphController.validateAndGetShippingContactState(selectedOrderState.contact, orderOption)
             }
+        }
 
-            var isLoadingIndicatorShown by remember { mutableStateOf(false) }
+        LaunchedEffect(shippingContactState) {
+            println("dvg shippingContactState: $shippingContactState")
+        }
 
-            fun hideLoadingIndicator() {
-                isLoadingIndicatorShown = false
+        AuthenticationFailureDialog(
+            event = orderOverviewController.showAuthenticationErrorDialog,
+            dialogScaffold = dialog
+        )
+
+        PrescriptionRedeemAlertDialog(
+            event = orderOverviewController.showPrescriptionRedeemAlertDialogEvent,
+            dialog = dialog,
+            onDismiss = {
+                orderOverviewController.disableLoadingIndicator()
+                appController.onOrdered(hasError = orderHasError)
+                graphController.onResetPrescriptionSelection()
+                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionsScreen.route)
             }
+        )
 
-            fun showLoadingIndicator() {
-                isLoadingIndicatorShown = true
-            }
-
-            LaunchedEffect(isProfileRefreshing) {
-                when {
-                    isProfileRefreshing -> showLoadingIndicator()
-                    else -> hideLoadingIndicator()
+        ErrorOnRedeemablePrescriptionDialog(
+            event = orderOverviewController.showErrorOnRedeemAlertDialogEvent,
+            dialog = dialog,
+            onClickForInvalidOrder = {
+                graphController.onResetPrescriptionSelection()
+                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionsScreen.route)
+            },
+            onClickForIncompleteOrder = { nonRedeemableTaskIds ->
+                // remove the prescriptions that are not redeemable from the order
+                graphController.deselectInvalidPrescriptions(nonRedeemableTaskIds)
+                // restart the redeem process with the new prescriptions
+                scope.launch {
+                    graphController.activeProfile.extract()?.let { profile ->
+                        redeemOrder(
+                            redeemController = redeemController,
+                            profile = profile,
+                            order = selectedOrderState,
+                            isRedemptionAllowed = isRedemptionAllowed,
+                            selectedOrderOption = orderOption,
+                            selectedPharmacy = pharmacy,
+                            onNotRedeemable = {
+                                orderOverviewController.disableLoadingIndicator()
+                                orderOverviewController.chooseAuthenticationMethod(profile.id)
+                            }
+                        )
+                    }
                 }
+            },
+            onClickToCancel = {
+                // nothing happens as of now
             }
+        )
 
-            LaunchedEffect(Unit) {
-                intentHandler.gidSuccessfulIntent.collectLatest {
-                    graphController.refreshActiveProfile()
-                }
-            }
+        LaunchedEffect(Unit) {
+            graphController.setPrescriptionSelectionState(taskId)
+        }
 
-            AuthenticationFailureDialog(
-                event = controller.showAuthenticationErrorDialog,
-                dialogScaffold = dialog
-            )
-
+        letNotNull(pharmacy, orderOption) { pharmacyNotNull, orderOptionNotNull ->
             Box {
                 UiStateMachine(
                     state = activeProfile,
@@ -185,74 +228,65 @@ class RedeemOrderOverviewScreen(
                     }
                 ) { profile ->
 
-                    with(controller) {
-                        onBiometricAuthenticationSuccessEvent.listen {
-                            graphController.refreshActiveProfile()
-                        }
-
-                        showCardWallEvent.listen { id ->
-                            navController.navigate(CardWallRoutes.CardWallIntroScreen.path(id))
-                        }
-                        showCardWallWithFilledCanEvent.listen { cardWallData ->
-                            navController.navigate(
-                                CardWallRoutes.CardWallPinScreen.path(
-                                    profileIdentifier = cardWallData.profileId,
-                                    can = cardWallData.can
-                                )
-                            )
-                        }
-                        showGidEvent.listen { gidData ->
-                            navController.navigate(
-                                CardWallRoutes.CardWallIntroScreen.pathWithGid(
-                                    profileIdentifier = gidData.profileId,
-                                    gidEventData = gidData
-                                )
-                            )
-                        }
+                    with(orderOverviewController) {
+                        observerProfileRefresh(isProfileRefreshing, this)
+                        observeRedeemState(redeemPrescriptionState, this)
+                        listenForAuthenticationEvents(this)
                     }
 
-                    RedeemOrderOverviewScreenContent(
-                        profile = profile,
-                        selectedOrderState = selectedOrderState,
-                        selectedOrderOption = orderOption,
-                        shippingContactState = shippingContactState,
-                        selectedPharmacy = pharmacy,
-                        isRedemptionPossible = isRedemptionAllowed,
-                        onClickContacts = {
-                            hideLoadingIndicator()
-                            navController.navigate(
-                                RedeemRoutes.RedeemEditShippingContactScreen.path(orderOption)
-                            )
-                        },
+                    val redeemClickEvent = RedeemClickEvent(
                         onSelectPrescriptions = {
-                            hideLoadingIndicator()
+                            orderOverviewController.disableLoadingIndicator()
                             navController.navigate(RedeemRoutes.RedeemPrescriptionSelection.path(isModal = true))
                         },
-                        onBack = {
-                            hideLoadingIndicator()
-                            graphController.onResetPrescriptionSelection()
-                            navController.popBackStack()
-                        },
                         onChangePharmacy = {
-                            hideLoadingIndicator()
+                            orderOverviewController.disableLoadingIndicator()
                             navController.navigate(
                                 PharmacyRoutes.PharmacyStartScreenModal.path(taskId = "")
                             )
                         },
-                        onNotRedeemable = {
-                            controller.chooseAuthenticationMethod(profile.id)
+                        onClickContacts = {
+                            orderOverviewController.disableLoadingIndicator()
+                            navController.navigate(
+                                RedeemRoutes.RedeemEditShippingContactScreen.path(orderOptionNotNull)
+                            )
                         },
-                        onProcessStarted = {
-                            showLoadingIndicator()
-                        },
-                        onProcessEnded = {
-                            hideLoadingIndicator()
-                        },
-                        onFinish = { orderHasError ->
-                            hideLoadingIndicator()
-                            appController.onOrdered(hasError = orderHasError)
+                        onBack = {
+                            orderOverviewController.disableLoadingIndicator()
                             graphController.onResetPrescriptionSelection()
-                            navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionsScreen.route)
+                            navController.popBackStack()
+                        }
+                    )
+
+                    val processStateEvent = ProcessStateEvent(
+                        processStartedEvent = redeemController.onProcessStartEvent,
+                        processEndEvent = redeemController.onProcessEndEvent,
+                        onNotRedeemable = { orderOverviewController.chooseAuthenticationMethod(profile.id) },
+                        onProcessStarted = orderOverviewController::enableLoadingIndicator,
+                        onProcessEnded = orderOverviewController::disableLoadingIndicator
+                    )
+
+                    RedeemOrderOverviewScreenContent(
+                        profile = profile,
+                        selectedOrderState = selectedOrderState,
+                        selectedOrderOption = orderOptionNotNull,
+                        shippingContactState = shippingContactState,
+                        selectedPharmacy = pharmacyNotNull,
+                        redeemClickEvent = redeemClickEvent,
+                        processStateEvent = processStateEvent,
+                        onClickRedeem = {
+                            redeemOrder(
+                                redeemController = redeemController,
+                                profile = profile,
+                                order = selectedOrderState,
+                                isRedemptionAllowed = isRedemptionAllowed,
+                                selectedOrderOption = orderOptionNotNull,
+                                selectedPharmacy = pharmacyNotNull,
+                                onNotRedeemable = {
+                                    orderOverviewController.disableLoadingIndicator()
+                                    orderOverviewController.chooseAuthenticationMethod(profile.id)
+                                }
+                            )
                         }
                     )
                 }
@@ -270,24 +304,116 @@ class RedeemOrderOverviewScreen(
             }
         }
     }
+
+    private fun redeemOrder(
+        redeemController: RedeemPrescriptionsController,
+        profile: Profile,
+        order: PharmacyUseCaseData.OrderState,
+        isRedemptionAllowed: Boolean,
+        selectedOrderOption: PharmacyScreenData.OrderOption?,
+        selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
+        onNotRedeemable: () -> Unit
+    ) {
+        if (!isRedemptionAllowed) {
+            onNotRedeemable()
+            return
+        }
+        letNotNull(selectedOrderOption, selectedPharmacy, { orderOption, pharmacy ->
+            redeemController.processPrescriptionRedemptions(
+                arguments = orderID().from(
+                    profile = profile,
+                    order = order,
+                    redeemOption = orderOption,
+                    pharmacy = pharmacy
+                )
+            )
+        }, elseBlock = onNotRedeemable)
+    }
+
+    @Suppress("ComposableNaming")
+    @Composable
+    private fun observeRedeemState(
+        redeemPrescriptionState: RedeemedPrescriptionState,
+        orderOverviewController: RedeemOrderOverviewScreenController
+    ) {
+        with(orderOverviewController) {
+            LaunchedEffect(redeemPrescriptionState) {
+                redeemPrescriptionState.handleRedeemedState(
+                    onShowPrescriptionRedeemAlertDialog = { showPrescriptionRedeemAlertDialogEvent.trigger(it) },
+                    onOrderHasError = { toggleOrderHasError(it) },
+                    // hide the loading indicator when the  dialog is to be shown
+                    onIncompleteOrder = {
+                        disableLoadingIndicator()
+                        showErrorOnRedeemAlertDialogEvent.trigger(it)
+                    },
+                    onInvalidOrder = {
+                        disableLoadingIndicator()
+                        showErrorOnRedeemAlertDialogEvent.trigger(it)
+                    }
+                )
+            }
+        }
+    }
+
+    @Suppress("ComposableNaming")
+    @Composable
+    private fun observerProfileRefresh(
+        isProfileRefreshing: Boolean,
+        orderOverviewController: RedeemOrderOverviewScreenController
+    ) {
+        LaunchedEffect(isProfileRefreshing) {
+            orderOverviewController.toggleLoadingIndicator(isProfileRefreshing)
+        }
+    }
+
+    @Suppress("ComposableNaming")
+    @Composable
+    private fun listenForAuthenticationEvents(orderOverviewController: RedeemOrderOverviewScreenController) {
+        val intentHandler = intentHandler
+        LaunchedEffect(Unit) {
+            intentHandler.gidSuccessfulIntent.collectLatest {
+                graphController.refreshActiveProfile()
+            }
+        }
+
+        with(orderOverviewController) {
+            onBiometricAuthenticationSuccessEvent.listen {
+                graphController.refreshActiveProfile()
+            }
+            showCardWallEvent.listen { id ->
+                navController.navigate(CardWallIntroScreen.path(id))
+            }
+            showCardWallWithFilledCanEvent.listen { cardWallData ->
+                navController.navigate(
+                    CardWallRoutes.CardWallPinScreen.path(
+                        profileIdentifier = cardWallData.profileId,
+                        can = cardWallData.can
+                    )
+                )
+            }
+            showGidEvent.listen { gidData ->
+                navController.navigate(
+                    CardWallIntroScreen.pathWithGid(gidData)
+                )
+            }
+        }
+    }
+
+    companion object {
+        private suspend fun StateFlow<UiState<Profile>>.extract(): Profile? = first { it.isDataState }.data
+    }
 }
 
 @Composable
 fun RedeemOrderOverviewScreenContent(
-    profile: ProfilesUseCaseData.Profile,
+    profile: Profile,
     selectedOrderState: PharmacyUseCaseData.OrderState,
     selectedOrderOption: PharmacyScreenData.OrderOption?,
     shippingContactState: ShippingContactState?,
     selectedPharmacy: PharmacyUseCaseData.Pharmacy?,
-    isRedemptionPossible: Boolean,
-    onFinish: (Boolean) -> Unit,
-    onNotRedeemable: () -> Unit,
-    onClickContacts: () -> Unit,
-    onSelectPrescriptions: () -> Unit,
-    onChangePharmacy: () -> Unit,
-    onProcessStarted: () -> Unit,
-    onProcessEnded: () -> Unit,
-    onBack: () -> Unit
+    processStateEvent: ProcessStateEvent,
+    redeemClickEvent: RedeemClickEvent,
+    onClickRedeem: () -> Unit
 ) {
     val listState = rememberLazyListState()
     val videoHeightPx = remember { mutableFloatStateOf(0f) }
@@ -296,10 +422,7 @@ fun RedeemOrderOverviewScreenContent(
     Scaffold(
         modifier = Modifier.testTag(TestTag.PharmacySearch.OrderSummary.Screen),
         scaffoldState = scaffoldState,
-        snackbarHost = { SnackbarHost(it, modifier = Modifier.systemBarsPadding()) },
-        topBar = {
-            // no top bar
-        }
+        snackbarHost = { SnackbarHost(it, modifier = Modifier.systemBarsPadding()) }
     ) { padding ->
         LazyColumn(
             state = listState,
@@ -313,25 +436,15 @@ fun RedeemOrderOverviewScreenContent(
                 Box {
                     VideoContent(
                         Modifier
-                            .onPlaced {
-                                videoHeightPx.floatValue = it.size.height.toFloat()
-                            }
+                            .onPlaced { videoHeightPx.floatValue = it.size.height.toFloat() }
                             .clip(shape)
                             .background(TopBarColor)
                             .statusBarsPadding()
                             .fillMaxWidth(),
-                        source = when (selectedOrderOption) {
-                            PharmacyScreenData.OrderOption.PickupService -> R.raw.animation_local
-                            PharmacyScreenData.OrderOption.CourierDelivery -> R.raw.animation_courier
-                            PharmacyScreenData.OrderOption.MailDelivery -> R.raw.animation_mail
-                            else -> {
-                                // show default animation until the order option is not null
-                                R.raw.animation_local
-                            }
-                        },
+                        source = selectedOrderOption.selectVideoSource(),
                         aspectRatioOverwrite = OrderSuccessVideoAspectRatio
                     )
-                    NavigateBackButton(onClick = onBack)
+                    NavigateBackButton(onClick = redeemClickEvent.onBack)
                 }
             }
             item {
@@ -353,21 +466,18 @@ fun RedeemOrderOverviewScreenContent(
                         ContactSelectionButton(
                             contact = selectedOrderState.contact,
                             shippingContactState = shippingContact,
-                            onClick = onClickContacts
+                            onClick = redeemClickEvent.onClickContacts
                         )
                     }
                 }
             }
             item {
                 Column(Modifier.padding(horizontal = PaddingDefaults.Medium)) {
-                    Text(stringResource(R.string.pharmacy_order_prescriptions), style = AppTheme.typography.h6)
                     SpacerMedium()
-                    selectedOrderState.prescriptionOrders.takeIf { it.isNotEmpty() }?.let { prescriptions ->
-                        PrescriptionSelectionButton(
-                            prescriptions = prescriptions,
-                            onClick = onSelectPrescriptions
-                        )
-                    }
+                    PrescriptionSelectionButton(
+                        prescriptions = selectedOrderState.prescriptionsInOrder,
+                        onClick = redeemClickEvent.onSelectPrescriptions
+                    )
                 }
             }
             item {
@@ -378,62 +488,34 @@ fun RedeemOrderOverviewScreenContent(
                         PharmacySelectionButton(
                             selectedPharmacy = pharmacy,
                             selectedOrderOption = orderOption,
-                            onClick = onChangePharmacy
+                            onClick = redeemClickEvent.onChangePharmacy
                         )
                     }
                     SpacerMedium()
                 }
             }
 
-            val selectedSelfPayerPrescriptionNames = selectedOrderState.prescriptionOrders
-                .filter { it.taskId in selectedOrderState.selfPayerPrescriptionIds }
-                .mapNotNull { it.title }
-
-            if (selectedSelfPayerPrescriptionNames.isNotEmpty()) {
+            if (selectedOrderState.selfPayerPrescriptionNames.isNotEmpty()) {
                 item {
-                    SelfPayerPrescriptionWarning(
-                        selectedSelfPayerPrescriptionNames
-                    )
+                    SelfPayerPrescriptionWarning(selectedOrderState.selfPayerPrescriptionNames)
                 }
             }
-            item {
-                letNotNull(
-                    profile,
-                    selectedPharmacy,
-                    selectedOrderOption
-                ) { activeProfile, pharmacy, orderOption ->
+
+            letNotNull(
+                profile,
+                selectedPharmacy,
+                selectedOrderOption
+            ) { _, _, _ ->
+                item {
                     RedeemButton(
-                        profile = activeProfile,
-                        selectedPharmacy = pharmacy,
-                        selectedOrderOption = orderOption,
-                        order = selectedOrderState,
-                        shippingContactCompleted = shippingContactState == OK,
-                        isRedemptionPossible = isRedemptionPossible,
-                        onNotRedeemable = onNotRedeemable,
-                        onProcessStarted = onProcessStarted,
-                        onProcessEnded = onProcessEnded,
-                        onFinish = onFinish
+                        isEnabled = shippingContactState != null && shippingContactState == OK && selectedOrderState.prescriptionsInOrder.isNotEmpty(),
+                        processStateEvent = processStateEvent,
+                        onClickRedeem = onClickRedeem
                     )
                 }
             }
         }
     }
-}
-
-@Composable
-fun PrescriptionRedeemAlertDialog(
-    title: String,
-    description: String,
-    onDismiss: () -> Unit
-) {
-    AcceptDialog(
-        header = title,
-        info = description,
-        onClickAccept = {
-            onDismiss()
-        },
-        acceptText = stringResource(R.string.pharmacy_search_apovz_call_failed_accept)
-    )
 }
 
 @Composable
@@ -507,33 +589,22 @@ private fun ContactSelectionButton(
 
 @Composable
 private fun PrescriptionSelectionButton(
-    prescriptions: List<PharmacyUseCaseData.PrescriptionOrder>,
+    prescriptions: List<PharmacyUseCaseData.PrescriptionInOrder>,
     onClick: () -> Unit
 ) {
-    val (title, desc) = when (prescriptions.size) {
-        1 -> Pair(prescriptions.first().title ?: "", null)
-        else -> Pair(
-            stringResource(R.string.pharmacy_order_nr_of_prescriptions, prescriptions.size),
-            prescriptions.joinToString { it.title ?: "" }
-        )
-    }
-
-    FlatButton(
-        modifier = Modifier.testTag(TestTag.PharmacySearch.OrderSummary.PrescriptionSelectionButton),
+    ButtonWithConditionalHint(
+        modifier = Modifier
+            .padding(vertical = PaddingDefaults.Medium)
+            .testTag(TestTag.PharmacySearch.OrderSummary.PrescriptionSelectionButton),
+        data = ButtonWithConditionalHintData(
+            buttonTitleText = stringResource(R.string.pharmacy_order_with_prescriptions_button_subtitle),
+            errorTitleText = stringResource(R.string.pharmacy_order_no_prescriptions),
+            hintText = stringResource(R.string.pharmacy_order_no_prescriptions_error),
+            buttonTexts = prescriptions.mapNotNull { it.title }
+        ),
+        isError = prescriptions.isEmpty(),
         onClick = onClick
-    ) {
-        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(title, style = AppTheme.typography.subtitle1)
-                desc?.let {
-                    SpacerTiny()
-                    Text(desc, style = AppTheme.typography.body2l, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                }
-            }
-            SpacerMedium()
-            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null)
-        }
-    }
+    )
 }
 
 @Composable
@@ -615,23 +686,3 @@ private fun ServiceOption(
         Text(text, style = AppTheme.typography.subtitle2, color = AppTheme.colors.green900)
     }
 }
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun FlatButton(
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit,
-    content: @Composable () -> Unit
-) =
-    Surface(
-        modifier = modifier.fillMaxWidth(),
-        onClick = onClick,
-        shape = RoundedCornerShape(16.dp),
-        color = AppTheme.colors.neutral025,
-        border = BorderStroke(1.dp, AppTheme.colors.neutral300),
-        elevation = 0.dp
-    ) {
-        Box(Modifier.padding(PaddingDefaults.Medium)) {
-            content()
-        }
-    }

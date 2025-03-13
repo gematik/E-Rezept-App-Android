@@ -111,7 +111,7 @@ internal fun InAppMessage(
                     )
                 }
             }
-            message.message?.let {
+            message.content?.let {
                 SpacerTiny()
                 MarkdownText(
                     markdown = it,
@@ -131,7 +131,7 @@ fun InAppMessagePreview() {
             message = OrderUseCaseData.Message(
                 communicationId = "1",
                 sentOn = Instant.parse("2022-01-01T00:00:00Z"),
-                message = """
+                content = """
                     Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
                     sed diam nonumy eirmod tempor invidunt ut labore et dolore 
                     magna aliquyam erat, sed diam voluptua. At vero eos et accusam 

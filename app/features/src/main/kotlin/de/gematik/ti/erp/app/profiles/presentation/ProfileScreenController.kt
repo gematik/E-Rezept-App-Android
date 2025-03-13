@@ -20,7 +20,11 @@ package de.gematik.ti.erp.app.profiles.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import de.gematik.ti.erp.app.base.presentation.GetProfileByIdController
+import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
+import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
+import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
+import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.AddProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.DeleteProfileUseCase
@@ -30,6 +34,7 @@ import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.LogoutProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.UpdateProfileUseCase
+import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
@@ -39,17 +44,24 @@ class ProfileScreenController(
     getProfileByIdUseCase: GetProfileByIdUseCase,
     getProfilesUseCase: GetProfilesUseCase,
     getActiveProfileUseCase: GetActiveProfileUseCase,
+    biometricAuthenticator: BiometricAuthenticator,
+    networkStatusTracker: NetworkStatusTracker,
+    chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
     private val switchActiveProfileUseCase: SwitchActiveProfileUseCase,
     private val updateProfileUseCase: UpdateProfileUseCase,
     private val logoutProfileUseCase: LogoutProfileUseCase,
     private val addProfileUseCase: AddProfileUseCase,
     private val deleteProfileUseCase: DeleteProfileUseCase
-) : GetProfileByIdController(
-    selectedProfileId = profileId,
+) : ChooseAuthenticationController(
+    profileId = profileId,
     getProfileByIdUseCase = getProfileByIdUseCase,
     getProfilesUseCase = getProfilesUseCase,
-    getActiveProfileUseCase = getActiveProfileUseCase
+    getActiveProfileUseCase = getActiveProfileUseCase,
+    biometricAuthenticator = biometricAuthenticator,
+    chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+    networkStatusTracker = networkStatusTracker
 ) {
+    val deleteDialogEvent = ComposableEvent<Unit>()
 
     fun switchActiveProfile(id: ProfileIdentifier) {
         controllerScope.launch {
@@ -85,6 +97,10 @@ class ProfileScreenController(
             addProfileUseCase(name)
         }
     }
+
+    fun triggerDeleteProfileDialog() {
+        deleteDialogEvent.trigger(Unit)
+    }
 }
 
 @Composable
@@ -97,6 +113,9 @@ fun rememberProfileScreenController(profileId: ProfileIdentifier): ProfileScreen
     val addProfileUseCase by rememberInstance<AddProfileUseCase>()
     val deleteProfileUseCase by rememberInstance<DeleteProfileUseCase>()
     val logoutProfileUseCase by rememberInstance<LogoutProfileUseCase>()
+    val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
+    val chooseAuthenticationDataUseCase by rememberInstance<ChooseAuthenticationDataUseCase>()
+    val biometricAuthenticator = LocalBiometricAuthenticator.current
 
     return remember(profileId) {
         ProfileScreenController(
@@ -108,7 +127,10 @@ fun rememberProfileScreenController(profileId: ProfileIdentifier): ProfileScreen
             updateProfileUseCase = updateProfileUseCase,
             addProfileUseCase = addProfileUseCase,
             deleteProfileUseCase = deleteProfileUseCase,
-            logoutProfileUseCase = logoutProfileUseCase
+            logoutProfileUseCase = logoutProfileUseCase,
+            biometricAuthenticator = biometricAuthenticator,
+            chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+            networkStatusTracker = networkStatusTracker
         )
     }
 }

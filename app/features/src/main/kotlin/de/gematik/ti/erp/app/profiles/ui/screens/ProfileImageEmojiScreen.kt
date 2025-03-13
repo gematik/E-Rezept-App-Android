@@ -34,8 +34,9 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.content.MediaType
+import androidx.compose.foundation.content.consume
+import androidx.compose.foundation.content.contentReceiver
 import androidx.compose.foundation.content.hasMediaType
-import androidx.compose.foundation.content.receiveContent
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,7 +50,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text2.BasicTextField2
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.EmojiEmotions
@@ -400,31 +400,28 @@ private fun ProfileImageEmojiScreenContent(
                         .focusRequester(focusRequester)
                 )
             } else {
-                @Suppress("LoopWithTooManyJumpStatements")
-                (
-                    BasicTextField2(
-                        value = textData,
-                        onValueChange = { value ->
-                            Napier.i { "onValueChange: $value" }
-                            onTextContentReceived(value)
-                        },
-                        keyboardOptions = KeyboardOptions.Default,
-                        modifier = Modifier
-                            .hideFromView()
-                            .focusRequester(focusRequester)
-                            .receiveContent(setOf(MediaType.All)) { content ->
-                                if (content.hasMediaType(MediaType.Image)) {
-                                    val clipData = content.clipEntry.clipData
-                                    for (index in 0 until clipData.itemCount) {
-                                        val item = clipData.getItemAt(index) ?: continue
-                                        onImageContentReceived(item.uri)
-                                        item.uri ?: continue
-                                    }
-                                }
-                                content
+                BasicTextField(
+                    value = textData,
+                    onValueChange = { value ->
+                        onTextContentReceived(value)
+                    },
+                    keyboardOptions = KeyboardOptions.Default,
+                    modifier = Modifier
+                        .hideFromView()
+                        .focusRequester(focusRequester)
+                        .contentReceiver { transferableContent ->
+                            Napier.d { "transferableContent ${transferableContent.clipMetadata}" }
+                            if (!transferableContent.hasMediaType(MediaType.Image)) {
+                                return@contentReceiver transferableContent
                             }
-                    )
-                    )
+                            transferableContent.consume { content ->
+                                content.uri?.let { uri ->
+                                    onImageContentReceived(uri)
+                                    true
+                                } ?: false
+                            }
+                        }
+                )
             }
 
             profile?.let { editableProfile ->

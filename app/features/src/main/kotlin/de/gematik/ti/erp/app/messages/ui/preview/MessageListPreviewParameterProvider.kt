@@ -51,28 +51,28 @@ const val LATEST_MESSAGE_ADDRESS = "Berlinder Strasse 123, 12345 Berlin"
 const val LATEST_MESSAGE_LONG = "This is a long message to see how it looks like when the message is long and how the UI should handle it properly."
 
 val mockMessageDetails = OrderUseCaseData.LastMessageDetails(
-    message = LATEST_MESSAGE,
+    content = LATEST_MESSAGE,
     pickUpCodeDMC = "DMC1234",
     pickUpCodeHR = "HR5678",
     link = "http://pharmacy.com/pickup"
 )
 
 val mockMessageDetailsWithoutCode = OrderUseCaseData.LastMessageDetails(
-    message = null,
+    content = null,
     pickUpCodeDMC = null,
     pickUpCodeHR = null,
     link = "http://pharmacy.com/pickup"
 )
 
 val mockMessageDetailsWithoutCodeAndLink = OrderUseCaseData.LastMessageDetails(
-    message = LATEST_MESSAGE,
+    content = LATEST_MESSAGE,
     pickUpCodeDMC = null,
     pickUpCodeHR = null,
     link = null
 )
 
 val mockMessageDetailsAddress = OrderUseCaseData.LastMessageDetails(
-    message = LATEST_MESSAGE_ADDRESS,
+    content = LATEST_MESSAGE_ADDRESS,
     pickUpCodeDMC = null,
     pickUpCodeHR = null,
     link = null
@@ -97,7 +97,7 @@ val mockLastMessageAdress = OrderUseCaseData.LastMessage(
     profile = CommunicationProfile.ErxCommunicationReply
 )
 val mockLastMessageLong = OrderUseCaseData.LastMessage(
-    lastMessageDetails = mockMessageDetails.copy(message = LATEST_MESSAGE_LONG),
+    lastMessageDetails = mockMessageDetails.copy(content = LATEST_MESSAGE_LONG),
     profile = CommunicationProfile.ErxCommunicationReply
 
 )

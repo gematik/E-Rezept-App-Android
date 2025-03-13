@@ -65,14 +65,14 @@ class InAppDataSource(
     val showWelcomeMessage: Flow<Boolean>
         get() = realm.query<InternalMessageEntity>()
             .asFlow()
-            .mapNotNull {
+            .map {
                 it.list.firstOrNull()?.showWelcomeMessage ?: false
             }
 
-    val welcomeMessageTimeStamp: Flow<Instant>
+    val welcomeMessageTimeStamp: Flow<Instant?>
         get() = realm.query<InternalMessageEntity>()
             .asFlow()
-            .mapNotNull {
+            .map {
                 it.list.firstOrNull()?.welcomeMessageTimeStamp?.toInstant()
             }
 
@@ -109,13 +109,12 @@ class InAppDataSource(
                         this.lastUpdatedVersion = inAppLastVersion
                     }
                 } ?: run {
+                    // if No InternalMessageEntity exists, create a new one with lastversion as null as its a first install
                     copyToRealm(
                         InternalMessageEntity().apply {
                             this.inAppMessageEntity = newChangeLogs
-                            this.counter = this.inAppMessageEntity.filter { it.isUnRead }.size.toLong()
-                            if (this.lastVersion.isNullOrBlank()) {
-                                this.lastVersion = lastVersion
-                            }
+                            this.lastVersion = null
+                            this.counter = 1
                             this.lastUpdatedVersion = inAppLastVersion
                         }
                     )

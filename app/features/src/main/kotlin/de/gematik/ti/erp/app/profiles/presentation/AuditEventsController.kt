@@ -25,6 +25,7 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -56,6 +57,7 @@ class AuditEventsController(
     getProfilesUseCase: GetProfilesUseCase,
     chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
     authenticator: BiometricAuthenticator,
+    networkStatusTracker: NetworkStatusTracker,
     private val auditEventsUseCase: AuditEventsUseCase
 ) : ChooseAuthenticationController(
     profileId = selectedProfileId,
@@ -63,6 +65,7 @@ class AuditEventsController(
     getActiveProfileUseCase = getActiveProfileUseCase,
     getProfilesUseCase = getProfilesUseCase,
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+    networkStatusTracker = networkStatusTracker,
     biometricAuthenticator = authenticator
 ) {
     val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
@@ -107,6 +110,7 @@ fun rememberAuditEventsController(
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val auditEventsUseCase by rememberInstance<AuditEventsUseCase>()
     val chooseAuthenticationDataUseCase by rememberInstance<ChooseAuthenticationDataUseCase>()
+    val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
     val authenticator = LocalBiometricAuthenticator.current
 
     return remember {
@@ -117,6 +121,7 @@ fun rememberAuditEventsController(
             getActiveProfileUseCase = getActiveProfileUseCase,
             auditEventsUseCase = auditEventsUseCase,
             chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+            networkStatusTracker = networkStatusTracker,
             authenticator = authenticator
         )
     }

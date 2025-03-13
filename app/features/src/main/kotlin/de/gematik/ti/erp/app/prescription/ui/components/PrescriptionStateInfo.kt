@@ -46,6 +46,7 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.SentOrCompletedPhrase
 import de.gematik.ti.erp.app.prescription.ui.model.sentOrCompleted
 import de.gematik.ti.erp.app.prescription.ui.preview.prescriptionStatePreviews
+import de.gematik.ti.erp.app.prescription.ui.preview.prescriptionStatePreviewsNearDayEnd
 import de.gematik.ti.erp.app.prescription.ui.screen.ONE_DAY_LEFT
 import de.gematik.ti.erp.app.prescription.ui.screen.TWO_DAYS_LEFT
 import de.gematik.ti.erp.app.prescription.ui.screen.ZERO_DAYS_LEFT
@@ -294,7 +295,7 @@ private fun sentOrCompletedPhrase(
 
         is SentOrCompletedPhrase.ProvidedHoursAgo -> {
             annotatedStringResource(
-                R.string.provided_on_hour,
+                R.string.provided_at_hour,
                 remember { timeString(lastModified.toLocalDateTime(timeZone)) }
             ).toString()
         }
@@ -369,6 +370,32 @@ fun PrescriptionStateInfosCombinedPreview() {
     PreviewAppTheme {
         Column {
             prescriptionStatePreviews.forEach { previewData ->
+                Text(
+                    previewData.name,
+                    style = AppTheme.typography.caption2,
+                    color = AppTheme.colors.neutral800,
+                    textAlign = TextAlign.Start
+                )
+                SpacerTiny()
+                PrescriptionStateInfo(
+                    state = previewData.prescriptionState,
+                    now = previewData.now,
+                    textAlign = TextAlign.Center
+                )
+                SpacerTiny()
+                Divider()
+                SpacerMedium()
+            }
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PrescriptionStateInfoNearDayEndPreview() {
+    PreviewAppTheme {
+        Column {
+            prescriptionStatePreviewsNearDayEnd.forEach { previewData ->
                 Text(
                     previewData.name,
                     style = AppTheme.typography.caption2,

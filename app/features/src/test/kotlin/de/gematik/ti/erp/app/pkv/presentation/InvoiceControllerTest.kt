@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.pkv.presentation
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
@@ -78,6 +79,7 @@ class InvoiceControllerTest : TestWatcher() {
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
     private val biometricAuthenticator = mockk<BiometricAuthenticator>()
+    private val networkStatusTracker = mockk<NetworkStatusTracker>()
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val dispatcher = UnconfinedTestDispatcher()
@@ -110,6 +112,8 @@ class InvoiceControllerTest : TestWatcher() {
         Dispatchers.setMain(dispatcher)
         MockKAnnotations.init(this)
 
+        every { networkStatusTracker.networkStatus } returns flowOf(true)
+
         getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
         getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         getActiveProfileUseCase = GetActiveProfileUseCase(profileRepository, dispatcher)
@@ -123,18 +127,18 @@ class InvoiceControllerTest : TestWatcher() {
         shareInvoiceUseCase = ShareInvoiceUseCase(invoiceRepository, dispatcher)
 
         controllerUnderTest = InvoiceController(
-            profileId = PROFILE_ID,
             getProfileByIdUseCase = getProfileByIdUseCase,
             getProfilesUseCase = getProfilesUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
             chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+            biometricAuthenticator = biometricAuthenticator,
+            profileId = PROFILE_ID,
             downloadInvoicesUseCase = downloadInvoiceUseCase,
             getInvoicesByProfileUseCase = getInvoicesByProfileUseCase,
             getInvoiceByTaskIdUseCase = getInvoiceByTaskIdUseCase,
             deleteInvoiceUseCase = deleteInvoiceUseCase,
             deleteAllInvoicesUseCase = deleteAllInvoicesUseCase,
             shareInvoiceUseCase = shareInvoiceUseCase,
-            biometricAuthenticator = biometricAuthenticator,
             invoiceDetailScreenEvents = InvoiceDetailScreenEvents(
                 askUserToLoginEvent = askUserToLoginEvent,
                 deleteSuccessfulEvent = deleteSuccessfulEvent
@@ -144,7 +148,8 @@ class InvoiceControllerTest : TestWatcher() {
                 invoiceErrorEvent = invoiceErrorEvent,
                 getConsentEvent = getConsentEvent,
                 showAuthenticationErrorDialog = showAuthenticationErrorDialog
-            )
+            ),
+            networkStatusTracker = networkStatusTracker
         )
     }
 
@@ -159,7 +164,7 @@ class InvoiceControllerTest : TestWatcher() {
     fun `getting the list of invoices with loading state at start`() {
         coEvery { profileRepository.getProfileById(PROFILE_ID) } returns flowOf(API_MOCK_PROFILE)
         coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord()))
-        coEvery { invoiceRepository.deleteLocalInvoice(TASK_ID) } returns Unit
+        coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
 
         val result = mapOf(Year(2024) to listOf(mockPkvInvoiceRecord()))
         testScope.runTest {
@@ -193,6 +198,7 @@ class InvoiceControllerTest : TestWatcher() {
         every { invoiceErrorEvent.trigger(error) } just Runs
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(true)
         coEvery { invoiceRepository.deleteRemoteInvoiceById(TASK_ID, PROFILE_ID) } returns Result.failure(InvoiceError(HttpErrorState.Unknown))
+        coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
         coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
 
         testScope.runTest {
@@ -207,7 +213,7 @@ class InvoiceControllerTest : TestWatcher() {
     fun `deleting the invoice successfully`() {
         coEvery { profileRepository.isSsoTokenValid(PROFILE_ID) } returns flowOf(true)
         coEvery { invoiceRepository.deleteRemoteInvoiceById(TASK_ID, PROFILE_ID) } returns Result.success(Unit)
-        coEvery { invoiceRepository.deleteLocalInvoice(TASK_ID) } returns Unit
+        coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
         coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord(PROFILE_ID)))
 
         testScope.runTest {

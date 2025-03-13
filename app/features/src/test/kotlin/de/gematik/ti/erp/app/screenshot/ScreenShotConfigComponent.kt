@@ -59,7 +59,7 @@ enum class ScreenShotConfigComponent(
             ydpi = 320,
             softButtons = false,
             nightMode = NightMode.NOTNIGHT,
-            locale = Locale.GERMAN.toLanguageTag()
+            locale = Locale.ENGLISH.toLanguageTag()
         )
     ),
     DARK_ENGLISH(
@@ -70,7 +70,7 @@ enum class ScreenShotConfigComponent(
             ydpi = 320,
             softButtons = false,
             nightMode = NightMode.NIGHT,
-            locale = Locale.GERMAN.toLanguageTag()
+            locale = Locale.ENGLISH.toLanguageTag()
         )
     );
 }

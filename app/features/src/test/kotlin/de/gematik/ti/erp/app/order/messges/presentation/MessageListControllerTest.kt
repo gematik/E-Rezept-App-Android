@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.order.messges.presentation
 
 import android.content.Context
 import app.cash.turbine.test
+import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
 import de.gematik.ti.erp.app.featuretoggle.model.NewFeature
 import de.gematik.ti.erp.app.featuretoggle.repository.NewFeaturesRepository
@@ -40,13 +41,12 @@ import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA
 import de.gematik.ti.erp.app.mocks.order.model.IN_APP_MESSAGE_TEXT
 import de.gematik.ti.erp.app.mocks.order.model.TASK_ID
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_FROM
-import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_GET_MESSAGE_TAG
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_TAG
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_TEXT
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_TIMESTAMP
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_VERSION
 import de.gematik.ti.erp.app.mocks.order.model.inAppMessages
-import de.gematik.ti.erp.app.mocks.order.model.inAppMessagesMore
+import de.gematik.ti.erp.app.mocks.order.model.inAppMessagesFiltered
 import de.gematik.ti.erp.app.mocks.order.model.internalEntity
 import de.gematik.ti.erp.app.mocks.order.model.welcomeMessage
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
@@ -57,10 +57,12 @@ import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isLoadingState
 import io.mockk.MockKAnnotations
+import io.mockk.Runs
 import io.mockk.clearMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.spyk
 import kotlinx.coroutines.Dispatchers
@@ -101,6 +103,7 @@ class MessageListControllerTest {
     private lateinit var getProfilesUseCase: GetProfilesUseCase
     private lateinit var fetchInAppMessageUseCase: FetchInAppMessageUseCase
     private lateinit var fetchWelcomeMessageUseCase: FetchWelcomeMessageUseCase
+    private lateinit var tracker: Tracker
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -111,6 +114,7 @@ class MessageListControllerTest {
         getProfilesUseCase = mockk()
         fetchInAppMessageUseCase = mockk()
         isNewFeatureSeenUseCase = mockk()
+        tracker = mockk()
         markNewFeatureSeenUseCase = spyk(MarkNewFeatureSeenUseCase(newFeatureRepository, dispatcher))
 
         coEvery {
@@ -133,22 +137,31 @@ class MessageListControllerTest {
         coEvery { newFeatureRepository.markFeatureSeen(NewFeature.ORDERS_SCREEN_NO_PROFILE_BAR) } returns Unit
         coEvery { invoiceRepository.hasUnreadInvoiceMessages(any()) } returns flowOf(false)
         every { mockContext.getString(any()) } returns IN_APP_MESSAGE_TEXT
+        coEvery { tracker.trackEvent(any()) } just Runs
 
         getMessagesUseCase = GetMessagesUseCase(communicationRepository, invoiceRepository, profileRepository, dispatcher)
         getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         isNewFeatureSeenUseCase = IsNewFeatureSeenUseCase(newFeatureRepository, dispatcher)
         markNewFeatureSeenUseCase = spyk(MarkNewFeatureSeenUseCase(newFeatureRepository, dispatcher))
-        fetchInAppMessageUseCase = spyk(FetchInAppMessageUseCase(inAppMessageRepository, localMessageRepository, messageResources))
+        fetchInAppMessageUseCase = spyk(
+            FetchInAppMessageUseCase(
+                inAppMessageRepository,
+                localMessageRepository,
+                messageResources,
+                buildConfigInformation
+            )
+        )
         fetchWelcomeMessageUseCase = spyk(FetchWelcomeMessageUseCase(inAppMessageRepository, buildConfigInformation, messageResources))
         controllerUnderTest =
             MessageListController(
-                getMessagesUseCase,
-                getProfilesUseCase,
-                fetchInAppMessageUseCase,
-                fetchWelcomeMessageUseCase,
-                isNewFeatureSeenUseCase,
-                markNewFeatureSeenUseCase,
-                mockContext
+                getMessagesUseCase = getMessagesUseCase,
+                getProfilesUseCase = getProfilesUseCase,
+                fetchInAppMessageUseCase = fetchInAppMessageUseCase,
+                fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
+                isNewFeatureSeenUseCase = isNewFeatureSeenUseCase,
+                markNewFeatureSeenUseCase = markNewFeatureSeenUseCase,
+                context = mockContext,
+                tracker = tracker
             )
     }
 
@@ -171,12 +184,14 @@ class MessageListControllerTest {
     @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `fetch orders from local database and check if the new feature was seen on init`() {
-        coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(value = false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(null)
+        coEvery { buildConfigInformation.versionName() } returns ("")
         coEvery { communicationRepository.taskIdsByOrder(any()) } returns flowOf(listOf(TASK_ID))
         coEvery { messageResources.messageFrom } returns (WELCOME_MESSAGE_FROM)
         coEvery { messageResources.welcomeMessage } returns (WELCOME_MESSAGE_TEXT)
         coEvery { messageResources.welcomeMessageTag } returns (WELCOME_MESSAGE_TAG)
-        coEvery { messageResources.getMessageTag(any()) } returns (WELCOME_MESSAGE_GET_MESSAGE_TAG)
+        coEvery { messageResources.getMessageTag(any()) } returns (WELCOME_MESSAGE_TAG)
         coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         coEvery { fetchWelcomeMessageUseCase.getCurrentTimeAsString() } returns (WELCOME_MESSAGE_TIMESTAMP)
 
@@ -186,7 +201,7 @@ class MessageListControllerTest {
 
             // orders check
             val data: List<InAppMessage>? = orders.data
-            assertEquals(inAppMessagesMore, data)
+            assertEquals(inAppMessagesFiltered, data)
         }
     }
 
@@ -194,6 +209,8 @@ class MessageListControllerTest {
     @Test
     fun `do not show the feature change bar if only one profile is present`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
+        coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         coEvery { profileRepository.profiles() } returns flowOf(listOf(API_MOCK_PROFILE))
         testScope.runTest {
             advanceUntilIdle()
@@ -208,6 +225,8 @@ class MessageListControllerTest {
     @Test
     fun `show the feature change bar if more than one profile is present`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
+        coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         coEvery { profileRepository.profiles() } returns flowOf(listOf(API_MOCK_PROFILE, API_MOCK_PROFILE.copy(id = "2", active = false)))
         testScope.runTest {
             advanceUntilIdle()
@@ -222,6 +241,8 @@ class MessageListControllerTest {
     @Test
     fun `start the controller on loading state`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
+        coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         testScope.runTest {
             val orders = controllerUnderTest.messagesList.first()
             // orders check
@@ -233,6 +254,8 @@ class MessageListControllerTest {
     @Test
     fun `show error state on exception`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
+        coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         coEvery { communicationRepository.loadScannedByTaskId(any()) } throws Exception("Test exception")
         testScope.runTest {
             advanceUntilIdle()
@@ -246,13 +269,18 @@ class MessageListControllerTest {
     @Test
     fun `show empty state on no communications`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
+        coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         coEvery { inAppMessageRepository.inAppMessages } returns flowOf(emptyList())
         coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(emptyList())
         testScope.runTest {
-            advanceUntilIdle()
-            val orders = controllerUnderTest.messagesList.first()
-            // orders check
-            assertEquals(true, orders.isEmptyState)
+            controllerUnderTest.messagesList.test {
+                advanceUntilIdle()
+                val orders = awaitItem()
+                assertEquals(true, orders.isLoadingState)
+                val ordersLoaded = awaitItem()
+                assertEquals(true, ordersLoaded.isEmptyState)
+            }
         }
     }
 
@@ -260,6 +288,8 @@ class MessageListControllerTest {
     @Test
     fun `show empty state on no profiles`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
+        coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         coEvery { inAppMessageRepository.inAppMessages } returns flowOf(emptyList())
         coEvery { profileRepository.profiles() } returns flowOf(emptyList())
         testScope.runTest {
@@ -289,6 +319,8 @@ class MessageListControllerTest {
     @Test
     fun `check that the repository call is made on user clicking on the new feature label`() {
         coEvery { inAppMessageRepository.showWelcomeMessage } returns flowOf(false)
+        coEvery { inAppMessageRepository.lastVersion } returns flowOf(WELCOME_MESSAGE_VERSION)
+        coEvery { buildConfigInformation.versionName() } returns (WELCOME_MESSAGE_VERSION)
         testScope.runTest {
             advanceUntilIdle()
             controllerUnderTest.markProfileTopBarRemovedChangeSeen()

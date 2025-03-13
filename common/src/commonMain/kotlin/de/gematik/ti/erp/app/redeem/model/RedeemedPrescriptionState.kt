@@ -20,33 +20,39 @@ package de.gematik.ti.erp.app.redeem.model
 
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.redeem.model.RedeemablePrescriptionInfo.Companion.getPrescriptionErrorStateForDialog
 import kotlin.contracts.ExperimentalContracts
-import kotlin.contracts.contract
 
 @OptIn(ExperimentalContracts::class)
 sealed class RedeemedPrescriptionState {
-
-    @OptIn(ExperimentalContracts::class)
-    fun isOrderCompletedState(
-        block: (OrderCompleted) -> Unit
-    ) {
-        contract {
-            returns(true) implies (this@RedeemedPrescriptionState is OrderCompleted)
-            returns(false) implies (this@RedeemedPrescriptionState !is OrderCompleted)
-        }
-        if (this is OrderCompleted) {
-            block(this)
-        }
-    }
 
     data object Init : RedeemedPrescriptionState() // no orders have been processed
 
     data class OrderCompleted(
         val orderId: String,
-        val results: Map<PharmacyUseCaseData.PrescriptionOrder, RedeemedPrescriptionState>
+        val results: Map<PharmacyUseCaseData.PrescriptionInOrder, RedeemedPrescriptionState>
     ) : RedeemedPrescriptionState() // everything is processed and this contains the internal states of every prescription once they are processed
 
     data object Success : RedeemedPrescriptionState()
 
+    data class IncompleteOrder(
+        val missingPrescriptionInfos: List<RedeemablePrescriptionInfo>
+    ) : RedeemedPrescriptionState() {
+        val state: PrescriptionErrorState = missingPrescriptionInfos.getPrescriptionErrorStateForDialog()
+    }
+
+    data class InvalidOrder(
+        val missingPrescriptionInfos: List<RedeemablePrescriptionInfo>
+    ) : RedeemedPrescriptionState() {
+        val state: PrescriptionErrorState = missingPrescriptionInfos.getPrescriptionErrorStateForDialog()
+    }
+
     data class Error(val errorState: HttpErrorState) : RedeemedPrescriptionState()
+}
+
+sealed interface PrescriptionErrorState {
+    data object Deleted : PrescriptionErrorState
+    data object Generic : PrescriptionErrorState
+    data object NotRedeemable : PrescriptionErrorState
+    data object MoreThanOnePrescriptionHasIssues : PrescriptionErrorState
 }

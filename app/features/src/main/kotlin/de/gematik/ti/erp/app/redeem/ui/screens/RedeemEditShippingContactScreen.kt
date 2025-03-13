@@ -134,7 +134,7 @@ class RedeemEditShippingContactScreen(
         RedeemRouteBackStackEntryArguments(navBackStackEntry)
             .getOrderOption()?.let { selectedOrderOption ->
 
-                val orderState by graphController.selectedOrderState()
+                val orderState by graphController.selectedOrderState
 
                 var contact by remember(orderState.contact) { mutableStateOf(orderState.contact) }
 
@@ -153,10 +153,8 @@ class RedeemEditShippingContactScreen(
                         listState = listState,
                         onContactChange = { contact = it },
                         onSave = {
-                            contact.let {
-                                graphController.saveShippingContact(it)
-                                navController.popBackStack()
-                            }
+                            graphController.saveShippingContact(contact)
+                            navController.popBackStack()
                         },
                         onShowDialog = { showDialogEvent.trigger() }
                     )

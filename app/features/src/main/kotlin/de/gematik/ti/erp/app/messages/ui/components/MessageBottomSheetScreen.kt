@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.messages.ui.components
 
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,6 +44,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -50,7 +55,6 @@ import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
@@ -66,10 +70,13 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.ClickableAnnotatedText
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
+import de.gematik.ti.erp.app.utils.compose.copyToClipboardWithHaptic
 import de.gematik.ti.erp.app.utils.compose.createBitMatrix
+import de.gematik.ti.erp.app.utils.compose.createPhoneNumberAnnotations
 import de.gematik.ti.erp.app.utils.compose.drawDataMatrix
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.openUriWhenValid
@@ -169,7 +176,7 @@ private fun AllSheetContent(
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Large)) {
         CodeSheetContent(message)
-        message.message?.let { TextSheetContent(message) }
+        message.content?.let { TextSheetContent(message) }
         message.link?.let { LinkSheetContent(message) }
     }
 }
@@ -213,24 +220,49 @@ fun LinkSheetContent(
 
 @Composable
 fun TextSheetContent(
-    message: OrderUseCaseData.Message
+    message: OrderUseCaseData.Message,
+    modifier: Modifier = Modifier
 ) {
+    val clipboardManager = LocalClipboardManager.current
+    val hapticFeedback = LocalHapticFeedback.current
+    val context = LocalContext.current
+
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .semantics(true) { testTag = TestTag.Orders.Messages.Text }
     ) {
-        Box(
-            Modifier
+        val messageText = message.content ?: ""
+
+        ClickableAnnotatedText(
+            text = createPhoneNumberAnnotations(
+                text = messageText,
+                textColor = Color.White,
+                phoneNumberColor = AppTheme.colors.primary700
+            ),
+            style = AppTheme.typography.body2,
+            onClick = { annotation ->
+                val intent = Intent(Intent.ACTION_DIAL).apply {
+                    data = Uri.parse("tel:${annotation.item}")
+                }
+                context.startActivity(intent)
+            },
+            onLongPress = {
+                copyToClipboardWithHaptic(
+                    text = messageText,
+                    clipboardManager = clipboardManager,
+                    hapticFeedback = hapticFeedback
+                )
+            },
+            modifier = Modifier
                 .fillMaxWidth()
-                .background(AppTheme.colors.neutral100, RoundedCornerShape(16.dp))
+                .background(
+                    color = AppTheme.colors.neutral100,
+                    shape = RoundedCornerShape(PaddingDefaults.Medium)
+                )
                 .padding(PaddingDefaults.Medium)
-        ) {
-            Text(
-                message.message ?: "",
-                style = AppTheme.typography.body2
-            )
-        }
+        )
+
         SpacerSmall()
         Text(
             sentOn(message),

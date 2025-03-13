@@ -23,18 +23,20 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import org.junit.Before
 import org.junit.Test
 
 class DeleteAllLocalInvoicesTest {
     private val repository = mockk<InvoiceRepository>()
-    private val dispatcher = StandardTestDispatcher()
+    private val testScheduler = TestCoroutineScheduler()
+    private val dispatcher = StandardTestDispatcher(testScheduler)
     private lateinit var useCase: DeleteAllLocalInvoices
 
     @Before
     fun setup() {
-        coEvery { repository.deleteLocalInvoice(any()) } returns Unit
+        coEvery { repository.deleteLocalInvoiceById(any()) } returns Unit
         useCase = DeleteAllLocalInvoices(
             invoiceRepository = repository,
             dispatcher = dispatcher
@@ -43,13 +45,13 @@ class DeleteAllLocalInvoicesTest {
 
     @Test
     fun testDeleteInvoice() {
-        runTest {
+        runTest(testScheduler) {
             useCase.invoke(listOf("123", "234"))
             coVerify(exactly = 1) {
-                repository.deleteLocalInvoice("123")
+                repository.deleteLocalInvoiceById("123")
             }
-            coVerify(exactly = 2) {
-                repository.deleteLocalInvoice("234")
+            coVerify(exactly = 1) {
+                repository.deleteLocalInvoiceById("234")
             }
         }
     }

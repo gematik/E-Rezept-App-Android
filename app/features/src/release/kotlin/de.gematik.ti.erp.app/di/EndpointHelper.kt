@@ -107,4 +107,6 @@ class EndpointHelper(
 
     fun getOrganDonationRegisterInfoHost() =
         BuildKonfig.ORGAN_DONATION_INFO
+
+    fun getClientId() = BuildKonfig.CLIENT_ID_PU
 }

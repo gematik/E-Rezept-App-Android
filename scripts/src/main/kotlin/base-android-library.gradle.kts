@@ -6,7 +6,6 @@ import extensions.BuildNames.versionCatalogLibrary
 import extensions.Versions.BUILD_TOOLS_VERSION
 import extensions.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
 import extensions.Versions.JavaVersion.PROJECT_JAVA_VERSION
-import extensions.Versions.KOTLIN_COMPILER_EXTENSION_VERSION
 import extensions.Versions.SdkVersions.COMPILE_SDK_VERSION
 import extensions.Versions.SdkVersions.MIN_SDK_VERSION
 import extensions.accompanistBundle
@@ -15,7 +14,6 @@ import extensions.androidxBundle
 import extensions.animationBundle
 import extensions.cameraBundle
 import extensions.checks
-import extensions.composeBundle
 import extensions.coroutinesBundle
 import extensions.cryptoBundle
 import extensions.databaseBundle
@@ -50,9 +48,10 @@ plugins {
     id("com.jaredsburrows.license")
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
     id("jacoco")
+    id("compose-convention")
 }
 
-val libs: VersionCatalog =
+val versionCatalog: VersionCatalog =
     extensions.getByType<VersionCatalogsExtension>().named(versionCatalogLibrary)
 
 licenseReport {
@@ -71,7 +70,6 @@ licenseReport {
 
 android {
     buildToolsVersion = BUILD_TOOLS_VERSION
-    composeOptions.kotlinCompilerExtensionVersion = KOTLIN_COMPILER_EXTENSION_VERSION
     compileSdk = COMPILE_SDK_VERSION
     defaultConfig {
         minSdk = MIN_SDK_VERSION
@@ -120,7 +118,6 @@ android {
     }
     buildFeatures {
         buildConfig = true
-        compose = true
     }
     androidResources {
         noCompress.addAll(listOf("srt", "csv", "json"))
@@ -152,37 +149,36 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
-    implementation(libs.pdfboxBundle) {
+    implementation(versionCatalog.pdfboxBundle) {
         exclude(group = "org.bouncycastle")
     }
     implementation(kotlin("stdlib"))
     implementation(kotlin("reflect"))
-    implementation(libs.materialLibrary)
-    implementation(libs.datamatrixBundle)
-    implementation(libs.coroutinesBundle)
-    implementation(libs.datetimeBundle)
-    implementation(libs.accompanistBundle)
-    implementation(libs.othersBundle)
-    debugImplementation(libs.processPhoenixBundle)
-    implementation(libs.androidxBundle)
-    implementation(libs.lifecycleBundle)
-    implementation(libs.composeBundle)
-    implementation(libs.cameraBundle)
-    compileOnly(libs.databaseBundle)
-    implementation(libs.diBundle)
-    implementation(libs.imageBundle)
-    implementation(libs.cryptoBundle)
-    implementation(libs.mapsBundle)
-    implementation(libs.networkBundle)
-    implementation(libs.animationBundle)
-    implementation(libs.napierLibrary)
-    implementation(libs.playBundle)
-    implementation(libs.serializationBundle)
-    implementation(libs.trackingBundle)
+    implementation(versionCatalog.materialLibrary)
+    implementation(versionCatalog.datamatrixBundle)
+    implementation(versionCatalog.coroutinesBundle)
+    implementation(versionCatalog.datetimeBundle)
+    implementation(versionCatalog.accompanistBundle)
+    implementation(versionCatalog.othersBundle)
+    debugImplementation(versionCatalog.processPhoenixBundle)
+    implementation(versionCatalog.androidxBundle)
+    implementation(versionCatalog.lifecycleBundle)
+    implementation(versionCatalog.cameraBundle)
+    compileOnly(versionCatalog.databaseBundle)
+    implementation(versionCatalog.diBundle)
+    implementation(versionCatalog.imageBundle)
+    implementation(versionCatalog.cryptoBundle)
+    implementation(versionCatalog.mapsBundle)
+    implementation(versionCatalog.networkBundle)
+    implementation(versionCatalog.animationBundle)
+    implementation(versionCatalog.napierLibrary)
+    implementation(versionCatalog.playBundle)
+    implementation(versionCatalog.serializationBundle)
+    implementation(versionCatalog.trackingBundle)
 
-    androidTestExtension(libs)
-    testExtension(libs)
-    junitExtension(libs)
+    androidTestExtension(versionCatalog)
+    testExtension(versionCatalog)
+    junitExtension(versionCatalog)
 }
 
 secrets {

@@ -24,10 +24,17 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
 import kotlinx.coroutines.flow.StateFlow
 
-data class MultiProfileAppBarFlowWrapper(
+data class ProfileLifecycleState(
+    val isProfileRefreshing: StateFlow<Boolean>,
+    val networkStatus: StateFlow<Boolean>,
+    val isTokenValid: StateFlow<Boolean>,
+    val isRegistered: StateFlow<Boolean>
+)
+
+data class MultiProfileAppBarWrapper(
+    val profileLifecycleState: ProfileLifecycleState,
     val activeProfile: StateFlow<Profile>,
-    val existingProfiles: StateFlow<List<Profile>>,
-    val isProfileRefreshing: StateFlow<Boolean>
+    val existingProfiles: StateFlow<List<Profile>>
 ) {
     companion object {
         val DEFAULT_EMPTY_PROFILE = Profile(

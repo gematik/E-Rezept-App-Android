@@ -101,16 +101,8 @@ class RessourceMapperVersion110Test {
     @Test
     fun `process medicationPzn version 1_1_0`() {
         val medicationPznJson = Json.parseToJsonElement(medicationPznJson_vers_1_1_0)
-        val result = extractPZNMedicationVersion110(
+        val result = extractPZNMedicationVersion110<ReturnType, ReturnType, ReturnType, ReturnType>(
             medicationPznJson,
-            quantityFn = { _, _ ->
-                ReturnType.Quantity
-            },
-            ratioFn = { numerator, denominator ->
-                assertEquals(ReturnType.Quantity, numerator)
-                assertEquals(ReturnType.Quantity, denominator)
-                ReturnType.Ratio
-            },
             processMedication = {
                     text, medicationCategory, form, amount, vaccine,
                     manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
@@ -128,6 +120,14 @@ class RessourceMapperVersion110Test {
                 assertEquals(null, lotnumber)
                 assertEquals(null, expirationDate)
                 ReturnType.Medication
+            },
+            ratioFn = { numerator, denominator ->
+                assertEquals(ReturnType.Quantity, numerator)
+                assertEquals(ReturnType.Quantity, denominator)
+                ReturnType.Ratio
+            },
+            quantityFn = { _, _ ->
+                ReturnType.Quantity
             }
         )
         assertEquals(ReturnType.Medication, result)
@@ -218,7 +218,7 @@ class RessourceMapperVersion110Test {
     @Test
     fun `process medication freetext version 1_1_0`() {
         val medicationFreetextJson = Json.parseToJsonElement(medicationFreetextJson_vers_1_1_0)
-        val result = extractMedicationFreetextVersion110(
+        val result = extractMedicationFreetextVersion110<ReturnType, ReturnType, ReturnType, ReturnType>(
             medicationFreetextJson,
             quantityFn = { _, _ ->
                 ReturnType.Quantity
@@ -226,10 +226,9 @@ class RessourceMapperVersion110Test {
             ratioFn = { _, _ ->
                 ReturnType.Ratio
             },
-            processMedication = {
-                    text, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, identifier,
-                    ingredientMedications, ingredients, lotNumber, expirationDate ->
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, identifier,
+                ingredientMedications, ingredients, lotNumber, expirationDate ->
                 assertEquals("Metformin 850mg Tabletten N3", text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals(null, form)

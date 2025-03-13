@@ -87,7 +87,7 @@ class GetOrderStateUseCaseTest {
         )
         runTest(dispatcher) {
             val orderState = useCase().first()
-            assert(orderState.prescriptionOrders.size == 5)
+            assert(orderState.prescriptionsInOrder.size == 5)
             assertEquals(MOCK_SHIPPING_CONTACT.toModel(), orderState.contact)
             assertEquals(1, orderState.selfPayerPrescriptionIds.size)
         }
@@ -107,7 +107,7 @@ class GetOrderStateUseCaseTest {
 
             assertEquals(
                 OrderState(
-                    prescriptionOrders = emptyList(),
+                    prescriptionsInOrder = emptyList(),
                     selfPayerPrescriptionIds = emptyList(),
                     contact = ShippingContact.EmptyShippingContact
                 ),

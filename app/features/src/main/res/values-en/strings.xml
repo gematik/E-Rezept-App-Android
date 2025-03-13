@@ -114,7 +114,7 @@
     <string name="technical_hotline_info">Telephone hotline</string>
     <string name="main_scan_acc">Open scanner for prescriptions</string>
     <string name="main_settings_acc">Settings</string>
-    <string name="settings_screenshots_toggle_text">Suppress screenshots</string>
+    <string name="settings_screenshots_toggle_text">Allow screenshots</string>
     <string name="settings_tracking_dialog_title">Do you allow E-Prescription to analyze your usage behavior anonymously?</string>
     <string name="pres_detail_technical_information">Technical information</string>
     <string name="settings_biometric_dialog_title">Security of your prescription data</string>
@@ -160,7 +160,7 @@
     <string name="consistent_password">Repeated password matches</string>
     <string name="cdw_nfc_error_title_invalid_certificate">Error 20 10 76631</string>
     <string name="cdw_nfc_error_body_invalid_certificate">Your health card certificate is invalid. Maybe your card has expired? Please contact your health insurance company.</string>
-    <string name="auth_error_failed_auths_headline">Unsuccessful login attempts</string>
+    <string name="auth_error_failed_auths_headline">Unfortunately, that didn\'t work</string>
     <plurals name="auth_error_failed_auths_info">
         <item quantity="one">%s unsuccessful login attempts were detected.</item>
         <item quantity="other">%s unsuccessful login attempts were detected.</item>
@@ -484,7 +484,7 @@
     <string name="time_description_today">At %s o\'clock</string>
     <string name="orders_cart_ready">Shopping cart is ready</string>
     <string name="orders_cart_ready_info">The prescription has been added to your shopping cart. Please go to the pharmacy\'s website to complete the order.</string>
-    <string name="orders_open_cart_link">Open shopping cart</string>
+    <string name="orders_open_cart_link">link to your pharmacy</string>
     <string name="orders_code_info">Show this collection code at the pharmacy.</string>
     <string name="orders_code_title">Receive pickup code</string>
     <string name="orders_no_message_title">Message cannot be displayed</string>
@@ -576,7 +576,7 @@
     <string name="pres_detail_medication_label_handed_over">issued on:</string>
     <string name="synced_medication_ingredient_header">Active substance</string>
     <string name="medication_overview_prescribed_header">Prescribed</string>
-    <string name="medication_overview_dispenses_header">Receive</string>
+    <string name="medication_overview_dispenses_header">Received</string>
     <string name="pres_details_exp_da_title">What is a direct assignment?</string>
     <string name="pres_details_exp_da_info">With direct referral, a prescription from a practice or hospital is filled directly at a pharmacy. Insured persons do not have to take any action and cannot intervene in the redemption process. \n\n Direct referrals are listed in the e-prescription app to make your treatment more transparent for you.</string>
     <string name="pres_details_exp_no_em_fee_title">Emergency service fee</string>
@@ -643,7 +643,6 @@
     <string name="search_pharmacies_location_na_settings">Settings</string>
     <string name="search_pharmacies_location_na_services">Share location in Settings.</string>
     <string name="pharmacy_maps_header">Close to me</string>
-    <string name="mainscreen_profile_chip_content_description">Press and hold to edit the name.</string>
     <string name="profile_edit_name_for_rename_info">Enter the new name for the profile.</string>
     <string name="mainscreen_welcome_drawer_info">To receive prescriptions digitally from your practice, you must be logged in.</string>
     <string name="mainscreen_welcome_drawer_header">Receive prescriptions digitally?</string>
@@ -1060,14 +1059,14 @@
     <string name="invoices_deleted">Your cost receipts have been deleted</string>
     <string name="invoices_detail_title">Cost receipt</string>
     <string name="paired_devices_biometrics_error_login_title">Registration necessary</string>
-    <string name="paired_devices_biometrics_error_login_description">Please log in to view connected devices.</string>
+    <string name="paired_devices_biometrics_error_login_description">Please log in and save your login details to view connected devices.</string>
     <string name="paired_devices_biometrics_error_login_button_text">Log in</string>
     <string name="profile_paired_devices_screen_no_internet_button_text">Log in</string>
     <string name="cdw_intro_auth_gid_app_required">Connecting to %s Insurance</string>
     <string name="a11y_card_wall_card_hand">Health card on your smartphone</string>
     <string name="not_logged_in">Not logged in</string>
     <string name="logged_in">Logged in</string>
-    <string name="a11y_refresh">refresh</string>
+    <string name="refresh">refresh</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">You will receive access logs when you are logged in to the prescription service.</string>
     <string name="paired_devices_error_login_title">Registration required</string>
     <string name="paired_devices_error_login_description">Please log in with your health card and save your login details with biometrics to view the connected devices.</string>
@@ -1168,14 +1167,14 @@
     <string name="enroll_device_security_dialog_cancel">Cancel</string>
     <string name="enroll_device_security_dialog_settings">Settings</string>
     <string name="settings_password_very_good">password strength very good</string>
-    <string name="settings_app_security_header">app security</string>
+    <string name="settings_app_security_header">App security</string>
     <string name="settings_app_security_device_security">Device security</string>
     <string name="settings_app_security_info">Please select at least one method to back up the app.</string>
     <string name="settings_app_security_password">password</string>
     <string name="settings_app_security_change_password">Change Password</string>
     <string name="invoices_delete_not_logged_in_description">To delete, a connection to the Prescription Server must be established</string>
     <string name="provided">goods are ready</string>
-    <string name="provided_on_hour">Goods have been ready since %s</string>
+    <string name="provided_at_hour">Goods have been ready since %s</string>
     <string name="provided_now">Goods are ready since just now</string>
     <string name="provided_minutes_ago">Goods have been ready for %s minutes</string>
     <string name="provided_on_date">Goods have been ready since %s</string>
@@ -1183,7 +1182,7 @@
     <string name="set_app_password_button_state_description_not_strong">Disabled because the password is too weak.</string>
     <string name="set_app_password_button_state_description_not_the_same">Disabled because the passwords do not match.</string>
     <string name="settings_explore_headline">Explore</string>
-    <string name="organ_donation_menu_entry">organ donation register</string>
+    <string name="organ_donation_menu_entry">Organ donation register</string>
     <string name="organ_donation_dialog_title">Open organ donation register?</string>
     <string name="organ_donation_dialog_info">You will be redirected to the organ donation register website. In order to view and change your organ donation data, you must log in there.</string>
     <string name="organ_donation_dialog_confirm">Open</string>
@@ -1204,4 +1203,15 @@
     <string name="all_prescriptions_of_order">All prescriptions of the order</string>
     <string name="invoice_details_supply_shortage_fee">Delivery bottleneck flat rate</string>
     <string name="message_list_time_state_hours">%s clock</string>
+    <string name="language_selection_es">Spanish</string>
+    <string name="language_selection_ga">Irish</string>
+    <string name="profile_screen_login_hint">To receive prescriptions automatically, you must be logged in.</string>
+    <string name="profile_screen_login_button">Login</string>
+    <string name="error_redeemable_prescription_title">Prescription cannot be redeemed</string>
+    <string name="error_redeemable_prescription_generic_error">The prescription \"%1$s\" can no longer be redeemed. You may have already redeemed it in another way or it may have been cancelled.</string>
+    <string name="error_redeemable_prescription_not_redeemable">The prescription \"%1$s\" has already been redeemed or is currently being redeemed.</string>
+    <string name="error_redeemable_prescription_deleted">The prescription \"%1$s\" has already been cancelled and can therefore no longer be redeemed.</string>
+    <string name="error_redeemable_prescription_more_than_one_error">\n The following prescriptions are not or no longer redeemable: %1$s \n You may have already redeemed them in another way, or they may have been deleted. \n</string>
+    <string name="error_redeemable_prescription_continue_without">Continue without these prescriptions</string>
+    <string name="error_redeemable_prescription_cancel_order">Cancel order</string>
 </resources>

@@ -43,6 +43,10 @@ class NetworkStatusTracker(context: Context) {
                 trySend(true) // Network is available
             }
 
+            override fun onUnavailable() {
+                trySend(false) // Network is lost
+            }
+
             override fun onLost(network: Network) {
                 trySend(false) // Network is lost
             }

@@ -21,7 +21,6 @@ package de.gematik.ti.erp.app.prescription.repository
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.db.entities.deleteAll
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
 import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
@@ -92,6 +91,16 @@ class PrescriptionLocalDataSource(
                     syncedTask.toSyncedTask()
                 }
             }
+
+    fun loadSyncedTasksByTaskIds(taskIds: List<String>): Flow<List<SyncedTaskData.SyncedTask>> =
+        combine(taskIds.map { loadSyncedTaskByTaskId(it) }) { tasks ->
+            tasks.filterNotNull().toList()
+        }
+
+    fun loadScannedTasksByTaskIds(taskIds: List<String>): Flow<List<ScannedTaskData.ScannedTask>> =
+        combine(taskIds.map { loadScannedTaskByTaskId(it) }) { tasks ->
+            tasks.filterNotNull().toList()
+        }
 
     fun loadSyncedTaskByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?> =
         realm.query<SyncedTaskEntityV1>("taskId = $0", taskId)
@@ -227,12 +236,6 @@ class PrescriptionLocalDataSource(
                     it.redeemedOn = Clock.System.now().toRealmInstant()
                 }
             }
-        }
-    }
-
-    suspend fun deleteInvoices(taskId: String) {
-        realm.tryWrite<Unit> {
-            queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId)?.let { deleteAll(it) }
         }
     }
 }

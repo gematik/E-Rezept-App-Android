@@ -23,7 +23,6 @@ import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.LocalInAppJsonMessage
 import de.gematik.ti.erp.app.messages.domain.model.getTimeState
 import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
-import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.datetime.Instant
 
 fun LocalInAppJsonMessage.toInAppMessage(from: String, tag: String, timeStamp: Instant): InAppMessage {
@@ -42,7 +41,6 @@ fun LocalInAppJsonMessage.toInAppMessage(from: String, tag: String, timeStamp: I
 
 fun InAppMessage.toEntity(): InAppMessageEntity {
     return InAppMessageEntity().apply {
-        @PrimaryKey
         id = this@toEntity.id
         version = this@toEntity.version
         isUnRead = true

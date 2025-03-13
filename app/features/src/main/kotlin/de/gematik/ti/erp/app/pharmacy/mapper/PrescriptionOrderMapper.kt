@@ -23,7 +23,7 @@ import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 
 fun ScannedTaskData.ScannedTask.toOrder() =
-    PharmacyUseCaseData.PrescriptionOrder(
+    PharmacyUseCaseData.PrescriptionInOrder(
         taskId = taskId,
         accessCode = accessCode,
         isSelfPayerPrescription = false,
@@ -35,7 +35,7 @@ fun ScannedTaskData.ScannedTask.toOrder() =
     )
 
 fun SyncedTaskData.SyncedTask.toOrder() =
-    PharmacyUseCaseData.PrescriptionOrder(
+    PharmacyUseCaseData.PrescriptionInOrder(
         taskId = taskId,
         accessCode = accessCode,
         isSelfPayerPrescription = insuranceInformation

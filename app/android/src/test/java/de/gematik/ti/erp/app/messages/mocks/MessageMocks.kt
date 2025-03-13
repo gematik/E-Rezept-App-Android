@@ -329,7 +329,7 @@ object MessageMocks {
     internal val MOCK_MESSAGE_01 = OrderUseCaseData.Message(
         communicationId = MOCK_COMMUNICATION_ID_01,
         sentOn = Instant.fromEpochSeconds(123456),
-        message = "mock message.",
+        content = "mock message.",
         pickUpCodeDMC = "Test_01___Rezept_01___abcdefg12345",
         pickUpCodeHR = "T01__R01",
         link = "https://www.tree.fm/forest/33",
@@ -340,7 +340,7 @@ object MessageMocks {
     internal val MOCK_MESSAGE_02 = OrderUseCaseData.Message(
         communicationId = MOCK_COMMUNICATION_ID_02,
         sentOn = Instant.fromEpochSeconds(123456),
-        message = "mock message_02.",
+        content = "mock message_02.",
         pickUpCodeDMC = "Test_01___Rezept_02___abcdefg12345",
         pickUpCodeHR = "T01__R02",
         link = "https://www.tree.fm/forest/35",

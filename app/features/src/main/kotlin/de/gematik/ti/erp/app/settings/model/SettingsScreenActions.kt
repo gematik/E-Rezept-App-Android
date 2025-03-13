@@ -25,17 +25,10 @@ data class SettingsActions(
     val healthCardClickActions: HealthCardClickActions,
     val legalClickActions: LegalClickActions,
     val debugClickActions: DebugClickActions,
-    val onEnableZoom: () -> Unit,
-    val onDisableZoom: () -> Unit,
-    val onAllowScreenshots: (Boolean) -> Unit,
-    val onClickProductImprovementSettings: () -> Unit,
-    val onClickDeviceSecuritySettings: () -> Unit,
-    val onClickLanguageSettings: () -> Unit,
-    val onClickDemoModeEnd: () -> Unit,
-    val onClickDemoMode: () -> Unit,
-    val onClickEditProfile: (ProfileIdentifier) -> Unit,
-    val onClickMedicationPlan: () -> Unit,
-    val onClickOrganDonationRegister: () -> Unit
+    val exploreClickActions: ExploreClickActions,
+    val contactClickActions: ContactClickActions,
+    val personalSettingsClickActions: PersonalSettingsClickActions,
+    val onClickEditProfile: (ProfileIdentifier) -> Unit
 )
 
 data class HealthCardClickActions(
@@ -49,6 +42,28 @@ data class LegalClickActions(
     val onClickOpenSourceLicences: () -> Unit,
     val onClickAdditionalLicences: () -> Unit,
     val onClickTermsOfUse: () -> Unit
+)
+
+data class ExploreClickActions(
+    val onClickOrganDonationRegister: () -> Unit,
+    val onToggleDemoMode: () -> Unit,
+    val onClickForum: () -> Unit,
+    val onClickGesundBund: () -> Unit
+)
+
+data class ContactClickActions(
+    val onClickPoll: () -> Unit,
+    val onClickMail: () -> Unit,
+    val onClickCall: () -> Unit
+)
+
+data class PersonalSettingsClickActions(
+    val onToggleEnableZoom: (Boolean) -> Unit,
+    val onToggleScreenshots: (Boolean) -> Unit,
+    val onClickProductImprovementSettings: () -> Unit,
+    val onClickDeviceSecuritySettings: () -> Unit,
+    val onClickLanguageSettings: () -> Unit,
+    val onClickMedicationPlan: () -> Unit
 )
 
 data class DebugClickActions(

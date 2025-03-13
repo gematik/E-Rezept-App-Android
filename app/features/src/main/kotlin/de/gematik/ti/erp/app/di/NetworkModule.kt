@@ -136,7 +136,7 @@ val networkModule = DI.Module("Network Module") {
             .connectionSpecs(getConnectionSpec())
             .build()
     }
-    bindSingleton { UserAgentHeaderInterceptor() }
+    bindSingleton { UserAgentHeaderInterceptor(instance()) }
     bindSingleton { ApiKeyHeaderInterceptor(instance()) }
     bindSingleton { BearerHeaderInterceptor(instance()) }
 

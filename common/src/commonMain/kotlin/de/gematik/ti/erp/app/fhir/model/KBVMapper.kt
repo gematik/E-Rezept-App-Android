@@ -19,10 +19,15 @@
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
+import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.serialization.json.JsonElement
+import java.io.File
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 typealias AddressFn<R> = (
     line: List<String>?,
@@ -149,6 +154,31 @@ data class Identifier(
     }
 }
 
+fun cleanJsonFile(jsonElement: JsonElement): String {
+    // Use a temporary directory (app-specific, no context required)
+    val outputDir = File(System.getProperty("java.io.tmpdir"), "cleaned_json")
+    if (!outputDir.exists()) outputDir.mkdirs() // ✅ Ensure directory exists
+
+    // Generate a timestamp-based unique file name
+    val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
+    val outputFile = File(outputDir, "kbv_cleaned_$timestamp.json") // ✅ Unique file name
+
+    // Convert JsonElement to formatted JSON
+    val cleanedJson = SafeJson.value.encodeToString(JsonElement.serializer(), jsonElement)
+
+    // Write the cleaned JSON to the file
+    outputFile.writeText(cleanedJson)
+
+    println("✅ Cleaned JSON saved to: ${outputFile.absolutePath}")
+
+    return outputFile.absolutePath // ✅ Return file path for later use
+}
+
+@Deprecated(
+    "Use de.gematik.ti.erp.app.fhir.prescription.parser.TaskKBVParser.kt",
+    replaceWith = ReplaceWith("de.gematik.ti.erp.app.fhir.prescription.parser.TaskKBVParser.kt"),
+    level = DeprecationLevel.WARNING
+)
 @Suppress("LongParameterList")
 fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationRequest,
     Medication, Ingredient, MultiplePrescriptionInfo, Quantity, Ratio, Address> extractKBVBundle(
@@ -176,6 +206,16 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
         medicationRequest: MedicationRequest
     ) -> Unit
 ) {
+    /* try {
+        Napier.e { "Extracting KBV Bundle" }
+        Napier.e { "$bundle" }
+        cleanJsonFile(bundle)
+    } catch (e: Exception) {
+        Napier.e {
+            "Error parsing KBV Bundle: ${e.message}"
+        }
+    } */
+
     val profileString = bundle.contained("meta").contained("profile").contained()
     when {
         profileString.isProfileValue(
@@ -197,6 +237,7 @@ fun <Organization, Patient, Practitioner, InsuranceInformation, MedicationReques
             savePVSIdentifier = savePVSIdentifier,
             save = save
         )
+
         profileString.isProfileValue(
             "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle",
             "1.1.0"

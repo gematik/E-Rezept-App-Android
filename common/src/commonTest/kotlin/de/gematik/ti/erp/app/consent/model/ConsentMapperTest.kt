@@ -29,7 +29,7 @@ import kotlin.test.assertEquals
 class ConsentMapperTest {
 
     private val expectedInsuranceId = "X123456789"
-    private val consent by lazy { File("$ResourceBasePath/fhir/pkv/consent.json").readText() }
+    private val consent by lazy { File("$ResourceBasePath/fhir/pkv/pkv1_2/consent.json").readText() }
 
     @Test
     fun createConsent() {

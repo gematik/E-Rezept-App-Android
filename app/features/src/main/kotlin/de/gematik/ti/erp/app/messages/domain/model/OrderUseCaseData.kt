@@ -65,7 +65,7 @@ object OrderUseCaseData {
     data class Message(
         val communicationId: String,
         val sentOn: Instant,
-        val message: String?,
+        val content: String?,
         val additionalInfo: String = "",
         val pickUpCodeDMC: String?,
         val pickUpCodeHR: String?,
@@ -87,7 +87,7 @@ object OrderUseCaseData {
         val type: Type = determineMessageType()
 
         private fun determineMessageType(): Type {
-            val filledFieldsCount = listOfNotNull(link, pickUpCodeDMC, pickUpCodeHR, message).size
+            val filledFieldsCount = listOfNotNull(link, pickUpCodeDMC, pickUpCodeHR, content).size
 
             return when {
                 filledFieldsCount == 0 -> Type.Empty
@@ -95,7 +95,7 @@ object OrderUseCaseData {
                 link != null -> Type.Link
                 pickUpCodeDMC != null -> Type.PickUpCodeDMC
                 pickUpCodeHR != null -> Type.PickUpCodeHR
-                message != null -> Type.Text
+                content != null -> Type.Text
                 else -> Type.Empty
             }
         }
@@ -109,7 +109,7 @@ object OrderUseCaseData {
 
     @Serializable
     data class LastMessageDetails(
-        val message: String?,
+        val content: String?,
         val pickUpCodeDMC: String?,
         val pickUpCodeHR: String?,
         val link: String?

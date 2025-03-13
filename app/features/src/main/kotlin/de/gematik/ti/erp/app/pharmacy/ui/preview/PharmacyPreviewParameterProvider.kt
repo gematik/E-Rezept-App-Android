@@ -37,6 +37,16 @@ class PharmacyPreviewParameterProvider : PreviewParameterProvider<PharmacyUseCas
     )
 }
 
+class PharmacySheetFromMessagesParameterProvider : PreviewParameterProvider<PharmacyUseCaseData.Pharmacy> {
+    override val values = sequenceOf(
+        PharmacyPreviewData.PHONE_CONTACT_ONLY,
+        PharmacyPreviewData.MAIL_CONTACT_ONLY,
+        PharmacyPreviewData.LOCATION_CONTACT_ONLY,
+        PharmacyPreviewData.LOCATION_PHONE_CONTACT,
+        PharmacyPreviewData.ALL_CONTACT
+    )
+}
+
 object PharmacyPreviewData {
 
     private val openingHoursSample = OpeningHours(
@@ -170,6 +180,85 @@ object PharmacyPreviewData {
             deliveryUrl = "www.apotheke-am-markt.de/lieferung",
             onlineServiceUrl = "",
             pickUpUrl = "www.apotheke-am-markt.de/abholung"
+        )
+    )
+
+    val PHONE_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
+        provides = listOf(
+            PharmacyService.LocalPharmacyService(
+                name = "Local",
+                openingHours = openingHoursSample
+            )
+        ),
+        coordinates = null,
+        contacts = PharmacyContacts(
+            phone = "0123456789",
+            mail = "",
+            url = "",
+            deliveryUrl = "",
+            onlineServiceUrl = "",
+            pickUpUrl = ""
+        )
+    )
+
+    val MAIL_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
+        provides = listOf(
+            PharmacyService.LocalPharmacyService(
+                name = "Local",
+                openingHours = openingHoursSample
+            )
+        ),
+        coordinates = null,
+        contacts = PharmacyContacts(
+            phone = "",
+            mail = "pharm@pharm.de",
+            url = "",
+            deliveryUrl = "",
+            onlineServiceUrl = "",
+            pickUpUrl = ""
+        )
+    )
+
+    val LOCATION_CONTACT_ONLY = ALL_PRESENT_DATA.copy(
+        provides = listOf(
+            PharmacyService.LocalPharmacyService(
+                name = "Local",
+                openingHours = openingHoursSample
+            )
+        ),
+        contacts = PharmacyContacts(
+            phone = "",
+            mail = "",
+            url = "",
+            deliveryUrl = "",
+            onlineServiceUrl = "",
+            pickUpUrl = ""
+        )
+    )
+
+    val LOCATION_PHONE_CONTACT = ALL_PRESENT_DATA.copy(
+        provides = listOf(
+            PharmacyService.LocalPharmacyService(
+                name = "Local",
+                openingHours = openingHoursSample
+            )
+        ),
+        contacts = PharmacyContacts(
+            phone = "123",
+            mail = "",
+            url = "",
+            deliveryUrl = "",
+            onlineServiceUrl = "",
+            pickUpUrl = ""
+        )
+    )
+
+    val ALL_CONTACT = ALL_PRESENT_DATA.copy(
+        provides = listOf(
+            PharmacyService.LocalPharmacyService(
+                name = "Local",
+                openingHours = openingHoursSample
+            )
         )
     )
 }

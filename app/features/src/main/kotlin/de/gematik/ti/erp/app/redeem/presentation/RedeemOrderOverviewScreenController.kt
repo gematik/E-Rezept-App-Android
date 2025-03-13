@@ -23,14 +23,18 @@ import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
+import de.gematik.ti.erp.app.redeem.model.ErrorOnRedeemablePrescriptionDialogParameters
+import de.gematik.ti.erp.app.redeem.model.RedeemDialogParameters
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import org.kodein.di.compose.rememberInstance
 
@@ -39,19 +43,28 @@ class RedeemOrderOverviewScreenController(
     getProfilesUseCase: GetProfilesUseCase,
     getActiveProfileUseCase: GetActiveProfileUseCase,
     chooseAuthenticationDataUseCase: ChooseAuthenticationDataUseCase,
-    biometricAuthenticator: BiometricAuthenticator
+    biometricAuthenticator: BiometricAuthenticator,
+    networkStatusTracker: NetworkStatusTracker
 ) : ChooseAuthenticationController(
     getProfileByIdUseCase = getProfileByIdUseCase,
     getActiveProfileUseCase = getActiveProfileUseCase,
     getProfilesUseCase = getProfilesUseCase,
     chooseAuthenticationDataUseCase = chooseAuthenticationDataUseCase,
+    networkStatusTracker = networkStatusTracker,
     biometricAuthenticator = biometricAuthenticator
 ) {
     private val _isProfileRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _orderHasError = MutableStateFlow(false)
+    private val _isLoadingIndicatorShown = MutableStateFlow(false)
 
+    val showErrorOnRedeemAlertDialogEvent = ComposableEvent<ErrorOnRedeemablePrescriptionDialogParameters>()
+    val showPrescriptionRedeemAlertDialogEvent = ComposableEvent<RedeemDialogParameters>()
     val onBiometricAuthenticationSuccessEvent = ComposableEvent<Unit>()
     val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
+
     val isProfileRefreshing = _isProfileRefreshing.asStateFlow()
+    val orderHasError: StateFlow<Boolean> = _orderHasError.asStateFlow()
+    val isLoadingIndicatorShown: StateFlow<Boolean> = _isLoadingIndicatorShown.asStateFlow()
 
     init {
         biometricAuthenticationSuccessEvent.listen(controllerScope) {
@@ -70,10 +83,19 @@ class RedeemOrderOverviewScreenController(
             _isProfileRefreshing.value = isRefreshing
         }
     }
+
+    fun toggleOrderHasError(state: Boolean) { _orderHasError.value = state }
+
+    fun disableLoadingIndicator() { _isLoadingIndicatorShown.value = false }
+
+    fun enableLoadingIndicator() { _isLoadingIndicatorShown.value = true }
+
+    fun toggleLoadingIndicator(state: Boolean) { _isLoadingIndicatorShown.value = state }
 }
 
 @Composable
 fun rememberOrderOverviewScreenController(): RedeemOrderOverviewScreenController {
+    val networkStatusTracker by rememberInstance<NetworkStatusTracker>()
     val biometricAuthenticator = LocalBiometricAuthenticator.current
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
@@ -84,6 +106,7 @@ fun rememberOrderOverviewScreenController(): RedeemOrderOverviewScreenController
     return remember {
         RedeemOrderOverviewScreenController(
             biometricAuthenticator = biometricAuthenticator,
+            networkStatusTracker = networkStatusTracker,
             getProfilesUseCase = getProfilesUseCase,
             getProfileByIdUseCase = getProfileByIdUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
