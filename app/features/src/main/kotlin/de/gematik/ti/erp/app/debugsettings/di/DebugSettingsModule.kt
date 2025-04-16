@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,11 +18,28 @@
 
 package de.gematik.ti.erp.app.debugsettings.di
 
+import de.gematik.ti.erp.app.debugsettings.data.repository.DebugSettingsRepository
+import de.gematik.ti.erp.app.debugsettings.data.repository.DefaultDebugSettingsRepository
+import de.gematik.ti.erp.app.debugsettings.data.repository.local.DebugSettingsLocalDataSource
+import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.GetShowTelematikIdStateUseCase
+import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.PharmacyBackendServiceSelectionUseCase
+import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.PharmacyGetSearchAccessTokenUseCase
+import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.PharmacySearchAccessTokenModifierUseCase
+import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.ToggleShowTelematikIdStateUseCase
 import de.gematik.ti.erp.app.debugsettings.usecase.BreakSsoTokenUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.instance
 
 val debugSettingsModule = DI.Module("debugSettingsModule") {
+
+    bindProvider { DebugSettingsLocalDataSource(instance()) }
+    bindProvider<DebugSettingsRepository> { DefaultDebugSettingsRepository(instance()) }
+
+    bindProvider { GetShowTelematikIdStateUseCase(instance()) }
+    bindProvider { ToggleShowTelematikIdStateUseCase(instance()) }
     bindProvider { BreakSsoTokenUseCase(instance(), instance()) }
+    bindProvider { PharmacyBackendServiceSelectionUseCase(instance()) }
+    bindProvider { PharmacyGetSearchAccessTokenUseCase(instance()) }
+    bindProvider { PharmacySearchAccessTokenModifierUseCase(instance()) }
 }

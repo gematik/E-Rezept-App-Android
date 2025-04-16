@@ -2,7 +2,6 @@
 
 import java.util.Properties
 
-
 pluginManagement {
     repositories {
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
@@ -85,11 +84,17 @@ includeBuild("rules") {
 include(":app:android")
 include(":app:android-mock")
 include(":app:features")
-include(":app:test-actions")
-include(":app:test-tags")
+include(":app:tracker")
 include(":app:demo-mode")
+include(":app:digas")
+include(":app:navigation")
 include(":ui-components")
+include(":utils")
+include(":fhir-parser")
 include(":common")
+include(":ui-components")
+include(":app:test-tags")
+include(":app:test-actions")
 include(":plugins:technical-requirements-plugin")
 // needed only for desktop app
 // include(":desktop")

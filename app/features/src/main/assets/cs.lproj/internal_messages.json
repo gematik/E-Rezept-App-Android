@@ -10,5 +10,11 @@
         "text": "**Lepší čitelnost** \n Barvu naší značky jsme mírně ztmavili, abychom zvýšili barevný kontrast a zlepšili tak čitelnost. \n \n **Optimalizované funkce** \n Aktualizovali jsme formát data odeslání a opravili řazení zpráv.",
         "timestamp": "2025-01-28T08:00:00.000Z",
         "version": "1.27.0"
+    },
+    {
+        "id": "4",
+        "text": "📖 **Funkce čtení nahlas** \nNěkolik stránek jsme přepracovali, abychom je usnadnili čtení nahlas pomocí aplikace TalkBack. To výrazně zlepšuje použitelnost pro zrakově postižené. \n \n📞 **Rozšířené možnosti kontaktu** \nZavedli jsme nové možnosti kontaktu pro vybrané pojišťovny. \n \n🔧 **Optimalizované funkce** \nOpravili jsme drobné chyby při čtení karty, vyčistili kód a vylepšili zobrazování zpráv.",
+        "timestamp": "2025-04-02T08:00:00.000Z",
+        "version": "1.29.0"
     }
 ]

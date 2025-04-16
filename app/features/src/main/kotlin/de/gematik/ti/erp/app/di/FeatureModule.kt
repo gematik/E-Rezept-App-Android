@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -29,9 +29,9 @@ import de.gematik.ti.erp.app.featuretoggle.di.newFeaturesSharedPrefsModule
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
 import de.gematik.ti.erp.app.logger.di.loggerModule
+import de.gematik.ti.erp.app.medicationplan.di.medicationPlanModule
 import de.gematik.ti.erp.app.messages.di.messageRepositoryModule
 import de.gematik.ti.erp.app.messages.di.messagesModule
-import de.gematik.ti.erp.app.medicationplan.di.medicationPlanModule
 import de.gematik.ti.erp.app.mlkit.mlKitModule
 import de.gematik.ti.erp.app.onboarding.di.onboardingModule
 import de.gematik.ti.erp.app.orderhealthcard.di.orderHealthCardModule
@@ -66,7 +66,10 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         dispatchersModule,
         cardWallModule,
         appSecurityModule,
+        clientBuilderModule,
         networkModule,
+        fhirVzdNetworkModule,
+        apoVzdNetworkModule,
         loggerModule,
         realmModule,
         idpModule,
@@ -89,6 +92,7 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         newFeaturesSharedPrefsModule,
         // other modules
         analyticsModule,
+
         debugSettingsModule,
         mlKitModule,
         appUpdateModule,

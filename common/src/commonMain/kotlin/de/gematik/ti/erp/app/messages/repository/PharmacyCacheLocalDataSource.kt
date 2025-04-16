@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,16 +20,18 @@ package de.gematik.ti.erp.app.messages.repository
 
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.fhir.model.Pharmacy
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 
 class PharmacyCacheLocalDataSource(
     private val realm: Realm
 ) {
-    fun loadPharmacies() =
+    fun loadPharmacies(): Flow<List<CachedPharmacy>> =
         realm
             .query<PharmacyCacheEntityV1>()
             .asFlow()
@@ -67,7 +69,13 @@ fun PharmacyCacheEntityV1.toCachedPharmacy() =
         telematikId = this.telematikId
     )
 
-fun Pharmacy.toCachedPharmacy() =
+fun PharmacyUseCaseData.Pharmacy.toCachedPharmacy() =
+    CachedPharmacy(
+        name = this.name,
+        telematikId = this.telematikId
+    )
+
+fun FhirPharmacyErpModel.toCachedPharmacy() =
     CachedPharmacy(
         name = this.name,
         telematikId = this.telematikId

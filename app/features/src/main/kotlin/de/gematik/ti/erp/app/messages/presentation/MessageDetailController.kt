@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,31 +18,31 @@
 
 package de.gematik.ti.erp.app.messages.presentation
 
+import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.domain.usecase.FetchInAppMessageUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.FetchWelcomeMessageUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetProfileByOrderIdUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetRepliedMessagesUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessageAsReadUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessagesAsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase.Companion.CommunicationIdentifier
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
+import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
@@ -53,22 +53,22 @@ class MessageDetailController(
     private val isLocalMessage: Boolean = false,
     private val getRepliedMessagesUseCase: GetRepliedMessagesUseCase,
     private val getMessageUsingOrderIdUseCase: GetMessageUsingOrderIdUseCase,
-    private val fetchInAppMessageUseCase: FetchInAppMessageUseCase,
-    private val fetchWelcomeMessageUseCase: FetchWelcomeMessageUseCase,
-    private val setInternalMessageIsReadUseCase: SetInternalMessageAsReadUseCase,
+    private val getInternalMessagesUseCase: GetInternalMessagesUseCase,
+    private val setInternalMessageIsReadUseCase: SetInternalMessagesAsReadUseCase,
     private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase,
     private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase,
     private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase,
-    private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase
+    private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase,
+    private val context: Context
 ) : Controller() {
-
-    internal val _localMessages = MutableStateFlow<List<InAppMessage?>>(listOf())
+    private val selectedAppLanguage = context.resources.configuration.locales[0].language
+    internal val _localMessages = MutableStateFlow<List<InAppMessage>>(listOf())
     private val _messages = MutableStateFlow<UiState<List<OrderUseCaseData.Message>>>(UiState.Loading())
     private val _order = MutableStateFlow<UiState<OrderUseCaseData.OrderDetail>>(UiState.Loading())
     private val _pharmacy = MutableStateFlow<UiState<PharmacyUseCaseData.Pharmacy>>(UiState.Loading())
     private val _profile = MutableStateFlow<ProfilesUseCaseData.Profile?>(null)
 
-    val localMessages: StateFlow<List<InAppMessage?>> = _localMessages
+    val localMessages: StateFlow<List<InAppMessage>> = _localMessages
     val messages: StateFlow<UiState<List<OrderUseCaseData.Message>>> = _messages
     val order: StateFlow<UiState<OrderUseCaseData.OrderDetail>> = _order
     val pharmacy: StateFlow<UiState<PharmacyUseCaseData.Pharmacy>> = _pharmacy
@@ -86,19 +86,13 @@ class MessageDetailController(
 
     private fun fetchLocalMessages() {
         controllerScope.launch {
-            setInternalMessageIsReadUseCase.invoke()
-            combine(
-                fetchInAppMessageUseCase.invoke(),
-                fetchWelcomeMessageUseCase.invoke()
-            ) { localMessages, welcomeMessage ->
-                buildList {
-                    addAll(localMessages)
-                    welcomeMessage?.let { add(it) }
+            try {
+                getInternalMessagesUseCase.invoke(selectedAppLanguage).collect { messagesList ->
+                    _localMessages.value = messagesList.sortedByDescending { it.timeState.timestamp }
                 }
-            }.catch {
+            } catch (e: Exception) {
+                Napier.e { "Error Loading Internal Messages" }
                 _localMessages.value = listOf()
-            }.collect { messagesList ->
-                _localMessages.value = messagesList.sortedByDescending { it.timeState.timestamp }
             }
         }
     }
@@ -168,6 +162,10 @@ class MessageDetailController(
                 updateInvoicesByOrderIdAndTaskIdUseCase(orderDetail.orderId)
             }
 
+            if (isLocalMessage) {
+                setInternalMessageIsReadUseCase.invoke()
+            }
+
             onMessagesConsumed()
         }
     }
@@ -202,13 +200,13 @@ fun rememberMessageDetailController(
 ): MessageDetailController {
     val getRepliedMessagesUseCase: GetRepliedMessagesUseCase by rememberInstance()
     val getMessageUsingOrderIdUseCase: GetMessageUsingOrderIdUseCase by rememberInstance()
-    val fetchInAppMessageUseCase: FetchInAppMessageUseCase by rememberInstance()
-    val setInternalMessageAsReadUseCase: SetInternalMessageAsReadUseCase by rememberInstance()
-    val fetchWelcomeMessageUseCase: FetchWelcomeMessageUseCase by rememberInstance()
+    val getInternalMessagesUseCase: GetInternalMessagesUseCase by rememberInstance()
+    val setInternalMessagesAsReadUseCase: SetInternalMessagesAsReadUseCase by rememberInstance()
     val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase by rememberInstance()
     val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase by rememberInstance()
     val getPharmacyByTelematikIdUseCase by rememberInstance<GetPharmacyByTelematikIdUseCase>()
     val getProfileByOrderIdUseCase by rememberInstance<GetProfileByOrderIdUseCase>()
+    val context = LocalContext.current
 
     return remember(orderId) {
         MessageDetailController(
@@ -216,13 +214,13 @@ fun rememberMessageDetailController(
             isLocalMessage = isLocalMessage,
             getRepliedMessagesUseCase = getRepliedMessagesUseCase,
             getMessageUsingOrderIdUseCase = getMessageUsingOrderIdUseCase,
-            fetchInAppMessageUseCase = fetchInAppMessageUseCase,
-            fetchWelcomeMessageUseCase = fetchWelcomeMessageUseCase,
-            setInternalMessageIsReadUseCase = setInternalMessageAsReadUseCase,
+            getInternalMessagesUseCase = getInternalMessagesUseCase,
+            setInternalMessageIsReadUseCase = setInternalMessagesAsReadUseCase,
             updateCommunicationConsumedStatusUseCase = updateCommunicationConsumedStatusUseCase,
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
-            getProfileByOrderIdUseCase = getProfileByOrderIdUseCase
+            getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
+            context = context
         )
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -27,7 +27,8 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.Scaffold
+import androidx.compose.material.ScaffoldState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.State
@@ -87,6 +88,7 @@ import de.gematik.ti.erp.app.settings.ui.preview.SettingsScreenPreviewProvider
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.buildFeedbackBodyWithDeviceInfo
+import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.handleIntent
@@ -112,7 +114,8 @@ class SettingsScreen(
         val demoModeObserver = localActivity as? DemoModeObserver
         val isDemoMode = demoModeObserver?.isDemoMode() ?: false
         val settingsController = rememberSettingsController()
-
+        val listState = rememberLazyListState()
+        val scaffoldState = rememberScaffoldState()
         val isMedicationPlanEnabled by settingsController.isMedicationPlanEnabled.collectAsStateWithLifecycle()
 
         AllowScreenshotDialogWithListener(
@@ -236,7 +239,8 @@ class SettingsScreen(
         )
 
         SettingsScreenScaffold(
-            listState = rememberLazyListState(),
+            listState = listState,
+            scaffoldState = scaffoldState,
             isDemoMode = isDemoMode,
             localActivity = localActivity,
             buildConfig = buildConfig,
@@ -252,6 +256,7 @@ class SettingsScreen(
 @Composable
 private fun SettingsScreenScaffold(
     listState: LazyListState,
+    scaffoldState: ScaffoldState,
     isDemoMode: Boolean,
     localActivity: ComponentActivity?,
     buildConfig: BuildConfigInformation,
@@ -263,7 +268,10 @@ private fun SettingsScreenScaffold(
 ) {
     val padding = (localActivity as? BaseActivity)?.applicationInnerPadding
 
-    Scaffold(
+    AnimatedElevationScaffold(
+        topBarTitle = stringResource(R.string.main_settings_acc),
+        listState = listState,
+        scaffoldState = scaffoldState,
         modifier = Modifier
             .testTag(TestTag.Settings.SettingsScreen)
             .statusBarsPadding()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -24,12 +24,10 @@ import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.PharmacyRedeemService
-import de.gematik.ti.erp.app.api.PharmacySearchService
 import de.gematik.ti.erp.app.idp.api.IdpService
-import de.gematik.ti.erp.app.interceptor.ApiKeyHeaderInterceptor
 import de.gematik.ti.erp.app.interceptor.BearerHeaderInterceptor
+import de.gematik.ti.erp.app.interceptor.ErpApiKeyHeaderInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacyRedeemInterceptor
-import de.gematik.ti.erp.app.interceptor.PharmacySearchInterceptor
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
 import de.gematik.ti.erp.app.logger.HttpAppLogger
 import de.gematik.ti.erp.app.logger.HttpTerminalLogger
@@ -137,7 +135,7 @@ val networkModule = DI.Module("Network Module") {
             .build()
     }
     bindSingleton { UserAgentHeaderInterceptor(instance()) }
-    bindSingleton { ApiKeyHeaderInterceptor(instance()) }
+    bindSingleton { ErpApiKeyHeaderInterceptor(instance()) }
     bindSingleton { BearerHeaderInterceptor(instance()) }
 
     // Two loggers are used to log the HTTP requests and responses. One is used for the terminal and the other for the app.
@@ -168,7 +166,7 @@ val networkModule = DI.Module("Network Module") {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
         val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
         val endpointHelper = instance<EndpointHelper>()
-        val apiKeyInterceptor = instance<ApiKeyHeaderInterceptor>()
+        val apiKeyInterceptor = instance<ErpApiKeyHeaderInterceptor>()
         val httpTerminalLogger = instance<HttpLoggingInterceptor>()
         val httpAppLogger = instance<HttpAppLogger>()
 
@@ -200,7 +198,7 @@ val networkModule = DI.Module("Network Module") {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
         val vauChannelInterceptor = instance<VauChannelInterceptor>()
         val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
-        val apiKeyInterceptor = instance<ApiKeyHeaderInterceptor>()
+        val apiKeyInterceptor = instance<ErpApiKeyHeaderInterceptor>()
         val bearerInterceptor = instance<BearerHeaderInterceptor>()
         val endpointHelper = instance<EndpointHelper>()
         val innerLoggingInterceptor =
@@ -245,7 +243,7 @@ val networkModule = DI.Module("Network Module") {
     bindSingleton {
         val clientBuilder = instance<OkHttpClient>().newBuilder()
         val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
-        val apiKeyInterceptor = instance<ApiKeyHeaderInterceptor>()
+        val apiKeyInterceptor = instance<ErpApiKeyHeaderInterceptor>()
         val endpointHelper = instance<EndpointHelper>()
         val httpAppLogger = instance<HttpAppLogger>()
         val httpTerminalLogger = instance<HttpLoggingInterceptor>()
@@ -291,34 +289,6 @@ val networkModule = DI.Module("Network Module") {
             .baseUrl("https://localhost") // unused but required
             .build()
             .create(PharmacyRedeemService::class.java)
-    }
-
-    @Requirement(
-        "O.Ntwk_3#5",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "We use OkHttp with different interceptors to make it more secure."
-    )
-    // Pharmacy Search Service
-    bindSingleton {
-        val clientBuilder = instance<OkHttpClient>().newBuilder()
-        val endpointHelper = instance<EndpointHelper>()
-        val httpAppLogger = instance<HttpAppLogger>()
-        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
-        val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
-
-        clientBuilder
-            .addInterceptor(PharmacySearchInterceptor(instance()))
-            .addInterceptor(userAgentInterceptor)
-            .addCertificateTransparencyInterceptor()
-            .addInterceptor(httpTerminalLogger)
-            .addInterceptor(httpAppLogger)
-
-        Retrofit.Builder()
-            .client(clientBuilder.build())
-            .baseUrl(endpointHelper.pharmacySearchBaseUri)
-            .addConverterFactory(instance(JsonConverterFactoryTag))
-            .build()
-            .create(PharmacySearchService::class.java)
     }
 }
 

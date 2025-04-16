@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.demomode.datasource
 
-import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoAuditEventInfo
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPharmacyInfo.demoFavouritePharmacy
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPrescriptionInfo.DemoScannedPrescription.demoScannedTask01
@@ -26,21 +26,20 @@ import de.gematik.ti.erp.app.demomode.datasource.data.DemoPrescriptionInfo.DemoS
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoPrescriptionInfo.DemoSyncedPrescription.syncedTask
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.demoProfile01
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.demoProfile02
-import de.gematik.ti.erp.app.demomode.datasource.data.inAppMessageEntity
+import de.gematik.ti.erp.app.demomode.datasource.data.internalMessageEntityV1
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfile
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.idp.api.models.PairingData
 import de.gematik.ti.erp.app.idp.api.models.PairingResponseEntry
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile.ErxCommunicationDispReq
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile.ErxCommunicationReply
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationReply
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
@@ -143,23 +142,14 @@ class DemoModeDataSource {
     val communications: MutableStateFlow<MutableList<DemoModeProfileLinkedCommunication>> =
         MutableStateFlow(mutableListOf())
 
-    val inAppMessages: MutableStateFlow<MutableList<InAppMessageEntity>> =
-        MutableStateFlow(mutableListOf(inAppMessageEntity))
+    val internalMessages: MutableStateFlow<MutableList<InternalMessageEntityV1>> =
+        MutableStateFlow(mutableListOf(internalMessageEntityV1))
 
-    val counter: MutableStateFlow<Long> =
+    val unreadInternalMessagesCount: MutableStateFlow<Long> =
         MutableStateFlow(0)
 
-    val lastVersion: MutableStateFlow<String> =
-        MutableStateFlow("demo.version")
-
     val lastUpdatedVersion: MutableStateFlow<String> =
-        MutableStateFlow("demo.version")
-
-    val showWelcomeMessage: MutableStateFlow<Boolean> =
-        MutableStateFlow(false)
-
-    val welcomeMessageTimeStamp: MutableStateFlow<Instant> =
-        MutableStateFlow(Clock.System.now().minus(12.hours))
+        MutableStateFlow("1.29.0")
 
     /**
      * Data source for the a [profileCommunicationLog] communication log that a particular profile has downloaded the information

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -22,11 +22,11 @@ import de.gematik.ti.erp.app.db.entities.Cascading
 import de.gematik.ti.erp.app.db.entities.enumName
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import io.realm.kotlin.Deleteable
+import io.realm.kotlin.ext.realmListOf
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmList
 import io.realm.kotlin.types.RealmObject
 import io.realm.kotlin.types.annotations.Ignore
-import io.realm.kotlin.ext.realmListOf
 
 enum class TaskStatusV1 {
     Ready, InProgress, Completed, Other, Draft, Requested, Received, Accepted, Rejected, Canceled, OnHold, Failed;
@@ -58,6 +58,8 @@ class SyncedTaskEntityV1 : RealmObject, Cascading {
 
     var medicationRequest: MedicationRequestEntityV1? = null
 
+    var deviceRequest: DeviceRequestEntityV1? = null
+
     var medicationDispenses: RealmList<MedicationDispenseEntityV1> = realmListOf()
 
     var communications: RealmList<CommunicationEntityV1> = realmListOf()
@@ -76,6 +78,7 @@ class SyncedTaskEntityV1 : RealmObject, Cascading {
             patient?.let { yield(it) }
             insuranceInformation?.let { yield(it) }
             medicationRequest?.let { yield(it) }
+            deviceRequest?.let { yield(it) }
             yield(medicationDispenses)
             yield(communications)
         }

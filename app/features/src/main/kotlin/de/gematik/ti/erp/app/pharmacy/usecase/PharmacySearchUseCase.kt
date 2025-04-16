@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -23,25 +23,34 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyInitialResultsPerPage
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.PharmacyNextResultsPerPage
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.SearchData.Companion.toPharmacyFilter
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlin.math.max
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
 class PharmacySearchUseCase(
     private val repository: PharmacyRepository,
     private val settingsRepository: SettingsRepository,
-    private val dispatchers: DispatchProvider
+    private val dispatchers: CoroutineDispatcher = Dispatchers.IO
 ) {
     data class PharmacyPagingKey(val bundleId: String, val offset: Int)
+
+    private val isApoVzd: Boolean by lazy {
+        repository.getSelectedVzdPharmacyBackend() == PharmacyVzdService.APOVZD
+    }
 
     @Requirement(
         "A_20285#3",
@@ -51,45 +60,32 @@ class PharmacySearchUseCase(
     inner class PharmacyPagingSource(searchData: PharmacyUseCaseData.SearchData) :
         PagingSource<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy>() {
 
-        private val name = searchData.name.split(" ").filter { it.isNotEmpty() }
+        private val filter = searchData.toPharmacyFilter()
+
         private val locationMode = searchData.locationMode
-        private val filter = run {
-            val filterMap = mutableMapOf<String, String>()
-            if (locationMode is PharmacyUseCaseData.LocationMode.Enabled) {
-                filterMap += "near" to "" +
-                    "${locationMode.coordinates.latitude}|${locationMode.coordinates.longitude}|999|km"
-            }
-            if (searchData.filter.directRedeem) {
-                filterMap += "type" to "DELEGATOR"
-            }
-            if (searchData.filter.onlineService) {
-                filterMap += "type" to "mobl"
-            }
-            filterMap
-        }
 
         override fun getRefreshKey(
             state: PagingState<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy>
         ): PharmacyPagingKey? = null
 
+        @OptIn(ExperimentalUuidApi::class)
         override suspend fun load(
             params: LoadParams<PharmacyPagingKey>
         ): LoadResult<PharmacyPagingKey, PharmacyUseCaseData.Pharmacy> {
             val count = params.loadSize
 
-            when (params) {
+            return when (params) {
                 is LoadParams.Refresh -> {
-                    return repository.searchPharmacies(name, filter)
+                    repository.searchPharmacies(filter)
                         .map {
                             LoadResult.Page(
-                                data = it.pharmacies.toModel(),
-                                nextKey = if (it.bundleResultCount == PharmacyInitialResultsPerPage) {
-                                    PharmacyPagingKey(
-                                        it.bundleId,
-                                        it.bundleResultCount
+                                data = it.entries.toModel(locationMode, it.type).sortedBy { pharmacy -> pharmacy.distance },
+                                nextKey = when {
+                                    (it.total == PharmacyInitialResultsPerPage) && isApoVzd -> PharmacyPagingKey(
+                                        it.id ?: Uuid.random().toString(),
+                                        it.total
                                     )
-                                } else {
-                                    null
+                                    else -> null
                                 },
                                 prevKey = null
                             )
@@ -97,27 +93,27 @@ class PharmacySearchUseCase(
                 }
 
                 is LoadParams.Append, is LoadParams.Prepend -> {
-                    val key = params.key!!
+                    params.key?.let { key ->
+                        repository.searchPharmaciesByBundle(key.bundleId, offset = key.offset, count = count).map {
+                            val nextKey = if (it.total == count) {
+                                PharmacyPagingKey(
+                                    key.bundleId,
+                                    key.offset + it.total
+                                )
+                            } else {
+                                null
+                            }
+                            val prevKey = if (key.offset == 0) null else key.copy(offset = max(0, key.offset - count))
 
-                    return repository.searchPharmaciesByBundle(key.bundleId, offset = key.offset, count = count).map {
-                        val nextKey = if (it.bundleResultCount == count) {
-                            PharmacyPagingKey(
-                                key.bundleId,
-                                key.offset + it.bundleResultCount
+                            LoadResult.Page(
+                                data = it.entries.toModel(locationMode, it.type).sortedBy { pharmacy -> pharmacy.distance },
+                                nextKey = nextKey,
+                                prevKey = prevKey,
+                                itemsBefore = if (prevKey != null) count else 0,
+                                itemsAfter = if (nextKey != null) count else 0
                             )
-                        } else {
-                            null
-                        }
-                        val prevKey = if (key.offset == 0) null else key.copy(offset = max(0, key.offset - count))
-
-                        LoadResult.Page(
-                            data = it.pharmacies.toModel(),
-                            nextKey = nextKey,
-                            prevKey = prevKey,
-                            itemsBefore = if (prevKey != null) count else 0,
-                            itemsAfter = if (nextKey != null) count else 0
-                        )
-                    }.getOrElse { LoadResult.Error(it) }
+                        }.getOrElse { LoadResult.Error(it) }
+                    } ?: LoadResult.Error(NullPointerException("key is null"))
                 }
             }
         }
@@ -128,7 +124,7 @@ class PharmacySearchUseCase(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = "pharmacy search based on search term and filter criteria set by the user."
     )
-    suspend fun searchPharmacies(
+    suspend operator fun invoke(
         searchData: PharmacyUseCaseData.SearchData
     ): Flow<PagingData<PharmacyUseCaseData.Pharmacy>> {
         settingsRepository.savePharmacySearch(
@@ -148,6 +144,6 @@ class PharmacySearchUseCase(
                 maxSize = PharmacyInitialResultsPerPage * 2
             ),
             pagingSourceFactory = { PharmacyPagingSource(searchData) }
-        ).flow.flowOn(dispatchers.io)
+        ).flow.flowOn(dispatchers)
     }
 }

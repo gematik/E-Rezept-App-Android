@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -27,8 +27,8 @@ import android.os.Build
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.pharmacy.ui.model.MapContent
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.utils.compose.canHandleIntent
 import de.gematik.ti.erp.app.utils.compose.provideEmailIntent
 import io.github.aakira.napier.Napier

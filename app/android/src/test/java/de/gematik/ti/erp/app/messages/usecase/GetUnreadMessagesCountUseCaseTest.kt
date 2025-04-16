@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.messages.usecase
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
@@ -46,7 +46,7 @@ class GetUnreadMessagesCountUseCaseTest {
     private val dispatcher = StandardTestDispatcher()
 
     private val communicationRepository: CommunicationRepository = mockk()
-    private val inAppMessageRepository: InAppMessageRepository = mockk()
+    private val internalMessagesRepository: InternalMessagesRepository = mockk()
     private val invoiceRepository: InvoiceRepository = mockk()
 
     private val profileId: ProfileIdentifier = "testProfileId"
@@ -62,8 +62,8 @@ class GetUnreadMessagesCountUseCaseTest {
         } returns flowOf(listOf(InvoiceData.InvoiceStatus(taskId = "taskId1", consumed = false)))
         coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(emptyList())
         coEvery { communicationRepository.loadRepliedCommunications(any(), any()) } returns flowOf(emptyList())
-        coEvery { inAppMessageRepository.counter } returns flowOf(0L)
-        useCase = GetUnreadMessagesCountUseCase(communicationRepository, inAppMessageRepository, invoiceRepository, dispatcher)
+        coEvery { internalMessagesRepository.getUnreadInternalMessagesCount() } returns flowOf(0L)
+        useCase = GetUnreadMessagesCountUseCase(communicationRepository, internalMessagesRepository, invoiceRepository, dispatcher)
     }
 
     @Test

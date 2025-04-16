@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.di
 
+import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.pharmacy.presentation.DefaultPharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacyRepository
@@ -25,12 +26,14 @@ import de.gematik.ti.erp.app.pharmacy.repository.DefaultShippingContactRepositor
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PreviewMapCoordinatesRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.DefaultFavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.DefaultOftenUsePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.OftenUsedPharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultFavouritePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultOftenUsePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.ApoVzdRemoteDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.FhirVzdRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.ui.components.GooglePharmacyMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
 import de.gematik.ti.erp.app.pharmacy.usecase.ChangePharmacyFavoriteStateUseCase
@@ -44,12 +47,12 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetShippingContactValidationUseCas
 import de.gematik.ti.erp.app.pharmacy.usecase.IsPharmacyFavoriteUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyDirectRedeemUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyOverviewUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SaveShippingContactUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.redeem.repository.datasource.DefaultRedeemLocalDataSource
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -69,8 +72,7 @@ val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
     bindProvider { GetShippingContactValidationUseCase() }
     bindProvider { PharmacyDirectRedeemUseCase(instance()) } // TODO: Only used in debug process on testing
     bindProvider { PharmacyMapsUseCase(instance(), instance(), instance()) }
-    bindProvider { PharmacySearchUseCase(instance(), instance(), instance()) }
-    bindProvider { PharmacyOverviewUseCase(instance(), instance()) }
+    bindProvider { PharmacySearchUseCase(instance(), instance()) }
     bindProvider { GetOverviewPharmaciesUseCase(instance()) }
     bindProvider { GetOrderStateUseCase(instance(), instance(), instance()) }
     bindProvider { GetLocationUseCase(instance()) }
@@ -85,12 +87,30 @@ val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
 }
 
 val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilentOverride = true) {
-    bindProvider { PharmacyRemoteDataSource(instance(), instance()) }
+    bindSingleton { PreviewMapCoordinatesDataSource() }
+    bindProvider { PharmacyBundleParser() }
+
+    // data-sources
+    bindProvider { ApoVzdRemoteDataSource(instance(), instance()) }
+    bindProvider { FhirVzdRemoteDataSource(instance()) }
     bindProvider<RedeemLocalDataSource> { DefaultRedeemLocalDataSource(instance()) }
     bindProvider<FavouritePharmacyLocalDataSource> { DefaultFavouritePharmacyLocalDataSource(instance()) }
     bindProvider<OftenUsedPharmacyLocalDataSource> { DefaultOftenUsePharmacyLocalDataSource(instance()) }
-    bindSingleton { PreviewMapCoordinatesDataSource() }
+    bindProvider { PharmacyRemoteSelectorLocalDataSource(instance(), BuildConfigExtension.isReleaseMode) }
+
+    // repos
     bindProvider { PreviewMapCoordinatesRepository(instance()) }
-    bindProvider<PharmacyRepository> { DefaultPharmacyRepository(instance(), instance(), instance(), instance()) }
+    bindProvider<PharmacyRepository> {
+        DefaultPharmacyRepository(
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance()
+        )
+    }
     bindProvider<ShippingContactRepository> { DefaultShippingContactRepository(instance(), instance()) }
 }

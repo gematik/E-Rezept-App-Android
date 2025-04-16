@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -73,6 +73,7 @@ import de.gematik.ti.erp.app.utils.compose.Center
 import de.gematik.ti.erp.app.utils.compose.ConnectBottomBar
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.phrasedDateString
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -91,6 +92,7 @@ class ProfileAuditEventsScreen(
     @Composable
     override fun Content() {
         val listState = rememberLazyListState()
+        val dialog = LocalDialog.current
         val pullToRefreshState = rememberPullToRefreshState()
         val intentHandler = LocalIntentHandler.current
 
@@ -123,7 +125,7 @@ class ProfileAuditEventsScreen(
             showGidEvent.listen { gidData ->
                 navController.navigate(
                     CardWallIntroScreen.pathWithGid(
-                        gidEventData = gidData
+                        gidNavigationData = gidData
                     )
                 )
             }

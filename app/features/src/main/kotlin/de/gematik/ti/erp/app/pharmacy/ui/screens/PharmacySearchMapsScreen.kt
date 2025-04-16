@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -58,7 +58,6 @@ import com.google.maps.android.compose.MarkerState
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.permissions.getLocationPermissionLauncher
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
 import de.gematik.ti.erp.app.permissions.locationPermissions
@@ -79,6 +78,7 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.PositionState
 import de.gematik.ti.erp.app.pharmacy.ui.components.pharmacyMapsOverlay
 import de.gematik.ti.erp.app.pharmacy.ui.model.SelectedPharmacyUi
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.disableZoomWhileActive
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog

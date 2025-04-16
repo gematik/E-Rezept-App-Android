@@ -213,11 +213,11 @@
     <string name="edit_profile_title">profil</string>
     <string name="edit_profile_color_selected">%s vybráno</string>
     <string name="edit_profile_background_color">barva pozadí</string>
-    <string name="profile_color_name_gray">Jarní šedá</string>
-    <string name="profile_color_sun_dew">Rosnatka</string>
-    <string name="profile_color_name_pink">To! Je! Růžový!</string>
-    <string name="profile_color_name_tree">Strom</string>
-    <string name="profile_color_name_moon">Modrý měsíc září</string>
+    <string name="profile_color_name_gray">Šedá</string>
+    <string name="profile_color_sun_dew">Žluť</string>
+    <string name="profile_color_name_pink">Růžový</string>
+    <string name="profile_color_name_tree">Zelený</string>
+    <string name="profile_color_name_moon">Modrý</string>
     <string name="settings_profile_not_connected">Nepřihlášen</string>
     <string name="settings_profile_connected">Svázané dohromady</string>
     <string name="settings_profile_last_authenticated_on">Naposledy připojeno %s</string>
@@ -573,13 +573,13 @@
     <string name="medication_trade_name">Jméno výrobku</string>
     <string name="pres_detail_yes">Ano</string>
     <string name="pres_detail_no">Ne</string>
-    <string name="pres_detail_medication_label_dosage_instruction">dávkování</string>
+    <string name="pres_detail_medication_label_dosage_instruction">pokyny k dávkování</string>
     <string name="pres_detail_medication_label_authored_on">datum vydání</string>
     <string name="pres_details_direct_assignment_state">Tento předpis vám bude vyplacen jako součást léčby.</string>
     <string name="pres_details_no_value">Nespecifikováno</string>
     <string name="pres_details_additional_fee">Doplatek</string>
     <string name="pres_details_medication">lék</string>
-    <string name="pres_detail_medication_label_note">Návod k použití</string>
+    <string name="pres_detail_medication_label_note">pokyny k doručení</string>
     <string name="pres_detail_medication_label_bvg">Způsobilé podle BVG</string>
     <string name="pres_detail_medication_label_subtitution">Alternativní příprava</string>
     <string name="medication_compounding_name">Název receptu</string>
@@ -1038,7 +1038,6 @@
     <string name="pharmacy_contact_map_two_lines">Trasa\nzde</string>
     <string name="pres_detail_delete_prescription_and_recipe">Smazat předpis a potvrzení o nákladech</string>
     <string name="pres_detail_delete_and_recipe_msg">Pokud vymažete recept, vymaže se také související účtenka.</string>
-    <string name="orders_top_app_bar_change_text">Zprávy ze všech profilů se nyní zobrazují společně</string>
     <string name="new_features_screen_title">Nové vlastnosti</string>
     <string name="new_features_label_text">Nové vlastnosti</string>
     <string name="new_feature_screen_subtitle">Neustále pracujeme na nových funkcích. Podělte se s námi o svůj názor a pomozte nám vytvořit lepší aplikaci.</string>
@@ -1084,7 +1083,6 @@
     <string name="a11y_card_wall_card_hand">Zdravotní karta na smartphonu</string>
     <string name="not_logged_in">Nejste přihlášeni</string>
     <string name="logged_in">Registrovaný</string>
-    <string name="refresh">osvěžit</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Přístupové protokoly obdržíte, pokud jste přihlášeni ke službě předpisu.</string>
     <string name="paired_devices_error_login_title">Je nutná registrace</string>
     <string name="paired_devices_error_login_description">Přihlaste se prosím pomocí své zdravotní karty a uložte své přihlašovací údaje s biometrií, abyste mohli zobrazit připojená zařízení.</string>
@@ -1192,7 +1190,6 @@
     <string name="settings_app_security_change_password">Změnit heslo</string>
     <string name="invoices_delete_not_logged_in_description">Chcete-li odstranit, musí být vytvořeno připojení k serveru Prescription Server</string>
     <string name="provided">Zboží je připraveno</string>
-    <string name="provided_at_hour">Zboží je připraveno od %s</string>
     <string name="provided_now">Zboží je právě připraveno</string>
     <string name="provided_minutes_ago">Zboží je připraveno %s minut</string>
     <string name="provided_on_date">Zboží je připraveno od %s</string>
@@ -1232,4 +1229,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Následující recepty nelze nebo již nelze uplatnit: %1$s \n Možná jste je již uplatnili jiným způsobem nebo byly smazány. \n</string>
     <string name="error_redeemable_prescription_continue_without">Pokračujte bez těchto receptů</string>
     <string name="error_redeemable_prescription_cancel_order">Zrušit objednávku</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">Recepty</string>
+    <string name="pharmacy_order_no_prescriptions">vybrat recepty</string>
+    <string name="pharmacy_order_no_prescriptions_error">Vyberte prosím recept</string>
+    <string name="gid_gematik_error_title">Kontaktujte prosím svou pojišťovnu a uveďte následující informace:</string>
+    <string name="gid_gematik_error_copy">Klepnutím sem zkopírujte chybovou zprávu</string>
+    <string name="no_login_state_no_internet">Žádný internet</string>
+    <string name="refresh">Aktualizovat</string>
+    <string name="provided_at_hour">Zboží je připraveno od %s hodin</string>
+    <string name="edit_profile_name">Upravit název profilu</string>
+    <string name="activate_profile">Vyberte profil</string>
+    <string name="add_profile">Přidat profil</string>
+    <string name="inactive_description">není vybráno</string>
+    <string name="active_description">vybraný</string>
 </resources>

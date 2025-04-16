@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,8 +19,8 @@
 package de.gematik.ti.erp.app.messages.repository
 
 import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.fhir.model.Pharmacy
-import de.gematik.ti.erp.app.prescription.model.Communication
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -33,7 +33,7 @@ import kotlinx.datetime.Instant
 interface CommunicationRepository {
 
     val pharmacyCacheError: Channel<Throwable>
-    val pharmacyDownloaded: Channel<Pharmacy?>
+    val pharmacyDownloaded: Channel<FhirPharmacyErpModel?>
 
     suspend fun downloadCommunications(profileId: ProfileIdentifier): Result<Unit>
     suspend fun downloadResource(

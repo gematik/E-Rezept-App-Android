@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -23,8 +23,10 @@ import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.mappers.toMessage
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.prescription.model.Communication
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.LastMessage
+import de.gematik.ti.erp.app.messages.model.LastMessageDetails
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -92,6 +94,9 @@ class GetMessagesUseCase(
         pharmacies: List<CachedPharmacy>
     ): OrderUseCaseData.Order {
         val pharmacyName = pharmacies.getPharmacyName(communication)
+
+        val taskIds = communicationRepository.taskIdsByOrder(communication.orderId).first()
+
         val (prescriptions, hasUnreadMessages) = communication.dispenseRequestCommunicationToOrder(
             communicationRepository = communicationRepository,
             invoiceRepository = invoiceRepository,
@@ -99,20 +104,41 @@ class GetMessagesUseCase(
             dispatcher = dispatcher
         ).first()
 
+        val invoiceInfo = processInvoicesForOrder(taskIds)
+
         return OrderUseCaseData.Order(
             orderId = communication.orderId,
             prescriptions = prescriptions,
-            sentOn = latestMessageSentOnDate,
+            sentOn = invoiceInfo.invoiceSentOn?.let {
+                maxOf(it, latestMessageSentOnDate)
+            } ?: latestMessageSentOnDate,
             pharmacy = OrderUseCaseData.Pharmacy(
                 id = communication.recipient, // getting Pharmacy ID (telematikId) from communication.recipient
                 name = pharmacyName
             ),
             hasUnreadMessages = hasUnreadMessages,
             latestCommunicationMessage = getLatestCommunicationMessage(
-                communication.orderId,
-                pharmacyName,
-                communication.recipient
-            )
+                orderId = communication.orderId,
+                pharmacyName = pharmacyName,
+                telematikId = communication.recipient,
+                taskIds = taskIds
+            ),
+            invoiceInfo = invoiceInfo
+        )
+    }
+
+    private suspend fun processInvoicesForOrder(
+        taskIds: List<String>
+    ): OrderUseCaseData.InvoiceInfo {
+        val invoices = taskIds.mapNotNull { taskId ->
+            invoiceRepository.invoiceByTaskId(taskId).first()
+        }
+
+        val latestInvoice = invoices.maxByOrNull { it.timestamp }
+
+        return OrderUseCaseData.InvoiceInfo(
+            hasInvoice = invoices.isNotEmpty(),
+            invoiceSentOn = latestInvoice?.timestamp
         )
     }
 
@@ -141,10 +167,13 @@ class GetMessagesUseCase(
             ?.coerceAtLeast(requestCommunication.sentOn) // Ensure we always use the latest date
     }
 
-    private suspend fun getLatestCommunicationMessage(orderId: String, pharmacyName: String, telematikId: String): OrderUseCaseData.LastMessage? =
+    private suspend fun getLatestCommunicationMessage(
+        orderId: String,
+        pharmacyName: String,
+        telematikId: String,
+        taskIds: List<String>
+    ): LastMessage? =
         supervisorScope {
-            val taskIds = communicationRepository.taskIdsByOrder(orderId).first()
-
             return@supervisorScope combine(
                 communicationRepository.loadRepliedCommunications(taskIds, telematikId),
                 communicationRepository.loadDispReqCommunications(orderId)
@@ -154,7 +183,7 @@ class GetMessagesUseCase(
                 val lastMessage = combinedCommunication.maxByOrNull { it.sentOn }
                 lastMessage?.let {
                     it.generatePreviewMessage(pharmacyName)?.let { lastMessage ->
-                        OrderUseCaseData.LastMessage(
+                        LastMessage(
                             lastMessageDetails = lastMessage,
                             profile = it.profile
                         )
@@ -163,9 +192,9 @@ class GetMessagesUseCase(
             }.firstOrNull()
         }
 
-    private fun Communication?.generatePreviewMessage(pharmacyName: String): OrderUseCaseData.LastMessageDetails? {
+    private fun Communication?.generatePreviewMessage(pharmacyName: String): LastMessageDetails? {
         return when (this?.profile) {
-            CommunicationProfile.ErxCommunicationDispReq -> OrderUseCaseData.LastMessageDetails(
+            CommunicationProfile.ErxCommunicationDispReq -> LastMessageDetails(
                 content = pharmacyName,
                 pickUpCodeDMC = null,
                 pickUpCodeHR = null,
@@ -174,7 +203,7 @@ class GetMessagesUseCase(
 
             CommunicationProfile.ErxCommunicationReply -> {
                 val messageData = toMessage()
-                OrderUseCaseData.LastMessageDetails(
+                LastMessageDetails(
                     content = messageData.content,
                     pickUpCodeDMC = messageData.pickUpCodeDMC,
                     pickUpCodeHR = messageData.pickUpCodeHR,

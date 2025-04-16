@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -149,7 +149,7 @@ fun FullDetailMedication(
                             is SyncedTaskData.SyncedTask.LaterRedeemable -> LaterRedeemableStatusChip()
 
                             is SyncedTaskData.SyncedTask.Other -> {
-                                when (prescription.state.state) {
+                                when ((prescription.state as? SyncedTaskData.SyncedTask.Other)?.state) {
                                     SyncedTaskData.TaskStatus.Completed -> CompletedStatusChip()
                                     else -> UnknownStatusChip()
                                 }

@@ -207,11 +207,11 @@
     <string name="edit_profile_title">профил</string>
     <string name="edit_profile_color_selected">%s избрано</string>
     <string name="edit_profile_background_color">Цвят на фона</string>
-    <string name="profile_color_name_gray">Пролетно сиво</string>
-    <string name="profile_color_sun_dew">Росичка</string>
-    <string name="profile_color_name_pink">То! Е! Розово!</string>
-    <string name="profile_color_name_tree">Дърво</string>
-    <string name="profile_color_name_moon">Синя луна септември</string>
+    <string name="profile_color_name_gray">Сив</string>
+    <string name="profile_color_sun_dew">Жълто</string>
+    <string name="profile_color_name_pink">Розово</string>
+    <string name="profile_color_name_tree">Зелено</string>
+    <string name="profile_color_name_moon">Синьо</string>
     <string name="settings_profile_not_connected">Не сте влезли в системата</string>
     <string name="settings_profile_connected">Завързани заедно</string>
     <string name="settings_profile_last_authenticated_on">Последна връзка на %s</string>
@@ -559,13 +559,13 @@
     <string name="medication_trade_name">Търговско наименование</string>
     <string name="pres_detail_yes">да</string>
     <string name="pres_detail_no">Не</string>
-    <string name="pres_detail_medication_label_dosage_instruction">дозировка</string>
+    <string name="pres_detail_medication_label_dosage_instruction">инструкции за дозиране</string>
     <string name="pres_detail_medication_label_authored_on">дата на издаване</string>
     <string name="pres_details_direct_assignment_state">Тази рецепта ще бъде осребрена за вас като част от лечението.</string>
     <string name="pres_details_no_value">Неопределено</string>
     <string name="pres_details_additional_fee">Доплащане</string>
     <string name="pres_details_medication">лекарство</string>
-    <string name="pres_detail_medication_label_note">Инструкции за употреба</string>
+    <string name="pres_detail_medication_label_note">инструкции за доставка</string>
     <string name="pres_detail_medication_label_bvg">Допустимо според BVG</string>
     <string name="pres_detail_medication_label_subtitution">Алтернативна подготовка</string>
     <string name="medication_compounding_name">Име на рецептата</string>
@@ -1022,7 +1022,6 @@
     <string name="pharmacy_contact_map_two_lines">Маршрут\nтук</string>
     <string name="pres_detail_delete_prescription_and_recipe">Изтриване на рецепта и касова бележка</string>
     <string name="pres_detail_delete_and_recipe_msg">Ако изтриете рецептата, свързаният разход също се изтрива.</string>
-    <string name="orders_top_app_bar_change_text">Съобщенията от всички профили вече се показват заедно</string>
     <string name="new_features_screen_title">Нови функции</string>
     <string name="new_features_label_text">Нови функции</string>
     <string name="new_feature_screen_subtitle">Постоянно работим върху нови функции. Споделете вашето мнение с нас и ни помогнете да създадем по-добро приложение.</string>
@@ -1066,7 +1065,6 @@
     <string name="a11y_card_wall_card_hand">Здравна карта на смартфон</string>
     <string name="not_logged_in">Не сте влезли в системата</string>
     <string name="logged_in">Регистриран</string>
-    <string name="refresh">опресняване</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Ще получите регистрационни файлове за достъп, ако сте влезли в услугата за рецепти.</string>
     <string name="paired_devices_error_login_title">Изисква се регистрация</string>
     <string name="paired_devices_error_login_description">Моля, влезте със здравната си карта и запазете данните си за вход с биометрични данни, за да видите свързаните устройства.</string>
@@ -1174,7 +1172,6 @@
     <string name="settings_app_security_change_password">Промяна на паролата</string>
     <string name="invoices_delete_not_logged_in_description">За да изтриете, трябва да бъде установена връзка със сървъра за рецепти</string>
     <string name="provided">Стоките са готови</string>
-    <string name="provided_at_hour">Стоките са готови от %s</string>
     <string name="provided_now">Стоките са готови току-що</string>
     <string name="provided_minutes_ago">Стоките са готови от %s минути</string>
     <string name="provided_on_date">Стоките са готови от %s</string>
@@ -1214,4 +1211,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Следните рецепти не са или вече не могат да бъдат използвани: %1$s \n Може вече да сте ги използвали по друг начин или може да са били изтрити. \n</string>
     <string name="error_redeemable_prescription_continue_without">Продължете без тези рецепти</string>
     <string name="error_redeemable_prescription_cancel_order">Отмени поръчката</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">Рецепти</string>
+    <string name="pharmacy_order_no_prescriptions">изберете рецепти</string>
+    <string name="pharmacy_order_no_prescriptions_error">Моля, изберете рецепта</string>
+    <string name="gid_gematik_error_title">Моля, свържете се с вашата застрахователна компания и предоставете следната информация:</string>
+    <string name="gid_gematik_error_copy">Докоснете тук, за да копирате съобщението за грешка</string>
+    <string name="no_login_state_no_internet">Няма интернет</string>
+    <string name="refresh">Актуализация</string>
+    <string name="provided_at_hour">Стоките са готови от %s часа</string>
+    <string name="edit_profile_name">Редактиране на името на профила</string>
+    <string name="activate_profile">Изберете профил</string>
+    <string name="add_profile">Добавете профил</string>
+    <string name="inactive_description">не е избрано</string>
+    <string name="active_description">избрани</string>
 </resources>

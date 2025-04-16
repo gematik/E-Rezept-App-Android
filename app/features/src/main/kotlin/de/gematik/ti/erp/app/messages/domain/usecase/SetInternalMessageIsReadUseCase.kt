@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,12 +18,12 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 
-class SetInternalMessageAsReadUseCase(
-    private val inAppMessageRepository: InAppMessageRepository
+class SetInternalMessagesAsReadUseCase(
+    private val internalMessagesRepository: InternalMessagesRepository
 ) {
     suspend operator fun invoke() {
-        inAppMessageRepository.setInternalMessageAsRead()
+        internalMessagesRepository.setInternalMessagesAsRead()
     }
 }

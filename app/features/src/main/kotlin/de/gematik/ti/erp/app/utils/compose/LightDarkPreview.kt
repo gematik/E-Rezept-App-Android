@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -36,6 +36,22 @@ internal annotation class LightPreview
 internal annotation class DarkPreview
 
 @Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    group = "light",
+    heightDp = 1400,
+    showBackground = true
+)
+internal annotation class LightLongPreview
+
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    group = "dark",
+    heightDp = 1400,
+    showBackground = true
+)
+internal annotation class DarkLongPreview
+
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
     group = "dark",
     showBackground = true,
@@ -58,3 +74,7 @@ internal annotation class BigFontPreview
 @LightPreview
 @DarkPreview
 internal annotation class LightDarkPreview
+
+@LightLongPreview
+@DarkLongPreview
+internal annotation class LightDarkLongPreview

@@ -1,0 +1,44 @@
+{
+  "id": "39b9ec0c-37ac-4ff6-948c-06bfeb199f74",
+  "type": "searchset",
+  "timestamp": "2024-08-15T07:04:49.562+00:00",
+  "resourceType": "Bundle",
+  "total": 1,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.2"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/OrderID",
+            "value": "9437677e-729a-4dde-b174-e39802031423"
+          }
+        ],
+        "status": "unknown",
+        "basedOn": [
+          {
+            "reference": "Task/200.000.000.190.660.03/$accept?ac=cfca630662cd7253288961449ab20b4d572290af00742d4f6bf434d8d3746e8e"
+          }
+        ],
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-01.2.2023001.16.101"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"name\":\"Paula Privati\",\"address\":[\"Blumenweg\",\"\",\"26427\",\"Esens\"],\"hint\":\"\",\"phone\":\"\"}"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "resourceType": "Patient",
+  "id": "fc0d145b-09b4-4af6-b477-935c1862ac7f",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.0.3"
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/identifier-type-de-basis",
+            "code": "GKV"
+          }
+        ]
+      },
+      "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+      "value": "X110535541"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Graf Freiherr von Schinder",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://fhir.de/StructureDefinition/humanname-namenszusatz",
+            "valueString": "Graf Freiherr"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-prefix",
+            "valueString": "von"
+          },
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Schinder"
+          }
+        ]
+      },
+      "given": [
+        "Lars"
+      ],
+      "prefix": [
+        "Prinzessin"
+      ],
+      "_prefix": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "AC"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "birthDate": "1964",
+  "address": [
+    {
+      "type": "both",
+      "line": [
+        "Siegburger Str. 155"
+      ],
+      "_line": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+              "valueString": "155"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "Siegburger Str."
+            }
+          ]
+        }
+      ],
+      "city": "Köln",
+      "postalCode": "51105",
+      "country": "D"
+    }
+  ]
+}

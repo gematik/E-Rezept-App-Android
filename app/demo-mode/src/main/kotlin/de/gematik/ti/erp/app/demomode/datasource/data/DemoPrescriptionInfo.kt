@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -30,8 +30,8 @@ import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationDispense
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Medication
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationDispense
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
@@ -272,7 +272,7 @@ object DemoPrescriptionInfo {
         text = SYNCED_MEDICATION_NAMES.elementAtOrElse(index) { SYNCED_MEDICATION_NAMES.random() },
         form = codeToFormMapping.random(),
         lotNumber = DEMO_MODE_IDENTIFIER,
-        expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
+        expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(EXPIRY_DATE),
         identifier = SyncedTaskData.Identifier(DEMO_MODE_IDENTIFIER),
         normSizeCode = normSizeMappings.random(),
         amount = RATIO,

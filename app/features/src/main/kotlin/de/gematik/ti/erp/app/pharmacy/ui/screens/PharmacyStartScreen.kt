@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -41,7 +41,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.permissions.getLocationPermissionLauncher
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
@@ -64,6 +63,7 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.MockMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyMap
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacySearchButton
 import de.gematik.ti.erp.app.pharmacy.ui.model.QuickFilter
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -73,6 +73,7 @@ import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.capitalizeFirstChar
 import de.gematik.ti.erp.app.utils.extensions.isGooglePlayServiceAvailable
 import de.gematik.ti.erp.app.utils.letNotNull
@@ -93,6 +94,7 @@ class PharmacyStartScreen(
         ) ?: false
 
         val context = LocalContext.current
+        val dialog = LocalDialog.current
 
         val controller = rememberPharmacyStartController()
 

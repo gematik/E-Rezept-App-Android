@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -32,6 +32,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.settings.model.PersonalSettingsClickActions
 import de.gematik.ti.erp.app.settings.presentation.SettingStatesData
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -51,7 +52,7 @@ fun PersonalSettingsSection(
         Text(
             text = stringResource(R.string.settings_personal_settings_header),
             style = AppTheme.typography.h6,
-            modifier = Modifier.sectionPadding()
+            modifier = Modifier.sectionPadding().semanticsHeading()
         )
         if (isMedicationPlanEnabled) {
             LabelButton(

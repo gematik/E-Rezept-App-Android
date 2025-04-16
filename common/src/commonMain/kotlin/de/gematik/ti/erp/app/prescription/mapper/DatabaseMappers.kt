@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,7 +20,10 @@ package de.gematik.ti.erp.app.prescription.mapper
 
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CoverageTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
@@ -34,21 +37,27 @@ import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.QuantityEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.RatioEntityV1
 import de.gematik.ti.erp.app.db.toRealmInstant
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirDispenseCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirCoverageErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIngredientErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMultiplePrescriptionInfoErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirQuantityErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvAddressErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPatientErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPractitionerErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMedicationCategoryErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskOrganizationErpModel
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import io.realm.kotlin.ext.toRealmList
+import kotlinx.datetime.Clock
+import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 
@@ -90,7 +99,8 @@ object DatabaseMappers {
         .apply {
             this.name = this@toDatabaseModel.name
             this.statusCode = this@toDatabaseModel.statusCode
-            this.coverageType = CoverageTypeV1.mapTo(this@toDatabaseModel.coverageType ?: "") // todo: fix to enum
+            this.identifierNumber = this@toDatabaseModel.identifierNumber // added for diga identification (iknr)
+            this.coverageType = CoverageTypeV1.mapTo(this@toDatabaseModel.coverageType ?: "")
         }
 
     fun FhirTaskKbvMedicationRequestErpModel.toDatabaseModel() = MedicationRequestEntityV1()
@@ -127,8 +137,8 @@ object DatabaseMappers {
         .apply {
             this.indicator = this@toDatabaseModel.indicator
             this.numbering = this@toDatabaseModel.numbering?.toDatabaseModel()
-            this.start = this@toDatabaseModel.start?.toInstant(TimeZone.UTC)?.toRealmInstant()
-            this.end = this@toDatabaseModel.end?.toInstant(TimeZone.UTC)?.toRealmInstant()
+            this.start = this@toDatabaseModel.start?.toRealmInstant()
+            this.end = this@toDatabaseModel.end?.toRealmInstant()
         }
 
     private fun FhirRatioErpModel.toDatabaseModel() = RatioEntityV1()
@@ -166,7 +176,7 @@ object DatabaseMappers {
         FhirTaskAccidentType.Unfall -> AccidentTypeV1.Unfall
         FhirTaskAccidentType.Arbeitsunfall -> AccidentTypeV1.Arbeitsunfall
         FhirTaskAccidentType.Berufskrankheit -> AccidentTypeV1.Berufskrankheit
-        FhirTaskAccidentType.None -> AccidentTypeV1.None
+        else -> AccidentTypeV1.None
     }
 
     // the code and description text for the medication category is lost in this mapping due to DB constraints
@@ -177,4 +187,48 @@ object DatabaseMappers {
         FhirTaskMedicationCategoryErpModel.SONSTIGES -> MedicationCategoryV1.SONSTIGES
         FhirTaskMedicationCategoryErpModel.UNKNOWN -> MedicationCategoryV1.UNKNOWN
     }
+
+    fun FhirReplyCommunicationEntryErpModel.toDatabaseModel() = CommunicationEntityV1()
+        .apply {
+            this.profile = CommunicationProfileV1.ErxCommunicationReply
+            this.taskId = this@toDatabaseModel.taskId ?: ""
+            this.communicationId = this@toDatabaseModel.id
+            this.orderId = this@toDatabaseModel.orderId ?: ""
+            this.sentOn = this@toDatabaseModel.sent?.value?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
+            this.sender = this@toDatabaseModel.sender?.identifier ?: ""
+            this.recipient = this@toDatabaseModel.recipient?.identifier ?: ""
+            this.payload = this@toDatabaseModel.payload.text.toString()
+            this.consumed = false
+        }
+
+    fun FhirDispenseCommunicationEntryErpModel.toDatabaseModel() = CommunicationEntityV1()
+        .apply {
+            this.profile = CommunicationProfileV1.ErxCommunicationDispReq
+            this.taskId = this@toDatabaseModel.taskId ?: ""
+            this.communicationId = this@toDatabaseModel.id
+            this.orderId = this@toDatabaseModel.orderId ?: ""
+            this.sentOn = this@toDatabaseModel.sent?.value?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
+            this.sender = this@toDatabaseModel.sender?.identifier ?: ""
+            this.recipient = this@toDatabaseModel.recipient?.identifier ?: ""
+            this.payload = this@toDatabaseModel.payload.contentString.toString()
+            this.consumed = false
+        }
+
+    fun FhirTaskKbvDeviceRequestErpModel.toDatabaseModel() = DeviceRequestEntityV1()
+        .apply {
+            this.id = this@toDatabaseModel.id ?: ""
+            this.intent = this@toDatabaseModel.intent.code
+            this.status = this@toDatabaseModel.status
+            this.pzn = this@toDatabaseModel.pzn ?: ""
+            this.appName = this@toDatabaseModel.appName ?: ""
+            this.isSelfUse = this@toDatabaseModel.isSelfUse
+            this.authoredOn = this@toDatabaseModel.authoredOn?.toRealmInstant() ?: Clock.System.now().toRealmInstant()
+            this.accidentType = this@toDatabaseModel.accident?.type?.code ?: ""
+            this.accidentLocation = this@toDatabaseModel.accident?.location ?: ""
+            this.accidentDate = this@toDatabaseModel.accident?.date?.value?.toRealmInstant()
+        }
+
+    private fun FhirTemporal.toRealmInstant() = this.toInstant(TimeZone.UTC).toRealmInstant()
+
+    private fun LocalDate.toRealmInstant() = this.atStartOfDayIn(TimeZone.UTC).toRealmInstant()
 }

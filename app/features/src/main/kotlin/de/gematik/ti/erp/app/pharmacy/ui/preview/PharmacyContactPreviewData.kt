@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,9 +19,7 @@
 package de.gematik.ti.erp.app.pharmacy.ui.preview
 
 import androidx.compose.ui.text.buildAnnotatedString
-import de.gematik.ti.erp.app.fhir.model.OpeningHours
-import de.gematik.ti.erp.app.fhir.model.OpeningTime
-import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
 import kotlinx.datetime.LocalTime
 import java.time.DayOfWeek
@@ -32,7 +30,7 @@ val mockPharmacy = Pharmacy(
     address = null,
     coordinates = null,
     distance = null,
-    contacts = PharmacyContacts(
+    contact = PharmacyUseCaseData.PharmacyContact(
         phone = "0123456",
         mail = "mail@mail.com",
         url = "https://website.com",
@@ -45,16 +43,16 @@ val mockPharmacy = Pharmacy(
     telematikId = "telematik-id"
 )
 
-val openingTimeA = OpeningTime(
+val openingTimeA = PharmacyUseCaseData.OpeningTime(
     LocalTime.parse("08:00:00"),
     LocalTime.parse("12:00:00")
 )
-val openingTimeB = OpeningTime(
+val openingTimeB = PharmacyUseCaseData.OpeningTime(
     LocalTime.parse("14:00:00"),
     LocalTime.parse("18:00:00")
 )
 
-val mockOpeningHours = OpeningHours(
+val mockOpeningHours = PharmacyUseCaseData.OpeningHours(
     openingTime = mapOf(
         DayOfWeek.MONDAY to listOf(openingTimeA, openingTimeB),
         DayOfWeek.TUESDAY to listOf(openingTimeA, openingTimeB),

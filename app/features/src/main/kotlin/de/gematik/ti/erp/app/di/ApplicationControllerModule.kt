@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.di
 
 import android.content.Context
+import android.net.ConnectivityManager
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.mainscreen.presentation.AppController
 import org.kodein.di.DI
@@ -29,6 +30,7 @@ val applicationControllerModule = DI.Module("applicationControllerModule") {
     bindSingleton { AppController(instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
     bindSingleton {
         val context = instance<Context>()
-        NetworkStatusTracker(context.applicationContext)
+        val connectivityManager = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        NetworkStatusTracker(connectivityManager)
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -25,16 +25,15 @@ import de.gematik.ti.erp.app.datasource.data.MockConstants.SYNCED_TASK_PRESET
 import de.gematik.ti.erp.app.datasource.data.MockConstants.fixedTime
 import de.gematik.ti.erp.app.datasource.data.MockConstants.longerRandomTimeToday
 import de.gematik.ti.erp.app.datasource.data.MockProfileInfo.mockProfile01
+import de.gematik.ti.erp.app.prescription.model.Quantity
+import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationDispense
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationPZN
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Quantity
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Ratio
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import java.util.UUID
@@ -119,16 +118,22 @@ object MockPrescriptionInfo {
         denominator = null
     )
 
-    private val MEDICATION = MedicationPZN(
+    private val MEDICATION = SyncedTaskData.Medication(
         category = SyncedTaskData.MedicationCategory.entries[0],
         vaccine = true,
         text = SYNCED_MEDICATION_NAMES,
         form = codeToFormMapping,
         lotNumber = MOCK_IDENTIFIER,
         expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
-        uniqueIdentifier = MOCK_IDENTIFIER,
+        identifier = SyncedTaskData.Identifier(
+            pzn = MOCK_IDENTIFIER
+        ),
         normSizeCode = normSizeMappings,
-        amount = RATIO
+        amount = RATIO,
+        manufacturingInstructions = "Nehmen Sie die Tabletten mit Wasser ein.",
+        packaging = null,
+        ingredientMedications = emptyList(),
+        ingredients = emptyList()
     )
 
     internal val MEDICATION_DISPENSE = MedicationDispense(
@@ -204,6 +209,7 @@ object MockPrescriptionInfo {
             ), // Making sure the substitutionAllowed is different for each task
             medicationDispenses = listOf(MEDICATION_DISPENSE),
             communications = emptyList(),
+            lastMedicationDispense = null,
             failureToReport = ""
         )
     }

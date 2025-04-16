@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -138,6 +138,7 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalTimeZone
 import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -327,7 +328,7 @@ fun NavigationTopAppBar(
     actions: @Composable RowScope.() -> Unit = {},
     onBack: () -> Unit
 ) = TopAppBar(
-    modifier = modifier,
+    modifier = modifier.semanticsHeading(),
     title = {
         if (isTitleCentered) {
             Center {

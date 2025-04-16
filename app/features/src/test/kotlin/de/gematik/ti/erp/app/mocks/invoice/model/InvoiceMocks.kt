@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -24,7 +24,6 @@ import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.TASK_ID
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -97,7 +96,7 @@ fun mockPkvInvoiceRecord(
         insuranceIdentifier = "insuranceIdentifier"
     ),
     medicationRequest = MOCK_MEDICATION_REQUEST,
-    whenHandedOver = FhirTemporal.Instant(Instant.DISTANT_PAST),
+    whenHandedOver = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(Instant.DISTANT_PAST),
     invoice = MOCK_INVOICE,
     consumed = true
 )

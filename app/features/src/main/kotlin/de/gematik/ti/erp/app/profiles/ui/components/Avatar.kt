@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -130,6 +131,25 @@ fun ChooseAvatar(
         }
     }
 }
+
+@Composable
+fun ProfilesData.Avatar.toDescription(): String =
+    when (this) {
+        ProfilesData.Avatar.FemaleDoctor -> stringResource(R.string.female_doctor)
+        ProfilesData.Avatar.WomanWithHeadScarf -> stringResource(R.string.woman_with_headscarf)
+        ProfilesData.Avatar.Grandfather -> stringResource(R.string.grandfather)
+        ProfilesData.Avatar.BoyWithHealthCard -> stringResource(R.string.boy_with_health_card)
+        ProfilesData.Avatar.OldManOfColor -> stringResource(R.string.old_man_of_color)
+        ProfilesData.Avatar.WomanWithPhone -> stringResource(R.string.woman_with_phone)
+        ProfilesData.Avatar.Grandmother -> stringResource(R.string.grandmother)
+        ProfilesData.Avatar.ManWithPhone -> stringResource(R.string.man_with_phone)
+        ProfilesData.Avatar.WheelchairUser -> stringResource(R.string.wheelchair_user)
+        ProfilesData.Avatar.Baby -> stringResource(R.string.baby)
+        ProfilesData.Avatar.MaleDoctorWithPhone -> stringResource(R.string.male_doctor_with_phone)
+        ProfilesData.Avatar.FemaleDoctorWithPhone -> stringResource(R.string.female_doctor_with_phone)
+        ProfilesData.Avatar.FemaleDeveloper -> stringResource(R.string.female_developer)
+        ProfilesData.Avatar.PersonalizedImage -> stringResource(R.string.personalized_image)
+    }
 
 @Suppress("ComplexMethod")
 @Composable

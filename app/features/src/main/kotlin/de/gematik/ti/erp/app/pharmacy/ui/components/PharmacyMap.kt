@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -46,7 +46,7 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.model.Coordinates
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -81,7 +81,7 @@ data class PharmacyProperties(
     val isIndoorEnabled: Boolean = false,
     val isMyLocationEnabled: Boolean = false,
     val isTrafficEnabled: Boolean = false,
-    val mapType: MapType = MapType.NORMAL,
+    val mapType: MapType = MapType.NORMAL, // google maps object
     val maxZoomPreference: Float = 21.0f,
     val minZoomPreference: Float = 3.0f
 ) {
@@ -254,7 +254,7 @@ class GooglePharmacyMap : PharmacyMap {
         @Suppress("MagicNumber", "UnusedPrivateMember")
         private fun isTodayEaster(): Boolean {
             val calendar = Calendar.getInstance()
-            val year = calendar.get(Calendar.YEAR)
+            val year = calendar[Calendar.YEAR]
 
             val a = year % 19
             val b = year / 100
@@ -271,8 +271,8 @@ class GooglePharmacyMap : PharmacyMap {
             val month = (h + l - 7 * m + 114) / 31
             val day = ((h + l - 7 * m + 114) % 31) + 1
 
-            val todayMonth = calendar.get(Calendar.MONTH) + 1 // Note: +1 because Calendar.MONTH is zero-based
-            val todayDay = calendar.get(Calendar.DAY_OF_MONTH)
+            val todayMonth = calendar[Calendar.MONTH] + 1 // Note: +1 because Calendar.MONTH is zero-based
+            val todayDay = calendar[Calendar.DAY_OF_MONTH]
 
             return todayMonth == month && todayDay == day
         }
@@ -281,8 +281,8 @@ class GooglePharmacyMap : PharmacyMap {
         private fun isTodayChristmas(): Boolean {
             val calendar = Calendar.getInstance()
             // Calendar.MONTH is zero-based, so December is 11
-            val todayMonth = calendar.get(Calendar.MONTH)
-            val todayDay = calendar.get(Calendar.DAY_OF_MONTH)
+            val todayMonth = calendar[Calendar.MONTH]
+            val todayDay = calendar[Calendar.DAY_OF_MONTH]
 
             // Check if it's December 25th
             return todayMonth == Calendar.DECEMBER && todayDay == 25

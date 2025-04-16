@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -41,10 +41,12 @@ import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.components.Avatar
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 
 @Composable
 fun ProfileSection(
@@ -62,6 +64,7 @@ fun ProfileSection(
                     top = PaddingDefaults.Medium,
                     bottom = PaddingDefaults.Small
                 )
+                .semanticsHeading()
                 .testTag("Profiles")
         )
 
@@ -79,10 +82,14 @@ private fun ProfileCard(
     profile: ProfilesUseCaseData.Profile,
     onClickEdit: () -> Unit
 ) {
+    val openProfileDescription = annotatedStringResource(R.string.open_profile_button, profile.name).toString()
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(role = Role.Button) {
+            .clickable(
+                role = Role.Button,
+                onClickLabel = openProfileDescription
+            ) {
                 onClickEdit()
             }
             .padding(horizontal = PaddingDefaults.Medium, vertical = PaddingDefaults.ShortMedium)

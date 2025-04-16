@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -80,7 +80,7 @@ abstract class ChooseAuthenticationController(
 ) {
     val showCardWallEvent = ComposableEvent<ProfileIdentifier>()
     val showCardWallWithFilledCanEvent = ComposableEvent<CardWallEventData>()
-    val showGidEvent = ComposableEvent<GidEventData>()
+    val showGidEvent = ComposableEvent<GidNavigationData>()
     protected val biometricAuthenticationSuccessEvent = ComposableEvent<Unit>()
     protected val biometricAuthenticationResetErrorEvent = ComposableEvent<AuthenticationResult.Error>()
     protected val biometricAuthenticationOtherErrorEvent = ComposableEvent<AuthenticationResult.Error>()
@@ -142,7 +142,7 @@ abstract class ChooseAuthenticationController(
                         }
                     }
 
-                    is External -> showGidEvent.trigger(GidEventData(profileId, authenticationData.authenticatorId, authenticationData.authenticatorName))
+                    is External -> showGidEvent.trigger(GidNavigationData(profileId, authenticationData.authenticatorId, authenticationData.authenticatorName))
                     is HealthCard -> showCardWallWithFilledCanEvent.trigger(CardWallEventData(profileId, authenticationData.can))
                     is None -> showCardWallEvent.trigger(profileId)
                 }

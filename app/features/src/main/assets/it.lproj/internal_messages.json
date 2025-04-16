@@ -10,5 +10,11 @@
         "text": "**Migliore leggibilità** \n Abbiamo reso il colore del nostro marchio leggermente più scuro per aumentare il contrasto cromatico e quindi migliorare la leggibilità. \n \n **Funzionalità ottimizzate** \n Abbiamo aggiornato il formato della data di invio e corretto l'ordinamento dei messaggi.",
         "timestamp": "2025-01-28T08:00:00.000Z",
         "version": "1.27.0"
+    },
+    {
+        "id": "4",
+        "text": "📖 **Funzione di lettura ad alta voce** \nAbbiamo rielaborato diverse pagine per renderle più facili da leggere ad alta voce con TalkBack. Ciò migliora notevolmente l'usabilità per le persone con disabilità visive. \n \n📞 **Opzioni di contatto estese** \nAbbiamo introdotto nuove opzioni di contatto per compagnie assicurative selezionate. \n \n🔧 **Funzioni ottimizzate** \nAbbiamo corretto piccoli errori durante la lettura della carta, ripulito il codice e migliorato la visualizzazione dei messaggi.",
+        "timestamp": "2025-04-02T08:00:00.000Z",
+        "version": "1.29.0"
     }
 ]

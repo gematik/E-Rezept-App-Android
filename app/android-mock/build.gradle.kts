@@ -45,10 +45,12 @@ android {
 }
 
 dependencies {
+    implementation(project(":utils"))
     implementation(project(gematik.feature))
     implementation(project(gematik.demoMode))
     implementation(project(gematik.uiComponents))
     implementation(project(gematik.multiplatform))
+    implementation(project(gematik.fhirParser))
     implementation(libs.tracing)
     implementation(libs.bundles.crypto)
     implementation(libs.bundles.accompanist)
@@ -57,11 +59,4 @@ dependencies {
     androidTestImplementation(project(gematik.testActions))
     androidTestImplementation(project(gematik.testTags))
     debugImplementation(libs.tracing)
-}
-
-// todo: check if this affects the ui-tests
-configurations.all {
-    resolutionStrategy {
-        force("com.google.protobuf:protobuf-java:4.28.2")
-    }
 }

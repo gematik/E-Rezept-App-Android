@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -24,6 +24,8 @@ import de.gematik.ti.erp.app.debugsettings.data.Environment
 
 object DebugSettings {
 
+    private const val GITHUB_FLAVOR_URL = "https://github.com/gematik/E-Rezept-App-Android/"
+
     fun DebugSettingsData.getDebugSettingsDataForEnvironment(
         environment: Environment? = null
     ): DebugSettingsData {
@@ -33,7 +35,9 @@ object DebugSettings {
                 eRezeptActive = true,
                 idpUrl = BuildKonfig.IDP_SERVICE_URI_PU,
                 idpActive = true,
-                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_PU,
+                apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_PU,
+                fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_PU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU,
                 pharmacyServiceActive = true
             )
 
@@ -42,7 +46,9 @@ object DebugSettings {
                 eRezeptActive = true,
                 idpUrl = BuildKonfig.IDP_SERVICE_URI_TU,
                 idpActive = true,
-                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
                 pharmacyServiceActive = true
             )
 
@@ -51,7 +57,9 @@ object DebugSettings {
                 eRezeptActive = true,
                 idpUrl = BuildKonfig.IDP_SERVICE_URI_RU,
                 idpActive = true,
-                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
                 pharmacyServiceActive = true
             )
 
@@ -60,7 +68,9 @@ object DebugSettings {
                 eRezeptActive = true,
                 idpUrl = BuildKonfig.IDP_SERVICE_URI_RU_DEV,
                 idpActive = true,
-                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
                 pharmacyServiceActive = true
             )
 
@@ -69,16 +79,21 @@ object DebugSettings {
                 eRezeptActive = true,
                 idpUrl = BuildKonfig.IDP_SERVICE_URI_TR,
                 idpActive = true,
-                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
                 pharmacyServiceActive = true
             )
 
+            // Same url as shared for github release
             null -> this.copy(
-                eRezeptServiceURL = BuildKonfig.BASE_SERVICE_URI_PU,
+                eRezeptServiceURL = GITHUB_FLAVOR_URL,
                 eRezeptActive = true,
-                idpUrl = BuildKonfig.IDP_SERVICE_URI_PU,
+                idpUrl = GITHUB_FLAVOR_URL,
                 idpActive = true,
-                pharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_PU,
+                apoVzdPharmacyServiceUrl = GITHUB_FLAVOR_URL,
+                fhirVzdPharmacyServiceUrl = GITHUB_FLAVOR_URL,
+                fhirVzdPharmacySearchAccessTokenUrl = GITHUB_FLAVOR_URL,
                 pharmacyServiceActive = true
             )
         }

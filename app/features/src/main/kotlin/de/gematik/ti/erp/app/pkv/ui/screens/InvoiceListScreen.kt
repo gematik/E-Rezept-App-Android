@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -83,7 +83,7 @@ import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isNotGranted
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.fhir.parser.Year
-import de.gematik.ti.erp.app.invoice.model.InvoiceData
+import de.gematik.ti.erp.app.invoice.model.InvoiceData.PKVInvoiceRecord
 import de.gematik.ti.erp.app.invoice.model.currencyString
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.navigation.Screen
@@ -155,7 +155,7 @@ class InvoiceListScreen(
         val invoiceController = rememberInvoiceController(profileId)
         val consentController = rememberConsentController()
 
-        val invoicesState: UiState<Map<Year, List<InvoiceData.PKVInvoiceRecord>>> by invoiceController.invoices.collectAsStateWithLifecycle()
+        val invoicesState: UiState<Map<Year, List<PKVInvoiceRecord>>> by invoiceController.invoices.collectAsStateWithLifecycle()
         val isSsoTokenValid by invoiceController.isSsoTokenValidForSelectedProfile.collectAsStateWithLifecycle()
         val isRefreshing by invoiceController.isRefreshing.collectAsStateWithLifecycle()
 
@@ -211,7 +211,7 @@ class InvoiceListScreen(
             showGidEvent.listen { gidData ->
                 navController.navigate(
                     CardWallIntroScreen.pathWithGid(
-                        gidEventData = gidData
+                        gidNavigationData = gidData
                     )
                 )
             }
@@ -352,7 +352,7 @@ private fun InvoiceListScreenScaffold(
     scaffoldState: ScaffoldState,
     consentState: ConsentState,
     isConsentGranted: Boolean,
-    invoicesState: UiState<Map<Year, List<InvoiceData.PKVInvoiceRecord>>>,
+    invoicesState: UiState<Map<de.gematik.ti.erp.app.fhir.parser.Year, List<PKVInvoiceRecord>>>,
     onClickConnect: (profileId: ProfileIdentifier) -> Unit,
     onClickInvoice: (profileId: ProfileIdentifier, taskId: String) -> Unit,
     onClickGrantConsent: () -> Unit,
@@ -405,7 +405,7 @@ private fun InvoiceListScreenScaffold(
 @Composable
 private fun RefreshInvoicesContent(
     listState: LazyListState,
-    invoicesState: UiState<Map<Year, List<InvoiceData.PKVInvoiceRecord>>>,
+    invoicesState: UiState<Map<de.gematik.ti.erp.app.fhir.parser.Year, List<PKVInvoiceRecord>>>,
     onClickInvoice: (String) -> Unit
 ) {
     UiStateMachine(
@@ -469,7 +469,7 @@ private fun InvoicesHeaderThreeDotMenu(
 @Composable
 private fun Invoices(
     listState: LazyListState,
-    invoices: Map<Year, List<InvoiceData.PKVInvoiceRecord>>,
+    invoices: Map<de.gematik.ti.erp.app.fhir.parser.Year, List<PKVInvoiceRecord>>,
     onClickInvoice: (String) -> Unit
 ) {
     LazyColumn(
@@ -532,7 +532,7 @@ private fun Invoices(
 
 @Composable
 private fun Invoice(
-    invoice: InvoiceData.PKVInvoiceRecord,
+    invoice: PKVInvoiceRecord,
     formattedDate: String,
     onClickInvoice: (String) -> Unit
 ) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -29,6 +29,7 @@ object TaskNames {
     const val buildPlayStoreBundle = "buildPlayStoreBundle"
     const val buildPlayStoreApp = "buildPlayStoreApp"
     const val buildAppGalleryBundle = "buildAppGalleryBundle"
+    const val buildAppGalleryApp = "buildAppGalleryApp"
     const val buildTuReleaseApp = "buildTuReleaseApp"
     const val buildKonnyApp = "buildKonnyApp"
     const val buildTuDebugApp = "buildTuDebugApp"
@@ -46,4 +47,8 @@ object TaskNames {
     const val lastMessage = "lastMessage"
     const val updateFdApiKeys = "updateFdApiKeys"
     const val updateApoFzdApiKeys = "updateApoFzdApiKeys"
+    const val generateSchemaMigrationsFile = "generateSchemaMigrationsFile"
+    const val downloadLokaliseStrings = "downloadLokaliseStrings"
+    const val uploadLokaliseStrings = "uploadLokaliseStrings"
+    const val downloadChangeLogs = "downloadChangeLogs"
 }

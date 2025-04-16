@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -27,10 +27,10 @@ import androidx.paging.filter
 import androidx.paging.map
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.pharmacy.presentation.FilterType.Companion.getUpdatedFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacySearchUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -99,10 +99,11 @@ class PharmacySearchListController(
     @OptIn(ExperimentalCoroutinesApi::class)
     private val pharmacies by lazy {
         searchParams.onEach { }.flatMapLatest { searchParams ->
-            pharmacySearchUseCase.searchPharmacies(searchParams)
+            pharmacySearchUseCase.invoke(searchParams)
                 .mapNotNull { pagingData ->
                     pagingData.map { it.location(searchParams.locationMode) }
                         .filter { it.deliveryService(searchParams.filter.deliveryService) }
+                        .filter { it.onlineService(searchParams.filter.onlineService) }
                         .filter { it.isOpenNow(searchParams.filter.openNow) }
                 }.cachedIn(controllerScope)
         }

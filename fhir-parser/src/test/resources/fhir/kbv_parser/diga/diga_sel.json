@@ -1,0 +1,38 @@
+{
+  "resourceType": "DeviceRequest",
+  "id": "d933d532-ecba-44f5-8a6d-c40376ffcf04",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_EVDGA_HealthAppRequest|1.0"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_EVDGA_SER",
+      "valueBoolean": false
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "codeCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/ifa/pzn",
+        "code": "19205615"
+      }
+    ],
+    "text": "Vantis KHK und Herzinfarkt 001"
+  },
+  "subject": {
+    "reference": "Patient/40acd463-b25d-4ede-8b1f-2b0994f29aa5"
+  },
+  "authoredOn": "2023-03-26",
+  "requester": {
+    "reference": "Practitioner/1228772e-1c72-493b-8b5c-5ae54d25843d"
+  },
+  "insurance": [
+    {
+      "reference": "Coverage/2d1a0d67-72d4-414e-b419-0ab08f99e506"
+    }
+  ]
+}

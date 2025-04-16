@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,12 +20,14 @@ package de.gematik.ti.erp.app.pharmacy.ui.components
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -33,7 +35,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalUriHandler
@@ -41,14 +45,16 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.base.ClipBoardCopy
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
@@ -57,9 +63,11 @@ import de.gematik.ti.erp.app.pharmacy.ui.model.PharmacyPortalText
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyPreviewParameterProvider
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacySheetFromMessagesParameterProvider
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
@@ -71,6 +79,7 @@ import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.gotoCoordinates
 import de.gematik.ti.erp.app.utils.extensions.openEmailClient
@@ -116,21 +125,20 @@ fun PharmacyDetailsComponent(
             controller.isPharmacyFavorite(pharmacy)
         }
 
-        val isMarkedAsFavorite by controller.isPharmacyFavoriteState
-        val isDirectRedeemEnabled by (
-            graphController?.isDirectRedeemEnabled()
-                ?: remember { mutableStateOf(false) }
-            )
-        val hasRedeemableOrders by (
-            graphController?.hasRedeemableOrders()
-                ?: remember { mutableStateOf(false) }
-            )
+        val isMarkedAsFavorite by controller.isPharmacyFavorite.collectAsStateWithLifecycle()
+
+        val showTelematikId by controller.showTelematikId.collectAsStateWithLifecycle(false)
+
+        val isDirectRedeemEnabled by (graphController?.isDirectRedeemEnabled() ?: remember { mutableStateOf(false) })
+
+        val hasRedeemableOrders by (graphController?.hasRedeemableOrders() ?: remember { mutableStateOf(false) })
 
         BasePharmacyDetailsContent(
             pharmacy = pharmacy,
             clickableText = urlText,
             isMarkedAsFavorite = isMarkedAsFavorite,
             isDirectRedeemEnabled = isDirectRedeemEnabled,
+            showTelematikId = showTelematikId,
             onChangeFavoriteState = {
                 controller.changePharmacyAsFavorite(pharmacy, it)
             },
@@ -185,6 +193,7 @@ private fun BasePharmacyDetailsContent(
     locale: Locale = Locale.getDefault(),
     currentDateTime: LocalDateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()),
     onClickOrder: (PharmacyUseCaseData.Pharmacy, PharmacyScreenData.OrderOption) -> Unit,
+    showTelematikId: Boolean,
     openExternalMap: (Coordinates) -> Unit,
     onChangeFavoriteState: (Boolean) -> Unit,
     onClickPhone: (String) -> Unit,
@@ -193,6 +202,8 @@ private fun BasePharmacyDetailsContent(
     onClickWebsite: (Int) -> Unit,
     onClickHint: () -> Unit
 ) {
+    val context = LocalContext.current
+
     Scaffold(
         modifier = Modifier
             .padding(
@@ -257,6 +268,7 @@ private fun BasePharmacyDetailsContent(
                 }
                 SpacerXXLarge()
             }
+
             item {
                 if (screenType == ScreenType.ForPharmacy) {
                     Column(
@@ -268,23 +280,47 @@ private fun BasePharmacyDetailsContent(
                             onOrderClicked = onClickOrder
                         )
                     }
-
-                    SpacerXXLarge()
+                    SpacerWithTelematikId(showTelematikId)
                 } else if (screenType == ScreenType.ForMessage) {
                     PharmacyContactSelection(
                         pharmacy = pharmacy,
                         onPhoneClicked = onClickPhone,
                         onMailClicked = onClickMail
                     )
-                    SpacerXXLarge()
+                    SpacerWithTelematikId(showTelematikId)
                 }
             }
+
+            if (BuildConfigExtension.isInternalDebug && showTelematikId) {
+                item {
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(SizeDefaults.one))
+                            .clickable {
+                                ClipBoardCopy.copyToClipboard(
+                                    context = context,
+                                    text = pharmacy.telematikId
+                                )
+                            }
+                            .padding(SizeDefaults.one)
+                    ) {
+                        Text(
+                            textAlign = TextAlign.Justify,
+                            text = "Telematik-Id: ${pharmacy.telematikId}",
+                            style = AppTheme.typography.body2l
+                        )
+                    }
+                }
+            }
+
             item {
                 PharmacyContact(
                     openingHours = pharmacy.openingHours,
-                    phone = pharmacy.contacts.phone,
-                    mail = pharmacy.contacts.mail,
-                    url = pharmacy.contacts.url,
+                    phone = pharmacy.contact.phone,
+                    mail = pharmacy.contact.mail,
+                    url = pharmacy.contact.url,
                     detailedInfoText = clickableText,
                     onPhoneClicked = onClickPhone,
                     onMailClicked = onClickMail,
@@ -302,6 +338,15 @@ private fun BasePharmacyDetailsContent(
     }
 }
 
+@Composable
+private fun SpacerWithTelematikId(show: Boolean) {
+    if (show) {
+        SpacerXXLarge()
+    } else {
+        SpacerLarge()
+    }
+}
+
 @Suppress("MagicNumber")
 @LightDarkPreview
 @Composable
@@ -312,21 +357,22 @@ fun PharmacyDetailsScreenFromPharmacyPreview(
 ) {
     PreviewAppTheme {
         BasePharmacyDetailsContent(
-            openExternalMap = {},
-            isMarkedAsFavorite = true,
-            isDirectRedeemEnabled = false,
-            onChangeFavoriteState = {},
             pharmacy = pharmacy,
             clickableText = PharmacyPortalText().urlText(),
+            isMarkedAsFavorite = true,
+            isDirectRedeemEnabled = false,
+            showTelematikId = false,
+            screenType = ScreenType.ForPharmacy,
+            locale = Locale.GERMAN,
+            currentDateTime = LocalDateTime(2024, 7, 31, 10, 0),
+            onClickOrder = { _, _ -> },
+            openExternalMap = {},
+            onChangeFavoriteState = {},
             onClickPhone = {},
             onClickMail = {},
             onClickUrl = {},
-            onClickHint = {},
             onClickWebsite = {},
-            onClickOrder = { _, _ -> },
-            screenType = ScreenType.ForPharmacy,
-            locale = Locale.GERMAN,
-            currentDateTime = LocalDateTime(2024, 7, 31, 10, 0)
+            onClickHint = {}
 
         )
     }
@@ -342,21 +388,22 @@ fun PharmacyDetailsScreenFromMessagePreview(
 ) {
     PreviewAppTheme {
         BasePharmacyDetailsContent(
-            openExternalMap = {},
-            isMarkedAsFavorite = true,
-            onChangeFavoriteState = {},
             pharmacy = pharmacy,
             clickableText = PharmacyPortalText().urlText(),
+            isMarkedAsFavorite = true,
+            isDirectRedeemEnabled = true,
+            showTelematikId = false,
+            screenType = ScreenType.ForMessage,
+            locale = Locale.GERMAN,
+            currentDateTime = LocalDateTime(2024, 7, 31, 10, 0),
+            onClickOrder = { _, _ -> },
+            openExternalMap = {},
+            onChangeFavoriteState = {},
             onClickPhone = {},
             onClickMail = {},
             onClickUrl = {},
-            onClickHint = {},
             onClickWebsite = {},
-            isDirectRedeemEnabled = true,
-            onClickOrder = { _, _ -> },
-            screenType = ScreenType.ForMessage,
-            locale = Locale.GERMAN,
-            currentDateTime = LocalDateTime(2024, 7, 31, 10, 0)
+            onClickHint = {}
         )
     }
 }

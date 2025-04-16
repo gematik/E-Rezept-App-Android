@@ -1,0 +1,104 @@
+{
+  "resourceType": "Medication",
+  "id": "8d33ae42-2329-463c-8c36-06255bee16f8",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Compounding|1.1.0"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type",
+      "valueCodeableConcept": {
+        "coding": [
+          {
+            "system": "http://snomed.info/sct",
+            "version": "http://snomed.info/sct/900000000000207008/version/20220331",
+            "code": "373873005:860781008=362943005",
+            "display": "Pharmaceutical / biologic product (product) : Has product characteristic (attribute) = Manual method (qualifier value)"
+          }
+        ]
+      }
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+      "valueCoding": {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+        "code": "00"
+      }
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+      "valueBoolean": false
+    }
+  ],
+  "code": {
+    "coding": [
+      {
+        "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Type",
+        "code": "rezeptur"
+      }
+    ]
+  },
+  "form": {
+    "text": "Kapseln"
+  },
+  "amount": {
+    "numerator": {
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_PackagingSize",
+          "valueString": "50"
+        }
+      ],
+      "unit": "Stück"
+    },
+    "denominator": {
+      "value": 1
+    }
+  },
+  "ingredient": [
+    {
+      "itemCodeableConcept": {
+        "text": "Hydrocortison"
+      },
+      "strength": {
+        "numerator": {
+          "value": 0.06,
+          "unit": "g"
+        },
+        "denominator": {
+          "value": 1
+        }
+      }
+    },
+    {
+      "itemCodeableConcept": {
+        "text": "Mannit"
+      },
+      "strength": {
+        "numerator": {
+          "value": 12.5,
+          "unit": "g"
+        },
+        "denominator": {
+          "value": 1
+        }
+      }
+    },
+    {
+      "itemCodeableConcept": {
+        "text": "Siliciumdioxid"
+      },
+      "strength": {
+        "numerator": {
+          "value": 0.5,
+          "unit": "g"
+        },
+        "denominator": {
+          "value": 1
+        }
+      }
+    }
+  ]
+}

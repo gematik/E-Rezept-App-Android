@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -37,7 +37,6 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
-import de.gematik.ti.erp.app.utils.maxLocalDate
 import de.gematik.ti.erp.app.utils.toLocalDate
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
@@ -527,7 +526,7 @@ class MedicationPlanScheduleScreenControllerTest {
                 planMedicationScheduleUseCase(
                     withArg { medicationSchedule ->
                         assertEquals(currentDate, medicationSchedule.start)
-                        assertEquals(maxLocalDate(), medicationSchedule.end)
+                        assertEquals(de.gematik.ti.erp.app.utils.maxLocalDate(), medicationSchedule.end)
                     }
                 )
             }

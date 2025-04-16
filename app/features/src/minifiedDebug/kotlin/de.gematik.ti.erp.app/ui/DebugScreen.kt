@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -42,7 +42,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
 import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
@@ -83,9 +82,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen
+import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
+import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.ui.screens.PharmacyServiceSelectionScreen
 import de.gematik.ti.erp.app.debugsettings.pkv.ui.DebugScreenPKV
 import de.gematik.ti.erp.app.debugsettings.presentation.DebugSettingsViewModel
 import de.gematik.ti.erp.app.debugsettings.qrcode.QrCodeScannerScreen
@@ -216,6 +217,7 @@ fun EditablePathComponentWithControl(
     }
 }
 
+@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun DebugScreen(
     settingsNavController: NavController
@@ -263,6 +265,9 @@ fun DebugScreen(
                         },
                         onClickPKV = {
                             navController.navigate(DebugScreenNavigation.DebugPKV.path())
+                        },
+                        onClickVzdSelection = {
+                            navController.navigate(DebugScreenNavigation.PharmacyVzdSelectionScreen.path())
                         },
                         onClickBioMetricSettings = {
                             navController.navigate(DebugScreenNavigation.DebugTimeout.path())
@@ -313,11 +318,14 @@ fun DebugScreen(
                 )
             }
             composable(DebugScreenNavigation.LoggerScreen.route) {
-                LoggerScreen.Content(
-                    onBack = {
-                        navController.popBackStack()
-                    }
-                )
+                LoggerScreen {
+                    navController.popBackStack()
+                }
+            }
+            composable(DebugScreenNavigation.PharmacyVzdSelectionScreen.route) {
+                PharmacyServiceSelectionScreen {
+                    navController.popBackStack()
+                }
             }
         }
     }
@@ -462,13 +470,13 @@ private fun RedeemButton(
     )
 
 @Suppress("LongMethod")
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DebugScreenMain(
     viewModel: DebugSettingsViewModel,
     onBack: () -> Unit,
     onClickDirectRedemption: () -> Unit,
     onClickPKV: () -> Unit,
+    onClickVzdSelection: () -> Unit,
     onClickBioMetricSettings: () -> Unit,
     onScanQrCode: () -> Unit,
     onClickLogger: () -> Unit
@@ -537,6 +545,12 @@ fun DebugScreenMain(
                             text = "PKV / GKV Switch"
                         ) {
                             onClickPKV()
+                        }
+                        LabelButton(
+                            icon = painterResource(R.drawable.ic_pkv),
+                            text = "ApoVzd / FhirVzd Switch"
+                        ) {
+                            onClickVzdSelection()
                         }
                         LabelButton(
                             icon = painterResource(R.drawable.ic_prescription_refresh),

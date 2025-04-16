@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -37,7 +37,6 @@ import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithHealthCard
 import de.gematik.ti.erp.app.idp.buildJsonWebSignatureWithSecureElement
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import io.github.aakira.napier.Napier
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonObject

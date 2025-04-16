@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -50,6 +50,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
@@ -336,10 +340,11 @@ internal fun ThreeDotMenu(
     onClickDelete: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
-
+    val description = stringResource(R.string.profile_show_options)
     IconButton(
         onClick = { expanded = true },
         modifier = Modifier.testTag(TestTag.Profile.ThreeDotMenuButton)
+            .semantics { contentDescription = description }
     ) {
         Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
     }
@@ -356,7 +361,7 @@ internal fun ThreeDotMenu(
                 } else {
                     TestTag.Profile.LoginButton
                 }
-            ),
+            ).semantics { role = Role.Button },
             onClick =
             if (selectedProfile.ssoTokenScope != null) {
                 onClickLogout
@@ -375,7 +380,9 @@ internal fun ThreeDotMenu(
         }
 
         DropdownMenuItem(
-            modifier = Modifier.testTag(TestTag.Profile.DeleteProfileButton),
+            modifier = Modifier
+                .testTag(TestTag.Profile.DeleteProfileButton)
+                .semantics { role = Role.Button },
             onClick = {
                 expanded = false
                 onClickDelete()

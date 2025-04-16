@@ -207,11 +207,11 @@
     <string name="edit_profile_title">profil</string>
     <string name="edit_profile_color_selected">%s valgt</string>
     <string name="edit_profile_background_color">baggrundsfarve</string>
-    <string name="profile_color_name_gray">Forårsgrå</string>
-    <string name="profile_color_sun_dew">Soldug</string>
-    <string name="profile_color_name_pink">Det! Er! Lyserød!</string>
-    <string name="profile_color_name_tree">Træ</string>
-    <string name="profile_color_name_moon">Blå måne september</string>
+    <string name="profile_color_name_gray">Grå</string>
+    <string name="profile_color_sun_dew">Gul</string>
+    <string name="profile_color_name_pink">Lyserød</string>
+    <string name="profile_color_name_tree">Grøn</string>
+    <string name="profile_color_name_moon">Blå</string>
     <string name="settings_profile_not_connected">Ikke logget ind</string>
     <string name="settings_profile_connected">Bundet sammen</string>
     <string name="settings_profile_last_authenticated_on">Sidst tilsluttet den %s</string>
@@ -559,13 +559,13 @@
     <string name="medication_trade_name">Handelsnavn</string>
     <string name="pres_detail_yes">Ja</string>
     <string name="pres_detail_no">Ingen</string>
-    <string name="pres_detail_medication_label_dosage_instruction">dosering</string>
+    <string name="pres_detail_medication_label_dosage_instruction">doseringsinstruktioner</string>
     <string name="pres_detail_medication_label_authored_on">udstedelsesdato</string>
     <string name="pres_details_direct_assignment_state">Denne recept vil blive indløst for dig som en del af en behandling.</string>
     <string name="pres_details_no_value">Ikke specificeret</string>
     <string name="pres_details_additional_fee">Yderligere betaling</string>
     <string name="pres_details_medication">medicin</string>
-    <string name="pres_detail_medication_label_note">Brugsanvisning</string>
+    <string name="pres_detail_medication_label_note">leveringsinstruktioner</string>
     <string name="pres_detail_medication_label_bvg">Berettiget ifølge BVG</string>
     <string name="pres_detail_medication_label_subtitution">Alternativ forberedelse</string>
     <string name="medication_compounding_name">Opskriftens navn</string>
@@ -1022,7 +1022,6 @@
     <string name="pharmacy_contact_map_two_lines">Rute\nher</string>
     <string name="pres_detail_delete_prescription_and_recipe">Slet recept og omkostningskvittering</string>
     <string name="pres_detail_delete_and_recipe_msg">Sletter du opskriften, slettes den tilhørende omkostningskvittering også.</string>
-    <string name="orders_top_app_bar_change_text">Beskeder fra alle profiler vises nu sammen</string>
     <string name="new_features_screen_title">Nye funktioner</string>
     <string name="new_features_label_text">Nye funktioner</string>
     <string name="new_feature_screen_subtitle">Vi arbejder konstant på nye funktioner. Del din mening med os og hjælp os med at bygge en bedre app.</string>
@@ -1066,7 +1065,6 @@
     <string name="a11y_card_wall_card_hand">Sundhedskort på smartphone</string>
     <string name="not_logged_in">Ikke logget ind</string>
     <string name="logged_in">Registreret</string>
-    <string name="refresh">opfriske</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Du vil modtage adgangslogfiler, hvis du er logget ind på receptservicen.</string>
     <string name="paired_devices_error_login_title">Tilmelding nødvendig</string>
     <string name="paired_devices_error_login_description">Log venligst ind med dit sundhedskort og gem dine loginoplysninger med biometri for at se de tilsluttede enheder.</string>
@@ -1174,7 +1172,6 @@
     <string name="settings_app_security_change_password">Skift adgangskode</string>
     <string name="invoices_delete_not_logged_in_description">For at slette skal der oprettes forbindelse til receptserveren</string>
     <string name="provided">Varerne er klar</string>
-    <string name="provided_at_hour">Varerne har været klar siden %s</string>
     <string name="provided_now">Varerne har været klar lige nu</string>
     <string name="provided_minutes_ago">Varerne har været klar i %s minutter</string>
     <string name="provided_on_date">Varerne har været klar siden %s</string>
@@ -1214,4 +1211,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Følgende opskrifter kan ikke eller længere indløses: %1$s \n Du har muligvis allerede indløst dem på en anden måde, eller de kan være blevet slettet. \n</string>
     <string name="error_redeemable_prescription_continue_without">Fortsæt uden disse opskrifter</string>
     <string name="error_redeemable_prescription_cancel_order">Annuller ordre</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">opskrifter</string>
+    <string name="pharmacy_order_no_prescriptions">vælge opskrifter</string>
+    <string name="pharmacy_order_no_prescriptions_error">Vælg venligst en opskrift</string>
+    <string name="gid_gematik_error_title">Kontakt venligst dit forsikringsselskab og angiv følgende oplysninger:</string>
+    <string name="gid_gematik_error_copy">Tryk her for at kopiere fejlmeddelelsen</string>
+    <string name="no_login_state_no_internet">Intet internet</string>
+    <string name="refresh">Opdatering</string>
+    <string name="provided_at_hour">Varerne har været klar siden %s kl</string>
+    <string name="edit_profile_name">Rediger profilnavn</string>
+    <string name="activate_profile">Vælg profil</string>
+    <string name="add_profile">Tilføj profil</string>
+    <string name="inactive_description">ikke valgt</string>
+    <string name="active_description">valgt</string>
 </resources>

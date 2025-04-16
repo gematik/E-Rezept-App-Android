@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,11 +18,24 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType.Delivery
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType.Pickup
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType.Shipment
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
+import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalTime
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import java.io.File
-import java.time.DayOfWeek
 import kotlin.test.assertEquals
 
 private val testBundle by lazy { File("$ResourceBasePath/pharmacy_result_bundle.json").readText() }
@@ -32,93 +45,6 @@ private val directRedeemPharmacyBundle by lazy {
 }
 
 class PharmacyMapperTest {
-    private val openingTimeA = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))
-    private val openingTimeB = OpeningTime(LocalTime.parse("14:00:00"), LocalTime.parse("18:00:00"))
-    private val openingTimeC = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("20:00:00"))
-    private val expected = Pharmacy(
-        id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
-        name = "Heide-Apotheke",
-        address = PharmacyAddress(
-            lines = listOf("Langener Landstraße 266"),
-            postalCode = "27578",
-            city = "Bremerhaven"
-        ),
-        coordinates = Coordinates(latitude = 8.597412, longitude = 53.590027),
-        contacts = PharmacyContacts(
-            phone = "0471/87029",
-            mail = "info@heide-apotheke-bremerhaven.de",
-            url = "http://www.heide-apotheke-bremerhaven.de",
-            pickUpUrl = "",
-            deliveryUrl = "",
-            onlineServiceUrl = ""
-        ),
-        provides = listOf(
-            PharmacyService.LocalPharmacyService(
-                name = "Heide-Apotheke",
-                openingHours = OpeningHours(
-                    openingTime = mapOf(
-                        DayOfWeek.MONDAY to listOf(openingTimeA, openingTimeB),
-                        DayOfWeek.TUESDAY to listOf(openingTimeA, openingTimeB),
-                        DayOfWeek.WEDNESDAY to listOf(openingTimeA, openingTimeB),
-                        DayOfWeek.THURSDAY to listOf(openingTimeA, openingTimeB),
-                        DayOfWeek.FRIDAY to listOf(openingTimeA, openingTimeB),
-                        DayOfWeek.SATURDAY to listOf(openingTimeA)
-                    )
-                )
-            ),
-            PharmacyService.DeliveryPharmacyService(
-                name = "Heide-Apotheke",
-                openingHours = OpeningHours(
-                    openingTime = mapOf(
-                        DayOfWeek.MONDAY to listOf(openingTimeC),
-                        DayOfWeek.TUESDAY to listOf(openingTimeC),
-                        DayOfWeek.WEDNESDAY to listOf(openingTimeC),
-                        DayOfWeek.THURSDAY to listOf(openingTimeC),
-                        DayOfWeek.FRIDAY to listOf(openingTimeC)
-                    )
-                )
-            ),
-            PharmacyService.OnlinePharmacyService(
-                name = "Heide-Apotheke"
-            ),
-            PharmacyService.PickUpPharmacyService(
-                name = "Heide-Apotheke"
-            )
-        ),
-        telematikId = "3-05.2.1007600000.080"
-    )
-
-    private val expectedDirectRedeemPharmacy =
-        Pharmacy(
-            id = "ngc26fe2-9c3a-4d52-854e-794c96f73f66",
-            name = "PT-STA-Apotheke 2TEST-ONLY",
-            address = PharmacyAddress(
-                lines = listOf("Münchnerstr. 15 b"),
-                postalCode = "82139",
-                city = "Starnberg"
-            ),
-            coordinates = Coordinates(latitude = 48.0018513, longitude = 11.3497755),
-            contacts = PharmacyContacts(
-                phone = "",
-                mail = "",
-                url = "",
-                pickUpUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=Co" +
-                    "LEeMyykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
-                deliveryUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=CoLEeM" +
-                    "yykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
-                onlineServiceUrl = ""
-            ),
-            provides = listOf(
-                PharmacyService.LocalPharmacyService(
-                    name = "PT-STA-Apotheke 2TEST-ONLY",
-                    openingHours = OpeningHours(mapOf())
-                ),
-                PharmacyService.OnlinePharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY"),
-                PharmacyService.PickUpPharmacyService(name = "PT-STA-Apotheke 2TEST-ONLY")
-            ),
-            telematikId = "3-SMC-B-Testkarte-883110000116948"
-        )
-
     @Test
     fun `map pharmacies from JSON bundle`() {
         val pharmacies = extractPharmacyServices(
@@ -127,11 +53,12 @@ class PharmacyMapperTest {
                 println(element)
                 throw cause
             }
-        ).pharmacies
+        )
 
-        assertEquals(10, pharmacies.size)
-
-        assertEquals(expected, pharmacies[0])
+        assertEquals(10, pharmacies.total)
+        assertEquals(pharmacyErpModel, pharmacies.entries.first())
+        val useCaseData = pharmacies.entries.toModel(type = PharmacyVzdService.APOVZD)
+        assertEquals(pharmacyUseCaseData, useCaseData.first())
     }
 
     @Test
@@ -142,16 +69,154 @@ class PharmacyMapperTest {
                 println(element)
                 throw cause
             }
-        ).pharmacies
+        )
 
-        assertEquals(1, pharmacies.size)
-
-        assertEquals(expectedDirectRedeemPharmacy, pharmacies[0])
+        assertEquals(1, pharmacies.total)
+        assertEquals(directRedeemPharmacyErpModel, pharmacies.entries.first())
+        val useCaseData = pharmacies.entries.toModel(type = PharmacyVzdService.APOVZD)
+        println(useCaseData.first())
     }
 
     @Test
     fun `extract certificate`() {
         val result = extractBinaryCertificatesAsBase64(Json.parseToJsonElement(testBundleBinaries))
         assertEquals(listOf("MIIFlDCCBHygAwwKGi44czSg=="), result)
+    }
+
+    companion object {
+
+        private val openingTimeAErpModel = OpeningTimeErpModel(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))
+        private val openingTimeBErpModel = OpeningTimeErpModel(LocalTime.parse("14:00:00"), LocalTime.parse("18:00:00"))
+        private val openingTimeCErpModel = OpeningTimeErpModel(LocalTime.parse("08:00:00"), LocalTime.parse("20:00:00"))
+
+        private val openingTimeAUseCaseModel = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("12:00:00"))
+        private val openingTimeBUseCaseModel = OpeningTime(LocalTime.parse("14:00:00"), LocalTime.parse("18:00:00"))
+        private val openingTimeCUseCaseModel = OpeningTime(LocalTime.parse("08:00:00"), LocalTime.parse("20:00:00"))
+
+        val pharmacyErpModel = FhirPharmacyErpModel(
+            id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
+            name = "Heide-Apotheke",
+            telematikId = "3-05.2.1007600000.080",
+            position = FhirPositionErpModel(
+                latitude = 8.597412,
+                longitude = 53.590027
+            ),
+            address = FhirAddressErpModel(
+                lineAddress = "",
+                postalCode = "27578",
+                city = "Bremerhaven"
+            ),
+            contact = FhirContactInformationErpModel(
+                phone = "0471/87029",
+                mail = "info@heide-apotheke-bremerhaven.de",
+                url = "http://www.heide-apotheke-bremerhaven.de",
+                pickUpUrl = "",
+                deliveryUrl = "",
+                onlineServiceUrl = ""
+            ),
+            specialities = listOf(Delivery, Pickup, Shipment),
+            hoursOfOperation = OpeningHoursErpModel(
+                openingTime = mapOf(
+                    DayOfWeek.MONDAY to listOf(openingTimeAErpModel, openingTimeBErpModel),
+                    DayOfWeek.TUESDAY to listOf(openingTimeAErpModel, openingTimeBErpModel),
+                    DayOfWeek.WEDNESDAY to listOf(openingTimeAErpModel, openingTimeBErpModel),
+                    DayOfWeek.THURSDAY to listOf(openingTimeAErpModel, openingTimeBErpModel),
+                    DayOfWeek.FRIDAY to listOf(openingTimeAErpModel, openingTimeBErpModel),
+                    DayOfWeek.SATURDAY to listOf(openingTimeAErpModel)
+                )
+            ),
+            availableTime = OpeningHoursErpModel(
+                openingTime = mapOf(
+                    DayOfWeek.MONDAY to listOf(openingTimeCErpModel),
+                    DayOfWeek.TUESDAY to listOf(openingTimeCErpModel),
+                    DayOfWeek.WEDNESDAY to listOf(openingTimeCErpModel),
+                    DayOfWeek.THURSDAY to listOf(openingTimeCErpModel),
+                    DayOfWeek.FRIDAY to listOf(openingTimeCErpModel)
+                )
+            )
+        )
+
+        val pharmacyUseCaseData = PharmacyUseCaseData.Pharmacy(
+            id = "4b74c2b2-2275-4153-a94d-3ddc6bfb1362",
+            name = "Heide-Apotheke",
+            address = "27578 Bremerhaven",
+            coordinates = PharmacyUseCaseData.Coordinates(latitude = 8.597412, longitude = 53.590027),
+            distance = null, // No distance provided
+            contact = PharmacyUseCaseData.PharmacyContact(
+                phone = "0471/87029",
+                mail = "info@heide-apotheke-bremerhaven.de",
+                url = "http://www.heide-apotheke-bremerhaven.de",
+                pickUpUrl = "",
+                deliveryUrl = "",
+                onlineServiceUrl = ""
+            ),
+            provides = listOf(
+                PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
+                    name = "Heide-Apotheke",
+                    openingHours = PharmacyUseCaseData.OpeningHours(
+                        openingTime = mapOf(
+                            DayOfWeek.MONDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                            DayOfWeek.TUESDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                            DayOfWeek.WEDNESDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                            DayOfWeek.THURSDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                            DayOfWeek.FRIDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                            DayOfWeek.SATURDAY to listOf(openingTimeAUseCaseModel)
+                        )
+                    )
+                ),
+                PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService(
+                    name = "Heide-Apotheke",
+                    openingHours = PharmacyUseCaseData.OpeningHours(
+                        openingTime = mapOf(
+                            DayOfWeek.MONDAY to listOf(openingTimeCUseCaseModel),
+                            DayOfWeek.TUESDAY to listOf(openingTimeCUseCaseModel),
+                            DayOfWeek.WEDNESDAY to listOf(openingTimeCUseCaseModel),
+                            DayOfWeek.THURSDAY to listOf(openingTimeCUseCaseModel),
+                            DayOfWeek.FRIDAY to listOf(openingTimeCUseCaseModel)
+                        )
+                    )
+                ),
+                PharmacyUseCaseData.PharmacyService.PickUpPharmacyService(name = "Heide-Apotheke"),
+                PharmacyUseCaseData.PharmacyService.OnlinePharmacyService(name = "Heide-Apotheke")
+            ),
+            openingHours = PharmacyUseCaseData.OpeningHours(
+                openingTime = mapOf(
+                    DayOfWeek.MONDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                    DayOfWeek.TUESDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                    DayOfWeek.WEDNESDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                    DayOfWeek.THURSDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                    DayOfWeek.FRIDAY to listOf(openingTimeAUseCaseModel, openingTimeBUseCaseModel),
+                    DayOfWeek.SATURDAY to listOf(openingTimeAUseCaseModel)
+                )
+            ),
+            telematikId = "3-05.2.1007600000.080"
+        )
+
+        val directRedeemPharmacyErpModel = FhirPharmacyErpModel(
+            id = "ngc26fe2-9c3a-4d52-854e-794c96f73f66",
+            name = "PT-STA-Apotheke 2TEST-ONLY",
+            telematikId = "3-SMC-B-Testkarte-883110000116948",
+            position = FhirPositionErpModel(
+                latitude = 48.0018513,
+                longitude = 11.3497755
+            ),
+            address = FhirAddressErpModel(
+                lineAddress = "",
+                postalCode = "82139",
+                city = "Starnberg"
+            ),
+            contact = FhirContactInformationErpModel(
+                phone = "",
+                mail = "",
+                url = "",
+                pickUpUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=CoLEeMyykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
+                deliveryUrl = "https://ixosapi.service-pt.de/api/GematikAppZuweisung/945357?sig=CoLEeMyykSQul06Rp4wyTsfOJPBrSHOG2YBB4Bzy8QQ%3d&se=2625644988",
+                onlineServiceUrl = ""
+            ),
+            specialities = listOf(Pickup, Shipment),
+            availableTime = OpeningHoursErpModel(
+                openingTime = emptyMap() // No opening times provided
+            )
+        )
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,19 +18,15 @@
 
 package de.gematik.ti.erp.app.base
 
-import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
-import android.net.NetworkRequest
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 
-class NetworkStatusTracker(context: Context) {
-
-    private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+class NetworkStatusTracker(private val connectivityManager: ConnectivityManager) {
 
     val networkStatus: Flow<Boolean> = callbackFlow {
 
@@ -57,11 +53,7 @@ class NetworkStatusTracker(context: Context) {
             }
         }
 
-        val networkRequest = NetworkRequest.Builder()
-            .addCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-            .build()
-
-        connectivityManager.registerNetworkCallback(networkRequest, networkCallback)
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
 
         awaitClose {
             connectivityManager.unregisterNetworkCallback(networkCallback)

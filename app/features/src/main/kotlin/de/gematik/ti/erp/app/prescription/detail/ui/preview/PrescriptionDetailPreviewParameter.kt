@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -21,8 +21,8 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.prescription.model.Communication
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile.ErxCommunicationDispReq
+import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
@@ -31,7 +31,6 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Medication
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant
 
 data class PrescriptionDetailPreview(
@@ -183,7 +182,7 @@ internal val SYNCED_TASK = SyncedTaskData.SyncedTask(
             text = "Ibuprofen",
             form = "AEO",
             lotNumber = "1234567890",
-            expirationDate = FhirTemporal.Instant(farAwayFutureDate),
+            expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(farAwayFutureDate),
             identifier = SyncedTaskData.Identifier("1234567890"),
             normSizeCode = "KA",
             amount = Ratio(

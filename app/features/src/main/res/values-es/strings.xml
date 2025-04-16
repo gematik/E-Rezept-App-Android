@@ -207,11 +207,11 @@
     <string name="edit_profile_title">Perfil</string>
     <string name="edit_profile_color_selected">%s seleccionado</string>
     <string name="edit_profile_background_color">Color de fondo</string>
-    <string name="profile_color_name_gray">Gris primaveral</string>
-    <string name="profile_color_sun_dew">Rocío del sol</string>
-    <string name="profile_color_name_pink">¡Es! ¡Rosa!</string>
-    <string name="profile_color_name_tree">Árbol</string>
-    <string name="profile_color_name_moon">Luna azul de septiembre</string>
+    <string name="profile_color_name_gray">Gris</string>
+    <string name="profile_color_sun_dew">Amarillo</string>
+    <string name="profile_color_name_pink">Rosa</string>
+    <string name="profile_color_name_tree">Verde</string>
+    <string name="profile_color_name_moon">Azul</string>
     <string name="settings_profile_not_connected">No ha iniciado sesión</string>
     <string name="settings_profile_connected">Conectado</string>
     <string name="settings_profile_last_authenticated_on">Última conexión el %s</string>
@@ -559,13 +559,13 @@
     <string name="medication_trade_name">Nombre comercial</string>
     <string name="pres_detail_yes">Sí</string>
     <string name="pres_detail_no">No</string>
-    <string name="pres_detail_medication_label_dosage_instruction">Dosificación</string>
+    <string name="pres_detail_medication_label_dosage_instruction">Instrucciones de dosificación</string>
     <string name="pres_detail_medication_label_authored_on">Fecha de emisión</string>
     <string name="pres_details_direct_assignment_state">Esta receta se canjeará para usted como parte de un tratamiento.</string>
     <string name="pres_details_no_value">No especificado</string>
     <string name="pres_details_additional_fee">Pago adicional</string>
     <string name="pres_details_medication">Medicamento</string>
-    <string name="pres_detail_medication_label_note">Instrucciones de uso</string>
+    <string name="pres_detail_medication_label_note">Instrucciones de entrega</string>
     <string name="pres_detail_medication_label_bvg">Elegible según BVG</string>
     <string name="pres_detail_medication_label_subtitution">Preparación alternativa</string>
     <string name="medication_compounding_name">Nombre de la receta</string>
@@ -1022,7 +1022,6 @@
     <string name="pharmacy_contact_map_two_lines">Ruta\naquí</string>
     <string name="pres_detail_delete_prescription_and_recipe">Eliminar receta y recibo de gastos</string>
     <string name="pres_detail_delete_and_recipe_msg">Si elimina la receta, también se eliminará el recibo de gasto asociado.</string>
-    <string name="orders_top_app_bar_change_text">Los mensajes de todos los perfiles ahora se muestran juntos</string>
     <string name="new_features_screen_title">Nuevas funciones</string>
     <string name="new_features_label_text">Nuevas funciones</string>
     <string name="new_feature_screen_subtitle">Trabajamos constantemente en nuevas funciones. Cuéntanos qué opinas y ayúdanos a mejorar la aplicación.</string>
@@ -1066,7 +1065,6 @@
     <string name="a11y_card_wall_card_hand">Tarjeta sanitaria en tu smartphone</string>
     <string name="not_logged_in">No ha iniciado sesión</string>
     <string name="logged_in">Iniciado sesión</string>
-    <string name="refresh">refrescar</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Recibirá registros de acceso cuando inicie sesión en el servicio de recetas.</string>
     <string name="paired_devices_error_login_title">Es necesario registrarse</string>
     <string name="paired_devices_error_login_description">Inicie sesión con su tarjeta sanitaria y guarde sus datos de acceso con biometría para ver los dispositivos conectados.</string>
@@ -1174,7 +1172,6 @@
     <string name="settings_app_security_change_password">Cambiar la contraseña</string>
     <string name="invoices_delete_not_logged_in_description">Para eliminar, se debe establecer una conexión con Prescription Server</string>
     <string name="provided">Los productos están listos.</string>
-    <string name="provided_at_hour">Los productos han estado listos desde %s</string>
     <string name="provided_now">Los productos han estado listos hace un momento.</string>
     <string name="provided_minutes_ago">Los productos han estado listos durante %s minutos</string>
     <string name="provided_on_date">Los productos han estado listos desde %s</string>
@@ -1214,4 +1211,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Las siguientes recetas no son canjeables o ya no se pueden canjear: %1$s \n Es posible que ya las hayas canjeado de otra manera o que hayan sido eliminadas. \n</string>
     <string name="error_redeemable_prescription_continue_without">Continuar sin estas recetas</string>
     <string name="error_redeemable_prescription_cancel_order">Cancelar pedido</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">Recetas</string>
+    <string name="pharmacy_order_no_prescriptions">Elige recetas</string>
+    <string name="pharmacy_order_no_prescriptions_error">Por favor seleccione una receta</string>
+    <string name="gid_gematik_error_title">Comuníquese con su compañía de seguros y proporciónele la siguiente información:</string>
+    <string name="gid_gematik_error_copy">Toque aquí para copiar el mensaje de error</string>
+    <string name="no_login_state_no_internet">Sin Internet</string>
+    <string name="refresh">Actualizar</string>
+    <string name="provided_at_hour">Los productos están listos desde %s horas</string>
+    <string name="edit_profile_name">Editar nombre de perfil</string>
+    <string name="activate_profile">Seleccionar perfil</string>
+    <string name="add_profile">Agregar perfil</string>
+    <string name="inactive_description">No seleccionado</string>
+    <string name="active_description">seleccionado</string>
 </resources>

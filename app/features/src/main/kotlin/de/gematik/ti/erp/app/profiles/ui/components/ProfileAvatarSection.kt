@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -35,10 +35,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.heading
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
@@ -52,12 +58,19 @@ fun ProfileAvatarSection(
     onClickEditAvatar: () -> Unit
 ) {
     val selectedColor = profileColor(profileColorNames = profile.color)
+    val contentDesription = stringResource(R.string.edit_profile_picture)
     SpacerLarge()
     Column(
         modifier =
         Modifier
             .fillMaxSize()
             .padding(PaddingDefaults.Medium)
+            .semanticsMergeDescendants { }
+            .clearAndSetSemantics {
+                heading()
+                role = Role.Button
+                contentDescription = contentDesription
+            }
     ) {
         SpacerTiny()
         Surface(
@@ -73,7 +86,9 @@ fun ProfileAvatarSection(
                 Modifier
                     .fillMaxSize()
                     .circularBorder(selectedColor.borderColor)
-                    .clickable(onClick = onClickEditAvatar),
+                    .clickable(
+                        onClick = onClickEditAvatar
+                    ),
                 contentAlignment = Alignment.Center
             ) {
                 ChooseAvatar(

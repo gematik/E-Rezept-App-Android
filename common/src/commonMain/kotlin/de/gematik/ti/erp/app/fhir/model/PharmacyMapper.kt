@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.parser.containedArray
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedDouble
@@ -34,6 +35,14 @@ import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.not
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import kotlinx.datetime.DayOfWeek
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
@@ -49,24 +58,17 @@ const val PickUpRank = 100
 const val DeliveryRank = 200
 const val OnlineServiceRank = 300
 
-/**
- * Extract pharmacy services from a search bundle.
- */
-/*(
-    "A_19984#2",
-    sourceSpecification = "gemSpec_eRp_FdV",
-    rationale = "Validate incoming Pharmacy data."
-) */
 @Requirement(
     "O.Source_2#4",
     sourceSpecification = "BSI-eRp-ePA",
     rationale = "Sanitization is also done for all FHIR mapping."
 )
+@Deprecated("Note: Will be deleted when apo-vzd is not used anymore")
 @Suppress("CyclomaticComplexMethod")
 fun extractPharmacyServices(
     bundle: JsonElement,
     onError: (JsonElement, Exception) -> Unit = { _, _ -> }
-): PharmacyServices {
+): FhirPharmacyErpModelCollection {
     val bundleId = bundle.containedString("id")
     val bundleTotal = bundle.containedInt("total")
     val resources = bundle.findAll(listOf("entry", "resource")).filterWith("name", not(stringValue("-")))
@@ -74,37 +76,24 @@ fun extractPharmacyServices(
     val pharmacies = resources.mapCatching(onError) { pharmacy ->
         val locationId = pharmacy.containedString("id")
         val locationName = pharmacy.containedString("name")
-        val localService = PharmacyService.LocalPharmacyService(
-            name = locationName,
-            openingHours = pharmacy.containedArrayOrNull("hoursOfOperation")?.let { hoursOfOperation(it) }
-                ?: OpeningHours(emptyMap())
-        )
+        val specialities = mutableListOf<FhirVzdSpecialtyType>()
 
-        val deliveryPharmacyService =
-            pharmacy
-                .findAll(Contained)
-                .filterWith(TypeCodingCode, stringValue("498"))
-                .firstOrNull()
-                ?.let { service ->
-                    PharmacyService.DeliveryPharmacyService(
-                        name = locationName,
-                        openingHours = service.containedArrayOrNull("availableTime")?.let { availableTime(it) }
-                            ?: OpeningHours(emptyMap())
-                    )
-                }
+        // opening hours from hours of operation
+        val hoursOfOperation = pharmacy.containedArrayOrNull("hoursOfOperation")?.let { hoursOfOperation(it) }
 
-        // keep it; was initially part of the spec but no pharmacy can provide any emergency service
-        //
-        // val emergencyPharmacyService = resource
-        //    .findAll("contained")
-        //    .filterWith("type.coding.code", stringValue("117"))
-        //    .firstOrNull()
-        //    ?.let {
-        //        EmergencyPharmacyService(
-        //            name = locationName,
-        //            openingHours = availableTime(it.containedArray("availableTime")!!)
-        //        )
-        //    }
+        // opening hours from available time
+        var openingHours: OpeningHoursErpModel? = null
+        // opening hours override from service
+        pharmacy
+            .findAll(Contained)
+            .filterWith(TypeCodingCode, stringValue("498"))
+            .firstOrNull()
+            ?.let { service ->
+                // Add delivery service
+                specialities.add(FhirVzdSpecialtyType.Delivery)
+                openingHours = service.containedArrayOrNull("availableTime")?.let { availableTime(it) }
+                    ?: OpeningHoursErpModel(emptyMap())
+            }
 
         val telematikId =
             pharmacy
@@ -119,42 +108,30 @@ fun extractPharmacyServices(
                 .first()
                 .containedString("value")
 
-        var isMobilePharmacy = false
-        var isOutpatientPharmacy = false
-
         pharmacy.findAll(TypeCodingCode).forEach {
             when (it.containedString()) {
-                "MOBL" -> isMobilePharmacy = true
-                "OUTPHARM" -> isOutpatientPharmacy = true
+                "MOBL" -> {
+                    specialities.add(FhirVzdSpecialtyType.Shipment)
+                }
+                "OUTPHARM" -> {
+                    specialities.add(FhirVzdSpecialtyType.Pickup)
+                }
             }
         }
 
-        val pickUpPharmacyService = if (isOutpatientPharmacy) {
-            PharmacyService.PickUpPharmacyService(name = locationName)
-        } else {
-            null
-        }
-
-        val onlinePharmacyService = if (isMobilePharmacy) {
-            PharmacyService.OnlinePharmacyService(name = locationName)
-        } else {
-            null
-        }
-
-        val position = pharmacy.containedObjectOrNull("position")?.let {
-            Coordinates(
-                latitude = it.containedDouble("latitude"),
-                longitude = it.containedDouble("longitude")
-            )
-        }
-
-        Pharmacy(
+        FhirPharmacyErpModel(
             id = locationId,
             name = locationName,
-            coordinates = position,
+            telematikId = telematikId,
+            position = pharmacy.containedObjectOrNull("position")?.let {
+                FhirPositionErpModel(
+                    latitude = it.containedDouble("latitude"),
+                    longitude = it.containedDouble("longitude")
+                )
+            },
             address = pharmacy.containedObject("address").let { address ->
-                PharmacyAddress(
-                    lines = address.containedArray("line").map { it.containedString() },
+                FhirAddressErpModel(
+                    lineAddress = address.containedArray("line").map { it.containedString() }.joinToString { "" },
                     postalCode = if (BuildKonfig.INTERNAL) {
                         address.containedStringOrNull("postalCode") ?: ""
                     } else {
@@ -163,33 +140,23 @@ fun extractPharmacyServices(
                     city = address.containedString("city")
                 )
             },
-            // contacts have preference over provides!
-            // When Pharmacy NOT connected to TI
-            contacts = pharmacy.containedArrayOrNull("telecom")?.let { contacts(it) } ?: PharmacyContacts(
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
-            ),
-            // When Pharmacy connected to TI
-            provides = listOfNotNull(
-                localService,
-                deliveryPharmacyService,
-                onlinePharmacyService,
-                pickUpPharmacyService
-            ),
-            telematikId = telematikId
+            contact = pharmacy.containedArrayOrNull("telecom")?.let { contacts(it) } ?: emptyFhirContactInformationErpModel(),
+            hoursOfOperation = hoursOfOperation,
+            availableTime = openingHours ?: OpeningHoursErpModel(emptyMap()),
+            specialities = specialities.toList()
         )
     }
 
-    return PharmacyServices(
-        pharmacies = pharmacies.toList(),
-        bundleId = bundleId,
-        bundleResultCount = bundleTotal
+    return FhirPharmacyErpModelCollection(
+        type = PharmacyVzdService.APOVZD,
+        entries = pharmacies.toList(),
+        id = bundleId,
+        total = bundleTotal
     )
 }
+
+private fun emptyFhirContactInformationErpModel() =
+    FhirContactInformationErpModel("", "", "", "", "", "")
 
 /**
  * Extract certificates from binary bundle.
@@ -233,7 +200,7 @@ private fun sanitizeUrl(url: String): String =
 @Suppress("CyclomaticComplexMethod")
 private fun contacts(
     telecom: JsonArray
-): PharmacyContacts {
+): FhirContactInformationErpModel {
     var phone = ""
     var mail = ""
     var url = ""
@@ -255,7 +222,7 @@ private fun contacts(
             }
         }
 
-    return PharmacyContacts(
+    return FhirContactInformationErpModel(
         phone = phone,
         mail = mail,
         url = url,
@@ -267,7 +234,7 @@ private fun contacts(
 
 private fun availableTime(
     hoursOfOperation: JsonArray
-): OpeningHours =
+): OpeningHoursErpModel =
     openingHours(
         hoursOfOperation = hoursOfOperation,
         startTimeAlias = "availableStartTime",
@@ -276,7 +243,7 @@ private fun availableTime(
 
 private fun hoursOfOperation(
     hoursOfOperation: JsonArray
-): OpeningHours =
+): OpeningHoursErpModel =
     openingHours(
         hoursOfOperation = hoursOfOperation,
         startTimeAlias = "openingTime",
@@ -287,7 +254,7 @@ private fun openingHours(
     hoursOfOperation: JsonArray,
     startTimeAlias: String,
     endTimeAlias: String
-): OpeningHours =
+): OpeningHoursErpModel =
     hoursOfOperation
         .asSequence()
         .flatMap { fhirHours ->
@@ -295,7 +262,7 @@ private fun openingHours(
                 val openingTime = lookupTime(fhirHours[startTimeAlias]?.jsonPrimitive)?.value
                 val closingTime = lookupTime(fhirHours[endTimeAlias]?.jsonPrimitive)?.value
 
-                val time = OpeningTime(openingTime = openingTime, closingTime = closingTime)
+                val time = OpeningTimeErpModel(openingTime = openingTime, closingTime = closingTime)
 
                 fhirHours.containedArray("daysOfWeek")
                     .asSequence()
@@ -304,7 +271,7 @@ private fun openingHours(
         }
         .groupBy({ (day, _) -> day }, { (_, time) -> time })
         .let {
-            OpeningHours(it)
+            OpeningHoursErpModel(it)
         }
 
 private fun fhirDay(day: String) =

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -25,7 +25,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
+import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -33,14 +33,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.model.OpeningHours
-import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
-import de.gematik.ti.erp.app.fhir.model.PharmacyService
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyImagePlaceholder
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.LocalPharmacyService
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.OnlinePharmacyService
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.PickUpPharmacyService
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import kotlinx.datetime.Clock
@@ -95,12 +98,11 @@ internal fun PharmacyResultCard(
             )
 
             val pharmacyLocalServices =
-                pharmacy.provides.find { it is PharmacyService.LocalPharmacyService } as PharmacyService
-                .LocalPharmacyService
+                pharmacy.provides.find { it is LocalPharmacyService } as? LocalPharmacyService
             val now =
                 remember { Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()) }
 
-            if (pharmacyLocalServices.isOpenAt(now)) {
+            if (pharmacyLocalServices?.isOpenAt(now) == true) {
                 val text = if (pharmacyLocalServices.isAllDayOpen(now.dayOfWeek)) {
                     stringResource(R.string.search_pharmacy_continuous_open)
                 } else {
@@ -116,7 +118,7 @@ internal fun PharmacyResultCard(
                 )
             } else {
                 val text =
-                    pharmacyLocalServices.opensAt(now)?.let {
+                    pharmacyLocalServices?.opensAt(now)?.let {
                         stringResource(
                             R.string.search_pharmacy_opens_at,
                             it.toString()
@@ -144,11 +146,11 @@ internal fun PharmacyResultCard(
             )
         }
         Icon(
-            Icons.Rounded.KeyboardArrowRight,
+            Icons.AutoMirrored.Rounded.KeyboardArrowRight,
             null,
             tint = AppTheme.colors.neutral400,
             modifier = Modifier
-                .size(24.dp)
+                .size(SizeDefaults.triple)
                 .align(Alignment.CenterVertically)
         )
     }
@@ -166,7 +168,7 @@ internal fun PharmacyResultCardPreview() {
                 address = "Ostwall 97, 47798 Krefeld",
                 coordinates = null,
                 distance = null,
-                contacts = PharmacyContacts(
+                contact = PharmacyUseCaseData.PharmacyContact(
                     phone = "12345678",
                     mail = "pharmacy@mail.com",
                     url = "https://pharmacy.com",
@@ -175,13 +177,13 @@ internal fun PharmacyResultCardPreview() {
                     onlineServiceUrl = "https://pharmacy.online.com/code123"
                 ),
                 provides = listOf(
-                    PharmacyService.DeliveryPharmacyService(
+                    DeliveryPharmacyService(
                         name = "delivery-service",
                         openingHours = OpeningHours(openingTime = mapOf())
                     ),
-                    PharmacyService.OnlinePharmacyService(name = "online-service"),
-                    PharmacyService.PickUpPharmacyService(name = "pickup-service"),
-                    PharmacyService.LocalPharmacyService(
+                    OnlinePharmacyService(name = "online-service"),
+                    PickUpPharmacyService(name = "pickup-service"),
+                    LocalPharmacyService(
                         name = "local-service",
                         openingHours = OpeningHours(openingTime = mapOf())
                     )

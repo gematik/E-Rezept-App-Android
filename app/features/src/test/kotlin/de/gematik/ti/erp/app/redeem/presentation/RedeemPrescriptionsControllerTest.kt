@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -22,7 +22,6 @@ import app.cash.turbine.test
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HTTP_INTERNAL_ERROR
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
-import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK
 import de.gematik.ti.erp.app.mocks.profile.model.MODEL_PROFILE
@@ -472,7 +471,7 @@ class RedeemPrescriptionsControllerTest {
             address = "pharmacy-address",
             coordinates = null,
             distance = null,
-            contacts = PharmacyContacts(
+            contact = PharmacyUseCaseData.PharmacyContact(
                 phone = "pharmacy-phone",
                 mail = "pharmacy-mail",
                 url = "pharmacy-url",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,64 +18,95 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
 import de.gematik.ti.erp.app.permissions.isLocationPermissionGranted
 import de.gematik.ti.erp.app.permissions.isLocationServiceEnabled
+import de.gematik.ti.erp.app.pharmacy.usecase.GetLocationUseCase.LocationResult.LocationSearchFailed
 import io.github.aakira.napier.Napier
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.tasks.await
 
 class GetLocationUseCase(
-    private val context: Context
+    private val context: Context,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(): LocationResult =
-        suspendCancellableCoroutine { continuation ->
-            try {
-                val isServiceEnabled = context.isLocationServiceEnabled()
-                if (!isServiceEnabled) {
-                    continuation.resume(LocationResult.ServiceDisabled, null)
-                } else {
-                    val isPermissionGranted = context.isLocationPermissionGranted()
-                    if (!isPermissionGranted) {
-                        continuation.resume(LocationResult.PermissionDenied, null)
-                    } else {
-                        val cancelTokenSource = CancellationTokenSource()
+    operator fun invoke(): Flow<LocationResult> = flow {
+        // loading state
+        emit(LocationResult.GettingLocation)
 
-                        // client needs a permission check to work without crashing
-                        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
-
-                        fusedLocationClient
-                            .getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cancelTokenSource.token)
-                            .addOnSuccessListener { location ->
-                                if (location != null) {
-                                    continuation.resume(LocationResult.Success(location), null)
-                                } else {
-                                    continuation.resume(LocationResult.LocationNotFound, null)
-                                }
-                            }
-                            .addOnFailureListener {
-                                Napier.e { "Location error on suspension ${it.stackTraceToString()}" }
-                                continuation.resume(LocationResult.LocationNotFound, null)
-                            }
-                    }
-                }
-            } catch (e: SecurityException) {
-                Napier.e { "Location error ${e.stackTraceToString()}" }
-                if (!continuation.isCancelled) {
-                    continuation.cancel(e)
-                }
-            }
+        if (!context.isLocationServiceEnabled()) {
+            emit(LocationResult.ServiceDisabled)
+            return@flow
         }
 
+        if (!context.isLocationPermissionGranted()) {
+            emit(LocationResult.PermissionDenied)
+            return@flow
+        }
+
+        emit(requestLocation())
+    }.catch { e ->
+        emit(LocationSearchFailed(e))
+    }.onCompletion {
+        Napier.d { "Location search completed" } // required to ensure on completion is called
+    }.flowOn(dispatcher)
+
+    @SuppressLint("MissingPermission")
+    private suspend fun requestLocation(): LocationResult {
+        // client needs a permission check to work without crashing
+        val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+
+        return try {
+            val lastLocation = fusedLocationClient.lastLocation.await()
+            if (lastLocation != null) {
+                LocationResult.Success(lastLocation)
+            } else {
+                // get new location only when we cannot find last location, since this takes time
+                requestNewLocation(fusedLocationClient)
+            }
+        } catch (e: Exception) {
+            Napier.e { "Location error: ${e.stackTraceToString()}" }
+            LocationSearchFailed(e)
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private suspend fun requestNewLocation(
+        fusedLocationClient: FusedLocationProviderClient
+    ): LocationResult {
+        val cancelTokenSource = CancellationTokenSource()
+        return try {
+            val location = fusedLocationClient
+                .getCurrentLocation(Priority.PRIORITY_BALANCED_POWER_ACCURACY, cancelTokenSource.token)
+                .await()
+            if (location != null) LocationResult.Success(location)
+            else LocationResult.LocationNotFound
+        } catch (e: Exception) {
+            Napier.e { "Location error: ${e.stackTraceToString()}" }
+            LocationSearchFailed(e)
+        } finally {
+            cancelTokenSource.cancel()
+        }
+    }
+
     sealed interface LocationResult {
+        data object GettingLocation : LocationResult
         data class Success(val location: Location) : LocationResult
         data object ServiceDisabled : LocationResult
         data object PermissionDenied : LocationResult
         data object LocationNotFound : LocationResult
+        data class LocationSearchFailed(val e: Throwable) : LocationResult
     }
 }

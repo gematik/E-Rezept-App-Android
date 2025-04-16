@@ -207,11 +207,11 @@
     <string name="edit_profile_title">profiel</string>
     <string name="edit_profile_color_selected">%s geselecteerd</string>
     <string name="edit_profile_background_color">Achtergrond kleur</string>
-    <string name="profile_color_name_gray">Lente grijs</string>
-    <string name="profile_color_sun_dew">Zonnedauw</string>
-    <string name="profile_color_name_pink">Het! Is! Roze!</string>
-    <string name="profile_color_name_tree">Boom</string>
-    <string name="profile_color_name_moon">Blauwe maan september</string>
+    <string name="profile_color_name_gray">Grijs</string>
+    <string name="profile_color_sun_dew">Geel</string>
+    <string name="profile_color_name_pink">Roze</string>
+    <string name="profile_color_name_tree">Groente</string>
+    <string name="profile_color_name_moon">Blauw</string>
     <string name="settings_profile_not_connected">Niet ingelogd</string>
     <string name="settings_profile_connected">Samengebonden</string>
     <string name="settings_profile_last_authenticated_on">Laatst verbonden op %s</string>
@@ -559,13 +559,13 @@
     <string name="medication_trade_name">Handelsnaam</string>
     <string name="pres_detail_yes">Ja</string>
     <string name="pres_detail_no">Nee</string>
-    <string name="pres_detail_medication_label_dosage_instruction">dosering</string>
+    <string name="pres_detail_medication_label_dosage_instruction">doseringsinstructies</string>
     <string name="pres_detail_medication_label_authored_on">Uitgavedatum</string>
     <string name="pres_details_direct_assignment_state">Dit recept wordt voor u ingewisseld als onderdeel van een behandeling.</string>
     <string name="pres_details_no_value">Niet gespecificeerd</string>
     <string name="pres_details_additional_fee">Extra betaling</string>
     <string name="pres_details_medication">medicijn</string>
-    <string name="pres_detail_medication_label_note">Gebruiksaanwijzingen</string>
+    <string name="pres_detail_medication_label_note">bezorginstructies</string>
     <string name="pres_detail_medication_label_bvg">Geschikt volgens BVG</string>
     <string name="pres_detail_medication_label_subtitution">Alternatieve bereiding</string>
     <string name="medication_compounding_name">Receptnaam</string>
@@ -1022,7 +1022,6 @@
     <string name="pharmacy_contact_map_two_lines">Route\nhier</string>
     <string name="pres_detail_delete_prescription_and_recipe">Voorschrift en kostenbon verwijderen</string>
     <string name="pres_detail_delete_and_recipe_msg">Als u het recept verwijdert, wordt ook de bijbehorende kostenbon verwijderd.</string>
-    <string name="orders_top_app_bar_change_text">Berichten van alle profielen worden nu samen weergegeven</string>
     <string name="new_features_screen_title">Nieuwe functies</string>
     <string name="new_features_label_text">Nieuwe functies</string>
     <string name="new_feature_screen_subtitle">We werken voortdurend aan nieuwe functies. Deel uw mening met ons en help ons een betere app te bouwen.</string>
@@ -1066,7 +1065,6 @@
     <string name="a11y_card_wall_card_hand">Gezondheidskaart op smartphone</string>
     <string name="not_logged_in">Niet ingelogd</string>
     <string name="logged_in">Geregistreerd</string>
-    <string name="refresh">vernieuwen</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">U ontvangt toegangslogboeken als u bent ingelogd bij de receptenservice.</string>
     <string name="paired_devices_error_login_title">Registratie vereist</string>
     <string name="paired_devices_error_login_description">Log in met uw zorgkaart en sla uw inloggegevens met biometrie op om de aangesloten apparaten te bekijken.</string>
@@ -1174,7 +1172,6 @@
     <string name="settings_app_security_change_password">Wachtwoord wijzigen</string>
     <string name="invoices_delete_not_logged_in_description">Om te verwijderen moet er een verbinding met de Receptserver tot stand worden gebracht</string>
     <string name="provided">Goederen zijn klaar</string>
-    <string name="provided_at_hour">Goederen zijn gereed sinds %s</string>
     <string name="provided_now">De goederen zijn zojuist klaargemaakt</string>
     <string name="provided_minutes_ago">Goederen zijn al %s minuten gereed</string>
     <string name="provided_on_date">Goederen zijn gereed sinds %s</string>
@@ -1214,4 +1211,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n De volgende recepten zijn niet (meer) inwisselbaar: %1$s \n Mogelijk hebt u ze al op een andere manier ingewisseld of zijn ze verwijderd. \n</string>
     <string name="error_redeemable_prescription_continue_without">Ga door zonder deze recepten</string>
     <string name="error_redeemable_prescription_cancel_order">Bestelling annuleren</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">Recepten</string>
+    <string name="pharmacy_order_no_prescriptions">recepten kiezen</string>
+    <string name="pharmacy_order_no_prescriptions_error">Selecteer een recept</string>
+    <string name="gid_gematik_error_title">Neem contact op met uw verzekeringsmaatschappij en verstrek de volgende informatie:</string>
+    <string name="gid_gematik_error_copy">Tik hier om de foutmelding te kopiëren</string>
+    <string name="no_login_state_no_internet">Geen internet</string>
+    <string name="refresh">Update</string>
+    <string name="provided_at_hour">De goederen zijn sinds %s uur klaar</string>
+    <string name="edit_profile_name">Profielnaam bewerken</string>
+    <string name="activate_profile">Selecteer profiel</string>
+    <string name="add_profile">Profiel toevoegen</string>
+    <string name="inactive_description">niet geselecteerd</string>
+    <string name="active_description">gekozen</string>
 </resources>

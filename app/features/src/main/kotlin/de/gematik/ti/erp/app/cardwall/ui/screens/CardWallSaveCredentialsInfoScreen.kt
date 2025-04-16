@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -99,7 +99,11 @@ class CardWallSaveCredentialsInfoScreen(
         }
         LaunchedEffect(Unit) {
             (saveCredentials as? SaveCredentialsController.AuthResult.Initialized)?.let {
-                saveCredentialsController.cleanup(it.aliasOfSecureElementEntry)
+                with(saveCredentialsController) {
+                    deleteKey(
+                        aliasToByteArray(it.aliasOfSecureElementEntry)
+                    )
+                }
                 graphController.setSaveCredentials(null)
             }
         }
@@ -123,6 +127,7 @@ class CardWallSaveCredentialsInfoScreen(
                                     }
                                 )
                             }
+
                             else -> {
                                 navController.popBackStack()
                             }
@@ -164,7 +169,9 @@ private fun CardWallSaveCredentialsInfoScreenContent(
         }
         item {
             Text(
-                if (biometricStrong) { stringResource(R.string.cdw_info_first) } else {
+                if (biometricStrong) {
+                    stringResource(R.string.cdw_info_first)
+                } else {
                     stringResource(R.string.cdw_info_no_strong_biometry_first)
                 },
                 style = AppTheme.typography.body1
@@ -173,7 +180,9 @@ private fun CardWallSaveCredentialsInfoScreenContent(
         }
         item {
             Text(
-                if (biometricStrong) { stringResource(R.string.cdw_info_second) } else {
+                if (biometricStrong) {
+                    stringResource(R.string.cdw_info_second)
+                } else {
                     stringResource(R.string.cdw_info_no_strong_biometry_second)
                 },
                 style = AppTheme.typography.body1
@@ -182,7 +191,9 @@ private fun CardWallSaveCredentialsInfoScreenContent(
         }
         item {
             Text(
-                if (biometricStrong) { stringResource(R.string.cdw_info_third) } else {
+                if (biometricStrong) {
+                    stringResource(R.string.cdw_info_third)
+                } else {
                     stringResource(R.string.cdw_info_no_strong_biometry_third)
                 },
                 style = AppTheme.typography.body1

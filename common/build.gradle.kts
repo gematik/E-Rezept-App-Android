@@ -5,6 +5,7 @@ import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.INT
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.LONG
 import com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING
 import de.gematik.ti.erp.app.plugins.dependencies.overrides
+import de.gematik.ti.erp.app.tasks.generateSchemaMigrationsFile
 import org.jetbrains.kotlin.util.capitalizeDecapitalize.capitalizeAsciiOnly
 import java.io.ByteArrayOutputStream
 
@@ -56,6 +57,12 @@ val APP_TRUST_ANCHOR_BASE64_TEST: String by overrides()
 // pharmacy
 val PHARMACY_SERVICE_URI: String by overrides()
 val PHARMACY_SERVICE_URI_TEST: String by overrides()
+val FHIRVZD_PHARMACY_SERVICE_URI_RU: String by overrides()
+val FHIRVZD_PHARMACY_SERVICE_URI_PU: String by overrides()
+val FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU: String by overrides()
+val FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU: String by overrides()
+val FHIR_VZD_API_KEY_RU: String by overrides()
+val FHIR_VZD_API_KEY_PU: String by overrides()
 val PHARMACY_API_KEY: String by overrides()
 val PHARMACY_API_KEY_TEST: String by overrides()
 
@@ -114,6 +121,9 @@ val BUILD_TYPE_MINIFIED_DEBUG: String by overrides()
 // app center
 val APP_CENTER_SECRET: String by overrides()
 
+// add db schema migration task
+tasks.generateSchemaMigrationsFile()
+
 kotlin {
     sourceSets {
         val commonMain by getting {
@@ -123,6 +133,8 @@ kotlin {
                 implementation(compose.material)
                 implementation(compose.materialIconsExtended)
                 implementation(compose.ui)
+                implementation(project(":utils"))
+                implementation(project(":fhir-parser"))
             }
         }
         val androidMain by getting {
@@ -157,6 +169,7 @@ enum class Environments {
 enum class Types {
     Internal, External
 }
+
 buildkonfig {
     packageName = "de.gematik.ti.erp.app"
     exposeObjectWithName = "BuildKonfig"
@@ -187,6 +200,9 @@ buildkonfig {
         idpServiceUri: String,
         erpApiKey: String,
         pharmacyServiceUri: String,
+        pharmacyFhirVzdServiceUri: String,
+        pharmacyFhirVzdSearchAccessTokenUri: String,
+        pharmacyFhirVzdApiKey: String,
         pharmacyServiceApiKey: String,
         trustAnchor: String,
         clientId: String,
@@ -201,41 +217,69 @@ buildkonfig {
             buildConfigField(STRING, "CLIENT_ID_PU", CLIENT_ID_PU)
             buildConfigField(STRING, "CLIENT_ID_RU", CLIENT_ID_RU)
             if (isInternal) {
+                // base service URIs
                 buildConfigField(STRING, "BASE_SERVICE_URI_PU", BASE_SERVICE_URI_PU)
                 buildConfigField(STRING, "BASE_SERVICE_URI_RU", BASE_SERVICE_URI_RU)
                 buildConfigField(STRING, "BASE_SERVICE_URI_TU", BASE_SERVICE_URI_TU)
                 buildConfigField(STRING, "BASE_SERVICE_URI_RU_DEV", BASE_SERVICE_URI_RU_DEV)
                 buildConfigField(STRING, "BASE_SERVICE_URI_TR", BASE_SERVICE_URI_TR)
+                // idp
                 buildConfigField(STRING, "IDP_SERVICE_URI_PU", IDP_SERVICE_URI_PU)
                 buildConfigField(STRING, "IDP_SERVICE_URI_TU", IDP_SERVICE_URI_TU)
                 buildConfigField(STRING, "IDP_SERVICE_URI_RU", IDP_SERVICE_URI_RU)
                 buildConfigField(STRING, "IDP_SERVICE_URI_RU_DEV", IDP_SERVICE_URI_RU_DEV)
                 buildConfigField(STRING, "IDP_SERVICE_URI_TR", IDP_SERVICE_URI_TR)
+                // apo-vzd
                 buildConfigField(STRING, "PHARMACY_SERVICE_URI_PU", PHARMACY_SERVICE_URI)
                 buildConfigField(STRING, "PHARMACY_SERVICE_URI_RU", PHARMACY_SERVICE_URI_TEST)
+                // fhir-vzd
+                buildConfigField(STRING, "FHIRVZD_PHARMACY_SERVICE_URI_RU", FHIRVZD_PHARMACY_SERVICE_URI_RU)
+                buildConfigField(STRING, "FHIRVZD_PHARMACY_SERVICE_URI_PU", FHIRVZD_PHARMACY_SERVICE_URI_PU)
+                buildConfigField(STRING, "FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU", FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU)
+                buildConfigField(STRING, "FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU", FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU)
+                buildConfigField(STRING, "FHIR_VZD_API_KEY_RU", FHIR_VZD_API_KEY_RU)
+                buildConfigField(STRING, "FHIR_VZD_API_KEY_PU", FHIR_VZD_API_KEY_PU)
+                // erp api keys
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_PU", ERP_API_KEY_GOOGLE_PU)
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_RU", ERP_API_KEY_GOOGLE_RU)
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_TU", ERP_API_KEY_GOOGLE_TU)
                 buildConfigField(STRING, "ERP_API_KEY_GOOGLE_TR", ERP_API_KEY_GOOGLE_TR)
+                // pharmacy api keys
                 buildConfigField(STRING, "PHARMACY_API_KEY_PU", PHARMACY_API_KEY)
                 buildConfigField(STRING, "PHARMACY_API_KEY_RU", PHARMACY_API_KEY_TEST)
+                // trust anchor
                 buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64_PU", APP_TRUST_ANCHOR_BASE64)
                 buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64_TU", APP_TRUST_ANCHOR_BASE64_TEST)
                 buildConfigField(STRING, "IDP_SCOPE_DEVRU", "e-rezept-dev openid")
             }
+
+            // organ donation
             buildConfigField(STRING, "ORGAN_DONATION_REGISTER_RU", ORGAN_DONATION_REGISTER_RU)
             buildConfigField(STRING, "ORGAN_DONATION_REGISTER_PU", ORGAN_DONATION_REGISTER_PU)
             buildConfigField(STRING, "ORGAN_DONATION_INFO", ORGAN_DONATION_INFO)
-            buildConfigField(STRING, "BASE_SERVICE_URI", baseServiceUri)
-            buildConfigField(STRING, "IDP_SERVICE_URI", idpServiceUri)
-            buildConfigField(STRING, "ERP_API_KEY", erpApiKey)
+            // apo-vzd
             buildConfigField(STRING, "PHARMACY_SERVICE_URI", pharmacyServiceUri)
-            buildConfigField(STRING, "PHARMACY_API_KEY", pharmacyServiceApiKey)
-            buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64", trustAnchor)
-            buildConfigField(LONG, "VAU_OCSP_RESPONSE_MAX_AGE", ocspResponseMaxAge)
+            // fhir-vzd
+            buildConfigField(STRING, "FHIRVZD_PHARMACY_SERVICE_URI", pharmacyFhirVzdServiceUri)
+            buildConfigField(STRING, "FHIRVZD_SEARCH_ACCESS_TOKEN_URI", pharmacyFhirVzdSearchAccessTokenUri)
+            buildConfigField(STRING, "FHIRVZD_API_KEY", pharmacyFhirVzdApiKey)
+            // base service
+            buildConfigField(STRING, "BASE_SERVICE_URI", baseServiceUri)
+            // client id
             buildConfigField(STRING, "CLIENT_ID", clientId)
+            // erp api key
+            buildConfigField(STRING, "ERP_API_KEY", erpApiKey)
+            // pharmacy api key
+            buildConfigField(STRING, "PHARMACY_API_KEY", pharmacyServiceApiKey)
+            // trust anchor
+            buildConfigField(STRING, "APP_TRUST_ANCHOR_BASE64", trustAnchor)
+            // ocsp
+            buildConfigField(LONG, "VAU_OCSP_RESPONSE_MAX_AGE", ocspResponseMaxAge)
+            // test configs
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_TRUSTSTORE_INTEGRATION", "false")
             buildConfigField(BOOLEAN, "TEST_RUN_WITH_IDP_INTEGRATION", "false")
+            // idp
+            buildConfigField(STRING, "IDP_SERVICE_URI", idpServiceUri)
             buildConfigField(
                 STRING,
                 "IDP_DEFAULT_SCOPE",
@@ -315,6 +359,27 @@ buildkonfig {
                         Environments.TU,
                         Environments.RU,
                         Environments.DEVRU, Environments.TR -> PHARMACY_API_KEY_TEST
+                        Environments.NONE -> ""
+                    },
+                    pharmacyFhirVzdServiceUri = when (environment) {
+                        Environments.PU -> FHIRVZD_PHARMACY_SERVICE_URI_PU
+                        Environments.TU,
+                        Environments.RU,
+                        Environments.DEVRU, Environments.TR -> FHIRVZD_PHARMACY_SERVICE_URI_RU
+                        Environments.NONE -> ""
+                    },
+                    pharmacyFhirVzdSearchAccessTokenUri = when (environment) {
+                        Environments.PU -> FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU
+                        Environments.TU,
+                        Environments.RU,
+                        Environments.DEVRU, Environments.TR -> FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU
+                        Environments.NONE -> ""
+                    },
+                    pharmacyFhirVzdApiKey = when (environment) {
+                        Environments.PU -> FHIR_VZD_API_KEY_PU
+                        Environments.TU,
+                        Environments.RU,
+                        Environments.DEVRU, Environments.TR -> FHIR_VZD_API_KEY_RU
                         Environments.NONE -> ""
                     },
                     trustAnchor = when (environment) {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -38,17 +38,18 @@ import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.tryWrite
 import de.gematik.ti.erp.app.db.writeToRealm
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskDataErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskMetaDataErpModel
 import de.gematik.ti.erp.app.fhir.model.MedicationCategory
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispense
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispensePairs
 import de.gematik.ti.erp.app.fhir.model.extractMedicationDispenseWithMedication
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskDataErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMetaDataErpModel
 import de.gematik.ti.erp.app.prescription.errors.PrescriptionDataNotFoundException
 import de.gematik.ti.erp.app.prescription.mapper.DatabaseMappers.toDatabaseModel
-import de.gematik.ti.erp.app.prescription.model.Communication
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.prescription.mapper.ErpTaskMappers.toErpModel
+import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
@@ -172,12 +173,15 @@ class TaskLocalDataSource(
 
                     with(taskEntity) {
                         pvsIdentifier = model.pvsId ?: ""
-                        organization = model.organization?.toDatabaseModel()
-                        patient = model.patient?.toDatabaseModel()
-                        practitioner = model.practitioner?.toDatabaseModel()
-                        insuranceInformation = model.coverage?.toDatabaseModel()
-                        medicationRequest = model.medicationRequest?.toDatabaseModel()?.apply {
-                            medication = model.medication?.toDatabaseModel()
+                        organization = model.organization.toDatabaseModel()
+                        patient = model.patient.toDatabaseModel()
+                        practitioner = model.practitioner.toDatabaseModel()
+                        insuranceInformation = model.coverage.toDatabaseModel()
+                        deviceRequest = model.deviceRequest?.toDatabaseModel() // digas
+                        medicationRequest = model.medicationRequest?.toDatabaseModel().apply {
+                            model.medication?.toDatabaseModel()?.let {
+                                this?.medication = it
+                            }
                         }
                     }
 
@@ -384,6 +388,7 @@ class TaskLocalDataSource(
     }
 }
 
+// todo: replace with erp-model
 @Suppress("CyclomaticComplexMethod")
 fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
     SyncedTaskData.SyncedTask(
@@ -429,6 +434,7 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
         insuranceInformation = SyncedTaskData.InsuranceInformation(
             name = this.insuranceInformation?.name,
             status = this.insuranceInformation?.statusCode,
+            identifierNumber = this.insuranceInformation?.identifierNumber,
             coverageType = SyncedTaskData.CoverageType.mapTo(this.insuranceInformation?.coverageType?.name)
         ),
         expiresOn = this.expiresOn?.toInstant(),
@@ -497,6 +503,7 @@ fun SyncedTaskEntityV1.toSyncedTask(): SyncedTaskData.SyncedTask =
                 whenHandedOver = medicationDispense.handedOverOn
             )
         },
+        deviceRequest = this.deviceRequest?.toErpModel(),
         communications = this.communications.mapNotNull { communication ->
             communication.toCommunication()
         }

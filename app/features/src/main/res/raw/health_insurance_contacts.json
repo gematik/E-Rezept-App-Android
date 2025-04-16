@@ -111,7 +111,7 @@
   },
   {
     "name": "AOK Sachsen-Anhalt - Die Gesundheitskasse",
-    "healthCardAndPinPhone": "+4908002265725",
+    "healthCardAndPinPhone": "+498002265725",
     "healthCardAndPinMail": null,
     "healthCardAndPinUrl": null,
     "pinUrl": null,
@@ -839,7 +839,7 @@
     "name": "IKK gesund plus",
     "healthCardAndPinPhone": null,
     "healthCardAndPinMail": null,
-    "healthCardAndPinUrl": null,
+    "healthCardAndPinUrl": "https://www.ikk-gesundplus.de/service-erezept",
     "pinUrl": null,
     "subjectCardAndPinMail": null,
     "bodyCardAndPinMail": null,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -26,14 +26,18 @@ import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
 import de.gematik.ti.erp.app.db.entities.v1.task.ScannedTaskEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.SyncedTaskEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
+import de.gematik.ti.erp.app.db.safeWrite
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.tryWrite
-import de.gematik.ti.erp.app.fhir.model.CommunicationProfile
-import de.gematik.ti.erp.app.fhir.model.extractCommunications
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationBundleErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirDispenseCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.prescription.mapper.DatabaseMappers.toDatabaseModel
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
+import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.query.Sort
@@ -42,7 +46,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.serialization.json.JsonElement
 
 class PrescriptionLocalDataSource(
     private val realm: Realm
@@ -118,38 +121,24 @@ class PrescriptionLocalDataSource(
                 scannedTask.obj?.toScannedTask()
             }
 
-    suspend fun saveCommunications(communications: JsonElement): Int =
-        realm.tryWrite {
-            val totalCommunicationsInBundle =
-                extractCommunications(communications) {
-                        taskId, communicationId, orderId, profile, sentOn, sender, recipient, payload ->
-
-                    val entity = CommunicationEntityV1().apply {
-                        this.profile = when (profile) {
-                            CommunicationProfile.ErxCommunicationDispReq ->
-                                CommunicationProfileV1.ErxCommunicationDispReq
-
-                            CommunicationProfile.ErxCommunicationReply ->
-                                CommunicationProfileV1.ErxCommunicationReply
-                        }
-                        this.taskId = taskId
-                        this.communicationId = communicationId
-                        this.orderId = orderId ?: ""
-                        this.sentOn = sentOn.value.toRealmInstant()
-                        this.sender = sender ?: ""
-                        this.recipient = recipient
-                        this.payload = payload
-                        this.consumed = false
+    suspend fun saveCommunications(communicationModel: FhirCommunicationBundleErpModel): Int =
+        realm.safeWrite {
+            communicationModel.messages.sumOf { message ->
+                saveCommunicationToDatabase(
+                    when (message) {
+                        is FhirReplyCommunicationEntryErpModel -> message.toDatabaseModel()
+                        is FhirDispenseCommunicationEntryErpModel -> message.toDatabaseModel()
                     }
-
-                    queryFirst<SyncedTaskEntityV1>("taskId = $0", taskId)?.let { syncedTask ->
-                        entity.parent = syncedTask
-                        syncedTask.communications += copyToRealm(entity)
-                    }
-                }
-
-            totalCommunicationsInBundle
+                )
+            }
         }
+
+    private fun MutableRealm.saveCommunicationToDatabase(communication: CommunicationEntityV1): Int {
+        val syncedTask = queryFirst<SyncedTaskEntityV1>("taskId = $0", communication.taskId) ?: return 0
+        communication.parent = syncedTask
+        syncedTask.communications += copyToRealm(communication)
+        return 1
+    }
 
     // ToDo: The Pharmacy-ID should be saved as recipient, and this should then be migrated correctly
     suspend fun saveLocalCommunication(taskId: String, pharmacyId: String, transactionId: String) {

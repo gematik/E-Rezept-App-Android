@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,15 +18,15 @@
 
 package de.gematik.ti.erp.app.mocks.order.model
 
-import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
-import de.gematik.ti.erp.app.messages.domain.model.MessageTimeState
+import de.gematik.ti.erp.app.messages.model.MessageTimeState
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.DATE_3023_12_31
-import de.gematik.ti.erp.app.prescription.model.Communication
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.messages.model.InternalMessage
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStateSerializationType
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
@@ -44,10 +44,11 @@ const val WELCOME_MESSAGE_TEXT = "Herzlich Willkommen in der E-Rezept App! Mit d
     "E-Rezepte empfangen und an eine Apotheke Ihrer Wahl senden."
 const val IN_APP_MESSAGE_TEXT = "This is a long message to see how it looks like when the message is long and how the UI should handle it properly"
 const val WELCOME_MESSAGE_TAG = "Herzlich Willkommen!"
-const val WELCOME_MESSAGE_VERSION = "1.27.0"
-const val WELCOME_MESSAGE_ID = "1"
+const val WELCOME_MESSAGE_VERSION = "1.29.0"
+const val WELCOME_MESSAGE_LANG = "de"
+const val WELCOME_MESSAGE_ID = "0"
 const val WELCOME_MESSAGE_TIMESTAMP = "2024-01-01T10:00:00Z"
-const val WELCOME_MESSAGE_GET_MESSAGE_TAG = "Neuerungen in der App Version 1.27.0"
+const val WELCOME_MESSAGE_GET_MESSAGE_TAG = "Neuerungen in der App Version 1.29.0"
 private const val MOCK_PRACTITIONER_NAME = "Dr. John Doe"
 
 val CACHED_PHARMACY = CachedPharmacy(name = PHARMACY_NAME, telematikId = TELEMATIK_ID)
@@ -252,25 +253,17 @@ val inAppMessagesVersion = listOf(
 )
 
 val welcomeMessage =
-    InAppMessage(
+    InternalMessage(
         id = WELCOME_MESSAGE_ID,
-        from = WELCOME_MESSAGE_FROM,
+        sender = WELCOME_MESSAGE_FROM,
         text = WELCOME_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
-        prescriptionsCount = 0,
+        time = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         tag = WELCOME_MESSAGE_TAG,
         isUnread = true,
-        lastMessage = null,
         messageProfile = CommunicationProfile.InApp,
-        version = WELCOME_MESSAGE_VERSION
+        version = WELCOME_MESSAGE_VERSION,
+        languageCode = WELCOME_MESSAGE_LANG
     )
-
-var internalEntity = listOf(
-    InAppMessageEntity().apply {
-        id = "1"
-        this.version = "1.27.1"
-    }
-)
 
 val ORDER_DETAIL = OrderUseCaseData.OrderDetail(
     orderId = ORDER_ID,

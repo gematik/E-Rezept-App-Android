@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -27,7 +27,6 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Organization
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Clock
 import kotlin.time.Duration.Companion.days
 
@@ -51,7 +50,7 @@ private val MEDICATION = Medication(
     text = "Medication",
     form = "AEO",
     lotNumber = "123456",
-    expirationDate = FhirTemporal.Instant(Clock.System.now().plus(30.days)),
+    expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(Clock.System.now().plus(30.days)),
     identifier = SyncedTaskData.Identifier("1234567890"),
     normSizeCode = "KA",
     amount = Ratio(

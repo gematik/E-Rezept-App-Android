@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -23,8 +23,6 @@ import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType
 import kotlinx.datetime.Instant
 
 data class PrescriptionDetailPreviewData(
@@ -100,9 +98,9 @@ private val mockMedicationRequest = SyncedTaskData.MedicationRequest(
             )
         )
     ),
-    authoredOn = FhirTemporal.Instant(
+    authoredOn = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(
         value = Instant.parse("2024-01-01T10:00:00Z"),
-        type = FhirTemporalSerializationType.FhirTemporalInstant
+        type = de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalInstant
     ),
     dateOfAccident = null,
     accidentType = SyncedTaskData.AccidentType.None,
@@ -112,11 +110,10 @@ private val mockMedicationRequest = SyncedTaskData.MedicationRequest(
     dosageInstruction = "Take one tablet with water",
     multiplePrescriptionInfo = SyncedTaskData.MultiplePrescriptionInfo(),
     quantity = 30,
-    note = "Take with food",
+    note = "Bitte auf Anwendung schulen",
     bvg = false,
     additionalFee = SyncedTaskData.AdditionalFee.None
 )
-
 private val mockMedicationDispense = SyncedTaskData.MedicationDispense(
     dispenseId = "DISP123",
     patientIdentifier = "Patient123",
@@ -124,9 +121,9 @@ private val mockMedicationDispense = SyncedTaskData.MedicationDispense(
     wasSubstituted = false,
     dosageInstruction = "Take as prescribed",
     performer = "Test Pharmacy",
-    whenHandedOver = FhirTemporal.Instant(
+    whenHandedOver = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(
         value = Instant.parse("2024-01-15T10:00:00Z"),
-        type = FhirTemporalSerializationType.FhirTemporalInstant
+        type = de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalInstant
     )
 )
 

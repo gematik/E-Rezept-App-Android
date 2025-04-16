@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -30,7 +30,21 @@ data class DemoModeSentCommunicationJson(
     val status: String,
     val basedOn: List<DemoModeCommunicationTaskIdIdentifierReference>,
     val recipient: List<DemoModeCommunicationRecipient>,
-    val payload: List<DemoModeCommunicationPayloadContent>
+    val payload: List<DemoModeCommunicationPayloadContent>,
+    val extension: List<DemoModeCommunicationExtension>? = null
+)
+
+@Serializable
+data class DemoModeCommunicationExtension(
+    val url: String,
+    val valueCoding: DemoModeCommunicationValueCoding? = null
+)
+
+@Serializable
+data class DemoModeCommunicationValueCoding(
+    val system: String,
+    val code: String,
+    val display: String
 )
 
 @Serializable

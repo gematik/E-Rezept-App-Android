@@ -573,13 +573,13 @@
     <string name="medication_trade_name">שם מסחרי</string>
     <string name="pres_detail_yes">כן</string>
     <string name="pres_detail_no">לא</string>
-    <string name="pres_detail_medication_label_dosage_instruction">מִנוּן</string>
+    <string name="pres_detail_medication_label_dosage_instruction">הוראות מינון</string>
     <string name="pres_detail_medication_label_authored_on">יום הוצאה לאור</string>
     <string name="pres_details_direct_assignment_state">מרשם זה ימומש עבורך במסגרת טיפול.</string>
     <string name="pres_details_no_value">לא מוגדר</string>
     <string name="pres_details_additional_fee">תשלום נוסף</string>
     <string name="pres_details_medication">תְרוּפָה</string>
-    <string name="pres_detail_medication_label_note">הוראות לשימוש</string>
+    <string name="pres_detail_medication_label_note">הוראות משלוח</string>
     <string name="pres_detail_medication_label_bvg">זכאי לפי BVG</string>
     <string name="pres_detail_medication_label_subtitution">הכנה חלופית</string>
     <string name="medication_compounding_name">שם המתכון</string>
@@ -1038,7 +1038,6 @@
     <string name="pharmacy_contact_map_two_lines">מַסלוּל\n כאן</string>
     <string name="pres_detail_delete_prescription_and_recipe">מחיקת מרשם וקבלה על עלות</string>
     <string name="pres_detail_delete_and_recipe_msg">אם תמחק את המתכון, גם קבלת העלות הקשורה נמחקת.</string>
-    <string name="orders_top_app_bar_change_text">הודעות מכל הפרופילים מוצגות כעת יחד</string>
     <string name="new_features_screen_title">תכונות חדשות</string>
     <string name="new_features_label_text">תכונות חדשות</string>
     <string name="new_feature_screen_subtitle">אנו עובדים כל הזמן על תכונות חדשות. שתף אותנו בדעה שלך ועזור לנו לבנות אפליקציה טובה יותר.</string>
@@ -1084,7 +1083,6 @@
     <string name="a11y_card_wall_card_hand">כרטיס בריאות בסמארטפון</string>
     <string name="not_logged_in">לא מחובר</string>
     <string name="logged_in">רָשׁוּם</string>
-    <string name="refresh">לְרַעֲנֵן</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">תקבל יומני גישה אם אתה מחובר לשירות המרשם.</string>
     <string name="paired_devices_error_login_title">נדרשת הרשמה</string>
     <string name="paired_devices_error_login_description">אנא התחבר עם כרטיס הבריאות שלך ושמור את פרטי הכניסה שלך עם ביומטריה כדי לראות את המכשירים המחוברים.</string>
@@ -1192,7 +1190,6 @@
     <string name="settings_app_security_change_password">שנה סיסמה</string>
     <string name="invoices_delete_not_logged_in_description">כדי למחוק, יש ליצור חיבור לשרת המרשם</string>
     <string name="provided">הסחורה מוכנה</string>
-    <string name="provided_at_hour">הסחורה מוכנה מאז %s</string>
     <string name="provided_now">הסחורה הייתה מוכנה זה עתה</string>
     <string name="provided_minutes_ago">הסחורה מוכנה במשך %s דקות</string>
     <string name="provided_on_date">הסחורה מוכנה מאז %s</string>
@@ -1232,4 +1229,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n המתכונים הבאים אינם ניתנים או לא ניתנים עוד למימוש: %1$s \n ייתכן שכבר מימשת אותם בדרך אחרת או שהם נמחקו. \n</string>
     <string name="error_redeemable_prescription_continue_without">המשך בלי המתכונים האלה</string>
     <string name="error_redeemable_prescription_cancel_order">בטל הזמנה</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">מתכונים</string>
+    <string name="pharmacy_order_no_prescriptions">לבחור מתכונים</string>
+    <string name="pharmacy_order_no_prescriptions_error">אנא בחר מתכון</string>
+    <string name="gid_gematik_error_title">אנא צור קשר עם חברת הביטוח שלך וספק את המידע הבא:</string>
+    <string name="gid_gematik_error_copy">הקש כאן כדי להעתיק את הודעת השגיאה</string>
+    <string name="no_login_state_no_internet">אין אינטרנט</string>
+    <string name="refresh">לְעַדְכֵּן</string>
+    <string name="provided_at_hour">הסחורה מוכנה מאז השעה %s</string>
+    <string name="edit_profile_name">ערוך את שם הפרופיל</string>
+    <string name="activate_profile">בחר פרופיל</string>
+    <string name="add_profile">הוסף פרופיל</string>
+    <string name="inactive_description">לא נבחר</string>
+    <string name="active_description">נִבחָר</string>
 </resources>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 
@@ -45,7 +46,9 @@ fun LazyListScope.FavouritePharmacies(
             Text(
                 text = stringResource(R.string.pharmacy_my_pharmacies_header),
                 style = AppTheme.typography.subtitle1,
-                modifier = Modifier.padding(top = PaddingDefaults.Medium, bottom = PaddingDefaults.Medium),
+                modifier = Modifier
+                    .padding(vertical = PaddingDefaults.Medium)
+                    .semanticsHeading(),
                 textAlign = TextAlign.Start
             )
         }

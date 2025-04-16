@@ -1,0 +1,80 @@
+{
+  "id": "178efbdc-6206-464b-b9bb-4f18cb4c342c",
+  "type": "searchset",
+  "timestamp": "2025-03-10T21:13:04.705+00:00",
+  "resourceType": "Bundle",
+  "total": 1,
+  "entry": [
+    {
+      "fullUrl": "https://erp-test.zentral.erp.splitdns.ti-dienste.de/Communication/01ebd9e1-47d8-bab8-2566-31341cc59b11",
+      "resource": {
+        "resourceType": "Communication",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_DispReq|1.4"
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/NamingSystem/OrderID",
+            "value": "7526e7d4-deeb-432c-97bd-7f4ccfa7e901"
+          }
+        ],
+        "status": "unknown",
+        "extension": [
+          {
+            "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_PrescriptionType",
+            "valueCoding": {
+              "code": "200",
+              "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType",
+              "display": "PKV (Apothekenpflichtige Arzneimittel)"
+            }
+          }
+        ],
+        "basedOn": [
+          {
+            "reference": "Task/200.000.000.157.911.86/$accept?ac=7eca200e0256deb84287e62ff9dfada22d83ab23e014f5ded22f5f7b62407504"
+          }
+        ],
+        "recipient": [
+          {
+            "identifier": {
+              "system": "https://gematik.de/fhir/sid/telematik-id",
+              "value": "3-10.2.0111108800.16.806"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "contentString": "{\"version\":1,\"supplyOptionsType\":\"onPremise\",\"name\":\"Paula Privati\",\"address\":[\"Blumenweg\",\"\",\"26427\",\"Esens\"],\"hint\":\"\",\"phone\":\"\"}"
+          }
+        ],
+        "sent": "2025-03-10T21:12:41.187+00:00",
+        "sender": {
+          "identifier": {
+            "value": "X110571977",
+            "system": "http://fhir.de/sid/gkv/kvid-10"
+          }
+        },
+        "id": "01ebd9e1-47d8-bab8-2566-31341cc59b11"
+      },
+      "search": {
+        "mode": "match"
+      }
+    }
+  ],
+  "link": [
+    {
+      "relation": "last",
+      "url": "https://erp-test.zentral.erp.splitdns.ti-dienste.de/Communication?sent=gt2025-03-10T20%3a28%3a09%2b00%3a00&_sort=sent&_count=50&__offset=0"
+    },
+    {
+      "relation": "first",
+      "url": "https://erp-test.zentral.erp.splitdns.ti-dienste.de/Communication?sent=gt2025-03-10T20%3a28%3a09%2b00%3a00&_sort=sent&_count=50&__offset=0"
+    },
+    {
+      "relation": "self",
+      "url": "https://erp-test.zentral.erp.splitdns.ti-dienste.de/Communication?sent=gt2025-03-10T20%3a28%3a09%2b00%3a00&_sort=sent"
+    }
+  ]
+}

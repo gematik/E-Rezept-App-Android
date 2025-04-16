@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.invoice.repository
 
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.api.ErpService
-import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
+import de.gematik.ti.erp.app.db.SchemaVersion
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
@@ -37,6 +37,7 @@ import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
@@ -117,10 +118,11 @@ class InvoiceRepositoryTest : TestDB() {
                     PriceComponentV1::class,
                     IdentifierEntityV1::class,
                     AuthenticationPasswordEntityV1::class,
-                    AuthenticationEntityV1::class
+                    AuthenticationEntityV1::class,
+                    DeviceRequestEntityV1::class
                 )
             )
-                .schemaVersion(ACTUAL_SCHEMA_VERSION)
+                .schemaVersion(SchemaVersion.ACTUAL)
                 .directory(tempDBPath)
                 .build()
         )
@@ -154,13 +156,13 @@ class InvoiceRepositoryTest : TestDB() {
 
             val attachments = invoiceRepository.loadInvoiceAttachments(invoice.taskId)
 
-            assertEquals("200.334.138.469.717.92_verordnung.ps7", attachments?.get(0)?.first)
+            assertEquals("200.334.138.469.717.92_verordnung.p7s", attachments?.get(0)?.first)
             assertEquals("application/pkcs7-mime", attachments?.get(0)?.second)
 
-            assertEquals("200.334.138.469.717.92_abrechnung.ps7", attachments?.get(1)?.first)
+            assertEquals("200.334.138.469.717.92_abgabedaten.p7s", attachments?.get(1)?.first)
             assertEquals("application/pkcs7-mime", attachments?.get(1)?.second)
 
-            assertEquals("200.334.138.469.717.92_quittung.ps7", attachments?.get(2)?.first)
+            assertEquals("200.334.138.469.717.92_quittung.p7s", attachments?.get(2)?.first)
             assertEquals("application/pkcs7-mime", attachments?.get(2)?.second)
         }
     }

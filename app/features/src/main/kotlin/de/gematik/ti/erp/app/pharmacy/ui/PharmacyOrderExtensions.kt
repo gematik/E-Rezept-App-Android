@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -25,7 +25,7 @@ object PharmacyOrderExtensions {
         hasNoContactUrls && isDeliveryService
     internal fun Pharmacy.isOnlineServiceWithoutContactUrls(hasNoContactUrls: Boolean) =
         hasNoContactUrls && isOnlineService
-    internal fun Pharmacy.pickupUrlNotEmpty() = contacts.pickUpUrl.isNotEmpty()
-    internal fun Pharmacy.deliveryUrlNotEmpty() = contacts.deliveryUrl.isNotEmpty()
-    internal fun Pharmacy.onlineUrlNotEmpty() = contacts.onlineServiceUrl.isNotEmpty()
+    internal fun Pharmacy.pickupUrlNotEmpty() = contact.pickUpUrl.isNotEmpty()
+    internal fun Pharmacy.deliveryUrlNotEmpty() = contact.deliveryUrl.isNotEmpty()
+    internal fun Pharmacy.onlineUrlNotEmpty() = contact.onlineServiceUrl.isNotEmpty()
 }

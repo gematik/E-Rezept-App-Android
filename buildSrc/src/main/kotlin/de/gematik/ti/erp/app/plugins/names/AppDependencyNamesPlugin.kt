@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -30,6 +30,11 @@ class AppDependencyNamesPlugin : ErpPlugin {
 
     // module names
     val feature = ":app:features"
+    val digas = ":app:digas"
+    val navigation = ":app:navigation"
+    val tracker = ":app:tracker"
+    val fhirParser = ":fhir-parser"
+    val utils = ":utils"
     val uiComponents = ":ui-components"
     val demoMode = ":app:demo-mode"
     val testActions = ":app:test-actions"

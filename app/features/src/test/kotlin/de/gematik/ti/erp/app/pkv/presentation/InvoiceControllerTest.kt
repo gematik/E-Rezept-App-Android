@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -22,7 +22,6 @@ import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
-import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.InvoiceError
@@ -166,7 +165,7 @@ class InvoiceControllerTest : TestWatcher() {
         coEvery { invoiceRepository.invoices(PROFILE_ID) } returns flowOf(listOf(mockPkvInvoiceRecord()))
         coEvery { invoiceRepository.deleteLocalInvoiceById(TASK_ID) } returns Unit
 
-        val result = mapOf(Year(2024) to listOf(mockPkvInvoiceRecord()))
+        val result = mapOf(de.gematik.ti.erp.app.fhir.parser.Year(2024) to listOf(mockPkvInvoiceRecord()))
         testScope.runTest {
             advanceUntilIdle()
             val item = controllerUnderTest.invoices.first()

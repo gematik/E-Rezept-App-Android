@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -32,7 +32,6 @@ import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult
@@ -107,7 +106,7 @@ class InvoiceController(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val invoices: StateFlow<UiState<Map<Year, List<InvoiceData.PKVInvoiceRecord>>>> by lazy {
+    val invoices: StateFlow<UiState<Map<de.gematik.ti.erp.app.fhir.parser.Year, List<InvoiceData.PKVInvoiceRecord>>>> by lazy {
         getInvoicesTrigger.flatMapLatest { getInvoices() }
             .stateIn(
                 controllerScope,

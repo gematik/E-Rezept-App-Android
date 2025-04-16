@@ -10,5 +10,11 @@
         "text": "**Improved readability** \n We've made our brand color a little darker to increase color contrast and thereby improve readability. \n \n **Optimized features** \n We've updated the format of the submission dates and corrected the sorting of the messages.",
         "timestamp": "2025-01-28T08:00:00.000Z",
         "version": "1.27.0"
+    },
+    {
+        "id": "4",
+        "text": "📖 **Read-aloud function** \nWe have redesigned several pages so that they can be read aloud by TalkBack. This significantly improves usability for people with visual impairments. \n \n📞 **Extended contact options** \nWe have introduced new contact options for selected insurance companies. \n \n🔧 **Optimized functions** \nWe have fixed minor errors when reading the card, cleaned up the code and improved the display of messages.",
+        "timestamp": "2025-04-02T08:00:00.000Z",
+        "version": "1.29.0"
     }
 ]

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -100,6 +100,33 @@ internal fun TaskContainer.buildAppGalleryBundle() {
     register(TaskNames.buildAppGalleryBundle) {
         runDependencyTasks()
         val buildCondition = BuildAppFlavoursPlugin.BuildCondition.AppGalleryBundle
+        doLast {
+            val (versionCode, versionName) = project.calculateVersionCodeName(isRC = false)
+            project.exec {
+                commandLine(
+                    "bash",
+                    "-c",
+                    buildScript(
+                        versionCode = versionCode,
+                        versionName = versionName,
+                        buildCondition = buildCondition
+                    )
+                )
+                standardOutput = System.out
+                errorOutput = System.out
+            }
+        }
+    }
+}
+
+/**
+ * Registers a task to build the App Gallery APK.
+ * This task calculates the version code and name, then executes the build script.
+ */
+internal fun TaskContainer.buildAppGalleryApp() {
+    register(TaskNames.buildAppGalleryApp) {
+        runDependencyTasks()
+        val buildCondition = BuildAppFlavoursPlugin.BuildCondition.AppGalleryApk
         doLast {
             val (versionCode, versionName) = project.calculateVersionCodeName(isRC = false)
             project.exec {

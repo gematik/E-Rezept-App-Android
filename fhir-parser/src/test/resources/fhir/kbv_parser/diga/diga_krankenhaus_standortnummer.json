@@ -1,0 +1,38 @@
+{
+  "resourceType": "DeviceRequest",
+  "id": "d41f1c25-bf46-4226-aceb-9948ab2b5bdd",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_EVDGA_HealthAppRequest|1.0"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_EVDGA_SER",
+      "valueBoolean": false
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "codeCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/ifa/pzn",
+        "code": "18053770"
+      }
+    ],
+    "text": "Meine Tinnitus App 001"
+  },
+  "subject": {
+    "reference": "Patient/40acd463-b25d-4ede-8b1f-2b0994f29aa5"
+  },
+  "authoredOn": "2023-03-26",
+  "requester": {
+    "reference": "Practitioner/cdb92124-7e6d-45e6-a52d-0a8c13ae2e53"
+  },
+  "insurance": [
+    {
+      "reference": "Coverage/2d3a92c2-c93c-47ad-8ab5-49b275be97ee"
+    }
+  ]
+}

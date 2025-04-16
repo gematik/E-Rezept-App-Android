@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.pharmacy.usecase
 
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.mapper.toModel
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,9 +29,9 @@ class GetPharmacyByTelematikIdUseCase(
     private val repository: PharmacyRepository,
     private val dispatchers: CoroutineDispatcher = Dispatchers.IO
 ) {
-    suspend operator fun invoke(telematikId: String) =
+    suspend operator fun invoke(telematikId: String): Result<PharmacyUseCaseData.Pharmacy?> =
         withContext(dispatchers) {
             repository.searchPharmacyByTelematikId(telematikId)
-                .map { it.pharmacies.toModel().firstOrNull() }
+                .map { it.entries.toModel(type = it.type).firstOrNull() }
         }
 }

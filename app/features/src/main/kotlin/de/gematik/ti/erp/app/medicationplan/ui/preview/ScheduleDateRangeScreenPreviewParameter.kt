@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -22,7 +22,6 @@ import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import de.gematik.ti.erp.app.medicationplan.presentation.PrescriptionSchedule
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_TASK_SCHEDULE
-import de.gematik.ti.erp.app.utils.maxLocalDate
 import de.gematik.ti.erp.app.utils.toLocalDate
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.LocalDate
@@ -48,7 +47,7 @@ class ScheduleDateRangeScreenPreviewParameter : PreviewParameterProvider<Schedul
                     SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE.copy(
                         medicationSchedule = SCANNED_TASK_SCHEDULE.copy(
                             start = medicationPlanPreviewCurrentTime.toLocalDate(),
-                            end = maxLocalDate()
+                            end = de.gematik.ti.erp.app.utils.maxLocalDate()
                         )
                     )
                 )

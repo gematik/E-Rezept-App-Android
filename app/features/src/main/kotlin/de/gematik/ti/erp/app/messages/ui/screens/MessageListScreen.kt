@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -23,16 +23,13 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
+import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.messages.presentation.rememberMessageListController
 import de.gematik.ti.erp.app.messages.ui.components.Orders
@@ -52,8 +49,6 @@ class MessageListScreen(
         val messagesController = rememberMessageListController()
         val listState = rememberLazyListState()
         val messagesList by messagesController.messagesList.collectAsStateWithLifecycle()
-        val isMessagesListFeatureChangeSeen by messagesController.isMessagesListFeatureChangeSeen.collectAsStateWithLifecycle()
-        var showOrderFeatureChangedLabel by remember(isMessagesListFeatureChangeSeen) { mutableStateOf(!isMessagesListFeatureChangeSeen) }
 
         DisposableEffect(Unit) {
             onDispose {
@@ -64,12 +59,7 @@ class MessageListScreen(
         MessageListScreenContent(
             messagesList = messagesList,
             listState = listState,
-            showOrderFeatureChangedLabel = showOrderFeatureChangedLabel, // a feature change info label shown to the user
             onClickRetry = messagesController::retryFetchMessagesList,
-            onClickInfoLabel = {
-                showOrderFeatureChangedLabel = false
-                messagesController.markProfileTopBarRemovedChangeSeen()
-            },
             onClickOrder = { orderId, isLocalMessage ->
                 navController.navigate(
                     MessagesRoutes.MessageDetailScreen.path(orderId, isLocalMessage)
@@ -83,9 +73,7 @@ class MessageListScreen(
 private fun MessageListScreenContent(
     messagesList: UiState<List<InAppMessage>>,
     listState: LazyListState,
-    showOrderFeatureChangedLabel: Boolean,
     onClickOrder: (String, Boolean) -> Unit,
-    onClickInfoLabel: () -> Unit,
     onClickRetry: () -> Unit
 ) {
     AnimatedElevationScaffold(
@@ -94,9 +82,7 @@ private fun MessageListScreenContent(
     ) {
         Orders(
             listState = listState,
-            showOrderFeatureChangedLabel = showOrderFeatureChangedLabel,
             ordersData = messagesList,
-            onClickInfoLabel = onClickInfoLabel,
             onClickOrder = onClickOrder,
             onClickRetry = onClickRetry
         )
@@ -113,9 +99,7 @@ fun MessageScreenContentPreview(
         MessageListScreenContent(
             messagesList = ordersData,
             listState = rememberLazyListState(),
-            showOrderFeatureChangedLabel = false,
             onClickOrder = { _, _ -> },
-            onClickInfoLabel = {},
             onClickRetry = {}
         )
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -54,8 +54,11 @@ val sourcesKt = listOf(
     "app/demo-mode/src/**/de/gematik/**/*.kt",
     "app/features/src/**/de/gematik/**/*.kt",
     "app/features/src/**/android/print/**/*.kt",
+    "app/digs/src/**/*.kt",
+    "app/navigation/src/**/*.kt",
     "app/test-actions/src/**/de/gematik/**/*.kt",
     "app/test-tags/src/**/de/gematik/**/*.kt",
+    "app/fhir-vzd/src/**/*.kt",
     "buildSrc/src/**/de/gematik/**/*.kt",
     "common/src/**/de/gematik/**/*.kt",
     "desktop/src/**/de/gematik/**/*.kt",

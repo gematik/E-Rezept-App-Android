@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,8 +19,11 @@
 package de.gematik.ti.erp.app.pharmacy.ui.screens
 
 import android.provider.Settings
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -29,14 +32,16 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import com.google.accompanist.flowlayout.FlowRow
+import de.gematik.ti.erp.app.animated.LoadingIndicatorLine
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
@@ -54,14 +59,17 @@ import de.gematik.ti.erp.app.pharmacy.ui.components.LocationServicesNotAvailable
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.Chip
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
-import de.gematik.ti.erp.app.utils.extensions.LocalSnackbar
+import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
+import de.gematik.ti.erp.app.utils.extensions.show
 
 class PharmacyFilterSheetScreen(
     override val navController: NavController,
@@ -74,14 +82,21 @@ class PharmacyFilterSheetScreen(
 
         val dialog = LocalDialog.current
 
-        val snackbar = LocalSnackbar.current
+        val snackbar = LocalSnackbarScaffold.current
+
+        val uiScope = uiScope
 
         val filter by graphController.filter()
 
+        var isLoading by remember { mutableStateOf(false) }
+
         val locationNotFoundEvent = graphController.locationNotFoundEvent
+
+        val locationLoadingEvent = graphController.locationLoadingEvent
 
         val askLocationPermissionEvent = graphController.askLocationPermissionEvent
 
+        // this is shown only from search list screen
         val isNearbyFilter = remember { navBackStackEntry.getNearbyFilter() }
 
         val navWithStartButton = remember { navBackStackEntry.getNavWithSearchButton() }
@@ -111,7 +126,15 @@ class PharmacyFilterSheetScreen(
         )
 
         locationNotFoundEvent.listen {
-            snackbar.show("Location not found")
+            if (BuildConfigExtension.isNonReleaseMode) {
+                snackbar.show(message = "Location not found", scope = uiScope)
+            }
+        }
+
+        locationLoadingEvent.listen { isLoadingEvent ->
+            if (BuildConfigExtension.isNonReleaseMode) {
+                isLoading = isLoadingEvent
+            }
         }
 
         askLocationPermissionEvent.listen {
@@ -121,6 +144,7 @@ class PharmacyFilterSheetScreen(
         PharmacyFilterSheetScreenContent(
             filter = filter,
             isNearbyFilter = isNearbyFilter,
+            isLoading = isLoading,
             navWithStartButton = navWithStartButton,
             onClickFilter = { isFilterChecked, filterType ->
                 when (filterType) {
@@ -144,19 +168,24 @@ class PharmacyFilterSheetScreen(
     }
 }
 
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun PharmacyFilterSheetScreenContent(
     filter: PharmacyUseCaseData.Filter,
     isNearbyFilter: Boolean,
     navWithStartButton: Boolean,
+    isLoading: Boolean,
     onClickFilter: (Boolean, FilterType) -> Unit,
     onClickStartSearch: () -> Unit,
     onBack: () -> Unit
 ) {
+    AnimatedVisibility(isLoading) {
+        LoadingIndicatorLine(isLoading)
+    }
     Column(
         modifier = Modifier
             .padding(horizontal = PaddingDefaults.Medium)
-            .padding(bottom = PaddingDefaults.Medium)
+            .padding(vertical = PaddingDefaults.Medium)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -171,41 +200,42 @@ private fun PharmacyFilterSheetScreenContent(
         SpacerMedium()
         Column(modifier = Modifier.verticalScroll(rememberScrollState(), true)) {
             FlowRow(
-                mainAxisSpacing = PaddingDefaults.Small,
-                crossAxisSpacing = PaddingDefaults.Small
+                maxItemsInEachRow = 3,
+                horizontalArrangement = Arrangement.spacedBy(SizeDefaults.one),
+                verticalArrangement = Arrangement.spacedBy(SizeDefaults.one)
             ) {
                 if (isNearbyFilter) {
                     Chip(
                         stringResource(R.string.search_pharmacies_filter_nearby),
                         closable = false,
                         checked = filter.nearBy
-                    ) {
-                        onClickFilter(it, NEARBY)
+                    ) { isChecked ->
+                        onClickFilter(isChecked, NEARBY)
                     }
                 }
                 Chip(
                     stringResource(R.string.search_pharmacies_filter_open_now),
                     closable = false,
                     checked = filter.openNow
-                ) {
-                    onClickFilter(it, FilterType.OPEN_NOW)
+                ) { isChecked ->
+                    onClickFilter(isChecked, FilterType.OPEN_NOW)
                 }
                 Chip(
                     stringResource(R.string.search_pharmacies_filter_delivery_service),
                     closable = false,
                     checked = filter.deliveryService
-                ) {
-                    onClickFilter(it, FilterType.DELIVERY_SERVICE)
-                    if (it) {
-                        onClickFilter(it, NEARBY)
-                    }
+                ) { isChecked ->
+                    onClickFilter(isChecked, FilterType.DELIVERY_SERVICE)
+                    // note: the nearby filter is auto-set only on the maps screen.
+                    // [!isNearbyFilter] decides that this is from list screen
+                    if (isChecked && !isNearbyFilter) onClickFilter(true, NEARBY)
                 }
                 Chip(
                     stringResource(R.string.search_pharmacies_filter_online_service),
                     closable = false,
                     checked = filter.onlineService
-                ) {
-                    onClickFilter(it, FilterType.ONLINE_SERVICE)
+                ) { isChecked ->
+                    onClickFilter(isChecked, FilterType.ONLINE_SERVICE)
                 }
             }
             SpacerMedium()
@@ -246,6 +276,7 @@ fun PharmacyFilterSheetScreenPreview() {
                 deliveryService = false,
                 onlineService = true
             ),
+            isLoading = false,
             isNearbyFilter = true,
             navWithStartButton = true,
             onClickFilter = { _, _ ->

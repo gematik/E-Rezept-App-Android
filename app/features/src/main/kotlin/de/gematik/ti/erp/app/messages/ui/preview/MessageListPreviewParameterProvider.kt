@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,10 +19,11 @@
 package de.gematik.ti.erp.app.messages.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
-import de.gematik.ti.erp.app.messages.domain.model.MessageTimeState
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.MessageTimeState
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.messages.model.LastMessage
+import de.gematik.ti.erp.app.messages.model.LastMessageDetails
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
@@ -50,53 +51,53 @@ const val LATEST_MESSAGE = "order message here!"
 const val LATEST_MESSAGE_ADDRESS = "Berlinder Strasse 123, 12345 Berlin"
 const val LATEST_MESSAGE_LONG = "This is a long message to see how it looks like when the message is long and how the UI should handle it properly."
 
-val mockMessageDetails = OrderUseCaseData.LastMessageDetails(
+val mockMessageDetails = LastMessageDetails(
     content = LATEST_MESSAGE,
     pickUpCodeDMC = "DMC1234",
     pickUpCodeHR = "HR5678",
     link = "http://pharmacy.com/pickup"
 )
 
-val mockMessageDetailsWithoutCode = OrderUseCaseData.LastMessageDetails(
+val mockMessageDetailsWithoutCode = LastMessageDetails(
     content = null,
     pickUpCodeDMC = null,
     pickUpCodeHR = null,
     link = "http://pharmacy.com/pickup"
 )
 
-val mockMessageDetailsWithoutCodeAndLink = OrderUseCaseData.LastMessageDetails(
+val mockMessageDetailsWithoutCodeAndLink = LastMessageDetails(
     content = LATEST_MESSAGE,
     pickUpCodeDMC = null,
     pickUpCodeHR = null,
     link = null
 )
 
-val mockMessageDetailsAddress = OrderUseCaseData.LastMessageDetails(
+val mockMessageDetailsAddress = LastMessageDetails(
     content = LATEST_MESSAGE_ADDRESS,
     pickUpCodeDMC = null,
     pickUpCodeHR = null,
     link = null
 )
-val mockLastMessageWithoutCodeAndLink = OrderUseCaseData.LastMessage(
+val mockLastMessageWithoutCodeAndLink = LastMessage(
     lastMessageDetails = mockMessageDetailsWithoutCodeAndLink,
     profile = CommunicationProfile.ErxCommunicationReply
 )
 
-val mockLastMessageWithoutCode = OrderUseCaseData.LastMessage(
+val mockLastMessageWithoutCode = LastMessage(
     lastMessageDetails = mockMessageDetailsWithoutCode,
     profile = CommunicationProfile.ErxCommunicationReply
 )
 
-val mockLastMessage = OrderUseCaseData.LastMessage(
+val mockLastMessage = LastMessage(
     lastMessageDetails = mockMessageDetails,
     profile = CommunicationProfile.ErxCommunicationReply
 )
 
-val mockLastMessageAdress = OrderUseCaseData.LastMessage(
+val mockLastMessageAdress = LastMessage(
     lastMessageDetails = mockMessageDetailsAddress,
     profile = CommunicationProfile.ErxCommunicationReply
 )
-val mockLastMessageLong = OrderUseCaseData.LastMessage(
+val mockLastMessageLong = LastMessage(
     lastMessageDetails = mockMessageDetails.copy(content = LATEST_MESSAGE_LONG),
     profile = CommunicationProfile.ErxCommunicationReply
 

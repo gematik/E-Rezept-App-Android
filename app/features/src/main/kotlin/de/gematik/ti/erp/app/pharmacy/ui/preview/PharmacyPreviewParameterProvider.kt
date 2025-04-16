@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,12 +19,12 @@
 package de.gematik.ti.erp.app.pharmacy.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.fhir.model.Coordinates
-import de.gematik.ti.erp.app.fhir.model.OpeningHours
-import de.gematik.ti.erp.app.fhir.model.OpeningTime
-import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
-import de.gematik.ti.erp.app.fhir.model.PharmacyService
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningTime
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService
 import kotlinx.datetime.LocalTime
 import java.time.DayOfWeek
 
@@ -125,7 +125,7 @@ object PharmacyPreviewData {
             )
         ),
         telematikId = "123456789",
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "0123456789",
             mail = "mpq@nrw.de",
             url = "www.apotheke-am-markt.de",
@@ -139,7 +139,7 @@ object PharmacyPreviewData {
         provides = listOf(
             PharmacyService.PickUpPharmacyService(name = "PickUp")
         ),
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
             url = "",
@@ -156,7 +156,7 @@ object PharmacyPreviewData {
                 openingHours = openingHoursSample
             )
         ),
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
             url = "",
@@ -173,7 +173,7 @@ object PharmacyPreviewData {
                 openingHours = openingHoursSample
             )
         ),
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
             url = "",
@@ -191,7 +191,7 @@ object PharmacyPreviewData {
             )
         ),
         coordinates = null,
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "0123456789",
             mail = "",
             url = "",
@@ -209,7 +209,7 @@ object PharmacyPreviewData {
             )
         ),
         coordinates = null,
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "",
             mail = "pharm@pharm.de",
             url = "",
@@ -226,7 +226,7 @@ object PharmacyPreviewData {
                 openingHours = openingHoursSample
             )
         ),
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "",
             mail = "",
             url = "",
@@ -243,7 +243,7 @@ object PharmacyPreviewData {
                 openingHours = openingHoursSample
             )
         ),
-        contacts = PharmacyContacts(
+        contact = PharmacyContact(
             phone = "123",
             mail = "",
             url = "",

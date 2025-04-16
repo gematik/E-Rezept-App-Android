@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.db.entities.v1.IdpConfigurationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
 import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
@@ -36,6 +37,7 @@ import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SingleSignOnTokenScopeV1
 import de.gematik.ti.erp.app.db.entities.v1.TruststoreEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.debugsettings.DebugSettingsEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
@@ -46,9 +48,12 @@ import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleEnt
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.FavoritePharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.OftenUsedPharmacyEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyRemoteDataSourceSelectionEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.pharmacy.SearchAccessTokenEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CoverageTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
@@ -71,8 +76,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.nanoseconds
 
-const val ACTUAL_SCHEMA_VERSION = 43L
-
 @Requirement(
     "O.Source_2#1",
     sourceSpecification = "BSI-eRp-ePA",
@@ -83,7 +86,7 @@ const val ACTUAL_SCHEMA_VERSION = 43L
 fun appSchemas(profileName: String): Set<AppRealmSchema> {
     return setOf(
         AppRealmSchema(
-            version = ACTUAL_SCHEMA_VERSION,
+            version = SchemaVersion.ACTUAL,
             classes = setOf(
                 SettingsEntityV1::class,
                 AuthenticationEntityV1::class,
@@ -120,10 +123,17 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 ChargeableItemV1::class,
                 PriceComponentV1::class,
                 InAppMessageEntity::class,
+                InternalMessageEntityV1::class,
                 InternalMessageEntity::class,
                 MedicationDosageEntityV1::class,
                 MedicationNotificationEntityV1::class,
-                MedicationScheduleEntityV1::class
+                MedicationScheduleEntityV1::class,
+                SearchAccessTokenEntityV1::class,
+                // added for test purposes
+                PharmacyRemoteDataSourceSelectionEntityV1::class,
+                DebugSettingsEntityV1::class,
+                // support for digas
+                DeviceRequestEntityV1::class
             ),
             migrateOrInitialize = { migrationStartedFrom ->
                 queryFirst<SettingsEntityV1>() ?: run {
@@ -310,12 +320,31 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                         internalMessage.welcomeMessageTimeStamp = Clock.System.now().toRealmInstant()
                     }
                 }
-
-                if (migrationStartedFrom < 43) {
+                if (migrationStartedFrom < 45) {
                     query<InternalMessageEntity>().find().forEach { internalMessage ->
-                        if(internalMessage.showWelcomeMessage == null){
+                        if (internalMessage.showWelcomeMessage == null) {
                             internalMessage.showWelcomeMessage = false
                         }
+                    }
+                }
+                if (migrationStartedFrom < 46) {
+                    val lowestVersion = query<InternalMessageEntity>().find().flatMap { internalMessageEntity ->
+                        internalMessageEntity.inAppMessageEntity.map { it.version }
+                    }.minOrNull()
+                    val welcomeMessageTimeStamp = query<InternalMessageEntity>().find().mapNotNull {
+                        it.welcomeMessageTimeStamp
+                    }.minOrNull()
+
+                    if (lowestVersion != null && welcomeMessageTimeStamp != null) {
+                        copyToRealm(
+                            InternalMessageEntityV1()
+                                .apply {
+                                    // create placeholder welcome message which will be replaced in the updateInternalMessagesUseCase
+                                    this.id = "0"
+                                    this.time = welcomeMessageTimeStamp
+                                    this.version = lowestVersion
+                                }
+                        )
                     }
                 }
             }

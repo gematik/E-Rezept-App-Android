@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -69,16 +69,19 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
 import de.gematik.ti.erp.app.utils.extensions.show
 import de.gematik.ti.erp.app.utils.extensions.showWithDismissButton
+import de.gematik.ti.erp.app.utils.formatJson
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 
 object LoggerScreen {
 
+    @Suppress("MemberNameEqualsClassName")
     @Composable
-    fun Content(
-        onBack: () -> Unit
-    ) {
+    fun LoggerScreen(onBack: () -> Unit) = Content(onBack)
+
+    @Composable
+    private fun Content(onBack: () -> Unit) {
         val context = LocalContext.current
         val snackbar = LocalSnackbarScaffold.current
         val scope = rememberCoroutineScope()
@@ -291,7 +294,7 @@ private fun ResponseEntry(entry: LogEntry) {
         style = AppTheme.typography.caption1
     )
     Text(
-        text = entry.response.content.text,
+        text = entry.response.content.text.formatJson(),
         style = AppTheme.typography.caption1
     )
 }

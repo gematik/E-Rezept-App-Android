@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.cardwall.presentation
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.authentication.model.GidEventData
+import de.gematik.ti.erp.app.authentication.model.GidNavigationData
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.idp.model.UniversalLinkIdp
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
@@ -47,7 +47,7 @@ class CardWallGraphController(
     val saveCredentials: StateFlow<SaveCredentialsController.AuthResult?> = _saveCredentials
 
     val authorizationWithExternalAppInBackgroundEvent = ComposableEvent<Boolean>()
-    val redirectUriEvent = ComposableEvent<Pair<URI, GidEventData>>()
+    val redirectUriEvent = ComposableEvent<Pair<URI, GidNavigationData>>()
     val redirectUriGematikErrorEvent = ComposableEvent<GematikResponseError>()
     val redirectUriErrorEvent = ComposableEvent<String?>()
 
@@ -103,7 +103,7 @@ class CardWallGraphController(
     }
 
     fun startAuthorizationWithExternal(
-        gidEventData: GidEventData
+        gidNavigationData: GidNavigationData
     ) {
         controllerScope.launch {
             authorizationWithExternalAppInBackgroundEvent.trigger(true)
@@ -114,15 +114,15 @@ class CardWallGraphController(
             )
             getUniversalLinkUseCase.invoke(
                 universalLinkIdp = UniversalLinkIdp(
-                    authenticatorName = gidEventData.authenticatorName,
-                    authenticatorId = gidEventData.authenticatorId,
-                    profileId = gidEventData.profileId,
+                    authenticatorName = gidNavigationData.authenticatorName,
+                    authenticatorId = gidNavigationData.authenticatorId,
+                    profileId = gidNavigationData.profileId,
                     isGid = true
                 )
             ).fold(
                 onSuccess = { redirectUri ->
                     authorizationWithExternalAppInBackgroundEvent.trigger(false)
-                    redirectUriEvent.trigger(redirectUri to gidEventData)
+                    redirectUriEvent.trigger(redirectUri to gidNavigationData)
                 },
                 onFailure = {
                     authorizationWithExternalAppInBackgroundEvent.trigger(false)

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -22,12 +22,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
+import de.gematik.ti.erp.app.pharmacy.usecase.model.DefaultRadiusInMeter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted.Companion.Lazily
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
@@ -68,13 +70,10 @@ class PharmacySearchMapsController(
             areMapsLoadingEvent.trigger(true)
             flow {
                 runCatching {
-                    if (searchParams.locationMode is PharmacyUseCaseData.LocationMode.Disabled) {
-                        pharmacyMapsUseCase.invoke(searchParams, cameraRadius.value)
-                    } else {
-                        pharmacyMapsUseCase.invoke(searchParams, cameraRadius.value)
-                    }
+                    pharmacyMapsUseCase.invoke(searchParams, cameraRadius.value)
                         .map { it.location(searchParams.locationMode) }
                         .filter { it.deliveryService(searchParams.filter.deliveryService) }
+                        .filter { it.onlineService(searchParams.filter.onlineService) }
                         .filter { it.isOpenNow(searchParams.filter.openNow) }
                 }
                     .onSuccess {
@@ -86,7 +85,7 @@ class PharmacySearchMapsController(
                     }
             }.shareIn(
                 scope = controllerScope,
-                started = kotlinx.coroutines.flow.SharingStarted.Lazily,
+                started = Lazily,
                 replay = 1
             )
         }

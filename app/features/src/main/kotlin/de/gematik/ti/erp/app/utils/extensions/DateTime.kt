@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -21,7 +21,6 @@ package de.gematik.ti.erp.app.utils.extensions
 import android.os.Build
 import de.gematik.ti.erp.app.fhir.parser.toJavaYear
 import de.gematik.ti.erp.app.fhir.parser.toJavaYearMonth
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDate
@@ -50,27 +49,27 @@ fun dateTimeMediumText(instant: Instant, zone: TimeZone = TimeZone.currentSystem
 private val YearMonthPattern = DateTimeFormatter.ofPattern("MMMM yyyy")
 private val MonthPattern = DateTimeFormatter.ofPattern("yyyy")
 
-fun temporalText(temporal: FhirTemporal, timeZone: TimeZone = TimeZone.UTC): String =
+fun temporalText(temporal: de.gematik.ti.erp.app.utils.FhirTemporal, timeZone: TimeZone = TimeZone.UTC): String =
     when (temporal) {
-        is FhirTemporal.Instant -> temporal.value.toLocalDateTime(timeZone).toJavaLocalDateTime()
+        is de.gematik.ti.erp.app.utils.FhirTemporal.Instant -> temporal.value.toLocalDateTime(timeZone).toJavaLocalDateTime()
             .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM))
 
-        is FhirTemporal.LocalDate -> temporal.value.toJavaLocalDate()
+        is de.gematik.ti.erp.app.utils.FhirTemporal.LocalDate -> temporal.value.toJavaLocalDate()
             .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
 
-        is FhirTemporal.LocalDateTime -> temporal.value.toJavaLocalDateTime()
+        is de.gematik.ti.erp.app.utils.FhirTemporal.LocalDateTime -> temporal.value.toJavaLocalDateTime()
             .format(DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM))
 
-        is FhirTemporal.LocalTime -> temporal.value.toJavaLocalTime()
+        is de.gematik.ti.erp.app.utils.FhirTemporal.LocalTime -> temporal.value.toJavaLocalTime()
             .format(DateTimeFormatter.ofLocalizedTime(FormatStyle.MEDIUM))
 
-        is FhirTemporal.Year -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        is de.gematik.ti.erp.app.utils.FhirTemporal.Year -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             temporal.value.toJavaYear().format(MonthPattern)
         } else {
             error("VERSION.SDK_INT < O")
         }
 
-        is FhirTemporal.YearMonth -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        is de.gematik.ti.erp.app.utils.FhirTemporal.YearMonth -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             temporal.value.toJavaYearMonth().format(YearMonthPattern)
         } else {
             error("VERSION.SDK_INT < O")

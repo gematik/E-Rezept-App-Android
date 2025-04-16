@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -25,6 +25,7 @@ import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
@@ -43,9 +44,9 @@ import de.gematik.ti.erp.app.db.entities.v1.task.TaskStatusV1
 import de.gematik.ti.erp.app.db.queryFirst
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
-import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.ext.realmListOf
+import io.realm.kotlin.types.RealmInstant
 import org.junit.Test
 import kotlin.test.assertEquals
 
@@ -84,7 +85,8 @@ class SyncedTaskDataEntityV1Test : TestDB() {
                     PriceComponentV1::class,
                     IdentifierEntityV1::class,
                     AuthenticationEntityV1::class,
-                    AuthenticationPasswordEntityV1::class
+                    AuthenticationPasswordEntityV1::class,
+                    DeviceRequestEntityV1::class
                 )
             )
                 .schemaVersion(0)
@@ -109,6 +111,7 @@ class SyncedTaskDataEntityV1Test : TestDB() {
                         }
                         this.insuranceInformation = InsuranceInformationEntityV1()
                         this.status = TaskStatusV1.Ready
+                        this.deviceRequest = DeviceRequestEntityV1()
                         this.medicationRequest = MedicationRequestEntityV1().apply {
                             this.medication = MedicationEntityV1().apply {
                                 this.amount = RatioEntityV1().apply {

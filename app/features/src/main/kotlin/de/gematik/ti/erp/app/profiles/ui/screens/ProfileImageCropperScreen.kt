@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -77,7 +77,13 @@ class ProfileImageCropperScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
-        val profileId = remember { requireNotNull(navBackStackEntry.arguments?.getString(ProfileRoutes.PROFILE_NAV_PROFILE_ID)) }
+        val profileId = remember {
+            requireNotNull(
+                navBackStackEntry.arguments?.getString(
+                    ProfileRoutes.PROFILE_NAV_PROFILE_ID
+                )
+            )
+        }
         val profilesController = rememberProfileController()
         val profiles by profilesController.getProfilesState2()
         profiles?.profileById(profileId)?.let { selectedProfile ->

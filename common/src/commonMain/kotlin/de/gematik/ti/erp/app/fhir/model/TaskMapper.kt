@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.fhir.model.TaskStatus.entries
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
@@ -36,27 +35,6 @@ import de.gematik.ti.erp.app.utils.toFhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
-
-enum class TaskStatus(val status: String) {
-    Ready("ready"),
-    InProgress("in-progress"),
-    Completed("completed"),
-    Canceled("cancelled"),
-    Accepted("accepted"),
-    Draft("draft"),
-    Failed("failed"),
-    OnHold("on-hold"),
-    Requested("requested"),
-    Received("received"),
-    Rejected("rejected"),
-    Other("other"); // Default fallback
-
-    companion object {
-        fun fromString(status: String): TaskStatus {
-            return entries.firstOrNull { it.status == status } ?: Other
-        }
-    }
-}
 
 data class TaskData(
     val taskId: String,
