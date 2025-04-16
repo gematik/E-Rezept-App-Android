@@ -207,11 +207,11 @@
     <string name="edit_profile_title">profilo</string>
     <string name="edit_profile_color_selected">%s selezionato</string>
     <string name="edit_profile_background_color">colore di sfondo</string>
-    <string name="profile_color_name_gray">Grigio primaverile</string>
-    <string name="profile_color_sun_dew">Drosera</string>
-    <string name="profile_color_name_pink">Esso! È! Rosa!</string>
-    <string name="profile_color_name_tree">Albero</string>
-    <string name="profile_color_name_moon">Luna Blu di settembre</string>
+    <string name="profile_color_name_gray">Grigio</string>
+    <string name="profile_color_sun_dew">Giallo</string>
+    <string name="profile_color_name_pink">Rosa</string>
+    <string name="profile_color_name_tree">Verde</string>
+    <string name="profile_color_name_moon">Blu</string>
     <string name="settings_profile_not_connected">Accesso non effettuato</string>
     <string name="settings_profile_connected">Legati insieme</string>
     <string name="settings_profile_last_authenticated_on">Ultimo collegamento il %s</string>
@@ -559,13 +559,13 @@
     <string name="medication_trade_name">Nome depositato</string>
     <string name="pres_detail_yes">SÌ</string>
     <string name="pres_detail_no">NO</string>
-    <string name="pres_detail_medication_label_dosage_instruction">dosaggio</string>
+    <string name="pres_detail_medication_label_dosage_instruction">istruzioni per il dosaggio</string>
     <string name="pres_detail_medication_label_authored_on">data di rilascio</string>
     <string name="pres_details_direct_assignment_state">Questa prescrizione verrà riscattata per te come parte di un trattamento.</string>
     <string name="pres_details_no_value">Non specificato</string>
     <string name="pres_details_additional_fee">Pagamento aggiuntivo</string>
     <string name="pres_details_medication">farmaco</string>
-    <string name="pres_detail_medication_label_note">Istruzioni per l\'uso</string>
+    <string name="pres_detail_medication_label_note">istruzioni per la consegna</string>
     <string name="pres_detail_medication_label_bvg">Idoneo secondo LPP</string>
     <string name="pres_detail_medication_label_subtitution">Preparazione alternativa</string>
     <string name="medication_compounding_name">Nome della ricetta</string>
@@ -1022,7 +1022,6 @@
     <string name="pharmacy_contact_map_two_lines">Qui\nitinerario</string>
     <string name="pres_detail_delete_prescription_and_recipe">Eliminare la prescrizione e la ricevuta dei costi</string>
     <string name="pres_detail_delete_and_recipe_msg">Se si elimina la ricetta, viene eliminata anche la ricevuta costi associata.</string>
-    <string name="orders_top_app_bar_change_text">I messaggi di tutti i profili vengono ora visualizzati insieme</string>
     <string name="new_features_screen_title">Nuove caratteristiche</string>
     <string name="new_features_label_text">Nuove caratteristiche</string>
     <string name="new_feature_screen_subtitle">Lavoriamo costantemente su nuove funzionalità. Condividi la tua opinione con noi e aiutaci a creare un\'app migliore.</string>
@@ -1066,7 +1065,6 @@
     <string name="a11y_card_wall_card_hand">Tessera sanitaria sullo smartphone</string>
     <string name="not_logged_in">Non effettuato l\'accesso</string>
     <string name="logged_in">Registrato</string>
-    <string name="refresh">aggiornare</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Riceverai i log di accesso se hai effettuato l\'accesso al servizio di prescrizione.</string>
     <string name="paired_devices_error_login_title">È richiesta la registrazione</string>
     <string name="paired_devices_error_login_description">Effettua il login con la tua tessera sanitaria e salva i dati di accesso con dati biometrici per visualizzare i dispositivi connessi.</string>
@@ -1174,7 +1172,6 @@
     <string name="settings_app_security_change_password">Cambiare la password</string>
     <string name="invoices_delete_not_logged_in_description">Per eliminare è necessario stabilire una connessione al Prescription Server</string>
     <string name="provided">Le merci sono pronte</string>
-    <string name="provided_at_hour">Le merci sono pronte dal %s</string>
     <string name="provided_now">La merce è pronta proprio adesso</string>
     <string name="provided_minutes_ago">La merce è pronta da %s minuti</string>
     <string name="provided_on_date">Le merci sono pronte dal %s</string>
@@ -1214,4 +1211,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Le seguenti ricette non sono o non sono più riscattabili: %1$s \n Potresti averle già riscattate in un altro modo oppure potrebbero essere state eliminate. \n</string>
     <string name="error_redeemable_prescription_continue_without">Continua senza queste ricette</string>
     <string name="error_redeemable_prescription_cancel_order">Annulla ordine</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">ricette</string>
+    <string name="pharmacy_order_no_prescriptions">scegli ricette</string>
+    <string name="pharmacy_order_no_prescriptions_error">Seleziona una ricetta</string>
+    <string name="gid_gematik_error_title">Si prega di contattare la propria compagnia assicurativa e di fornire le seguenti informazioni:</string>
+    <string name="gid_gematik_error_copy">Tocca qui per copiare il messaggio di errore</string>
+    <string name="no_login_state_no_internet">Nessuna connessione Internet</string>
+    <string name="refresh">Aggiornamento</string>
+    <string name="provided_at_hour">La merce è pronta dalle ore %s</string>
+    <string name="edit_profile_name">Modifica il nome del profilo</string>
+    <string name="activate_profile">Seleziona profilo</string>
+    <string name="add_profile">Aggiungi profilo</string>
+    <string name="inactive_description">non selezionato</string>
+    <string name="active_description">selezionato</string>
 </resources>

@@ -78,8 +78,11 @@ val sourcesKt = listOf(
     "app/android-mock/src/**/*.kt",
     "app/demo-mode/src/**/*.kt",
     "app/features/src/**/*.kt",
+    "app/digas/src/**/*.kt",
+    "app/navigation/src/**/*.kt",
     "app/test-actions/src/**/*.kt",
     "app/test-tags/src/**/*.kt",
+    "app/fhir-vzd/src/**/*.kt",
     "buildSrc/src/**/*.kt",
     "common/src/**/*.kt",
     "desktop/src/**/*.kt",
@@ -88,6 +91,7 @@ val sourcesKt = listOf(
     "scripts/src/**/*.kt",
     "smartcard-wrapper/src/**/*.kt",
     "ui-components/src/**/*.kt",
+    "fhir-parser/src/**/*.kt"
 )
 
 dependencies {
@@ -144,6 +148,9 @@ tasks.withType<Test> {
 allprojects {
     configurations.all {
         resolutionStrategy {
+            force("io.netty:netty-codec-http2:4.1.108.Final")
+            force("io.netty:netty-handler:4.1.118.Final")
+            force("com.google.protobuf:protobuf-java:4.28.2")
             force("com.google.guava:guava:33.2.0-jre")
         }
     }

@@ -10,5 +10,11 @@
         "text": "**Lizibilitate mai bună** \n Am făcut culoarea mărcii noastre puțin mai închisă pentru a crește contrastul culorilor și, prin urmare, a îmbunătăți lizibilitatea. \n \n **Funcții optimizate** \n Am actualizat formatul datei de trimitere și am corectat sortarea mesajelor.",
         "timestamp": "2025-01-28T08:00:00.000Z",
         "version": "1.27.0"
+    },
+    {
+        "id": "4",
+        "text": "📖 **Funcția de citire cu voce tare** \nAm reelaborat mai multe pagini pentru a le face mai ușor de citit cu voce tare cu TalkBack. Acest lucru îmbunătățește semnificativ capacitatea de utilizare pentru persoanele cu deficiențe de vedere. \n \n📞 **Opțiuni extinse de contact** \nAm introdus noi opțiuni de contact pentru companiile de asigurări selectate. \n \n🔧 **Funcții optimizate** \nAm remediat erori minore la citirea cardului, am curățat codul și am îmbunătățit afișarea mesajelor.",
+        "timestamp": "2025-04-02T08:00:00.000Z",
+        "version": "1.29.0"
     }
 ]

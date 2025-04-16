@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -44,12 +44,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.animated.AnimatedComponent
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.labels.InfoLabel
-import de.gematik.ti.erp.app.labels.InfoLabelInBox
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -61,18 +58,15 @@ import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils
 import de.gematik.ti.erp.app.utils.uistate.UiState
-import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun Orders(
     modifier: Modifier = Modifier,
     listState: LazyListState,
-    showOrderFeatureChangedLabel: Boolean,
     ordersData: UiState<List<InAppMessage>>,
     dateFormatter: DateTimeFormatter = DateTimeUtils.dateFormatter,
-    onClickInfoLabel: () -> Unit,
-    onClickOrder: (orderId: String, isLoacalMessage: Boolean) -> Unit,
+    onClickOrder: (orderId: String, isLocalMessage: Boolean) -> Unit,
     onClickRetry: () -> Unit
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
@@ -98,17 +92,6 @@ internal fun Orders(
                 modifier = modifier.testTag(TestTag.Orders.Content),
                 state = listState
             ) {
-                if (showOrderFeatureChangedLabel) {
-                    item {
-                        InfoLabel(
-                            modifier = Modifier
-                                .padding(top = PaddingDefaults.Medium)
-                                .padding(horizontal = PaddingDefaults.Medium),
-                            text = stringResource(R.string.orders_top_app_bar_change_text),
-                            onClose = onClickInfoLabel
-                        )
-                    }
-                }
                 orders.forEachIndexed { index, order ->
                     item {
                         val date = messageTimeStateParser(timeState = order.timeState, dateFormatter = dateFormatter)
@@ -132,14 +115,6 @@ internal fun Orders(
                 item {
                     SpacerXXXLarge()
                 }
-            }
-        }
-        if (showOrderFeatureChangedLabel && (ordersData.isEmptyState)) {
-            AnimatedComponent {
-                InfoLabelInBox(
-                    text = stringResource(R.string.orders_top_app_bar_change_text),
-                    onClose = onClickInfoLabel
-                )
             }
         }
     }

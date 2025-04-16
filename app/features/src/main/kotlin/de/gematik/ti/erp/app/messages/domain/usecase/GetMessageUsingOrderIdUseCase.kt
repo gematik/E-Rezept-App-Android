@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,11 +20,11 @@ package de.gematik.ti.erp.app.messages.domain.usecase
 
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
+import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.mappers.toOrderDetail
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.prescription.mapper.toPrescription
-import de.gematik.ti.erp.app.prescription.model.Communication
+import de.gematik.ti.erp.app.messages.model.Communication
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

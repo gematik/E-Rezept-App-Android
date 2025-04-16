@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,11 +19,9 @@
 package de.gematik.ti.erp.app.prescription.detail.presentation
 
 import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.api.HTTP_GONE
 import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
 import de.gematik.ti.erp.app.fhir.model.json
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
-import de.gematik.ti.erp.app.logger.model.Response
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.medicationplan.usecase.LoadMedicationScheduleByTaskIdUseCase
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK

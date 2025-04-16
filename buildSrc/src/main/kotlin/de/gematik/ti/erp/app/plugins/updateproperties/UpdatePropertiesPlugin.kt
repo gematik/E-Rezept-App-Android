@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,9 +19,12 @@
 package de.gematik.ti.erp.app.plugins.updateproperties
 
 import de.gematik.ti.erp.app.ErpPlugin
+import de.gematik.ti.erp.app.tasks.downloadChangeLogs
+import de.gematik.ti.erp.app.tasks.downloadLokaliseStrings
 import de.gematik.ti.erp.app.tasks.updateApoFzdApiKeyTask
 import de.gematik.ti.erp.app.tasks.updateFdApiKeysTask
 import de.gematik.ti.erp.app.tasks.updateGradleProperties
+import de.gematik.ti.erp.app.tasks.uploadLokaliseStrings
 import org.gradle.api.Project
 
 @Suppress("unused")
@@ -34,6 +37,12 @@ class UpdatePropertiesPlugin : ErpPlugin {
             updateFdApiKeysTask(project)
             // APO FZD Keys
             updateApoFzdApiKeyTask(project)
+            // Download Lokalise Strings
+            downloadLokaliseStrings()
+            // Upload Lokalise Strings
+            uploadLokaliseStrings()
+            // download Change Logs
+            downloadChangeLogs()
         }
     }
 }

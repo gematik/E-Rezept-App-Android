@@ -199,6 +199,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":utils"))
     implementation(project(gematik.feature))
     implementation(project(gematik.demoMode))
     implementation(project(gematik.uiComponents))
@@ -206,6 +207,8 @@ dependencies {
     androidTestImplementation(project(gematik.testTags))
     implementation(project(gematik.multiplatform))
     testImplementation(project(gematik.multiplatform))
+    testImplementation(project(gematik.fhirParser))
+    androidTestImplementation(project(gematik.fhirParser))
     implementation(libs.play.app.update)
     implementation(libs.tracing)
     debugImplementation(libs.tracing)
@@ -247,12 +250,3 @@ fun Project.getSigningProperties(): Properties? {
     }
 
 }
-
-// keep this here since it cannot be changed for mock app
-configurations.all {
-    resolutionStrategy {
-        force("io.netty:netty-codec-http2:4.1.100.Final")
-        force("com.google.protobuf:protobuf-java:4.28.2")
-    }
-}
-

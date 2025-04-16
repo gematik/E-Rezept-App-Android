@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -59,6 +59,7 @@ import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.SwitchRightWithText
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 
 class SettingsAppSecurityScreen(
     override val navController: NavController,
@@ -66,6 +67,7 @@ class SettingsAppSecurityScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
+        val dialog = LocalDialog.current
         val deviceSecuritySettingsController = rememberAppSecuritySettingsController()
         val authenticationState by deviceSecuritySettingsController.authenticationState.collectAsStateWithLifecycle()
         val listState = rememberLazyListState()

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,9 +18,15 @@
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
-import de.gematik.ti.erp.app.db.entities.v1.InAppMessageEntity
+import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntityV1
+import io.realm.kotlin.types.RealmInstant
 
-val inAppMessageEntity = InAppMessageEntity().apply {
-    id = "01"
-    this.version = "2.27.1"
+val internalMessageEntityV1 = InternalMessageEntityV1().apply {
+    this.isUnread = false
+    this.version = "1.29.0"
+    this.id = "0"
+    this.time = RealmInstant.now()
+    this.sender = "E-Rezept App Team"
+    this.tag = "Demo-Modus"
+    this.text = "Dies ist eine Demo-Nachricht."
 }

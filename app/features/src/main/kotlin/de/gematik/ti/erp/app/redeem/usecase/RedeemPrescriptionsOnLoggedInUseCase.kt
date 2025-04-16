@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -21,24 +21,16 @@ package de.gematik.ti.erp.app.redeem.usecase
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.httpErrorState
-import de.gematik.ti.erp.app.fhir.model.CommunicationPayload
+import de.gematik.ti.erp.app.fhir.communication.CommunicationDispenseRequest.createCommunicationDispenseRequest
+import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationConstants
+import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
 import de.gematik.ti.erp.app.pharmacy.mapper.toRedeemOption
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.redeem.model.COMMUNICATION_PROFILE_1_2
-import de.gematik.ti.erp.app.redeem.model.Communication
-import de.gematik.ti.erp.app.redeem.model.Identifier
-import de.gematik.ti.erp.app.redeem.model.Meta
-import de.gematik.ti.erp.app.redeem.model.ORDER_ID_IDENTIFIER
-import de.gematik.ti.erp.app.redeem.model.Payload
-import de.gematik.ti.erp.app.redeem.model.RECIPIENT_IDENTIFIER
-import de.gematik.ti.erp.app.redeem.model.Recipient
-import de.gematik.ti.erp.app.redeem.model.RecipientIdentifier
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
-import de.gematik.ti.erp.app.redeem.model.Reference
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -51,7 +43,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
 import java.util.UUID
 
 private val json = Json {
@@ -88,8 +79,9 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                 prescriptionOrderInfos
                     .map { prescriptionOrderInfo ->
                         async {
-                            // create a communication dispense request
-                            val communicationDispenseRequestJson = createCommunicationJson(
+                            val (flowTypeCode, flowTypeDisplay) = FhirCommunicationConstants.determineFlowType(prescriptionOrderInfo.taskId)
+
+                            val communicationDispenseRequestJson = createCommunicationDispenseRequest(
                                 orderId = orderId.toString(),
                                 taskId = prescriptionOrderInfo.taskId,
                                 accessCode = prescriptionOrderInfo.accessCode,
@@ -100,7 +92,9 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                                     address = listOf(contact.line1, contact.line2, contact.postalCode, contact.city),
                                     phone = contact.telephoneNumber,
                                     hint = contact.deliveryInformation
-                                )
+                                ),
+                                flowTypeCode = flowTypeCode,
+                                flowTypeDisplay = flowTypeDisplay
                             )
 
                             // save the pharmacy as often used when the prescription was redeemed successfully
@@ -142,47 +136,4 @@ class RedeemPrescriptionsOnLoggedInUseCase(
         }
             .map { RedeemedPrescriptionState.OrderCompleted(orderId = orderId.toString(), results = it) }
             .cancellable()
-
-    private fun createCommunicationJson(
-        orderId: String,
-        taskId: String,
-        accessCode: String,
-        recipientTID: String,
-        payloadContent: CommunicationPayload
-    ): JsonElement {
-        val communication = Communication(
-            meta = Meta(
-                profile = listOf(COMMUNICATION_PROFILE_1_2)
-            ),
-            identifier = listOf(
-                Identifier(
-                    system = ORDER_ID_IDENTIFIER,
-                    value = orderId
-                )
-            ),
-            basedOn = listOf(
-                Reference(
-                    reference = "Task/$taskId/\$accept?ac=$accessCode"
-                )
-            ),
-            recipient = listOf(
-                Recipient(
-                    identifier = RecipientIdentifier(
-                        system = RECIPIENT_IDENTIFIER,
-                        value = recipientTID
-                    )
-                )
-            ),
-            payload = listOf(
-                Payload(
-                    contentString = json.encodeToString(payloadContent)
-                )
-            )
-        )
-
-        val jsonString = json.encodeToString(Communication.serializer(), communication)
-        Napier.d { "Communication dispense request created for order $orderId: $jsonString" }
-
-        return json.parseToJsonElement(jsonString)
-    }
 }

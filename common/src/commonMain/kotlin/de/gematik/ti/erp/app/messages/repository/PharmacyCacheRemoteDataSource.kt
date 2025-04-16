@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,17 +18,17 @@
 
 package de.gematik.ti.erp.app.messages.repository
 
-import de.gematik.ti.erp.app.api.PharmacySearchService
 import de.gematik.ti.erp.app.api.safeApiCall
+import de.gematik.ti.erp.app.pharmacy.api.ApoVzdPharmacySearchService
 import kotlinx.serialization.json.JsonElement
 
 class PharmacyCacheRemoteDataSource(
-    private val searchService: PharmacySearchService
+    private val searchService: ApoVzdPharmacySearchService
 ) {
     suspend fun searchPharmacy(
         telematikId: String
     ): Result<JsonElement> = safeApiCall("error searching pharmacy by telematikId") {
-        if (telematikId.startsWith("3-SMC")) {
+        if (telematikId.startsWith("3-SMC")) { // test-pharmacies telematik-ids
             searchService.search(names = listOf(telematikId), emptyMap())
         } else {
             searchService.searchByTelematikId(telematikId = telematikId)

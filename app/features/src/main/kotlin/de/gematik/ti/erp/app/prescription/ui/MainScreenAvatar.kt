@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -15,6 +15,7 @@
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
+
 @file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.prescription.ui

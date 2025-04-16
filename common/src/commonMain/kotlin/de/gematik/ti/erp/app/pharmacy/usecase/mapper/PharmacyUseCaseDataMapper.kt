@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,35 +18,78 @@
 
 package de.gematik.ti.erp.app.pharmacy.usecase.mapper
 
-import de.gematik.ti.erp.app.fhir.model.Pharmacy
-import de.gematik.ti.erp.app.fhir.model.PharmacyService
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.APOVZD
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates.Companion.toModel
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours.Companion.toModel
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact.Companion.toModel
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.OnlinePharmacyService
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyService.PickUpPharmacyService
 
 // can't be modified; the backend will always return 80 entries on the first page
-const val PharmacyInitialResultsPerPage = 80
+const val PharmacyInitialResultsPerPage = 80 // making it from 80 to 100 to match the backend
 const val PharmacyNextResultsPerPage = 10
 
-fun List<Pharmacy>.toModel(): List<PharmacyUseCaseData.Pharmacy> =
-    map { pharmacy ->
+fun List<FhirPharmacyErpModel>.toModel(
+    locationMode: PharmacyUseCaseData.LocationMode? = null,
+    type: PharmacyVzdService
+): List<PharmacyUseCaseData.Pharmacy> =
+    map { erpModel ->
         PharmacyUseCaseData.Pharmacy(
-            id = pharmacy.id,
-            name = pharmacy.name,
-            address = pharmacy.address.let {
-                "${it.lines.joinToString()}\n${it.postalCode} ${it.city}"
+            id = erpModel.id ?: "",
+            name = erpModel.name,
+            address = erpModel.address.let { "${it?.lineAddress}\n${it?.postalCode} ${it?.city}" }.trim(),
+            coordinates = erpModel.position?.toModel(),
+            distance = when (locationMode) {
+                is PharmacyUseCaseData.LocationMode.Enabled -> erpModel.position?.toModel()?.minus(locationMode.coordinates)
+                else -> null
             },
-            coordinates = pharmacy.coordinates,
-            distance = null,
-            contacts = pharmacy.contacts,
-            provides = pharmacy.provides,
-            openingHours = (
-                pharmacy.provides.find {
-                    it is PharmacyService.LocalPharmacyService
-                } as? PharmacyService.LocalPharmacyService
-                )?.openingHours,
-            telematikId = pharmacy.telematikId
+            contact = erpModel.contact.toModel(),
+            provides = erpModel.extractServices(type),
+            openingHours = if (type == APOVZD) erpModel.hoursOfOperation?.toModel() else erpModel.availableTime.toModel(),
+            telematikId = erpModel.telematikId
         )
     }
+
+private fun FhirPharmacyErpModel.extractServices(type: PharmacyVzdService): List<PharmacyUseCaseData.PharmacyService> {
+    val services = mutableListOf<PharmacyUseCaseData.PharmacyService>()
+
+    val isOpeningHoursPresent = availableTime.isNotEmpty()
+
+    val localServices = PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
+        name = name,
+        openingHours = when (type) {
+            APOVZD -> hoursOfOperation?.toModel() ?: OpeningHours(emptyMap())
+            FHIRVZD -> if (isOpeningHoursPresent) availableTime.toModel() else OpeningHours(emptyMap())
+        }
+    )
+
+    // adding the hours of operation as local services (this is used in the ui to decide the opening hours)
+    services.add(localServices)
+
+    services.addAll(
+        specialities.mapNotNull { speciality ->
+            when (speciality) {
+                FhirVzdSpecialtyType.Pickup -> PickUpPharmacyService(name)
+                FhirVzdSpecialtyType.Delivery -> DeliveryPharmacyService(
+                    name = name,
+                    openingHours = if (isOpeningHoursPresent) availableTime.toModel() else OpeningHours(emptyMap())
+                )
+                FhirVzdSpecialtyType.Shipment -> OnlinePharmacyService(name)
+                else -> null
+            }
+        }
+    )
+
+    return services.toList()
+}
 
 fun PharmacyData.ShippingContact.toModel() =
     PharmacyUseCaseData.ShippingContact(

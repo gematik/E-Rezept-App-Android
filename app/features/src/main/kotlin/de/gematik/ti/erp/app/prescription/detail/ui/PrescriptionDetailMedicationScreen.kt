@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -67,12 +67,11 @@ import de.gematik.ti.erp.app.prescription.repository.codeToFormMapping
 import de.gematik.ti.erp.app.prescription.repository.normSizeMapping
 import de.gematik.ti.erp.app.substitutionAllowed
 import de.gematik.ti.erp.app.supplyForm
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.Label
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
@@ -521,7 +520,7 @@ private fun PerformerLabel(performer: String) {
 }
 
 @Composable
-private fun HandedOverLabel(whenHandedOver: FhirTemporal?) {
+private fun HandedOverLabel(whenHandedOver: de.gematik.ti.erp.app.utils.FhirTemporal?) {
     whenHandedOver?.let {
         Label(
             text = remember { temporalText(it, TimeZone.currentSystemDefault()) },
@@ -531,7 +530,7 @@ private fun HandedOverLabel(whenHandedOver: FhirTemporal?) {
 }
 
 @Composable
-private fun ExpirationDateLabel(expirationDate: FhirTemporal) {
+private fun ExpirationDateLabel(expirationDate: de.gematik.ti.erp.app.utils.FhirTemporal) {
     Label(
         text = remember { temporalText(expirationDate, TimeZone.currentSystemDefault()) },
         label = stringResource(id = R.string.pres_detail_medication_label_expiration_date)
@@ -560,7 +559,7 @@ private fun LotNumberLabel(lotNumber: String) {
     )
 }
 
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun PrescriptionDetailMedicationScreenPreview(
     @PreviewParameter(PrescriptionDetailPreviewParameterProvider::class) previewData: PrescriptionDetailPreviewData

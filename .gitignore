@@ -22,7 +22,7 @@ ci/local_play_store_credentials.json
 /fastlane/.idea/
 /fastlane/report.xml
 /fastlane/README.md
-
+downloads/
 Jenkinsfile
 Nightly.Jenkinsfile
 Archive.Jenkinsfile
@@ -57,3 +57,4 @@ ci
 requirements
 gutachter
 fastlane
+common/schema

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,17 +18,19 @@
 
 package de.gematik.ti.erp.app.cardwall.ui.components
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.basicMarquee
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
-import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.emptyResponseError
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.prettyErrorCode
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.prettyErrorText
+import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.ErezeptText
@@ -37,7 +39,7 @@ import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 private const val MARQUEE_DELAY = 2000
 
-@OptIn(ExperimentalFoundationApi::class)
+@Suppress("MagicNumber")
 @Composable
 fun GematikErrorDialog(
     error: GematikResponseError,
@@ -47,26 +49,34 @@ fun GematikErrorDialog(
         modifier = Modifier.fillMaxWidth(),
         title = stringResource(R.string.main_fasttrack_error_title),
         body = {
-            ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_subtitle))
-            ErezeptText.Body(error.prettyErrorCode())
-            ErezeptText.Body(error.prettyErrorText())
-            SpacerSmall()
-            ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_code))
-            ErezeptText.Body(error.gematikCode)
-            SpacerSmall()
-            ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_uuid))
-            ErezeptText.Body(
-                modifier = Modifier.basicMarquee(repeatDelayMillis = MARQUEE_DELAY),
-                text = error.gematikUuid,
-                maxLines = 1
-            )
-            SpacerSmall()
-            ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_timestamp))
-            ErezeptText.Body(
-                text = error.gematikTimestamp,
-                maxLines = 1
-            )
-            SpacerSmall()
+            ErezeptText.SubtitleOne(stringResource(R.string.gid_gematik_error_title))
+            SpacerMedium()
+
+            Column(
+                modifier = Modifier
+                    .padding(PaddingDefaults.Small)
+            ) {
+                ErezeptText.SubtitleTwo(text = stringResource(R.string.gid_gematik_error_subtitle))
+                ErezeptText.Body(error.prettyErrorCode())
+                ErezeptText.Body(error.prettyErrorText())
+                SpacerSmall()
+                ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_code))
+                ErezeptText.Body(error.gematikCode)
+                SpacerSmall()
+                ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_uuid))
+                ErezeptText.Body(
+                    modifier = Modifier.basicMarquee(repeatDelayMillis = MARQUEE_DELAY),
+                    text = error.gematikUuid,
+                    maxLines = 1
+                )
+                SpacerSmall()
+                ErezeptText.SubtitleTwo(stringResource(R.string.gid_gematik_error_timestamp))
+                ErezeptText.Body(
+                    text = error.gematikTimestamp,
+                    maxLines = 1
+                )
+                SpacerSmall()
+            }
         },
         onDismissRequest = onDismissRequest
     )
@@ -76,6 +86,14 @@ fun GematikErrorDialog(
 @Composable
 fun GematikErrorDialogPreview() {
     PreviewAppTheme {
-        GematikErrorDialog(error = emptyResponseError()) {}
+        GematikErrorDialog(
+            error = GematikResponseError(
+                error = "Invalid request",
+                gematikCode = "7014",
+                gematikUuid = "f7b3b3b3-3b3b-3b3b",
+                gematikTimestamp = "173970246",
+                gematikErrorText = "kein Entity statement für idp_iss vorhanden"
+            )
+        ) {}
     }
 }

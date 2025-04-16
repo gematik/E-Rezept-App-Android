@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -37,8 +37,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
+import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutesBackStackEntryArguments
 import de.gematik.ti.erp.app.messages.presentation.rememberMessageDetailController
@@ -147,7 +147,7 @@ fun MessageDetailScreenScaffold(
     onClickPharmacy: () -> Unit,
     order: UiState<OrderUseCaseData.OrderDetail>,
     messages: List<OrderUseCaseData.Message>,
-    inAppMessage: List<InAppMessage?>,
+    inAppMessage: List<InAppMessage>,
     isLocalMessage: Boolean
 ) {
     AnimatedElevationScaffold(

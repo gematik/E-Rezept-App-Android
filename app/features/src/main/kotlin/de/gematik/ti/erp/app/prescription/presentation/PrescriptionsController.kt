@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -48,7 +48,6 @@ import de.gematik.ti.erp.app.prescription.usecase.GetActivePrescriptionsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetArchivedPrescriptionsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesSnapshotStateUseCase
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.Companion.countByType
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
@@ -322,6 +321,13 @@ class PrescriptionsController(
 
         private suspend fun StateFlow<UiState<List<Prescription>>>.count(): Int? =
             first { it.isDataState }.data?.takeIf { it.isNotEmpty() }?.count()
+
+        private suspend fun <T : Prescription> StateFlow<UiState<List<Prescription>>>.countByType(type: Class<T>): Int? {
+            return first { it.isDataState }.data
+                ?.filterIsInstance(type)
+                ?.takeIf { it.isNotEmpty() }
+                ?.count()
+        }
     }
 }
 

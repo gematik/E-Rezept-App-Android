@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -30,12 +30,12 @@ import de.gematik.ti.erp.app.demomode.extensions.demo
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.demomode.model.toProfile
 import de.gematik.ti.erp.app.demomode.model.toSyncedTaskDataCommunication
-import de.gematik.ti.erp.app.fhir.model.Pharmacy
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.prescription.model.Communication
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile.ErxCommunicationDispReq
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile.ErxCommunicationReply
+import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationReply
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -72,7 +72,7 @@ class DemoCommunicationRepository(
 
     private val scope = CoroutineScope(dispatcher)
     override val pharmacyCacheError = Channel<Throwable>()
-    override val pharmacyDownloaded = Channel<Pharmacy?>()
+    override val pharmacyDownloaded = Channel<FhirPharmacyErpModel?>()
 
     override suspend fun downloadCommunications(profileId: ProfileIdentifier) = withContext(dispatcher) {
         Napier.demo { "Simulating communication download" }
@@ -266,17 +266,17 @@ class DemoCommunicationRepository(
         }
 
     override fun unreadMessagesCount(): Flow<Long> =
-        try {
-            dataSource.communications.mapNotNull { communications ->
-                communications.filter {
-                    !it.consumed &&
-                        it.profile == ErxCommunicationDispReq
-                }
+        dataSource.communications.map { communications ->
+            try {
+                (communications.toList() ?: emptyList()) // Ensure it's never null
+                    .filter {
+                        !it.consumed && it.profile == ErxCommunicationDispReq
+                    }
                     .distinctBy { it.orderId }
                     .size.toLong()
+            } catch (e: Throwable) {
+                0L // Return 0 on failure instead of crashing
             }
-        } catch (e: Throwable) {
-            flowOf(0L)
         }
 
     override fun unreadPrescriptionsInAllOrders(profileId: ProfileIdentifier): Flow<Long> =

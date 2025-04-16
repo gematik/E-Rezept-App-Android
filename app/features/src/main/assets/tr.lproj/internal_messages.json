@@ -10,5 +10,11 @@
         "text": "**Daha iyi okunabilirlik** \n Renk kontrastını artırmak ve böylece okunabilirliği artırmak için markamızın rengini biraz daha koyu yaptık. \n \n **Optimize edilmiş özellikler** \n Gönderim tarihi biçimini güncelledik ve iletilerin sıralamasını düzelttik.",
         "timestamp": "2025-01-28T08:00:00.000Z",
         "version": "1.27.0"
+    },
+    {
+        "id": "4",
+        "text": "📖 **Yüksek sesle okuma özelliği** \nTalkBack ile yüksek sesle okumayı kolaylaştırmak için birkaç sayfayı yeniden düzenledik. Bu, görme engelli bireyler için kullanılabilirliği önemli ölçüde artırıyor. \n \n📞 **Genişletilmiş iletişim seçenekleri** \nSeçili sigorta şirketleri için yeni iletişim seçenekleri sunduk. \n \n🔧 **İşlevler optimize edildi** \nKartı okurken oluşan küçük hataları düzelttik, kodu temizledik ve mesajların görüntülenmesini iyileştirdik.",
+        "timestamp": "2025-04-02T08:00:00.000Z",
+        "version": "1.29.0"
     }
 ]

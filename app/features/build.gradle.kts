@@ -18,7 +18,12 @@ android {
 }
 
 dependencies {
+    implementation(project(namesPlugin.utils))
+    implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.demoMode))
+    implementation(project(namesPlugin.digas))
+    implementation(project(namesPlugin.tracker))
+    implementation(project(namesPlugin.navigation))
     implementation(project(namesPlugin.testTags))
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.uiComponents))

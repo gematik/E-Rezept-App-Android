@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -387,8 +387,8 @@ private fun SearchResults(
         }
     }
 
-    val showError by remember {
-        derivedStateOf { searchPagingItems.itemCount <= 1 && loadState.refresh is LoadState.Error }
+    val showError by remember(loadState, searchPagingItems.itemCount) {
+        derivedStateOf { searchPagingItems.itemCount <= 1 && loadState.hasError }
     }
 
     LazyColumn(
@@ -410,18 +410,9 @@ private fun SearchResults(
                 onClickAction = { searchPagingItems.retry() }
             )
         }
-        if (loadState.prepend is LoadState.Error || loadState.append is LoadState.Error) {
-            PharmacySearchErrorCard(
-                isFullScreen = false,
-                title = errorTitle,
-                subtitle = errorSubtitle,
-                action = errorAction,
-                onClickAction = { searchPagingItems.retry() }
-            )
-        }
         items(
             count = searchPagingItems.itemCount,
-            key = searchPagingItems.itemKey { it.id }
+            key = searchPagingItems.itemKey { it.telematikId }
         ) { index ->
             Crossfade(
                 targetState = searchPagingItems[index],

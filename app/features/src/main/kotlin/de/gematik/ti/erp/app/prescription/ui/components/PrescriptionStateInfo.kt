@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -268,6 +268,7 @@ fun readyPrescriptionStateInfo(
         else -> null
     }
 
+@Suppress("CyclomaticComplexMethod")
 @Composable
 private fun sentOrCompletedPhrase(
     lastModified: Instant,

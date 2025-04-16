@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -60,6 +60,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
@@ -79,6 +82,7 @@ import de.gematik.ti.erp.app.profiles.ui.components.ProfileColor
 import de.gematik.ti.erp.app.profiles.ui.components.ProfileImageSelectorDialog
 import de.gematik.ti.erp.app.profiles.ui.components.color
 import de.gematik.ti.erp.app.profiles.ui.components.profileColor
+import de.gematik.ti.erp.app.profiles.ui.components.toDescription
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -93,7 +97,6 @@ import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.NavigationTopAppBar
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
-import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.extensions.circularBorder
@@ -248,8 +251,29 @@ private fun AvatarSelector(
     onPickPersonalizedImage: () -> Unit,
     onSelectAvatar: (ProfilesData.Avatar) -> Unit
 ) {
+    val avatarDescription = figure.toDescription()
+    val selectedDescription = stringResource(R.string.active_description)
+    val notSelectedDescription = stringResource(R.string.inactive_description)
+    val onClickDescription = stringResource(R.string.choose_profile_picture)
     Surface(
-        modifier = modifier.size(SizeDefaults.tenfold),
+        modifier = modifier.size(SizeDefaults.tenfold).semantics {
+            role = Role.Button
+            stateDescription = avatarDescription
+            contentDescription = if (selected) {
+                selectedDescription
+            } else {
+                notSelectedDescription
+            }
+        }.clickable(
+            onClickLabel = onClickDescription,
+            onClick = {
+                if (figure == ProfilesData.Avatar.PersonalizedImage) {
+                    onPickPersonalizedImage()
+                    onSelectAvatar(figure)
+                }
+                onSelectAvatar(figure)
+            }
+        ),
         shape = CircleShape,
         border = if (selected) {
             BorderStroke(SizeDefaults.fivefoldHalf, color = AppTheme.colors.primary700)
@@ -267,21 +291,15 @@ private fun AvatarSelector(
                         ProfilesData.Avatar.PersonalizedImage -> AppTheme.colors.neutral100
                         else -> AppTheme.colors.neutral025
                     }
-                )
-                .clickable(onClick = {
-                    if (figure == ProfilesData.Avatar.PersonalizedImage) {
-                        onPickPersonalizedImage()
-                        onSelectAvatar(figure)
-                    }
-                    onSelectAvatar(figure)
-                }),
+                ),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             ChooseAvatar(
                 useSmallImages = true,
                 emptyIcon = Icons.Rounded.AddAPhoto,
-                modifier = Modifier.size(SizeDefaults.triple),
+                modifier = Modifier
+                    .size(SizeDefaults.triple),
                 image = profile.image,
                 profileColor = profile.color.color(),
                 avatar = figure
@@ -358,16 +376,24 @@ private fun ColorSelector(
     onSelectColor: (ProfilesData.ProfileColorNames) -> Unit
 ) {
     val colors = createProfileColor(profileColorName)
-    val contentDescription = annotatedStringResource(
-        R.string.edit_profile_color_selected,
-        profileColorName.name
-    ).toString()
-
+    val activeProfileDescription = stringResource(R.string.active_description)
+    val inactiveProfileDescription = stringResource(R.string.inactive_description)
     Surface(
         modifier = modifier
             .size(40.dp)
             .clip(CircleShape)
-            .clickable(onClick = { onSelectColor(profileColorName) }),
+            .clickable(
+                role = Role.Button,
+                onClick = { onSelectColor(profileColorName) }
+            )
+            .semantics {
+                stateDescription = colors.colorName
+                contentDescription = if (selected) {
+                    activeProfileDescription
+                } else {
+                    inactiveProfileDescription
+                }
+            },
         color = colors.backGroundColor
     ) {
         Row(
@@ -377,7 +403,7 @@ private fun ColorSelector(
             if (selected) {
                 Icon(
                     Icons.Outlined.Done,
-                    contentDescription,
+                    null,
                     tint = colors.textColor,
                     modifier = Modifier.size(24.dp)
                 )
@@ -392,13 +418,14 @@ fun ProfileImage(
     onClickDeleteAvatar: () -> Unit
 ) {
     val selectedColor = profileColor(profileColorNames = selectedProfile.color)
-
+    val deleteDescription = stringResource(R.string.delete_profile_picture)
+    val contentDescription = stringResource(R.string.profile_picture)
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = PaddingDefaults.Medium)
-            .semantics(true) {
-                stateDescription = selectedProfile.color.name
+            .semantics() {
+                stateDescription = contentDescription
             }
     ) {
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -442,7 +469,7 @@ fun ProfileImage(
                             ),
                             imageVector = Icons.Rounded.Delete,
                             tint = AppTheme.colors.neutral600,
-                            contentDescription = null
+                            contentDescription = deleteDescription
                         )
                     }
                 }

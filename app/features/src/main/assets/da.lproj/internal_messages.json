@@ -10,5 +10,11 @@
         "text": "**Bedre læsbarhed** \n Vi har gjort vores mærkefarve lidt mørkere for at øge farvekontrasten og derved forbedre læsbarheden. \n \n **Optimerede funktioner** \n Vi har opdateret indsendelsesdatoformatet og rettet sorteringen af ​​beskeder.",
         "timestamp": "2025-01-28T08:00:00.000Z",
         "version": "1.27.0"
+    },
+    {
+        "id": "4",
+        "text": "📖 **Læs højt-funktion** \nVi har omarbejdet flere sider for at gøre dem nemmere at læse højt med TalkBack. Dette forbedrer brugervenligheden markant for synshandicappede. \n \n📞 **Udvidede kontaktmuligheder** \nVi har indført nye kontaktmuligheder for udvalgte forsikringsselskaber. \n \n🔧 **Optimerede funktioner** \nVi har rettet mindre fejl ved læsning af kortet, ryddet op i koden og forbedret visningen af ​​beskeder.",
+        "timestamp": "2025-04-02T08:00:00.000Z",
+        "version": "1.29.0"
     }
 ]

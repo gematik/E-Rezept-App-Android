@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -25,7 +25,6 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.fhir.model.Coordinates
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
 import de.gematik.ti.erp.app.permissions.isLocationServiceEnabled
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
@@ -38,16 +37,21 @@ import de.gematik.ti.erp.app.pharmacy.usecase.GetOverviewPharmaciesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.SetPreviewMapCoordinatesUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapLatest
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.updateAndGet
 import kotlinx.coroutines.launch
@@ -58,6 +62,7 @@ abstract class PharmacyGraphController : Controller() {
     abstract val locationNotFoundEvent: ComposableEvent<Unit>
     abstract val askLocationPermissionEvent: ComposableEvent<Unit>
     abstract val locationProvidedEvent: ComposableEvent<Unit>
+    abstract val locationLoadingEvent: ComposableEvent<Boolean>
 
     abstract fun init(context: Context)
     abstract fun updateFilter(type: FilterType, clearLocation: Boolean = false)
@@ -159,6 +164,8 @@ class DefaultPharmacyGraphController(
 
     override val locationProvidedEvent = ComposableEvent<Unit>()
 
+    override val locationLoadingEvent = ComposableEvent<Boolean>()
+
     override fun init(context: Context) {
         updateIsDirectRedeemEnabledOnFilter()
         updateLocation(context)
@@ -168,9 +175,7 @@ class DefaultPharmacyGraphController(
     private fun updateLocation(context: Context) {
         controllerScope.launch {
             if (context.isLocationPermissionAndServiceEnabled()) {
-                runCatching {
-                    getLocationUseCase()
-                }.onSuccess { result ->
+                getLocationUseCase.invoke().collectLatest { result ->
                     if (result is LocationResult.Success) {
                         val coordinatesResult = Coordinates(
                             latitude = result.location.latitude,
@@ -178,6 +183,8 @@ class DefaultPharmacyGraphController(
                         )
                         _coordinates.value = coordinatesResult
                         setPreviewMapCoordinatesUseCase.invoke(coordinatesResult)
+                    } else {
+                        Napier.d(tag = "LocationResults") { "$result" }
                     }
                 }
             }
@@ -230,27 +237,43 @@ class DefaultPharmacyGraphController(
     override fun onLocationPermissionResult(isLocationGranted: Boolean) {
         controllerScope.launch {
             if (isLocationGranted) {
-                runCatching {
-                    getLocationUseCase()
-                }.onSuccess { result ->
-                    when (result) {
-                        LocationResult.LocationNotFound -> onLocationNotFound()
-                        LocationResult.PermissionDenied -> onPermissionDenied()
-                        LocationResult.ServiceDisabled -> onLocationServiceDisabled()
-                        is LocationResult.Success -> {
-                            val coordinatesResult = Coordinates(
-                                latitude = result.location.latitude,
-                                longitude = result.location.longitude
-                            )
-                            _coordinates.value = coordinatesResult
-                            setPreviewMapCoordinatesUseCase.invoke(coordinatesResult)
-                            _filter.value = _filter.value.copy(nearBy = true)
-                            locationProvidedEvent.trigger()
+                getLocationUseCase.invoke()
+                    .onStart {
+                        locationLoadingEvent.trigger(true)
+                        _filter.value = _filter.value.copy(nearBy = true)
+                    }
+                    .onCompletion {
+                        locationLoadingEvent.trigger(false)
+                    }
+                    .collectLatest { result ->
+                        when (result) {
+                            LocationResult.GettingLocation -> Unit // Already handled in on start
+                            is LocationResult.LocationSearchFailed, LocationResult.LocationNotFound -> {
+                                _filter.value = _filter.value.copy(nearBy = false)
+                                onLocationNotFound()
+                            }
+
+                            LocationResult.PermissionDenied -> {
+                                _filter.value = _filter.value.copy(nearBy = false)
+                                onPermissionDenied()
+                            }
+
+                            LocationResult.ServiceDisabled -> {
+                                _filter.value = _filter.value.copy(nearBy = false)
+                                onLocationServiceDisabled()
+                            }
+
+                            is LocationResult.Success -> {
+                                val coordinatesResult = Coordinates(
+                                    latitude = result.location.latitude,
+                                    longitude = result.location.longitude
+                                )
+                                _coordinates.value = coordinatesResult
+                                setPreviewMapCoordinatesUseCase.invoke(coordinatesResult)
+                                locationProvidedEvent.trigger()
+                            }
                         }
                     }
-                }.onFailure {
-                    onLocationNotFound()
-                }
             } else {
                 onPermissionDenied()
             }

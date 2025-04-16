@@ -219,11 +219,11 @@
     <string name="edit_profile_title">البروفايل</string>
     <string name="edit_profile_color_selected">%s تم الاختيار</string>
     <string name="edit_profile_background_color">لون الخلفية</string>
-    <string name="profile_color_name_gray">Frühlingsgrau</string>
-    <string name="profile_color_sun_dew">Sonnentau</string>
-    <string name="profile_color_name_pink">Es! Ist! Rosa!</string>
-    <string name="profile_color_name_tree">Baum</string>
-    <string name="profile_color_name_moon">Blauer Mond September</string>
+    <string name="profile_color_name_gray">رمادي</string>
+    <string name="profile_color_sun_dew">أصفر</string>
+    <string name="profile_color_name_pink">لون القرنفل</string>
+    <string name="profile_color_name_tree">أخضر</string>
+    <string name="profile_color_name_moon">أزرق</string>
     <string name="settings_profile_not_connected">لم يتم تسجيل الدخول</string>
     <string name="settings_profile_connected">تم الاتصال</string>
     <string name="settings_profile_last_authenticated_on">كان آخر اتصال في %s</string>
@@ -587,13 +587,13 @@
     <string name="medication_trade_name">اسم تجاري</string>
     <string name="pres_detail_yes">نعم</string>
     <string name="pres_detail_no">لا</string>
-    <string name="pres_detail_medication_label_dosage_instruction">الجرعة</string>
+    <string name="pres_detail_medication_label_dosage_instruction">تعليمات الجرعات</string>
     <string name="pres_detail_medication_label_authored_on">تاريخ المسألة</string>
     <string name="pres_details_direct_assignment_state">سيتم استبدال هذه الوصفة لك كجزء من العلاج.</string>
     <string name="pres_details_no_value">بدون بيان</string>
     <string name="pres_details_additional_fee">دفع اضافي</string>
     <string name="pres_details_medication">الدواء</string>
-    <string name="pres_detail_medication_label_note">تعليمات تناول الدواء</string>
+    <string name="pres_detail_medication_label_note">تعليمات التسليم</string>
     <string name="pres_detail_medication_label_bvg">مؤهلة وفقًا لـ BVG</string>
     <string name="pres_detail_medication_label_subtitution">إعداد بديل</string>
     <string name="medication_compounding_name">اسم الوصفة</string>
@@ -1054,7 +1054,6 @@
     <string name="pharmacy_contact_map_two_lines">الطريق\nهنا</string>
     <string name="pres_detail_delete_prescription_and_recipe">حذف الوصفة الطبية وإيصال التكلفة</string>
     <string name="pres_detail_delete_and_recipe_msg">إذا قمت بحذف الوصفة، فسيتم أيضًا حذف إيصال التكلفة المرتبط بها.</string>
-    <string name="orders_top_app_bar_change_text">يتم الآن عرض الرسائل من جميع الملفات الشخصية معًا</string>
     <string name="new_features_screen_title">ميزات جديدة</string>
     <string name="new_features_label_text">ميزات جديدة</string>
     <string name="new_feature_screen_subtitle">نحن نعمل باستمرار على ميزات جديدة. شاركنا برأيك وساعدنا في بناء تطبيق أفضل.</string>
@@ -1102,7 +1101,6 @@
     <string name="a11y_card_wall_card_hand">البطاقة الصحية على الهاتف الذكي</string>
     <string name="not_logged_in">لم يتم تسجيل الدخول</string>
     <string name="logged_in">مسجل</string>
-    <string name="refresh">ينعش</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">تتلقى بروتوكل الدخول بعد التسجيل في خدمة الوصفات الطبية.</string>
     <string name="paired_devices_error_login_title">التسجيل مطلوب</string>
     <string name="paired_devices_error_login_description">يرجى تسجيل الدخول باستخدام بطاقتك الصحية وحفظ تفاصيل تسجيل الدخول الخاصة بك مع القياسات الحيوية لعرض الأجهزة المتصلة.</string>
@@ -1210,7 +1208,6 @@
     <string name="settings_app_security_change_password">تغيير كلمة المرور</string>
     <string name="invoices_delete_not_logged_in_description">للحذف، يجب إنشاء اتصال بخادم الوصفة الطبية</string>
     <string name="provided">البضائع جاهزة</string>
-    <string name="provided_at_hour">البضائع جاهزة منذ %s</string>
     <string name="provided_now">لقد كانت البضائع جاهزة للتو</string>
     <string name="provided_minutes_ago">كانت البضائع جاهزة لمدة %s دقيقة</string>
     <string name="provided_on_date">البضائع جاهزة منذ %s</string>
@@ -1250,4 +1247,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n الوصفات التالية غير قابلة للاسترداد أو لم تعد قابلة للاسترداد: %1$s \n ربما تكون قد استبدلتها بالفعل بطريقة أخرى أو ربما تم حذفها. \n</string>
     <string name="error_redeemable_prescription_continue_without">استمر بدون هذه الوصفات</string>
     <string name="error_redeemable_prescription_cancel_order">إلغاء الطلب</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">وصفات</string>
+    <string name="pharmacy_order_no_prescriptions">اختر الوصفات</string>
+    <string name="pharmacy_order_no_prescriptions_error">الرجاء اختيار الوصفة</string>
+    <string name="gid_gematik_error_title">يرجى الاتصال بشركة التأمين الخاصة بك وتزويدنا بالمعلومات التالية:</string>
+    <string name="gid_gematik_error_copy">انقر هنا لنسخ رسالة الخطأ</string>
+    <string name="no_login_state_no_internet">لا يوجد انترنت</string>
+    <string name="refresh">تحديث</string>
+    <string name="provided_at_hour">كانت البضائع جاهزة منذ الساعة %s</string>
+    <string name="edit_profile_name">تعديل اسم الملف الشخصي</string>
+    <string name="activate_profile">حدد الملف الشخصي</string>
+    <string name="add_profile">إضافة الملف الشخصي</string>
+    <string name="inactive_description">لم يتم اختياره</string>
+    <string name="active_description">تم اختياره</string>
 </resources>

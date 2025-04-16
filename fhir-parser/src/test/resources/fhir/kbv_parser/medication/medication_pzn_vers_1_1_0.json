@@ -1,0 +1,54 @@
+{
+  "resourceType": "Medication",
+  "id": "af2c41be-8e6b-439d-ae65-2851b520a6f5",
+  "meta": {
+    "profile": [ "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_PZN|1.1.0" ]
+  },
+  "extension": [ {
+    "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_Base_Medication_Type",
+    "valueCodeableConcept": {
+      "coding": [ {
+        "system": "http://snomed.info/sct",
+        "version": "http://snomed.info/sct/900000000000207008/version/20220331",
+        "code": "763158003",
+        "display": "Medicinal product (product)"
+      } ]
+    }
+  }, {
+    "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Category",
+    "valueCoding": {
+      "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Medication_Category",
+      "code": "00"
+    }
+  }, {
+    "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_Vaccine",
+    "valueBoolean": false
+  } ],
+  "code": {
+    "coding": [ {
+      "system": "http://fhir.de/CodeSystem/ifa/pzn",
+      "code": "03507952"
+    } ],
+    "text": "Novaminsulfon 500 mg Lichtenstein 100 ml Tropf. N3"
+  },
+  "form": {
+    "coding": [ {
+      "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+      "code": "TEI"
+    } ]
+  },
+  "amount": {
+    "numerator": {
+      "extension": [ {
+        "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Medication_PackagingSize",
+        "valueString": "100"
+      } ],
+      "unit": "ml",
+      "system": "http://unitsofmeasure.org",
+      "code": "mL"
+    },
+    "denominator": {
+      "value": 1
+    }
+  }
+}

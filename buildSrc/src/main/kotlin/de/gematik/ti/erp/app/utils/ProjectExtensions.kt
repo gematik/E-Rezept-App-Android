@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.utils
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.kotlin.dsl.extra
+import java.util.Properties
 
 internal fun Project.versionCode() = extra[VERSION_CODE_STRING] as? Int
 
@@ -35,4 +36,13 @@ internal fun Project.detectPropertyOrNull(name: String) = findProperty(name) as?
 internal fun Project.detectPropertyOrThrow(name: String): String {
     val property = findProperty(name) as? String
     return property ?: throw GradleException("Missing argument $name")
+}
+
+internal fun Project.loadCiOverridesProperties(): Properties {
+    val props = Properties()
+    val file = rootProject.file("ci-overrides.properties")
+    if (file.exists()) {
+        file.reader().use { props.load(it) }
+    }
+    return props
 }

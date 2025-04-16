@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -40,7 +40,7 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.HelpOutline
+import androidx.compose.material.icons.automirrored.rounded.HelpOutline
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -273,7 +273,7 @@ private fun TroubleShootingButton(onTroubleshooting: () -> Unit) {
             contentColor = AppTheme.colors.primary700
         )
     ) {
-        Icon(Icons.Rounded.HelpOutline, contentDescription = null)
+        Icon(Icons.AutoMirrored.Rounded.HelpOutline, contentDescription = null)
         SpacerTiny()
         Text(
             stringResource(R.string.nfc_instruction_help_button),

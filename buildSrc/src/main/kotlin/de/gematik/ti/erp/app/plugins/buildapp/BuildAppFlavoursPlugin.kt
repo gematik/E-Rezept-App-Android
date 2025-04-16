@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.plugins.buildapp
 
 import de.gematik.ti.erp.app.ErpPlugin
+import de.gematik.ti.erp.app.tasks.buildAppGalleryApp
 import de.gematik.ti.erp.app.tasks.buildAppGalleryBundle
 import de.gematik.ti.erp.app.tasks.buildKonnyApp
 import de.gematik.ti.erp.app.tasks.buildMinifiedApp
@@ -45,6 +46,7 @@ class BuildAppFlavoursPlugin : ErpPlugin {
             buildPlayStoreBundle()
             buildPlayStoreApp()
             buildAppGalleryBundle()
+            buildAppGalleryApp()
             buildTuReleaseApp()
             buildKonnyApp()
             buildTuDebugApp()
@@ -69,6 +71,7 @@ class BuildAppFlavoursPlugin : ErpPlugin {
     ) {
         PlayStoreBundle("bundleGooglePuExternalRelease", "googlePuExternal"),
         PlayStoreApk("assembleGooglePuExternalRelease", "googlePuExternal"),
+        AppGalleryApk("assembleHuaweiPuExternalRelease", "huaweiPuExternal"),
         AppGalleryBundle("bundleHuaweiPuExternalRelease", "huaweiPuExternal"),
         GoogleTuApk("assembleGoogleTuExternalRelease", "googleTuExternal"),
         KonnyApk("assembleKonnektathonRuInternalDebug", "konnektathonRuInternal"),

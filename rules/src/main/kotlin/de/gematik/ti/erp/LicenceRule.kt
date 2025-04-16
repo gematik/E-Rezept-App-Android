@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -39,7 +39,7 @@ val licencePlaceholderHeader =
 val oldLicenceHeader =
     """
     /*
-     * Copyright 2023, gematik GmbH
+     * Copyright 2024, gematik GmbH
      *
      * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
      * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -60,7 +60,7 @@ val oldLicenceHeader =
 val licenceHeader =
     """
     /*
-     * Copyright 2024, gematik GmbH
+     * Copyright 2025, gematik GmbH
      *
      * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
      * European Commission – subsequent versions of the EUPL (the "Licence").

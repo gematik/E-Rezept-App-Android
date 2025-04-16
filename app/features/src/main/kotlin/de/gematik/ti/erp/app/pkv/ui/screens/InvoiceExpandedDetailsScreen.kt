@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -41,9 +41,7 @@ import de.gematik.ti.erp.app.invoice.model.currencyString
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvNavigationArguments.Companion.getPkvNavigationArguments
 import de.gematik.ti.erp.app.pkv.presentation.rememberInvoiceController
-import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceListScreenPreviewData
-import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceListScreenPreviewParameterProvider
-import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData
+import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceExpandedDetailsScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -258,14 +256,13 @@ private fun PatientLabel(patient: SyncedTaskData.Patient) {
 @LightDarkPreview
 @Composable
 fun invoiceExpandedDetailsScreenContentPreview(
-    @PreviewParameter(InvoiceListScreenPreviewParameterProvider::class) previewData: InvoiceListScreenPreviewData
+    @PreviewParameter(InvoiceExpandedDetailsScreenPreviewParameterProvider::class) previewData: InvoiceData.PKVInvoiceRecord?
 ) {
     PreviewAppTheme {
-        val mockListState = LazyListState()
         InvoiceExpandedDetailsScreenScaffold(
             onBack = {},
-            listState = mockListState,
-            invoice = PkvMockData.invoiceRecord
+            listState = LazyListState(),
+            invoice = previewData
         )
     }
 }

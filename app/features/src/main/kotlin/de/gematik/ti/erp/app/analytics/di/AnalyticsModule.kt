@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.analytics.usecase.GetDebugTrackingSessionUseCase
 import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.analytics.usecase.StartTrackerUseCase
 import de.gematik.ti.erp.app.analytics.usecase.StopTrackerUseCase
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -47,7 +48,10 @@ val analyticsModule = DI.Module("analyticsModule") {
     bindSingleton { DebugTrackerSession() }
 
     bindProvider { ContentSquareScreenMapper() }
-    bindProvider { Tracker(instance(), instance(), instance()) }
+    bindProvider {
+        val isNonReleaseMode = BuildConfigExtension.isNonReleaseMode
+        Tracker(instance(), instance(), instance(), isNonReleaseMode)
+    }
     bindProvider { ContentSquareTracker() }
     bindProvider { DebugTracker(instance()) }
     bindProvider { GetDebugTrackingSessionUseCase(instance()) }

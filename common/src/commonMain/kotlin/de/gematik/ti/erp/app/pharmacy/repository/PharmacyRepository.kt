@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,33 +20,22 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.fhir.model.PharmacyServices
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.Flow
 
 interface PharmacyRepository {
-    suspend fun searchPharmacies(
-        names: List<String>,
-        filter: Map<String, String>
-    ): Result<PharmacyServices>
 
-    suspend fun searchPharmaciesByBundle(
-        bundleId: String,
-        offset: Int,
-        count: Int
-    ): Result<PharmacyServices>
+    suspend fun searchPharmacies(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection>
 
-    suspend fun searchBinaryCerts(
-        locationId: String
-    ): Result<List<String>>
+    suspend fun searchPharmaciesByBundle(bundleId: String, offset: Int, count: Int): Result<FhirPharmacyErpModelCollection>
 
-    suspend fun redeemPrescriptionDirectly(
-        url: String,
-        message: ByteArray,
-        pharmacyTelematikId: String,
-        transactionId: String
-    ): Result<Unit>
+    suspend fun searchBinaryCerts(locationId: String): Result<List<String>>
+
+    suspend fun redeemPrescriptionDirectly(url: String, message: ByteArray, pharmacyTelematikId: String, transactionId: String): Result<Unit>
 
     fun loadOftenUsedPharmacies(): Flow<List<OverviewPharmacyData.OverviewPharmacy>>
 
@@ -60,9 +49,13 @@ interface PharmacyRepository {
 
     suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy)
 
-    suspend fun searchPharmacyByTelematikId(telematikId: String): Result<PharmacyServices>
+    suspend fun searchPharmacyByTelematikId(telematikId: String): Result<FhirPharmacyErpModelCollection>
 
     fun isPharmacyInFavorites(pharmacy: PharmacyUseCaseData.Pharmacy): Flow<Boolean>
 
     suspend fun markAsRedeemed(taskId: String)
+
+    fun getSelectedVzdPharmacyBackend(): PharmacyVzdService
+
+    suspend fun updateSelectedVzdPharmacyBackend(pharmacyVzdService: PharmacyVzdService)
 }

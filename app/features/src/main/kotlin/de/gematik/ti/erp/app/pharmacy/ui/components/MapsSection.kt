@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -29,7 +29,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.fhir.model.Coordinates
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -43,6 +44,7 @@ internal fun LazyListScope.MapsTitle() {
             modifier = Modifier
                 .padding(top = PaddingDefaults.XXLarge, bottom = PaddingDefaults.Medium)
                 .padding(horizontal = PaddingDefaults.Medium)
+                .semanticsHeading()
         )
     }
 }

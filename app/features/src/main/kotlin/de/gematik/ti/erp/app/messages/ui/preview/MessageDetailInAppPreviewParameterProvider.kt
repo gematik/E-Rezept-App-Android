@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,9 +19,9 @@
 package de.gematik.ti.erp.app.messages.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
-import de.gematik.ti.erp.app.messages.domain.model.MessageTimeState
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.MessageTimeState
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.InAppMessage
 import kotlinx.datetime.Instant
 
 class MessageDetailInAppPreviewParameterProvider : PreviewParameterProvider<List<InAppMessage>> {

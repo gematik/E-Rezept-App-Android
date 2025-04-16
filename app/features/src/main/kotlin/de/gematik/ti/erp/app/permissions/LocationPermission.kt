@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -57,7 +57,10 @@ fun Context.isLocationServiceEnabled(): Boolean {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
         manager?.isLocationEnabled ?: false
     } else {
-        true
+        manager?.let {
+            it.isProviderEnabled(LocationManager.GPS_PROVIDER) ||
+                it.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+        } ?: false
     }
 }
 

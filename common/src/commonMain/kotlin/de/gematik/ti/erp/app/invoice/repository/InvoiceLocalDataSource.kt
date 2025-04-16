@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -525,9 +525,9 @@ class InvoiceLocalDataSource(
     fun loadInvoiceAttachments(taskId: String) =
         realm.queryFirst<PKVInvoiceEntityV1>("taskId = $0", taskId)?.let {
             listOf(
-                Triple("${taskId}_verordnung.ps7", "application/pkcs7-mime", it.kbvBinary),
-                Triple("${taskId}_abrechnung.ps7", "application/pkcs7-mime", it.invoiceBinary),
-                Triple("${taskId}_quittung.ps7", "application/pkcs7-mime", it.erpPrBinary)
+                Triple("${taskId}_verordnung.p7s", "application/pkcs7-mime", it.kbvBinary),
+                Triple("${taskId}_abgabedaten.p7s", "application/pkcs7-mime", it.invoiceBinary),
+                Triple("${taskId}_quittung.p7s", "application/pkcs7-mime", it.erpPrBinary)
             )
         }
 

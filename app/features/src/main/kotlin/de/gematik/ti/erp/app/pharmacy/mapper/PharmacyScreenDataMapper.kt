@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -31,7 +31,7 @@ internal fun PharmacyScreenData.OrderOption.toRedeemOption(): RemoteRedeemOption
 
 internal fun PharmacyScreenData.OrderOption.toPharmacyContact(data: PharmacyUseCaseData.Pharmacy): String =
     when (this) {
-        PharmacyScreenData.OrderOption.PickupService -> data.contacts.pickUpUrl
-        PharmacyScreenData.OrderOption.CourierDelivery -> data.contacts.deliveryUrl
-        PharmacyScreenData.OrderOption.MailDelivery -> data.contacts.onlineServiceUrl
+        PharmacyScreenData.OrderOption.PickupService -> data.contact.pickUpUrl
+        PharmacyScreenData.OrderOption.CourierDelivery -> data.contact.deliveryUrl
+        PharmacyScreenData.OrderOption.MailDelivery -> data.contact.onlineServiceUrl
     }

@@ -1,0 +1,73 @@
+{
+  "id": "39b9ec0c-37ac-4ff6-948c-06bfeb199f74",
+  "type": "searchset",
+  "timestamp": "2024-08-15T07:04:49.562+00:00",
+  "resourceType": "Bundle",
+  "total": 1,
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Communication",
+        "id": "01ebc980-ae10-41f0-5a9f-c8ad61141a66",
+        "meta": {
+          "profile": [
+            "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Communication_Reply|1.4"
+          ]
+        },
+        "basedOn": [
+          {
+            "reference": "Task/160.000.226.545.733.51"
+          }
+        ],
+        "status": "unknown",
+        "recipient": [
+          {
+            "identifier": {
+              "system": "http://fhir.de/sid/gkv/kvid-10",
+              "value": "X110432693"
+            }
+          }
+        ],
+        "payload": [
+          {
+            "extension": [
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_AvailabilityState",
+                "valueCoding": {
+                  "system": "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_AvailabilityStatus",
+                  "code": "30"
+                }
+              },
+              {
+                "url": "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_EX_SupplyOptionsType",
+                "extension": [
+                  {
+                    "url": "onPremise",
+                    "valueBoolean": true
+                  },
+                  {
+                    "url": "delivery",
+                    "valueBoolean": false
+                  },
+                  {
+                    "url": "shipment",
+                    "valueBoolean": false
+                  }
+                ]
+              }
+            ],
+            "contentString": "Eisern"
+          }
+        ],
+        "sent": "2024-08-14T11:14:38.230+00:00",
+        "sender": {
+          "identifier": {
+            "value": "3-01.2.2023001.16.103",
+            "system": "https://gematik.de/fhir/sid/telematik-id"
+          }
+        },
+        "received": "2024-08-14T11:14:46.000+00:00"
+      }
+    }
+  ]
+}

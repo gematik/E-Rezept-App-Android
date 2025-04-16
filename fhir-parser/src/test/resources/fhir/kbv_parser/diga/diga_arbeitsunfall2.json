@@ -1,0 +1,57 @@
+{
+  "resourceType": "DeviceRequest",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_EVDGA_HealthAppRequest|1.0"
+    ]
+  },
+  "extension": [
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_EVDGA_SER",
+      "valueBoolean": false
+    },
+    {
+      "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident",
+      "extension": [
+        {
+          "url": "Unfallkennzeichen",
+          "valueCoding": {
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type",
+            "code": "2"
+          }
+        },
+        {
+          "url": "Unfalltag",
+          "valueDate": "2023-03-26"
+        },
+        {
+          "url": "Unfallbetrieb",
+          "valueString": "Dummy-Betrieb"
+        }
+      ]
+    }
+  ],
+  "status": "active",
+  "intent": "order",
+  "codeCodeableConcept": {
+    "coding": [
+      {
+        "system": "http://fhir.de/CodeSystem/ifa/pzn",
+        "code": "17850263"
+      }
+    ],
+    "text": "companion patella"
+  },
+  "subject": {
+    "reference": "urn:uuid:40acd463-b25d-4ede-8b1f-2b0994f29aa5"
+  },
+  "authoredOn": "2023-03-26",
+  "requester": {
+    "reference": "urn:uuid:cdb92124-7e6d-45e6-a52d-0a8c13ae2e53"
+  },
+  "insurance": [
+    {
+      "reference": "urn:uuid:27ad42a1-4e3e-497c-8b2d-73f9b934592c"
+    }
+  ]
+}

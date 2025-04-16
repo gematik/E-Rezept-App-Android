@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,17 +18,19 @@
 
 package de.gematik.ti.erp.app.demomode.di
 
+import android.content.res.AssetManager
 import de.gematik.ti.erp.app.authentication.mapper.PromptAuthenticationProvider
-import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.mapper.authentication.DemoPromptAuthenticationProvider
 import de.gematik.ti.erp.app.demomode.repository.consent.DemoConsentRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoCommunicationRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoDownloadCommunicationResource
-import de.gematik.ti.erp.app.demomode.repository.orders.DemoInAppMessageRepository
+import de.gematik.ti.erp.app.demomode.repository.orders.DemoInternalMessagesRepository
 import de.gematik.ti.erp.app.demomode.repository.pharmacy.DemoFavouritePharmacyLocalDataSource
 import de.gematik.ti.erp.app.demomode.repository.pharmacy.DemoOftenUsePharmacyLocalDataSource
+import de.gematik.ti.erp.app.demomode.repository.pharmacy.DemoPharmacyRepository
 import de.gematik.ti.erp.app.demomode.repository.pharmacy.DemoRedeemLocalDataSource
 import de.gematik.ti.erp.app.demomode.repository.pharmacy.DemoShippingContactRepository
 import de.gematik.ti.erp.app.demomode.repository.prescriptions.DemoPrescriptionsRepository
@@ -38,9 +40,10 @@ import de.gematik.ti.erp.app.demomode.repository.protocol.DemoAuditEventsReposit
 import de.gematik.ti.erp.app.demomode.usecase.idp.DemoIdpUseCase
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.OftenUsedPharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
@@ -57,7 +60,6 @@ val demoModeModule = DI.Module("demoModeModule") {
     bindSingleton { DemoModeDataSource() }
 }
 
-// TODO DemoMode
 fun DI.MainBuilder.demoModeOverrides() {
     bindProvider<ProfileRepository>(overrides = true) { DemoProfilesRepository(instance()) }
     bindProvider<ConsentRepository>(overrides = true) { DemoConsentRepository() }
@@ -67,9 +69,13 @@ fun DI.MainBuilder.demoModeOverrides() {
     bindProvider<FavouritePharmacyLocalDataSource>(overrides = true) { DemoFavouritePharmacyLocalDataSource(instance()) }
     bindProvider<OftenUsedPharmacyLocalDataSource>(overrides = true) { DemoOftenUsePharmacyLocalDataSource(instance()) }
     bindProvider<CommunicationRepository>(overrides = true) { DemoCommunicationRepository(instance(), instance()) }
-    bindProvider<InAppMessageRepository>(overrides = true) { DemoInAppMessageRepository(instance()) }
+    bindProvider<InternalMessagesRepository>(overrides = true) { DemoInternalMessagesRepository(instance()) }
     bindProvider<TaskRepository>(overrides = true) { DemoTaskRepository() }
     bindProvider<IdpUseCase>(overrides = true) { DemoIdpUseCase(instance()) }
+    bindProvider<PharmacyRepository>(overrides = true) {
+        val assetManager = instance<AssetManager>()
+        DemoPharmacyRepository(instance(), instance(), assetManager)
+    }
     bindProvider<ShippingContactRepository>(overrides = true) { DemoShippingContactRepository() }
 
     // these two are added for future functions

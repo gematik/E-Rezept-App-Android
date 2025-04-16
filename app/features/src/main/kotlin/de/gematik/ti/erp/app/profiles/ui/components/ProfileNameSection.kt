@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -45,6 +45,10 @@ import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.TextRange
@@ -64,6 +68,7 @@ import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.DynamicText
 import de.gematik.ti.erp.app.utils.compose.ErrorText
+import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.extensions.sanitizeProfileName
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.launch
@@ -79,7 +84,10 @@ fun ProfileNameSection(
     var profileName by remember(profileState) { mutableStateOf(initialProfileName) }
     var profileNameValid by remember { mutableStateOf(true) }
     var textFieldEnabled by remember { mutableStateOf(false) }
-
+    val editProfileNameDescription = annotatedStringResource(
+        R.string.edit_profile_name_button,
+        profileName
+    ).toString()
     val focusRequester = remember { FocusRequester() }
     val scope = rememberCoroutineScope()
 
@@ -124,6 +132,10 @@ fun ProfileNameSection(
                             textFieldEnabled = true
                         }
                         .testTag(TestTag.Profile.EditProfileNameButton)
+                        .clearAndSetSemantics {
+                            role = Role.Button
+                            contentDescription = editProfileNameDescription
+                        }
                 )
             } else {
                 ProfileEditBasicTextField(
@@ -142,7 +154,7 @@ fun ProfileNameSection(
                     profiles = profileState.data?.profiles ?: emptyList(),
                     onDone = {
                         if (profileNameValid) {
-                            onUpdateProfileName(profileName)
+                            onUpdateProfileName(profileName.trim())
                             textFieldEnabled = false
                             scope.launch { keyboardController?.hide() }
                         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -38,7 +38,6 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import org.bouncycastle.util.encoders.Base64
 import java.security.KeyPairGenerator
 import java.security.KeyStore
-import java.security.KeyStoreException
 import java.security.PublicKey
 import java.security.spec.ECGenParameterSpec
 import kotlin.coroutines.resume
@@ -59,6 +58,8 @@ class SaveCredentialsController(
         class Initialized(val aliasOfSecureElementEntry: ByteArray, val publicKey: PublicKey) : AuthResult
     }
 
+    val aliasToByteArray: (ByteArray) -> String = { Base64.toBase64String(it) }
+
     @Requirement(
         "A_21585#1",
         "A_21590#1",
@@ -71,75 +72,95 @@ class SaveCredentialsController(
             secureRandomInstance().nextBytes(this)
         }
 
-        val keyPairGenerator = KeyPairGenerator.getInstance(
-            KeyProperties.KEY_ALGORITHM_EC,
-            "AndroidKeyStore"
-        )
+        // ensures a clean keystore state
+        deleteKey(aliasToByteArray(aliasOfSecureElementEntry))
 
-        @Requirement(
-            "O.Auth_5#1",
-            sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Invalidate when change is registered.",
-            codeLines = 10
-        )
-        val parameterSpec = KeyGenParameterSpec.Builder(
-            Base64.toBase64String(aliasOfSecureElementEntry),
-            KeyProperties.PURPOSE_SIGN
-        ).apply {
-            setInvalidatedByBiometricEnrollment(true)
-            setUserAuthenticationRequired(true)
+        try {
+            val keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_EC, "AndroidKeyStore")
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                // While the documentation of Android suggests to set this to zero, this is safe to use.
-                // If the key is used and later, e.g. a fingerprint is added, the keystore implementation of
-                // Android will throw a `KeyPermanentlyInvalidatedException`. Later on if the user restarts
-                // the phone, the key is permanently invalidated and the actual `UserNotAuthenticatedException`
-                // is thrown.
-                setUserAuthenticationParameters(
-                    KeyTimeout,
-                    KeyProperties.AUTH_DEVICE_CREDENTIAL or KeyProperties.AUTH_BIOMETRIC_STRONG
-                )
-            } else {
-                // needed for Huawei and Android devices < R
-                setUserAuthenticationValidityDurationSeconds(KeyTimeout)
-            }
-            Napier.d("2 StrongBox is available: $useStrongBox")
-            setIsStrongBoxBacked(useStrongBox)
-            setDigests(KeyProperties.DIGEST_SHA256)
-            setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
-        }.build()
+            @Requirement(
+                "O.Auth_5#1",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Invalidate when change is registered.",
+                codeLines = 10
+            )
+            val parameterSpec = KeyGenParameterSpec.Builder(
+                Base64.toBase64String(aliasOfSecureElementEntry),
+                KeyProperties.PURPOSE_SIGN
+            ).apply {
+                setInvalidatedByBiometricEnrollment(true)
+                setUserAuthenticationRequired(true)
 
-        keyPairGenerator.initialize(parameterSpec)
-        val keyPair = keyPairGenerator.generateKeyPair()
-        val publicKey = keyPair.public // required to init
-        val prompt = biometricPromptBuilder.buildBiometricPrompt(
-            onSuccess = {
-                continuation.resume(
-                    AuthResult.Initialized(
-                        aliasOfSecureElementEntry = aliasOfSecureElementEntry,
-                        publicKey = publicKey
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    // While the documentation of Android suggests to set this to zero, this is safe to use.
+                    // If the key is used and later, e.g. a fingerprint is added, the keystore implementation of
+                    // Android will throw a `KeyPermanentlyInvalidatedException`. Later on if the user restarts
+                    // the phone, the key is permanently invalidated and the actual `UserNotAuthenticatedException`
+                    // is thrown.
+                    setUserAuthenticationParameters(
+                        KeyTimeout,
+                        KeyProperties.AUTH_DEVICE_CREDENTIAL or KeyProperties.AUTH_BIOMETRIC_STRONG
                     )
-                )
-            },
-            onError = { _: String, _: Int ->
-                cleanup(aliasOfSecureElementEntry)
-                continuation.resume(AuthResult.Error)
+                } else {
+                    // needed for Huawei and Android devices < R
+                    setUserAuthenticationValidityDurationSeconds(KeyTimeout)
+                }
+
+                if (useStrongBox) {
+                    try {
+                        setIsStrongBoxBacked(true)
+                    } catch (e: Exception) {
+                        Napier.e("StrongBox is not available")
+                        setIsStrongBoxBacked(false)
+                    }
+                }
+
+                setDigests(KeyProperties.DIGEST_SHA256)
+                setAlgorithmParameterSpec(ECGenParameterSpec("secp256r1"))
+            }.build()
+
+            keyPairGenerator.initialize(parameterSpec)
+            val keyPair = keyPairGenerator.generateKeyPair()
+            val publicKey = keyPair.public // required to init
+
+            Napier.d { "KeyPair generated successfully!" }
+
+            val prompt = biometricPromptBuilder.buildBiometricPrompt(
+                onSuccess = {
+                    continuation.resume(
+                        AuthResult.Initialized(
+                            aliasOfSecureElementEntry = aliasOfSecureElementEntry,
+                            publicKey = publicKey
+                        )
+                    )
+                },
+                onError = { _: String, _: Int ->
+                    deleteKey(aliasToByteArray(aliasOfSecureElementEntry))
+                    continuation.resume(AuthResult.Error)
+                }
+            )
+            prompt.authenticate(promptInfo)
+            continuation.invokeOnCancellation {
+                prompt.cancelAuthentication()
+                deleteKey(aliasToByteArray(aliasOfSecureElementEntry))
             }
-        )
-        prompt.authenticate(promptInfo)
-        continuation.invokeOnCancellation {
-            prompt.cancelAuthentication()
-            cleanup(aliasOfSecureElementEntry)
+        } catch (e: Exception) {
+            Napier.e("Key generation failed", e)
+            deleteKey(aliasToByteArray(aliasOfSecureElementEntry))
+            continuation.resume(AuthResult.Error)
         }
     }
 
-    fun cleanup(aliasOfSecureElementEntry: ByteArray) {
+    fun deleteKey(alias: String) {
         try {
-            KeyStore.getInstance("AndroidKeyStore")
-                .apply { load(null) }
-                .deleteEntry(Base64.toBase64String(aliasOfSecureElementEntry))
-        } catch (e: KeyStoreException) {
-            Napier.e("Couldn't remove key from keystore on failure; expected to happen.", e)
+            KeyStore.getInstance("AndroidKeyStore").apply {
+                load(null)
+                if (containsAlias(alias)) {
+                    deleteEntry(alias)
+                }
+            }
+        } catch (e: Exception) {
+            Napier.e("Error deleting old key", e)
         }
     }
 }

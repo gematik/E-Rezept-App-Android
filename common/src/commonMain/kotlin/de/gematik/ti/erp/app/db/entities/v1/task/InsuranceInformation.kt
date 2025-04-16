@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -46,6 +46,7 @@ enum class CoverageTypeV1 {
 class InsuranceInformationEntityV1 : RealmObject {
     var name: String? = null
     var statusCode: String? = null
+    var identifierNumber: String? = null
 
     @delegate:Ignore
     var coverageType: CoverageTypeV1 by enumName(::_coverageType)

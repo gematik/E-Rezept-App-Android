@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,10 +19,8 @@
 package de.gematik.ti.erp.app.pharmacy.presentation
 
 import com.google.android.gms.maps.model.LatLng
-import de.gematik.ti.erp.app.fhir.model.Coordinates
-import de.gematik.ti.erp.app.fhir.model.PharmacyService
-import de.gematik.ti.erp.app.fhir.model.isOpenAt
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.isOpenAt
 import kotlinx.datetime.Clock
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
@@ -38,7 +36,13 @@ internal fun PharmacyUseCaseData.Pharmacy.location(locationMode: PharmacyUseCase
 
 internal fun PharmacyUseCaseData.Pharmacy.deliveryService(isDeliveryServiceFiltered: Boolean) =
     when {
-        isDeliveryServiceFiltered -> provides.any { it is PharmacyService.DeliveryPharmacyService }
+        isDeliveryServiceFiltered -> provides.any { it is PharmacyUseCaseData.PharmacyService.DeliveryPharmacyService }
+        else -> true
+    }
+
+internal fun PharmacyUseCaseData.Pharmacy.onlineService(isOnlineServiceFiltered: Boolean) =
+    when {
+        isOnlineServiceFiltered -> provides.any { it is PharmacyUseCaseData.PharmacyService.OnlinePharmacyService }
         else -> true
     }
 
@@ -51,8 +55,8 @@ internal fun PharmacyUseCaseData.Pharmacy.isOpenNow(isOpenNow: Boolean) =
         true
     }
 
-internal fun Coordinates.toLatLng() = LatLng(latitude, longitude)
+internal fun PharmacyUseCaseData.Coordinates.toLatLng() = LatLng(latitude, longitude)
 
 internal fun PharmacyUseCaseData.LocationMode.Enabled.toLatLng() = coordinates.toLatLng()
 
-internal fun LatLng.toCoordinates() = Coordinates(latitude, longitude)
+internal fun LatLng.toCoordinates() = PharmacyUseCaseData.Coordinates(latitude, longitude)

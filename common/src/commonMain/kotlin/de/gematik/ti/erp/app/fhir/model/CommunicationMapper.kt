@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.fhir.model
  * European Commission – subsequent versions of the EUPL (the "Licence").
  */
 
+import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedArrayOrNull
 import de.gematik.ti.erp.app.fhir.parser.containedOrNull
@@ -38,7 +39,6 @@ import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.asFhirInstant
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive

@@ -61,13 +61,6 @@ licenseReport {
     copyJsonReportToAssets = true
 }
 
-/*configurations.all {
-    resolutionStrategy {
-        // Forcing this lib to be of this version for all modules since later version needs CompileSdk = 34
-        force("androidx.emoji2:emoji2:1.3.0")
-    }
-}*/
-
 android {
     buildToolsVersion = BUILD_TOOLS_VERSION
     compileSdk = COMPILE_SDK_VERSION

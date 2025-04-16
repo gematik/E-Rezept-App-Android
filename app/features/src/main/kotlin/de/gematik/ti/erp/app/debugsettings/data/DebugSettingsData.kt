@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -30,7 +30,9 @@ data class DebugSettingsData(
     val eRezeptActive: Boolean,
     val idpUrl: String,
     val idpActive: Boolean,
-    val pharmacyServiceUrl: String,
+    val apoVzdPharmacyServiceUrl: String,
+    val fhirVzdPharmacyServiceUrl: String,
+    val fhirVzdPharmacySearchAccessTokenUrl: String,
     val pharmacyServiceActive: Boolean,
     val bearerToken: String,
     val bearerTokenIsSet: Boolean,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -37,12 +37,6 @@ data class Metrics(
     val camRotation: Int = 0,
     val screenSize: Size = Size(0, 0)
 ) {
-    val aidRect = Rect(
-        0,
-        (camImageSize.height * 0.15).toInt(),
-        camImageSize.width,
-        camImageSize.height - (camImageSize.height * 0.10).toInt()
-    )
     val glueDistance =
         (camImageSize.height * 0.10).toInt()
 

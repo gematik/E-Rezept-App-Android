@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -21,8 +21,8 @@ package de.gematik.ti.erp.app.messages.usecase
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.messages.mappers.toMessage
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.prescription.model.Communication
-import de.gematik.ti.erp.app.prescription.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import kotlinx.datetime.Instant
 import org.junit.Rule
 import org.junit.Test

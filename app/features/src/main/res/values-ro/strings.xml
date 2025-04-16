@@ -210,11 +210,11 @@
     <string name="edit_profile_title">profil</string>
     <string name="edit_profile_color_selected">%s selectat</string>
     <string name="edit_profile_background_color">culoare de fundal</string>
-    <string name="profile_color_name_gray">Gri de primăvară</string>
-    <string name="profile_color_sun_dew">Roza soarelui</string>
-    <string name="profile_color_name_pink">Aceasta! Este! Roz!</string>
-    <string name="profile_color_name_tree">Copac</string>
-    <string name="profile_color_name_moon">Luna albastră septembrie</string>
+    <string name="profile_color_name_gray">Gri</string>
+    <string name="profile_color_sun_dew">Galben</string>
+    <string name="profile_color_name_pink">Roz</string>
+    <string name="profile_color_name_tree">Verde</string>
+    <string name="profile_color_name_moon">Albastru</string>
     <string name="settings_profile_not_connected">Neconectat</string>
     <string name="settings_profile_connected">Legați împreună</string>
     <string name="settings_profile_last_authenticated_on">Ultima conectare pe %s</string>
@@ -566,13 +566,13 @@
     <string name="medication_trade_name">Nume comercial</string>
     <string name="pres_detail_yes">da</string>
     <string name="pres_detail_no">Nu</string>
-    <string name="pres_detail_medication_label_dosage_instruction">dozare</string>
+    <string name="pres_detail_medication_label_dosage_instruction">instrucțiuni de dozare</string>
     <string name="pres_detail_medication_label_authored_on">data emiterii</string>
     <string name="pres_details_direct_assignment_state">Această rețetă va fi răscumpărată pentru dvs. ca parte a unui tratament.</string>
     <string name="pres_details_no_value">Nu este specificat</string>
     <string name="pres_details_additional_fee">Plata aditionala</string>
     <string name="pres_details_medication">medicament</string>
-    <string name="pres_detail_medication_label_note">Instrucțiunile de utilizare</string>
+    <string name="pres_detail_medication_label_note">instructiuni de livrare</string>
     <string name="pres_detail_medication_label_bvg">Eligibil conform BVG</string>
     <string name="pres_detail_medication_label_subtitution">Pregătire alternativă</string>
     <string name="medication_compounding_name">Numele rețetei</string>
@@ -1030,7 +1030,6 @@
     <string name="pharmacy_contact_map_two_lines">Aici\ntraseu</string>
     <string name="pres_detail_delete_prescription_and_recipe">Ștergeți rețeta și chitanța de cost</string>
     <string name="pres_detail_delete_and_recipe_msg">Dacă ștergeți rețeta, se șterge și chitanța de cost asociată.</string>
-    <string name="orders_top_app_bar_change_text">Mesajele din toate profilurile sunt acum afișate împreună</string>
     <string name="new_features_screen_title">Functii noi</string>
     <string name="new_features_label_text">Functii noi</string>
     <string name="new_feature_screen_subtitle">Lucrăm constant la noi funcții. Împărtășește-ți părerea cu noi și ajută-ne să construim o aplicație mai bună.</string>
@@ -1075,7 +1074,6 @@
     <string name="a11y_card_wall_card_hand">Card de sănătate pe smartphone</string>
     <string name="not_logged_in">Neconectat</string>
     <string name="logged_in">Înregistrat</string>
-    <string name="refresh">reîmprospăta</string>
     <string name="no_audit_events_not_logged_in_protocol_list_info">Veți primi jurnalele de acces dacă sunteți autentificat la serviciul de prescripție medicală.</string>
     <string name="paired_devices_error_login_title">Este necesară înregistrarea</string>
     <string name="paired_devices_error_login_description">Vă rugăm să vă conectați cu cardul de sănătate și să salvați detaliile de conectare cu datele biometrice pentru a vedea dispozitivele conectate.</string>
@@ -1183,7 +1181,6 @@
     <string name="settings_app_security_change_password">Schimbaţi parola</string>
     <string name="invoices_delete_not_logged_in_description">Pentru a șterge, trebuie stabilită o conexiune la Prescription Server</string>
     <string name="provided">Marfa este gata</string>
-    <string name="provided_at_hour">Mărfurile sunt gata de la %s</string>
     <string name="provided_now">Marfa a fost gata chiar acum</string>
     <string name="provided_minutes_ago">Bunurile au fost gata de %s minute</string>
     <string name="provided_on_date">Mărfurile sunt gata de la %s</string>
@@ -1223,4 +1220,17 @@
     <string name="error_redeemable_prescription_more_than_one_error">\n Următoarele rețete nu sunt sau nu mai pot fi valorificate: %1$s \n Este posibil să le fi valorificat deja într-un alt mod sau să fi fost șterse. \n</string>
     <string name="error_redeemable_prescription_continue_without">Continuați fără aceste rețete</string>
     <string name="error_redeemable_prescription_cancel_order">Anulați comanda</string>
+    <string name="pharmacy_order_with_prescriptions_button_subtitle">Rețete</string>
+    <string name="pharmacy_order_no_prescriptions">alege rețete</string>
+    <string name="pharmacy_order_no_prescriptions_error">Vă rugăm să selectați o rețetă</string>
+    <string name="gid_gematik_error_title">Vă rugăm să contactați compania dumneavoastră de asigurări și să furnizați următoarele informații:</string>
+    <string name="gid_gematik_error_copy">Atingeți aici pentru a copia mesajul de eroare</string>
+    <string name="no_login_state_no_internet">Fără internet</string>
+    <string name="refresh">Actualizare</string>
+    <string name="provided_at_hour">Mărfurile sunt gata de la ora %s.</string>
+    <string name="edit_profile_name">Editați numele profilului</string>
+    <string name="activate_profile">Selectați profilul</string>
+    <string name="add_profile">Adăugați profil</string>
+    <string name="inactive_description">neselectat</string>
+    <string name="active_description">selectat</string>
 </resources>

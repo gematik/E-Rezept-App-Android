@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -81,6 +81,7 @@ import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.collectLatest
 
@@ -93,6 +94,7 @@ class ProfilePairedDevicesScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
+        val dialog = LocalDialog.current
         val profileId = remember { requireNotNull(navBackStackEntry.arguments?.getString(ProfileRoutes.PROFILE_NAV_PROFILE_ID)) }
         val intentHandler = LocalIntentHandler.current
 

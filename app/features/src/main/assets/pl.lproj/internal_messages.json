@@ -10,5 +10,11 @@
         "text": "**Lepsza czytelność** \n Przyciemniliśmy nieco kolor naszej marki, aby zwiększyć kontrast kolorów i tym samym poprawić czytelność. \n \n **Zoptymalizowane funkcje** \n Zaktualizowaliśmy format daty przesłania i poprawiliśmy sortowanie wiadomości.",
         "timestamp": "2025-01-28T08:00:00.000Z",
         "version": "1.27.0"
+    },
+    {
+        "id": "4",
+        "text": "📖 **Funkcja czytania na głos** \nPrzeprojektowaliśmy kilka stron, aby ułatwić ich czytanie na głos za pomocą TalkBack. Znacznie poprawia to użyteczność dla osób niedowidzących. \n \n📞 **Rozszerzone możliwości kontaktu** \nWprowadziliśmy nowe możliwości kontaktu z wybranymi towarzystwami ubezpieczeniowymi. \n \n🔧 **Zoptymalizowane funkcje** \nNaprawiliśmy drobne błędy występujące podczas odczytu karty, uporządkowaliśmy kod i poprawiliśmy wyświetlanie komunikatów.",
+        "timestamp": "2025-04-02T08:00:00.000Z",
+        "version": "1.29.0"
     }
 ]

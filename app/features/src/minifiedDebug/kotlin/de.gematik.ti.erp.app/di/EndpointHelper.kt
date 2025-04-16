@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -39,9 +39,21 @@ class EndpointHelper(
             BuildKonfig.IDP_SERVICE_URI,
             "IDP_SERVICE_URI_OVERRIDE"
         ),
+
+        // apo-vzd-uri
         PHARMACY_SERVICE_URI(
             BuildKonfig.PHARMACY_SERVICE_URI,
             "PHARMACY_BASE_URI_OVERRIDE"
+        ),
+
+        // fhir-vzd-uri
+        PHARMACY_FHIRVZD_SERVICE_URI(
+            BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI,
+            "PHARMACY_FHIRVZD_SERVICE_URI_OVERRIDE"
+        ),
+        PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI(
+            BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI,
+            "PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI_OVERRIDE"
         )
     }
 
@@ -51,8 +63,14 @@ class EndpointHelper(
     val idpServiceUri
         get() = getUriForEndpoint(EndpointUri.IDP_SERVICE_URI)
 
-    val pharmacySearchBaseUri
+    val pharmacyApoVzdBaseUri
         get() = getUriForEndpoint(EndpointUri.PHARMACY_SERVICE_URI)
+
+    val pharmacyFhirVzdBaseUri
+        get() = getUriForEndpoint(EndpointUri.PHARMACY_FHIRVZD_SERVICE_URI)
+
+    val pharmacyFhirVzdSearchAccessTokenUri
+        get() = getUriForEndpoint(EndpointUri.PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI)
 
     private fun getUriForEndpoint(uri: EndpointUri): String {
         var url = uri.original
@@ -93,31 +111,36 @@ class EndpointHelper(
         return when {
             eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_PU &&
                 idpServiceUri == BuildKonfig.IDP_SERVICE_URI_PU &&
-                pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_PU -> {
+                pharmacyApoVzdBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_PU &&
+                pharmacyFhirVzdBaseUri == BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_PU -> {
                 Environment.PU
             }
 
             eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_RU &&
                 idpServiceUri == BuildKonfig.IDP_SERVICE_URI_RU &&
-                pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
+                pharmacyApoVzdBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU &&
+                pharmacyFhirVzdBaseUri == BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU -> {
                 Environment.RU
             }
 
             eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_RU_DEV &&
                 idpServiceUri == BuildKonfig.IDP_SERVICE_URI_RU_DEV &&
-                pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
+                pharmacyApoVzdBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU &&
+                pharmacyFhirVzdBaseUri == BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU -> {
                 Environment.RUDEV
             }
 
             eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_TU &&
                 idpServiceUri == BuildKonfig.IDP_SERVICE_URI_TU &&
-                pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
+                pharmacyApoVzdBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU &&
+                pharmacyFhirVzdBaseUri == BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU -> {
                 Environment.TU
             }
 
             eRezeptServiceUri == BuildKonfig.BASE_SERVICE_URI_TR &&
                 idpServiceUri == BuildKonfig.IDP_SERVICE_URI_TR &&
-                pharmacySearchBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU -> {
+                pharmacyApoVzdBaseUri == BuildKonfig.PHARMACY_SERVICE_URI_RU &&
+                pharmacyFhirVzdBaseUri == BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU -> {
                 Environment.TR
             }
 
@@ -168,6 +191,17 @@ class EndpointHelper(
             }
         } else {
             BuildKonfig.PHARMACY_API_KEY
+        }
+    }
+
+    fun getSearchAccessTokenApiKey(): String {
+        return if (BuildKonfig.INTERNAL) {
+            when (getCurrentEnvironment()) {
+                Environment.PU -> BuildKonfig.FHIR_VZD_API_KEY_PU
+                else -> BuildKonfig.FHIR_VZD_API_KEY_RU
+            }
+        } else {
+            BuildKonfig.FHIRVZD_API_KEY
         }
     }
 

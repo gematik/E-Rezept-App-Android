@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,12 +18,11 @@
 
 package de.gematik.ti.erp.app.medicationplan.ui.preview.mocks
 
-import de.gematik.ti.erp.app.medicationplan.presentation.PrescriptionSchedule
-import de.gematik.ti.erp.app.medicationplan.ui.preview.medicationPlanPreviewCurrentTime
 import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction
 import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.presentation.PrescriptionSchedule
+import de.gematik.ti.erp.app.medicationplan.ui.preview.medicationPlanPreviewCurrentTime
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
-import de.gematik.ti.erp.app.utils.maxLocalDate
 
 val SCANNED_TASK_SCHEDULE = PrescriptionData.Scanned(
     SCANNED_TASK
@@ -68,6 +67,6 @@ val ACTIVE_SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE = PrescriptionSchedule(
 val ACTIVE_SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ENDLESS = ACTIVE_SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE.copy(
     medicationSchedule = SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE.copy(
         isActive = true,
-        end = maxLocalDate()
+        end = de.gematik.ti.erp.app.utils.maxLocalDate()
     )
 )

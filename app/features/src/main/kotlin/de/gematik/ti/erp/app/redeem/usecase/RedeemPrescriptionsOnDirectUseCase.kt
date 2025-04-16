@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -23,7 +23,7 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.httpErrorState
-import de.gematik.ti.erp.app.fhir.model.DirectCommunicationMessage
+import de.gematik.ti.erp.app.fhir.communication.model.DirectCommunicationMessage
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.pharmacy.buildRecipientInfo
 import de.gematik.ti.erp.app.pharmacy.filterByRSAPublicKey

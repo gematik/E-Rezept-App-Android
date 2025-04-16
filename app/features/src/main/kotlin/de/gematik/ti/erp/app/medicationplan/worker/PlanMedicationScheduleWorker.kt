@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -34,9 +34,9 @@ import androidx.work.WorkerParameters
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.medicationplan.presentation.checkNotificationPermission
 import de.gematik.ti.erp.app.medicationplan.model.MedicationNotification
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.presentation.checkNotificationPermission
 import de.gematik.ti.erp.app.medicationplan.usecase.LoadAllMedicationSchedulesUseCase
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.first
@@ -205,19 +205,23 @@ fun Context.cancelReminderNotification() {
 fun Context.scheduleReminderWorker(
     duration: Duration
 ) {
-    val request =
-        OneTimeWorkRequest
-            .Builder(PlanMedicationScheduleWorker::class.java)
-            .setInitialDelay(duration.toJavaDuration())
-            .addTag(PlanMedicationScheduleWorker.TAG)
-            .build()
+    try {
+        val request =
+            OneTimeWorkRequest
+                .Builder(PlanMedicationScheduleWorker::class.java)
+                .setInitialDelay(duration.toJavaDuration())
+                .addTag(PlanMedicationScheduleWorker.TAG)
+                .build()
 
-    WorkManager
-        .getInstance(this)
-        .apply {
-            cancelAllWorkByTag(PlanMedicationScheduleWorker.TAG)
-            enqueue(request)
-        }
+        WorkManager
+            .getInstance(this)
+            .apply {
+                cancelAllWorkByTag(PlanMedicationScheduleWorker.TAG)
+                enqueue(request)
+            }
+    } catch (e: Throwable) {
+        // silent fail, ignore
+    }
 }
 
 /**

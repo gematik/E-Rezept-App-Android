@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -39,7 +39,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -48,14 +48,15 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
-import de.gematik.ti.erp.app.messages.domain.model.InAppMessage
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
+import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.ui.model.MessageDetailCombinedMessage
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.DISPENSE
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.INVOICE
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.IN_APP
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.REPLY
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
+import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.prescriptionId
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -74,13 +75,13 @@ internal fun Messages(
     listState: LazyListState,
     order: UiState<OrderUseCaseData.OrderDetail>,
     messages: List<OrderUseCaseData.Message>,
-    inAppMessages: List<InAppMessage?>,
+    inAppMessages: List<InAppMessage>,
     onClickReplyMessage: (OrderUseCaseData.Message) -> Unit,
     onClickPrescription: (String) -> Unit,
     onClickInvoiceMessage: (String) -> Unit,
     onClickPharmacy: () -> Unit
 ) {
-    val combinedMessages = remember(messages, order, inAppMessages) {
+    val combinedMessages = rememberSaveable(messages, order, inAppMessages) {
         combineMessagesAndSort(messages, order, inAppMessages)
     }
     LazyColumn(
@@ -198,8 +199,8 @@ internal fun Messages(
                                         verticalAlignment = Alignment.CenterVertically
                                     ) {
                                         val name = when (taskBundle.prescription) {
-                                            is Prescription.ScannedPrescription -> taskBundle.prescription.name
-                                            is Prescription.SyncedPrescription -> taskBundle.prescription.name ?: ""
+                                            is ScannedPrescription -> (taskBundle.prescription as? ScannedPrescription)?.name ?: ""
+                                            is SyncedPrescription -> (taskBundle.prescription as? SyncedPrescription)?.name ?: ""
                                             else -> ""
                                         }
                                         Text(

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -136,7 +136,9 @@ class DebugSettingsViewModel(
         eRezeptActive = endpointHelper.isUriOverridden(EndpointHelper.EndpointUri.BASE_SERVICE_URI),
         idpUrl = endpointHelper.idpServiceUri,
         idpActive = endpointHelper.isUriOverridden(EndpointHelper.EndpointUri.IDP_SERVICE_URI),
-        pharmacyServiceUrl = endpointHelper.pharmacySearchBaseUri,
+        apoVzdPharmacyServiceUrl = endpointHelper.pharmacyApoVzdBaseUri,
+        fhirVzdPharmacyServiceUrl = endpointHelper.pharmacyFhirVzdBaseUri,
+        fhirVzdPharmacySearchAccessTokenUrl = endpointHelper.pharmacyFhirVzdSearchAccessTokenUri,
         pharmacyServiceActive = endpointHelper.isUriOverridden(EndpointHelper.EndpointUri.PHARMACY_SERVICE_URI),
         bearerToken = "",
         bearerTokenIsSet = true,
@@ -246,7 +248,17 @@ class DebugSettingsViewModel(
         )
         endpointHelper.setUriOverride(
             EndpointHelper.EndpointUri.PHARMACY_SERVICE_URI,
-            debugSettingsData.pharmacyServiceUrl,
+            debugSettingsData.apoVzdPharmacyServiceUrl,
+            debugSettingsData.pharmacyServiceActive
+        )
+        endpointHelper.setUriOverride(
+            EndpointHelper.EndpointUri.PHARMACY_FHIRVZD_SERVICE_URI,
+            debugSettingsData.fhirVzdPharmacyServiceUrl,
+            debugSettingsData.pharmacyServiceActive
+        )
+        endpointHelper.setUriOverride(
+            EndpointHelper.EndpointUri.PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI,
+            debugSettingsData.fhirVzdPharmacySearchAccessTokenUrl,
             debugSettingsData.pharmacyServiceActive
         )
         profilesUseCase.profiles.flowOn(Dispatchers.IO).first().forEach {

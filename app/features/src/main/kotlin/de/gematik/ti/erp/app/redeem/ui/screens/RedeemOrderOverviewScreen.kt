@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -65,6 +65,7 @@ import de.gematik.ti.erp.app.button.ButtonWithConditionalHintData
 import de.gematik.ti.erp.app.button.FlatButton
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
+import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
@@ -111,6 +112,7 @@ import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.NavigateBackButton
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.letNotNull
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
@@ -129,6 +131,7 @@ class RedeemOrderOverviewScreen(
     @Composable
     override fun Content() {
         val scope = uiScope
+        val dialog = LocalDialog.current
 
         navBackStackEntry.onReturnAction(RedeemRoutes.RedeemOrderOverviewScreen) {
             // reload profile when user comes back to this screen to check for valid sso token
@@ -369,7 +372,7 @@ class RedeemOrderOverviewScreen(
     @Suppress("ComposableNaming")
     @Composable
     private fun listenForAuthenticationEvents(orderOverviewController: RedeemOrderOverviewScreenController) {
-        val intentHandler = intentHandler
+        val intentHandler = LocalIntentHandler.current
         LaunchedEffect(Unit) {
             intentHandler.gidSuccessfulIntent.collectLatest {
                 graphController.refreshActiveProfile()

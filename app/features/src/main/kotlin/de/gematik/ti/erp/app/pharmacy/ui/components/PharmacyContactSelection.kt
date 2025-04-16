@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -90,25 +90,25 @@ fun PharmacyContactSelection(
                 }
             )
         }
-        if (pharmacy.contacts.phone.isNotNullOrEmpty()) {
+        if (pharmacy.contact.phone.isNotNullOrEmpty()) {
             PharmacyContactButton(
                 modifier = Modifier
                     .testTag(TestTag.PharmacySearch.OrderOptions.CourierDeliveryOptionButton),
                 text = stringResource(R.string.pharmacy_contact_phone_two_lines),
                 icon = Icons.Outlined.Phone,
                 onClick = {
-                    onPhoneClicked(pharmacy.contacts.phone)
+                    onPhoneClicked(pharmacy.contact.phone)
                 }
             )
         }
-        if (pharmacy.contacts.mail.isNotNullOrEmpty()) {
+        if (pharmacy.contact.mail.isNotNullOrEmpty()) {
             PharmacyContactButton(
                 modifier = Modifier
                     .testTag(TestTag.PharmacySearch.OrderOptions.MailDeliveryOptionButton),
                 text = stringResource(R.string.pharmacy_contact_email_two_lines),
                 icon = Icons.Outlined.MailOutline,
                 onClick = {
-                    onMailClicked(pharmacy.contacts.mail)
+                    onMailClicked(pharmacy.contact.mail)
                 }
             )
         }

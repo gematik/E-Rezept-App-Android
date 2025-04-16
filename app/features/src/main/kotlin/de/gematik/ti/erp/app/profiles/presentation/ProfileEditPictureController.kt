@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -30,7 +30,6 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
@@ -49,20 +48,17 @@ class ProfileEditPictureController(
 
     private fun loadSelectedProfile(profileId: ProfileIdentifier?) {
         controllerScope.launch {
-            runCatching {
-                profileId?.let {
-                    getSelectedProfileUseCase(profileId).first()
-                } ?: run {
-                    throw IllegalArgumentException("ProfileId is null")
+            run {
+                try {
+                    profileId?.let {
+                        getSelectedProfileUseCase(profileId).collect {
+                            _profile.value = UiState.Data(it)
+                        }
+                    } ?: throw IllegalArgumentException("ProfileId is null")
+                } catch (e: Exception) {
+                    _profile.value = UiState.Error(e)
                 }
-            }.fold(
-                onSuccess = {
-                    _profile.value = UiState.Data(it)
-                },
-                onFailure = {
-                    UiState.Error<Throwable>(it)
-                }
-            )
+            }
         }
     }
 

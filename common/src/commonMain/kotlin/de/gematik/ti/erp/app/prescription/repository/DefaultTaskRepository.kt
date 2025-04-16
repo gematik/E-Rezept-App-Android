@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,17 +20,16 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.findAll
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleSeparationParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskKbvParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.flow.first
@@ -63,7 +62,7 @@ class DefaultTaskRepository(
     private suspend fun processTaskEntry(profileId: ProfileIdentifier, data: FhirTaskEntryDataErpModel): Result<Unit> {
         return data.lastModified?.let { lastModified ->
             if (data.status == TaskStatus.Canceled) {
-                localDataSource.updateTaskStatus(data.id, data.status, data.lastModified)
+                localDataSource.updateTaskStatus(data.id, data.status, lastModified)
                 Result.success(Unit)
             } else {
                 fetchKbvJsonDataForTaskId(profileId, data.id)
@@ -92,9 +91,8 @@ class DefaultTaskRepository(
                         }
                     }
             } else {
-                Napier.e("Failed to parse KBV bundle for taskId: $taskId")
                 localDataSource.markTaskAsIncomplete(taskId, IllegalStateException("Failed to parse KBV bundle for taskId: $taskId"))
-                Result.failure(IllegalStateException("Failed to parse task bundle for taskId: $taskId"))
+                Result.failure(IllegalStateException("Failed to parse task bundle on null kbv data for taskId: $taskId"))
             }
         } ?: Result.failure(IllegalStateException("Failed to parse task bundle for taskId: $taskId"))
     }

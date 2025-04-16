@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,31 +18,41 @@
 
 package de.gematik.ti.erp.app.mocks.pharmacy.model
 
-import de.gematik.ti.erp.app.fhir.model.Pharmacy
-import de.gematik.ti.erp.app.fhir.model.PharmacyAddress
-import de.gematik.ti.erp.app.fhir.model.PharmacyContacts
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
 import de.gematik.ti.erp.app.mocks.order.model.PHARMACY_ID
 import de.gematik.ti.erp.app.mocks.order.model.PHARMACY_NAME
 import de.gematik.ti.erp.app.mocks.order.model.TELEMATIK_ID
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.PharmacyContact
 
-val PHARMACY_DATA = PharmacyUseCaseData.Pharmacy(
+val PHARMACY_DATA = Pharmacy(
     id = PHARMACY_ID,
     name = PHARMACY_NAME,
-    address = "\n ",
+    address = "",
     coordinates = null,
     distance = null,
-    contacts = PharmacyContacts("", "", "", "", "", ""),
-    provides = emptyList(),
-    openingHours = null,
+    contact = PharmacyContact("", "", "", "", "", ""),
+    provides = listOf(
+        PharmacyUseCaseData.PharmacyService.LocalPharmacyService(
+            name = PHARMACY_NAME,
+            openingHours = PharmacyUseCaseData.OpeningHours(emptyMap())
+        )
+    ),
+    openingHours = PharmacyUseCaseData.OpeningHours(emptyMap()),
     telematikId = TELEMATIK_ID
 )
 
-val PHARMACY_DATA_FHIR = Pharmacy(
+val PHARMACY_DATA_FHIR = FhirPharmacyErpModel(
     id = PHARMACY_ID,
     name = PHARMACY_NAME,
-    address = PharmacyAddress(emptyList(), "", ""),
-    contacts = PharmacyContacts("", "", "", "", "", ""),
-    provides = emptyList(),
+    address = FhirAddressErpModel("", "", ""),
+    contact = FhirContactInformationErpModel("", "", "", "", "", ""),
+    specialities = emptyList(),
+    position = null,
+    availableTime = OpeningHoursErpModel(emptyMap()),
     telematikId = TELEMATIK_ID
 )

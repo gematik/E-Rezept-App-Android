@@ -6,16 +6,19 @@ plugins {
     alias(libs.plugins.compose.compiler)
 }
 
-val gematik = AppDependencyNamesPlugin()
+val namesPlugin = AppDependencyNamesPlugin()
 
 android {
-    namespace = gematik.moduleName("demomode")
+    namespace = namesPlugin.moduleName("demomode")
     defaultConfig {
-        testApplicationId = gematik.moduleName("demomode.test")
+        testApplicationId = namesPlugin.moduleName("demomode.test")
     }
 }
 
 dependencies {
-    implementation(project(gematik.multiplatform))
-    implementation(project(gematik.uiComponents))
+    implementation(project(namesPlugin.utils))
+    implementation(project(namesPlugin.fhirParser))
+    implementation(project(namesPlugin.digas))
+    implementation(project(namesPlugin.multiplatform))
+    implementation(project(namesPlugin.uiComponents))
 }

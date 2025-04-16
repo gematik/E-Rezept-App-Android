@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,9 +20,10 @@ package de.gematik.ti.erp.app.messages.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.fhir.model.Pharmacy
+import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
-import de.gematik.ti.erp.app.prescription.model.Communication
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionLocalDataSource
@@ -31,7 +32,6 @@ import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -51,13 +51,14 @@ class DefaultCommunicationRepository(
     private val communicationLocalDataSource: CommunicationLocalDataSource,
     private val cacheLocalDataSource: PharmacyCacheLocalDataSource,
     private val cacheRemoteDataSource: PharmacyCacheRemoteDataSource,
+    private val communicationParser: CommunicationParser,
     private val dispatchers: DispatchProvider
 ) : ResourcePaging<Unit>(dispatchers, COMMUNICATION_MAX_PAGE_SIZE), CommunicationRepository {
     private val scope = CoroutineScope(dispatchers.io) // todo: forced scope, not testable
     private val queue = Channel<String>(capacity = Channel.BUFFERED)
 
     override val pharmacyCacheError = Channel<Throwable>()
-    override val pharmacyDownloaded = Channel<Pharmacy?>()
+    override val pharmacyDownloaded = Channel<FhirPharmacyErpModel?>()
 
     init {
         scope.launch {
@@ -65,7 +66,7 @@ class DefaultCommunicationRepository(
                 cacheRemoteDataSource
                     .searchPharmacy(telematikId)
                     .onSuccess {
-                        val pharmacy = extractPharmacyServices(it).pharmacies.firstOrNull()
+                        val pharmacy = extractPharmacyServices(it).entries.firstOrNull()
                         pharmacy?.let {
                             cacheLocalDataSource.savePharmacy(pharmacy.telematikId, pharmacy.name)
                             pharmacyDownloaded.send(pharmacy)
@@ -96,11 +97,21 @@ class DefaultCommunicationRepository(
             count = count,
             lastKnownUpdate = timestamp
         ).mapCatching { communications ->
-            Napier.i("Communication Json: $communications")
-            taskLocalDataSource.saveCommunications(communications)
-        }.map {
-            // we get the count of communications, but we don't use it??
-            ResourceResult(it, Unit)
+            val communicationErpModel = communicationParser.extract(communications)
+                ?: run {
+                    Napier.w("Failed to parse non-empty communications bundle")
+                    return@mapCatching 0
+                }
+
+            val totalMessages = communicationErpModel.messages.size
+
+            if (totalMessages > 0) {
+                taskLocalDataSource.saveCommunications(communicationErpModel)
+            } else {
+                0
+            }
+        }.map { savedCount ->
+            ResourceResult(savedCount, Unit)
         }
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =
@@ -109,7 +120,6 @@ class DefaultCommunicationRepository(
     override fun loadPharmacies(): Flow<List<CachedPharmacy>> =
         cacheLocalDataSource.loadPharmacies().flowOn(dispatchers.io)
 
-    @OptIn(ExperimentalCoroutinesApi::class)
     override suspend fun downloadMissingPharmacy(telematikId: String): Result<CachedPharmacy?> {
         queue.send(telematikId)
         return suspendCancellableCoroutine { continuation ->

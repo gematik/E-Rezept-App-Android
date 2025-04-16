@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -34,6 +34,8 @@ import java.net.HttpURLConnection
 
 private const val invalidAccessTokenHeader = "Www-Authenticate"
 private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"
+private const val X_API_KEY_IDENTIFIER = "X-Api-Key"
+private const val USER_AGENT_IDENTIFIER = "User-Agent"
 
 @Requirement(
     "A_20529-01#01",
@@ -79,11 +81,21 @@ class BearerHeaderInterceptor(
             .build()
 }
 
-class PharmacySearchInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
+class PharmacySearchApiKeyInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original: Request = chain.request()
         val request: Request = original.newBuilder()
-            .header("X-Api-Key", endpointHelper.getPharmacyApiKey())
+            .header(X_API_KEY_IDENTIFIER, endpointHelper.getPharmacyApiKey())
+            .build()
+        return chain.proceed(request)
+    }
+}
+
+class PharmacySearchAccessTokenApiKeyInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
+    override fun intercept(chain: Interceptor.Chain): Response {
+        val original: Request = chain.request()
+        val request: Request = original.newBuilder()
+            .header(X_API_KEY_IDENTIFIER, endpointHelper.getSearchAccessTokenApiKey())
             .build()
         return chain.proceed(request)
     }
@@ -101,17 +113,17 @@ class PharmacyRedeemInterceptor : Interceptor {
 class UserAgentHeaderInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-            .header("User-Agent", "${BuildKonfig.USER_AGENT}/${endpointHelper.getClientId()}")
+            .header(USER_AGENT_IDENTIFIER, "${BuildKonfig.USER_AGENT}/${endpointHelper.getClientId()}")
             .build()
 
         return chain.proceed(request)
     }
 }
 
-class ApiKeyHeaderInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
+class ErpApiKeyHeaderInterceptor(private val endpointHelper: EndpointHelper) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-            .header("X-Api-Key", endpointHelper.getErpApiKey())
+            .header(X_API_KEY_IDENTIFIER, endpointHelper.getErpApiKey())
             .build()
 
         return chain.proceed(request)

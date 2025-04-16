@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -39,9 +39,21 @@ class EndpointHelper(
             BuildKonfig.IDP_SERVICE_URI,
             "IDP_SERVICE_URI_OVERRIDE"
         ),
+
+        // apo-vzd-uri
         PHARMACY_SERVICE_URI(
             BuildKonfig.PHARMACY_SERVICE_URI,
             "PHARMACY_BASE_URI_OVERRIDE"
+        ),
+
+        // fhir-vzd-uri
+        PHARMACY_FHIRVZD_SERVICE_URI(
+            BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI,
+            "PHARMACY_FHIRVZD_SERVICE_URI_OVERRIDE"
+        ),
+        PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI(
+            BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI,
+            "PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI_OVERRIDE"
         )
     }
 
@@ -53,6 +65,12 @@ class EndpointHelper(
 
     val pharmacySearchBaseUri
         get() = getUriForEndpoint(EndpointUri.PHARMACY_SERVICE_URI)
+
+    val pharmacyFhirVzdBaseUri
+        get() = getUriForEndpoint(EndpointUri.PHARMACY_FHIRVZD_SERVICE_URI)
+
+    val pharmacyFhirVzdSearchAccessTokenUri
+        get() = getUriForEndpoint(EndpointUri.PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI)
 
     private fun getUriForEndpoint(uri: EndpointUri): String {
         var url = uri.original
@@ -99,6 +117,8 @@ class EndpointHelper(
     fun getPharmacyApiKey(): String =
         BuildKonfig.PHARMACY_API_KEY
 
+    fun getSearchAccessTokenApiKey(): String = BuildKonfig.FHIRVZD_API_KEY
+
     fun getTrustAnchor(): String =
         BuildKonfig.APP_TRUST_ANCHOR_BASE64
 
@@ -109,4 +129,7 @@ class EndpointHelper(
         BuildKonfig.ORGAN_DONATION_INFO
 
     fun getClientId() = BuildKonfig.CLIENT_ID_PU
+
+    val pharmacyApoVzdBaseUri
+        get() = getUriForEndpoint(EndpointUri.PHARMACY_SERVICE_URI)
 }

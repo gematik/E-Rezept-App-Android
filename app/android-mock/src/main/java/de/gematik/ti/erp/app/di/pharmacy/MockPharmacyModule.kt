@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -21,12 +21,12 @@ package de.gematik.ti.erp.app.di.pharmacy
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PreviewMapCoordinatesRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.DefaultFavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.DefaultOftenUsePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.OftenUsedPharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.PharmacyRemoteDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.PreviewMapCoordinatesDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultFavouritePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.DefaultOftenUsePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.ApoVzdRemoteDataSource
 import de.gematik.ti.erp.app.redeem.repository.datasource.DefaultRedeemLocalDataSource
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
 import de.gematik.ti.erp.app.repository.MockShippingContactRepository
@@ -37,7 +37,7 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val mockPharmacyRepositoryModule = DI.Module("mockPharmacyModule") {
-    bindProvider { PharmacyRemoteDataSource(instance(), instance()) }
+    bindProvider { ApoVzdRemoteDataSource(instance(), instance()) }
     bindProvider<RedeemLocalDataSource> { DefaultRedeemLocalDataSource(instance()) }
     bindProvider<OftenUsedPharmacyLocalDataSource> { DefaultOftenUsePharmacyLocalDataSource(instance()) }
     bindProvider<FavouritePharmacyLocalDataSource> { DefaultFavouritePharmacyLocalDataSource(instance()) }

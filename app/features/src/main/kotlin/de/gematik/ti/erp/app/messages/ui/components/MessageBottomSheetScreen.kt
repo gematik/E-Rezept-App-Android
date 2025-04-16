@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -237,7 +237,7 @@ fun TextSheetContent(
         ClickableAnnotatedText(
             text = createPhoneNumberAnnotations(
                 text = messageText,
-                textColor = Color.White,
+                textColor = AppTheme.colors.neutral600,
                 phoneNumberColor = AppTheme.colors.primary700
             ),
             style = AppTheme.typography.body2,

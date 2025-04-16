@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -22,9 +22,11 @@ import io.github.aakira.napier.Napier
 import io.realm.kotlin.MutableRealm
 import io.realm.kotlin.Realm
 import io.realm.kotlin.exceptions.RealmException
+import io.realm.kotlin.types.RealmObject
 import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock
 import java.io.IOException
+import kotlin.reflect.full.primaryConstructor
 
 /**
  * Performs a **single-attempt Realm write operation** with structured error handling.
@@ -44,6 +46,42 @@ import java.io.IOException
  */
 suspend fun <R> Realm.safeWrite(block: MutableRealm.() -> R): R {
     return safeWriteWithRetry(maxRetries = 1, block = block)
+}
+
+/**
+ * Updates an existing object in the Realm database or creates a new one if it does not exist.
+ *
+ * This function safely executes a Realm transaction and ensures the provided modifications
+ * are applied either to an existing object or a newly created one.
+ *
+ * @param T The type of the Realm object.
+ * @param queryBlock A lambda that queries the Realm database for the object.
+ * @param modifyBlock A lambda that modifies the existing or newly created object.
+ *
+ * @throws Exception If a Realm transaction fails.
+ *
+ * @sample
+ * ```
+ * realm.updateOrCreate(
+ *     queryBlock = { query<MyEntity>().first().find() }
+ * ) { entity ->
+ *     entity.value = "Updated or Created"
+ * }
+ * ```
+ */
+suspend inline fun <reified T : RealmObject> Realm.updateOrCreate(
+    crossinline queryBlock: MutableRealm.() -> T?,
+    crossinline modifyBlock: (T) -> Unit
+) {
+    safeWrite {
+        val entity = queryBlock(this)?.let { findLatest(it) }
+            ?: T::class.primaryConstructor?.call()?.let {
+                Napier.d(tag = "PharmacySearchAccessTokenProvider") { "Creating new Realm object of type ${T::class.qualifiedName}" }
+                copyToRealm(it)
+            }
+            ?: throw IllegalArgumentException("No primary constructor available for ${T::class.qualifiedName}")
+        modifyBlock(entity)
+    }
 }
 
 /**

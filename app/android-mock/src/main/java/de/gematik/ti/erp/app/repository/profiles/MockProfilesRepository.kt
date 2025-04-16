@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -83,7 +83,7 @@ class MockProfilesRepository(
             }
             dataSource.profiles.value = dataSource.profiles
                 .updateAndGet { profiles ->
-                    profiles.removeIf { profile -> profile.id == profileId }
+                    profiles.removeIf { profile -> profile.id == profileId && profile.name == profileName }
                     profiles
                 }
         }

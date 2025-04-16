@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,13 +18,15 @@
 
 package de.gematik.ti.erp.app.repository.pharmacy
 
-import de.gematik.ti.erp.app.fhir.model.PharmacyServices
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.fhir.model.json
+import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.FavouritePharmacyLocalDataSource
-import de.gematik.ti.erp.app.pharmacy.repository.datasource.OftenUsedPharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.OftenUsedPharmacyLocalDataSource
+import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.repository.datasource.RedeemLocalDataSource
 import io.github.aakira.napier.Napier
@@ -38,11 +40,11 @@ class MockPharmacyRepository(
     private val redeemLocalDataSource: RedeemLocalDataSource
 ) : PharmacyRepository {
 
-    override suspend fun searchPharmacies(names: List<String>, filter: Map<String, String>): Result<PharmacyServices> {
+    override suspend fun searchPharmacies(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection> {
         return Result.success(extractedPharmacies)
     }
 
-    override suspend fun searchPharmaciesByBundle(bundleId: String, offset: Int, count: Int): Result<PharmacyServices> {
+    override suspend fun searchPharmaciesByBundle(bundleId: String, offset: Int, count: Int): Result<FhirPharmacyErpModelCollection> {
         return Result.success(extractedPharmacies)
     }
 
@@ -73,7 +75,7 @@ class MockPharmacyRepository(
     override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) =
         favouriteLocalDataSource.deleteFavoritePharmacy(favoritePharmacy)
 
-    override suspend fun searchPharmacyByTelematikId(telematikId: String): Result<PharmacyServices> {
+    override suspend fun searchPharmacyByTelematikId(telematikId: String): Result<FhirPharmacyErpModelCollection> {
         return Result.success(extractedPharmacies)
     }
 
@@ -82,6 +84,12 @@ class MockPharmacyRepository(
     }
 
     override suspend fun markAsRedeemed(taskId: String) = redeemLocalDataSource.markAsRedeemed(taskId)
+
+    override fun getSelectedVzdPharmacyBackend(): PharmacyVzdService = PharmacyVzdService.APOVZD
+
+    override suspend fun updateSelectedVzdPharmacyBackend(pharmacyVzdService: PharmacyVzdService) {
+        // do nothing
+    }
 
     private val jsonStringMocked = """{
   "id": "49b6b9fd-eec7-41f3-b624-cc99d46fb828",

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -27,8 +27,32 @@ import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
 class ApiCallException(message: String, val response: Response<*>) : IOException(message)
-
+data class UnauthorizedException(override val message: String, val response: Response<*>?) : IOException(message)
 data class NoInternetException(override val message: String? = null, val exception: Exception? = null) : IOException(message)
+data class UnknownException(override val message: String? = null, val exception: Exception? = null) : IOException(message)
+
+// does not throw an error and returns a Result.Failure instead
+suspend fun <T : Any> nonFatalApiCall(
+    errorMessage: String,
+    unauthorizedCode: Int = HTTP_UNAUTHORIZED,
+    call: suspend () -> Response<T>
+): Result<T> =
+    try {
+        val response = call()
+        when {
+            response.isSuccessful -> requireNotNull(response.body()).let { Result.success(it) }
+            response.code() == unauthorizedCode -> Result.failure(
+                UnauthorizedException("Error executing non-fatal api call ${response.code()} ${response.message()}", response)
+            )
+
+            else -> Result.failure(ApiCallException("Error executing non.fatal api call ${response.code()} ${response.message()}", response))
+        }
+    } catch (e: CancellationException) {
+        Result.failure(UnknownException("Error executing non-fatal api call", e))
+    } catch (e: Exception) {
+        Napier.e { "Api Call Error: ${e.message}" }
+        e.mapToResultFailure(errorMessage)
+    }
 
 /**
  * Wraps a remote call in a try catch and returns [Result.Error] with an [IOException] in case [call] couldn't be executed.

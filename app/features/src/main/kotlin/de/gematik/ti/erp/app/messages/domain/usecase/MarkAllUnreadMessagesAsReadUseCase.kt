@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import kotlinx.coroutines.CoroutineDispatcher
@@ -31,7 +31,7 @@ import kotlinx.coroutines.withContext
 class MarkAllUnreadMessagesAsReadUseCase(
     private val communicationRepository: CommunicationRepository,
     private val invoiceRepository: InvoiceRepository,
-    private val inAppMessageRepository: InAppMessageRepository,
+    private val internalMessagesRepository: InternalMessagesRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     suspend operator fun invoke() {
@@ -61,7 +61,7 @@ class MarkAllUnreadMessagesAsReadUseCase(
                 }
 
                 launch {
-                    inAppMessageRepository.setInternalMessageAsRead()
+                    internalMessagesRepository.setInternalMessagesAsRead()
                 }
             }
         }

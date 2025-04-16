@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -20,30 +20,32 @@ package de.gematik.ti.erp.app.pharmacy.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
+import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.usecase.GetShowTelematikIdStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.ChangePharmacyFavoriteStateUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.IsPharmacyFavoriteUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
 class PharmacyDetailsController(
-
     private val isPharmacyFavoriteUseCase: IsPharmacyFavoriteUseCase,
-    private val changePharmacyFavoriteStateUseCase: ChangePharmacyFavoriteStateUseCase
+    private val changePharmacyFavoriteStateUseCase: ChangePharmacyFavoriteStateUseCase,
+    private val getShowTelematikIdStateUseCase: GetShowTelematikIdStateUseCase
 ) : Controller() {
 
-    private val isPharmacyFavorite = MutableStateFlow(false)
+    private val _isPharmacyFavorite = MutableStateFlow(false)
+    val isPharmacyFavorite = _isPharmacyFavorite.asStateFlow()
+
+    val showTelematikId = getShowTelematikIdStateUseCase.invoke()
 
     fun isPharmacyFavorite(pharmacy: PharmacyUseCaseData.Pharmacy) {
-        run {
-            controllerScope.launch {
-                isPharmacyFavoriteUseCase(pharmacy).collectLatest {
-                    isPharmacyFavorite.value = it
-                }
+        controllerScope.launch {
+            isPharmacyFavoriteUseCase(pharmacy).collectLatest {
+                _isPharmacyFavorite.value = it
             }
         }
     }
@@ -51,24 +53,22 @@ class PharmacyDetailsController(
     fun changePharmacyAsFavorite(pharmacy: PharmacyUseCaseData.Pharmacy, state: Boolean) {
         controllerScope.launch {
             changePharmacyFavoriteStateUseCase(pharmacy, state)
-            isPharmacyFavorite.value = state
+            _isPharmacyFavorite.value = state
         }
     }
-
-    val isPharmacyFavoriteState
-        @Composable
-        get() = isPharmacyFavorite.collectAsStateWithLifecycle()
 }
 
 @Composable
 internal fun rememberPharmacyDetailsController(): PharmacyDetailsController {
     val isPharmacyFavoriteUseCase by rememberInstance<IsPharmacyFavoriteUseCase>()
     val changePharmacyFavoriteStateUseCase by rememberInstance<ChangePharmacyFavoriteStateUseCase>()
+    val getShowTelematikIdStateUseCase by rememberInstance<GetShowTelematikIdStateUseCase>()
 
     return remember {
         PharmacyDetailsController(
             isPharmacyFavoriteUseCase = isPharmacyFavoriteUseCase,
-            changePharmacyFavoriteStateUseCase = changePharmacyFavoriteStateUseCase
+            changePharmacyFavoriteStateUseCase = changePharmacyFavoriteStateUseCase,
+            getShowTelematikIdStateUseCase = getShowTelematikIdStateUseCase
         )
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -105,6 +105,11 @@ sealed class RedeemPrescriptionDialogMessageState(
         )
     ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
 
+    @Requirement(
+        "O.Plat_4#2",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "String resources are used tp show the mapped errors."
+    )
     companion object {
         fun RedeemedPrescriptionState.toDialogMessageState(): RedeemPrescriptionDialogMessageState {
             return when (this) {

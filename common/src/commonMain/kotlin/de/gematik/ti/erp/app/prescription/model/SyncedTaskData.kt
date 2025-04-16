@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,8 +18,9 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.AdditionalFee.entries
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.CoverageType.valueOf
+import de.gematik.ti.erp.app.messages.model.Communication
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
@@ -80,6 +81,7 @@ object SyncedTaskData {
         }
     }
 
+    @Deprecated("Will be replaced with ErpModel on DB upgrade")
     data class SyncedTask(
         val profileId: String,
         val taskId: String,
@@ -100,6 +102,7 @@ object SyncedTaskData {
         val currentTime: Instant = Clock.System.now(), // TODO: figure out a way to remove this and make previews work
         val medicationDispenses: List<MedicationDispense> = emptyList(),
         val lastMedicationDispense: Instant?,
+        val deviceRequest: FhirTaskKbvDeviceRequestErpModel? = null,
         val communications: List<Communication> = emptyList()
     ) {
         @Serializable(with = TaskStateSyncedTaskDataSerializer::class)
@@ -352,6 +355,7 @@ object SyncedTaskData {
     data class InsuranceInformation(
         val name: String? = null,
         val status: String? = null,
+        val identifierNumber: String? = null,
         val coverageType: CoverageType
     )
 

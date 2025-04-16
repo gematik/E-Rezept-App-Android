@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.pkv.ui
 
-import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceListScreenPreviewParameterProvider
+import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceExpandedDetailsScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.pkv.ui.screens.invoiceExpandedDetailsScreenContentPreview
 import de.gematik.ti.erp.app.screenshot.BaseScreenshotTest
 import de.gematik.ti.erp.app.screenshot.ScreenshotConfig
@@ -32,11 +32,9 @@ class InvoiceExpandedDetailsScreenTest(config: ScreenshotConfig) : BaseScreensho
 ) {
     @Test
     fun screenShotTest() {
-        val testParameters = InvoiceListScreenPreviewParameterProvider().values.toList()
-        testParameters.forEachIndexed { index, previewData ->
-            paparazzi.snapshot("parameter_$index") {
-                invoiceExpandedDetailsScreenContentPreview(previewData)
-            }
+        val testParameters = InvoiceExpandedDetailsScreenPreviewParameterProvider().values.toList().first()
+        paparazzi.snapshot {
+            invoiceExpandedDetailsScreenContentPreview(testParameters)
         }
     }
 }

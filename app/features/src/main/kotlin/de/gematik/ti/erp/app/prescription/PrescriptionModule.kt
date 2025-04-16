@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -36,8 +36,6 @@ import de.gematik.ti.erp.app.prescription.usecase.GetPrescriptionByTaskIdUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.RedeemScannedTaskUseCase
-import de.gematik.ti.erp.app.prescription.usecase.RefreshPrescriptionUseCase
-import de.gematik.ti.erp.app.prescription.usecase.SaveWelcomeMessageUseCase
 import de.gematik.ti.erp.app.prescription.usecase.UpdateScannedTaskNameUseCase
 import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
 import org.kodein.di.DI
@@ -53,16 +51,6 @@ val prescriptionModule =
         bindSingleton { PrescriptionLocalDataSource(instance()) }
         bindSingleton { PrescriptionRemoteDataSource(instance()) }
         bindSingleton { PrescriptionUseCase(instance(), instance(), instance()) }
-        bindSingleton { SaveWelcomeMessageUseCase(instance()) }
-        bindSingleton {
-            RefreshPrescriptionUseCase(
-                instance(),
-                instance(),
-                instance(),
-                instance(),
-                instance()
-            )
-        }
         bindProvider {
             DownloadAllResourcesUseCase(
                 instance(),

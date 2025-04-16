@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -35,6 +35,8 @@ import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
+import de.gematik.ti.erp.app.semantics.semanticsHeading
+import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -65,7 +67,9 @@ fun ProfileInsuranceInformationSection(
             stringResource(
                 id = R.string.insurance_information_header
             ),
-            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+            modifier = Modifier
+                .padding(horizontal = PaddingDefaults.Medium)
+                .semanticsHeading(),
             style = AppTheme.typography.h6
         )
         SpacerSmall()
@@ -137,9 +141,13 @@ private fun LabeledText(
     content: String,
     modifier: Modifier = Modifier
 ) {
-    Column(modifier.padding(PaddingDefaults.Medium)) {
-        Text(content, style = AppTheme.typography.body1)
+    Column(
+        modifier
+            .padding(PaddingDefaults.Medium)
+            .semanticsMergeDescendants { }
+    ) {
         Text(description, style = AppTheme.typography.body2l)
+        Text(content, style = AppTheme.typography.body1)
     }
 }
 

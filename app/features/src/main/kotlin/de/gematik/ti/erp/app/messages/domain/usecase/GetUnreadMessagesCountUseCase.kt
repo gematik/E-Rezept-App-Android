@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -18,10 +18,10 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.changelogs.InAppMessageRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
-import de.gematik.ti.erp.app.prescription.model.Communication
+import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +35,7 @@ import kotlinx.coroutines.flow.onEmpty
 
 class GetUnreadMessagesCountUseCase(
     private val communicationRepository: CommunicationRepository,
-    private val inAppMessageRepository: InAppMessageRepository,
+    private val internalMessagesRepository: InternalMessagesRepository,
     private val invoiceRepository: InvoiceRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
@@ -43,9 +43,9 @@ class GetUnreadMessagesCountUseCase(
         return combine(
             communicationRepository.unreadMessagesCount(),
             getUnreadInvoiceCount(profileId),
-            inAppMessageRepository.counter
-        ) { unreadMessagesCount, unreadInvoiceCount, counter ->
-            val totalCount = unreadMessagesCount + unreadInvoiceCount + counter
+            internalMessagesRepository.getUnreadInternalMessagesCount()
+        ) { unreadMessagesCount, unreadInvoiceCount, unreadInternalMessagesCount ->
+            val totalCount = unreadMessagesCount + unreadInvoiceCount + unreadInternalMessagesCount
             totalCount
         }.flowOn(dispatcher)
     }

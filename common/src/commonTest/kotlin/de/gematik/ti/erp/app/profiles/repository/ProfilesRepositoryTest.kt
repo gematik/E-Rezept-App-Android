@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.profiles.repository
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.db.ACTUAL_SCHEMA_VERSION
+import de.gematik.ti.erp.app.db.SchemaVersion
 import de.gematik.ti.erp.app.db.TestDB
 import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
@@ -35,6 +35,7 @@ import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
@@ -115,10 +116,11 @@ class ProfilesRepositoryTest : TestDB() {
                     PriceComponentV1::class,
                     AuthenticationEntityV1::class,
                     AuthenticationPasswordEntityV1::class,
-                    IdentifierEntityV1::class
+                    IdentifierEntityV1::class,
+                    DeviceRequestEntityV1::class
                 )
             )
-                .schemaVersion(ACTUAL_SCHEMA_VERSION)
+                .schemaVersion(SchemaVersion.ACTUAL)
                 .directory(tempDBPath)
                 .build()
         )

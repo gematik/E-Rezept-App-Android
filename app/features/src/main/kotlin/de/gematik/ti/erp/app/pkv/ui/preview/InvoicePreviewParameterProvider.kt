@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -19,7 +19,6 @@
 package de.gematik.ti.erp.app.pkv.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.pkv.model.InvoiceState
 import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.invoiceRecord
@@ -29,7 +28,6 @@ import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant
 import de.gematik.ti.erp.app.utils.FhirTemporal.Instant as FhirInstant
 
@@ -39,48 +37,55 @@ data class InvoiceDetailScreenPreviewData(
 )
 
 data class InvoiceListScreenPreviewData(
-    val invoices: Map<Year, List<InvoiceData.PKVInvoiceRecord>>,
+    val invoices: Map<de.gematik.ti.erp.app.fhir.parser.Year, List<InvoiceData.PKVInvoiceRecord>>,
     val isSsoTokenValid: Boolean,
     val isConsentGranted: Boolean
 )
 
+private val invoiceListData = InvoiceListScreenPreviewData(
+    invoices = mapOf(
+        de.gematik.ti.erp.app.fhir.parser.Year(2023) to listOf(
+            invoiceRecord.copy(
+                timestamp = Instant.parse("2023-10-23T12:34:56Z"),
+                medicationRequest = medicationRequest.copy(
+                    medication = medicationPzn.copy(
+                        text = "Medikament 1"
+                    )
+                )
+            )
+        ),
+        de.gematik.ti.erp.app.fhir.parser.Year(2022) to listOf(
+            invoiceRecord.copy(
+                timestamp = Instant.parse("2024-11-23T12:34:56Z"),
+                medicationRequest = medicationRequest.copy(
+                    medication = medicationPzn.copy(
+                        text = "Medikament 2"
+                    )
+                )
+            ),
+            invoiceRecord.copy(
+                timestamp = Instant.parse("2024-10-23T12:34:56Z"),
+                medicationRequest = medicationRequest.copy(
+                    medication = medicationPzn.copy(
+                        text = "Medikament 3"
+                    )
+                )
+            )
+        )
+    ),
+    isSsoTokenValid = true,
+    isConsentGranted = true
+)
+
+class InvoiceExpandedDetailsScreenPreviewParameterProvider : PreviewParameterProvider<InvoiceData.PKVInvoiceRecord?> {
+    override val values: Sequence<InvoiceData.PKVInvoiceRecord?>
+        get() = sequenceOf(invoiceListData.invoices.values.first().first())
+}
+
 class InvoiceListScreenPreviewParameterProvider : PreviewParameterProvider<InvoiceListScreenPreviewData> {
     override val values: Sequence<InvoiceListScreenPreviewData>
         get() = sequenceOf(
-            InvoiceListScreenPreviewData(
-                invoices = mapOf(
-                    Year(2023) to listOf(
-                        invoiceRecord.copy(
-                            timestamp = Instant.parse("2023-10-23T12:34:56Z"),
-                            medicationRequest = medicationRequest.copy(
-                                medication = medicationPzn.copy(
-                                    text = "Medikament 1"
-                                )
-                            )
-                        )
-                    ),
-                    Year(2022) to listOf(
-                        invoiceRecord.copy(
-                            timestamp = Instant.parse("2024-11-23T12:34:56Z"),
-                            medicationRequest = medicationRequest.copy(
-                                medication = medicationPzn.copy(
-                                    text = "Medikament 2"
-                                )
-                            )
-                        ),
-                        invoiceRecord.copy(
-                            timestamp = Instant.parse("2024-10-23T12:34:56Z"),
-                            medicationRequest = medicationRequest.copy(
-                                medication = medicationPzn.copy(
-                                    text = "Medikament 3"
-                                )
-                            )
-                        )
-                    )
-                ),
-                isSsoTokenValid = true,
-                isConsentGranted = true
-            ),
+            invoiceListData,
             InvoiceListScreenPreviewData(
                 invoices = emptyMap(),
                 isSsoTokenValid = false,
@@ -140,7 +145,7 @@ object PkvMockData {
         text = "Präparat",
         form = "AEO",
         lotNumber = "lotNumber",
-        expirationDate = FhirTemporal.Instant(timestamp),
+        expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(timestamp),
         identifier = SyncedTaskData.Identifier("FJHE98383JGK"),
         normSizeCode = "FRE4347",
         amount = Ratio(
@@ -192,7 +197,7 @@ object PkvMockData {
             birthdate = FhirInstant(value = timestamp)
         ),
         medicationRequest = medicationRequest,
-        whenHandedOver = FhirTemporal.Instant(value = handoverTimestamp),
+        whenHandedOver = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(value = handoverTimestamp),
         invoice = invoice,
         consumed = false
     )

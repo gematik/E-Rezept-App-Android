@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -66,7 +66,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.authentication.model.GidEventData.Companion.isPkv
+import de.gematik.ti.erp.app.authentication.model.GidNavigationData.Companion.isPkv
 import de.gematik.ti.erp.app.base.fold
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.base.requireNonNull

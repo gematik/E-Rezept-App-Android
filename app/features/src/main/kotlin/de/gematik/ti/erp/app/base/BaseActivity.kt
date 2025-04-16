@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, gematik GmbH
+ * Copyright 2025, gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -53,7 +53,7 @@ import de.gematik.ti.erp.app.appupdate.usecase.CheckVersionUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerUseCase
-import de.gematik.ti.erp.app.base.usecase.UpdateInAppMessageUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.debugOverrides
 import de.gematik.ti.erp.app.demomode.DefaultDemoModeObserver
@@ -124,7 +124,7 @@ open class BaseActivity :
     private val inactivityTimeoutObserver: InactivityTimeoutObserver by instance()
     private val changeAppUpdateFlagUseCase: ChangeAppUpdateFlagUseCase by instance()
     private val updateManagerUseCase: GetAppUpdateManagerUseCase by instance()
-    private val updateInAppMessageUseCase: UpdateInAppMessageUseCase by instance()
+    private val updateInternalMessagesUseCase: UpdateInternalMessagesUseCase by instance()
     private val _nfcTag = MutableSharedFlow<Tag>()
 
     val analytics: Analytics by instance()
@@ -286,7 +286,7 @@ open class BaseActivity :
     }
 
     suspend fun updateInAppMessage() {
-        updateInAppMessageUseCase.invoke()
+        updateInternalMessagesUseCase.invoke()
     }
 
     // Flow on a non main thread to avoid ANR
