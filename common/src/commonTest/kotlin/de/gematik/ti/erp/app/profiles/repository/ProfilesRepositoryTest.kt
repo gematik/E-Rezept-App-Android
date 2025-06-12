@@ -35,6 +35,7 @@ import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
@@ -55,7 +56,6 @@ import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Clock
@@ -66,7 +66,6 @@ import org.junit.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class ProfilesRepositoryTest : TestDB() {
     @get:Rule
     val coroutineRule = CoroutineTestRule()
@@ -117,7 +116,8 @@ class ProfilesRepositoryTest : TestDB() {
                     AuthenticationEntityV1::class,
                     AuthenticationPasswordEntityV1::class,
                     IdentifierEntityV1::class,
-                    DeviceRequestEntityV1::class
+                    DeviceRequestEntityV1::class,
+                    DeviceRequestDispenseEntityV1::class
                 )
             )
                 .schemaVersion(SchemaVersion.ACTUAL)
@@ -220,10 +220,11 @@ class ProfilesRepositoryTest : TestDB() {
             }.apply {
                 this?.let {
                     repo.saveInsuranceInformation(
-                        it.id,
-                        defaultInsurantName,
-                        defaultInsuranceIdentifier,
-                        defaultInsuranceName
+                        profileId = it.id,
+                        insuranceName = defaultInsuranceName,
+                        insuranceIdentifier = defaultInsuranceIdentifier,
+                        insurantName = defaultInsurantName,
+                        organizationIdentifier = ""
                     )
                 }
             }
@@ -244,10 +245,11 @@ class ProfilesRepositoryTest : TestDB() {
             }.apply {
                 this?.let {
                     repo.saveInsuranceInformation(
-                        it.id,
-                        defaultInsurantName,
-                        defaultInsuranceIdentifier,
-                        defaultInsuranceName
+                        profileId = it.id,
+                        insuranceName = defaultInsurantName,
+                        insuranceIdentifier = defaultInsuranceIdentifier,
+                        insurantName = defaultInsuranceName,
+                        organizationIdentifier = ""
                     )
                 }
             }
@@ -255,10 +257,11 @@ class ProfilesRepositoryTest : TestDB() {
         repo.profiles().first().also { profileList ->
             assertFails {
                 repo.saveInsuranceInformation(
-                    profileList[0].id,
-                    defaultInsurantName,
-                    defaultInsuranceIdentifier1,
-                    defaultInsuranceName
+                    profileId = profileList[0].id,
+                    insuranceName = defaultInsurantName,
+                    insuranceIdentifier = defaultInsuranceIdentifier1,
+                    insurantName = defaultInsuranceName,
+                    organizationIdentifier = ""
                 )
             }
         }
@@ -273,10 +276,11 @@ class ProfilesRepositoryTest : TestDB() {
             assertFails {
                 profileList.forEach {
                     repo.saveInsuranceInformation(
-                        it.id,
-                        defaultInsurantName,
-                        defaultInsuranceIdentifier,
-                        defaultInsuranceName
+                        profileId = it.id,
+                        insuranceName = defaultInsurantName,
+                        insuranceIdentifier = defaultInsuranceIdentifier,
+                        insurantName = defaultInsuranceName,
+                        organizationIdentifier = ""
                     )
                 }
             }
@@ -299,7 +303,8 @@ class ProfilesRepositoryTest : TestDB() {
                 profileId = profileId,
                 insurantName = defaultInsurantName,
                 insuranceIdentifier = defaultInsuranceIdentifier,
-                insuranceName = defaultInsuranceName
+                insuranceName = defaultInsuranceName,
+                organizationIdentifier = ""
             )
         }
 
@@ -325,7 +330,8 @@ class ProfilesRepositoryTest : TestDB() {
                 profileId = profileId,
                 insurantName = defaultInsurantName,
                 insuranceIdentifier = defaultInsuranceIdentifier,
-                insuranceName = defaultInsuranceName
+                insuranceName = defaultInsuranceName,
+                organizationIdentifier = ""
             )
         }
 

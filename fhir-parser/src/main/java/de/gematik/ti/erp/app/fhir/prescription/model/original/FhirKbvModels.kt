@@ -18,58 +18,17 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
-import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.JsonElement
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceEntry
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-@Serializable
-internal data class FhirKbvBundle(
-    @SerialName("entry") val entries: List<FhirKbvEntry> = emptyList()
-) {
-    companion object {
-        fun JsonElement.parseFhirKbvBundle(): List<FhirKbvEntry> {
-            return try {
-                SafeJson.value.decodeFromJsonElement<FhirKbvBundle>(serializer(), this).entries
-            } catch (e: Exception) {
-                println("Error parsing FHIR Bundle: ${e.message}")
-                emptyList()
-            }
+internal fun FhirResourceEntry.kbvResourceType(): FhirKbvResourceType? {
+    val type = resource.jsonObject[resourceTypePlaceholder]?.jsonPrimitive?.content
+    return type?.let {
+        FhirKbvResourceType.entries.find { enumItem ->
+            enumItem.name.equals(it, ignoreCase = true)
         }
     }
-}
-
-@Serializable
-internal data class FhirKbvEntry(
-    @SerialName("fullUrl") val fullUrl: String? = null,
-    @SerialName("resource") val resource: JsonElement
-) {
-    private val resourceTypeValue = "resourceType"
-    val resourceType: FhirKbvResourceType?
-        get() {
-            val type = resource.jsonObject[resourceTypeValue]?.jsonPrimitive?.content
-            return type?.let {
-                FhirKbvResourceType.entries.find { enumItem ->
-                    enumItem.name.equals(it, ignoreCase = true)
-                }
-            }
-        }
-
-    // https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3 returns 1.0.3
-    // https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Coverage|1.1.0 returns 1.1.0
-    val version: String?
-        get() {
-            val versionRegex = Regex("""\|(\d+\.\d+\.\d+)""")
-            val profiles = resource.jsonObject["meta"]?.let { metaElement ->
-                SafeJson.value.decodeFromJsonElement(FhirMeta.serializer(), metaElement).profiles
-            }
-            return profiles?.firstNotNullOfOrNull {
-                it.let { versionRegex.find(it)?.groupValues?.get(1) }
-            }
-        }
 }
 
 // mapped exactly from fhir "resourceType" in [FhirKbvEntry]

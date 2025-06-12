@@ -20,8 +20,8 @@ package de.gematik.ti.erp.app.protocol.usecase
 
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import de.gematik.ti.erp.app.protocol.model.AuditEventPagingKey
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import kotlin.math.max
@@ -29,15 +29,15 @@ import kotlin.math.max
 class AuditEventPagingSource(
     private val profileId: ProfileIdentifier,
     private val auditRepository: AuditEventsRepository
-) : PagingSource<AuditEventPagingKey, AuditEventData.AuditEvent>() {
+) : PagingSource<AuditEventPagingKey, FhirAuditEventErpModel>() {
 
     override fun getRefreshKey(
-        state: PagingState<AuditEventPagingKey, AuditEventData.AuditEvent>
+        state: PagingState<AuditEventPagingKey, FhirAuditEventErpModel>
     ): AuditEventPagingKey? = null
 
     override suspend fun load(
         params: LoadParams<AuditEventPagingKey>
-    ): LoadResult<AuditEventPagingKey, AuditEventData.AuditEvent> {
+    ): LoadResult<AuditEventPagingKey, FhirAuditEventErpModel> {
         val count = params.loadSize
 
         when (params) {
@@ -49,14 +49,11 @@ class AuditEventPagingSource(
                 )
                     .map {
                         LoadResult.Page(
-                            data = it.auditEvents,
-                            nextKey = if (it.bundleResultCount == AuditEventsInitialResultsPerPage) {
-                                AuditEventPagingKey(
-                                    it.bundleResultCount
-                                )
-                            } else {
-                                null
-                            },
+                            data = it?.auditEvents ?: emptyList(),
+                            nextKey = AuditEventPagingKey.from(
+                                currentOffset = params.key?.offset,
+                                auditEvents = it?.auditEvents
+                            ),
                             prevKey = null
                         )
                     }.getOrElse { LoadResult.Error(it) }
@@ -68,21 +65,20 @@ class AuditEventPagingSource(
                     offset = params.key.offset,
                     count = count
                 ).map {
-                    val actualItemCount = it.auditEvents.size
-                    val nextKey = if (actualItemCount == count) {
-                        AuditEventPagingKey(params.key.offset + actualItemCount)
-                    } else {
-                        null
-                    }
                     val prevKey = if (params.key.offset == 0) null else params.key.copy(
                         offset = max(0, params.key.offset - count)
                     )
 
+                    val nextKey = AuditEventPagingKey.from(
+                        currentOffset = params.key.offset,
+                        auditEvents = it?.auditEvents
+                    )
+
                     LoadResult.Page(
-                        data = it.auditEvents,
+                        data = it?.auditEvents ?: emptyList(),
                         nextKey = nextKey,
                         prevKey = prevKey,
-                        itemsBefore = if (prevKey != null) count else 0,
+                        itemsBefore = if (params.key.offset == 0) 0 else count,
                         itemsAfter = if (nextKey != null) count else 0
                     )
                 }.getOrElse { LoadResult.Error(it) }

@@ -36,14 +36,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.DateTimeUtils
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -97,7 +97,7 @@ internal fun InvoiceMessage(
                         R.string.cost_receipt_is_ready,
                         it
                     ),
-                    style = AppTheme.typography.body2l
+                    style = AppTheme.typography.body2
                 )
             }
             SpacerTiny()
@@ -115,7 +115,7 @@ fun CostReceiptDetail(
     Row(modifier = Modifier.clickable(onClick = onClick)) {
         Text(
             text = stringResource(R.string.show_cost_receipt),
-            style = AppTheme.typography.body2l,
+            style = AppTheme.typography.body2,
             color = AppTheme.colors.primary700
         )
         Icon(

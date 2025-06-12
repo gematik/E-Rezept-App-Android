@@ -22,7 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.settings.usecase.GetSupportedLanguagesFromXmlUseCase
 import org.kodein.di.compose.rememberInstance
 

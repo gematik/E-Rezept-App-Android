@@ -18,19 +18,20 @@
 
 package de.gematik.ti.erp.app.mocks.order.model
 
-import de.gematik.ti.erp.app.messages.model.MessageTimeState
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
-import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
-import de.gematik.ti.erp.app.mocks.DATE_3023_12_31
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.model.InternalMessage
+import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
+import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
+import de.gematik.ti.erp.app.mocks.DATE_3023_12_31
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStateSerializationType
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
+import de.gematik.ti.erp.app.timestate.TimeState
 import kotlinx.datetime.Instant
 
 const val COMMUNICATION_ID = "communicationId1"
@@ -112,13 +113,16 @@ val MOCK_MESSAGE = OrderUseCaseData.Message(
             taskId = "testId1",
             name = null,
             redeemedOn = null,
-            expiresOn = Instant.parse("1970-01-02T10:17:36Z"),
-            state = SyncedTaskData.SyncedTask.Expired(type = TaskStateSerializationType.Expired, expiredOn = Instant.parse("1970-01-02T10:17:36Z")),
+            expiresOn = Instant.parse(WELCOME_MESSAGE_TIMESTAMP),
+            state = SyncedTaskData.SyncedTask.Expired(type = TaskStateSerializationType.Expired, expiredOn = Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
             isIncomplete = false,
             organization = "Dr. John Doe",
-            authoredOn = Instant.parse("1970-01-02T10:17:36Z"),
-            acceptUntil = Instant.parse("1970-01-02T10:17:36Z"),
+            authoredOn = Instant.parse(WELCOME_MESSAGE_TIMESTAMP),
+            acceptUntil = Instant.parse(WELCOME_MESSAGE_TIMESTAMP),
             isDirectAssignment = false,
+            deviceRequestState = DigaStatus.Ready,
+            isNew = false,
+            lastModified = Instant.parse("2024-01-01T10:00:00Z"),
             prescriptionChipInformation = Prescription.PrescriptionChipInformation(
                 isSelfPayPrescription = false,
                 isPartOfMultiplePrescription = false,
@@ -136,7 +140,7 @@ val inAppMessages = listOf(
         id = ORDER_ID,
         from = "",
         text = IN_APP_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 1,
         tag = "",
         isUnread = true,
@@ -148,7 +152,7 @@ val inAppMessages = listOf(
         id = ORDER_ID,
         from = "",
         text = IN_APP_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 1,
         tag = "",
         isUnread = true,
@@ -160,7 +164,7 @@ val inAppMessages = listOf(
         id = WELCOME_MESSAGE_ID,
         from = WELCOME_MESSAGE_FROM,
         text = WELCOME_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 0,
         tag = WELCOME_MESSAGE_TAG,
         isUnread = true,
@@ -175,7 +179,7 @@ val inAppMessage = listOf(
         id = "01",
         from = "Team",
         text = "This is a long message to see how it looks like when the message is long and how the UI should handle it properly",
-        timeState = MessageTimeState.ShowDate(Instant.parse("2024-01-01T10:00:00Z")),
+        timeState = TimeState.ShowDate(Instant.parse("2024-01-01T10:00:00Z")),
         prescriptionsCount = 0,
         tag = "1",
         isUnread = true,
@@ -187,7 +191,7 @@ val inAppMessage = listOf(
         id = WELCOME_MESSAGE_ID,
         from = WELCOME_MESSAGE_FROM,
         text = WELCOME_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 0,
         tag = WELCOME_MESSAGE_TAG,
         isUnread = true,
@@ -203,7 +207,7 @@ val inAppMessagesFiltered = listOf(
         id = ORDER_ID,
         from = "",
         text = IN_APP_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 1,
         tag = "",
         isUnread = true,
@@ -215,7 +219,7 @@ val inAppMessagesFiltered = listOf(
         id = WELCOME_MESSAGE_ID,
         from = WELCOME_MESSAGE_FROM,
         text = WELCOME_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 0,
         tag = WELCOME_MESSAGE_TAG,
         isUnread = true,
@@ -230,7 +234,7 @@ val inAppMessagesVersion = listOf(
         id = "orderId1",
         from = "",
         text = IN_APP_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 1,
         tag = "",
         isUnread = true,
@@ -242,7 +246,7 @@ val inAppMessagesVersion = listOf(
         id = "orderId1",
         from = "",
         text = IN_APP_MESSAGE_TEXT,
-        timeState = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        timeState = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         prescriptionsCount = 1,
         tag = "",
         isUnread = true,
@@ -257,7 +261,7 @@ val welcomeMessage =
         id = WELCOME_MESSAGE_ID,
         sender = WELCOME_MESSAGE_FROM,
         text = WELCOME_MESSAGE_TEXT,
-        time = MessageTimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
+        time = TimeState.ShowDate(Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
         tag = WELCOME_MESSAGE_TAG,
         isUnread = true,
         messageProfile = CommunicationProfile.InApp,
@@ -277,13 +281,16 @@ val ORDER_DETAIL = OrderUseCaseData.OrderDetail(
                 taskId = TASK_ID,
                 name = null,
                 redeemedOn = null,
-                expiresOn = Instant.parse("1970-01-02T10:17:36Z"),
-                state = SyncedTaskData.SyncedTask.Expired(type = TaskStateSerializationType.Expired, expiredOn = Instant.parse("1970-01-02T10:17:36Z")),
+                expiresOn = Instant.parse(WELCOME_MESSAGE_TIMESTAMP),
+                state = SyncedTaskData.SyncedTask.Expired(type = TaskStateSerializationType.Expired, expiredOn = Instant.parse(WELCOME_MESSAGE_TIMESTAMP)),
                 isIncomplete = false,
                 organization = MOCK_PRACTITIONER_NAME,
-                authoredOn = Instant.parse("1970-01-02T10:17:36Z"),
-                acceptUntil = Instant.parse("1970-01-02T10:17:36Z"),
+                deviceRequestState = DigaStatus.Ready,
+                isNew = false,
+                authoredOn = Instant.parse(WELCOME_MESSAGE_TIMESTAMP),
+                acceptUntil = Instant.parse(WELCOME_MESSAGE_TIMESTAMP),
                 isDirectAssignment = false,
+                lastModified = Instant.parse("2024-01-01T10:00:00Z"),
                 prescriptionChipInformation = Prescription.PrescriptionChipInformation(
                     isSelfPayPrescription = false,
                     isPartOfMultiplePrescription = false,
@@ -355,7 +362,7 @@ val MOCK_SYNCED_TASK_DATA_01_NEW = SyncedTaskData.SyncedTask(
     profileId = "testProfileId",
     taskId = "testId1",
     accessCode = "testAccessCode",
-    lastModified = Instant.fromEpochSeconds(123456),
+    lastModified = Instant.parse("2024-01-01T10:00:00Z"),
     organization = MOCK_ORGANIZATION,
     practitioner = MOCK_PRACTITIONER,
     patient = MOCK_PATIENT,
@@ -364,9 +371,9 @@ val MOCK_SYNCED_TASK_DATA_01_NEW = SyncedTaskData.SyncedTask(
         status = "Active",
         coverageType = SyncedTaskData.CoverageType.GKV
     ),
-    expiresOn = Instant.fromEpochSeconds(123456),
-    acceptUntil = Instant.fromEpochSeconds(123456),
-    authoredOn = Instant.fromEpochSeconds(123456),
+    expiresOn = Instant.parse("2024-01-01T10:00:00Z"),
+    acceptUntil = Instant.parse("2024-01-01T10:00:00Z"),
+    authoredOn = Instant.parse("2024-01-01T10:00:00Z"),
     status = SyncedTaskData.TaskStatus.Ready,
     isIncomplete = false,
     pvsIdentifier = "testPvsIdentifier",

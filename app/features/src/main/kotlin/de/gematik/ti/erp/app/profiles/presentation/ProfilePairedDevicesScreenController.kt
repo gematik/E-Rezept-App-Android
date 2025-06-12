@@ -109,7 +109,9 @@ class ProfilePairedDevicesScreenController(
     }
 
     private val isNotBiometricAuthentication = MutableStateFlow(false)
-    private val _pairedDevices: MutableStateFlow<UiState<List<PairedDevice>>> = MutableStateFlow(UiState.Loading())
+    private val _pairedDevices: MutableStateFlow<UiState<List<PairedDevice>>> = MutableStateFlow(
+        UiState.Loading()
+    )
 
     val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
 

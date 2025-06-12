@@ -18,20 +18,94 @@
 
 package de.gematik.ti.erp.app.loading
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import kotlin.math.floor
 
 @Composable
 fun LoadingIndicator() {
     Center {
+        SmartCircularProgressIndicator()
+    }
+}
+
+@Composable
+fun SmartCircularProgressIndicator(
+    colorCycleDurationMillis: Int = 1000,
+    spinSpeedMillis: Int = 800 // lower = faster spin
+) {
+    val colors = listOf(
+        AppTheme.colors.primary100,
+        AppTheme.colors.primary200,
+        AppTheme.colors.primary300,
+        AppTheme.colors.primary400,
+        AppTheme.colors.primary500,
+        AppTheme.colors.primary600,
+        AppTheme.colors.primary800,
+        AppTheme.colors.primary900,
+        AppTheme.colors.primary800,
+        AppTheme.colors.primary700,
+        AppTheme.colors.primary600,
+        AppTheme.colors.primary500,
+        AppTheme.colors.primary400,
+        AppTheme.colors.primary300,
+        AppTheme.colors.primary200
+    )
+
+    // Spinning animation
+    val infiniteTransition = rememberInfiniteTransition(label = "Spinner")
+
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = spinSpeedMillis,
+                easing = LinearEasing
+            ),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "Rotation"
+    )
+
+    val colorAnimation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = colors.size.toFloat(),
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = colorCycleDurationMillis, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart
+        ),
+        label = "ColorCycle"
+    )
+
+    // Determine current color index
+    val colorIndex = floor(colorAnimation).toInt() % colors.size
+    val currentColor = colors[colorIndex]
+
+    Box(
+        modifier = Modifier
+            .size(SizeDefaults.doubleHalf)
+            .rotate(rotation)
+    ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(SizeDefaults.doubleHalf),
-            color = AppTheme.colors.primary400
+            strokeWidth = SizeDefaults.half,
+            color = currentColor,
+            modifier = Modifier.fillMaxSize()
         )
     }
 }

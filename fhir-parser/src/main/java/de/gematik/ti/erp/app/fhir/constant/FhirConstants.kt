@@ -137,30 +137,88 @@ object FhirConstants {
         );
     }
 
+    /**
+     * Identifiers related to Prüfarztnummer (PVS) used in FHIR resources.
+     */
     enum class PvsIdentifier(val value: String) {
+        /**
+         * Full URL for the Prüfarztnummer naming system.
+         */
         FULL_URL("https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer"),
         ITEM_KEY("system"),
         ITEM_VALUE("value");
     }
 
+    /**
+     * Naming system for identifying practitioners using the Arztnummer (ANR).
+     */
     const val PRACTITIONER_IDENTIFIER_NAME = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR"
 
+    /**
+     * Naming system for GKV (gesetzliche Krankenversicherung) patient identifier (KVNR).
+     */
     const val PATIENT_KVNR_NAME_103 = "http://fhir.de/NamingSystem/gkv/kvid-10"
+
+    /**
+     * Code system URL for patient identifier types in German FHIR profiles.
+     */
     const val PATIENT_KVNR_CODE_SYSTEM_URL = "http://fhir.de/CodeSystem/identifier-type-de-basis"
-    const val PATIENT_KVNR_CODE_PKV = "http://fhir.de/sid/pkv/kvid-10"
+
+    /**
+     * Label used to indicate private health insurance (PKV).
+     */
     const val PKV = "PKV"
+
+    /**
+     * Identifier system for patients with private health insurance (PKV).
+     */
+    const val PATIENT_KVNR_CODE_PKV = "http://fhir.de/sid/pkv/kvid-10"
+
+    /**
+     * Identifier system for patients with statutory health insurance (GKV).
+     */
     const val PATIENT_KVNR_CODE_GKV = "http://fhir.de/sid/gkv/kvid-10"
 
+    /**
+     * Telematik ID system used to identify organizations and practitioners in the German healthcare system.
+     */
+    const val TELEMATIK_ID_IDENTIFIER = "https://gematik.de/fhir/sid/telematik-id"
+
+    /**
+     * Identifier for organizations using Betriebsstättennummer (BSNR).
+     */
     const val ORGANIZATION_IDENTIFIER_BSNR_NAME = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR"
+
+    /**
+     * Identifier for organizations using Institutionskennzeichen (IKNR).
+     */
     const val ORGANIZATION_IDENTIFIER_IKNR_NAME = "http://fhir.de/sid/arge-ik/iknr"
 
+    /**
+     * Code system for health insurance status used in the KBV FHIR profiles.
+     */
     const val COVERAGE_KBV_STATUS_CODE_SYSTEM = "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_VERSICHERTENSTATUS"
 
     const val TELECOM_PHONE = "phone"
     const val TELECOM_EMAIL = "email"
 
+    /**
+     * Identifier system for pharmaceutical central numbers (PZN) used in Germany.
+     */
     const val PZN_IDENTIFIER = "http://fhir.de/CodeSystem/ifa/pzn"
+
+    /**
+     * Identifier system for ATC (Anatomical Therapeutic Chemical Classification) codes from BfArM.
+     */
     const val ATC_IDENTIFIER = "http://fhir.de/CodeSystem/bfarm/atc"
+
+    /**
+     * Identifier system for the Arzneispezialitätenkatalog (ASK) – a catalog of medicinal products.
+     */
     const val ASK_IDENTIFIER = "http://fhir.de/CodeSystem/ask"
+
+    /**
+     * Identifier system for SNOMED CT, used for standardized clinical terminology.
+     */
     const val SNOMED_IDENTIFIER = "http://snomed.info/sct"
 }

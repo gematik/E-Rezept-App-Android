@@ -23,5 +23,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class SessionLogHolder {
-    val http: StateFlow<MutableList<LogEntry>> = MutableStateFlow(mutableListOf())
+    private val _http = MutableStateFlow<List<LogEntry>>(emptyList())
+    val http: StateFlow<List<LogEntry>> = _http
+
+    fun addLog(entry: LogEntry) {
+        _http.value += entry
+    }
+
+    fun resetLogs() {
+        _http.value = emptyList() // reset
+        _http.value = _http.value.toList() // force emission (optional safeguard)
+    }
 }

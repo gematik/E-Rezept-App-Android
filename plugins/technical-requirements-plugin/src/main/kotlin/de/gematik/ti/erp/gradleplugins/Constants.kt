@@ -34,8 +34,8 @@ internal const val APP_FEATURES_PATH = "/app/features"
 internal const val SHARED_MODULE_PATH = "/common/src/commonMain/kotlin/de/gematik/ti/erp/app"
 internal const val SHARED_TEST_MODULE_PATH = "/common/src/commonTest/kotlin/de/gematik/ti/erp/app"
 internal const val SHARED_ANDROID_MODULE_PATH = "/common/src/androidMain/kotlin/de/gematik/ti/erp/app"
+internal const val FHIR_PARSER_MODULE_PATH = "/fhir-parser/src/main/java/de/gematik/ti/erp/app"
 internal const val CODE_LINE = "codeLines ="
-internal const val RATIONALE = "rationale ="
 internal const val REQUIREMENTS_PATH = "requirements"
 internal const val BSI_REQUIREMENTS_FILE_NAME = "bsi-requirements.html"
 internal const val BSI_REQUIREMENTS_PATH = "requirements/bsi-requirements.html"
@@ -57,7 +57,6 @@ object Regex {
     val ANNOTATION_REGEX = Regex("""@Requirement\([^)]*\)""", RegexOption.MULTILINE)
     val REQUIREMENT_REGEX = Regex("""\s*"([a-zA-Z_][a-zA-Z0-9_#-.]*)"\s*,?\s*""")
     val SPEC_REGEX = Regex("""sourceSpecification\s*=\s*"(.*?)"""")
-    val RATIONALE_REGEX = Regex("""rationale\s*=\s*[^)]*""", RegexOption.MULTILINE)
     val CODE_LINES_REGEX = Regex("""codeLines\s*=\s*[^)]*""", RegexOption.MULTILINE)
     val QUOTES_REGEX = Regex(""""(.*?)"""")
 }

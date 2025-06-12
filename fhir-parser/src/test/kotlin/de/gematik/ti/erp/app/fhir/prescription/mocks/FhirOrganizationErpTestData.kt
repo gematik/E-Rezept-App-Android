@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvAddressErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskOrganizationErpModel
 
 object FhirOrganizationErpTestData {

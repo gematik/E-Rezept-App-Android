@@ -35,7 +35,7 @@ import java.net.UnknownHostException
     "O.Source_4#1",
     "O.Plat_4#1",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Error messages are localized using the `HttpErrorState " +
+    rationale = "Error messages are localized using the `HttpErrorState` " +
         "Search for `HttpErrorState` to see all instances." +
         "Most errors are localized with static text. Logging is only active on debug builds."
 )
@@ -57,7 +57,7 @@ sealed class HttpErrorState(val errorCode: Int) {
     data object Gone : HttpErrorState(HttpURLConnection.HTTP_GONE)
     data object TooManyRequest : HttpErrorState(429)
     data object ServerError : HttpErrorState(HttpURLConnection.HTTP_INTERNAL_ERROR)
-    data class ErrorWithCause(val message: String) : HttpErrorState(-1)
+    data class ErrorWithCause(val message: String) : HttpErrorState(600)
 }
 
 // TODO: Use code from OperationOutcome

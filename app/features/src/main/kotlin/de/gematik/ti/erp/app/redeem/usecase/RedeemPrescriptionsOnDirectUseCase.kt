@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.pharmacy.mapper.toRedeemOption
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -139,9 +140,10 @@ class RedeemPrescriptionsOnDirectUseCase(
                                     // save the pharmacy as often used when the prescription was redeemed successfully
                                     launch { pharmacyRepository.markPharmacyAsOftenUsed(pharmacy) }
 
-                                    RedeemedPrescriptionState.Success
+                                    BaseRedeemState.Success
+                                    // RedeemedPrescriptionState.Success
                                 } catch (e: Throwable) {
-                                    RedeemedPrescriptionState.Error(
+                                    BaseRedeemState.Error(
                                         errorState = HttpErrorState.ErrorWithCause("Error on local save ${e.message}")
                                     )
                                 }
@@ -150,11 +152,11 @@ class RedeemPrescriptionsOnDirectUseCase(
                                 Napier.e { "Error on prescription (direct) ${prescriptionOrderInfo.title} redemption ${error.stackTraceToString()}" }
                                 onRedeemProcessEnd()
                                 when (error) {
-                                    is ApiCallException -> RedeemedPrescriptionState.Error(
+                                    is ApiCallException -> BaseRedeemState.Error(
                                         errorState = error.response.httpErrorState()
                                     )
 
-                                    else -> RedeemedPrescriptionState.Error(
+                                    else -> BaseRedeemState.Error(
                                         errorState = HttpErrorState.ErrorWithCause("Error on local save ${error.message}")
                                     )
                                 }

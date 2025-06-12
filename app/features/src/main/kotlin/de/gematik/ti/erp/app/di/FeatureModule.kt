@@ -25,7 +25,8 @@ import de.gematik.ti.erp.app.authentication.di.authenticationModule
 import de.gematik.ti.erp.app.cardunlock.di.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
 import de.gematik.ti.erp.app.debugsettings.di.debugSettingsModule
-import de.gematik.ti.erp.app.featuretoggle.di.newFeaturesSharedPrefsModule
+import de.gematik.ti.erp.app.digas.di.digaModule
+import de.gematik.ti.erp.app.digas.di.digaRepositoryModule
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
 import de.gematik.ti.erp.app.logger.di.loggerModule
@@ -45,8 +46,8 @@ import de.gematik.ti.erp.app.prescription.taskModule
 import de.gematik.ti.erp.app.prescription.taskRepositoryModule
 import de.gematik.ti.erp.app.profiles.profileRepositoryModule
 import de.gematik.ti.erp.app.profiles.profilesModule
-import de.gematik.ti.erp.app.protocol.protocolModule
-import de.gematik.ti.erp.app.protocol.protocolRepositoryModule
+import de.gematik.ti.erp.app.protocol.auditEventsModule
+import de.gematik.ti.erp.app.protocol.auditEventsRepositoryModule
 import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.settings.settingsRepositoryModule
@@ -80,16 +81,16 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         redeemModule,
         prescriptionModule,
         profilesModule,
-        protocolModule,
+        auditEventsModule,
         taskModule,
         settingsModule,
         vauModule,
         cardUnlockModule,
         pkvModule,
         authenticationModule,
+        digaModule,
         // shared-prefs modules
         timeoutsSharedPrefsModule,
-        newFeaturesSharedPrefsModule,
         // other modules
         analyticsModule,
 
@@ -101,11 +102,12 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         profileRepositoryModule,
         prescriptionRepositoryModule,
         consentRepositoryModule,
-        protocolRepositoryModule,
+        auditEventsRepositoryModule,
         pharmacyRepositoryModule,
         messageRepositoryModule,
         taskRepositoryModule,
         medicationPlanModule,
+        digaRepositoryModule,
         allowOverride = true
     )
 }

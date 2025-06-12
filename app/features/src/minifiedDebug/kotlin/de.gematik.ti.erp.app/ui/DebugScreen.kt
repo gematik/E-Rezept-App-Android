@@ -38,6 +38,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+//noinspection UsingMaterialAndMaterial3Libraries
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Card
@@ -51,6 +52,7 @@ import androidx.compose.material.Switch
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Adb
+import androidx.compose.material.icons.rounded.Bookmarks
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.HorizontalDivider
@@ -78,12 +80,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.debugsettings.logger.ui.screens.LoggerScreen.LoggerScreen
 import de.gematik.ti.erp.app.debugsettings.navigation.DebugScreenNavigation
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.ui.screens.PharmacyServiceSelectionScreen
@@ -95,7 +98,6 @@ import de.gematik.ti.erp.app.debugsettings.ui.components.ClearTextTrafficSection
 import de.gematik.ti.erp.app.debugsettings.ui.components.ClientIdsSection
 import de.gematik.ti.erp.app.debugsettings.ui.components.EnvironmentSelector
 import de.gematik.ti.erp.app.debugsettings.ui.components.LoadingButton
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -217,7 +219,6 @@ fun EditablePathComponentWithControl(
     }
 }
 
-@OptIn(ExperimentalMaterialNavigationApi::class)
 @Composable
 fun DebugScreen(
     settingsNavController: NavController
@@ -237,13 +238,15 @@ fun DebugScreen(
                 idpRepository = instance(),
                 idpUseCase = instance(),
                 profilesUseCase = instance(),
-                featureToggleManager = instance(),
+                featureToggleDataStore = instance(),
                 pharmacyDirectRedeemUseCase = instance(),
                 getAppUpdateManagerFlagUseCase = instance(),
                 changeAppUpdateManagerFlagUseCase = instance(),
                 markAllUnreadMessagesAsReadUseCase = instance(),
                 deletePrescriptionUseCase = instance(),
                 getTaskIdsUseCase = instance(),
+                getIknrUseCase = instance(),
+                updateIknrUseCase = instance(),
                 dispatchers = instance()
             )
         }
@@ -481,6 +484,7 @@ fun DebugScreenMain(
     onScanQrCode: () -> Unit,
     onClickLogger: () -> Unit
 ) {
+    val context = LocalContext.current
     val listState = rememberLazyListState()
     val modal = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val snackbarHostState = remember { SnackbarHostState() }
@@ -489,6 +493,8 @@ fun DebugScreenMain(
     val appUpdateManager by viewModel.appUpdateManagerState
     val messageMarkingLoading by viewModel.messageMarkingLoadingState
     val prescriptionDeletionLoading by viewModel.prescriptionDeletionLoadingState
+    val iknr by viewModel.iknr.collectAsStateWithLifecycle()
+    val onIknrChangedEvent = viewModel.onIknrChangedEvent
 
     ModalBottomSheetLayout(
         sheetContent = {
@@ -512,6 +518,14 @@ fun DebugScreenMain(
 
             LaunchedEffect(Unit) {
                 viewModel.state()
+            }
+
+            onIknrChangedEvent.listen {
+                snackbarHostState.showSnackbar(
+                    message = "IKNR updated",
+                    duration = SnackbarDuration.Short,
+                    withDismissAction = true
+                )
             }
 
             LazyColumn(
@@ -561,9 +575,41 @@ fun DebugScreenMain(
 
                         LabelButton(
                             icon = Icons.Rounded.Adb,
-                            text = "Logger"
+                            text = "Internal Logger"
                         ) {
                             onClickLogger()
+                        }
+                    }
+                }
+
+                item {
+                    DebugCard(
+                        title = "IKNR"
+                    ) {
+                        Column {
+                            Text(
+                                text = "Identification Number of the Health Insurance Provider",
+                                style = MaterialTheme.typography.body1,
+                                modifier = Modifier.padding(PaddingDefaults.Medium)
+                            )
+                            ErezeptOutlineText(
+                                modifier = Modifier.fillMaxWidth(),
+                                value = iknr,
+                                label = "Modify Iknr",
+                                placeholder = "108018007",
+                                onValueChange = viewModel::updateIknr,
+                                trailingIcon = {
+                                    Box(Modifier.padding(SizeDefaults.one)) {
+                                        Icon(Icons.Rounded.Bookmarks, null)
+                                    }
+                                }
+                            )
+                            Button(
+                                onClick = viewModel::saveIknr,
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(text = "Modify Iknr")
+                            }
                         }
                     }
                 }

@@ -22,8 +22,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.base.presentation.GetActiveProfileController
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
+import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
+import de.gematik.ti.erp.app.featuretoggle.datasource.Features
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.usecase.LoadMedicationScheduleByTaskIdUseCase
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
@@ -47,7 +47,7 @@ import org.kodein.di.compose.rememberInstance
 @Stable
 class PrescriptionDetailController(
     getActiveProfileUseCase: GetActiveProfileUseCase,
-    featureToggleManager: FeatureToggleManager,
+    featureToggleDataStore: FeatureToggleDataStore,
     private val taskId: String,
     private val redeemScannedTaskUseCase: RedeemScannedTaskUseCase,
     private val deletePrescriptionUseCase: DeletePrescriptionUseCase,
@@ -94,7 +94,7 @@ class PrescriptionDetailController(
     }
 
     val isMedicationPlanEnabled: StateFlow<Boolean> =
-        featureToggleManager.isFeatureEnabled(Features.MEDICATION_PLAN)
+        featureToggleDataStore.isFeatureEnabled(Features.MEDICATION_PLAN)
             .stateIn(
                 controllerScope,
                 SharingStarted.WhileSubscribed(),
@@ -154,7 +154,7 @@ fun rememberPrescriptionDetailController(taskId: String): PrescriptionDetailCont
     val loadMedicationScheduleByTaskIdUseCase by rememberInstance<LoadMedicationScheduleByTaskIdUseCase>()
     val updateScannedTaskNameUseCase by rememberInstance<UpdateScannedTaskNameUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
-    val featureToggleManager by rememberInstance<FeatureToggleManager>()
+    val featureToggleDataStore by rememberInstance<FeatureToggleDataStore>()
     return remember {
         PrescriptionDetailController(
             taskId = taskId,
@@ -164,7 +164,7 @@ fun rememberPrescriptionDetailController(taskId: String): PrescriptionDetailCont
             loadMedicationScheduleByTaskIdUseCase = loadMedicationScheduleByTaskIdUseCase,
             updateScannedTaskNameUseCase = updateScannedTaskNameUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
-            featureToggleManager = featureToggleManager
+            featureToggleDataStore = featureToggleDataStore
         )
     }
 }

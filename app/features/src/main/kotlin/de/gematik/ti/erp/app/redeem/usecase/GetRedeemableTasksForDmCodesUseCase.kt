@@ -40,7 +40,7 @@ class GetRedeemableTasksForDmCodesUseCase(
         combine(
             prescriptionRepository.syncedTasks(profileId).mapNotNull { tasks ->
                 tasks.filter {
-                    it.redeemState().isRedeemable()
+                    it.redeemState().isRedeemable() && it.deviceRequest == null // TODO: define as a Type
                 }.sortedByDescending { it.authoredOn }
                     .map {
                         it.toOrder()

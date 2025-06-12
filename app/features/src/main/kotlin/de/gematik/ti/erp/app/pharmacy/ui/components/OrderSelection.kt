@@ -52,7 +52,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.deliveryUrlNotEmpty
 import de.gematik.ti.erp.app.pharmacy.ui.PharmacyOrderExtensions.isDeliveryWithoutContactUrls

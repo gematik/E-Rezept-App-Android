@@ -1,0 +1,35 @@
+{
+  "id":"160.000.000.000.000.01",
+  "meta":{
+    "profile":[
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_MedicationDispense|1.4"
+    ]
+  },
+  "identifier":[
+    {
+      "system":"https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+      "value":"160.000.000.000.000.01"
+    }
+  ],
+  "status":"completed",
+  "subject":{
+    "identifier":{
+      "system":"http://fhir.de/sid/gkv/kvid-10",
+      "value":"X123456789"
+    }
+  },
+  "performer":[
+    {
+      "actor":{
+        "identifier":{
+          "system":"https://gematik.de/fhir/sid/telematik-id",
+          "value":"3-SMC-B-Testkarte-883110000095957"
+        }
+      }
+    }
+  ],
+  "whenHandedOver":"2025-09-06",
+  "medicationReference":{
+    "reference":"urn:uuid:86ce7563-9819-4dfa-9944-d307f7cfec9b"
+  }
+}

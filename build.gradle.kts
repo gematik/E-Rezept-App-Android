@@ -73,26 +73,13 @@ try {
     println("No ci-overrides.properties found")
 }
 
-val sourcesKt = listOf(
-    "app/android/src/**/*.kt",
-    "app/android-mock/src/**/*.kt",
-    "app/demo-mode/src/**/*.kt",
-    "app/features/src/**/*.kt",
-    "app/digas/src/**/*.kt",
-    "app/navigation/src/**/*.kt",
-    "app/test-actions/src/**/*.kt",
-    "app/test-tags/src/**/*.kt",
-    "app/fhir-vzd/src/**/*.kt",
-    "buildSrc/src/**/*.kt",
-    "common/src/**/*.kt",
-    "desktop/src/**/*.kt",
-    "plugins/*/src/**/*.kt",
-    "rules/src/**/*.kt",
-    "scripts/src/**/*.kt",
-    "smartcard-wrapper/src/**/*.kt",
-    "ui-components/src/**/*.kt",
-    "fhir-parser/src/**/*.kt"
-)
+val sourcesKt: List<String> by lazy {
+    rootProject.allprojects.flatMap { project ->
+        project.fileTree("src") {
+            include("**/*.kt")
+        }.files.filter { it.exists() }.map { it.absolutePath }
+    }
+}
 
 dependencies {
     ktlintMain(libs.quality.ktlint) {
@@ -115,6 +102,9 @@ fun ktlintCreating(format: Boolean, sources: List<String>, disableLicenceRule: B
         }
         // required for java > 16; see https://github.com/pinterest/ktlint/issues/1195
         jvmArgs = listOf("--add-opens=java.base/java.lang=ALL-UNNAMED")
+        isIgnoreExitValue = false
+        standardOutput = System.out
+        errorOutput = System.err
     }
 
 val ktlint by ktlintCreating(format = false, sources = sourcesKt, disableLicenceRule = false)

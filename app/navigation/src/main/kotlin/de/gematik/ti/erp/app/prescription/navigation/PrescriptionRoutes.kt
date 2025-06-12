@@ -25,7 +25,7 @@ import de.gematik.ti.erp.app.navigation.Routes
 object PrescriptionRoutes : NavigationRoutes {
     override fun subGraphName() = "prescriptions"
 
-    object PrescriptionsScreen : Routes(NavigationRouteNames.PrescriptionsScreen.name)
+    object PrescriptionListScreen : Routes(NavigationRouteNames.PrescriptionListScreen.name)
     object PrescriptionsArchiveScreen : Routes(NavigationRouteNames.PrescriptionsArchiveScreen.name)
     object PrescriptionScanScreen : Routes(NavigationRouteNames.PrescriptionScanScreen.name)
     object WelcomeDrawerBottomSheetScreen : Routes(NavigationRouteNames.WelcomeDrawerBottomSheetScreen.name)

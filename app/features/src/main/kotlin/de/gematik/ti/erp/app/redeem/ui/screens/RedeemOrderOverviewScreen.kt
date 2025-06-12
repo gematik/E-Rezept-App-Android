@@ -59,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.button.ButtonWithConditionalHint
 import de.gematik.ti.erp.app.button.ButtonWithConditionalHintData
@@ -66,7 +67,6 @@ import de.gematik.ti.erp.app.button.FlatButton
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.navigation.Screen
@@ -84,10 +84,11 @@ import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
 import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState.ValidShippingContactState.OK
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
+import de.gematik.ti.erp.app.profiles.ui.extension.extract
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile
+import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemEventModel.ProcessStateEvent
 import de.gematik.ti.erp.app.redeem.model.RedeemEventModel.RedeemClickEvent
-import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
 import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
@@ -114,11 +115,7 @@ import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.letNotNull
-import de.gematik.ti.erp.app.utils.uistate.UiState
-import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private const val OrderSuccessVideoAspectRatio = 1.69f
@@ -163,10 +160,6 @@ class RedeemOrderOverviewScreen(
             }
         }
 
-        LaunchedEffect(shippingContactState) {
-            println("dvg shippingContactState: $shippingContactState")
-        }
-
         AuthenticationFailureDialog(
             event = orderOverviewController.showAuthenticationErrorDialog,
             dialogScaffold = dialog
@@ -179,7 +172,7 @@ class RedeemOrderOverviewScreen(
                 orderOverviewController.disableLoadingIndicator()
                 appController.onOrdered(hasError = orderHasError)
                 graphController.onResetPrescriptionSelection()
-                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionsScreen.route)
+                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionListScreen.route)
             }
         )
 
@@ -188,7 +181,7 @@ class RedeemOrderOverviewScreen(
             dialog = dialog,
             onClickForInvalidOrder = {
                 graphController.onResetPrescriptionSelection()
-                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionsScreen.route)
+                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionListScreen.route)
             },
             onClickForIncompleteOrder = { nonRedeemableTaskIds ->
                 // remove the prescriptions that are not redeemable from the order
@@ -336,7 +329,7 @@ class RedeemOrderOverviewScreen(
     @Suppress("ComposableNaming")
     @Composable
     private fun observeRedeemState(
-        redeemPrescriptionState: RedeemedPrescriptionState,
+        redeemPrescriptionState: BaseRedeemState,
         orderOverviewController: RedeemOrderOverviewScreenController
     ) {
         with(orderOverviewController) {
@@ -400,10 +393,6 @@ class RedeemOrderOverviewScreen(
                 )
             }
         }
-    }
-
-    companion object {
-        private suspend fun StateFlow<UiState<Profile>>.extract(): Profile? = first { it.isDataState }.data
     }
 }
 

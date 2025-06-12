@@ -1,0 +1,122 @@
+{
+  "resourceType": "Bundle",
+  "id": "cf3ef11f-32c2-416b-9a95-b8e1106cf52c",
+  "meta": {
+    "lastUpdated": "2025-04-15T22:23:34.415+02:00",
+    "tag": [
+      {
+        "system": "https://gematik.de/fhir/StructureDefinition/filtered-endpoints-count",
+        "code": "0",
+        "display": "Reason: hideVersicherte"
+      }
+    ]
+  },
+  "type": "searchset",
+  "total": 2,
+  "entry": [
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/HealthcareService/adc84ae5-8c57-45c5-ac60-704e6734920c",
+      "resource": {
+        "resourceType": "HealthcareService",
+        "id": "adc84ae5-8c57-45c5-ac60-704e6734920c",
+        "meta": {
+          "versionId": "5",
+          "lastUpdated": "2024-07-29T09:12:44.889+02:00",
+          "source": "#2lPCNLELDfbcGQg0",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/HealthcareServiceDirectory"
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": false
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "00ae8719-caf7-4135-8d2a-467594d43119"
+          }
+        ],
+        "providedBy": {
+          "reference": "Organization/d1e38902-dae2-4a21-ac90-30f6eceb43a5"
+        },
+        "location": [
+          {
+            "reference": "Location/cc1dc52d-712b-444f-b136-bd553bd0f1db"
+          }
+        ]
+      },
+      "search": {
+        "mode": "match"
+      }
+    },
+    {
+      "fullUrl": "https://fhir-directory-ref.vzd.ti-dienste.de/fdv/search/Organization/d1e38902-dae2-4a21-ac90-30f6eceb43a5",
+      "resource": {
+        "resourceType": "Organization",
+        "id": "d1e38902-dae2-4a21-ac90-30f6eceb43a5",
+        "meta": {
+          "versionId": "2",
+          "lastUpdated": "2024-02-26T12:29:32.808+01:00",
+          "source": "#m06sBse70KFrjX9a",
+          "profile": [
+            "https://gematik.de/fhir/directory/StructureDefinition/OrganizationDirectory"
+          ],
+          "tag": [
+            {
+              "system": "https://gematik.de/fhir/directory/CodeSystem/Origin",
+              "code": "ldap",
+              "display": "Synchronized from LDAP VZD",
+              "userSelected": false
+            }
+          ]
+        },
+        "identifier": [
+          {
+            "type": {
+              "coding": [
+                {
+                  "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+                  "code": "PRN"
+                }
+              ]
+            },
+            "system": "https://gematik.de/fhir/sid/telematik-id",
+            "value": "8-01-0000000134"
+          },
+          {
+            "system": "http://fhir.de/StructureDefinition/identifier-iknr",
+            "value": "105313145"
+          },
+          {
+            "system": "https://gematik.de/fhir/directory/CodeSystem/ldapUID",
+            "value": "00ae8719-caf7-4135-8d2a-467594d43119"
+          }
+        ],
+        "active": true,
+        "type": [
+          {
+            "coding": [
+              {
+                "system": "https://gematik.de/fhir/directory/CodeSystem/OrganizationProfessionOID",
+                "code": "1.2.276.0.76.4.59",
+                "display": "Betriebsstätte Kostenträger"
+              }
+            ]
+          }
+        ],
+        "name": "AOK Hessen",
+        "alias": [
+          "AOK Hessen NOT-VALID"
+        ]
+      },
+      "search": {
+        "mode": "include"
+      }
+    }
+  ]
+}

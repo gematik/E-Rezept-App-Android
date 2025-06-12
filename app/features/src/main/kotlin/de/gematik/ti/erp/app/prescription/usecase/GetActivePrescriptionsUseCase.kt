@@ -24,6 +24,7 @@ import de.gematik.ti.erp.app.prescription.mapper.groupByHospitalsOrDoctors
 import de.gematik.ti.erp.app.prescription.mapper.sortByExpiredDateAndAuthoredDate
 import de.gematik.ti.erp.app.prescription.mapper.toPrescription
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -55,8 +56,13 @@ class GetActivePrescriptionsUseCase(
             .map(ScannedTaskData.ScannedTask::toPrescription)
             .sortedBy { it.startedOn }
 
-        val syncedPrescriptions = syncedTasks
+        val digaTasks = syncedTasks.filterActiveDigaTasks()
+
+        val activeSyncedTasks = syncedTasks
+            .filterNonDigaTasks()
             .filterActiveTasks()
+
+        val syncedPrescriptions = (digaTasks + activeSyncedTasks)
             .sortByExpiredDateAndAuthoredDate()
             .groupByHospitalsOrDoctors()
             .flatMapToPrescriptions()
@@ -65,6 +71,16 @@ class GetActivePrescriptionsUseCase(
     }.flowOn(dispatcher)
 
     companion object {
+
+        private fun List<SyncedTaskData.SyncedTask>.filterActiveDigaTasks() =
+            filter {
+                it.deviceRequest != null &&
+                    it.deviceRequest?.isArchived == false
+            }
+
+        private fun List<SyncedTaskData.SyncedTask>.filterNonDigaTasks() =
+            filter { it.deviceRequest == null } // TODO: define as a Type
+
         private fun List<Prescription>.sortActives() =
             sortedWith(compareByDescending<Prescription> { it.startedOn }.thenBy { it.name })
     }

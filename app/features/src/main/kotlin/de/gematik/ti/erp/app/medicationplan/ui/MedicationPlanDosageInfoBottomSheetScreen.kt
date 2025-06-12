@@ -48,7 +48,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreview
 import de.gematik.ti.erp.app.medicationplan.ui.preview.MedicationPlanDosageInfoPreviewParameter
 import de.gematik.ti.erp.app.medicationplan.model.MedicationPlanDosageInstruction

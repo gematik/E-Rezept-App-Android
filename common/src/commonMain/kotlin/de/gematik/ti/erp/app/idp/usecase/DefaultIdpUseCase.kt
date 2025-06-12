@@ -244,10 +244,11 @@ class DefaultIdpUseCase(
                 when (scope) {
                     IdpScope.Default -> {
                         profilesRepository.saveInsuranceInformation(
-                            profileId,
-                            basicData.idTokenInsurantName,
-                            basicData.idTokenInsuranceIdentifier,
-                            basicData.idTokenInsuranceName
+                            profileId = profileId,
+                            insurantName = basicData.idTokenInsurantName,
+                            insuranceIdentifier = basicData.idTokenInsuranceIdentifier,
+                            organizationIdentifier = basicData.organizationIdentifier,
+                            insuranceName = basicData.idTokenInsuranceName
                         )
                         repository.saveSingleSignOnToken(profileId, ssoToken)
                         repository.saveDecryptedAccessToken(
@@ -343,10 +344,11 @@ class DefaultIdpUseCase(
             signWithHealthCard = signWithHealthCard
         )
         profilesRepository.saveInsuranceInformation(
-            profileId,
-            basicData.idTokenInsurantName,
-            basicData.idTokenInsuranceIdentifier,
-            basicData.idTokenInsuranceName
+            profileId = profileId,
+            insurantName = basicData.idTokenInsurantName,
+            insuranceIdentifier = basicData.idTokenInsuranceIdentifier,
+            organizationIdentifier = basicData.organizationIdentifier,
+            insuranceName = basicData.idTokenInsuranceName
         )
         // set pairing scope
         repository.saveSingleSignOnToken(
@@ -380,10 +382,11 @@ class DefaultIdpUseCase(
                 when (scope) {
                     IdpScope.Default -> {
                         profilesRepository.saveInsuranceInformation(
-                            profileId,
-                            authData.idTokenInsurantName,
-                            authData.idTokenInsuranceIdentifier,
-                            authData.idTokenInsuranceName
+                            profileId = profileId,
+                            insurantName = authData.idTokenInsurantName,
+                            insuranceIdentifier = authData.idTokenInsuranceIdentifier,
+                            organizationIdentifier = authData.organizationIdentifier,
+                            insuranceName = authData.idTokenInsuranceName
                         )
                         repository.saveSingleSignOnToken(
                             profileId,

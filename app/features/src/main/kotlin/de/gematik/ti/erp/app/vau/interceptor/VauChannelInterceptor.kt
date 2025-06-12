@@ -22,17 +22,27 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.BCProvider
 import de.gematik.ti.erp.app.BuildKonfig
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.di.EndpointHelper
+import de.gematik.ti.erp.app.logger.SessionLogHolder
+import de.gematik.ti.erp.app.logger.model.ContentLog
+import de.gematik.ti.erp.app.logger.model.HeaderLog
+import de.gematik.ti.erp.app.logger.model.LogEntry
+import de.gematik.ti.erp.app.logger.model.RequestLog
+import de.gematik.ti.erp.app.logger.model.ResponseLog
+import de.gematik.ti.erp.app.logger.model.TimingsLog
 import de.gematik.ti.erp.app.secureRandomInstance
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.vau.VauChannelSpec
 import de.gematik.ti.erp.app.vau.VauCryptoConfig
 import de.gematik.ti.erp.app.vau.usecase.TruststoreUseCase
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.datetime.Clock
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.Interceptor
+import okhttp3.Request
 import okhttp3.Response
 import java.io.IOException
 import java.net.HttpURLConnection.HTTP_FORBIDDEN
@@ -62,8 +72,8 @@ class VauChannelInterceptor(
     endpointHelper: EndpointHelper,
     private val truststore: TruststoreUseCase,
     private val cryptoConfig: VauCryptoConfig,
-    private val dispatchers: DispatchProvider,
-    private val networkSecPrefs: SharedPreferences
+    private val networkSecPrefs: SharedPreferences,
+    private val sessionLog: SessionLogHolder
 ) : Interceptor {
     @Requirement(
         "A_20175#2",
@@ -92,7 +102,7 @@ class VauChannelInterceptor(
         }
 
         try {
-            val encryptedRequest = runBlocking(dispatchers.io) {
+            val encryptedRequest = runBlocking(Dispatchers.IO) {
                 truststore.withValidVauPublicKey { publicKey ->
                     VauChannelSpec.V1.encryptHttpRequest(
                         chain.request(),
@@ -126,6 +136,11 @@ class VauChannelInterceptor(
                     cryptoConfig
                 )
 
+                if (BuildConfigExtension.isInternalDebug) {
+                    val logEntry = decryptedResponse.buildLogEntryFromVau(chain.request())
+                    sessionLog.addLog(logEntry)
+                }
+
                 userpseudonym?.let {
                     previousUserAlias = it
                 }
@@ -138,5 +153,34 @@ class VauChannelInterceptor(
             // wrap all exceptions
             throw VauException(e)
         }
+    }
+
+    private fun Response.buildLogEntryFromVau(
+        request: Request
+    ): LogEntry {
+        val responseBody = peekBody(Long.MAX_VALUE)
+
+        return LogEntry(
+            timestamp = Clock.System.now().toString(),
+            request = RequestLog(
+                method = request.method,
+                url = request.url.toString(),
+                headers = request.headers.map { HeaderLog(it.first, it.second) }
+            ),
+            response = ResponseLog(
+                status = code,
+                statusText = message,
+                headers = headers.map { HeaderLog(it.first, it.second) },
+                content = ContentLog(
+                    mimeType = body?.contentType()?.type.orEmpty(),
+                    text = responseBody.string()
+                )
+            ),
+            timings = TimingsLog(
+                send = 0L, // Optional: you can add real timings if needed
+                wait = 0L,
+                receive = 0L
+            )
+        )
     }
 }

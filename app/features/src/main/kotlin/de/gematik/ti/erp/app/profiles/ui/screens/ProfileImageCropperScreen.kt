@@ -58,7 +58,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.canhub.cropper.CropImageView
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.permissions.removeMetadataFromBitmap
 import de.gematik.ti.erp.app.profiles.model.ProfilesData

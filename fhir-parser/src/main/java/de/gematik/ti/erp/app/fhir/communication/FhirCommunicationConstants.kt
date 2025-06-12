@@ -18,55 +18,62 @@
 
 package de.gematik.ti.erp.app.fhir.communication
 
+import de.gematik.ti.erp.app.fhir.communication.constants.CommunicationDigaConstants.FLOW_TYPE_DISPLAY_162
+import de.gematik.ti.erp.app.fhir.communication.constants.CommunicationDigaConstants.VALUE_CODING_TYPE_162
+
 object FhirCommunicationConstants {
     // Base URLs
-    const val GEMATIK_BASE_URL = "https://gematik.de/fhir"
-    const val ERP_BASE_URL = "$GEMATIK_BASE_URL/erp"
+    private const val GEMATIK_FHIR_URL = "https://gematik.de/fhir"
+    private const val ERP_FHIR_URL = "$GEMATIK_FHIR_URL/erp"
 
     // Naming systems
-    const val NAMING_SYSTEM_BASE_URL = "$GEMATIK_BASE_URL/NamingSystem"
-    const val ORDER_ID_SYSTEM = "$NAMING_SYSTEM_BASE_URL/OrderID"
+    private const val NAMING_SYSTEM_BASE_URL = "$GEMATIK_FHIR_URL/NamingSystem"
+    internal const val ORDER_ID_SYSTEM = "$NAMING_SYSTEM_BASE_URL/OrderID"
 
     // Structure definitions
-    const val STRUCTURE_DEFINITION_BASE_URL = "$ERP_BASE_URL/StructureDefinition"
-    const val PRESCRIPTION_TYPE_EXTENSION = "$STRUCTURE_DEFINITION_BASE_URL/GEM_ERP_EX_PrescriptionType"
-    const val SUPPLY_OPTIONS_TYPE_EXTENSION = "$STRUCTURE_DEFINITION_BASE_URL/GEM_ERP_EX_SupplyOptionsType"
+    private const val STRUCTURE_DEFINITION_ERP_FHIR_URL = "$ERP_FHIR_URL/StructureDefinition"
+    internal const val PRESCRIPTION_TYPE_EXTENSION = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_EX_PrescriptionType"
+    internal const val SUPPLY_OPTIONS_TYPE_EXTENSION = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_EX_SupplyOptionsType"
 
     // Profile URLs without versions
-    const val COMMUNICATION_REPLY_PROFILE_BASE = "$STRUCTURE_DEFINITION_BASE_URL/GEM_ERP_PR_Communication_Reply"
-    const val COMMUNICATION_DISPENSE_PROFILE_BASE = "$STRUCTURE_DEFINITION_BASE_URL/GEM_ERP_PR_Communication_DispReq"
+    internal const val COMMUNICATION_REPLY_PROFILE_BASE = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_PR_Communication_Reply"
+    internal const val COMMUNICATION_DISPENSE_PROFILE_BASE = "$STRUCTURE_DEFINITION_ERP_FHIR_URL/GEM_ERP_PR_Communication_DispReq"
 
-    const val EXT_ON_PREMISE = "onPremise"
-    const val EXT_SHIPMENT = "shipment"
-    const val EXT_DELIVERY = "delivery"
+    internal const val EXT_ON_PREMISE = "onPremise"
+    internal const val EXT_SHIPMENT = "shipment"
+    internal const val EXT_DELIVERY = "delivery"
 
-    const val RECIPIENT_IDENTIFIER_SYSTEM = "https://gematik.de/fhir/sid/telematik-id"
     const val FLOW_TYPE_SYSTEM = "https://gematik.de/fhir/erp/CodeSystem/GEM_ERP_CS_FlowType"
 
     // Flow type constants
-    const val FLOW_TYPE_CODE_160 = "160"
-    const val FLOW_TYPE_DISPLAY_160 = "Muster 16 (Apothekenpflichtige Arzneimittel)"
-    const val FLOW_TYPE_CODE_162 = "162"
-    const val FLOW_TYPE_DISPLAY_162 = "Muster 16 (Digitale Gesundheitsanwendungen)"
-    const val FLOW_TYPE_CODE_165 = "165"
-    const val FLOW_TYPE_DISPLAY_165 = "Muster 16 (Betäubungsmittel)"
-    const val FLOW_TYPE_CODE_166 = "166"
-    const val FLOW_TYPE_DISPLAY_166 = "Muster 16 (T-Rezepte)"
-    const val FLOW_TYPE_CODE_169 = "169"
-    const val FLOW_TYPE_DISPLAY_169 = "Muster 16 (Direkte Zuweisung)"
-    const val FLOW_TYPE_CODE_200 = "200"
-    const val FLOW_TYPE_DISPLAY_200 = "PKV (Apothekenpflichtige Arzneimittel)"
-    const val FLOW_TYPE_CODE_205 = "205"
-    const val FLOW_TYPE_DISPLAY_205 = "PKV (Betäubungsmittel)"
-    const val FLOW_TYPE_CODE_206 = "206"
-    const val FLOW_TYPE_DISPLAY_206 = "PKV (T-Rezepte)"
-    const val FLOW_TYPE_CODE_209 = "209"
-    const val FLOW_TYPE_DISPLAY_209 = "PKV (Direkte Zuweisung)"
+    private const val FLOW_TYPE_CODE_160 = "160"
+    private const val FLOW_TYPE_DISPLAY_160 = "Muster 16 (Apothekenpflichtige Arzneimittel)"
+
+    private const val FLOW_TYPE_CODE_165 = "165"
+    private const val FLOW_TYPE_DISPLAY_165 = "Muster 16 (Betäubungsmittel)"
+
+    private const val FLOW_TYPE_CODE_166 = "166"
+    private const val FLOW_TYPE_DISPLAY_166 = "Muster 16 (T-Rezepte)"
+
+    private const val FLOW_TYPE_CODE_169 = "169"
+    private const val FLOW_TYPE_DISPLAY_169 = "Muster 16 (Direkte Zuweisung)"
+
+    private const val FLOW_TYPE_CODE_200 = "200"
+    private const val FLOW_TYPE_DISPLAY_200 = "PKV (Apothekenpflichtige Arzneimittel)"
+
+    private const val FLOW_TYPE_CODE_205 = "205"
+    private const val FLOW_TYPE_DISPLAY_205 = "PKV (Betäubungsmittel)"
+
+    private const val FLOW_TYPE_CODE_206 = "206"
+    private const val FLOW_TYPE_DISPLAY_206 = "PKV (T-Rezepte)"
+
+    private const val FLOW_TYPE_CODE_209 = "209"
+    private const val FLOW_TYPE_DISPLAY_209 = "PKV (Direkte Zuweisung)"
 
     fun determineFlowType(taskId: String): Pair<String, String> {
         return when {
             taskId.startsWith("160") -> FLOW_TYPE_CODE_160 to FLOW_TYPE_DISPLAY_160
-            taskId.startsWith("162") -> FLOW_TYPE_CODE_162 to FLOW_TYPE_DISPLAY_162
+            taskId.startsWith("162") -> VALUE_CODING_TYPE_162 to FLOW_TYPE_DISPLAY_162
             taskId.startsWith("165") -> FLOW_TYPE_CODE_165 to FLOW_TYPE_DISPLAY_165
             taskId.startsWith("166") -> FLOW_TYPE_CODE_166 to FLOW_TYPE_DISPLAY_166
             taskId.startsWith("169") -> FLOW_TYPE_CODE_169 to FLOW_TYPE_DISPLAY_169

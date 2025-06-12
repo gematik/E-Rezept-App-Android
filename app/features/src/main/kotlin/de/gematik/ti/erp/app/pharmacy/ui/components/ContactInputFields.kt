@@ -24,7 +24,7 @@ import androidx.compose.material.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.redeem.ui.screens.ValidationResult
 import de.gematik.ti.erp.app.utils.compose.InputField
 import de.gematik.ti.erp.app.utils.compose.scrollOnFocus

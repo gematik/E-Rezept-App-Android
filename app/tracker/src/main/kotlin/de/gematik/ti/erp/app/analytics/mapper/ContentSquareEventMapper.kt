@@ -22,5 +22,6 @@ enum class ContentSquareEventMapper(val trackingParameter: String) {
     ArchivePrescriptionCount("archive_prescription_count"),
     SyncedPrescriptionCount("synced_prescription_count"),
     ScannedPrescriptionCount("scanned_prescription_count"),
-    MessageCount("messages_count");
+    MessageCount("messages_count"),
+    DigaFeedbackAccepted("feedback_accepted");
 }

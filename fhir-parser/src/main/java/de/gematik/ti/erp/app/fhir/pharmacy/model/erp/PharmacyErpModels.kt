@@ -26,7 +26,7 @@ data class FhirPharmacyErpModel(
     val name: String,
     val telematikId: String,
     val position: FhirPositionErpModel?,
-    val address: FhirAddressErpModel?,
+    val address: FhirPharmacyAddressErpModel?,
     val contact: FhirContactInformationErpModel,
     val specialities: List<FhirVzdSpecialtyType> = emptyList(),
     val hoursOfOperation: OpeningHoursErpModel? = null, // hoursOfOperation (only available from apo-vzd)
@@ -40,7 +40,7 @@ data class FhirPositionErpModel(
 )
 
 @Serializable
-data class FhirAddressErpModel(
+data class FhirPharmacyAddressErpModel(
     val lineAddress: String,
     val postalCode: String?,
     val city: String?

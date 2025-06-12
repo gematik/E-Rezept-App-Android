@@ -16,5 +16,11 @@
         "text": "📖 **Læs højt-funktion** \nVi har omarbejdet flere sider for at gøre dem nemmere at læse højt med TalkBack. Dette forbedrer brugervenligheden markant for synshandicappede. \n \n📞 **Udvidede kontaktmuligheder** \nVi har indført nye kontaktmuligheder for udvalgte forsikringsselskaber. \n \n🔧 **Optimerede funktioner** \nVi har rettet mindre fejl ved læsning af kortet, ryddet op i koden og forbedret visningen af ​​beskeder.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Indløs ordinerede DiGA'er** \n Fra nu af kan du indløse recepter til digitale sundhedsapplikationer (DiGA'er) direkte via e-receptappen. Du modtager aktiveringskoden og linket til den angivne app umiddelbart efter indløsning. \n \n **🏥 Ny apoteksdatabase** \n Vi har introduceret en ny, fremtidssikret database til apotekssøgninger.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

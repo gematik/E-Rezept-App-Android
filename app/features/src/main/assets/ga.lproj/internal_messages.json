@@ -16,5 +16,11 @@
         "text": "📖 **Gné léite os ard** \nD’athoibrigh muid roinnt leathanach le gur fusa iad a léamh os ard le TalkBack. Cuireann sé seo go mór le hinúsáidteacht do dhaoine lagamhairc. \n \n📞 **Roghanna breise teagmhála** \nTá roghanna teagmhála nua tugtha isteach againn do chuideachtaí árachais roghnaithe. \n \n🔧 **Feidhmeanna optamaithe** \nTá mionearráidí socraithe againn agus an cárta á léamh againn, glantar an cód agus chuireamar feabhas ar thaispeáint na dteachtaireachtaí.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Fuascail oidis DiGA ar oideas** \n As seo amach is féidir leat oidis a fhuascailt le haghaidh feidhmchlár sláinte digiteach (DiGA) go díreach tríd an aip ríomh-oideas. Gheobhaidh tú an cód gníomhachtaithe agus an nasc chuig an aip fhorordaithe díreach tar éis fuascailte. \n \n **🏥 Bunachar sonraí nua cógaisíochta** \n Tá bunachar sonraí nua, atá réidh don todhchaí, tugtha isteach againn le haghaidh cuardaigh cógaisíochta.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

@@ -24,7 +24,12 @@ object SchemaVersion {
         SchemaMigration(44, "Add DebugSettingsEntityV1"),
         SchemaMigration(46, "Add DeviceRequestEntityV1"),
         SchemaMigration(47, "Add identifierNumber to InsuranceInformationEntityV1"),
-        SchemaMigration(48, "Add for InternalMessageEntity.counter removal")
+        SchemaMigration(48, "Add for InternalMessageEntity.counter removal"),
+        SchemaMigration(49, "Add DeviceRequestEntityV1"),
+        SchemaMigration(50, "Change DeviceRequestDispenseEntityV1"),
+        SchemaMigration(51, "Change DeviceRequestDispenseEntityV1 to add modifiedDate"),
+        SchemaMigration(52, "Change DeviceRequestDispenseEntityV1 to add sentOnDate"),
+        SchemaMigration(53, "Change ProfileEntityV1 to add organizationIdentifier")
     )
-    val ACTUAL = 48L
+    val ACTUAL = 53L
 }

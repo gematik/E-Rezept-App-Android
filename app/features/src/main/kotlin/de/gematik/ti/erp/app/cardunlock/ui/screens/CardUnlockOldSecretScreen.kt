@@ -41,7 +41,7 @@ import de.gematik.ti.erp.app.cardunlock.presentation.CardUnlockGraphController
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.screens.PIN_RANGE
 import de.gematik.ti.erp.app.cardwall.ui.screens.PinInputField
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium

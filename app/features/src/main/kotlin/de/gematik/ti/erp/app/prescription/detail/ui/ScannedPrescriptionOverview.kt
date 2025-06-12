@@ -40,7 +40,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.digas.ui.component.Label
 import de.gematik.ti.erp.app.medicationplan.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
@@ -52,7 +53,6 @@ import de.gematik.ti.erp.app.utils.SpacerXLarge
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.EditableHeaderTextField
 import de.gematik.ti.erp.app.utils.compose.HealthPortalLink
-import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 

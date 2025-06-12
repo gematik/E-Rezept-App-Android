@@ -45,6 +45,7 @@ import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.analytics.navigation.TrackingScreenRoutes
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.core.LocalActivity
@@ -53,7 +54,6 @@ import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.demomode.startAppWithDemoMode
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.mainscreen.navigation.MainNavigationScreens
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
@@ -77,10 +77,10 @@ import de.gematik.ti.erp.app.settings.ui.components.ContactSection
 import de.gematik.ti.erp.app.settings.ui.components.DebugMenuSection
 import de.gematik.ti.erp.app.settings.ui.components.DebugSection
 import de.gematik.ti.erp.app.settings.ui.components.ExploreSection
-import de.gematik.ti.erp.app.settings.ui.components.PersonalSettingsSection
 import de.gematik.ti.erp.app.settings.ui.components.HealthCardSection
 import de.gematik.ti.erp.app.settings.ui.components.LegalSection
 import de.gematik.ti.erp.app.settings.ui.components.OrganDonationRegisterDialog
+import de.gematik.ti.erp.app.settings.ui.components.PersonalSettingsSection
 import de.gematik.ti.erp.app.settings.ui.components.ProfileSection
 import de.gematik.ti.erp.app.settings.ui.preview.LocalIsPreviewMode
 import de.gematik.ti.erp.app.settings.ui.preview.SettingsScreenPreviewData
@@ -90,7 +90,7 @@ import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.handleIntent
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.providePhoneIntent
@@ -117,6 +117,7 @@ class SettingsScreen(
         val listState = rememberLazyListState()
         val scaffoldState = rememberScaffoldState()
         val isMedicationPlanEnabled by settingsController.isMedicationPlanEnabled.collectAsStateWithLifecycle()
+        val hasValidDigas by settingsController.hasValidDigas.collectAsStateWithLifecycle()
 
         AllowScreenshotDialogWithListener(
             dialog = dialog,
@@ -142,6 +143,7 @@ class SettingsScreen(
         val mailAddress = stringResource(R.string.settings_contact_mail_address)
         val subject = stringResource(R.string.settings_feedback_mail_subject)
         val surveyAddress = stringResource(R.string.settings_contact_survey_address)
+        val digaSurveyAddress = stringResource(R.string.diga_settings_feedback_address)
         val body = buildFeedbackBodyWithDeviceInfo(
             darkMode = buildConfig.inDarkTheme(),
             versionName = buildConfig.versionName(),
@@ -211,6 +213,9 @@ class SettingsScreen(
                 },
                 onClickPoll = {
                     context.handleIntent(provideWebIntent(surveyAddress))
+                },
+                onClickDigaPoll = {
+                    context.handleIntent(provideWebIntent(digaSurveyAddress))
                 }
             ),
             legalClickActions = LegalClickActions(
@@ -248,7 +253,8 @@ class SettingsScreen(
             zoomState = settingsController.zoomState.collectAsStateWithLifecycle(),
             screenShotsState = settingsController.screenShotsState.collectAsStateWithLifecycle(),
             isMedicationPlanEnabled = isMedicationPlanEnabled,
-            settingsActions = settingsActions
+            settingsActions = settingsActions,
+            hasValidDigas = hasValidDigas
         )
     }
 }
@@ -264,7 +270,8 @@ private fun SettingsScreenScaffold(
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotsState: State<Boolean>,
     settingsActions: SettingsActions,
-    isMedicationPlanEnabled: Boolean
+    isMedicationPlanEnabled: Boolean,
+    hasValidDigas: Boolean
 ) {
     val padding = (localActivity as? BaseActivity)?.applicationInnerPadding
 
@@ -285,7 +292,8 @@ private fun SettingsScreenScaffold(
             isMedicationPlanEnabled = isMedicationPlanEnabled,
             zoomState = zoomState,
             screenShotsState = screenShotsState,
-            settingsActions = settingsActions
+            settingsActions = settingsActions,
+            hasValidDigas = hasValidDigas
         )
     }
 }
@@ -300,8 +308,8 @@ private fun SettingsScreenContent(
     zoomState: State<SettingStatesData.ZoomState>,
     isMedicationPlanEnabled: Boolean,
     screenShotsState: State<Boolean>,
-    settingsActions: SettingsActions
-
+    settingsActions: SettingsActions,
+    hasValidDigas: Boolean
 ) {
     LazyColumn(
         modifier = Modifier.testTag("settings_screen"),
@@ -349,7 +357,8 @@ private fun SettingsScreenContent(
 
         item {
             ContactSection(
-                contactClickActions = settingsActions.contactClickActions
+                contactClickActions = settingsActions.contactClickActions,
+                hasValidDigas = hasValidDigas
             )
             SpacerLarge()
         }
@@ -378,7 +387,7 @@ private fun SettingsScreenContent(
     }
 }
 
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun SettingsScreenPreview(
     @PreviewParameter(SettingsScreenPreviewProvider::class) previewData: SettingsScreenPreviewData
@@ -409,7 +418,8 @@ fun SettingsScreenPreview(
                 contactClickActions = ContactClickActions(
                     onClickCall = {},
                     onClickMail = {},
-                    onClickPoll = {}
+                    onClickPoll = {},
+                    onClickDigaPoll = {}
                 ),
                 legalClickActions = LegalClickActions(
                     onClickLegalNotice = {},
@@ -435,7 +445,8 @@ fun SettingsScreenPreview(
                 zoomState = previewData.zoomState,
                 screenShotsState = previewData.screenShotsState,
                 settingsActions = settingsActions,
-                isMedicationPlanEnabled = false
+                isMedicationPlanEnabled = false,
+                hasValidDigas = false
             )
         }
     }

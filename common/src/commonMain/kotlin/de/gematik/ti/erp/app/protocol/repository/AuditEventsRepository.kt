@@ -18,14 +18,10 @@
 
 package de.gematik.ti.erp.app.protocol.repository
 
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAuditEventsErpModelCollection
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.protocol.model.AuditEventData
 
 interface AuditEventsRepository {
-
-    suspend fun downloadAuditEvents(
-        profileId: ProfileIdentifier,
-        count: Int?,
-        offset: Int?
-    ): Result<AuditEventData.AuditEventMappingResult>
+    suspend fun downloadAuditEvents(profileId: ProfileIdentifier, count: Int?, offset: Int?):
+        Result<FhirAuditEventsErpModelCollection?>
 }

@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import de.gematik.ti.erp.app.theme.AppTheme
 
 @Composable
-internal fun PreviewTheme(
+fun PreviewTheme(
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
 

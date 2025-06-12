@@ -77,7 +77,7 @@ data class ServiceFilter(
 }
 
 // this one source on how much should be the radius for a search
-const val DefaultRadiusInMeter = 20.0 // 999 * 1000.0
+const val DEFAULT_RADIUS_IN_KM = 20.0 // 999 * 1000.0
 
 @Requirement(
     "A_20285#8",
@@ -88,7 +88,7 @@ data class LocationFilter(
     val latitude: Double,
     val longitude: Double,
     val units: String = "km",
-    val radius: Double = DefaultRadiusInMeter // is only used on apo-vzd, progressive search takes over for fhir-vzd
+    val radius: Double = DEFAULT_RADIUS_IN_KM // is only used on apo-vzd, progressive search takes over for fhir-vzd
 ) {
     val value = "$latitude|$longitude|${radius.toInt()}|$units" // 48.7695992|9.2002863|999|km
 }

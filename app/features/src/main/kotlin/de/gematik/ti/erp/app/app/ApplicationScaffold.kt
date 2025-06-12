@@ -44,9 +44,9 @@ import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isInProgress
 import de.gematik.ti.erp.app.core.LocalNavController
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.mainscreen.navigation.NavigationGraph
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenBottomBar
@@ -102,7 +102,7 @@ fun ApplicationScaffold(
     }
 
     val bottomRoutes = listOf(
-        PrescriptionRoutes.PrescriptionsScreen.route,
+        PrescriptionRoutes.PrescriptionListScreen.route,
         PharmacyRoutes.PharmacyStartScreen.route,
         MessagesRoutes.MessageListScreen.route,
         SettingsNavigationScreens.SettingsScreen.route
@@ -146,9 +146,12 @@ fun ApplicationScaffold(
                     NavigationGraph(
                         authentication = authentication,
                         isDemoMode = isDemoMode,
+                        digaPromptFeedback = appController.promptFeedback,
                         // needed for fab for screens which have scaffolds
                         padding = ApplicationInnerPadding(layoutDirection, innerPadding)
-                    )
+                    ) {
+                        appController.markNavigationTriggerConsumed()
+                    }
                 }
             },
             bottomBar = {

@@ -48,7 +48,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.digas.ui.component.Label
 import de.gematik.ti.erp.app.medicationplan.components.MedicationPlanLineItem
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.pkv.presentation.model.InvoiceCardUiState
@@ -69,7 +70,6 @@ import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerShortMedium
 import de.gematik.ti.erp.app.utils.compose.HealthPortalLink
-import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonTiny
 import de.gematik.ti.erp.app.utils.compose.handleIntent

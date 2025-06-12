@@ -146,5 +146,7 @@
 -keep class com.appmattus.certificatetransparency.** { *; }
 -keep class com.appmattus.certificatetransparency.**$* { *; }
 
+-keep class de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent { *; }
+
 -printconfiguration "~/tmp/full-r8-config.txt"
 

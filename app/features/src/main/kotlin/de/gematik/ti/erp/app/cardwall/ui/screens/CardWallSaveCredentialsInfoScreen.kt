@@ -59,7 +59,7 @@ import de.gematik.ti.erp.app.cardwall.presentation.rememberSaveCredentialsScreen
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsInfoPreviewParameterProvider
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsInfoScreenPreviewData
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults

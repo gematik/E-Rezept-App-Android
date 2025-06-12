@@ -21,8 +21,8 @@ package de.gematik.ti.erp.app.protocol.usecase
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
+import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
-import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -36,7 +36,7 @@ class AuditEventsUseCase(
     private val auditRepository: AuditEventsRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    operator fun invoke(profileId: ProfileIdentifier): Flow<PagingData<AuditEventData.AuditEvent>> {
+    operator fun invoke(profileId: ProfileIdentifier): Flow<PagingData<FhirAuditEventErpModel>> {
         return Pager(
             PagingConfig(
                 pageSize = AuditEventsNextResultsPerPage,

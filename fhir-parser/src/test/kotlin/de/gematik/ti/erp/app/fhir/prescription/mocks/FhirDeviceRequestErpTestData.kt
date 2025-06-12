@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
 import de.gematik.ti.erp.app.utils.FhirTemporal
@@ -38,7 +38,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelWithAccident = FhirTaskKbvDeviceRequestErpModel(
@@ -48,7 +50,7 @@ internal object FhirDeviceRequestErpTestData {
         pzn = "17850263",
         appName = "companion patella",
         accident = FhirAccidentInformationErpModel(
-            type = FhirTaskAccidentType.Arbeitsunfall,
+            type = FhirTaskAccidentType.WorkAccident,
             date = FhirTemporal.LocalDate(
                 value = LocalDate.parse("2023-03-26"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
@@ -59,7 +61,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelType2 = FhirTaskKbvDeviceRequestErpModel(
@@ -69,7 +73,7 @@ internal object FhirDeviceRequestErpTestData {
         pzn = "17850263",
         appName = "companion patella",
         accident = FhirAccidentInformationErpModel(
-            type = FhirTaskAccidentType.Arbeitsunfall,
+            type = FhirTaskAccidentType.WorkAccident,
             date = FhirTemporal.LocalDate(
                 value = LocalDate.parse("2023-03-26"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
@@ -80,7 +84,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelType3 = FhirTaskKbvDeviceRequestErpModel(
@@ -90,7 +96,7 @@ internal object FhirDeviceRequestErpTestData {
         pzn = "17850263",
         appName = "companion patella",
         accident = FhirAccidentInformationErpModel(
-            type = FhirTaskAccidentType.Arbeitsunfall,
+            type = FhirTaskAccidentType.WorkAccident,
             date = FhirTemporal.LocalDate(
                 value = LocalDate.parse("2023-03-26"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
@@ -101,7 +107,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelWithOccupationalDisease = FhirTaskKbvDeviceRequestErpModel(
@@ -111,7 +119,7 @@ internal object FhirDeviceRequestErpTestData {
         pzn = "17622734",
         appName = "Mawendo 001",
         accident = FhirAccidentInformationErpModel(
-            type = FhirTaskAccidentType.Berufskrankheit,
+            type = FhirTaskAccidentType.OccupationalDisease,
             date = null,
             location = null
         ),
@@ -119,7 +127,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelTinnitus = FhirTaskKbvDeviceRequestErpModel(
@@ -133,7 +143,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelWithoutSelfUse = FhirTaskKbvDeviceRequestErpModel(
@@ -147,7 +159,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelWithInjury = FhirTaskKbvDeviceRequestErpModel(
@@ -157,7 +171,7 @@ internal object FhirDeviceRequestErpTestData {
         pzn = "19205615",
         appName = "Vantis KHK und Herzinfarkt 001",
         accident = FhirAccidentInformationErpModel(
-            type = FhirTaskAccidentType.Unfall,
+            type = FhirTaskAccidentType.Accident,
             date = FhirTemporal.LocalDate(
                 value = LocalDate.parse("2023-03-26"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
@@ -168,7 +182,9 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 
     val fhirTaskKbvDeviceRequestErpModelWithDentist = FhirTaskKbvDeviceRequestErpModel(
@@ -182,6 +198,8 @@ internal object FhirDeviceRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(
             value = LocalDate.parse("2023-03-26"),
             type = FhirTemporalSerializationType.FhirTemporalLocalDate
-        )
+        ),
+        isNew = true,
+        isArchived = false
     )
 }

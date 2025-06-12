@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription.ui.preview
 
 import de.gematik.ti.erp.app.BuildKonfig
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
@@ -166,6 +167,8 @@ val MOCK_PRESCRIPTION_SELF_PAYER = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("2024-08-01T10:00:00Z"), // decides self-payment
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,
@@ -191,6 +194,8 @@ val MOCK_PRESCRIPTION_EXPIRED = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,
@@ -210,6 +215,8 @@ val MOCK_PRESCRIPTION_DELETED = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,
@@ -232,6 +239,8 @@ val MOCK_PRESCRIPTION_PENDING = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,
@@ -253,6 +262,8 @@ val MOCK_PRESCRIPTION_IN_PROGRESS = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,
@@ -274,6 +285,8 @@ val MOCK_PRESCRIPTION_LATER_REDEEMABLE = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,
@@ -296,6 +309,8 @@ val MOCK_PRESCRIPTION_OTHER = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,
@@ -318,6 +333,8 @@ val MOCK_PRESCRIPTION_READY = Prescription.SyncedPrescription(
     authoredOn = Instant.parse("2024-08-01T10:00:00Z"),
     acceptUntil = Instant.parse("3024-08-01T10:00:00Z"),
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    lastModified = Instant.fromEpochSeconds(123456),
     prescriptionChipInformation = Prescription.PrescriptionChipInformation(
         isPartOfMultiplePrescription = false,
         numerator = null,

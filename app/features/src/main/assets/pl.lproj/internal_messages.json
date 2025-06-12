@@ -16,5 +16,11 @@
         "text": "📖 **Funkcja czytania na głos** \nPrzeprojektowaliśmy kilka stron, aby ułatwić ich czytanie na głos za pomocą TalkBack. Znacznie poprawia to użyteczność dla osób niedowidzących. \n \n📞 **Rozszerzone możliwości kontaktu** \nWprowadziliśmy nowe możliwości kontaktu z wybranymi towarzystwami ubezpieczeniowymi. \n \n🔧 **Zoptymalizowane funkcje** \nNaprawiliśmy drobne błędy występujące podczas odczytu karty, uporządkowaliśmy kod i poprawiliśmy wyświetlanie komunikatów.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Wykorzystaj przepisane recepty DiGA** \n Od teraz możesz realizować recepty na aplikacje związane ze zdrowiem cyfrowym (DiGA) bezpośrednio za pomocą aplikacji do e-recept. Kod aktywacyjny i link do wskazanej aplikacji otrzymasz natychmiast po wykorzystaniu kodu. \n \n **🏥 Nowa baza danych aptek** \n Wprowadziliśmy nową, odporną na wyzwania przyszłości bazę danych do wyszukiwania aptek.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

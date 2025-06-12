@@ -117,7 +117,8 @@ fun syncedTask(
                     wasSubstituted = false,
                     dosageInstruction = "",
                     performer = "",
-                    whenHandedOver = medicationDispenseWhenHandedOver
+                    whenHandedOver = medicationDispenseWhenHandedOver,
+                    deviceRequest = null
                 )
             )
         } else {

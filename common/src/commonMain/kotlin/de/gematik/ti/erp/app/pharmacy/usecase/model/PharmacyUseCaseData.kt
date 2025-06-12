@@ -328,7 +328,7 @@ object PharmacyUseCaseData {
         @Immutable
         data class Enabled(
             val coordinates: Coordinates,
-            val radiusInMeter: Double = DefaultRadiusInMeter
+            val radiusInMeter: Double = DEFAULT_RADIUS_IN_KM
         ) : LocationMode()
     }
 
@@ -376,14 +376,14 @@ object PharmacyUseCaseData {
                             LocationFilter(
                                 latitude = locationMode.coordinates.latitude,
                                 longitude = locationMode.coordinates.longitude,
-                                radius = forcedRadius ?: DefaultRadiusInMeter
+                                radius = forcedRadius ?: DEFAULT_RADIUS_IN_KM
                             )
 
                         coordinates != null ->
                             LocationFilter(
                                 latitude = coordinates.latitude,
                                 longitude = coordinates.longitude,
-                                radius = forcedRadius ?: DefaultRadiusInMeter
+                                radius = forcedRadius ?: DEFAULT_RADIUS_IN_KM
                             )
 
                         else -> null

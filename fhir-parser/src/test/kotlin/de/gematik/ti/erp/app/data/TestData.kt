@@ -16,9 +16,11 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+@file:Suppress("ktlint:max-line-length")
+
 package de.gematik.ti.erp.app.data
 
-private fun getResourceAsString(resourcePath: String): String {
+internal fun getResourceAsString(resourcePath: String): String {
     return object {}.javaClass.getResourceAsStream(resourcePath)
         ?.bufferedReader()?.use { it.readText() }
         ?: error("Test resource not found: $resourcePath")
@@ -43,6 +45,11 @@ val insuranceInformation110Json by lazy { getResourceAsString("/fhir/kbv_parser/
 // medication request
 val medicationRequestJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication_request/medication_request.json") }
 val medicationRequestJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication_request/medication_request_vers_1_1_0.json") }
+val medicationRequestJson_vers_1_1_0_with_accident by lazy {
+    getResourceAsString(
+        "/fhir/kbv_parser/medication_request/medication_request_1_1_0_with_accident.json"
+    )
+}
 
 // medication
 val medicationPznJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_pzn.json") }
@@ -91,6 +98,9 @@ val kbvBundle_device_request_1_4 by lazy { getResourceAsString("/fhir/kbv_parser
 // fhir-vzd pharmacy bundle
 val fhirVzdPharmacyBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharamcy_bundle_fhirvzd.json") }
 
+// fhir-vzd diga bundle
+val fhirVzdOrganizationBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/organization_bundle_fhirvzd.json") }
+
 // fhir-communication
 val ReplyCommTestBundleV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_reply_bundle_version_1_4.json") }
 val DispenseCommTestBundleV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_bundle_version_1_4.json") }
@@ -101,3 +111,62 @@ val SingleReplyCommV1_3 by lazy { getResourceAsString("/fhir/communications_pars
 val SingleReplyCommV1_2 by lazy { getResourceAsString("/fhir/communications_parser/communications_reply_version_1_2.json") }
 val SingleDispenseCommV1_4 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_version_1_4.json") }
 val SingleDispenseCommV1_2 by lazy { getResourceAsString("/fhir/communications_parser/communications_dispense_version_1_2.json") }
+val communication_diga_dispense_1_4 by lazy { getResourceAsString("/fhir/communications_parser/communication_diga_dispense_1_4.json") }
+
+// fhir-medication-dispense
+val medication_dispense_legacy_simple by lazy { getResourceAsString("/fhir/dispense_parser/legacy/medication_dispense_legacy_simple.json") }
+val medication_dispense_legacy_unknown_medication_profile by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/legacy/medication_dispense_legacy_unknown_medication_profile.json"
+    )
+}
+
+// NOTE: [medication_dispense_legacy_unknown_medication_list] will never happen, test added to only harden parser
+val medication_dispense_legacy_unknown_medication_list by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/legacy/medication_dispense_legacy_unknown_medication_list.json"
+    )
+}
+val medication_dispense_legacy_without_category by lazy { getResourceAsString("/fhir/dispense_parser/legacy/medication_dispense_legacy_without_category.json") }
+val medication_dispense_bundle_version_1_2 by lazy { getResourceAsString("/fhir/dispense_parser/legacy/bundle_med_dispense_version_1_2.json") }
+
+// fhir 1.4 medication dispense medication
+val medication_dispense_medication_1_4_complex by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_medication_kombipackung.json"
+    )
+}
+val medication_dispense_medication_1_4_pharmaceutical_product by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_medication_pharmaceutical_product.json"
+    )
+}
+val medication_dispense_medication_1_4_simple by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_medication_simple.json"
+    )
+}
+
+// fhir 1.4 medication dispense
+val medication_dispense_1_4_compounding by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_dispense_compounding.json") }
+val medication_dispense_1_4_free_text by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_dispense_free_text.json") }
+val medication_dispense_1_4_simple by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_dispense_simple.json") }
+val medication_dispense_1_4_no_medication by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/medication_dispense_1_4_without_medication.json") }
+
+// fhir DiGA medication dispense
+val medication_dispense_diga_deeplink by lazy { getResourceAsString("/fhir/dispense_parser/diga/medication_dispense_diga_deeplink.json") }
+val medication_dispense_diga_name_and_pzn by lazy { getResourceAsString("/fhir/dispense_parser/diga/medication_dispense_diga_name_and_pzn.json") }
+val medication_dispense_diga_no_redeem_code by lazy { getResourceAsString("/fhir/dispense_parser/diga/medication_dispense_diga_no_redeem_code.json") }
+
+// fhir-medication-dispense (bundle) 1.4 workflow
+val bundle_dispense_1_4_complex_bundle by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/bundle_dispense_compounding_medication.json") }
+val bundle_dispense_1_4_simple by lazy { getResourceAsString("/fhir/dispense_parser/1_4_workflow/bundle_dispense_simple_medication.json") }
+val bundle_dispenses_1_4_multiple_simple_medications by lazy {
+    getResourceAsString(
+        "/fhir/dispense_parser/1_4_workflow/bundle_multiple_dispenses_simple_medications.json"
+    )
+}
+
+// fhir-audit events
+val bundle_audit_events_1_2 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_2.json") }
+val bundle_audit_events_1_1 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_1.json") }

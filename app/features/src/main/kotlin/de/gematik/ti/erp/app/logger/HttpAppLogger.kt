@@ -85,7 +85,7 @@ class HttpAppLogger(
         )
 
         // add this to the logs
-        sessionLog.http.value.add(logEntry)
+        sessionLog.addLog(logEntry)
 
         // return the recreated response with the peeked body to ensure it is still available for further consumption
         return response.newBuilder()

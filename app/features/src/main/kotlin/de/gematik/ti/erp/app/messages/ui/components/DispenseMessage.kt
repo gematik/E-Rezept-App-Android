@@ -30,14 +30,14 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.DateTimeUtils
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.TaskDetailedBundle
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.annotatedLinkUnderlined
-import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
@@ -119,6 +119,6 @@ fun PrescriptionSentTo(
 
     Text(
         text = annotatedText,
-        style = AppTheme.typography.body2l
+        style = AppTheme.typography.body2
     )
 }

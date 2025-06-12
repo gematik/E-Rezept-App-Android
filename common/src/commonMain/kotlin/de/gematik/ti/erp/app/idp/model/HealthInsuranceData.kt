@@ -23,16 +23,16 @@ data class HealthInsuranceData(
     val name: String,
     val id: String,
     val isGid: Boolean, // does it have health-insurance id enabled
+    val isPKV: Boolean,
     val logo: String?
 ) {
     companion object {
-
-        fun HealthInsuranceData.isPkv() = id.endsWith("pkv")
         fun RemoteFederationIdp.mapToDomain() =
             HealthInsuranceData(
                 name = name,
                 id = id,
                 isGid = isGid,
+                isPKV = isPKV,
                 logo = logo
             )
     }

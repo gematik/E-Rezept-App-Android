@@ -18,9 +18,9 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel.Companion.AccidentTypeRequestFrom.DeviceRequest
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel.Companion.accidentInformationExtension
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel.Companion.toAccidentInformation
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.AccidentTypeRequestFrom.DeviceRequest
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.accidentInformationExtension
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.toAccidentInformation
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
@@ -77,7 +77,9 @@ internal data class FhirDeviceRequestModel(
             accident = accidentData(),
             isSelfUse = extension.isSelfUse(),
             authoredOn = authoredOn?.asFhirTemporal(),
-            status = status ?: ""
+            status = status ?: "",
+            isNew = true,
+            isArchived = false
         )
     }
 }

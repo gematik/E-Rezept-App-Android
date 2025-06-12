@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.repository.pharmacy
 
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInstitutionTelematikId
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.fhir.model.json
@@ -74,6 +75,10 @@ class MockPharmacyRepository(
 
     override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) =
         favouriteLocalDataSource.deleteFavoritePharmacy(favoritePharmacy)
+
+    override suspend fun searchInsuranceProviderByInstitutionIdentifier(iknr: String): Result<FhirInstitutionTelematikId?> {
+        return Result.success(FhirInstitutionTelematikId(""))
+    }
 
     override suspend fun searchPharmacyByTelematikId(telematikId: String): Result<FhirPharmacyErpModelCollection> {
         return Result.success(extractedPharmacies)

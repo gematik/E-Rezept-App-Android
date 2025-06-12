@@ -119,7 +119,7 @@ class PharmacyRemoteDataSourceTest {
         }
         coEvery { fhirVzdSearchService.searchByTelematikId(telematikId = telematikId, status = null) } returns mockResponse
         coEvery {
-            fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+            fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
         } returns mockResponse
 
         // When
@@ -128,7 +128,7 @@ class PharmacyRemoteDataSourceTest {
 
         // Then
         coVerify { fhirVzdSearchService.searchByTelematikId(telematikId = telematikId, status = null) }
-        coVerify { fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify { fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
 
         assertTrue(itemResult.isSuccess)
         assertTrue(listResult.isSuccess)
@@ -144,7 +144,7 @@ class PharmacyRemoteDataSourceTest {
 
         coEvery { fhirVzdSearchService.searchByTelematikId(telematikId = telematikId, status = null) } throws unauthorizedException
         coEvery {
-            fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+            fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
         } throws unauthorizedException
 
         // When
@@ -153,7 +153,7 @@ class PharmacyRemoteDataSourceTest {
 
         // Then
         coVerify { fhirVzdSearchService.searchByTelematikId(telematikId = telematikId, status = null) }
-        coVerify { fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+        coVerify { fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any()) }
         assertTrue(itemResult.isFailure)
         assertTrue(listResult.isFailure)
 
@@ -171,7 +171,7 @@ class PharmacyRemoteDataSourceTest {
         var listTokenCleared = false
         coEvery { fhirVzdSearchService.searchByTelematikId(telematikId = telematikId, status = null) } returns Response.error(HTTP_UNAUTHORIZED, responseBody)
         coEvery {
-            fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+            fhirVzdSearchService.search(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
         } returns Response.error(HTTP_UNAUTHORIZED, responseBody)
 
         // When

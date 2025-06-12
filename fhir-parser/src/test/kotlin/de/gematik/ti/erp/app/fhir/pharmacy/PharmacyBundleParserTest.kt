@@ -20,10 +20,10 @@ package de.gematik.ti.erp.app.fhir.pharmacy
 
 import de.gematik.ti.erp.app.data.fhirVzdPharmacyBundle
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
-import de.gematik.ti.erp.app.utils.formatJson
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import org.junit.Test
+import kotlin.test.assertEquals
 
 class PharmacyBundleParserTest {
 
@@ -33,7 +33,21 @@ class PharmacyBundleParserTest {
     fun `parse fhirVzd bundle for pharmacy bundle`() = runTest {
         val bundle = Json.parseToJsonElement(fhirVzdPharmacyBundle)
         val results = parser.extract(bundle)
-        val values = Json.encodeToString(results)
-        println(values.formatJson())
+        assertEquals(100, results.total)
+        val firstPharmacy = results.entries[0]
+        val lastPharmacy = results.entries[99]
+
+        // check first pharmacy
+        assertEquals("7025fc46-9809-4ee0-abb9-9e248798e5eb", firstPharmacy.id)
+        assertEquals("3-17.2.1024109000.518", firstPharmacy.telematikId)
+        assertEquals(51.987705, firstPharmacy.position?.latitude)
+        assertEquals(8.485683, firstPharmacy.position?.longitude)
+        assertEquals("33649", firstPharmacy.address?.postalCode)
+
+        // check last pharmacy
+        assertEquals("Apotheke an der Universität", lastPharmacy.name)
+        assertEquals("Jakob-Kaiser-Str. 3", lastPharmacy.address?.lineAddress)
+        assertEquals("apotheke@uniapo.com", lastPharmacy.contact.mail)
+        assertEquals(2, lastPharmacy.specialities.size)
     }
 }

@@ -18,10 +18,14 @@
 
 package de.gematik.ti.erp.app.di
 
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.chuckerteam.chucker.api.ChuckerCollector
+import com.chuckerteam.chucker.api.ChuckerInterceptor
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.debugsettings.data.Environment
+import okhttp3.Interceptor
 
 /**
  * Documentation: documentation-internal/variants/build_variants.adoc
@@ -93,6 +97,17 @@ class EndpointHelper(
 
     private fun overrideSwitchKey(uri: EndpointUri): String {
         return uri.preferenceKey + "_ACTIVE"
+    }
+
+    // debug interceptor to log all http requests
+    private fun createChuckerInterceptor(context: Context): Interceptor {
+        @Suppress("MagicNumber")
+        val length = 250_000L
+        return ChuckerInterceptor.Builder(context)
+            .collector(ChuckerCollector(context, showNotification = true))
+            .maxContentLength(length)
+            .alwaysReadResponseBody(true)
+            .build()
     }
 
     fun isUriOverridden(uri: EndpointUri): Boolean {
@@ -222,5 +237,9 @@ class EndpointHelper(
         Environment.RU -> BuildKonfig.CLIENT_ID_RU
         Environment.RUDEV -> BuildKonfig.CLIENT_ID_RU
         Environment.TR -> BuildKonfig.CLIENT_ID_RU
+    }
+
+    fun getHttpLoggingInterceptor(context: Context): Interceptor {
+        return createChuckerInterceptor(context)
     }
 }

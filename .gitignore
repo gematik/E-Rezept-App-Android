@@ -23,6 +23,9 @@ ci/local_play_store_credentials.json
 /fastlane/report.xml
 /fastlane/README.md
 downloads/
+/venv-sbom/
+/tools-java-1.1.7-jar-with-dependencies.jar
+
 Jenkinsfile
 Nightly.Jenkinsfile
 Archive.Jenkinsfile

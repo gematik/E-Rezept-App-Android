@@ -18,10 +18,9 @@
 
 package de.gematik.ti.erp.app.order.messge.presentation
 
-import android.content.Context
+import android.app.Application
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
@@ -38,6 +37,7 @@ import de.gematik.ti.erp.app.messages.mapper.toInAppMessage
 import de.gematik.ti.erp.app.messages.presentation.MessageDetailController
 import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA_WITH_TASK_ID
 import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_ID
 import de.gematik.ti.erp.app.mocks.order.model.IN_APP_MESSAGE_TEXT
@@ -105,7 +105,7 @@ class MessageDetailControllerTest {
     private val changeLogLocalDataSource: ChangeLogLocalDataSource = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
-    private val mockContext = mockk<Context>()
+    private val mockContext = mockk<Application>()
 
     private lateinit var controllerUnderTest: MessageDetailController
     private lateinit var isLocalMessageControllerUnderTest: MessageDetailController
@@ -194,7 +194,7 @@ class MessageDetailControllerTest {
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
-            context = mockContext
+            application = mockContext
         )
         controllerUnderTest = MessageDetailController(
             orderId = ORDER_ID,
@@ -207,7 +207,7 @@ class MessageDetailControllerTest {
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
-            context = mockContext
+            application = mockContext
         )
     }
 

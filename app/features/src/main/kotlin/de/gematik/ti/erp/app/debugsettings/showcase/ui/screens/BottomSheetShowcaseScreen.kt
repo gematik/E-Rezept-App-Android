@@ -28,6 +28,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Announcement
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.ContactSupport
+import androidx.compose.material.icons.automirrored.outlined.Feed
 import androidx.compose.material.icons.automirrored.outlined.Input
 import androidx.compose.material.icons.automirrored.outlined.Segment
 import androidx.compose.material.icons.automirrored.rounded.More
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.debugsettings.showcase.presentation.rememberBottomSheetShowcaseScreenController
+import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.pharmacy.ui.preview.PharmacyPreviewData
@@ -127,6 +129,9 @@ class BottomSheetShowcaseScreen(
                             snackbar.showSnackbar("No active profile found")
                         }
                     }
+                },
+                onClickDigaFeedback = {
+                    navController.navigate(DigasRoutes.DigaFeedbackPromptScreen.path())
                 }
             )
         }
@@ -142,7 +147,8 @@ private fun BottomSheetShowcaseScreenContent(
     onClickPharmacyDetailFromDetail: () -> Unit,
     onClickPharmacyFilter: () -> Unit,
     onClickChangeProfilePicture: () -> Unit,
-    onClickChangeProfileName: () -> Unit
+    onClickChangeProfileName: () -> Unit,
+    onClickDigaFeedback: () -> Unit
 ) {
     LazyColumn(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -210,6 +216,14 @@ private fun BottomSheetShowcaseScreenContent(
             }
         }
         item {
+            LabelButton(
+                Icons.AutoMirrored.Outlined.Feed,
+                "Diga Feedback"
+            ) {
+                onClickDigaFeedback()
+            }
+        }
+        item {
             SpacerLarge()
         }
     }
@@ -227,7 +241,8 @@ fun BottomSheetShowcaseScreenContentPreview() {
             onClickPharmacyFilter = {},
             onClickChangeProfilePicture = {},
             onClickChangeProfileName = {},
-            onClickPharmacyDetailFromDetail = {}
+            onClickPharmacyDetailFromDetail = {},
+            onClickDigaFeedback = {}
         )
     }
 }

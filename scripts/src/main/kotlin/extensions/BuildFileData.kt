@@ -48,26 +48,6 @@ internal data class VirtualDevice(
     val systemImageSource: String
 )
 
-val sourcesKt = listOf(
-    "app/android/src/**/de/gematik/**/*.kt",
-    "app/android-mock/src/**/de/gematik/**/*.kt",
-    "app/demo-mode/src/**/de/gematik/**/*.kt",
-    "app/features/src/**/de/gematik/**/*.kt",
-    "app/features/src/**/android/print/**/*.kt",
-    "app/digs/src/**/*.kt",
-    "app/navigation/src/**/*.kt",
-    "app/test-actions/src/**/de/gematik/**/*.kt",
-    "app/test-tags/src/**/de/gematik/**/*.kt",
-    "app/fhir-vzd/src/**/*.kt",
-    "buildSrc/src/**/de/gematik/**/*.kt",
-    "common/src/**/de/gematik/**/*.kt",
-    "desktop/src/**/de/gematik/**/*.kt",
-    "smartcard-wrapper/src/**/de/gematik/**/*.kt",
-    "plugins/*/src/**/*.kt",
-    "rules/src/**/de/gematik/**/*.kt",
-    "scripts/src/**/*.kt"
-)
-
 fun PatternFilterable.excludeList() = apply {
     exclude("**/build/**")
     exclude("build/**")

@@ -33,7 +33,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.medicationplan.model.MedicationNotification
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
 import de.gematik.ti.erp.app.medicationplan.presentation.checkNotificationPermission

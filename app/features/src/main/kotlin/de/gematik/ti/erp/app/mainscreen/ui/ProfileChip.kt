@@ -63,7 +63,7 @@ import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.unit.dp
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.prescription.ui.preview.AvatarPreview
 import de.gematik.ti.erp.app.prescription.ui.preview.AvatarPreviewParameterProvider

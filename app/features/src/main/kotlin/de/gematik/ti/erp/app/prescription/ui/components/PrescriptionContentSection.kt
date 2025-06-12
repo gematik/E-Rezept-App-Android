@@ -25,26 +25,36 @@ import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPresc
 
 fun LazyListScope.prescriptionContentSection(
     activePrescriptions: List<Prescription>,
-    onClickPrescription: (String) -> Unit
+    onClickPrescription: (String, Boolean) -> Unit
 ) {
     activePrescriptions.forEach { prescription ->
         item(key = "prescription-${prescription.taskId}") {
             when (prescription) {
                 is SyncedPrescription ->
-                    FullDetailMedication(
-                        modifier = CardPaddingModifier,
-                        prescription = prescription,
-                        onClick = {
-                            onClickPrescription(prescription.taskId)
-                        }
-                    )
+                    if (prescription.isDiga) {
+                        FullDetailDiga(
+                            modifier = CardPaddingModifier,
+                            prescription = prescription,
+                            onClick = {
+                                onClickPrescription(prescription.taskId, true)
+                            }
+                        )
+                    } else {
+                        FullDetailMedication(
+                            modifier = CardPaddingModifier,
+                            prescription = prescription,
+                            onClick = {
+                                onClickPrescription(prescription.taskId, false)
+                            }
+                        )
+                    }
 
                 is ScannedPrescription -> {
                     LowDetailMedication(
                         modifier = CardPaddingModifier,
                         prescription,
                         onClick = {
-                            onClickPrescription(prescription.taskId)
+                            onClickPrescription(prescription.taskId, false)
                         }
                     )
                 }

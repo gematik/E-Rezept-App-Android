@@ -45,7 +45,7 @@ import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.debugsettings.timeout.intent.restartApp
 import de.gematik.ti.erp.app.debugsettings.timeout.ui.MetricChangeDialog
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.timeouts.presentation.TimeoutsError

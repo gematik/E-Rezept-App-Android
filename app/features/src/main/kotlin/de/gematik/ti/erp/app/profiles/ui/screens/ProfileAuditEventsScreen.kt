@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.profiles.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +41,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -47,34 +52,42 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.paging.CombinedLoadStates
 import androidx.paging.LoadState
+import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.itemKey
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
+import de.gematik.ti.erp.app.base.ClipBoardCopy.copyToClipboardWithHaptic
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberAuditEventsController
 import de.gematik.ti.erp.app.profiles.ui.components.AuditEventsLoading
-import de.gematik.ti.erp.app.protocol.model.AuditEventData
 import de.gematik.ti.erp.app.pulltorefresh.PullToRefresh
 import de.gematik.ti.erp.app.pulltorefresh.extensions.trigger
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.Center
 import de.gematik.ti.erp.app.utils.compose.ConnectBottomBar
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.phrasedDateString
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -182,7 +195,7 @@ private fun AuditEventsScaffold(
     listState: LazyListState,
     pullToRefreshState: PullToRefreshState,
     isSsoTokenValid: Boolean,
-    auditEvents: LazyPagingItems<AuditEventData.AuditEvent>,
+    auditEvents: LazyPagingItems<FhirAuditEventErpModel>,
     onInvalidSsoToken: () -> Unit,
     onBack: () -> Unit
 ) {
@@ -217,7 +230,7 @@ private fun RefreshAuditEventsContent(
     listState: LazyListState,
     pullToRefreshState: PullToRefreshState,
     isSsoTokenValid: Boolean,
-    auditEvents: LazyPagingItems<AuditEventData.AuditEvent>
+    auditEvents: LazyPagingItems<FhirAuditEventErpModel>
 ) {
     Box(
         Modifier
@@ -236,8 +249,9 @@ private fun RefreshAuditEventsContent(
                     loadState.isLoadingDataOnRefresh() -> ShimmerLoadingAuditEvents()
                     loadState.isLoadingDataOnAppend() -> LastItemLoadingIndicator()
                     loadState.isErrorState() -> AuditEventsEmptyScreenContent(isSsoTokenValid)
-                    loadState.isErrorWithEndOfPaginationReached() -> AuditEventsEmptyScreenContent(isSsoTokenValid)
-                    else -> ShimmerLoadingAuditEvents()
+                    else -> {
+                        // show nothing
+                    }
                 }
             }
         }
@@ -302,32 +316,76 @@ internal fun LazyListScope.AuditEventsEmptyScreenContent(
 )
 @Suppress("FunctionName")
 internal fun LazyListScope.AuditEventsScreenContent(
-    auditEvents: LazyPagingItems<AuditEventData.AuditEvent>
+    auditEvents: LazyPagingItems<FhirAuditEventErpModel>
 ) {
     items(
         count = auditEvents.itemCount,
-        key = auditEvents.itemKey { "${it.auditId}-${it.timestamp}-${it.uuid}}".hashCode() }
+        key = auditEvents.itemKey { "${it.id}-${it.timestamp}-${it.uuid}}".hashCode() }
     ) { index ->
         val auditEvent = auditEvents[index]
-        auditEvent?.let {
-            Column(
-                modifier = Modifier
-                    .padding(PaddingDefaults.Medium)
-                    .testTag(TestTag.Profile.AuditEvents.AuditEvent)
-            ) {
-                Text(auditEvent.description, style = AppTheme.typography.body2)
+        auditEvent?.let { AuditEvent(it) }
+    }
+}
 
-                val timestamp = remember {
-                    auditEvent.timestamp
-                        .toLocalDateTime(TimeZone.currentSystemDefault())
-                        .toJavaLocalDateTime()
-                }
-                Text(
-                    phrasedDateString(date = timestamp),
-                    style = AppTheme.typography.body2l
+@Composable
+private fun AuditEvent(auditEvent: FhirAuditEventErpModel) {
+    val context = LocalContext.current
+    val hapticFeedback = LocalHapticFeedback.current
+
+    val telematikIdText = stringResource(R.string.telematik_id)
+    val kvnrText = stringResource(R.string.insurance_information_insurance_identifier)
+
+    val lines = mutableListOf<String>()
+    lines += auditEvent.description
+    auditEvent.telematikId?.takeIf { it.isNotBlank() }?.let { lines += "$telematikIdText: $it" }
+    auditEvent.kvnrNumber?.takeIf { it.isNotBlank() }?.let { lines += "$kvnrText: $it" }
+    val textToCopy = lines.joinToString(separator = "\n")
+
+    Column(
+        modifier = Modifier
+            .padding(PaddingDefaults.Medium)
+            .pointerInput(Unit) {
+                detectTapGestures(
+                    onLongPress = {
+                        copyToClipboardWithHaptic(
+                            label = "AuditEvent",
+                            text = textToCopy,
+                            context = context,
+                            hapticFeedback = hapticFeedback
+                        )
+                    }
                 )
             }
+            .testTag(TestTag.Profile.AuditEvents.AuditEvent)
+    ) {
+        Text(auditEvent.description, style = AppTheme.typography.body2)
+
+        AnimatedVisibility(auditEvent.telematikId.isNotNullOrEmpty()) {
+            SpacerSmall()
+            Text(
+                "$telematikIdText: ${auditEvent.telematikId}",
+                style = AppTheme.typography.body2
+            )
         }
+
+        AnimatedVisibility(auditEvent.kvnrNumber.isNotNullOrEmpty()) {
+            SpacerSmall()
+            Text(
+                "$kvnrText: ${auditEvent.kvnrNumber}",
+                style = AppTheme.typography.body2
+            )
+        }
+
+        val timestamp = remember {
+            auditEvent.timestamp.value
+                .toLocalDateTime(TimeZone.currentSystemDefault())
+                .toJavaLocalDateTime()
+        }
+        SpacerSmall()
+        Text(
+            phrasedDateString(date = timestamp),
+            style = AppTheme.typography.body2l
+        )
     }
 }
 
@@ -335,7 +393,44 @@ private fun CombinedLoadStates.isLoadingDataOnRefresh() = refresh is LoadState.L
 
 private fun CombinedLoadStates.isLoadingDataOnAppend() = append is LoadState.Loading
 
-private fun CombinedLoadStates.isErrorWithEndOfPaginationReached() =
-    append is LoadState.NotLoading && append.endOfPaginationReached
-
 private fun CombinedLoadStates.isErrorState() = refresh is LoadState.Error || append is LoadState.Error
+
+@OptIn(ExperimentalMaterial3Api::class)
+@LightDarkPreview
+@Composable
+private fun AuditEventsListPreview() {
+    val items = listOf(
+        FhirAuditEventErpModel(
+            id = "123",
+            description = "User A downloaded prescription with Task ID 160.000.12.2",
+            timestamp = FhirTemporal.Instant(Instant.parse("2023-10-01T12:00:00Z")),
+            uuid = "uuid-123",
+            taskId = "160.000.12.2",
+            telematikId = "1.2.3.4.5.6",
+            kvnrNumber = "X123456789"
+        ),
+        FhirAuditEventErpModel(
+            id = "456",
+            description = "Arztpraxis Bernd Ulmen activated prescription with Task ID 160.000.12.3",
+            timestamp = FhirTemporal.Instant(Instant.parse("2023-10-02T09:00:00Z")),
+            uuid = "uuid-456",
+            taskId = "160.000.12.3",
+            telematikId = "6.5.4.3.2.1",
+            kvnrNumber = ""
+        )
+    )
+
+    val pagingData = flowOf(PagingData.from(items))
+    val lazyPagingItems = pagingData.collectAsLazyPagingItems()
+
+    PreviewAppTheme {
+        AuditEventsScaffold(
+            listState = rememberLazyListState(),
+            pullToRefreshState = rememberPullToRefreshState(),
+            auditEvents = lazyPagingItems,
+            isSsoTokenValid = true,
+            onInvalidSsoToken = {},
+            onBack = {}
+        )
+    }
+}

@@ -43,6 +43,7 @@ object PrescriptionUseCaseData {
             val isIncomplete: Boolean,
             val organization: String,
             val authoredOn: Instant,
+            val isDiga: Boolean,
             override val redeemedOn: Instant?,
             val expiresOn: Instant?,
             val acceptUntil: Instant?,

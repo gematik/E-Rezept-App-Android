@@ -56,9 +56,7 @@ fun DemoModeProfileLinkedCommunication.toSyncedTaskDataCommunication() =
     )
 
 @Suppress("MagicNumber")
-internal fun DemoModeSentCommunicationJson.toDemoModeProfileLinkedCommunication(
-    profileId: ProfileIdentifier
-) =
+internal fun DemoModeSentCommunicationJson.toDemoModeProfileLinkedCommunication(profileId: ProfileIdentifier) =
     DemoModeProfileLinkedCommunication(
         profileId = profileId,
         communicationId = UUID.randomUUID().toString(),
@@ -72,5 +70,22 @@ internal fun DemoModeSentCommunicationJson.toDemoModeProfileLinkedCommunication(
         sender = payload.firstNotNullOfOrNull { it.name } ?: "",
         recipient = recipient.firstNotNullOfOrNull { it.identifier.value } ?: "",
         payload = payload.firstNotNullOfOrNull { it.contentString },
+        consumed = false
+    )
+
+@Suppress("MagicNumber")
+internal fun emptyDemoModeProfileLinkedCommunication(
+    profileId: ProfileIdentifier
+): DemoModeProfileLinkedCommunication =
+    DemoModeProfileLinkedCommunication(
+        profileId = profileId,
+        communicationId = UUID.randomUUID().toString(),
+        taskId = "",
+        orderId = "",
+        profile = CommunicationProfile.ErxCommunicationReply,
+        sentOn = Clock.System.now(),
+        sender = "Unknown sender",
+        recipient = "Unknown recipient",
+        payload = null,
         consumed = false
     )

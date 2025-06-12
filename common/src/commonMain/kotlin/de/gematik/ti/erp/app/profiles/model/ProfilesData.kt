@@ -57,6 +57,7 @@ object ProfilesData {
         val insuranceIdentifier: String? = null,
         val insuranceName: String? = null,
         val insuranceType: InsuranceType,
+        val insuranceOrganizationIdentifier: String? = null,
         val isConsentDrawerShown: Boolean,
         val lastAuthenticated: Instant? = null,
         val lastAuditEventSynced: Instant? = null,

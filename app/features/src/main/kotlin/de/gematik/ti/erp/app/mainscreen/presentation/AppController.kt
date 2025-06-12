@@ -25,6 +25,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.presentation.GetActiveProfileController
+import de.gematik.ti.erp.app.base.usecase.MarkNavigationTriggerConsumedUseCase
+import de.gematik.ti.erp.app.base.usecase.ObserveNavigationTriggerUseCase
 import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesDetailStateUseCase
@@ -32,11 +34,20 @@ import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.GetOnboardingSucceededUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
-import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
@@ -44,12 +55,13 @@ import org.kodein.di.compose.rememberInstance
 @Suppress("LongParameterList", "StaticFieldLeak", "ConstructorParameterNaming")
 class AppController(
     networkStatusTracker: NetworkStatusTracker,
-    getActiveProfileUseCase: GetActiveProfileUseCase,
     getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
     getOnboardingSucceededUseCase: GetOnboardingSucceededUseCase,
     downloadResourcesStateUseCase: GetDownloadResourcesDetailStateUseCase,
+    private val getActiveProfileUseCase: GetActiveProfileUseCase,
     private val getUnreadMessagesCountUseCase: GetUnreadMessagesCountUseCase,
-    private val saveWelcomeDrawerShownUseCase: SaveWelcomeDrawerShownUseCase,
+    private val observeNavigationTriggerUseCase: ObserveNavigationTriggerUseCase,
+    private val markNavigationTriggerConsumedUseCase: MarkNavigationTriggerConsumedUseCase,
     private val _unreadOrders: MutableStateFlow<Long> = MutableStateFlow(0L),
     private val _orderedEvent: MutableStateFlow<OrderedEvent?> = MutableStateFlow(null)
 ) : GetActiveProfileController(
@@ -61,6 +73,10 @@ class AppController(
     }
 ) {
 
+    init {
+        observeDigaFeedback()
+    }
+
     enum class OrderedEvent {
         Success,
         Error
@@ -68,6 +84,9 @@ class AppController(
 
     val orderedEvent: StateFlow<OrderedEvent?> = _orderedEvent
     val unreadOrders: StateFlow<Long> = _unreadOrders
+
+    private val _promptFeedback = MutableStateFlow(false)
+    val promptFeedback = _promptFeedback.asStateFlow()
 
     val isNetworkConnected: StateFlow<Boolean> = networkStatusTracker.networkStatus
         .stateIn(
@@ -95,16 +114,57 @@ class AppController(
 
     val onboardingSucceeded = getOnboardingSucceededUseCase.invoke()
 
-    fun welcomeDrawerShown() = controllerScope.launch {
-        saveWelcomeDrawerShownUseCase()
-    }
-
     suspend fun updateUnreadOrders(profile: ProfilesUseCaseData.Profile) {
         _unreadOrders.value = getUnreadMessagesCountUseCase.invoke(profile.id).first()
     }
 
     fun onOrdered(hasError: Boolean) {
         _orderedEvent.value = if (hasError) OrderedEvent.Error else OrderedEvent.Success
+    }
+
+    /**
+     * A one-time navigation trigger to prompt the user for DiGA feedback.
+     *
+     * This flow observes the `NavigationTriggerDataStore` for a given profile and emits `true` only
+     * when the trigger has been set. After emitting, it immediately clears the trigger to avoid
+     * repeated navigations on recomposition or re-collection.
+     *
+     * The flow is scoped to the controller's lifecycle and uses the currently active profile's ID.
+     * Emits:
+     * - `true`: When a navigation trigger is observed for the active profile.
+     * - `false`: Otherwise (initial state).
+     *
+     * Note: This flow ensures only a single emission per trigger using `distinctUntilChanged` and
+     * `filter { it }`, and resets the trigger via `clearNavigationTriggerUseCase`.
+     */
+    @Suppress("MagicNumber")
+    @OptIn(ExperimentalCoroutinesApi::class, FlowPreview::class)
+    private fun observeDigaFeedback() {
+        getActiveProfileUseCase()
+            .mapNotNull { it.id }
+            .distinctUntilChanged()
+            .flatMapLatest { profileId ->
+                observeNavigationTriggerUseCase(profileId)
+                    .debounce(300)
+                    .distinctUntilChanged()
+                    .filter { it }
+                    .onEach {
+                        _promptFeedback.value = true
+                    }
+            }
+            .launchIn(controllerScope)
+    }
+
+    fun markNavigationTriggerConsumed() {
+        controllerScope.launch {
+            getActiveProfileUseCase()
+                .mapNotNull { it.id }
+                .first()
+                .let { profileId ->
+                    _promptFeedback.value = false
+                    markNavigationTriggerConsumedUseCase(profileId)
+                }
+        }
     }
 }
 

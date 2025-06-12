@@ -25,5 +25,7 @@ import kotlinx.coroutines.flow.SharedFlow
 class GetDownloadResourcesSnapshotStateUseCase(
     private val downloadResourcesStateRepository: DownloadResourcesStateRepository
 ) {
-    operator fun invoke(): SharedFlow<DownloadResourcesState> = downloadResourcesStateRepository.snapshotState()
+    operator fun invoke(): SharedFlow<DownloadResourcesState> {
+        return downloadResourcesStateRepository.snapshotState()
+    }
 }

@@ -60,7 +60,7 @@ class SyncedTaskEntityV1 : RealmObject, Cascading {
 
     var deviceRequest: DeviceRequestEntityV1? = null
 
-    var medicationDispenses: RealmList<MedicationDispenseEntityV1> = realmListOf()
+    var medicationDispenses: RealmList<MedicationDispenseEntityV1> = realmListOf() // Code amd deepLink
 
     var communications: RealmList<CommunicationEntityV1> = realmListOf()
 

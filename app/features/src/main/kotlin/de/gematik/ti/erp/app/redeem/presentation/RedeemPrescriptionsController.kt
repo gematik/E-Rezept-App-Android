@@ -29,13 +29,13 @@ import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.DirectRedemptionArguments
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.LoggedInUserRedemptionArguments
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.PrescriptionReadinessResult
 import de.gematik.ti.erp.app.redeem.model.RedeemReadyPrescriptionsState
 import de.gematik.ti.erp.app.redeem.model.RedeemReadyPrescriptionsState.AllReady
 import de.gematik.ti.erp.app.redeem.model.RedeemReadyPrescriptionsState.NoneReady
 import de.gematik.ti.erp.app.redeem.model.RedeemReadyPrescriptionsState.SomeMissing
 import de.gematik.ti.erp.app.redeem.model.RedeemablePrescriptionInfo.Companion.toPrescriptionInfo
-import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState.IncompleteOrder
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState.InvalidOrder
 import de.gematik.ti.erp.app.redeem.usecase.GetReadyPrescriptionsByTaskIdsUseCase
@@ -64,8 +64,8 @@ class RedeemPrescriptionsController(
     val onProcessStartEvent: ComposableEvent<Unit> = ComposableEvent()
     val onProcessEndEvent: ComposableEvent<Unit> = ComposableEvent()
 
-    private var _redeemedState = MutableStateFlow<RedeemedPrescriptionState>(
-        RedeemedPrescriptionState.Init
+    private var _redeemedState = MutableStateFlow<BaseRedeemState>(
+        BaseRedeemState.Init
     )
     val redeemedState = _redeemedState.asStateFlow()
 
@@ -91,7 +91,7 @@ class RedeemPrescriptionsController(
                                 .toRedeemReadyPrescriptionState(taskIds)
                                 .let { state ->
                                     when (state) {
-                                        AllReady -> processPrescriptionRedemptionsForLoggedInUser(loggedInArguments)
+                                        is AllReady -> processPrescriptionRedemptionsForLoggedInUser(loggedInArguments)
                                         is NoneReady -> {
                                             onProcessEndEvent.trigger()
                                             _redeemedState.value = InvalidOrder(missingPrescriptionInfos = state.allPrescriptions)
@@ -107,7 +107,7 @@ class RedeemPrescriptionsController(
                         .onFailure {
                             onProcessEndEvent.trigger()
                             Napier.e { "Failed to download resources for profile: ${loggedInArguments.profile.id} with error ${it.message}" }
-                            _redeemedState.value = RedeemedPrescriptionState.Error(errorState = HttpErrorState.ErrorWithCause(it.message ?: ""))
+                            _redeemedState.value = BaseRedeemState.Error(errorState = HttpErrorState.ErrorWithCause(it.message ?: ""))
                         }
                 }
             }

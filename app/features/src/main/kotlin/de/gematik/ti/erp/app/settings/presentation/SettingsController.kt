@@ -23,8 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.di.EndpointHelper
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
+import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
+import de.gematik.ti.erp.app.featuretoggle.datasource.Features
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -32,11 +32,14 @@ import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
+import de.gematik.ti.erp.app.settings.usecase.HasValidDigasUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveZoomPreferenceUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -48,11 +51,12 @@ class SettingsController(
     getProfilesUseCase: GetProfilesUseCase,
     getScreenShotsAllowedUseCase: GetScreenShotsAllowedUseCase,
     getZoomStateUseCase: GetZoomStateUseCase,
-    featureToggleManager: FeatureToggleManager,
+    featureToggleDataStore: FeatureToggleDataStore,
     private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
     private val saveZoomPreferenceUseCase: SaveZoomPreferenceUseCase,
     private val getActiveProfileUseCase: GetActiveProfileUseCase,
-    private val endpointHelper: EndpointHelper
+    private val endpointHelper: EndpointHelper,
+    private val hasValidDigasUseCase: HasValidDigasUseCase
 ) : Controller() {
 
     private val zoomFlow = getZoomStateUseCase.invoke().map { SettingStatesData.ZoomState(it) }
@@ -73,15 +77,23 @@ class SettingsController(
         false
     )
 
+    private val _hasValidDigas: MutableStateFlow<Boolean> = MutableStateFlow(false)
+
+    val hasValidDigas: StateFlow<Boolean> = _hasValidDigas
+
     val allowScreenshotsEvent = ComposableEvent<Unit>()
 
     val isMedicationPlanEnabled: StateFlow<Boolean> =
-        featureToggleManager.isFeatureEnabled(Features.MEDICATION_PLAN)
+        featureToggleDataStore.isFeatureEnabled(Features.MEDICATION_PLAN)
             .stateIn(
                 controllerScope,
                 SharingStarted.WhileSubscribed(),
                 false
             )
+
+    init {
+        hasValidDigas()
+    }
 
     fun onAllowScreenshots(allow: Boolean) = viewModelScope.launch {
         if (allow) {
@@ -120,6 +132,18 @@ class SettingsController(
             intentEvent.trigger(url)
         }
     }
+
+    private fun hasValidDigas() {
+        controllerScope.launch {
+            getActiveProfileUseCase()
+                .firstOrNull()
+                ?.let { profile ->
+                    hasValidDigasUseCase(profile.id).collect { isValid ->
+                        _hasValidDigas.value = isValid
+                    }
+                }
+        }
+    }
 }
 
 @Composable
@@ -131,7 +155,8 @@ fun rememberSettingsController(): SettingsController {
     val saveZoomPreferenceUseCase by rememberInstance<SaveZoomPreferenceUseCase>()
     val getActiveProfileUseCase by rememberInstance<GetActiveProfileUseCase>()
     val endpointHelper by rememberInstance<EndpointHelper>()
-    val featureToggleManager by rememberInstance<FeatureToggleManager>()
+    val featureToggleDataStore by rememberInstance<FeatureToggleDataStore>()
+    val hasValidDigasUseCase by rememberInstance<HasValidDigasUseCase>()
 
     return remember {
         SettingsController(
@@ -142,7 +167,8 @@ fun rememberSettingsController(): SettingsController {
             getZoomStateUseCase = getZoomStateUseCase,
             getActiveProfileUseCase = getActiveProfileUseCase,
             endpointHelper = endpointHelper,
-            featureToggleManager = featureToggleManager
+            featureToggleDataStore = featureToggleDataStore,
+            hasValidDigasUseCase = hasValidDigasUseCase
         )
     }
 }

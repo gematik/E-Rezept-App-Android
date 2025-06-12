@@ -48,7 +48,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import java.net.URI
 
-// A_20601-01
+// TODO: Cleanup ERA-12507
 @Requirement(
     "A_22301-01#1",
     sourceSpecification = "gemSpec_IDP_Frontend",
@@ -63,7 +63,6 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
     private val lock: Mutex,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-
     suspend operator fun invoke(
         uri: URI
     ) {
@@ -141,7 +140,8 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
                                                 profileId = profileId,
                                                 insurantName = insurantName(idTokenJson),
                                                 insuranceIdentifier = insurantIdentifier(idTokenJson),
-                                                insuranceName = insuranceName(idTokenJson)
+                                                insuranceName = insuranceName(idTokenJson),
+                                                organizationIdentifier = organizationIdentifier(idTokenJson)
                                             )
 
                                             saveDefaultSsoToken(
@@ -186,19 +186,13 @@ class AuthenticateWithExternalHealthInsuranceAppUseCase(
     /**
      * @throws IllegalArgumentException
      */
-    private fun IdpData.IdpConfiguration.requiredAuthorizationEndPoint(
-        // isGid: Boolean
-    ) = requireNotNull(
-        federationAuthorizationEndpoint
-        /*when (isGid) {
-            true -> federationAuthorizationEndpoint
-            false -> thirdPartyAuthorizationEndpoint
-        }*/
-    ) {
-        "authorizationEndPoint null, Fast-track or Gid not available"
+    private fun IdpData.IdpConfiguration.requiredAuthorizationEndPoint() = requireNotNull(federationAuthorizationEndpoint) {
+        "authorizationEndPoint null, Gid not available"
     }
 
     private fun insurantIdentifier(idTokenJson: JsonElement?): String = idTokenJson.getContent("idNummer")
+
+    private fun organizationIdentifier(idTokenJson: JsonElement?): String = idTokenJson.getContent("organizationIK")
 
     private fun insuranceName(idTokenJson: JsonElement?): String = idTokenJson.getContent("organizationName")
 

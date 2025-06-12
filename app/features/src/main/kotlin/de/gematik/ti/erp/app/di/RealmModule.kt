@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.db.appSchemas
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.openRealmWith
 import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.secureRandomInstance
 import io.realm.kotlin.exceptions.RealmException
 import org.jose4j.base64url.Base64

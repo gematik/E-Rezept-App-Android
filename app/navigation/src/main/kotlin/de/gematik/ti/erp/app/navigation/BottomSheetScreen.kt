@@ -31,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import de.gematik.ti.erp.app.navigation.ui.DragHandleWithCloseButton
 import de.gematik.ti.erp.app.theme.AppTheme
 
 /**
@@ -45,14 +46,16 @@ private const val BottomSheetNavigator = "BottomSheetNavigator"
  * that is greater than the default height but less than the full screen height.
  */
 abstract class BottomSheetScreen(
-    private val forceToMaxHeight: Boolean = false
+    private val forceToMaxHeight: Boolean = false,
+    private val withCloseButton: Boolean = false
 ) : Screen() {
 
     @Composable
     fun BottomSheetContent() {
         Content(
             navController = navController,
-            forceToMaxHeight = forceToMaxHeight
+            forceToMaxHeight = forceToMaxHeight,
+            withCloseButton = withCloseButton
         ) {
             this@BottomSheetScreen.Content()
         }
@@ -68,6 +71,7 @@ more than the allowed default height of the bottom sheet
 private fun Content(
     navController: NavController,
     forceToMaxHeight: Boolean,
+    withCloseButton: Boolean,
     content: @Composable () -> Unit
 ) {
     val modalBottomSheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = forceToMaxHeight)
@@ -78,9 +82,10 @@ private fun Content(
         containerColor = AppTheme.colors.neutral000,
         contentColor = AppTheme.colors.neutral000,
         dragHandle = {
-            DragHandle(
-                color = AppTheme.colors.neutral600
-            )
+            when {
+                withCloseButton -> DragHandleWithCloseButton { navController.navigateUp() }
+                else -> DragHandle(color = AppTheme.colors.neutral600)
+            }
         }
     ) {
         content()

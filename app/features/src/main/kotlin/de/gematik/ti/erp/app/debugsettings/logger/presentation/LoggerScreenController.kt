@@ -48,6 +48,10 @@ class LoggerScreenController(
             throw FileSavingException("Error saving logs: ${e.message}")
         }
     }
+
+    fun resetLogs() {
+        logHolder.resetLogs()
+    }
 }
 
 @Composable

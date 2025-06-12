@@ -211,4 +211,70 @@ internal object FhirMedicationRequestTestData {
         ),
         substitution = FhirMedicationRequestSubstitution(allowed = false)
     )
+
+    val fhirMedicationRequestWithAccidentModelV110 = FhirMedicationRequest(
+        commentsSection = null,
+        resourceType = FhirMeta(
+            profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Prescription|1.1.0")
+        ),
+        extensions = listOf(
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment",
+                valueCoding = FhirCoding(
+                    coding = emptyList(),
+                    system = "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_StatusCoPayment",
+                    code = "0"
+                )
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee",
+                valueBoolean = false
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG",
+                valueBoolean = false
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Accident",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "Unfallkennzeichen",
+                        valueCoding = FhirCoding(
+                            coding = emptyList(),
+                            system = "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Ursache_Type",
+                            code = "1"
+                        )
+                    ),
+                    FhirExtension(
+                        url = "Unfalltag",
+                        valueDate = "2024-07-01"
+                    )
+                )
+            ),
+            FhirExtension(
+                url = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription",
+                extensions = listOf(
+                    FhirExtension(
+                        url = "Kennzeichen",
+                        valueBoolean = false
+                    )
+                )
+            )
+        ),
+        status = "active",
+        intent = "order",
+        authoredOn = "2025-04-14",
+        dosageInstruction = emptyList(),
+        note = emptyList(),
+        dispenseRequest = FhirMedicationRequestDispenseRequest(
+            quantity = FhirMedicationRequestQuantityValue(
+                value = "1",
+                system = "http://unitsofmeasure.org",
+                code = "{Package}"
+            )
+        ),
+        substitution = FhirMedicationRequestSubstitution(
+            allowed = true
+        )
+    )
 }

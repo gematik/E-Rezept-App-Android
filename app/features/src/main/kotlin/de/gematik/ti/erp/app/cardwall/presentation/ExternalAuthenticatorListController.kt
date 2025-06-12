@@ -28,6 +28,7 @@ import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
 import de.gematik.ti.erp.app.idp.usecase.GetHealthInsuranceAppIdpsUseCase
 import de.gematik.ti.erp.app.idp.usecase.GetUniversalLinkForHealthInsuranceAppsUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToGKVUseCase
 import de.gematik.ti.erp.app.profiles.usecase.SwitchProfileToPKVUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -55,7 +56,7 @@ interface ExternalAuthenticatorListController {
         profileId: ProfileIdentifier,
         healthInsuranceData: HealthInsuranceData
     )
-
+    fun switchToGKV(profileId: ProfileIdentifier)
     fun switchToPKV(profileId: ProfileIdentifier)
     fun filterList(searchWord: String)
     fun unFilterList()
@@ -65,12 +66,15 @@ class DefaultExternalAuthenticatorListController(
     private val getHealthInsuranceAppIdpsUseCase: GetHealthInsuranceAppIdpsUseCase,
     private val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase,
     private val switchProfileToPKVUseCase: SwitchProfileToPKVUseCase,
+    private val switchProfileToGKVUseCase: SwitchProfileToGKVUseCase,
     private val scope: CoroutineScope
 ) : ExternalAuthenticatorListController {
 
     private val originalHealthInsuranceDataList = mutableListOf<HealthInsuranceData>()
 
-    override val healthInsuranceDataList = MutableStateFlow<UiState<List<HealthInsuranceData>>>(UiState.Loading())
+    override val healthInsuranceDataList = MutableStateFlow<UiState<List<HealthInsuranceData>>>(
+        UiState.Loading()
+    )
 
     override val authorizationWithExternalAppInBackgroundEvent = ComposableEvent<Boolean>()
 
@@ -137,6 +141,12 @@ class DefaultExternalAuthenticatorListController(
         }
     }
 
+    override fun switchToGKV(profileId: ProfileIdentifier) {
+        scope.launch {
+            switchProfileToGKVUseCase.invoke(profileId)
+        }
+    }
+
     override fun filterList(searchWord: String) {
         searchWord.split(whiteSpaceRegex())
         val stringList = searchWord.split(whiteSpaceRegex())
@@ -156,12 +166,14 @@ fun rememberExternalAuthenticatorListController(): ExternalAuthenticatorListCont
     val getHealthInsuranceAppIdpsUseCase: GetHealthInsuranceAppIdpsUseCase by rememberInstance()
     val getUniversalLinkUseCase: GetUniversalLinkForHealthInsuranceAppsUseCase by rememberInstance()
     val switchProfileToPKVUseCase: SwitchProfileToPKVUseCase by rememberInstance()
+    val switchProfileToGKVUseCase: SwitchProfileToGKVUseCase by rememberInstance()
     val scope = rememberCoroutineScope()
     return remember {
         DefaultExternalAuthenticatorListController(
             getHealthInsuranceAppIdpsUseCase = getHealthInsuranceAppIdpsUseCase,
             getUniversalLinkUseCase = getUniversalLinkUseCase,
             switchProfileToPKVUseCase = switchProfileToPKVUseCase,
+            switchProfileToGKVUseCase = switchProfileToGKVUseCase,
             scope = scope
         )
     }

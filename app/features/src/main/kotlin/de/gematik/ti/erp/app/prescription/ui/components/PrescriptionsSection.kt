@@ -53,7 +53,7 @@ internal fun PrescriptionsSection(
     activePrescriptions: UiState<List<Prescription>>,
     isArchiveEmpty: Boolean,
     onElevateTopBar: (Boolean) -> Unit,
-    onClickPrescription: (String) -> Unit,
+    onClickPrescription: (String, Boolean) -> Unit,
     onClickLogin: () -> Unit,
     onClickRefresh: () -> Unit,
     onClickAvatar: () -> Unit,

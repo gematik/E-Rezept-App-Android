@@ -44,7 +44,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.DateTimeUtils
+import de.gematik.ti.erp.app.datetime.timeStateParser
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -56,7 +58,6 @@ import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.annotatedPluralsResource
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
-import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import java.time.format.DateTimeFormatter
 
@@ -94,7 +95,7 @@ internal fun Orders(
             ) {
                 orders.forEachIndexed { index, order ->
                     item {
-                        val date = messageTimeStateParser(timeState = order.timeState, dateFormatter = dateFormatter)
+                        val date = timeStateParser(timeState = order.timeState, dateFormatter = dateFormatter)
                         Order(
                             pharmacy = order.from,
                             date = date,

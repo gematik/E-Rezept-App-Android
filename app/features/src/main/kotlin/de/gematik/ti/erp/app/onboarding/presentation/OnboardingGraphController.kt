@@ -29,7 +29,7 @@ import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.analytics.usecase.StartTrackerUseCase
 import de.gematik.ti.erp.app.analytics.usecase.StopTrackerUseCase
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase

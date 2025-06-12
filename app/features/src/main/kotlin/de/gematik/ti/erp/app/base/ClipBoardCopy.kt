@@ -21,6 +21,8 @@ package de.gematik.ti.erp.app.base
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import io.github.aakira.napier.Napier
 
 object ClipBoardCopy {
@@ -32,6 +34,18 @@ object ClipBoardCopy {
         Napier.i { "Clipboard \n $text" }
         val clip = ClipData.newPlainText("url", text)
         manager.setPrimaryClip(clip)
+    }
+
+    fun copyToClipboardWithHaptic(
+        label: String,
+        text: String,
+        context: Context,
+        hapticFeedback: HapticFeedback
+    ) {
+        val manager = context.clipBoardManager
+        val clip = ClipData.newPlainText(label, text)
+        manager.setPrimaryClip(clip)
+        hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
     }
 }
 

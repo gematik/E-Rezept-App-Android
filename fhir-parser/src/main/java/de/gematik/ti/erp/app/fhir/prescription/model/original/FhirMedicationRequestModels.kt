@@ -18,11 +18,11 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel.Companion.accidentInformationExtension
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel.Companion.findAccidentDate
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel.Companion.findAccidentLocation
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel.Companion.findAccidentType
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.accidentInformationExtension
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.findAccidentDate
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.findAccidentLocation
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel.Companion.findAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
@@ -128,6 +128,7 @@ internal data class FhirMedicationRequest(
     }
 }
 
+// TODO: Move to common
 @Serializable
 internal data class FhirMedicationRequestText(
     @SerialName("text") val text: String? = null
@@ -143,6 +144,7 @@ internal data class FhirMedicationRequestDispenseRequest(
     @SerialName("quantity") val quantity: FhirMedicationRequestQuantityValue? = null
 )
 
+// TODO move to common
 @Serializable
 internal data class FhirMedicationRequestQuantityValue(
     @SerialName("value") val value: String? = null,
@@ -150,6 +152,7 @@ internal data class FhirMedicationRequestQuantityValue(
     @SerialName("code") val code: String? = null
 )
 
+// TODO: Move to common
 @Serializable
 internal data class FhirMedicationRequestDosageInstruction(
     @SerialName("text") val text: String? = null,

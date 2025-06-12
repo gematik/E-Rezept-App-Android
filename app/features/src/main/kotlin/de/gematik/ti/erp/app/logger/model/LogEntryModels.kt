@@ -18,7 +18,9 @@
 
 package de.gematik.ti.erp.app.logger.model
 
+import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.serialization.Serializable
+import kotlin.time.Duration.Companion.nanoseconds
 
 @Serializable
 data class LogEntry(
@@ -26,14 +28,26 @@ data class LogEntry(
     val request: RequestLog,
     val response: ResponseLog,
     val timings: TimingsLog
-)
+) {
+    companion object {
+        fun LogEntry.toJson(): String {
+            return SafeJson.value.encodeToString(this)
+        }
+    }
+}
 
 @Serializable
 data class RequestLog(
     val method: String,
     val url: String,
     val headers: List<HeaderLog>
-)
+) {
+    companion object {
+        fun RequestLog.toJson(): String {
+            return SafeJson.value.encodeToString(this)
+        }
+    }
+}
 
 @Serializable
 data class ResponseLog(
@@ -41,7 +55,13 @@ data class ResponseLog(
     val statusText: String,
     val headers: List<HeaderLog>,
     val content: ContentLog
-)
+) {
+    companion object {
+        fun ResponseLog.toJson(): String {
+            return SafeJson.value.encodeToString(this)
+        }
+    }
+}
 
 @Serializable
 data class HeaderLog(
@@ -60,4 +80,9 @@ data class TimingsLog(
     val send: Long,
     val wait: Long,
     val receive: Long
-)
+) {
+    fun totalTime() = send + wait + receive
+    fun send() = send.nanoseconds
+    fun wait() = wait.nanoseconds
+    fun receive() = receive.nanoseconds
+}

@@ -16,5 +16,11 @@
         "text": "📖 **Función de lectura en voz alta** \nHemos rediseñado varias páginas para que sea más fácil leerlas en voz alta con TalkBack. Esto mejora significativamente la usabilidad para personas con discapacidad visual. \n \n📞 **Opciones de contacto ampliadas** \nHemos introducido nuevas opciones de contacto para compañías de seguros seleccionadas. \n \n🔧 **Funciones optimizadas** \nHemos corregido errores menores al leer la tarjeta, limpiado el código y mejorado la visualización de los mensajes.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Canjear DiGAs prescritos** \n A partir de ahora podrás canjear recetas para aplicaciones de salud digital (DiGAs) directamente a través de la aplicación de receta electrónica. Recibirás el código de activación y el enlace a la aplicación prescrita inmediatamente después del canje. \n \n **🏥Nueva base de datos de farmacias** \n Hemos presentado una nueva base de datos preparada para el futuro para búsquedas de farmacias.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

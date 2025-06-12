@@ -113,7 +113,7 @@ private val discoveryDocumentMaxValiditySeconds: Int = 24.hours.inWholeSeconds.t
 // (4) [encryptedAccessToken as JWE(JWS)] -> decrypt with [ephemeralSymmetricalKey] -> [accessToken as JWS] -> validate with [state] & [nonce] & [pukSigKey]
 // (*) result: [accessToken as JWS] & [ssoToken]
 //
-
+// TODO: Cleanup ERA-12507
 class IdpBasicUseCase(
     private val repository: IdpRepository,
     private val truststoreUseCase: TruststoreUseCase
@@ -283,6 +283,7 @@ class IdpBasicUseCase(
             expiresOn = idpTokenResult.expiresOn,
             ssoToken = redirectSsoToken,
             idTokenInsuranceIdentifier = idTokenJson.jsonObject["idNummer"]?.jsonPrimitive?.content ?: "",
+            organizationIdentifier = idTokenJson.jsonObject["organizationIK"]?.jsonPrimitive?.content ?: "",
             idTokenInsuranceName = idTokenJson.jsonObject["organizationName"]?.jsonPrimitive?.content ?: "",
             idTokenInsurantName = idTokenJson.jsonObject["given_name"]?.jsonPrimitive?.content?.let {
                 it + " " + idTokenJson.jsonObject["family_name"]?.jsonPrimitive?.content

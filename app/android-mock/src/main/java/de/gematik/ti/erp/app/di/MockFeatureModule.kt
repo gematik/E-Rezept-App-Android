@@ -31,7 +31,8 @@ import de.gematik.ti.erp.app.di.prescription.mockPrescriptionRepositoryModule
 import de.gematik.ti.erp.app.di.prescription.mockTaskRepositoryModule
 import de.gematik.ti.erp.app.di.profile.mockProfileRepositoryModule
 import de.gematik.ti.erp.app.di.settings.mockSettingsRepositoryModule
-import de.gematik.ti.erp.app.featuretoggle.di.newFeaturesSharedPrefsModule
+import de.gematik.ti.erp.app.digas.di.digaModule
+import de.gematik.ti.erp.app.digas.di.digaRepositoryModule
 import de.gematik.ti.erp.app.idp.idpModule
 import de.gematik.ti.erp.app.idp.idpUseCaseModule
 import de.gematik.ti.erp.app.logger.di.loggerModule
@@ -47,8 +48,8 @@ import de.gematik.ti.erp.app.prescription.prescriptionModule
 import de.gematik.ti.erp.app.prescription.prescriptionRepositoryModule
 import de.gematik.ti.erp.app.prescription.taskModule
 import de.gematik.ti.erp.app.profiles.profilesModule
-import de.gematik.ti.erp.app.protocol.protocolModule
-import de.gematik.ti.erp.app.protocol.protocolRepositoryModule
+import de.gematik.ti.erp.app.protocol.auditEventsModule
+import de.gematik.ti.erp.app.protocol.auditEventsRepositoryModule
 import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.timeouts.di.timeoutsSharedPrefsModule
@@ -75,16 +76,16 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         pharmacyModule,
         redeemModule,
         profilesModule,
-        protocolModule,
+        auditEventsModule,
         taskModule,
         settingsModule,
         vauModule,
         cardUnlockModule,
         pkvModule,
         authenticationModule,
+        digaModule,
         // shared-prefs modules
         timeoutsSharedPrefsModule,
-        newFeaturesSharedPrefsModule,
         // other modules
         analyticsModule,
         debugSettingsModule,
@@ -94,8 +95,9 @@ val mockFeatureModule = DI.Module("featureModule", allowSilentOverride = true) {
         // repositories
         prescriptionRepositoryModule,
         consentRepositoryModule,
-        protocolRepositoryModule,
+        auditEventsRepositoryModule,
         messageRepositoryModule,
+        digaRepositoryModule,
         // mocked modules
         mockPharmacyRepositoryModule,
         mockTaskRepositoryModule,

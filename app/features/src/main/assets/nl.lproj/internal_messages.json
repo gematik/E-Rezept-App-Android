@@ -16,5 +16,11 @@
         "text": "📖 **Voorleesfunctie** \nWe hebben verschillende pagina's opnieuw bewerkt, zodat ze gemakkelijker voor te lezen zijn met TalkBack. Dit verbetert de bruikbaarheid voor mensen met een visuele beperking aanzienlijk. \n \n📞 **Uitgebreide contactopties** \nWe hebben nieuwe contactopties geïntroduceerd voor geselecteerde verzekeringsmaatschappijen. \n \n🔧 **Geoptimaliseerde functies** \nWe hebben kleine fouten bij het lezen van de kaart opgelost, de code opgeschoond en de weergave van berichten verbeterd.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Voorgeschreven DiGA's inwisselen** \n Vanaf nu kunt u recepten voor digitale gezondheidsapplicaties (DiGA's) rechtstreeks inwisselen via de e-recepten-app. Direct na inwisseling ontvangt u de activeringscode en de link naar de voorgeschreven app. \n \n **🏥 Nieuwe apotheekdatabase** \n We hebben een nieuwe, toekomstbestendige database voor apotheekzoekopdrachten geïntroduceerd.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

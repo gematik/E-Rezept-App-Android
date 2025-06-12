@@ -36,7 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
@@ -65,11 +65,10 @@ class MessageDetailScreen(
     @Composable
     override fun Content() {
         val listState = rememberLazyListState()
-
+        val arguments = MessagesRoutesBackStackEntryArguments(navBackStackEntry)
         val messageController = rememberMessageDetailController(
-            orderId = MessagesRoutesBackStackEntryArguments(navBackStackEntry).orderId(),
-
-            isLocalMessage = MessagesRoutesBackStackEntryArguments(navBackStackEntry).isLocalMessage()
+            orderId = arguments.orderId,
+            isLocalMessage = arguments.isLocalMessage
         )
 
         LaunchedEffect(Unit) {
@@ -128,7 +127,7 @@ class MessageDetailScreen(
             order = order,
             messages = messages.data ?: emptyList(),
             inAppMessage = inAppMessages,
-            isLocalMessage = MessagesRoutesBackStackEntryArguments(navBackStackEntry).isLocalMessage()
+            isLocalMessage = arguments.isLocalMessage
         )
 
         BackHandler {
@@ -157,6 +156,7 @@ fun MessageDetailScreenScaffold(
             else -> order.data?.pharmacy?.name ?: stringResource(R.string.messages_title)
         },
         listState = listState,
+        actions = {},
         navigationMode = NavigationBarMode.Back,
         onBack = onBack,
         topBarPadding = PaddingValues(end = PaddingDefaults.Medium)

@@ -20,12 +20,12 @@ package de.gematik.ti.erp.app.messages.domain.repository
 
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
-import de.gematik.ti.erp.app.messages.model.getTimeState
 import de.gematik.ti.erp.app.messages.mapper.toInternalMessage
 import de.gematik.ti.erp.app.messages.model.ChangeLogMessage
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InternalMessage
-import de.gematik.ti.erp.app.messages.model.MessageTimeState
+import de.gematik.ti.erp.app.timestate.TimeState
+import de.gematik.ti.erp.app.timestate.getTimeState
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -53,7 +53,7 @@ class ChangeLogLocalDataSource(
 
     fun createWelcomeMessage(
         currentVersion: String,
-        time: MessageTimeState = getTimeState(Clock.System.now()),
+        time: TimeState = getTimeState(Clock.System.now()),
         isUnread: Boolean = true
     ) =
         InternalMessage(

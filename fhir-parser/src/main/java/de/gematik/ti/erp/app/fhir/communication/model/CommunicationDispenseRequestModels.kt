@@ -32,23 +32,8 @@ internal data class CommunicationDispenseRequest(
     val meta: FhirMeta,
     val identifier: List<FhirIdentifier>,
     val status: String = "unknown",
-    val extension: List<Extension>? = null,
-    val basedOn: List<Reference>,
-    val recipient: List<Recipient>,
-    val payload: List<Payload>
+    val extension: List<CommunicationValueCodingExtension>? = null,
+    val basedOn: List<CommunicationReference>,
+    val recipient: List<CommunicationRecipient>,
+    val payload: List<PayloadForCommunication>
 )
-
-@Serializable
-data class Extension(val url: String, val valueCoding: ValueCoding)
-
-@Serializable
-data class ValueCoding(val system: String, val code: String, val display: String)
-
-@Serializable
-data class Reference(val reference: String)
-
-@Serializable
-internal data class Recipient(val identifier: FhirIdentifier)
-
-@Serializable
-data class Payload(val contentString: String)

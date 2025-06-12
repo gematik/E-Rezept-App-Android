@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
@@ -165,7 +166,7 @@ internal data class SpecialOpeningTimes(
 
 @Serializable
 internal data class FhirVzdSpecialty(
-    @SerialName("coding") val codings: List<FhirVzdCoding> = emptyList(),
+    @SerialName("coding") val codings: List<FhirTypeCoding> = emptyList(),
     @SerialName("text") val text: String?
 ) {
     companion object {

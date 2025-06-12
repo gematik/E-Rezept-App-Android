@@ -19,10 +19,12 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
+import de.gematik.ti.erp.app.utils.asFhirTemporal
 import kotlinx.datetime.Instant
 
 data class PrescriptionDetailPreviewData(
@@ -121,6 +123,16 @@ private val mockMedicationDispense = SyncedTaskData.MedicationDispense(
     wasSubstituted = false,
     dosageInstruction = "Take as prescribed",
     performer = "Test Pharmacy",
+    deviceRequest = FhirDispenseDeviceRequestErpModel(
+        deepLink = "",
+        redeemCode = "xx12628491ß2242",
+        declineCode = "001",
+        note = "Error",
+        referencePzn = "123456",
+        display = "Diga App",
+        status = "completed",
+        modifiedDate = Instant.parse(input = "2024-08-01T10:00:00Z").asFhirTemporal()
+    ),
     whenHandedOver = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(
         value = Instant.parse("2024-01-15T10:00:00Z"),
         type = de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalInstant

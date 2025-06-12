@@ -99,7 +99,7 @@ enum class NavigationRouteNames(
     MlKitInformationScreen,
 
     // Prescriptions
-    PrescriptionsScreen,
+    PrescriptionListScreen,
     PrescriptionsArchiveScreen,
     PrescriptionScanScreen,
     WelcomeDrawerBottomSheetScreen,
@@ -175,4 +175,11 @@ enum class NavigationRouteNames(
 
     // UserAuthentication
     UserAuthenticationScreen,
+
+    // Digas
+    DigasMainScreen,
+    DigasValidityBottomSheetScreen,
+    DigasSupportBottomSheetScreen,
+    DigasDescriptionScreen,
+    DigaFeedbackPromptScreen
 }

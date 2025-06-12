@@ -94,6 +94,7 @@ class DemoProfilesRepository(
         profileId: ProfileIdentifier,
         insurantName: String,
         insuranceIdentifier: String,
+        organizationIdentifier: String,
         insuranceName: String
     ) {
         withContext(dispatcher) {
@@ -184,6 +185,14 @@ class DemoProfilesRepository(
 
     override suspend fun isSsoTokenValid(profileId: ProfileIdentifier): Flow<Boolean> {
         return flowOf(true)
+    }
+
+    override suspend fun getOrganizationIdentifier(profileId: ProfileIdentifier): Flow<String> {
+        return flowOf("coolie")
+    }
+
+    override suspend fun updateOrganizationIdentifier(iknr: String) {
+        // no-op
     }
 
     private fun MutableList<DemoModeProfile>.index(profileId: ProfileIdentifier) =

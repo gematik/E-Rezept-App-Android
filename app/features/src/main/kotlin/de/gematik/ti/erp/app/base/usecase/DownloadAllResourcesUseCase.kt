@@ -26,6 +26,7 @@ import de.gematik.ti.erp.app.prescription.repository.DownloadResourcesStateRepos
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
+import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -50,6 +51,7 @@ class DownloadAllResourcesUseCase(
     private val invoicesRepository: InvoiceRepository,
     private val profileRepository: ProfileRepository,
     private val stateRepository: DownloadResourcesStateRepository,
+    private val settingsRepository: SettingsRepository,
     private val networkStatusTracker: NetworkStatusTracker,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
@@ -129,17 +131,21 @@ class DownloadAllResourcesUseCase(
                     Napier.e(error) { "CancellationException on downloading resources" }
                     request.resultChannel.close(error)
                 }
+
                 else -> {
                     Napier.e(error) { "Error downloading resources" }
                     request.resultChannel.send(Result.failure(error))
                 }
             }
-        }.finally {
-            with(stateRepository) {
-                updateSnapshotState(DownloadResourcesState.Finished)
-                updateDetailState(DownloadResourcesState.Finished)
-            }
+        }.onSuccess {
+            settingsRepository.updateRefreshTime()
         }
+            .finally {
+                with(stateRepository) {
+                    updateSnapshotState(DownloadResourcesState.Finished)
+                    updateDetailState(DownloadResourcesState.Finished)
+                }
+            }
 
     private suspend fun downloadTasks(profileId: ProfileIdentifier): Int =
         withContext(NonCancellable) {

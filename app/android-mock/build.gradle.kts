@@ -46,6 +46,7 @@ android {
 
 dependencies {
     implementation(project(":utils"))
+    implementation(project(gematik.fhirParser))
     implementation(project(gematik.feature))
     implementation(project(gematik.demoMode))
     implementation(project(gematik.uiComponents))

@@ -41,4 +41,6 @@ interface GeneralSettings {
     suspend fun saveAllowScreenshots(allow: Boolean)
     suspend fun saveAllowTracking(allow: Boolean)
     suspend fun acceptIntegrityNotOk()
+    suspend fun updateRefreshTime()
+    fun getLastRefreshedTime(): Flow<Instant>
 }

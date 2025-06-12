@@ -16,5 +16,11 @@
         "text": "📖 **Vorlesefunktion**\nWir haben mehrere Seiten überarbeitet, damit sie von TalkBack besser vorgelesen werden können. Dadurch wird die Nutzung für sehbeeinträchtigte Personen erheblich verbessert.\n\n📞 **Erweiterte Kontaktmöglichkeiten**\nWir haben neue Kontaktoptionen für ausgewählte Versicherungen eingeführt.\n\n🔧 **Optimierte Funktionen**\nWir haben kleinere Fehler beim Auslesen der Karte behoben, den Code aufgeräumt und die Anzeige der Nachrichten verbessert.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Verordnete DiGAs einlösen**\nAb sofort können Sie Verordnungen für digitale Gesundheitsanwendungen (DiGAs) direkt über die E-Rezept App einlösen. Den Freischaltcode und den Link zur verschriebenen App erhalten Sie direkt nach der Einlösung.\n\n**🏥 Neue Apothekendatenbank**\nWir haben eine neue, zukunftssichere Datenbank für die Apothekensuche eingeführt.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

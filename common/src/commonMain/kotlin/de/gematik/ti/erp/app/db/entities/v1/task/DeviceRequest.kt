@@ -18,8 +18,18 @@
 
 package de.gematik.ti.erp.app.db.entities.v1.task
 
+import de.gematik.ti.erp.app.db.toInstant
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.fhir.model.DigaStatus.CompletedWithRejection
+import de.gematik.ti.erp.app.fhir.model.DigaStatus.DownloadDigaApp
+import de.gematik.ti.erp.app.fhir.model.DigaStatus.InProgress
+import de.gematik.ti.erp.app.fhir.model.DigaStatus.OpenAppWithRedeemCode
+import de.gematik.ti.erp.app.fhir.model.DigaStatus.ReadyForSelfArchiveDiga
+import de.gematik.ti.erp.app.fhir.model.DigaStatus.SelfArchiveDiga
 import io.realm.kotlin.types.RealmInstant
 import io.realm.kotlin.types.RealmObject
+import de.gematik.ti.erp.app.fhir.model.DigaStatusSteps.CompletedWithRejection as DigaStepCompletedWithRejection
+import de.gematik.ti.erp.app.fhir.model.DigaStatusSteps.InProgress as DigaStepInProgress
 
 class DeviceRequestEntityV1 : RealmObject {
     var id: String = ""
@@ -32,4 +42,38 @@ class DeviceRequestEntityV1 : RealmObject {
     var accidentType: String = ""
     var accidentLocation: String = ""
     var accidentDate: RealmInstant? = null
+
+    // User action states mapped to step numbers:
+    // 2  -> InProgress
+    // 4  -> DownloadDigaApp
+    // 5  -> OpenAppWithRedeemCode
+    // 6  -> ReadyForSelfArchiveDiga
+    // 7  -> SelfArchiveDiga
+    var userActionState: Int? = null
+
+    // time when dispenseRequest communication was sent
+    var sentCommunicationOn: RealmInstant? = null
+    var isNew: Boolean = true
+    var isArchived: Boolean = false
+
+    @Suppress("MagicNumber")
+    companion object {
+
+        private val userActionSteps: Map<Int, DigaStatus> = listOf(
+            DownloadDigaApp,
+            OpenAppWithRedeemCode,
+            ReadyForSelfArchiveDiga,
+            SelfArchiveDiga
+        ).associateBy { it.step }
+
+        fun DeviceRequestEntityV1.getDigaStatusForUserAction(): DigaStatus? {
+            return userActionState?.let { step ->
+                when (step) {
+                    DigaStepInProgress.step -> InProgress(sentCommunicationOn?.toInstant())
+                    DigaStepCompletedWithRejection.step -> CompletedWithRejection(sentCommunicationOn?.toInstant())
+                    else -> userActionSteps[step]
+                }
+            }
+        }
+    }
 }

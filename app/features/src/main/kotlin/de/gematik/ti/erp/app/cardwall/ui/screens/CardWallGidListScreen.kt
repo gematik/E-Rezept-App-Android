@@ -59,6 +59,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
@@ -69,9 +70,7 @@ import de.gematik.ti.erp.app.cardwall.ui.components.GidScreenHeaderSection
 import de.gematik.ti.erp.app.cardwall.ui.preview.HealthInsuranceDataPreviewParameterProvider
 import de.gematik.ti.erp.app.column.ColumnItems
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.idp.model.HealthInsuranceData
-import de.gematik.ti.erp.app.idp.model.HealthInsuranceData.Companion.isPkv
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -135,8 +134,10 @@ class CardWallGidListScreen(
             intentHandler.tryStartingExternalHealthInsuranceAuthenticationApp(
                 redirect = redirectUri,
                 onSuccess = {
-                    if (healthInsuranceData.isPkv()) {
+                    if (healthInsuranceData.isPKV) {
                         controller.switchToPKV(profileId)
+                    } else {
+                        controller.switchToGKV(profileId)
                     }
                     navController.popBackStack(CardWallRoutes.CardWallIntroScreen.route, inclusive = true)
                 },

@@ -30,10 +30,10 @@ class PharmacyRemoteSelectorLocalDataSource(
 ) {
 
     fun getPharmacyVzdService(): PharmacyVzdService = if (isRelease) {
-        PharmacyVzdService.APOVZD
+        PharmacyVzdService.FHIRVZD
     } else {
         realm.query<PharmacyRemoteDataSourceSelectionEntityV1>().first().find()
-            ?.pharmacyServiceEnum ?: PharmacyVzdService.APOVZD
+            ?.pharmacyServiceEnum ?: PharmacyVzdService.FHIRVZD
     }
 
     suspend fun updatePharmacyService(service: PharmacyVzdService) {

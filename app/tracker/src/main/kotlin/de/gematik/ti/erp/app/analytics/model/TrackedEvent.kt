@@ -24,8 +24,9 @@ sealed class TrackedEvent(
     val key: ContentSquareEventMapper,
     val value: String
 ) {
-    class ArchivePrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.ArchivePrescriptionCount, "$count")
-    class SyncedPrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.SyncedPrescriptionCount, "$count")
-    class ScannedPrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.ScannedPrescriptionCount, "$count")
-    class MessageCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.MessageCount, "$count")
+    data class ArchivePrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.ArchivePrescriptionCount, "$count")
+    data class SyncedPrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.SyncedPrescriptionCount, "$count")
+    data class ScannedPrescriptionCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.ScannedPrescriptionCount, "$count")
+    data class MessageCount(val count: Int) : TrackedEvent(ContentSquareEventMapper.MessageCount, "$count")
+    data object DigaFeedbackAccepted : TrackedEvent(ContentSquareEventMapper.DigaFeedbackAccepted, "yes")
 }

@@ -16,6 +16,8 @@
  * See the Licence for the specific language governing permissions and limitations under the Licence.
  */
 
+@file:Suppress("MagicNumber")
+
 package de.gematik.ti.erp.gradleplugins.reports.html
 
 import de.gematik.ti.erp.gradleplugins.model.AnnotationBody
@@ -182,8 +184,75 @@ fun FlowOrHeadingContent.subTitle(body: AnnotationBody) {
 }
 
 fun FlowContent.description(value: String) {
-    p { +value }
+    val (intro, listLines, outro) = splitRationaleLines(value.lines())
+
+    if (intro.isNotBlank()) {
+        p { renderInlineCode(intro) }
+    }
+
+    if (listLines.isNotEmpty()) {
+        ul {
+            listLines.forEach {
+                li {
+                    renderInlineCode(
+                        it.trimStart()
+                            .removePrefix("•")
+                            .removePrefix("✅")
+                            .removePrefix("-")
+                            .trim()
+                    )
+                }
+            }
+        }
+    }
+
+    if (outro.isNotBlank()) {
+        p { renderInlineCode(outro) }
+    }
 }
+
+fun FlowContent.renderInlineCode(text: String) {
+    val regex = Regex("`([^`]+)`")
+    var lastIndex = 0
+
+    regex.findAll(text).forEach { match ->
+        val before = text.substring(lastIndex, match.range.first)
+        if (before.isNotEmpty()) +before
+        code { +match.groupValues[1] }
+        lastIndex = match.range.last + 1
+    }
+
+    val after = text.substring(lastIndex)
+    if (after.isNotEmpty()) +after
+}
+
+private fun splitRationaleLines(lines: List<String>): Triple<String, List<String>, String> {
+    val nonEmptyLines = lines.filter { it.isNotBlank() }
+
+    val bulletStartIndex = nonEmptyLines.indexOfFirst { it.trimStart().startsWithAny("•", "✅", "-") }
+    val bulletEndIndex = nonEmptyLines.indexOfLast { it.trimStart().startsWithAny("•", "✅", "-") }
+
+    // If there are no bullet points at all
+    if (bulletStartIndex == -1) {
+        val introOnly = nonEmptyLines.joinToString(" ").trim()
+        return Triple(introOnly, emptyList(), "")
+    }
+
+    val intro = if (bulletStartIndex > 0) {
+        nonEmptyLines.subList(0, bulletStartIndex).joinToString(" ").trim()
+    } else ""
+
+    val bullets = nonEmptyLines.subList(bulletStartIndex, bulletEndIndex + 1)
+
+    val outro = if (bulletEndIndex + 1 < nonEmptyLines.size) {
+        nonEmptyLines.subList(bulletEndIndex + 1, nonEmptyLines.size).joinToString(" ").trim()
+    } else ""
+
+    return Triple(intro, bullets, outro)
+}
+
+private fun String.startsWithAny(vararg prefixes: String): Boolean =
+    prefixes.any { this.trimStart().startsWith(it) }
 
 private fun FlowOrPhrasingContent.fileLink(body: AnnotationBody) {
     sub {

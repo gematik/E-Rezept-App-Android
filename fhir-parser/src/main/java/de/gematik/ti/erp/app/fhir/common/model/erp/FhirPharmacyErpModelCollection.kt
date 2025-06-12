@@ -41,3 +41,6 @@ data class FhirPharmacyErpModelCollection(
             )
     }
 }
+
+@Serializable
+data class FhirInstitutionTelematikId(val id: String) : FhirErpModel

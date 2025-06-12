@@ -39,7 +39,7 @@ import de.gematik.ti.erp.app.cardwall.ui.components.CardWallBottomBar
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.screens.CAN_LENGTH
 import de.gematik.ti.erp.app.cardwall.ui.screens.CanScreenContent
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode

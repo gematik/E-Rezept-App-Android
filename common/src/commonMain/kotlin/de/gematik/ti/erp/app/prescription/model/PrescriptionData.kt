@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.prescription.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
@@ -30,6 +31,7 @@ import kotlinx.serialization.json.JsonContentPolymorphicSerializer
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonObject
 
+@Deprecated("Use Prescription instead")
 object PrescriptionData {
     @Immutable
     sealed interface Prescription {
@@ -74,14 +76,13 @@ object PrescriptionData {
         val organization: SyncedTaskData.Organization = task.organization
         val medicationRequest: SyncedTaskData.MedicationRequest = task.medicationRequest
         val medicationDispenses: List<SyncedTaskData.MedicationDispense> = task.medicationDispenses
-
         val isDirectAssignment = task.isDirectAssignment()
         val isSubstitutionAllowed = task.medicationRequest.substitutionAllowed
         val isDeletable = task.isDeletable()
         val isDispensed = task.medicationDispenses.isNotEmpty()
         val isIncomplete = task.isIncomplete
-
         val failureToReport = task.failureToReport
+        val deviceRequest: FhirTaskKbvDeviceRequestErpModel? = task.deviceRequest
     }
 
     @Serializable(with = MedicationInterfaceSerializer::class)

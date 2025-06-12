@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.mocks.pharmacy.model
 
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
 import de.gematik.ti.erp.app.mocks.order.model.PHARMACY_ID
@@ -49,7 +49,7 @@ val PHARMACY_DATA = Pharmacy(
 val PHARMACY_DATA_FHIR = FhirPharmacyErpModel(
     id = PHARMACY_ID,
     name = PHARMACY_NAME,
-    address = FhirAddressErpModel("", "", ""),
+    address = FhirPharmacyAddressErpModel("", "", ""),
     contact = FhirContactInformationErpModel("", "", "", "", "", ""),
     specialities = emptyList(),
     position = null,

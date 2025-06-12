@@ -38,6 +38,7 @@ import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
@@ -174,7 +175,8 @@ class CommonIdpRepositoryTest : TestDB() {
                     IdentifierEntityV1::class,
                     AuthenticationEntityV1::class,
                     AuthenticationPasswordEntityV1::class,
-                    DeviceRequestEntityV1::class
+                    DeviceRequestEntityV1::class,
+                    DeviceRequestDispenseEntityV1::class
                 )
             )
                 .schemaVersion(SchemaVersion.ACTUAL)

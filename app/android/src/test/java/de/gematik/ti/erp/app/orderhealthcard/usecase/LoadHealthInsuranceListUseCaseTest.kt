@@ -18,37 +18,70 @@
 
 package de.gematik.ti.erp.app.orderhealthcard.usecase
 
+import android.content.Context
+import android.content.res.AssetFileDescriptor
+import android.content.res.Resources
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.resetMain
+import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.setMain
+import org.junit.After
+import org.junit.Before
 import org.junit.Test
+import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.FileInputStream
 import kotlin.test.assertEquals
 
-private val contacts = """
-    [
-       {
-          "name":"Kasse 1",
-          "healthCardAndPinPhone":"+123123",
-          "healthCardAndPinMail":"TestMail@test.de",
-          "healthCardAndPinUrl":"https://www.TestURL.de/",
-          "pinUrl":"https://www.TestPinURL.de/",
-          "subjectCardAndPinMail":"testHeader",
-          "bodyCardAndPinMail":"testBody",
-          "subjectPinMail":"testHeader",
-          "bodyPinMail":"testBody"
-       },
-       {
-          "name":"Kasse 2",
-          "healthCardAndPinPhone":null,
-          "healthCardAndPinMail":null,
-          "healthCardAndPinUrl":null,
-          "pinUrl":null,
-          "subjectCardAndPinMail":null,
-          "bodyCardAndPinMail":null,
-          "subjectPinMail":null,
-          "bodyPinMail":null
-       }
-    ]
-""".trimIndent()
-
+@OptIn(ExperimentalCoroutinesApi::class)
 class LoadHealthInsuranceListUseCaseTest {
+
+    private val testDispatcher = StandardTestDispatcher()
+    private lateinit var context: Context
+    private lateinit var resources: Resources
+    private lateinit var afd: AssetFileDescriptor
+
+    @Before
+    fun setup() {
+        Dispatchers.setMain(testDispatcher)
+
+        // Setup mocked context and resource access
+        context = mockk()
+        resources = mockk()
+        afd = mockk()
+    }
+
+    @After
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
+    @Test
+    fun `test loading the data from file`() = runTest {
+        val tempFile = File.createTempFile("test-health-companies", ".json")
+        tempFile.writeText(contacts)
+        val fileInputStream = FileInputStream(tempFile)
+        val afd = mockk<AssetFileDescriptor>()
+        every { afd.createInputStream() } returns fileInputStream
+
+        every { resources.openRawResourceFd(any()) } returns afd
+        every { context.resources } returns resources
+
+        val useCase = LoadHealthInsuranceListUseCase(context, testDispatcher)
+        val result = useCase().first()
+
+        assertEquals(2, result.size)
+        assertEquals("Kasse 1", result[0].name)
+        assertEquals("Kasse 2", result[1].name)
+
+        fileInputStream.close()
+        tempFile.delete()
+    }
 
     @Test
     fun `test loadHealthInsuranceContactsFromCSV() with expected data`() {
@@ -73,5 +106,37 @@ class LoadHealthInsuranceListUseCaseTest {
             assertEquals(null, it[1].subjectPinMail)
             assertEquals(null, it[1].bodyPinMail)
         }
+    }
+
+    companion object {
+        private val contacts =
+            """
+                [
+                   {
+                      "name":"Kasse 1",
+                      "healthCardAndPinPhone":"+123123",
+                      "healthCardAndPinMail":"TestMail@test.de",
+                      "healthCardAndPinUrl":"https://www.TestURL.de/",
+                      "pinUrl":"https://www.TestPinURL.de/",
+                      "subjectCardAndPinMail":"testHeader",
+                      "bodyCardAndPinMail":"testBody",
+                      "subjectPinMail":"testHeader",
+                      "bodyPinMail":"testBody"
+                   },
+                   {
+                      "name":"Kasse 2",
+                      "healthCardAndPinPhone":null,
+                      "healthCardAndPinMail":null,
+                      "healthCardAndPinUrl":null,
+                      "pinUrl":null,
+                      "subjectCardAndPinMail":null,
+                      "bodyCardAndPinMail":null,
+                      "subjectPinMail":null,
+                      "bodyPinMail":null
+                   }
+                ]
+            """.trimIndent()
+
+        private val mockInputStream = ByteArrayInputStream(contacts.toByteArray())
     }
 }

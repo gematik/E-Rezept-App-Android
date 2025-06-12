@@ -24,27 +24,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
@@ -58,7 +51,8 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.base.ClipBoardCopy
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutesBackStackEntryArguments
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData
@@ -74,7 +68,6 @@ import de.gematik.ti.erp.app.utils.compose.ClickableAnnotatedText
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
-import de.gematik.ti.erp.app.utils.compose.copyToClipboardWithHaptic
 import de.gematik.ti.erp.app.utils.compose.createBitMatrix
 import de.gematik.ti.erp.app.utils.compose.createPhoneNumberAnnotations
 import de.gematik.ti.erp.app.utils.compose.drawDataMatrix
@@ -92,19 +85,18 @@ import java.time.format.FormatStyle
 class MessageBottomSheetScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
-) : BottomSheetScreen(forceToMaxHeight = true) {
+) : BottomSheetScreen(forceToMaxHeight = true, withCloseButton = true) {
     @Composable
     override fun Content() {
         val arguments = MessagesRoutesBackStackEntryArguments(navBackStackEntry)
-
-        arguments.getOrderDetail()?.let { orderDetail ->
-            arguments.getSelectedMessage()?.let { message ->
-                MessageBottomSheetScreenContent(
-                    order = orderDetail,
-                    message = message,
-                    onClickClose = { navController.popBackStack() }
-                )
-            }
+        letNotNull(
+            arguments.orderDetail,
+            arguments.selectedMessage
+        ) { orderDetail, message ->
+            MessageBottomSheetScreenContent(
+                order = orderDetail,
+                message = message
+            )
         } ?: run {
             ErrorScreenComponent()
         }
@@ -114,37 +106,15 @@ class MessageBottomSheetScreen(
 @Composable
 fun MessageBottomSheetScreenContent(
     order: OrderUseCaseData.OrderDetail?,
-    message: OrderUseCaseData.Message?,
-    onClickClose: () -> Unit
+    message: OrderUseCaseData.Message?
 ) {
     Column(
         Modifier
             .fillMaxWidth()
             .padding(horizontal = PaddingDefaults.Medium)
-            .padding(bottom = PaddingDefaults.Large, top = PaddingDefaults.Medium)
+            .padding(bottom = PaddingDefaults.Large)
             .navigationBarsPadding()
     ) {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = PaddingDefaults.Small),
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconButton(
-                onClick = onClickClose,
-                modifier = Modifier
-                    .padding(top = SizeDefaults.one)
-            ) {
-                Box(
-                    Modifier
-                        .size(SizeDefaults.fourfold)
-                        .background(AppTheme.colors.neutral100, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Rounded.Close, contentDescription = null, tint = AppTheme.colors.neutral600)
-                }
-            }
-        }
         SpacerMedium()
         if (order == null && message == null) {
             ErrorScreenComponent(noMaxSize = true)
@@ -162,6 +132,7 @@ fun MessageBottomSheetScreenContent(
                     OrderUseCaseData.Message.Type.Link -> LinkSheetContent(message)
                     OrderUseCaseData.Message.Type.PickUpCodeDMC,
                     OrderUseCaseData.Message.Type.PickUpCodeHR -> CodeSheetContent(message)
+
                     OrderUseCaseData.Message.Type.Text -> TextSheetContent(message)
                     OrderUseCaseData.Message.Type.Empty -> EmptySheetContent(order.pharmacy.pharmacyName())
                 }
@@ -223,7 +194,6 @@ fun TextSheetContent(
     message: OrderUseCaseData.Message,
     modifier: Modifier = Modifier
 ) {
-    val clipboardManager = LocalClipboardManager.current
     val hapticFeedback = LocalHapticFeedback.current
     val context = LocalContext.current
 
@@ -248,9 +218,10 @@ fun TextSheetContent(
                 context.startActivity(intent)
             },
             onLongPress = {
-                copyToClipboardWithHaptic(
+                ClipBoardCopy.copyToClipboardWithHaptic(
+                    context = context,
                     text = messageText,
-                    clipboardManager = clipboardManager,
+                    label = "",
                     hapticFeedback = hapticFeedback
                 )
             },
@@ -398,8 +369,7 @@ fun MessageBottomSheetScreenContentNoOrderEmptyPreview() {
     PreviewAppTheme {
         MessageBottomSheetScreenContent(
             order = null,
-            message = null,
-            onClickClose = {}
+            message = null
         )
     }
 }
@@ -412,8 +382,7 @@ fun MessageBottomSheetScreenContentPreview(
     PreviewAppTheme {
         MessageBottomSheetScreenContent(
             order = MessageSheetsPreviewData.ORDER_DETAIL_PREVIEW,
-            message = message,
-            onClickClose = {}
+            message = message
         )
     }
 }

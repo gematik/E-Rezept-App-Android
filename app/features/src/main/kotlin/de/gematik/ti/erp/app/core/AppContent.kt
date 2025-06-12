@@ -75,11 +75,11 @@ import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.demomode.ui.DemoModeStatusBar
 import de.gematik.ti.erp.app.demomode.ui.checkForDemoMode
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.settings.presentation.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import kotlinx.coroutines.Job
+import de.gematik.ti.erp.app.app_core.R
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay

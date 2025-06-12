@@ -29,16 +29,13 @@ import android.content.res.Resources
 import android.net.Uri
 import android.text.format.DateFormat
 import android.util.Patterns
-import android.widget.Toast
 import androidx.activity.addCallback
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -79,7 +76,6 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.KeyboardArrowRight
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
@@ -98,16 +94,11 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.hapticfeedback.HapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.SubcomposeLayout
-import androidx.compose.ui.platform.ClipboardManager
-import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -133,11 +124,12 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.net.toUri
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalTimeZone
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -145,7 +137,6 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.extensions.openUriWhenValid
-import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Instant
 import kotlinx.datetime.format
@@ -336,6 +327,37 @@ fun NavigationTopAppBar(
             }
         } else {
             Text(title, overflow = TextOverflow.Ellipsis)
+        }
+    },
+    backgroundColor = backgroundColor,
+    navigationIcon = {
+        when (navigationMode) {
+            NavigationBarMode.Back -> NavigateBackButton { onBack() }
+            NavigationBarMode.Close -> NavigationClose { onBack() }
+            else -> {}
+        }
+    },
+    elevation = elevation,
+    actions = actions
+)
+
+@Composable
+fun NavigationTopAppBar(
+    modifier: Modifier = Modifier,
+    navigationMode: NavigationBarMode?,
+    title: @Composable () -> Unit,
+    isTitleCentered: Boolean = false,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    elevation: Dp = AppBarDefaults.TopAppBarElevation,
+    actions: @Composable RowScope.() -> Unit = {},
+    onBack: () -> Unit
+) = TopAppBar(
+    modifier = modifier.semanticsHeading(),
+    title = {
+        if (isTitleCentered) {
+            Center { title() }
+        } else {
+            title()
         }
     },
     backgroundColor = backgroundColor,
@@ -554,27 +576,6 @@ fun annotatedStringBold(text: String) =
         }
     }
 
-@Composable
-fun annotatedLinkUnderlined(fullText: String, clickableText: String, tag: String): AnnotatedString {
-    val startIndex = fullText.indexOf(clickableText)
-    val endIndex = startIndex + clickableText.length
-
-    return buildAnnotatedString {
-        append(fullText)
-        addStyle(
-            style = SpanStyle(color = AppTheme.colors.primary700, textDecoration = TextDecoration.Underline),
-            start = startIndex,
-            end = endIndex
-        )
-        addStringAnnotation(
-            tag = tag,
-            start = startIndex,
-            end = endIndex,
-            annotation = clickableText
-        )
-    }
-}
-
 @Deprecated(
     "Please do not use this function anymore. Use ErezeptAlertDialog instead.",
     replaceWith = ReplaceWith("de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog"),
@@ -716,6 +717,12 @@ fun provideEmailIntent(address: String, subject: String? = null, body: String? =
     }
 
 fun provideWebIntent(address: String) = Intent(Intent.ACTION_VIEW, Uri.parse(address))
+
+fun provideWebIntentAsNewTask(url: String): Intent {
+    return Intent(Intent.ACTION_VIEW, url.toUri()).apply {
+        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+    }
+}
 
 fun providePhoneIntent(phoneNumber: String) =
     Intent(Intent.ACTION_DIAL, Uri.parse("tel:$phoneNumber"))
@@ -971,66 +978,6 @@ fun LabeledText(descriptionResource: Int, content: String?) {
     LabeledText(stringResource(descriptionResource), content)
 }
 
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun Label(
-    modifier: Modifier = Modifier,
-    text: String?,
-    label: String? = null,
-    onClick: (() -> Unit)? = null
-) {
-    val haptic = LocalHapticFeedback.current
-    val clipboardManager = LocalClipboardManager.current
-    val context = LocalContext.current
-
-    val verticalPadding = if (label != null) {
-        PaddingDefaults.ShortMedium
-    } else {
-        PaddingDefaults.Medium
-    }
-
-    val noValueText = stringResource(R.string.pres_details_no_value)
-
-    Row(
-        modifier = modifier
-            .combinedClickable(
-                onClick = {
-                    onClick?.invoke()
-                },
-                onLongClick = {
-                    if (text.isNotNullOrEmpty() && text != null) {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        clipboardManager.setText(AnnotatedString(text))
-                        Toast
-                            .makeText(context, "$label $text", Toast.LENGTH_SHORT)
-                            .show()
-                    }
-                },
-                role = Role.Button
-            )
-            .padding(horizontal = PaddingDefaults.Medium, vertical = verticalPadding)
-            .fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(Modifier.weight(1f)) {
-            Text(
-                text = text ?: noValueText,
-                style = AppTheme.typography.body1
-            )
-            if (label != null) {
-                Text(
-                    text = label,
-                    style = AppTheme.typography.body2l
-                )
-            }
-        }
-        if (onClick != null) {
-            SpacerMedium()
-            Icon(Icons.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
-        }
-    }
-}
-
 @Composable
 fun HealthPortalLink(
     modifier: Modifier
@@ -1154,13 +1101,4 @@ fun ClickableAnnotatedText(
             maxLines = maxLines
         )
     }
-}
-
-fun copyToClipboardWithHaptic(
-    text: String,
-    clipboardManager: ClipboardManager,
-    hapticFeedback: HapticFeedback
-) {
-    clipboardManager.setText(AnnotatedString(text))
-    hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
 }

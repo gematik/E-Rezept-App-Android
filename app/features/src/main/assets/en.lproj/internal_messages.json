@@ -16,5 +16,11 @@
         "text": "📖 **Read-aloud function** \nWe have redesigned several pages so that they can be read aloud by TalkBack. This significantly improves usability for people with visual impairments. \n \n📞 **Extended contact options** \nWe have introduced new contact options for selected insurance companies. \n \n🔧 **Optimized functions** \nWe have fixed minor errors when reading the card, cleaned up the code and improved the display of messages.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Redeem prescribed DiGAs** \n You can now redeem prescriptions for digital health applications (DiGAs) directly via the e-prescription app. You will receive the activation code and the link to the prescribed app immediately after redemption. \n \n **🏥 New pharmacy database** \n We have introduced a new, future-proof database for pharmacy searches.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

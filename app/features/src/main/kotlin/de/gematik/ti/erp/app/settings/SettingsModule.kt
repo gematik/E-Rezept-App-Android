@@ -24,6 +24,7 @@ import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
 import de.gematik.ti.erp.app.settings.usecase.DefaultXmlResourceParserWrapper
 import de.gematik.ti.erp.app.settings.usecase.DisableDeviceSecurityUseCase
+import de.gematik.ti.erp.app.settings.usecase.EnableDeviceSecurityUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetAuthenticationUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetCanStartToolTipsUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
@@ -32,12 +33,12 @@ import de.gematik.ti.erp.app.settings.usecase.GetScreenShotsAllowedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetSupportedLanguagesFromXmlUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetZoomStateUseCase
-import de.gematik.ti.erp.app.settings.usecase.EnableDeviceSecurityUseCase
+import de.gematik.ti.erp.app.settings.usecase.HasValidDigasUseCase
 import de.gematik.ti.erp.app.settings.usecase.ResetPasswordUseCase
-import de.gematik.ti.erp.app.settings.usecase.SetPasswordUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveZoomPreferenceUseCase
+import de.gematik.ti.erp.app.settings.usecase.SetPasswordUseCase
 import de.gematik.ti.erp.app.settings.usecase.XmlResourceParserWrapper
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
@@ -61,6 +62,8 @@ val settingsModule = DI.Module("settingsModule") {
     bindProvider { ResetPasswordUseCase(instance()) }
     bindProvider { SaveZoomPreferenceUseCase(instance()) }
     bindProvider { GetOrganDonationRegisterHostsUseCase(instance()) }
+    bindProvider { HasValidDigasUseCase(instance()) }
+
     bindProvider {
         val context = instance<android.content.Context>()
         val resId = context.resources.getIdentifier(

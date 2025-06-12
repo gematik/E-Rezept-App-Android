@@ -56,7 +56,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.permissions.cameraPermission
 import de.gematik.ti.erp.app.permissions.getBitmapFromCamera

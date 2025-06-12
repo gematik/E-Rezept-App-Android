@@ -90,7 +90,10 @@ class SettingsEntityV1 : RealmObject, Cascading {
 
     var zoomEnabled: Boolean = false
     var welcomeDrawerShown: Boolean = false
+
+    // last updated time
     var time: RealmInstant = LocalDateTime(2021, 10, 15, 0, 0).toRealmInstant()
+
     var mainScreenTooltipsShown: Boolean = false
 
     var pharmacySearch: PharmacySearchEntityV1? = PharmacySearchEntityV1()

@@ -18,13 +18,14 @@
 
 package de.gematik.ti.erp.app.messages.presentation
 
-import android.content.Context
+import android.app.Application
 import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import de.gematik.ti.erp.app.base.Controller
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
@@ -49,6 +50,7 @@ import org.kodein.di.compose.rememberInstance
 
 @Stable
 class MessageDetailController(
+    application: Application,
     private val orderId: String,
     private val isLocalMessage: Boolean = false,
     private val getRepliedMessagesUseCase: GetRepliedMessagesUseCase,
@@ -58,10 +60,9 @@ class MessageDetailController(
     private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase,
     private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase,
     private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase,
-    private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase,
-    private val context: Context
-) : Controller() {
-    private val selectedAppLanguage = context.resources.configuration.locales[0].language
+    private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase
+) : AndroidViewModel(application) {
+    private val selectedAppLanguage = application.resources.configuration.locales[0].language
     internal val _localMessages = MutableStateFlow<List<InAppMessage>>(listOf())
     private val _messages = MutableStateFlow<UiState<List<OrderUseCaseData.Message>>>(UiState.Loading())
     private val _order = MutableStateFlow<UiState<OrderUseCaseData.OrderDetail>>(UiState.Loading())
@@ -85,7 +86,7 @@ class MessageDetailController(
     }
 
     private fun fetchLocalMessages() {
-        controllerScope.launch {
+        viewModelScope.launch {
             try {
                 getInternalMessagesUseCase.invoke(selectedAppLanguage).collect { messagesList ->
                     _localMessages.value = messagesList.sortedByDescending { it.timeState.timestamp }
@@ -98,7 +99,7 @@ class MessageDetailController(
     }
 
     private fun loadOrdersAndInvoiceMessage() {
-        controllerScope.launch {
+        viewModelScope.launch {
             val result = runCatching {
                 getMessageUsingOrderIdUseCase(orderId)
             }
@@ -118,7 +119,7 @@ class MessageDetailController(
     }
 
     private fun loadReplyMessages() {
-        controllerScope.launch {
+        viewModelScope.launch {
             _order.collect { state ->
                 if (state.isDataState) {
                     state.data?.pharmacy?.id?.let { telematikId ->
@@ -130,8 +131,10 @@ class MessageDetailController(
                             if (messageList.isEmpty()) {
                                 _messages.value = UiState.Empty()
                             } else {
-                                val newMessageList = messageList.map {
-                                    it.copy(prescriptions = getPrescriptions(it.taskIds, state.data))
+                                val newMessageList = messageList.mapNotNull { message ->
+                                    state.data?.let {
+                                        message.copy(prescriptions = getPrescriptions(message.taskIds, it))
+                                    }
                                 }
                                 _messages.value = UiState.Data(newMessageList)
                             }
@@ -150,7 +153,7 @@ class MessageDetailController(
     }
 
     fun consumeAllMessages(onMessagesConsumed: () -> Unit) {
-        controllerScope.launch {
+        viewModelScope.launch {
             // Marks the replied messages as read
             _messages.value.data?.forEach { message ->
                 updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Communication(message.communicationId))
@@ -171,7 +174,7 @@ class MessageDetailController(
     }
 
     private fun getPharmacy(telematikId: String) {
-        controllerScope.launch {
+        viewModelScope.launch {
             getPharmacyByTelematikIdUseCase(telematikId).fold(onSuccess = { pharmacy ->
                 if (pharmacy != null) {
                     _pharmacy.value = UiState.Data(pharmacy)
@@ -185,7 +188,7 @@ class MessageDetailController(
     }
 
     private fun loadProfile() {
-        controllerScope.launch {
+        viewModelScope.launch {
             getProfileByOrderIdUseCase(orderId).collect { profile ->
                 _profile.value = profile
             }
@@ -206,7 +209,7 @@ fun rememberMessageDetailController(
     val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase by rememberInstance()
     val getPharmacyByTelematikIdUseCase by rememberInstance<GetPharmacyByTelematikIdUseCase>()
     val getProfileByOrderIdUseCase by rememberInstance<GetProfileByOrderIdUseCase>()
-    val context = LocalContext.current
+    val application = LocalContext.current.applicationContext as Application
 
     return remember(orderId) {
         MessageDetailController(
@@ -220,7 +223,7 @@ fun rememberMessageDetailController(
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
-            context = context
+            application = application
         )
     }
 }

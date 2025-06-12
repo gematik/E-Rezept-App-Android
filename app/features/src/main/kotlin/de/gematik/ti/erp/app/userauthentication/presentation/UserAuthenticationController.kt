@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder

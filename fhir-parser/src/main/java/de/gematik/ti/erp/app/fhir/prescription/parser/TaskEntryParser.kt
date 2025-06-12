@@ -18,15 +18,16 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.parser
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskEntryParserResultErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle.Companion.getBundleEntries
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleMetaProfile.Companion.containsExpectedProfileVersionForTaskEntryPhase
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleTaskData.Companion.getTaskData
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPrescriptionId
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTaskResource.Companion.getResourceIdentifiers
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle.Companion.getBundleEntries
-import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleTaskData.Companion.getTaskData
 import de.gematik.ti.erp.app.utils.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 
@@ -42,8 +43,21 @@ import kotlinx.serialization.json.JsonElement
  * @param bundle The `JsonElement` representing the FHIR bundle.
  * @return A `TaskEntryParserResult` containing the total number of bundle entries and a list of extracted `TaskEntryData`.
  */
+@Requirement(
+    "O.Source_2#7",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = """
+       The parser ensures structured FHIR input is sanitized and validated and safely handled by:
+            • Using the `getBundleEntries` which only passes it, if it has resources. [sanitization]
+            • Using `resource.getTaskData` which picks the `status`, and `lastModified` when the structure allows it. [sanitization]
+            • Obtaining the `taskId` when the required identifier is present and matching it with the `PRESCRIPTION_ID_SYSTEM` when it is present. [sanitization]          
+            • Accepting only resources that declare a known Task profile version via `containsExpectedProfileVersionForTaskEntryPhase`. [validation]           
+            • Preventing mapping of malformed, incomplete, or untrusted JSON elements by rejecting entries that fail validation at any step. 
+            This satisfies the requirement to escape, reject, or sanitize structured data before internal processing to protect against malformed or malicious FHIR content. 
+    """
+)
 class TaskEntryParser : BundleParser {
-    override fun extract(bundle: JsonElement): FhirTaskEntryParserResultErpModel? {
+    override fun extract(bundle: JsonElement): FhirTaskEntryParserResultErpModel {
         val resources = bundle.getBundleEntries()
         val bundleTotal = resources.size
 

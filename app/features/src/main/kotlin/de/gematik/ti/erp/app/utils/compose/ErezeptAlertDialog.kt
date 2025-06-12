@@ -50,7 +50,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -145,7 +145,7 @@ fun ErezeptAlertDialogWithOnlyBodyPreview() {
 
 //endregion
 
-//region Alert dialog with one button
+//region Alert dialog with title and one button
 @Composable
 fun ErezeptAlertDialog(
     modifier: Modifier = Modifier,
@@ -200,6 +200,47 @@ fun ErezeptAlertDialogWithIconPreview() {
         )
     }
 }
+//endregion
+
+//region Alert dialog with body and one button
+@Composable
+fun ErezeptAlertDialog(
+    modifier: Modifier = Modifier,
+    body: String,
+    dismissButtonTestTag: String = TestTag.AlertDialog.CancelButton,
+    dismissText: String = stringResource(R.string.ok),
+    titleAlignment: TextAlignment = Center,
+    buttonsArrangement: Arrangement.Horizontal = Arrangement.End,
+    dismissButtonIcon: ImageVector? = null,
+    onDismissRequest: () -> Unit
+) {
+    InternalErezeptAlertDialog(
+        modifier = modifier,
+        title = null,
+        titleAlignment = titleAlignment,
+        body = body,
+        buttonsArrangement = buttonsArrangement,
+        dismissButtonTestTag = dismissButtonTestTag,
+        dismissText = dismissText,
+        dismissButtonIcon = dismissButtonIcon,
+        onConfirmRequest = onDismissRequest,
+        onDismissRequest = onDismissRequest,
+        onDismissButtonRequest = onDismissRequest
+    )
+}
+
+@LightDarkPreview
+@Composable
+fun ErezeptAlertBodyOneButtonsDialogPreview() {
+    PreviewAppTheme {
+        ErezeptAlertDialog(
+            body = "A dialog with body and one button",
+            dismissText = "Cancel",
+            onDismissRequest = {}
+        )
+    }
+}
+
 //endregion
 
 //region Alert dialog with two buttons

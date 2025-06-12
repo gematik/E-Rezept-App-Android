@@ -1,44 +1,47 @@
 import extensions.detektComposeRules
-import extensions.sourcesKt
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektPlugin
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
-import org.gradle.api.artifacts.VersionCatalog
-import org.gradle.api.artifacts.VersionCatalogsExtension
-import org.gradle.kotlin.dsl.apply
-import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.dependencies
-import org.gradle.kotlin.dsl.getByType
-import org.gradle.kotlin.dsl.withType
 
-val libs: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
+val versionCatalog: VersionCatalog = extensions.getByType<VersionCatalogsExtension>().named("libs")
 
 apply<DetektPlugin>()
 
 dependencies {
-    "detektPlugins"(libs.detektComposeRules)
+    "detektPlugins"(versionCatalog.detektComposeRules)
 }
 
-@Suppress("SpreadOperator")
-configure<DetektExtension> {
-    autoCorrect = false
-    source = fileTree(rootDir) {
-        include(sourcesKt)
-    }.filter { it.extension != "kts" }
-        .map { it.parentFile }
-        .let {
-            files(*it.toTypedArray())
+afterEvaluate {
+    // Dynamically calculate source roots
+    val detektSources = rootProject.subprojects
+        .flatMap { project ->
+            val srcDir = File(project.projectDir, "src")
+            if (srcDir.exists()) {
+                project.fileTree(srcDir) {
+                    include("**/*.kt")
+                }.files
+            } else {
+                emptySet()
+            }
         }
-    parallel = true
-    config = files("${rootDir}/config/detekt/detekt.yml")
-    baseline = file("${rootDir}config/detekt/baseline.xml")
-    buildUponDefaultConfig = false
-    allRules = false
-    disableDefaultRuleSets = false
-    debug = false
-    ignoreFailures = false
-}
+        .filter { it.exists() }
+        .map { it.parentFile }
+        .toSet()
 
-tasks.withType<Detekt>().configureEach {
-    exclude("**/resources/**,**/build/**")
+    configure<DetektExtension> {
+        autoCorrect = false
+        source.setFrom(files(detektSources))
+        parallel = true
+        config.setFrom(files("${rootDir}/config/detekt/detekt.yml"))
+        baseline = file("${rootDir}/config/detekt/baseline.xml")
+        buildUponDefaultConfig = true
+        allRules = false
+        disableDefaultRuleSets = false
+        debug = false
+        ignoreFailures = false
+    }
+
+    tasks.withType<Detekt>().configureEach {
+        exclude("**/resources/**", "**/build/**")
+    }
 }

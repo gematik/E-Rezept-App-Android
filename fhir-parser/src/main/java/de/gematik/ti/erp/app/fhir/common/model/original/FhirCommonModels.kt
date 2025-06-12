@@ -18,6 +18,9 @@
 
 package de.gematik.ti.erp.app.fhir.common.model.original
 
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatioValue.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions
@@ -25,9 +28,6 @@ import de.gematik.ti.erp.app.fhir.constant.FhirVersions.SupportedFhirKbvMetaProf
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_KBV_META_PROFILE_ERP_REGEX
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_KBV_META_PROFILE_EVDGA_REGEX
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirKbvResourceType
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirAddressLineSerializer
 import io.github.aakira.napier.Napier
@@ -51,7 +51,7 @@ internal data class FhirBundleMetaProfile(
          * @receiver The `JsonElement` representing a FHIR resource.
          * @return A list of profile URLs found in the `meta.profile` field.
          */
-        private fun JsonElement.getProfiles(): List<String> {
+        internal fun JsonElement.getProfilesFromJson(): List<String> {
             return try {
                 SafeJson.value.decodeFromJsonElement<FhirBundleMetaProfile>(
                     serializer(),
@@ -64,7 +64,7 @@ internal data class FhirBundleMetaProfile(
         }
 
         fun JsonElement.containsExpectedProfileVersionForTaskEntryPhase(): Boolean {
-            return this.getProfiles().any { profile ->
+            return this.getProfilesFromJson().any { profile ->
                 FhirVersions.TASK_ENTRY_PROFILE_REGEX.matchEntire(profile)
                     ?.groupValues?.get(1) in FhirVersions.SUPPORTED_TASK_ENTRY_PROFILE_VERSIONS
             }
@@ -87,7 +87,7 @@ internal data class FhirBundleMetaProfile(
          */
         fun JsonElement.containsExpectedProfileVersionForTaskKbvPhase(): Boolean {
             // profiles which don't have device request follow this rule
-            val nonDeviceRequestMatches = this.getProfiles()
+            val nonDeviceRequestMatches = this.getProfilesFromJson()
                 .map { profile ->
                     TASK_KBV_META_PROFILE_ERP_REGEX.matchEntire(profile)
                         ?.groupValues?.get(1)
@@ -96,7 +96,7 @@ internal data class FhirBundleMetaProfile(
                 }
 
             // profiles which have device request follow this rule
-            val deviceRequestMatches = this.getProfiles()
+            val deviceRequestMatches = this.getProfilesFromJson()
                 .map { profile ->
                     TASK_KBV_META_PROFILE_EVDGA_REGEX.matchEntire(profile)
                         ?.groupValues?.get(1)
@@ -119,17 +119,45 @@ internal data class FhirMeta(
     }
 }
 
+/**
+ * A lightweight model representing a FHIR Task resource that contains a list of identifiers.
+ *
+ * This class is primarily used for extracting identifier values from a raw FHIR JSON element.
+ *
+ * @property identifiers A list of [FhirIdentifier] objects extracted from the "identifier" field in the resource.
+ */
 @Serializable
 internal data class FhirTaskResource(
     @SerialName("identifier") val identifiers: List<FhirIdentifier> = emptyList()
 ) {
     companion object {
+        /**
+         * Parses a [JsonElement] into a [FhirTaskResource] to extract task-level identifiers.
+         *
+         * This function uses [SafeJson] for deserialization and assumes the element represents a valid
+         * FHIR resource containing an "identifier" field.
+         *
+         * @receiver The raw JSON element representing a FHIR Task resource.
+         * @return A [FhirTaskResource] instance with populated identifier list.
+         * @throws SerializationException If the JSON structure doesn't match [FhirTaskResource].
+         */
         fun JsonElement.getResourceIdentifiers(): FhirTaskResource {
             return SafeJson.value.decodeFromJsonElement<FhirTaskResource>(serializer(), this)
         }
     }
 }
 
+/**
+ * Represents a FHIR-compliant identifier object used across various FHIR resources.
+ *
+ * An identifier typically includes the system that defines it (e.g., a URI), its actual value,
+ * and optionally a coded concept that categorizes the type of identifier.
+ *
+ * @property system The system URI that defines the identifier namespace (e.g., KVNR, Telematik).
+ * @property value The actual identifier value assigned by the system.
+ * @property type An optional [FhirCodeableConcept] describing the nature of the identifier.
+ */
+// NOTE: Also used in communication dispense
 @Serializable
 internal data class FhirIdentifier(
     @SerialName("system") val system: String? = null,
@@ -138,18 +166,43 @@ internal data class FhirIdentifier(
 ) {
     companion object {
 
+        /**
+         * Finds the first identifier with the matching [system] and returns its non-blank value.
+         *
+         * @receiver List of [FhirIdentifier] to search through.
+         * @param system The identifier system URI to match.
+         * @return The corresponding identifier value, or `null` if not found or blank.
+         */
         private fun List<FhirIdentifier>.findIdentifierValue(system: String): String? {
             return this.firstOrNull { it.system == system }?.value?.takeIf { it.isNotBlank() }
         }
 
+        /**
+         * Searches for the identifier that represents a Prescription ID.
+         *
+         * @receiver List of [FhirIdentifier] objects.
+         * @return The Prescription ID value, or `null` if not present.
+         */
         fun List<FhirIdentifier>.findPrescriptionId(): String? {
             return findIdentifierValue(FhirConstants.PRESCRIPTION_ID_SYSTEM)
         }
 
+        /**
+         * Searches for the identifier that represents an Access Code.
+         *
+         * @receiver List of [FhirIdentifier] objects.
+         * @return The Access Code value, or `null` if not present.
+         */
         fun List<FhirIdentifier>.findAccessCode(): String? {
             return findIdentifierValue(FhirConstants.ACCESS_CODE_SYSTEM)
         }
 
+        /**
+         * Searches for the identifier that represents a Practitioner Identifier.
+         *
+         * @receiver List of [FhirIdentifier] objects.
+         * @return The Practitioner Identifier value, or `null` if not present.
+         */
         fun List<FhirIdentifier>.findPractitionerIdentifierValue(): String? {
             return findIdentifierValue(FhirConstants.PRACTITIONER_IDENTIFIER_NAME)
         }
@@ -169,7 +222,11 @@ internal data class FhirCoding(
 internal data class FhirCodeableConcept(
     @SerialName("coding") val coding: List<FhirCoding>? = emptyList(),
     @SerialName("text") val text: String? = null
-)
+) {
+    companion object {
+        fun FhirCodeableConcept.getCodingByUrl(url: String) = coding?.find { it.system == url }
+    }
+}
 
 @Serializable
 internal data class FhirAddress(
@@ -235,6 +292,7 @@ internal data class FhirExtension(
     @SerialName("valueCodeableConcept") val valueCodeableConcept: FhirCoding? = null,
     @SerialName("valueCode") val valueCode: String? = null,
     @SerialName("valueString") val valueString: String? = null,
+    @SerialName("valueUrl") val valueUrl: String? = null,
     @SerialName("valueDate") val valueDate: String? = null,
     @SerialName("valueBoolean") val valueBoolean: Boolean? = null,
     @SerialName("valueRatio") val valueRatio: FhirRatio? = null,
@@ -286,6 +344,15 @@ internal data class FhirPeriod(
     @SerialName("end") val end: String? = null
 )
 
+/**
+ * Validates if the JSON element represents a KBV FHIR resource of the expected type.
+ *
+ * This function checks whether the `resourceType` field of the [JsonElement] matches
+ * the expected [FhirKbvResourceType]. If it does not match, a warning is logged.
+ *
+ * @param expectedType The expected type of the FHIR KBV resource.
+ * @return `true` if the resource type matches the expected type, `false` otherwise.
+ */
 fun JsonElement.isValidKbvResource(expectedType: FhirKbvResourceType): Boolean {
     val resourceType = this.jsonObject["resourceType"]?.jsonPrimitive?.content
     return when (
@@ -304,6 +371,13 @@ fun JsonElement.isValidKbvResource(expectedType: FhirKbvResourceType): Boolean {
     }
 }
 
+/**
+ * Checks whether this [JsonElement] contains a valid FHIR `resourceType` field.
+ *
+ * This is a lightweight validation to ensure the element can be interpreted as a FHIR resource.
+ *
+ * @return `true` if the `resourceType` field exists, `false` otherwise.
+ */
 fun JsonElement.isResourceType(): Boolean {
     return (this as? JsonObject)?.containsKey("resourceType") == true
 }

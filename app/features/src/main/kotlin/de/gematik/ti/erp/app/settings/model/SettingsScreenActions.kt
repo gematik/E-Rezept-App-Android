@@ -53,6 +53,7 @@ data class ExploreClickActions(
 
 data class ContactClickActions(
     val onClickPoll: () -> Unit,
+    val onClickDigaPoll: () -> Unit,
     val onClickMail: () -> Unit,
     val onClickCall: () -> Unit
 )

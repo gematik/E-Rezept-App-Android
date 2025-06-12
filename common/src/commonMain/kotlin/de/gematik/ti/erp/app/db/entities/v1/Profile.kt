@@ -98,6 +98,7 @@ class ProfileEntityV1 : RealmObject, Cascading {
 
     var insurantName: String? = null
     var insuranceIdentifier: String? = null
+    var organizationIdentifier: String? = null
     var insuranceName: String? = null
 
     var lastAuthenticated: RealmInstant? = null

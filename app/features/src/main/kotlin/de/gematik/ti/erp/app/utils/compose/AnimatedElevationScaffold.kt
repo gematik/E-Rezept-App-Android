@@ -75,6 +75,57 @@ fun AnimatedElevationScaffold(
 
 @Composable
 fun AnimatedElevationScaffold(
+    modifier: Modifier = Modifier,
+    topBarTitle: @Composable () -> Unit,
+    topBarPadding: PaddingValues = PaddingValues.Absolute(
+        SizeDefaults.zero,
+        SizeDefaults.zero,
+        SizeDefaults.zero,
+        SizeDefaults.zero
+    ),
+    scaffoldState: ScaffoldState = rememberScaffoldState(),
+    topBarColor: Color = MaterialTheme.colors.surface,
+    navigationMode: NavigationBarMode? = NavigationBarMode.Close,
+    listState: LazyListState = rememberLazyListState(),
+    snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
+    bottomBar: @Composable () -> Unit = {},
+    actions: @Composable RowScope.() -> Unit = {},
+    onBack: () -> Unit,
+    content: @Composable (PaddingValues) -> Unit
+) {
+    val activity = LocalActivity.current as? BaseActivity
+    val padding = remember { activity?.applicationInnerPadding }
+
+    val elevated by remember {
+        derivedStateOf {
+            listState.firstVisibleItemIndex > 0 || listState.firstVisibleItemScrollOffset > 0
+        }
+    }
+
+    Scaffold(
+        modifier = modifier,
+        scaffoldState = scaffoldState,
+        topBar = {
+            NavigationTopAppBar(
+                modifier = Modifier.padding(topBarPadding),
+                navigationMode = navigationMode,
+                backgroundColor = topBarColor,
+                title = topBarTitle,
+                elevation = if (elevated) AppBarDefaults.TopAppBarElevation else SizeDefaults.zero,
+                onBack = onBack,
+                actions = actions
+            )
+        },
+        snackbarHost = snackbarHost,
+        bottomBar = bottomBar,
+        content = { innerPadding ->
+            content(padding?.combineWithInnerScaffold(innerPadding) ?: innerPadding)
+        }
+    )
+}
+
+@Composable
+fun AnimatedElevationScaffold(
     listState: LazyListState = rememberLazyListState(),
     topBar: @Composable () -> Unit,
     floatingActionButton: @Composable () -> Unit,

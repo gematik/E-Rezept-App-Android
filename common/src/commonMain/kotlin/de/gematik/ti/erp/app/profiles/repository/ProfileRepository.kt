@@ -34,6 +34,7 @@ interface ProfileRepository {
         profileId: ProfileIdentifier,
         insurantName: String,
         insuranceIdentifier: String,
+        organizationIdentifier: String,
         insuranceName: String
     )
     suspend fun updateProfileName(profileId: ProfileIdentifier, profileName: String)
@@ -45,4 +46,6 @@ interface ProfileRepository {
     suspend fun switchProfileToPKV(profileId: ProfileIdentifier): Boolean
     suspend fun switchProfileToGKV(profileId: ProfileIdentifier): Boolean
     suspend fun checkIsProfilePKV(profileId: ProfileIdentifier): Boolean
+    suspend fun getOrganizationIdentifier(profileId: ProfileIdentifier): Flow<String>
+    suspend fun updateOrganizationIdentifier(iknr: String)
 }

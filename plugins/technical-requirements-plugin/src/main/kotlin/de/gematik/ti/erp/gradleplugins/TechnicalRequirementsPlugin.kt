@@ -21,7 +21,6 @@ package de.gematik.ti.erp.gradleplugins
 import de.gematik.ti.erp.gradleplugins.Regex.ANNOTATION_REGEX
 import de.gematik.ti.erp.gradleplugins.Regex.CODE_LINES_REGEX
 import de.gematik.ti.erp.gradleplugins.Regex.QUOTES_REGEX
-import de.gematik.ti.erp.gradleplugins.Regex.RATIONALE_REGEX
 import de.gematik.ti.erp.gradleplugins.Regex.REQUIREMENT_REGEX
 import de.gematik.ti.erp.gradleplugins.Regex.SPEC_REGEX
 import de.gematik.ti.erp.gradleplugins.model.AnnotationBody
@@ -77,7 +76,8 @@ class TechnicalRequirementsPlugin : Plugin<Project> {
                     File(project.rootDir, APP_FEATURES_PATH),
                     File(project.rootDir.path, SHARED_MODULE_PATH),
                     File(project.rootDir.path, SHARED_TEST_MODULE_PATH),
-                    File(project.rootDir.path, SHARED_ANDROID_MODULE_PATH)
+                    File(project.rootDir.path, SHARED_ANDROID_MODULE_PATH),
+                    File(project.rootDir.path, FHIR_PARSER_MODULE_PATH)
                 )
                 try {
                     val requirements = generateRequirements(sourceDirs)
@@ -246,8 +246,24 @@ class TechnicalRequirementsPlugin : Plugin<Project> {
     }
 
     private fun parseRationale(annotationText: String): String {
-        val match = RATIONALE_REGEX.find(annotationText)
-        return match?.value ?: ""
+        val tripleQuoteRegex = Regex(
+            """rationale\s*=\s*\"\"\"(.*?)\"\"\"""",
+            setOf(RegexOption.DOT_MATCHES_ALL, RegexOption.MULTILINE)
+        )
+        val multiLineConcatRegex = Regex(
+            """rationale\s*=\s*((?:"[^"]*"\s*\+\s*)*"[^"]*")""",
+            RegexOption.MULTILINE
+        )
+
+        // 1. Check for triple-quoted string block
+        val tripleMatch = tripleQuoteRegex.find(annotationText)?.groupValues?.get(1)
+        if (tripleMatch != null) return tripleMatch
+
+        // 2. Fallback: extract and join concatenated strings
+        val match = multiLineConcatRegex.find(annotationText)?.groupValues?.get(1) ?: return ""
+        val stringParts = Regex(""""([^"]*)"""").findAll(match).map { it.groupValues[1] }
+
+        return stringParts.joinToString("")
     }
 
     @Suppress("MagicNumber")

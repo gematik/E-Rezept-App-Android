@@ -26,7 +26,8 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
+import de.gematik.ti.erp.app.featuretoggle.datasource.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.info.di.buildConfigInformationModule
 import de.gematik.ti.erp.app.pkv.fileProviderAuthorityModule
 import org.kodein.di.DI
@@ -87,7 +88,8 @@ val appModules = DI.Module("appModules") {
 
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }
 
-    bindSingleton { FeatureToggleManager(instance()) }
+    bindSingleton { FeatureToggleDataStore(instance()) }
+    bindSingleton { NavigationTriggerDataStore(instance()) }
 
     importAll(
         buildConfigInformationModule,

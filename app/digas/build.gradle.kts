@@ -16,10 +16,12 @@ android {
 }
 
 dependencies {
+    implementation(project(namesPlugin.utils))
+    implementation(project(namesPlugin.fhirParser))
+    implementation(project(namesPlugin.core))
     implementation(project(namesPlugin.navigation))
     implementation(project(namesPlugin.testTags))
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.uiComponents))
-    testImplementation(libs.test.turbine) // to test flows
-    testImplementation(project(namesPlugin.multiplatform))
+    implementation(libs.bundles.animation)
 }

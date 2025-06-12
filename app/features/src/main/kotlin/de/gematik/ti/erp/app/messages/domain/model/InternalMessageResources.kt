@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.messages.domain.model
 
 import android.content.Context
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 
 class InternalMessageResources(
     private val context: Context

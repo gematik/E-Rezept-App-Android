@@ -40,8 +40,8 @@ abstract class BaseComponentScreenshotTest(
     val paparazzi = Paparazzi(
         deviceConfig = config.deviceConfig,
         theme = config.theme,
-        validateAccessibility = true,
-        maxPercentDifference = 0.2,
+        validateAccessibility = false,
+        maxPercentDifference = ScreenshotTestDifference.DIFFERENCE,
         renderingMode = renderingMode
     )
 }

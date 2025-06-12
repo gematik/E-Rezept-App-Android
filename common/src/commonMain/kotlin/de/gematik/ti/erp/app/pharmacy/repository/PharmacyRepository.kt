@@ -20,6 +20,7 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInstitutionTelematikId
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
@@ -48,6 +49,8 @@ interface PharmacyRepository {
     suspend fun markPharmacyAsFavourite(pharmacy: PharmacyUseCaseData.Pharmacy)
 
     suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy)
+
+    suspend fun searchInsuranceProviderByInstitutionIdentifier(iknr: String): Result<FhirInstitutionTelematikId?>
 
     suspend fun searchPharmacyByTelematikId(telematikId: String): Result<FhirPharmacyErpModelCollection>
 

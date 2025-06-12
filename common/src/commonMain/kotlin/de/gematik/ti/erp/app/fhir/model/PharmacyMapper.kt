@@ -35,8 +35,8 @@ import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.not
 import de.gematik.ti.erp.app.fhir.parser.or
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
@@ -130,7 +130,7 @@ fun extractPharmacyServices(
                 )
             },
             address = pharmacy.containedObject("address").let { address ->
-                FhirAddressErpModel(
+                FhirPharmacyAddressErpModel(
                     lineAddress = address.containedArray("line").map { it.containedString() }.joinToString { "" },
                     postalCode = if (BuildKonfig.INTERNAL) {
                         address.containedStringOrNull("postalCode") ?: ""

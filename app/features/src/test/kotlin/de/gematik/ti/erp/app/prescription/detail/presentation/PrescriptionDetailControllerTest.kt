@@ -19,7 +19,7 @@
 package de.gematik.ti.erp.app.prescription.detail.presentation
 
 import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
 import de.gematik.ti.erp.app.fhir.model.json
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
@@ -68,7 +68,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
 
     private val prescriptionRepository: PrescriptionRepository = mockk()
     private val invoiceRepository: InvoiceRepository = mockk()
-    private val featureToggleManager: FeatureToggleManager = mockk()
+    private val featureToggleDataStore: FeatureToggleDataStore = mockk()
     private val medicationPlanRepository: MedicationPlanRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
@@ -122,7 +122,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             )
         )
         every { medicationPlanRepository.loadMedicationSchedule(any()) } returns flowOf(null)
-        every { featureToggleManager.isFeatureEnabled(any()) } returns flowOf(true)
+        every { featureToggleDataStore.isFeatureEnabled(any()) } returns flowOf(true)
         controllerUnderTest = PrescriptionDetailController(
             getActiveProfileUseCase = getActiveProfileUseCase,
             taskId = "taskId",
@@ -131,7 +131,7 @@ class PrescriptionDetailControllerTest : TestWatcher() {
             loadMedicationScheduleByTaskIdUseCase = loadMedicationScheduleByTaskIdUseCase,
             getPrescriptionByTaskIdUseCase = getPrescriptionByTaskIdUseCase,
             updateScannedTaskNameUseCase = updateScannedTaskNameUseCase,
-            featureToggleManager = featureToggleManager
+            featureToggleDataStore = featureToggleDataStore
         )
     }
 
