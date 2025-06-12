@@ -29,7 +29,7 @@ interface ErpServiceState
     "O.Source_4#1",
     "O.Plat_4#1",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Error messages are localized using the `ErpServiceErrorState " +
+    rationale = "Error messages are localized using the `ErpServiceErrorState` " +
         "Search for `ErpServiceErrorState`or State.Error to see all instances." +
         "Most errors are localized with static text. Logging is only active on debug builds."
 )

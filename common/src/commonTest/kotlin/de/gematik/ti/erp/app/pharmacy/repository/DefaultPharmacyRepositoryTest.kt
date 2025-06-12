@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
+import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
@@ -47,7 +47,7 @@ class DefaultPharmacyRepositoryTest {
     private val apoVzdRemoteDataSource = mockk<ApoVzdRemoteDataSource>()
     private val fhirVzdRemoteDataSource = mockk<FhirVzdRemoteDataSource>()
     private val searchAccessTokenLocalDataSource = mockk<PharmacySearchAccessTokenLocalDataSource>(relaxed = true)
-    private val parser = mockk<PharmacyBundleParser>()
+    private val parser = mockk<PharmacyParsers>()
     private val filter = PharmacyFilter()
 
     private lateinit var remoteDataSource: PharmacyRemoteDataSource
@@ -55,7 +55,7 @@ class DefaultPharmacyRepositoryTest {
     @Before
     fun setUp() {
         every { remoteSelector.getPharmacyVzdService() } returns FHIRVZD
-        every { parser.extract(any()) } returns expectedCollection
+        every { parser.bundleParser.extract(any()) } returns expectedCollection
         remoteDataSource = fhirVzdRemoteDataSource
 
         repository = DefaultPharmacyRepository(
@@ -63,7 +63,7 @@ class DefaultPharmacyRepositoryTest {
             apoVzdRemoteDataSource = apoVzdRemoteDataSource,
             fhirVzdRemoteDataSource = fhirVzdRemoteDataSource,
             searchAccessTokenLocalDataSource = searchAccessTokenLocalDataSource,
-            parser = parser,
+            parsers = parser,
             redeemLocalDataSource = mockk(),
             favouriteLocalDataSource = mockk(),
             oftenUsedLocalDataSource = mockk()
@@ -120,55 +120,136 @@ class DefaultPharmacyRepositoryTest {
     }
 
     @Test
-    fun `progressiveRadiusSearch stops at 5km when sufficient results found`() = runTest {
+    fun `progressiveRadiusSearch stops at 2km and returns 51 Entries directly`() = runTest {
         val filter = PharmacyFilter(locationFilter = LocationFilter(0.0, 0.0))
-        val uniqueEntries = (1..101).map { index ->
+        val twoKmEntries = (1..51).map { index ->
             mockk<FhirPharmacyErpModel> {
                 every { telematikId } returns "telematik_$index"
             }
         }
-        val expectedCollection = FhirPharmacyErpModelCollection(FHIRVZD, 101, "", uniqueEntries)
+        val expectedCollection = FhirPharmacyErpModelCollection(FHIRVZD, 51, "", twoKmEntries)
 
         coEvery { remoteDataSource.searchPharmacies(any(), any()) } returns Result.success(mockJsonElement)
-        coEvery { parser.extract(any()) } returns expectedCollection
+        coEvery { parser.bundleParser.extract(any()) } returns expectedCollection
 
         val result = repository.searchPharmacies(filter)
 
         assertTrue(result.isSuccess)
-        assertEquals(101, result.getOrNull()?.entries?.size)
+        assertEquals(51, result.getOrNull()?.entries?.size)
         coVerify(exactly = 1) { remoteDataSource.searchPharmacies(any(), any()) }
     }
 
     @Test
-    fun `progressiveRadiusSearch expands to 25km when needed`() = runTest {
+    fun `progressiveRadiusSearch stops at 2km and returns 100 Entries directly`() = runTest {
+        val filter = PharmacyFilter(locationFilter = LocationFilter(0.0, 0.0))
+        val twoKmEntries = (1..100).map { index ->
+            mockk<FhirPharmacyErpModel> {
+                every { telematikId } returns "telematik_$index"
+            }
+        }
+        val expectedCollection = FhirPharmacyErpModelCollection(FHIRVZD, 100, "", twoKmEntries)
+
+        coEvery { remoteDataSource.searchPharmacies(any(), any()) } returns Result.success(mockJsonElement)
+        coEvery { parser.bundleParser.extract(any()) } returns expectedCollection
+
+        val result = repository.searchPharmacies(filter)
+
+        assertTrue(result.isSuccess)
+        assertEquals(100, result.getOrNull()?.entries?.size)
+        coVerify(exactly = 1) { remoteDataSource.searchPharmacies(any(), any()) }
+    }
+
+    @Test
+    fun `progressiveRadiusSearch expands to 3km when needed and returns 99 Entries`() = runTest {
         val filter = PharmacyFilter(locationFilter = mockk(relaxed = true))
-        val smallEntries = (1..10).map { index ->
+        val twoKmEntries = (1..25).map { index ->
             mockk<FhirPharmacyErpModel> {
                 every { telematikId } returns "telematik_$index"
             }
         }
-        val largeEntries = (1..110).map { index ->
+        val threeKmEntries = (1..99).map { index ->
             mockk<FhirPharmacyErpModel> {
                 every { telematikId } returns "telematik_$index"
             }
         }
-        val smallResult = FhirPharmacyErpModelCollection(FHIRVZD, 10, "", smallEntries)
-        val largeResult = FhirPharmacyErpModelCollection(FHIRVZD, 110, "", largeEntries)
+        val smallResult = FhirPharmacyErpModelCollection(FHIRVZD, 25, "", twoKmEntries)
+        val largeResult = FhirPharmacyErpModelCollection(FHIRVZD, 99, "", threeKmEntries)
+
+        coEvery { remoteDataSource.searchPharmacies(any(), any()) } returnsMany listOf(
+            Result.success(mockJsonElement),
+            Result.success(mockJsonElement)
+        )
+        coEvery { parser.bundleParser.extract(mockJsonElement) } returnsMany listOf(smallResult, largeResult)
+
+        val result = repository.searchPharmacies(filter)
+
+        assertTrue(result.isSuccess)
+        assertEquals(99, result.getOrNull()?.entries?.size)
+        coVerify(exactly = 2) { remoteDataSource.searchPharmacies(any(), any()) }
+    }
+
+    @Test
+    fun `progressiveRadiusSearch expands to 50km when needed but returns the value of the 20km search`() = runTest {
+        val filter = PharmacyFilter(locationFilter = mockk(relaxed = true))
+        val twoKmEntries = (1..2).map { index ->
+            mockk<FhirPharmacyErpModel> {
+                every { telematikId } returns "telematik_$index"
+            }
+        }
+        val threeKmEntries = (1..3).map { index ->
+            mockk<FhirPharmacyErpModel> {
+                every { telematikId } returns "telematik_$index"
+            }
+        }
+        val fiveKmEntries = (1..5).map { index ->
+            mockk<FhirPharmacyErpModel> {
+                every { telematikId } returns "telematik_$index"
+            }
+        }
+        val tenKmEntries = (1..10).map { index ->
+            mockk<FhirPharmacyErpModel> {
+                every { telematikId } returns "telematik_$index"
+            }
+        }
+        val twentyKmEntries = (1..50).map { index ->
+            mockk<FhirPharmacyErpModel> {
+                every { telematikId } returns "telematik_$index"
+            }
+        }
+        val fiftyKmEntries = (1..100).map { index ->
+            mockk<FhirPharmacyErpModel> {
+                every { telematikId } returns "telematik_$index"
+            }
+        }
+        val twoKmResult = FhirPharmacyErpModelCollection(FHIRVZD, 2, "", twoKmEntries)
+        val threeKmResult = FhirPharmacyErpModelCollection(FHIRVZD, 3, "", threeKmEntries)
+        val fiveKmResult = FhirPharmacyErpModelCollection(FHIRVZD, 4, "", fiveKmEntries)
+        val tenKmResult = FhirPharmacyErpModelCollection(FHIRVZD, 10, "", tenKmEntries)
+        val twentyKmResult = FhirPharmacyErpModelCollection(FHIRVZD, 50, "", twentyKmEntries)
+        val fiftyKmResult = FhirPharmacyErpModelCollection(FHIRVZD, 100, "", fiftyKmEntries)
 
         coEvery { remoteDataSource.searchPharmacies(any(), any()) } returnsMany listOf(
             Result.success(mockJsonElement),
             Result.success(mockJsonElement),
             Result.success(mockJsonElement),
             Result.success(mockJsonElement),
+            Result.success(mockJsonElement),
             Result.success(mockJsonElement)
         )
-        coEvery { parser.extract(mockJsonElement) } returnsMany listOf(smallResult, smallResult, smallResult, smallResult, largeResult)
+        coEvery { parser.bundleParser.extract(mockJsonElement) } returnsMany listOf(
+            twoKmResult,
+            threeKmResult,
+            fiveKmResult,
+            tenKmResult,
+            twentyKmResult,
+            fiftyKmResult
+        )
 
         val result = repository.searchPharmacies(filter)
 
         assertTrue(result.isSuccess)
-        assertEquals(110, result.getOrNull()?.entries?.size)
-        coVerify(exactly = 5) { remoteDataSource.searchPharmacies(any(), any()) }
+        assertEquals(50, result.getOrNull()?.entries?.size)
+        coVerify(exactly = 6) { remoteDataSource.searchPharmacies(any(), any()) }
     }
 
     companion object {

@@ -30,6 +30,7 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -85,7 +86,7 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                                 orderId = orderId.toString(),
                                 taskId = prescriptionOrderInfo.taskId,
                                 accessCode = prescriptionOrderInfo.accessCode,
-                                recipientTID = pharmacy.telematikId,
+                                recipientId = pharmacy.telematikId,
                                 payloadContent = CommunicationPayload(
                                     supplyOptionsType = redeemOption.toRedeemOption().type,
                                     name = contact.name,
@@ -101,7 +102,7 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                             launch { pharmacyRepository.markPharmacyAsOftenUsed(pharmacy) }
 
                             // redeem the prescription
-                            prescriptionOrderInfo to prescriptionRepository.redeemPrescription(
+                            prescriptionOrderInfo to prescriptionRepository.redeem(
                                 profileId = profileId,
                                 communication = communicationDispenseRequestJson,
                                 accessCode = prescriptionOrderInfo.accessCode
@@ -115,17 +116,17 @@ class RedeemPrescriptionsOnLoggedInUseCase(
                             onSuccess = { jsonElement ->
                                 Napier.i { "Prescription redeemed successfully (${prescriptionOrderInfo.title} ): $jsonElement" }
                                 onRedeemProcessEnd()
-                                RedeemedPrescriptionState.Success
+                                BaseRedeemState.Success
                             },
                             onFailure = { error ->
                                 Napier.e { "Error on prescription redemption (${prescriptionOrderInfo.title}) ${error.stackTraceToString()}" }
                                 onRedeemProcessEnd()
                                 when (error) {
-                                    is ApiCallException -> RedeemedPrescriptionState.Error(
+                                    is ApiCallException -> BaseRedeemState.Error(
                                         errorState = error.response.httpErrorState()
                                     )
 
-                                    else -> RedeemedPrescriptionState.Error(
+                                    else -> BaseRedeemState.Error(
                                         errorState = HttpErrorState.ErrorWithCause(error.message ?: "Unknown error")
                                     )
                                 }

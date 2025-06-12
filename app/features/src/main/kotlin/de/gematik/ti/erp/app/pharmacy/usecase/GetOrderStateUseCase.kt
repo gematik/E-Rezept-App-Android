@@ -87,7 +87,7 @@ class GetOrderStateUseCase(
     private fun getRedeemableSyncedTasks(id: ProfileIdentifier): Flow<List<SyncedTask>> =
         prescriptionRepository.syncedTasks(id)
             .mapNotNull { tasks ->
-                tasks.filter { it.redeemState().isRedeemable() }
+                tasks.filter { it.redeemState().isRedeemable() && it.deviceRequest == null } // TODO: define as a type
                     .sortedByDescending { it.authoredOn }
             }.flowOn(dispatcher)
 

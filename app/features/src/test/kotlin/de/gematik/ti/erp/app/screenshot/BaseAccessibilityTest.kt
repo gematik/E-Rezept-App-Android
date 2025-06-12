@@ -43,7 +43,7 @@ abstract class BaseAccessibilityTest(
         deviceConfig = config.deviceConfig,
         theme = config.theme,
         validateAccessibility = false,
-        maxPercentDifference = 0.2,
+        maxPercentDifference = ScreenshotTestDifference.DIFFERENCE,
         renderingMode = renderingMode,
         renderExtensions = setOf(AccessibilityRenderExtension())
     )

@@ -111,4 +111,26 @@ object ParserUtil {
 
         error("Couldn't parse `$this`")
     }
+
+    fun String.asNullableFhirTemporal(): FhirTemporal? {
+        val parsers = listOf<(String) -> FhirTemporal>(
+            { FhirTemporal.Instant(Instant.parse(it)) },
+            { FhirTemporal.LocalDateTime(LocalDateTime.parse(it)) },
+            { FhirTemporal.LocalDate(LocalDate.parse(it)) },
+            { FhirTemporal.YearMonth(YearMonth.parse(it)) },
+            { FhirTemporal.Year(Year.parse(it)) },
+            { FhirTemporal.LocalTime(LocalTime.parse(it)) }
+        )
+
+        for (parser in parsers) {
+            val result = runCatching { parser(this) }.getOrNull()
+            if (result != null) {
+                return result
+            }
+        }
+        return null
+    }
+
+    fun String.asFhirInstant(): FhirTemporal.Instant =
+        FhirTemporal.Instant(Instant.parse(this))
 }

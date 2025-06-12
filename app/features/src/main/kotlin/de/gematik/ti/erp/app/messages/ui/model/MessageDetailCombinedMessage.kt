@@ -21,7 +21,9 @@ package de.gematik.ti.erp.app.messages.ui.model
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import kotlinx.datetime.Instant
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class MessageDetailCombinedMessage(
     val type: MessageType,
     val message: OrderUseCaseData.Message? = null,
@@ -31,6 +33,7 @@ data class MessageDetailCombinedMessage(
     val prescriptions: List<Prescription?> = emptyList()
 )
 
+@Serializable
 enum class MessageType {
     REPLY,
     INVOICE,

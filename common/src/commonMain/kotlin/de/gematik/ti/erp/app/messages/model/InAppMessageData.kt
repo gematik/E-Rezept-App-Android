@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.model
 
+import de.gematik.ti.erp.app.timestate.TimeState
 import io.realm.kotlin.types.annotations.PrimaryKey
 import kotlinx.serialization.Serializable
 
@@ -27,7 +28,7 @@ data class InAppMessage(
     val id: String,
     val from: String,
     val text: String?,
-    val timeState: MessageTimeState,
+    val timeState: TimeState,
     val prescriptionsCount: Int = 0,
     val tag: String,
     var isUnread: Boolean,
@@ -41,7 +42,7 @@ data class InternalMessage(
     val id: String,
     val sender: String,
     val text: String?,
-    val time: MessageTimeState,
+    val time: TimeState,
     val tag: String,
     var isUnread: Boolean,
     val messageProfile: CommunicationProfile?,

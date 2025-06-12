@@ -18,6 +18,8 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.model
 
+import de.gematik.ti.erp.app.db.entities.v1.task.TaskStatusV1
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.DATE_3024_01_01
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -37,6 +39,9 @@ val MODEL_SYNCED_PRESCRIPTION_ACTIVE = Prescription.SyncedPrescription(
     isIncomplete = false,
     organization = "Dr. Max Mustermann",
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.Ready,
+    isNew = false,
+    lastModified = DATE_2024_01_01,
     prescriptionChipInformation = Prescription.PrescriptionChipInformation()
 )
 
@@ -54,5 +59,8 @@ val MODEL_SYNCED_PRESCRIPTION_ARCHIVE = Prescription.SyncedPrescription(
     isIncomplete = false,
     organization = "Dr. Max Mustermann",
     isDirectAssignment = false,
+    deviceRequestState = DigaStatus.WrappedTaskStatus(taskStatus = TaskStatusV1.Completed.name),
+    isNew = false,
+    lastModified = DATE_2024_01_01,
     prescriptionChipInformation = Prescription.PrescriptionChipInformation()
 )

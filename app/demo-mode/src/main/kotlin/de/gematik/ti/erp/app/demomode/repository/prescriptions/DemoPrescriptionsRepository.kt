@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.demomode.repository.prescriptions
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.model.DemoModeSentCommunicationJson
+import de.gematik.ti.erp.app.demomode.model.emptyDemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.demomode.model.toDemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -42,8 +43,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.decodeFromJsonElement
-
-private const val NOT_FOUND = -1
 
 class DemoPrescriptionsRepository(
     private val dataSource: DemoModeDataSource,
@@ -74,15 +73,19 @@ class DemoPrescriptionsRepository(
             taskList.filter { it.profileId == profileId }.sortedBy { it.lastModified }
         }.flowOn(dispatcher)
 
-    override suspend fun redeemPrescription(
+    override suspend fun redeem(
         profileId: ProfileIdentifier,
         communication: JsonElement,
         accessCode: String
     ): Result<JsonElement> =
         withContext(dispatcher) {
-            val decodedCommunication = Json
-                .decodeFromJsonElement<DemoModeSentCommunicationJson>(communication)
-                .toDemoModeProfileLinkedCommunication(profileId)
+            val decodedCommunication = runCatching {
+                Json
+                    .decodeFromJsonElement<DemoModeSentCommunicationJson>(communication)
+                    .toDemoModeProfileLinkedCommunication(profileId)
+            }.getOrElse {
+                emptyDemoModeProfileLinkedCommunication(profileId)
+            }
             dataSource.communications.value = dataSource.communications.updateAndGet { communications ->
                 communications.add(decodedCommunication)
                 communications
@@ -90,7 +93,7 @@ class DemoPrescriptionsRepository(
             // change the status of the prescription to in progress
             dataSource.syncedTasks.value = dataSource.syncedTasks.updateAndGet { syncedList ->
                 val index = syncedList.indexOfFirst { profileId == it.profileId && it.taskId == decodedCommunication.taskId }
-                if (index != NOT_FOUND) {
+                if (index != INDEX_OUT_OF_BOUNDS) {
                     val updatedItem = syncedList[index].copy(
                         status = SyncedTaskData.TaskStatus.InProgress,
                         lastModified = Clock.System.now()
@@ -101,7 +104,7 @@ class DemoPrescriptionsRepository(
             }
             dataSource.scannedTasks.value = dataSource.scannedTasks.updateAndGet { scannedList ->
                 val index = scannedList.indexOfFirst { profileId == it.profileId && it.taskId == decodedCommunication.taskId }
-                if (index != NOT_FOUND) {
+                if (index != INDEX_OUT_OF_BOUNDS) {
                     val updatedItem = scannedList[index].copy(
                         redeemedOn = Clock.System.now()
                     )

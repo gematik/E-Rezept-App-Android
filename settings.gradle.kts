@@ -2,6 +2,7 @@
 
 import java.util.Properties
 
+
 pluginManagement {
     repositories {
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
@@ -89,6 +90,7 @@ include(":app:demo-mode")
 include(":app:digas")
 include(":app:navigation")
 include(":ui-components")
+include(":app-core")
 include(":utils")
 include(":fhir-parser")
 include(":common")

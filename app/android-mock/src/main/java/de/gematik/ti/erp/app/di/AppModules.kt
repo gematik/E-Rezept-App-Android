@@ -25,7 +25,8 @@ import android.os.Looper
 import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
+import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
+import de.gematik.ti.erp.app.featuretoggle.datasource.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.info.mockBuildConfigurationModule
 import de.gematik.ti.erp.app.pkv.mockFileProviderAuthorityModule
 import org.kodein.di.DI
@@ -79,7 +80,9 @@ val appModules = DI.Module("appModules", allowSilentOverride = true) {
 
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }
 
-    bindSingleton { FeatureToggleManager(instance()) }
+    // local data-store
+    bindSingleton { FeatureToggleDataStore(instance()) }
+    bindSingleton { NavigationTriggerDataStore(instance()) }
 
     importAll(
         mockBuildConfigurationModule,

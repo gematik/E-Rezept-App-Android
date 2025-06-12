@@ -36,7 +36,7 @@ interface PrescriptionRepository {
 
     fun syncedTasks(profileId: ProfileIdentifier): Flow<List<SyncedTaskData.SyncedTask>>
 
-    suspend fun redeemPrescription(
+    suspend fun redeem(
         profileId: ProfileIdentifier,
         communication: JsonElement,
         accessCode: String

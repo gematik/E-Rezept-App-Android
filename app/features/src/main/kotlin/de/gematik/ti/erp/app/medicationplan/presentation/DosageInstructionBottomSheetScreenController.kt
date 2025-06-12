@@ -38,7 +38,9 @@ open class DosageInstructionBottomSheetScreenController(
 
 ) : Controller() {
 
-    private val _dosageInstruction = MutableStateFlow<UiState<MedicationPlanDosageInstruction>>(UiState.Loading())
+    private val _dosageInstruction = MutableStateFlow<UiState<MedicationPlanDosageInstruction>>(
+        UiState.Loading()
+    )
     val dosageInstruction: StateFlow<UiState<MedicationPlanDosageInstruction>> = _dosageInstruction
 
     init {

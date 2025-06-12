@@ -18,11 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.di
 
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.fhir.communication.parser.CommunicationParser
-import de.gematik.ti.erp.app.messages.repository.DefaultInternalMessagesRepository
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesLocalDataSource
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
@@ -35,10 +31,14 @@ import de.gematik.ti.erp.app.messages.domain.usecase.MarkAllUnreadMessagesAsRead
 import de.gematik.ti.erp.app.messages.domain.usecase.SaveLocalCommunicationUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.SetInternalMessagesAsReadUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateCommunicationConsumedStatusUseCase
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInvoicesByOrderIdAndTaskIdUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationLocalDataSource
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.repository.DefaultCommunicationRepository
+import de.gematik.ti.erp.app.messages.repository.DefaultInternalMessagesRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesLocalDataSource
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
 import de.gematik.ti.erp.app.messages.repository.PharmacyCacheRemoteDataSource
 import org.kodein.di.DI
@@ -69,6 +69,7 @@ val messagesModule = DI.Module("messagesModule") {
 val messageRepositoryModule = DI.Module("messageRepositoryModule", allowSilentOverride = true) {
     bindProvider<CommunicationRepository> {
         DefaultCommunicationRepository(
+            instance(),
             instance(),
             instance(),
             instance(),

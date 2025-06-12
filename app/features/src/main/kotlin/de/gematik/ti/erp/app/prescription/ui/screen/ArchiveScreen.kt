@@ -21,14 +21,17 @@ package de.gematik.ti.erp.app.prescription.ui.screen
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.CircularProgressIndicator
-import androidx.compose.material.Text
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -38,32 +41,27 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
+import de.gematik.ti.erp.app.digas.ui.component.CustomSegmentedButton
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
-import de.gematik.ti.erp.app.prescription.presentation.rememberPrescriptionsController
-import de.gematik.ti.erp.app.prescription.ui.components.CardPaddingModifier
-import de.gematik.ti.erp.app.prescription.ui.components.FullDetailMedication
-import de.gematik.ti.erp.app.prescription.ui.components.LowDetailMedication
+import de.gematik.ti.erp.app.prescription.presentation.rememberPrescriptionListController
+import de.gematik.ti.erp.app.prescription.ui.components.DigaSection
+import de.gematik.ti.erp.app.prescription.ui.components.PrescriptionSection
+import de.gematik.ti.erp.app.prescription.ui.model.ArchiveSegmentedControllerTap
 import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionsArchiveScreenPreviewParameterProvider
+import de.gematik.ti.erp.app.prescription.ui.preview.PrescriptionsDigasArchiveScreenPreviewData
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
-import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
-import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.EmptyScreenComponent
-import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
-import de.gematik.ti.erp.app.utils.compose.UiStateMachine
-import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.uistate.UiState
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
-import java.time.format.DateTimeFormatter
+import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 
 class PrescriptionsArchiveScreen(
     override val navController: NavController,
@@ -71,10 +69,11 @@ class PrescriptionsArchiveScreen(
 ) : Screen() {
     @Composable
     override fun Content() {
-        val controller = rememberPrescriptionsController()
+        val controller = rememberPrescriptionListController()
         val listState = rememberLazyListState()
         val archivedPrescriptions by controller.archivedPrescriptions.collectAsStateWithLifecycle()
-
+        val archivedDigas by controller.archivedDigas.collectAsStateWithLifecycle()
+        var selectedTab by remember { mutableStateOf(ArchiveSegmentedControllerTap.PRESCRIPTION) }
         BackHandler {
             navController.popBackStack()
         }
@@ -82,104 +81,83 @@ class PrescriptionsArchiveScreen(
         PrescriptionsArchiveScreenScaffold(
             listState = listState,
             archivedPrescriptions = archivedPrescriptions,
+            archivedDigas = archivedDigas,
             onBack = { navController.popBackStack() },
-            onOpenPrescriptionDetailScreen = {
+            selectedTab = selectedTab,
+            onTabChange = {
+                selectedTab = ArchiveSegmentedControllerTap.entries.toTypedArray()[it]
+            },
+            onOpenPrescriptionDetailScreen = { taskId, isDiga ->
                 navController.navigate(
-                    PrescriptionDetailRoutes.PrescriptionDetailScreen.path(
-                        taskId = it
-                    )
+                    if (isDiga) {
+                        DigasRoutes.DigasMainScreen.path(taskId)
+                    } else {
+                        PrescriptionDetailRoutes.PrescriptionDetailScreen.path(
+                            taskId = taskId
+                        )
+                    }
                 )
             }
         )
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun PrescriptionsArchiveScreenScaffold(
     listState: LazyListState,
     archivedPrescriptions: UiState<List<Prescription>>,
+    archivedDigas: UiState<List<Prescription>>,
+    selectedTab: ArchiveSegmentedControllerTap,
+    onTabChange: (Int) -> Unit,
     onBack: () -> Unit,
-    onOpenPrescriptionDetailScreen: (String) -> Unit
+    onOpenPrescriptionDetailScreen: (String, Boolean) -> Unit
 ) {
+    val options = listOf(stringResource(R.string.pres_bottombar_prescriptions), stringResource(R.string.digas_name))
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.archive_screen_title),
         listState = listState,
         onBack = onBack,
         navigationMode = NavigationBarMode.Back
     ) {
-        UiStateMachine(
-            state = archivedPrescriptions,
-            onError = {
-                ErrorScreenComponent()
-            },
-            onEmpty = {
-                PrescriptionsArchiveEmptyScreenContent()
-            },
-            onLoading = {
-                Center {
-                    CircularProgressIndicator()
-                }
-            }
-        ) { prescriptions ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .testTag(TestTag.Prescriptions.Archive.Content),
-                state = listState,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                item { SpacerXXLarge() }
-
-                prescriptions.forEachIndexed { index, prescription ->
-                    item(key = "prescription-${prescription.taskId}") {
-                        val previousPrescriptionRedeemedOn =
-                            prescriptions.getOrNull(index - 1)
-                                ?.redeemedOrExpiredOn()
-                                ?.toLocalDateTime(TimeZone.currentSystemDefault())
-
-                        val redeemedOn = prescription.redeemedOrExpiredOn()
-                            .toLocalDateTime(TimeZone.currentSystemDefault())
-
-                        val yearChanged = remember {
-                            previousPrescriptionRedeemedOn?.year != redeemedOn.year
-                        }
-
-                        if (yearChanged) {
-                            val instantOfArchivedPrescription = remember {
-                                val dateFormatter = DateTimeFormatter.ofPattern("yyyy")
-                                redeemedOn.toJavaLocalDateTime().format(dateFormatter)
-                            }
-
-                            Text(
-                                text = instantOfArchivedPrescription,
-                                style = AppTheme.typography.h6,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .then(CardPaddingModifier)
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .testTag(TestTag.Prescriptions.Archive.Content),
+            state = listState,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item { SpacerXXLarge() }
+            if (archivedDigas.isDataState) {
+                item {
+                    SingleChoiceSegmentedButtonRow(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = PaddingDefaults.Medium)
+                    ) {
+                        options.forEachIndexed { index, label ->
+                            CustomSegmentedButton(
+                                index = index,
+                                options = options,
+                                selectedIndex = selectedTab.index,
+                                label = label,
+                                onClick = { onTabChange(index) }
                             )
-                        }
-
-                        when (prescription) {
-                            is ScannedPrescription ->
-                                LowDetailMedication(
-                                    modifier = CardPaddingModifier,
-                                    prescription,
-                                    onClick = {
-                                        onOpenPrescriptionDetailScreen(prescription.taskId)
-                                    }
-                                )
-
-                            is SyncedPrescription ->
-                                FullDetailMedication(
-                                    prescription,
-                                    modifier = CardPaddingModifier,
-                                    onClick = {
-                                        onOpenPrescriptionDetailScreen(prescription.taskId)
-                                    }
-                                )
                         }
                     }
                 }
+
+                when (selectedTab) {
+                    ArchiveSegmentedControllerTap.PRESCRIPTION -> item {
+                        PrescriptionSection(archivedPrescriptions, onOpenPrescriptionDetailScreen)
+                    }
+
+                    ArchiveSegmentedControllerTap.DIGAS -> item {
+                        DigaSection(archivedDigas, onOpenPrescriptionDetailScreen)
+                    }
+                }
+            } else {
+                item { PrescriptionSection(archivedPrescriptions, onOpenPrescriptionDetailScreen) }
             }
         }
     }
@@ -200,16 +178,18 @@ fun PrescriptionsArchiveEmptyScreenContent(
 @Composable
 fun PrescriptionsArchiveScreenPreview(
     @PreviewParameter(PrescriptionsArchiveScreenPreviewParameterProvider::class)
-    archivedPrescriptions: UiState<List<Prescription>>
+    mockPrescriptionsAndDigas: PrescriptionsDigasArchiveScreenPreviewData
 ) {
     val listState = rememberLazyListState()
-
     PreviewAppTheme {
         PrescriptionsArchiveScreenScaffold(
             listState = listState,
-            archivedPrescriptions = archivedPrescriptions,
+            archivedPrescriptions = mockPrescriptionsAndDigas.archivedPrescriptions,
+            archivedDigas = mockPrescriptionsAndDigas.archivedDigas,
             onBack = { },
-            onOpenPrescriptionDetailScreen = {}
+            selectedTab = mockPrescriptionsAndDigas.selectedTab,
+            onTabChange = {},
+            onOpenPrescriptionDetailScreen = { _, _ -> }
         )
     }
 }

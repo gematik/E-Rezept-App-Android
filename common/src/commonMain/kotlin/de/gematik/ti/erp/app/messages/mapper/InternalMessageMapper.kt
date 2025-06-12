@@ -23,10 +23,10 @@ import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
 import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.messages.model.ChangeLogMessage
-import de.gematik.ti.erp.app.messages.model.getTimeState
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.model.InternalMessage
+import de.gematik.ti.erp.app.timestate.getTimeState
 import kotlinx.datetime.Instant
 
 fun ChangeLogMessage.toInternalMessage(

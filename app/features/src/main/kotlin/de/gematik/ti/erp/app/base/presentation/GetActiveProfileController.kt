@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.base.presentation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.viewModelScope
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -55,7 +56,7 @@ open class GetActiveProfileController(
     }
 
     private fun initActiveProfile() {
-        controllerScope.launch {
+        viewModelScope.launch {
             runCatching {
                 getActiveProfileUseCase.invoke()
                     .distinctUntilChanged { old, new ->
@@ -73,12 +74,12 @@ open class GetActiveProfileController(
                     val profile = profileFlow.first()
                     _isRedemptionAllowed.value = profile.isRedemptionAllowed()
                     _activeProfile.value = UiState.Data(profile)
-                    onSuccess?.invoke(profile, controllerScope)
+                    onSuccess?.invoke(profile, viewModelScope)
                     onRefreshProfileAction.trigger(false)
                 },
                 onFailure = {
                     _activeProfile.value = UiState.Error(it)
-                    onFailure?.invoke(it, controllerScope)
+                    onFailure?.invoke(it, viewModelScope)
                     onRefreshProfileAction.trigger(false)
                 }
             )

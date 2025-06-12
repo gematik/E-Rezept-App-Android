@@ -27,13 +27,13 @@ import de.gematik.ti.erp.app.navigation.slideInDown
 import de.gematik.ti.erp.app.navigation.slideOutUp
 import de.gematik.ti.erp.app.prescription.ui.PrescriptionScanScreen
 import de.gematik.ti.erp.app.prescription.ui.screen.GrantConsentBottomSheetScreen
+import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionListScreen
 import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionsArchiveScreen
-import de.gematik.ti.erp.app.prescription.ui.screen.PrescriptionsScreen
 import de.gematik.ti.erp.app.prescription.ui.screen.WelcomeDrawerBottomSheetScreen
 
 @Suppress("LongMethod")
 fun NavGraphBuilder.prescriptionGraph(
-    startDestination: String = PrescriptionRoutes.PrescriptionsScreen.route,
+    startDestination: String = PrescriptionRoutes.PrescriptionListScreen.route,
     navController: NavController
 ) {
     navigation(
@@ -44,10 +44,10 @@ fun NavGraphBuilder.prescriptionGraph(
             stackEnterAnimation = { slideInDown() },
             stackExitAnimation = { slideOutUp() },
             popExitAnimation = { slideOutUp() },
-            route = PrescriptionRoutes.PrescriptionsScreen.route,
-            arguments = PrescriptionRoutes.PrescriptionsScreen.arguments
+            route = PrescriptionRoutes.PrescriptionListScreen.route,
+            arguments = PrescriptionRoutes.PrescriptionListScreen.arguments
         ) { navEntry ->
-            PrescriptionsScreen(
+            PrescriptionListScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

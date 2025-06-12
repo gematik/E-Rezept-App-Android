@@ -18,9 +18,10 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
+import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.toStartOfDayInUTC
 import kotlinx.datetime.Clock
@@ -81,7 +82,6 @@ object SyncedTaskData {
         }
     }
 
-    @Deprecated("Will be replaced with ErpModel on DB upgrade")
     data class SyncedTask(
         val profileId: String,
         val taskId: String,
@@ -357,7 +357,9 @@ object SyncedTaskData {
         val status: String? = null,
         val identifierNumber: String? = null,
         val coverageType: CoverageType
-    )
+    ) {
+        val digaIdentifier = identifierNumber
+    }
 
     @Serializable
     enum class AdditionalFee(val value: String?) {
@@ -414,6 +416,7 @@ object SyncedTaskData {
         val dispenseId: String?,
         val patientIdentifier: String,
         val medication: Medication?,
+        val deviceRequest: FhirDispenseDeviceRequestErpModel?,
         val wasSubstituted: Boolean,
         val dosageInstruction: String?,
         val performer: String,

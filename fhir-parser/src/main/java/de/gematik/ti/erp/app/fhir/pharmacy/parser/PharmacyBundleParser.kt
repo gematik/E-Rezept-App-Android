@@ -21,9 +21,9 @@ package de.gematik.ti.erp.app.fhir.pharmacy.parser
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirFullUrlResourceEntry.Companion.getFhirVzdResourceType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDBundle.Companion.getBundle
-import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDEntry.Companion.getResourceType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDHealthcareService
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDHealthcareService.Companion.getHealthcareService
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDHealthcareService.Companion.getOpeningHours
@@ -49,7 +49,15 @@ import kotlinx.serialization.json.jsonObject
 @Requirement(
     "O.Source_2#4",
     sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Sanitization is also done for all FHIR pharmacy data mapping."
+    rationale = """
+        This parser maps and sanitizes structured FHIR pharmacy directory data by:
+            • Using `bundleElement.getBundle` to parse only when the structure matches.
+            • Using `entry.getResourceType` to match to know resources which are type-safe from Enums as `FhirVzdResourceType`
+            • Matching related `HealthcareService`, `Location`, and `Organization` resources via UID-based grouping.
+            • Ensuring only records with valid `telematikId` are mapped into ERP models.
+            • Skipping malformed or partial resource sets without failing the bundle parsing.
+        This satisfies safe mapping of structured directory data into domain entities.
+    """
 )
 class PharmacyBundleParser : BundleParser {
 
@@ -60,10 +68,10 @@ class PharmacyBundleParser : BundleParser {
     override fun extract(bundle: JsonElement): FhirPharmacyErpModelCollection {
         return runCatching {
             val bundleElement = bundle.jsonObject
-            val fhirBVzdBundle = bundleElement.getBundle()
-            val numberOfEntries = fhirBVzdBundle.numberOfEntries
+            val fhirVzdBundle = bundleElement.getBundle()
+            val numberOfEntries = fhirVzdBundle.numberOfEntries
 
-            val entries = fhirBVzdBundle.entries
+            val entries = fhirVzdBundle.entries
 
             Napier.i(tag = FHIRVZD_TAG) { "entries.size $numberOfEntries" }
 
@@ -74,7 +82,7 @@ class PharmacyBundleParser : BundleParser {
             // val endpointsMap = entries.getEndPointsGroupedByTelematikId()
 
             entries.map { entry ->
-                val type = entry.getResourceType()
+                val type = entry.getFhirVzdResourceType()
                 val resource = entry.resource
                 when (type) {
                     FhirVzdResourceType.Organization -> {
@@ -117,7 +125,7 @@ class PharmacyBundleParser : BundleParser {
 
             FhirPharmacyErpModelCollection(
                 type = PharmacyVzdService.FHIRVZD,
-                id = fhirBVzdBundle.id,
+                id = fhirVzdBundle.id,
                 total = numberOfEntries,
                 entries = pharmacyEntries
             )

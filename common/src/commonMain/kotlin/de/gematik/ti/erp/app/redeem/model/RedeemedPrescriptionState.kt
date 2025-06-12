@@ -18,22 +18,15 @@
 
 package de.gematik.ti.erp.app.redeem.model
 
-import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.model.RedeemablePrescriptionInfo.Companion.getPrescriptionErrorStateForDialog
-import kotlin.contracts.ExperimentalContracts
 
-@OptIn(ExperimentalContracts::class)
-sealed class RedeemedPrescriptionState {
-
-    data object Init : RedeemedPrescriptionState() // no orders have been processed
+sealed class RedeemedPrescriptionState : BaseRedeemState() {
 
     data class OrderCompleted(
         val orderId: String,
-        val results: Map<PharmacyUseCaseData.PrescriptionInOrder, RedeemedPrescriptionState>
+        val results: Map<PharmacyUseCaseData.PrescriptionInOrder, BaseRedeemState>
     ) : RedeemedPrescriptionState() // everything is processed and this contains the internal states of every prescription once they are processed
-
-    data object Success : RedeemedPrescriptionState()
 
     data class IncompleteOrder(
         val missingPrescriptionInfos: List<RedeemablePrescriptionInfo>
@@ -46,8 +39,6 @@ sealed class RedeemedPrescriptionState {
     ) : RedeemedPrescriptionState() {
         val state: PrescriptionErrorState = missingPrescriptionInfos.getPrescriptionErrorStateForDialog()
     }
-
-    data class Error(val errorState: HttpErrorState) : RedeemedPrescriptionState()
 }
 
 sealed interface PrescriptionErrorState {

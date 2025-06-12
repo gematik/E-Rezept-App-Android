@@ -18,6 +18,7 @@ android {
 }
 
 dependencies {
+    implementation(project(namesPlugin.core))
     implementation(project(namesPlugin.utils))
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.demoMode))
@@ -29,6 +30,8 @@ dependencies {
     implementation(project(namesPlugin.uiComponents))
     implementation(libs.androidx.work)
     implementation(libs.certificatetransparency.android)
-    testImplementation(libs.test.turbine) // to test flows
+    debugImplementation(libs.chucker)
+    debugImplementation(libs.leak.canary)
+    testImplementation(libs.test.turbine)
     testImplementation(project(namesPlugin.multiplatform))
 }

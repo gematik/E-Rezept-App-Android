@@ -214,6 +214,14 @@ object TestTag {
         }
     }
 
+    object Digas {
+        val DigaMainScreen by tagName()
+        val DigaMenuSend by tagName()
+        val DigaMenuSendAgain by tagName()
+        val DigaMenuDelete by tagName()
+        val DigaMenuArchive by tagName()
+    }
+
     object Orders {
         val Content by tagName()
 

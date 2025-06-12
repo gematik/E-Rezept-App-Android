@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPositionErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType.Delivery
@@ -101,7 +101,7 @@ class PharmacyMapperTest {
                 latitude = 8.597412,
                 longitude = 53.590027
             ),
-            address = FhirAddressErpModel(
+            address = FhirPharmacyAddressErpModel(
                 lineAddress = "",
                 postalCode = "27578",
                 city = "Bremerhaven"
@@ -200,7 +200,7 @@ class PharmacyMapperTest {
                 latitude = 48.0018513,
                 longitude = 11.3497755
             ),
-            address = FhirAddressErpModel(
+            address = FhirPharmacyAddressErpModel(
                 lineAddress = "",
                 postalCode = "82139",
                 city = "Starnberg"

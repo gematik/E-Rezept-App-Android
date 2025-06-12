@@ -18,9 +18,13 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.Order
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.Pharmacy
+import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.model.LastMessage
+import de.gematik.ti.erp.app.messages.model.LastMessageDetails
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.mocks.order.model.CACHED_PHARMACY
 import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA
@@ -28,9 +32,6 @@ import de.gematik.ti.erp.app.mocks.order.model.communicationDataReply
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
-import de.gematik.ti.erp.app.messages.model.CommunicationProfile
-import de.gematik.ti.erp.app.messages.model.LastMessage
-import de.gematik.ti.erp.app.messages.model.LastMessageDetails
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask.Ready
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStateSerializationType
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.PrescriptionChipInformation
@@ -181,7 +182,7 @@ class GetMessagesUseCaseTest {
         testScope.runTest {
             val result = usecaseUnderTest.invoke()
             assert(result.isNotEmpty())
-            assertEquals(ORDERS_WITH_REQUEST_AND_REPLY, result)
+            assertEquals(ordersWithRequestAndReply, result)
         }
     }
 
@@ -206,6 +207,9 @@ class GetMessagesUseCaseTest {
                         authoredOn = Instant.parse("2024-01-01T10:00:00Z"),
                         acceptUntil = Instant.parse("3024-01-01T10:00:00Z"),
                         isDirectAssignment = false,
+                        isNew = false,
+                        deviceRequestState = DigaStatus.Ready,
+                        lastModified = Instant.parse("2024-01-01T10:00:00Z"),
                         prescriptionChipInformation = PrescriptionChipInformation(
                             isSelfPayPrescription = false,
                             isPartOfMultiplePrescription = false,
@@ -255,7 +259,7 @@ class GetMessagesUseCaseTest {
         )
     }
 
-    private val ORDERS_WITH_REQUEST_AND_REPLY = listOf(
+    private val ordersWithRequestAndReply = listOf(
         Order(
             orderId = "order-id-1",
             prescriptions = listOf(
@@ -274,6 +278,9 @@ class GetMessagesUseCaseTest {
                     authoredOn = Instant.parse("2024-01-01T10:00:00Z"),
                     acceptUntil = Instant.parse("3024-01-01T10:00:00Z"),
                     isDirectAssignment = false,
+                    deviceRequestState = DigaStatus.Ready,
+                    isNew = false,
+                    lastModified = Instant.parse("2024-01-01T10:00:00Z"),
                     prescriptionChipInformation = PrescriptionChipInformation(
                         isSelfPayPrescription = false,
                         isPartOfMultiplePrescription = false,

@@ -36,7 +36,7 @@ class DownloadResourcesStateRepository(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) {
     private val currentState = MutableStateFlow(DownloadResourcesState.NotStarted)
-    private val snapshotState = MutableSharedFlow<DownloadResourcesState>()
+    private val snapshotState = MutableSharedFlow<DownloadResourcesState>(replay = 1, extraBufferCapacity = 1)
 
     fun updateDetailState(state: DownloadResourcesState) {
         currentState.value = state

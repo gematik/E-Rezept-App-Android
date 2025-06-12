@@ -115,7 +115,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
@@ -181,7 +181,7 @@ class PrescriptionScanScreen(
                     },
                     onCancel = {
                         it.dismiss()
-                        navController.navigate(PrescriptionRoutes.PrescriptionsScreen.path())
+                        navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
                     }
                 )
             }
@@ -216,7 +216,7 @@ class PrescriptionScanScreen(
             if (scanPrescriptionState.hasCodesToSave()) {
                 confirmCancelDialogEvent.trigger()
             } else {
-                navController.navigateAndClearStack(PrescriptionRoutes.PrescriptionsScreen.route)
+                navController.navigateAndClearStack(PrescriptionRoutes.PrescriptionListScreen.route)
             }
         }
 
@@ -228,7 +228,7 @@ class PrescriptionScanScreen(
                 SheetContent(
                     onClickSave = {
                         scanPrescriptionController.saveToDatabase()
-                        navController.navigate(PrescriptionRoutes.PrescriptionsScreen.path())
+                        navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
                     },
                     onClickRedeem = {
                         scanPrescriptionController.saveToDatabase()
@@ -252,7 +252,7 @@ class PrescriptionScanScreen(
                 )
             } else {
                 AccessToCameraDenied {
-                    navController.navigate(PrescriptionRoutes.PrescriptionsScreen.path())
+                    navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
                 }
             }
         }

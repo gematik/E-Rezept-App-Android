@@ -22,6 +22,38 @@ import android.content.res.Configuration
 import androidx.compose.ui.tooling.preview.Preview
 
 @Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    group = "dark",
+    showBackground = true,
+    fontScale = 2f
+)
+internal annotation class BigFontDarkPreview
+
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    group = "light",
+    showBackground = true,
+    fontScale = 2f
+)
+internal annotation class BigFontLightPreview
+
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_NO,
+    group = "light",
+    heightDp = 1400,
+    showBackground = true
+)
+internal annotation class LightLongPreview
+
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    group = "dark",
+    heightDp = 1400,
+    showBackground = true
+)
+internal annotation class DarkLongPreview
+
+@Preview(
     uiMode = Configuration.UI_MODE_NIGHT_NO,
     showBackground = true
 )
@@ -35,4 +67,12 @@ private annotation class DarkPreview
 
 @LightPreview
 @DarkPreview
-internal annotation class LightDarkPreview
+annotation class LightDarkPreview
+
+@LightLongPreview
+@DarkLongPreview
+internal annotation class LightDarkLongPreview
+
+@BigFontLightPreview
+@BigFontDarkPreview
+internal annotation class BigFontPreview

@@ -55,8 +55,8 @@ val vauModule = DI.Module("vauModule") {
             endpointHelper = instance(),
             truststore = instance(),
             cryptoConfig = instance(),
-            dispatchers = instance(),
-            networkSecPrefs = instance(NetworkSecurePreferencesTag)
+            networkSecPrefs = instance(NetworkSecurePreferencesTag),
+            sessionLog = instance()
         )
     }
     bindSingleton<TruststoreTimeSourceProvider> { { Clock.System.now() } }

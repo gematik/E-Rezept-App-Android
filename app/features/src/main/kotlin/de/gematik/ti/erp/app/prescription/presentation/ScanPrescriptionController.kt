@@ -24,9 +24,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.prescription.ui.ScannedCode
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeProcessor
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeScanner
@@ -35,7 +34,9 @@ import de.gematik.ti.erp.app.prescription.ui.ValidScannedCode
 import de.gematik.ti.erp.app.prescription.ui.model.ScanData
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -90,7 +91,7 @@ class ScanPrescriptionController(
     val scanner: TwoDCodeScanner,
     val processor: TwoDCodeProcessor,
     private val validator: TwoDCodeValidator,
-    dispatchers: DispatchProvider,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.Default,
     private val context: Context,
     private val scope: CoroutineScope
 ) {
@@ -209,7 +210,7 @@ class ScanPrescriptionController(
                 )
             )
         }
-    }.flowOn(dispatchers.default)
+    }.flowOn(dispatcher)
 
     val overlayState
         @Composable
@@ -256,7 +257,6 @@ fun rememberScanPrescriptionController(): ScanPrescriptionController {
     val scanner by rememberInstance<TwoDCodeScanner>()
     val processor by rememberInstance<TwoDCodeProcessor>()
     val validator by rememberInstance<TwoDCodeValidator>()
-    val dispatchers by rememberInstance<DispatchProvider>()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     return remember {
@@ -266,9 +266,8 @@ fun rememberScanPrescriptionController(): ScanPrescriptionController {
             scanner = scanner,
             processor = processor,
             validator = validator,
-            dispatchers = dispatchers,
             context = context,
-            scope
+            scope = scope
         )
     }
 }

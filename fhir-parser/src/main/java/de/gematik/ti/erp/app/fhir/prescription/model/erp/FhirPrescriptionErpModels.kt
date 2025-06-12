@@ -18,8 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.erp
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_BUNDLE_VERSION_103
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_BUNDLE_VERSION_110
 import de.gematik.ti.erp.app.utils.FhirTemporal
@@ -35,112 +34,11 @@ data class FhirTaskMetaDataPayloadErpModel(val value: JsonElement)
 data class FirTaskKbvPayloadErpModel(val value: JsonElement)
 
 @Serializable
-data class FhirTaskKbvPatientErpModel(
-    val name: String,
-    val birthDate: FhirTemporal?,
-    val address: FhirTaskKbvAddressErpModel?,
-    val insuranceInformation: String?
-)
-
-@Serializable
-data class FhirTaskKbvAddressErpModel(
-    val streetName: String?,
-    val houseNumber: String?,
-    val postalCode: String?,
-    val city: String?
-)
-
-@Serializable
-data class FhirTaskKbvPractitionerErpModel(
-    val name: String?,
-    val qualification: String?,
-    val practitionerIdentifier: String?
-)
-
-@Serializable
-data class FhirTaskOrganizationErpModel(
-    val name: String?,
-    val address: FhirTaskKbvAddressErpModel?,
-    val bsnr: String?,
-    val iknr: String?,
-    val phone: String?,
-    val mail: String?
-)
-
-@Serializable
-data class FhirCoverageErpModel(
-    val name: String?,
-    val statusCode: String?,
-    val identifierNumber: String?, // required for diga as the iknr
-    val coverageType: String?
-)
-
-@Serializable
-data class FhirTaskKbvMedicationRequestErpModel(
-    val authoredOn: FhirTemporal.LocalDate?,
-    val dateOfAccident: FhirTemporal.LocalDate?,
-    val location: String?,
-    val accidentType: FhirTaskAccidentType,
-    val emergencyFee: Boolean?,
-    val additionalFee: String?,
-    val substitutionAllowed: Boolean,
-    val dosageInstruction: String?,
-    val note: String?,
-    val quantity: Int,
-    val multiplePrescriptionInfo: FhirMultiplePrescriptionInfoErpModel?,
-    val bvg: Boolean
-)
-
-@Serializable
-data class FhirTaskKbvMedicationErpModel(
-    val text: String?,
-    val type: String,
-    val version: String,
-    val form: String?,
-    val medicationCategory: FhirTaskMedicationCategoryErpModel,
-    val amount: FhirRatioErpModel?,
-    val isVaccine: Boolean,
-    val normSizeCode: String?,
-    val compoundingInstructions: String?,
-    val compoundingPackaging: String?,
-    val ingredients: List<FhirMedicationIngredientErpModel>,
-    val identifier: FhirMedicationIdentifierErpModel,
-    val lotNumber: String?,
-    val expirationDate: FhirTemporal?
-)
-
-@Serializable
-data class FhirTaskKbvDeviceRequestErpModel(
-    val id: String?,
-    val intent: RequestIntent,
-    val status: String,
-    val pzn: String?,
-    val appName: String?,
-    val accident: FhirAccidentInformationErpModel?,
-    val isSelfUse: Boolean,
-    val authoredOn: FhirTemporal?
-)
-
-@Serializable
 data class FhirMultiplePrescriptionInfoErpModel(
     val indicator: Boolean,
     val numbering: FhirRatioErpModel?,
     val start: FhirTemporal?,
     val end: FhirTemporal?
-)
-
-// todo move to common
-@Serializable
-data class FhirRatioErpModel(
-    val numerator: FhirQuantityErpModel?,
-    val denominator: FhirQuantityErpModel?
-)
-
-// todo move to common
-@Serializable
-data class FhirQuantityErpModel(
-    val value: String?,
-    val unit: String?
 )
 
 @Serializable
@@ -167,45 +65,71 @@ enum class FhirTaskMedicationCategoryErpModel(val code: String, val description:
 
 // https://simplifier.net/packages/hl7.fhir.r4.core/4.0.1/files/81826
 @Serializable
-sealed class RequestIntent(val code: String) {
-    @Serializable
-    data object Proposal : RequestIntent("proposal")
+sealed class RequestIntent {
+    abstract val code: String
 
     @Serializable
-    data object Plan : RequestIntent("plan")
+    data object Proposal : RequestIntent() {
+        override val code: String = "proposal"
+    }
 
     @Serializable
-    data object Directive : RequestIntent("directive")
+    data object Plan : RequestIntent() {
+        override val code: String = "plan"
+    }
 
     @Serializable
-    data object Order : RequestIntent("order")
+    data object Directive : RequestIntent() {
+        override val code: String = "directive"
+    }
 
     @Serializable
-    data object OriginalOrder : RequestIntent("original-order")
+    data object Order : RequestIntent() {
+        override val code: String = "order"
+    }
 
     @Serializable
-    data object ReflexOrder : RequestIntent("reflex-order")
+    data object OriginalOrder : RequestIntent() {
+        override val code: String = "original-order"
+    }
 
     @Serializable
-    data object FillerOrder : RequestIntent("filler-order")
+    data object ReflexOrder : RequestIntent() {
+        override val code: String = "reflex-order"
+    }
 
     @Serializable
-    data object InstanceOrder : RequestIntent("instance-order")
+    data object FillerOrder : RequestIntent() {
+        override val code: String = "filler-order"
+    }
 
     @Serializable
-    data object Option : RequestIntent("option")
+    data object InstanceOrder : RequestIntent() {
+        override val code: String = "instance-order"
+    }
 
     @Serializable
-    data class UnknownIntent(val value: String) : RequestIntent(value)
+    data object Option : RequestIntent() {
+        override val code: String = "option"
+    }
+
+    @Serializable
+    data class UnknownIntent(val value: String) : RequestIntent() {
+        override val code: String = value
+    }
 
     companion object {
-        private val knownIntents: Map<String, RequestIntent> = listOf(
-            Proposal, Plan, Directive, Order, OriginalOrder, ReflexOrder,
-            FillerOrder, InstanceOrder, Option
-        ).associateBy { it.code }
+        private val knownIntents: Map<String, RequestIntent> by lazy {
+            listOf(
+                Proposal, Plan, Directive, Order, OriginalOrder, ReflexOrder,
+                FillerOrder, InstanceOrder, Option
+            ).associateBy { it.code }
+        }
 
         fun fromCode(code: String?): RequestIntent {
-            return knownIntents[code] ?: UnknownIntent(code ?: "unknown")
+            return code?.let {
+                knownIntents[code] ?: UnknownIntent(code)
+            } ?: UnknownIntent("unknown")
         }
     }
 }
@@ -220,6 +144,7 @@ data class FhirMedicationIngredientErpModel(
 )
 
 // To be modified on DB update, right now can't change
+// todo: move to common
 @Serializable
 data class FhirMedicationIdentifierErpModel(
     val pzn: String?,

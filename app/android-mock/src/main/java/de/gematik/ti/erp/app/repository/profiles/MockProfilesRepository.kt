@@ -93,6 +93,7 @@ class MockProfilesRepository(
         profileId: ProfileIdentifier,
         insurantName: String,
         insuranceIdentifier: String,
+        organizationIdentifier: String,
         insuranceName: String
     ) {
         //  Not implemented
@@ -169,6 +170,14 @@ class MockProfilesRepository(
 
     override suspend fun isSsoTokenValid(profileId: ProfileIdentifier): Flow<Boolean> {
         return flowOf(true)
+    }
+
+    override suspend fun getOrganizationIdentifier(profileId: ProfileIdentifier): Flow<String> {
+        return flowOf("100.days.to.go")
+    }
+
+    override suspend fun updateOrganizationIdentifier(iknr: String) {
+        // no-op
     }
 
     private fun MutableList<ProfilesData.Profile>.index(profileId: ProfileIdentifier) =

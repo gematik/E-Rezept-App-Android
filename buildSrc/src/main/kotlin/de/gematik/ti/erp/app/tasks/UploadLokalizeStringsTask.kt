@@ -31,7 +31,8 @@ import org.gradle.api.tasks.TaskContainer
 import java.io.File
 import java.util.Base64
 
-private val applicationJson = "application/json"
+@Suppress("TopLevelPropertyNaming")
+private const val applicationJson = "application/json"
 
 fun TaskContainer.uploadLokaliseStrings() {
     register(TaskNames.uploadLokaliseStrings) {
@@ -49,7 +50,7 @@ fun TaskContainer.uploadLokaliseStrings() {
             )
 
         val sourceFilePath = project.findProperty("sourcePath") as? String
-            ?: "app/features/src/main/res/values/strings.xml"
+            ?: "app-core/src/main/res/values/strings.xml"
 
         val sourceFile = File(sourceFilePath)
 

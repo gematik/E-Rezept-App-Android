@@ -42,7 +42,7 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.theme.PaddingDefaults

@@ -66,6 +66,7 @@ data class RemoteFederationIdp(
     @SerialName("idp_name") val name: String,
     @SerialName("idp_iss") val id: String,
     @SerialName("idp_sek_2") val isGid: Boolean,
+    @SerialName("idp_pkv") val isPKV: Boolean,
     @SerialName("idp_logo") val logo: String?
 )
 
@@ -116,6 +117,7 @@ data class IdpAuthFlowResult(
     val expiresOn: Instant,
     val ssoToken: String,
     val idTokenInsurantName: String,
+    val organizationIdentifier: String,
     val idTokenInsuranceIdentifier: String,
     val idTokenInsuranceName: String
 )

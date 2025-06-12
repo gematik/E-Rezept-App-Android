@@ -70,7 +70,7 @@ import de.gematik.ti.erp.app.cardwall.ui.components.InfoText
 import de.gematik.ti.erp.app.cardwall.ui.components.pinRetriesLeft
 import de.gematik.ti.erp.app.cardwall.ui.components.rotatingScanCardAssistance
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.buildFeedbackBodyWithDeviceInfo

@@ -18,10 +18,10 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMultiplePrescriptionInfoErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirRatioErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationRequestErpModel
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.LocalDate
@@ -31,7 +31,7 @@ object FhirMedicationRequestErpTestData {
         authoredOn = FhirTemporal.LocalDate(LocalDate.parse("2022-08-17")),
         dateOfAccident = FhirTemporal.LocalDate(LocalDate.parse("2022-06-29")),
         location = "Dummy-Betrieb",
-        accidentType = FhirTaskAccidentType.None,
+        accidentType = FhirTaskAccidentType.WorkAccident,
         emergencyFee = false,
         additionalFee = null,
         substitutionAllowed = true,
@@ -68,6 +68,26 @@ object FhirMedicationRequestErpTestData {
             ),
             start = FhirTemporal.LocalDate(LocalDate.parse("2022-05-20")),
             end = FhirTemporal.LocalDate(LocalDate.parse("2022-06-30"))
+        ),
+        bvg = false
+    )
+
+    val erpMedicationRequestWithAccidentInfoModelV110 = FhirTaskKbvMedicationRequestErpModel(
+        authoredOn = FhirTemporal.LocalDate(LocalDate.parse("2025-04-14")),
+        dateOfAccident = FhirTemporal.LocalDate(LocalDate.parse("2024-07-01")),
+        location = null,
+        accidentType = FhirTaskAccidentType.Accident,
+        emergencyFee = false,
+        additionalFee = "0",
+        substitutionAllowed = true,
+        dosageInstruction = null,
+        note = null,
+        quantity = 1,
+        multiplePrescriptionInfo = FhirMultiplePrescriptionInfoErpModel(
+            indicator = false,
+            numbering = null,
+            start = null,
+            end = null
         ),
         bvg = false
     )

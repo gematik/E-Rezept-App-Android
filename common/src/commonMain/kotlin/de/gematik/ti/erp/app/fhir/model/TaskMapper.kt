@@ -220,17 +220,4 @@ fun extractTask(
     )
 }
 
-private fun mapTaskStatus(status: String): TaskStatus = when (status) {
-    "ready" -> TaskStatus.Ready
-    "in-progress" -> TaskStatus.InProgress
-    "completed" -> TaskStatus.Completed
-    "cancelled" -> TaskStatus.Canceled
-    "accepted" -> TaskStatus.Accepted
-    "draft" -> TaskStatus.Draft
-    "failed" -> TaskStatus.Failed
-    "on-hold" -> TaskStatus.OnHold
-    "requested" -> TaskStatus.Requested
-    "received" -> TaskStatus.Received
-    "rejected" -> TaskStatus.Rejected
-    else -> TaskStatus.Other
-}
+private fun mapTaskStatus(status: String): TaskStatus = TaskStatus.fromString(status)

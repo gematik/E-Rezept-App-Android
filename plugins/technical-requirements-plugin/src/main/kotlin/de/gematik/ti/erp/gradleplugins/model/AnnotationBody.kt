@@ -18,9 +18,6 @@
 
 package de.gematik.ti.erp.gradleplugins.model
 
-import de.gematik.ti.erp.gradleplugins.CODE_LINE
-import de.gematik.ti.erp.gradleplugins.RATIONALE
-
 data class AnnotationBody(
     val fileName: String,
     val line: Int,
@@ -44,17 +41,7 @@ data class AnnotationBody(
         }
     }
 
-    fun rationale(): String {
-        return rationale.split(CODE_LINE)
-            .first()
-            .replace(RATIONALE, "")
-            .replace(CODE_LINE, "")
-            .replace("\",", "")
-            .replace("\"", "")
-            .replace("+", " ")
-            .replace("\n", "")
-            .removeSuffix(")")
-    }
+    fun rationale(): String = rationale
 }
 
 data class CodeBlock(val code: List<String>)

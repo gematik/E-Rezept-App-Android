@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription
 
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
+import de.gematik.ti.erp.app.base.usecase.GetLastSuccessfulRefreshedTimeUseCase
 import de.gematik.ti.erp.app.prescription.repository.DefaultPrescriptionRepository
 import de.gematik.ti.erp.app.prescription.repository.DownloadResourcesStateRepository
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionLocalDataSource
@@ -27,8 +28,10 @@ import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeProcessor
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeScanner
 import de.gematik.ti.erp.app.prescription.ui.TwoDCodeValidator
+import de.gematik.ti.erp.app.prescription.usecase.ArchiveExpiredDigasUseCase
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetActivePrescriptionsUseCase
+import de.gematik.ti.erp.app.prescription.usecase.GetArchivedDigasUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetArchivedPrescriptionsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesDetailStateUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesSnapshotStateUseCase
@@ -51,8 +54,10 @@ val prescriptionModule =
         bindSingleton { PrescriptionLocalDataSource(instance()) }
         bindSingleton { PrescriptionRemoteDataSource(instance()) }
         bindSingleton { PrescriptionUseCase(instance(), instance(), instance()) }
+        bindProvider { GetLastSuccessfulRefreshedTimeUseCase(instance()) }
         bindProvider {
             DownloadAllResourcesUseCase(
+                instance(),
                 instance(),
                 instance(),
                 instance(),
@@ -71,6 +76,8 @@ val prescriptionModule =
         bindProvider { GetTaskIdsUseCase(instance()) }
         bindProvider { GetDownloadResourcesDetailStateUseCase(instance()) }
         bindProvider { GetDownloadResourcesSnapshotStateUseCase(instance()) }
+        bindSingleton { GetArchivedDigasUseCase(instance()) }
+        bindSingleton { ArchiveExpiredDigasUseCase(instance()) }
     }
 
 val prescriptionRepositoryModule =

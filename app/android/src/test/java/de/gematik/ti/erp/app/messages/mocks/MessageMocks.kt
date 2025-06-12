@@ -18,11 +18,12 @@
 
 package de.gematik.ti.erp.app.messages.mocks
 
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
+import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -49,6 +50,8 @@ object MessageMocks {
     private const val MOCK_PRACTITIONER_NAME = "Dr. John Doe"
 
     internal const val MOCK_PROFILE_IDENTIFIER = "testProfileIdentifier"
+
+    const val MESSAGE_TIMESTAMP = "2024-01-01T10:00:00Z"
 
     private val MOCK_PAYLOAD = """
             {
@@ -89,39 +92,45 @@ object MessageMocks {
         taskId = MOCK_TASK_ID_01,
         name = null,
         redeemedOn = null,
-        expiresOn = Instant.fromEpochSeconds(123456),
+        expiresOn = Instant.parse(MESSAGE_TIMESTAMP),
         state = SyncedTaskData.SyncedTask.Expired(
-            expiredOn = Instant.fromEpochSeconds(123456)
+            expiredOn = Instant.parse(MESSAGE_TIMESTAMP)
         ),
         isIncomplete = false,
         organization = MOCK_PRACTITIONER_NAME,
-        authoredOn = Instant.fromEpochSeconds(123456),
-        acceptUntil = Instant.fromEpochSeconds(123456),
+        authoredOn = Instant.parse(MESSAGE_TIMESTAMP),
+        acceptUntil = Instant.parse(MESSAGE_TIMESTAMP),
         isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO
+        prescriptionChipInformation = MOCK_CHIP_INFO,
+        isNew = false,
+        deviceRequestState = DigaStatus.Ready,
+        lastModified = Instant.parse(MESSAGE_TIMESTAMP)
     )
 
     val MOCK_PRESCRIPTION_02 = Prescription.SyncedPrescription(
         taskId = MOCK_TASK_ID_02,
         name = null,
         redeemedOn = null,
-        expiresOn = Instant.fromEpochSeconds(123456),
+        expiresOn = Instant.parse(MESSAGE_TIMESTAMP),
         state = SyncedTaskData.SyncedTask.Expired(
-            expiredOn = Instant.fromEpochSeconds(123456)
+            expiredOn = Instant.parse(MESSAGE_TIMESTAMP)
         ),
         isIncomplete = false,
         organization = MOCK_PRACTITIONER_NAME,
-        authoredOn = Instant.fromEpochSeconds(123456),
-        acceptUntil = Instant.fromEpochSeconds(123456),
+        authoredOn = Instant.parse(MESSAGE_TIMESTAMP),
+        acceptUntil = Instant.parse(MESSAGE_TIMESTAMP),
         isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO
+        prescriptionChipInformation = MOCK_CHIP_INFO,
+        isNew = false,
+        deviceRequestState = DigaStatus.Ready,
+        lastModified = Instant.parse(MESSAGE_TIMESTAMP)
     )
 
     private val MOCK_TASK_DETAIL_BUNDLE_01 = OrderUseCaseData.TaskDetailedBundle(
         prescription = MOCK_PRESCRIPTION_01,
         invoiceInfo = OrderUseCaseData.InvoiceInfo(
             hasInvoice = true,
-            invoiceSentOn = Instant.fromEpochSeconds(123456)
+            invoiceSentOn = Instant.parse(MESSAGE_TIMESTAMP)
         )
     )
 
@@ -129,7 +138,7 @@ object MessageMocks {
         prescription = MOCK_PRESCRIPTION_02,
         invoiceInfo = OrderUseCaseData.InvoiceInfo(
             hasInvoice = true,
-            invoiceSentOn = Instant.fromEpochSeconds(123456)
+            invoiceSentOn = Instant.parse(MESSAGE_TIMESTAMP)
         )
     )
 
@@ -139,7 +148,7 @@ object MessageMocks {
             MOCK_TASK_DETAIL_BUNDLE_01,
             MOCK_TASK_DETAIL_BUNDLE_02
         ),
-        sentOn = Instant.fromEpochSeconds(123456),
+        sentOn = Instant.parse(MESSAGE_TIMESTAMP),
         pharmacy = OrderUseCaseData.Pharmacy(MOCK_PHARMACY_O1.name, ""),
         hasUnreadMessages = false
     )
@@ -147,7 +156,7 @@ object MessageMocks {
     internal val MOCK_ORDER_01 = OrderUseCaseData.Order(
         orderId = MOCK_ORDER_ID,
         prescriptions = listOf(null),
-        sentOn = Instant.fromEpochSeconds(123456),
+        sentOn = Instant.parse(MESSAGE_TIMESTAMP),
         pharmacy = OrderUseCaseData.Pharmacy(MOCK_PHARMACY_O1.name, ""),
         hasUnreadMessages = true,
         latestCommunicationMessage = null
@@ -158,7 +167,7 @@ object MessageMocks {
         communicationId = MOCK_COMMUNICATION_ID_01,
         orderId = MOCK_ORDER_ID,
         profile = CommunicationProfile.ErxCommunicationDispReq,
-        sentOn = Instant.fromEpochSeconds(123456),
+        sentOn = Instant.parse(MESSAGE_TIMESTAMP),
         sender = "sender1",
         recipient = MOCK_PHARMACY_O1.name,
         payload = "payload1",
@@ -174,7 +183,7 @@ object MessageMocks {
         communicationId = MOCK_COMMUNICATION_ID_02,
         orderId = MOCK_ORDER_ID,
         profile = CommunicationProfile.ErxCommunicationDispReq,
-        sentOn = Instant.fromEpochSeconds(123456),
+        sentOn = Instant.parse(MESSAGE_TIMESTAMP),
         sender = "sender2",
         recipient = MOCK_PHARMACY_O2.name,
         payload = "payload2",
@@ -246,7 +255,7 @@ object MessageMocks {
         profileId = "testProfileId",
         taskId = MOCK_TASK_ID_01,
         accessCode = "testAccessCode",
-        timestamp = Instant.fromEpochSeconds(123456),
+        timestamp = Instant.parse(MESSAGE_TIMESTAMP),
         pharmacyOrganization = MOCK_ORGANIZATION,
         practitionerOrganization = MOCK_ORGANIZATION,
         practitioner = MOCK_PRACTITIONER,
@@ -262,7 +271,7 @@ object MessageMocks {
         profileId = "testProfileId",
         taskId = MOCK_TASK_ID_02,
         accessCode = "testAccessCode",
-        timestamp = Instant.fromEpochSeconds(123456),
+        timestamp = Instant.parse(MESSAGE_TIMESTAMP),
         pharmacyOrganization = MOCK_ORGANIZATION,
         practitionerOrganization = MOCK_ORGANIZATION,
         practitioner = MOCK_PRACTITIONER,
@@ -278,7 +287,7 @@ object MessageMocks {
         profileId = "testProfileId",
         taskId = MOCK_TASK_ID_01,
         accessCode = "testAccessCode",
-        lastModified = Instant.fromEpochSeconds(123456),
+        lastModified = Instant.parse(MESSAGE_TIMESTAMP),
         organization = MOCK_ORGANIZATION,
         practitioner = MOCK_PRACTITIONER,
         patient = MOCK_PATIENT,
@@ -287,9 +296,9 @@ object MessageMocks {
             status = "Active",
             coverageType = SyncedTaskData.CoverageType.GKV
         ),
-        expiresOn = Instant.fromEpochSeconds(123456),
-        acceptUntil = Instant.fromEpochSeconds(123456),
-        authoredOn = Instant.fromEpochSeconds(123456),
+        expiresOn = Instant.parse(MESSAGE_TIMESTAMP),
+        acceptUntil = Instant.parse(MESSAGE_TIMESTAMP),
+        authoredOn = Instant.parse(MESSAGE_TIMESTAMP),
         status = SyncedTaskData.TaskStatus.Ready,
         isIncomplete = false,
         pvsIdentifier = "testPvsIdentifier",
@@ -304,7 +313,7 @@ object MessageMocks {
         profileId = "testProfileId",
         taskId = MOCK_TASK_ID_02,
         accessCode = "testAccessCode",
-        lastModified = Instant.fromEpochSeconds(123456),
+        lastModified = Instant.parse(MESSAGE_TIMESTAMP),
         organization = MOCK_ORGANIZATION,
         practitioner = MOCK_PRACTITIONER,
         patient = MOCK_PATIENT,
@@ -313,9 +322,9 @@ object MessageMocks {
             status = "Active",
             coverageType = SyncedTaskData.CoverageType.GKV
         ),
-        expiresOn = Instant.fromEpochSeconds(123456),
-        acceptUntil = Instant.fromEpochSeconds(123456),
-        authoredOn = Instant.fromEpochSeconds(123456),
+        expiresOn = Instant.parse(MESSAGE_TIMESTAMP),
+        acceptUntil = Instant.parse(MESSAGE_TIMESTAMP),
+        authoredOn = Instant.parse(MESSAGE_TIMESTAMP),
         status = SyncedTaskData.TaskStatus.Ready,
         isIncomplete = false,
         pvsIdentifier = "testPvsIdentifier",
@@ -328,7 +337,7 @@ object MessageMocks {
 
     internal val MOCK_MESSAGE_01 = OrderUseCaseData.Message(
         communicationId = MOCK_COMMUNICATION_ID_01,
-        sentOn = Instant.fromEpochSeconds(123456),
+        sentOn = Instant.parse(MESSAGE_TIMESTAMP),
         content = "mock message.",
         pickUpCodeDMC = "Test_01___Rezept_01___abcdefg12345",
         pickUpCodeHR = "T01__R01",
@@ -339,7 +348,7 @@ object MessageMocks {
 
     internal val MOCK_MESSAGE_02 = OrderUseCaseData.Message(
         communicationId = MOCK_COMMUNICATION_ID_02,
-        sentOn = Instant.fromEpochSeconds(123456),
+        sentOn = Instant.parse(MESSAGE_TIMESTAMP),
         content = "mock message_02.",
         pickUpCodeDMC = "Test_01___Rezept_02___abcdefg12345",
         pickUpCodeHR = "T01__R02",

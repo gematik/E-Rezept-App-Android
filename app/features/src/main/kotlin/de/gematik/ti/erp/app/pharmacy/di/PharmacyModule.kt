@@ -18,7 +18,9 @@
 
 package de.gematik.ti.erp.app.pharmacy.di
 
+import de.gematik.ti.erp.app.fhir.pharmacy.parser.OrganizationParser
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
+import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.pharmacy.presentation.DefaultPharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController
 import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacyRepository
@@ -88,7 +90,11 @@ val pharmacyModule = DI.Module("pharmacyModule", allowSilentOverride = true) {
 
 val pharmacyRepositoryModule = DI.Module("pharmacyRepositoryModule", allowSilentOverride = true) {
     bindSingleton { PreviewMapCoordinatesDataSource() }
+
+    // parsers
     bindProvider { PharmacyBundleParser() }
+    bindProvider { OrganizationParser() }
+    bindProvider { PharmacyParsers(instance(), instance()) }
 
     // data-sources
     bindProvider { ApoVzdRemoteDataSource(instance(), instance()) }

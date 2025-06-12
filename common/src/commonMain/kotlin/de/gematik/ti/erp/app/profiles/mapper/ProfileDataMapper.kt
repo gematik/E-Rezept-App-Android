@@ -61,6 +61,7 @@ fun ProfileEntityV1.toProfileData(
         insurantName = this.insurantName ?: "",
         insuranceIdentifier = this.insuranceIdentifier,
         insuranceName = this.insuranceName,
+        insuranceOrganizationIdentifier = this.organizationIdentifier,
         insuranceType = when (this.insuranceType) {
             InsuranceTypeV1.GKV -> ProfilesData.InsuranceType.GKV
             InsuranceTypeV1.PKV -> ProfilesData.InsuranceType.PKV

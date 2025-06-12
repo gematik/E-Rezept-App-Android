@@ -61,7 +61,7 @@ import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.demomode.di.demoModeModule
 import de.gematik.ti.erp.app.demomode.di.demoModeOverrides
 import de.gematik.ti.erp.app.features.BuildConfig
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.medicationplan.DefaultShowMedicationPlanSuccessScreenObserver
 import de.gematik.ti.erp.app.medicationplan.ShowMedicationPlanSuccessObserver
 import de.gematik.ti.erp.app.timeouts.usecase.GetPauseMetricUseCase

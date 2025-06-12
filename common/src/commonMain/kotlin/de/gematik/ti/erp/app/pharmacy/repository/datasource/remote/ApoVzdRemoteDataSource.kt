@@ -94,4 +94,12 @@ class ApoVzdRemoteDataSource(
                 searchService.searchByTelematikId(telematikId = telematikId)
             }
         }
+
+    // should not be called for apo-vzd
+    override suspend fun searchByInsuranceProvider(
+        institutionIdentifier: String,
+        onUnauthorizedException: suspend () -> Unit
+    ): Result<JsonElement> {
+        return Result.failure(NotImplementedError())
+    }
 }

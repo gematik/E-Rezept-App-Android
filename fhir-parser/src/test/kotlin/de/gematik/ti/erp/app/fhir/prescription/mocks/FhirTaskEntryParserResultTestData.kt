@@ -18,8 +18,8 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskEntryParserResultErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Instant

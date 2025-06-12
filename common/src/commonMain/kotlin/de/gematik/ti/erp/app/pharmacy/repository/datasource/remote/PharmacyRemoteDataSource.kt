@@ -33,4 +33,5 @@ interface PharmacyRemoteDataSource {
     ): Result<Unit>
 
     suspend fun searchPharmacyByTelematikId(telematikId: String, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
+    suspend fun searchByInsuranceProvider(institutionIdentifier: String, onUnauthorizedException: suspend () -> Unit): Result<JsonElement>
 }

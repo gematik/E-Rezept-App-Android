@@ -16,5 +16,11 @@
         "text": "📖 **Funzione di lettura ad alta voce** \nAbbiamo rielaborato diverse pagine per renderle più facili da leggere ad alta voce con TalkBack. Ciò migliora notevolmente l'usabilità per le persone con disabilità visive. \n \n📞 **Opzioni di contatto estese** \nAbbiamo introdotto nuove opzioni di contatto per compagnie assicurative selezionate. \n \n🔧 **Funzioni ottimizzate** \nAbbiamo corretto piccoli errori durante la lettura della carta, ripulito il codice e migliorato la visualizzazione dei messaggi.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Riscatta le prescrizioni DiGA** \n D'ora in poi puoi riscattare le prescrizioni per le applicazioni sanitarie digitali (DiGA) direttamente tramite l'app per le prescrizioni elettroniche. Riceverai il codice di attivazione e il link all'app prescritta subito dopo il riscatto. \n \n **🏥 Nuovo database delle farmacie** \n Abbiamo introdotto un nuovo database a prova di futuro per le ricerche in farmacia.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

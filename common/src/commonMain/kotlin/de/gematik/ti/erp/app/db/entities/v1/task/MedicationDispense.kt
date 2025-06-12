@@ -28,10 +28,10 @@ class MedicationDispenseEntityV1 : RealmObject, Cascading {
     var dispenseId: String = ""
     var patientIdentifier: String = "" // KVNR
     var medication: MedicationEntityV1? = null
+    var deviceRequest: DeviceRequestDispenseEntityV1? = null
     var wasSubstituted: Boolean = false
     var dosageInstruction: String? = null
     var performer: String = "" // Telematik-ID
-
     var _handedOverOn: String? = null
 
     @delegate:Ignore
@@ -39,5 +39,6 @@ class MedicationDispenseEntityV1 : RealmObject, Cascading {
 
     override fun objectsToFollow(): Iterator<Deleteable> = iterator {
         medication?.let { yield(it) }
+        deviceRequest?.let { yield(it) }
     }
 }

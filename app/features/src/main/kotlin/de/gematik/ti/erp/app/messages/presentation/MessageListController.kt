@@ -26,8 +26,8 @@ import androidx.compose.ui.platform.LocalContext
 import de.gematik.ti.erp.app.analytics.model.TrackedEvent
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.animated.AnimationTime
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.Controller
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
@@ -35,7 +35,7 @@ import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.model.LastMessage
 import de.gematik.ti.erp.app.messages.model.LastMessageDetails
-import de.gematik.ti.erp.app.messages.model.getTimeState
+import de.gematik.ti.erp.app.timestate.getTimeState
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import io.github.aakira.napier.Napier
@@ -57,7 +57,9 @@ class MessageListController(
     private val context: Context
 ) : Controller() {
     private val selectedAppLanguage = context.resources.configuration.locales[0].language
-    private val _messagesList: MutableStateFlow<UiState<List<InAppMessage>>> = MutableStateFlow(UiState.Loading())
+    private val _messagesList: MutableStateFlow<UiState<List<InAppMessage>>> = MutableStateFlow(
+        UiState.Loading()
+    )
     val messagesList: StateFlow<UiState<List<InAppMessage>>> = _messagesList.asStateFlow()
 
     init {

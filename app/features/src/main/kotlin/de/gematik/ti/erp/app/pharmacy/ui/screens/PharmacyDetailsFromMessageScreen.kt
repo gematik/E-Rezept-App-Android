@@ -18,75 +18,23 @@
 
 package de.gematik.ti.erp.app.pharmacy.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.pharmacy.ui.components.PharmacyDetailsComponent
 import de.gematik.ti.erp.app.pharmacy.ui.components.ScreenType
-import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.theme.PaddingDefaults
-import de.gematik.ti.erp.app.theme.SizeDefaults
 
 class PharmacyDetailsFromMessageScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
-) : BottomSheetScreen(forceToMaxHeight = false) {
+) : BottomSheetScreen(forceToMaxHeight = false, withCloseButton = true) {
     @Composable
     override fun Content() {
-        ContentWithCloseButton(onClose = { navController.popBackStack() }) {
-            PharmacyDetailsComponent(
-                navController = navController,
-                navBackStackEntry = navBackStackEntry,
-                screenType = ScreenType.ForMessage
-            )
-        }
-    }
-}
-
-@Composable
-private fun ContentWithCloseButton(
-    onClose: () -> Unit,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    Column {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(horizontal = PaddingDefaults.Small),
-            horizontalArrangement = Arrangement.End
-        ) {
-            IconButton(
-                onClick = onClose,
-                modifier = Modifier
-                    .padding(top = SizeDefaults.one)
-            ) {
-                Box(
-                    Modifier
-                        .size(SizeDefaults.fourfold)
-                        .background(AppTheme.colors.neutral100, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(Icons.Rounded.Close, contentDescription = null, tint = AppTheme.colors.neutral600)
-                }
-            }
-        }
-        content()
+        PharmacyDetailsComponent(
+            navController = navController,
+            navBackStackEntry = navBackStackEntry,
+            screenType = ScreenType.ForMessage
+        )
     }
 }

@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.HttpErrorState.ErrorWithCause
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
@@ -31,7 +32,7 @@ import de.gematik.ti.erp.app.base.collectResult
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult
@@ -106,7 +107,7 @@ class InvoiceController(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    val invoices: StateFlow<UiState<Map<de.gematik.ti.erp.app.fhir.parser.Year, List<InvoiceData.PKVInvoiceRecord>>>> by lazy {
+    val invoices: StateFlow<UiState<Map<Year, List<InvoiceData.PKVInvoiceRecord>>>> by lazy {
         getInvoicesTrigger.flatMapLatest { getInvoices() }
             .stateIn(
                 controllerScope,

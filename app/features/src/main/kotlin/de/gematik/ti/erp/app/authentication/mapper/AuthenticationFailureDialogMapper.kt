@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.authentication.mapper
 
 import de.gematik.ti.erp.app.authentication.model.AuthenticationDialogParameter
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 
 fun (AuthenticationResult.Error).toDialogMapper(): AuthenticationDialogParameter? =
     when (this) {

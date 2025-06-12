@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.communication.parser
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationEntryErpModel
@@ -29,6 +30,18 @@ import de.gematik.ti.erp.app.fhir.communication.model.original.FhirCommunication
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 
+@Requirement(
+    "O.Source_2#12",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = """
+        This parser handles structured FHIR `Communication` resources securely by:
+            • Extracting communication entries from the bundle and validating the presence of supported `Communication` profile types [`REPLY`, `DISPENSE`].
+            • Applying strict version validation via dedicated profile-version matchers for each type.
+            • Mapping only version-conformant entries to internal ERP models via safe mapping functions.
+            • Logging and skipping any unknown, malformed, or unsupported profile types or versions without failing the entire parsing process.
+        This ensures compliance which mandates secure and profile-conformant parsing of structured `Communication` input.
+    """
+)
 class CommunicationParser : BundleParser {
 
     override fun extract(bundle: JsonElement): FhirCommunicationBundleErpModel? {

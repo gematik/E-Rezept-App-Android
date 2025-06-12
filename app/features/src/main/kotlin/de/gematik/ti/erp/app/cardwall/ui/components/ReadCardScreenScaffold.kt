@@ -69,7 +69,7 @@ import com.airbnb.lottie.compose.rememberLottieComposition
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.usecase.model.NfcPositionUseCaseData
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerTiny

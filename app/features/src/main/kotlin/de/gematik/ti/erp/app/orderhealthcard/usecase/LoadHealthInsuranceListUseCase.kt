@@ -19,24 +19,50 @@
 package de.gematik.ti.erp.app.orderhealthcard.usecase
 
 import android.content.Context
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.orderhealthcard.presentation.HealthInsuranceCompany
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 
 class LoadHealthInsuranceListUseCase(
-    private val context: Context
+    private val context: Context,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
-    private val companies: List<HealthInsuranceCompany> by lazy {
-        loadHealthInsuranceContactsFromJSON(
-            context.resources.openRawResourceFd(R.raw.health_insurance_contacts).createInputStream()
-        ).sortedBy { it.name.lowercase() }
+    private val companiesLock = Mutex()
+
+    @Volatile
+    private var cachedCompanies: List<HealthInsuranceCompany>? = null
+
+    private suspend fun loadCompanies(): List<HealthInsuranceCompany> {
+        cachedCompanies?.let { return it }
+
+        return companiesLock.withLock {
+            cachedCompanies?.let { return it }
+
+            // Explicitly switch to the IO dispatcher
+            withContext(dispatcher) {
+                val inputStream = context.resources
+                    .openRawResourceFd(R.raw.health_insurance_contacts)
+                    .createInputStream()
+
+                val loaded = loadHealthInsuranceContactsFromJSON(inputStream)
+                    .sortedBy { it.name.lowercase() }
+
+                cachedCompanies = loaded
+                loaded
+            }
+        }
     }
 
     operator fun invoke(): Flow<List<HealthInsuranceCompany>> = flow {
-        emit(companies)
+        emit(loadCompanies())
     }
 }
 

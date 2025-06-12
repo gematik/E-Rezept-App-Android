@@ -35,6 +35,7 @@ class AppDependencyNamesPlugin : ErpPlugin {
     val tracker = ":app:tracker"
     val fhirParser = ":fhir-parser"
     val utils = ":utils"
+    val core = ":app-core"
     val uiComponents = ":ui-components"
     val demoMode = ":app:demo-mode"
     val testActions = ":app:test-actions"

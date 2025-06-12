@@ -22,9 +22,10 @@ import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.composable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import de.gematik.ti.erp.app.analytics.navigation.trackingGraph
@@ -39,8 +40,11 @@ import de.gematik.ti.erp.app.core.LocalBottomSheetNavigator
 import de.gematik.ti.erp.app.core.LocalDi
 import de.gematik.ti.erp.app.core.LocalNavController
 import de.gematik.ti.erp.app.debugsettings.navigation.showcaseScreensGraph
+import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
+import de.gematik.ti.erp.app.digas.navigation.digasGraph
 import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
+import de.gematik.ti.erp.app.medicationplan.navigation.medicationPlanGraph
 import de.gematik.ti.erp.app.messages.navigation.messagesGraph
 import de.gematik.ti.erp.app.mlkit.navigation.mlKitGraph
 import de.gematik.ti.erp.app.navigation.NavigationGraphBuilder
@@ -53,7 +57,6 @@ import de.gematik.ti.erp.app.pkv.navigation.pkvGraph
 import de.gematik.ti.erp.app.prescription.detail.navigation.prescriptionDetailGraph
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.navigation.prescriptionGraph
-import de.gematik.ti.erp.app.medicationplan.navigation.medicationPlanGraph
 import de.gematik.ti.erp.app.profiles.navigation.profileGraph
 import de.gematik.ti.erp.app.redeem.navigation.redeemGraph
 import de.gematik.ti.erp.app.settings.navigation.settingsGraph
@@ -62,6 +65,8 @@ import de.gematik.ti.erp.app.ui.DebugScreenWrapper
 import de.gematik.ti.erp.app.userauthentication.navigation.UserAuthenticationRoutes
 import de.gematik.ti.erp.app.userauthentication.navigation.userAuthenticationGraph
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collectLatest
 
 @SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterialNavigationApi::class)
@@ -70,11 +75,21 @@ import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMe
 fun NavigationGraph(
     authentication: AuthenticationModeAndMethod?,
     isDemoMode: Boolean,
-    padding: ApplicationInnerPadding
+    padding: ApplicationInnerPadding,
+    digaPromptFeedback: Flow<Boolean>,
+    onDigaNavigationActivated: () -> Unit
 ) {
     val dependencyInjector = LocalDi.current
     val bottomSheetNavigator = LocalBottomSheetNavigator.current
     val navHostController = LocalNavController.current
+
+    val authRequired = remember(authentication, isDemoMode) {
+        authentication is AuthenticationModeAndMethod.AuthenticationRequired && !isDemoMode
+    }
+
+    val isAuthenticated = remember(authentication, isDemoMode) {
+        authentication is AuthenticationModeAndMethod.Authenticated && !isDemoMode
+    }
 
     LocalActivity.current.setApplicationInnerPadding(padding)
     val currentActivity = LocalActivity.current as BaseActivity
@@ -88,7 +103,7 @@ fun NavigationGraph(
 
     val currentBackStack by navHostController.currentBackStack.collectAsStateWithLifecycle()
 
-    DisposableEffect(showMedicationSuccess) {
+    DisposableEffect(showMedicationSuccess, authRequired) {
         if (showMedicationSuccess && currentBackStack.isNotEmpty()) {
             navHostController.navigate(MedicationPlanRoutes.MedicationPlanNotificationSuccess.path())
         }
@@ -96,10 +111,15 @@ fun NavigationGraph(
             currentActivity.medicationSuccessHasBeenShown()
         }
     }
-    LaunchedEffect(authentication) {
+    LaunchedEffect(authRequired) {
         if (authentication is AuthenticationModeAndMethod.AuthenticationRequired && !isDemoMode) {
             navHostController.navigate(UserAuthenticationRoutes.UserAuthenticationScreen.path())
         }
+    }
+
+    ObserveDigaFeedbackNavigation(digaPromptFeedback, isAuthenticated) {
+        navHostController.navigate(DigasRoutes.DigaFeedbackPromptScreen.path())
+        onDigaNavigationActivated()
     }
 
     NavigationGraphBuilder(
@@ -145,9 +165,28 @@ fun NavigationGraph(
             dependencyInjector = dependencyInjector,
             navController = navHostController
         )
+        digasGraph(
+            dependencyInjector = dependencyInjector,
+            navController = navHostController
+        )
         userAuthenticationGraph(navController = navHostController)
         composable(MainNavigationScreens.Debug.route) {
             DebugScreenWrapper(navHostController)
+        }
+    }
+}
+
+@Composable
+private fun ObserveDigaFeedbackNavigation(
+    promptDigaFeedbackFlow: Flow<Boolean>,
+    isAuthenticated: Boolean,
+    onNavigate: () -> Unit
+) {
+    LaunchedEffect(isAuthenticated) {
+        promptDigaFeedbackFlow.collectLatest { shouldNavigate ->
+            if (shouldNavigate && isAuthenticated) {
+                onNavigate()
+            }
         }
     }
 }
@@ -158,9 +197,10 @@ private fun shouldOnboardingBeDone(onboardingSucceeded: Boolean, showMedicationS
             if (showMedicationSuccess) {
                 MedicationPlanRoutes.MedicationPlanNotificationSuccess.path()
             } else {
-                PrescriptionRoutes.PrescriptionsScreen.path()
+                PrescriptionRoutes.PrescriptionListScreen.path()
             }
         }
+
         false -> OnboardingRoutes.OnboardingWelcomeScreen.path()
     }
 

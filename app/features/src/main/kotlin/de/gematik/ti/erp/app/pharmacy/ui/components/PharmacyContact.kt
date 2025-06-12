@@ -32,7 +32,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.dateTimeHHMMFormatter
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockDetailedInfoText
 import de.gematik.ti.erp.app.pharmacy.ui.preview.mockOpeningHours
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.OpeningHours
@@ -46,7 +47,6 @@ import de.gematik.ti.erp.app.utils.compose.ErezeptText
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.extensions.dateTimeHHMMFormatter
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime

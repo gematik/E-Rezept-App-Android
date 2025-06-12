@@ -18,20 +18,18 @@
 
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirFullUrlResourceEntry
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
 internal data class FhirVZDBundle(
     @SerialName("resourceType") val resourceType: String,
     @SerialName("id") val id: String,
     @SerialName("total") val numberOfEntries: Int,
-    @SerialName("entry") val entries: List<FhirVZDEntry> = emptyList()
+    @SerialName("entry") val entries: List<FhirFullUrlResourceEntry> = emptyList()
 ) {
     companion object {
         fun JsonElement.getBundle(): FhirVZDBundle {
@@ -46,18 +44,4 @@ internal enum class FhirVzdResourceType {
     HealthcareService,
     Endpoint,
     Unknown;
-}
-
-@Serializable
-internal data class FhirVZDEntry(
-    @SerialName("fullUrl") val fullUrl: String?,
-    @SerialName("resource") val resource: JsonElement?
-) {
-    companion object {
-        fun FhirVZDEntry.getResourceType(): FhirVzdResourceType {
-            val resourceType = (this.resource as JsonObject)["resourceType"]?.jsonPrimitive?.contentOrNull
-            return runCatching { FhirVzdResourceType.valueOf(resourceType.orEmpty()) }
-                .getOrElse { FhirVzdResourceType.Unknown }
-        }
-    }
 }

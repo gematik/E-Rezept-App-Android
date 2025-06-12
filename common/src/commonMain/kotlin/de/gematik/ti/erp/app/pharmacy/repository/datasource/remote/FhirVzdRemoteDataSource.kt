@@ -32,6 +32,8 @@ class FhirVzdRemoteDataSource(
     private val searchService: FhirVzdPharmacySearchService
 ) : PharmacyRemoteDataSource {
 
+    private fun insuranceIdentifierTag(institutionIdentifier: String) = "http://fhir.de/StructureDefinition/identifier-iknr|$institutionIdentifier"
+
     private suspend fun <T : Any> safeApiCallWithUnauthorizedRetry(
         errorMessage: String,
         onUnauthorizedException: suspend () -> Unit,
@@ -73,7 +75,7 @@ class FhirVzdRemoteDataSource(
             onUnauthorizedException = onUnauthorizedException
         ) {
             searchService.search(
-                name = filter.textFilter?.toSanitizedSearchText(),
+                textSearch = filter.textFilter?.toSanitizedSearchText(),
                 serviceTypeShipment = filter.serviceFilter?.fhirVzdShipment,
                 serviceTypeCourier = filter.serviceFilter?.fhirVzdCourier,
                 serviceTypePickup = filter.serviceFilter?.fhirVzdPickup,
@@ -92,6 +94,20 @@ class FhirVzdRemoteDataSource(
         ) {
             // not sure if we add the status="active" or not
             searchService.searchByTelematikId(telematikId = telematikId, status = null)
+        }
+    }
+
+    override suspend fun searchByInsuranceProvider(
+        institutionIdentifier: String, // Institutionskennzeichen (IKNR)
+        onUnauthorizedException: suspend () -> Unit
+    ): Result<JsonElement> {
+        return safeApiCallWithUnauthorizedRetry(
+            errorMessage = "error on searchByInsuranceProvider on fhir-vzd",
+            onUnauthorizedException = onUnauthorizedException
+        ) {
+            searchService.searchByInsuranceProvider(
+                organizationIdentifier = insuranceIdentifierTag(institutionIdentifier)
+            )
         }
     }
 

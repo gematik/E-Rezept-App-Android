@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app.demomode.repository.pharmacy
 
 import android.content.res.AssetManager
 import de.gematik.ti.erp.app.demomode.util.pharmacyFhirBundle
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInstitutionTelematikId
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
@@ -75,6 +76,10 @@ class DemoPharmacyRepository(
 
     override suspend fun deleteFavoritePharmacy(favoritePharmacy: PharmacyUseCaseData.Pharmacy) {
         // do nothing
+    }
+
+    override suspend fun searchInsuranceProviderByInstitutionIdentifier(iknr: String): Result<FhirInstitutionTelematikId?> {
+        return Result.success(FhirInstitutionTelematikId("123456"))
     }
 
     override suspend fun searchPharmacyByTelematikId(telematikId: String): Result<FhirPharmacyErpModelCollection> {

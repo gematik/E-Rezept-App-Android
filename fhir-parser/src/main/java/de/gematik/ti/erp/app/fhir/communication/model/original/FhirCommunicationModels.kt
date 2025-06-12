@@ -25,6 +25,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationConstants
+import de.gematik.ti.erp.app.fhir.communication.constants.CommunicationDigaConstants
 import de.gematik.ti.erp.app.fhir.communication.model.erp.CommunicationParticipantErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.erp.DispenseCommunicationPayloadContentErpModel
 import de.gematik.ti.erp.app.fhir.communication.model.erp.DispensePrescriptionTypeErpModel
@@ -33,7 +34,7 @@ import de.gematik.ti.erp.app.fhir.communication.model.erp.ReplyCommunicationPayl
 import de.gematik.ti.erp.app.fhir.communication.model.erp.ReplyCommunicationSupplyOptionsErpModel
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirInstantSerializer
-import de.gematik.ti.erp.app.fhir.serializer.TaskIdSerializer
+import de.gematik.ti.erp.app.fhir.serializer.SafeTaskIdSerializer
 import de.gematik.ti.erp.app.utils.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
@@ -134,7 +135,7 @@ enum class FhirCommunicationResourceType {
         @SerialName("payload") val payload: List<FhirCommunicationPayload>? = null,
         @SerialName("extension") val extensions: List<FhirExtension>? = null,
 
-        @SerialName("basedOn") @Serializable(with = TaskIdSerializer::class)
+        @SerialName("basedOn") @Serializable(with = SafeTaskIdSerializer::class)
         val taskId: String? = null,
 
         @SerialName("sent") @Serializable(with = SafeFhirInstantSerializer::class)
@@ -163,6 +164,16 @@ enum class FhirCommunicationResourceType {
 
         private fun getOrderId(): String? {
             return identifier?.find { it.system == FhirCommunicationConstants.ORDER_ID_SYSTEM }?.value
+        }
+
+        private fun getIsDiga(): Boolean {
+            val noPayload = payload == null
+
+            val hasFlowTypeForDiga = extensions
+                ?.findExtensionByUrl(CommunicationDigaConstants.PRESCRIPTION_TYPE_VALUE_CODING)
+                ?.valueCoding?.code == CommunicationDigaConstants.VALUE_CODING_TYPE_162
+
+            return noPayload && hasFlowTypeForDiga
         }
 
         private fun getPrescriptionType(): DispensePrescriptionTypeErpModel? {
@@ -203,7 +214,8 @@ enum class FhirCommunicationResourceType {
                 payload = payload?.firstOrNull()?.toDispenseErpModel() ?: DispenseCommunicationPayloadContentErpModel(),
                 prescriptionType = getPrescriptionType(),
                 sent = sent,
-                orderId = getOrderId()
+                orderId = getOrderId(),
+                isDiga = getIsDiga()
             )
         }
 

@@ -62,7 +62,7 @@ import de.gematik.ti.erp.app.authentication.presentation.deviceBiometricStatus
 import de.gematik.ti.erp.app.authentication.presentation.deviceDeviceSecurityStatus
 import de.gematik.ti.erp.app.authentication.presentation.deviceHasAuthenticationMethodEnabled
 import de.gematik.ti.erp.app.authentication.presentation.deviceSupportsAuthenticationMethod
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.mainscreen.ui.TextTabRow
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.model.OnboardingAuthTab

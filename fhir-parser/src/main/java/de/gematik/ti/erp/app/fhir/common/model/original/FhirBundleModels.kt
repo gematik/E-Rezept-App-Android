@@ -23,12 +23,29 @@ import io.github.aakira.napier.Napier
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
+/**
+ * Represents a FHIR `Bundle` resource, which acts as a container for a collection of FHIR resources.
+ *
+ * The `entry` field contains the list of individual FHIR resources wrapped in [FhirBundleEntry] objects.
+ * This model is commonly used to handle responses from FHIR servers that return multiple resources.
+ *
+ * @property entry A list of FHIR resources contained in the bundle. Defaults to an empty list.
+ */
 @Serializable
 internal data class FhirBundle(
-    val entry: List<FhirEntry> = emptyList()
+    val entry: List<FhirBundleEntry> = emptyList()
 ) {
     companion object {
-        fun JsonElement.getBundleEntries(): List<FhirEntry> {
+        /**
+         * Safely decodes a [JsonElement] into a [FhirBundle] and extracts its [entry] list.
+         *
+         * This function is fail-safe: if the JSON cannot be decoded into a [FhirBundle],
+         * it logs a warning and returns an empty list instead of throwing an exception.
+         *
+         * @receiver A raw JSON element representing a FHIR bundle.
+         * @return A list of [FhirBundleEntry]s parsed from the bundle, or an empty list if parsing fails.
+         */
+        fun JsonElement.getBundleEntries(): List<FhirBundleEntry> {
             return runCatching {
                 SafeJson.value.decodeFromJsonElement(serializer(), this).entry
             }
@@ -38,16 +55,39 @@ internal data class FhirBundle(
     }
 }
 
+/**
+ * Represents an individual entry in a FHIR [FhirBundle].
+ *
+ * Each entry typically wraps a FHIR resource. Since the resource can be of any type,
+ * it is stored as a raw [JsonElement] to allow for flexible decoding based on context.
+ *
+ * @property resource The raw JSON element of the contained FHIR resource.
+ */
 @Serializable
-internal data class FhirEntry(
+internal data class FhirBundleEntry(
     val resource: JsonElement
 )
 
+/**
+ * Represents task-specific metadata typically found inside a FHIR bundle related to the `Task` resource.
+ *
+ * This data class is a lightweight representation used to extract key fields such as task status
+ * and the last modification timestamp from a bundled FHIR response.
+ *
+ * @property status The current status of the task (e.g., "completed", "in-progress").
+ * @property lastModified An optional ISO 8601 timestamp indicating when the task was last modified.
+ */
 @Serializable
 internal data class FhirBundleTaskData(
     val status: String,
     val lastModified: String?
 ) {
+    /**
+     * Decodes the given [JsonElement] into a [FhirBundleTaskData] object.
+     *
+     * @receiver A raw JSON payload representing a FHIR Task resource inside a bundle.
+     * @return A decoded [FhirBundleTaskData] instance.
+     */
     companion object {
         fun JsonElement.getTaskData() =
             SafeJson.value.decodeFromJsonElement(serializer(), this)

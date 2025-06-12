@@ -20,15 +20,9 @@ package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.api.ResourcePaging
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
-import de.gematik.ti.erp.app.fhir.parser.contained
-import de.gematik.ti.erp.app.fhir.parser.containedString
-import de.gematik.ti.erp.app.fhir.parser.findAll
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleSeparationParser
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskKbvParser
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
@@ -43,10 +37,7 @@ private const val TasksMaxPageSize = 50
 class DefaultTaskRepository(
     private val remoteDataSource: TaskRemoteDataSource,
     private val localDataSource: TaskLocalDataSource,
-    private val taskEntryParser: TaskEntryParser,
-    private val taskBundleSeparationParser: TaskBundleSeparationParser,
-    private val taskMetadataParser: TaskMetadataParser,
-    private val taskKbvParser: TaskKbvParser,
+    private val parsers: TaskEPrescriptionParsers,
     private val dispatchers: DispatchProvider
 ) : ResourcePaging<Int>(dispatchers, TasksMaxPageSize, maxPages = 1), TaskRepository {
 
@@ -74,19 +65,18 @@ class DefaultTaskRepository(
     }
 
     private suspend fun processTaskBundle(profileId: String, taskId: String, taskMetaDataAndKbvBundle: JsonElement): Result<Unit> {
-        return taskBundleSeparationParser.extract(taskMetaDataAndKbvBundle)?.let { (metaDataBundle, kbvDataBundle) ->
-            val metaData = metaDataBundle.value.let(taskMetadataParser::extract)
-            val kbvData = kbvDataBundle.value.let(taskKbvParser::extract)
+        return parsers.taskBundleSeparationParser.extract(taskMetaDataAndKbvBundle)?.let { (metaDataBundle, kbvDataBundle) ->
+            val metaData = metaDataBundle.value.let(parsers.taskEPrescriptionMetadataParser::extract)
+            val medicalData = kbvDataBundle.value.let(parsers.taskEPrescriptionMedicalDataParser::extract)
             if (metaData != null) {
-                localDataSource.saveTaskMetaData(profileId, metaData)
+                localDataSource.saveTaskEPrescriptionMetaData(profileId, metaData)
             } else {
                 Result.failure(IllegalStateException("Failed to parse meta task bundle for taskId: $taskId"))
             }
-            if (kbvData != null) {
-                localDataSource.saveTaskKbvData(taskId, kbvData)
+            if (medicalData != null) {
+                localDataSource.saveTaskEPrescriptionMedicalData(taskId, medicalData)
                     .map { taskResult ->
                         if (taskResult.isCompleted || taskResult.lastMedicationDispense != null) {
-                            // TODO: to be changed to use kotlinx.serialization
                             downloadMedicationDispenses(profileId, taskId)
                         }
                     }
@@ -105,9 +95,8 @@ class DefaultTaskRepository(
         remoteDataSource.getTasks(profileId = profileId, lastUpdated = timestamp, count = count)
             .mapCatching { fhirBundle ->
                 withContext(dispatchers.io) {
-                    val (totalEntries, taskEntries) = taskEntryParser.extract(fhirBundle)
-                        ?.let { it.bundleTotal to it.taskEntries }
-                        ?: (0 to emptyList<FhirTaskEntryDataErpModel>())
+                    val (totalEntries, taskEntries) = parsers.taskEntryParser.extract(fhirBundle)
+                        .let { it.bundleTotal to it.taskEntries }
 
                     supervisorScope {
                         val results = taskEntries.map { data ->
@@ -128,27 +117,19 @@ class DefaultTaskRepository(
         taskId: String
     ): Result<JsonElement> = remoteDataSource
         .taskWithKBVBundle(profileId, taskId)
-        .mapCatching { requireNotNull(it) { "Task with KBV Bundle not found for taskId: $taskId" } }
+        .mapCatching { it }
 
     private suspend fun downloadMedicationDispenses(
         profileId: ProfileIdentifier,
         taskId: String
     ): Result<Unit> = withContext(dispatchers.io) {
-        remoteDataSource.loadBundleOfMedicationDispenses(profileId, taskId).map { bundle ->
-            val resources = bundle.findAll("entry.resource").toList()
-            val version = resources.first().contained("meta")
-                .contained("profile")
-                .containedString().split("|")[1]
-            when (version) {
-                "1.4" -> {
-                    localDataSource.saveMedicationDispensesWithMedications(taskId, bundle)
-                }
-
-                else -> resources.forEach { dispense ->
-                    localDataSource.saveMedicationDispense(taskId, dispense)
+        remoteDataSource.loadBundleOfMedicationDispenses(profileId, taskId)
+            .map { bundle ->
+                val medicationDispenseCollection = parsers.taskDispenseParser.extract(bundle)
+                if (medicationDispenseCollection != null) {
+                    localDataSource.saveTaskMedicationDispense(taskId, medicationDispenseCollection)
                 }
             }
-        }
     }
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? =

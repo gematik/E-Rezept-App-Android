@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.di
 
-import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
+import android.content.Context
 import com.jakewharton.retrofit2.converter.kotlinx.serialization.asConverterFactory
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
@@ -31,17 +31,14 @@ import de.gematik.ti.erp.app.interceptor.PharmacyRedeemInterceptor
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
 import de.gematik.ti.erp.app.logger.HttpAppLogger
 import de.gematik.ti.erp.app.logger.HttpTerminalLogger
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.vau.api.VauService
 import de.gematik.ti.erp.app.vau.interceptor.VauChannelInterceptor
-import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.Json
-import okhttp3.CipherSuite
-import okhttp3.ConnectionSpec
 import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Response
-import okhttp3.TlsVersion
 import okhttp3.logging.HttpLoggingInterceptor
 import org.kodein.di.DI
 import org.kodein.di.bindInstance
@@ -50,29 +47,12 @@ import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 import retrofit2.Retrofit
-import java.util.concurrent.TimeUnit
-
-private const val HTTP_CONNECTION_TIMEOUT = 10000L
-private const val HTTP_READ_TIMEOUT = 10000L
-private const val HTTP_WRITE_TIMEOUT = 10000L
 
 class AuditEventFilteredHttpLoggingInterceptor(
     private val loggingInterceptor: HttpLoggingInterceptor
 ) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response =
         loggingInterceptor.intercept(chain)
-}
-
-class NapierLogger(tagSuffix: String? = null) : HttpLoggingInterceptor.Logger {
-    private val tag = if (tagSuffix != null) {
-        "OkHttp $tagSuffix"
-    } else {
-        "OkHttp"
-    }
-
-    override fun log(message: String) {
-        Napier.d(message, tag = tag)
-    }
 }
 
 const val PrefixedLoggerTag = "PrefixedLogger"
@@ -107,33 +87,7 @@ val networkModule = DI.Module("Network Module") {
     bindSingleton(JsonFhirConverterFactoryTag) {
         instance<Json>().asConverterFactory("application/json+fhir".toMediaType())
     }
-    @Requirement(
-        "A_20283-01#4",
-        sourceSpecification = "gemSpec_IDP_Frontend",
-        rationale = "Any connection to the IDP or the ERP service uses this configuration."
-    )
-    @Requirement(
-        "O.Ntwk_2#2",
-        sourceSpecification = "BSI-eRp-ePA",
-        rationale = "Bind the connection specification."
-    )
-    bindSingleton {
-        OkHttpClient.Builder()
-            .connectTimeout(
-                timeout = HTTP_CONNECTION_TIMEOUT,
-                unit = TimeUnit.MILLISECONDS
-            )
-            .readTimeout(
-                timeout = HTTP_READ_TIMEOUT,
-                unit = TimeUnit.MILLISECONDS
-            )
-            .writeTimeout(
-                timeout = HTTP_WRITE_TIMEOUT,
-                unit = TimeUnit.MILLISECONDS
-            )
-            .connectionSpecs(getConnectionSpec())
-            .build()
-    }
+
     bindSingleton { UserAgentHeaderInterceptor(instance()) }
     bindSingleton { ErpApiKeyHeaderInterceptor(instance()) }
     bindSingleton { BearerHeaderInterceptor(instance()) }
@@ -163,19 +117,12 @@ val networkModule = DI.Module("Network Module") {
     )
     // IDP Service
     bindSingleton {
-        val clientBuilder = instance<OkHttpClient>().newBuilder()
-        val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
+        val clientBuilder = instance<OkHttpClient>(REQUIRED_HTTP_CLIENT).newBuilder()
         val endpointHelper = instance<EndpointHelper>()
         val apiKeyInterceptor = instance<ErpApiKeyHeaderInterceptor>()
-        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
-        val httpAppLogger = instance<HttpAppLogger>()
 
         val client = clientBuilder
-            .addInterceptor(userAgentInterceptor)
             .addInterceptor(apiKeyInterceptor)
-            .addCertificateTransparencyInterceptor()
-            .addInterceptor(httpTerminalLogger)
-            .addInterceptor(httpAppLogger)
             .followRedirects(false)
             .build()
 
@@ -205,25 +152,24 @@ val networkModule = DI.Module("Network Module") {
             instance<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag, "[inner request]" to true)
         val outerLoggingInterceptor =
             instance<Pair<String, Boolean>, Interceptor>(PrefixedLoggerTag, "[outer request]" to false)
-        val httpAppLogger = instance<HttpAppLogger>()
 
-        clientBuilder.cache(null)
+        clientBuilder.apply {
+            cache(null)
+            addInterceptor(bearerInterceptor)
+            addInterceptor(innerLoggingInterceptor)
+            addInterceptor(vauChannelInterceptor)
 
-        clientBuilder.addInterceptor(bearerInterceptor)
-
-        clientBuilder.addInterceptor(innerLoggingInterceptor)
-
-        clientBuilder.addInterceptor(vauChannelInterceptor)
-
-        // user agent & dev headers at outer request
-        clientBuilder.addInterceptor(userAgentInterceptor)
-        clientBuilder.addInterceptor(apiKeyInterceptor)
-
-        clientBuilder.addCertificateTransparencyInterceptor()
-
-        clientBuilder.addInterceptor(outerLoggingInterceptor)
-
-        clientBuilder.addInterceptor(httpAppLogger)
+            // NOTE: user agent & dev headers at outer request
+            addInterceptor(userAgentInterceptor)
+            addInterceptor(apiKeyInterceptor)
+            addCertificateTransparencyInterceptor()
+            addInterceptor(outerLoggingInterceptor)
+            // adding debug logger
+            if (BuildConfigExtension.isInternalDebug) {
+                val context = instance<Context>()
+                clientBuilder.addInterceptor(endpointHelper.getHttpLoggingInterceptor(context))
+            }
+        }
 
         Retrofit.Builder()
             .client(clientBuilder.build())
@@ -241,18 +187,11 @@ val networkModule = DI.Module("Network Module") {
     )
     // The VAU service is only used to get CertList & OCSPList and NOT to post to the VAU endpoint
     bindSingleton {
-        val clientBuilder = instance<OkHttpClient>().newBuilder()
-        val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
+        val clientBuilder = instance<OkHttpClient>(REQUIRED_HTTP_CLIENT).newBuilder()
         val apiKeyInterceptor = instance<ErpApiKeyHeaderInterceptor>()
         val endpointHelper = instance<EndpointHelper>()
-        val httpAppLogger = instance<HttpAppLogger>()
-        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
 
         clientBuilder.addInterceptor(apiKeyInterceptor)
-        clientBuilder.addInterceptor(userAgentInterceptor)
-        clientBuilder.addCertificateTransparencyInterceptor()
-        clientBuilder.addInterceptor(httpTerminalLogger)
-        clientBuilder.addInterceptor(httpAppLogger)
 
         Retrofit.Builder()
             .client(clientBuilder.build())
@@ -269,16 +208,7 @@ val networkModule = DI.Module("Network Module") {
     )
     // Pharmacy Redeem Service
     bindSingleton {
-        val clientBuilder = instance<OkHttpClient>().newBuilder()
-        val httpAppLogger = instance<HttpAppLogger>()
-        val httpTerminalLogger = instance<HttpLoggingInterceptor>()
-        val userAgentInterceptor = instance<UserAgentHeaderInterceptor>()
-
-        clientBuilder
-            .addInterceptor(userAgentInterceptor)
-            .addCertificateTransparencyInterceptor()
-            .addInterceptor(httpTerminalLogger)
-            .addInterceptor(httpAppLogger)
+        val clientBuilder = instance<OkHttpClient>(REQUIRED_HTTP_CLIENT).newBuilder()
 
         if (BuildKonfig.INTERNAL) {
             clientBuilder.addInterceptor(PharmacyRedeemInterceptor())
@@ -291,53 +221,3 @@ val networkModule = DI.Module("Network Module") {
             .create(PharmacyRedeemService::class.java)
     }
 }
-
-@Requirement(
-    "A_21332-02#1",
-    sourceSpecification = "gemSpec_Krypt",
-    rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
-)
-@Requirement(
-    "O.Ntwk_2#1",
-    sourceSpecification = "BSI-eRp-ePA",
-    rationale = "Any connection initiated by the app uses TLS 1.2 or higher."
-)
-@Requirement(
-    "O.Auth_12#2",
-    "O.Resi_6#1",
-    sourceSpecification = "BSI-eRp-ePA",
-    rationale = "The TLS specification is done here and using RESTRICTED_TLS. We inherently support tlsExtensions."
-)
-@Requirement(
-    "A_20606#1",
-    sourceSpecification = "gemSpec_IDP_Frontend",
-    rationale = "Add TLS versioning through connectionSpecs.",
-    codeLines = 6
-)
-private fun getConnectionSpec(): List<ConnectionSpec> = ConnectionSpec
-    .Builder(ConnectionSpec.RESTRICTED_TLS)
-    .tlsVersions(
-        TlsVersion.TLS_1_2,
-        TlsVersion.TLS_1_3
-    )
-    .cipherSuites(
-        // TLS 1.2
-        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256,
-        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384,
-        CipherSuite.TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256,
-        CipherSuite.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
-        // TLS 1.3
-        CipherSuite.TLS_AES_128_GCM_SHA256,
-        CipherSuite.TLS_AES_256_GCM_SHA384
-    )
-    .build()
-    .let {
-        listOf(it)
-    }
-
-private fun OkHttpClient.Builder.addCertificateTransparencyInterceptor() =
-    addNetworkInterceptor(
-        certificateTransparencyInterceptor {
-            failOnError = true
-        }
-    )

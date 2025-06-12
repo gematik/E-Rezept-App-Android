@@ -46,6 +46,20 @@ internal data class FhirPatient(
     @SerialName("address") val addresses: List<FhirAddress>? = emptyList()
 ) {
 
+    /**
+     * Retrieves the KVNR (Krankenversichertennummer) from the list of identifiers based on the KBV bundle version.
+     *
+     * The KVNR is a unique identifier for insured individuals in the German healthcare system. This function
+     * accounts for different formats of the KVNR based on the KBV version.
+     *
+     * - For version `V_1_0_3`, it looks for an identifier with a predefined system URL.
+     * - For version `V_1_1_0`, it first determines whether the patient is privately (PKV) or publicly (GKV) insured
+     *   based on the coding system and retrieves the KVNR from the corresponding system.
+     * - For `UNKNOWN` versions, it returns `null`.
+     *
+     * @param version The KBV bundle version used to determine how to extract the KVNR.
+     * @return The KVNR as a [String], or `null` if it cannot be found or the version is unknown.
+     */
     fun getKvnr(version: KbvBundleVersion): String? {
         return when (version) {
             KbvBundleVersion.V_1_0_3 -> identifiers?.firstOrNull { it.system == FhirConstants.PATIENT_KVNR_NAME_103 }?.value

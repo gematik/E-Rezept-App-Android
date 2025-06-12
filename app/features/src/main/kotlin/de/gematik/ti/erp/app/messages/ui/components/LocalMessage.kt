@@ -34,16 +34,16 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.DateTimeUtils
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
+import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils
 import dev.jeziellago.compose.markdowntext.MarkdownText
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
@@ -115,7 +115,9 @@ internal fun InAppMessage(
                 SpacerTiny()
                 MarkdownText(
                     markdown = it,
-                    style = AppTheme.typography.body2l,
+                    style = AppTheme.typography.body2.copy(
+                        color = AppTheme.colors.neutral900
+                    ),
                     linkColor = AppTheme.colors.primary700
                 )
             }
@@ -123,7 +125,7 @@ internal fun InAppMessage(
     }
 }
 
-@Preview
+@LightDarkPreview
 @Composable
 fun InAppMessagePreview() {
     PreviewAppTheme {

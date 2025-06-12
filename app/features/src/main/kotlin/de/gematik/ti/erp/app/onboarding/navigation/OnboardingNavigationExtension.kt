@@ -24,7 +24,7 @@ import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 
 internal fun NavController.finishOnboardingAsSuccessAndOpenPrescriptions() {
     navigate(
-        route = PrescriptionRoutes.PrescriptionsScreen.route,
+        route = PrescriptionRoutes.PrescriptionListScreen.route,
         navOptions = navOptions {
             popUpTo(OnboardingRoutes.subGraphName()) {
                 inclusive = true

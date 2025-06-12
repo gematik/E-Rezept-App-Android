@@ -59,28 +59,28 @@ object MessagesRoutes : NavigationRoutes {
     }
 }
 
-class MessagesRoutesBackStackEntryArguments(
+data class MessagesRoutesBackStackEntryArguments(
     private val navBackStackEntry: NavBackStackEntry
 ) {
-    fun orderId(): String {
-        return requireNotNull(navBackStackEntry.arguments?.getString(MessagesRoutes.MESSAGE_NAV_ORDER_ID))
-    }
+    val orderId
+        get() = requireNotNull(navBackStackEntry.arguments?.getString(MessagesRoutes.MESSAGE_NAV_ORDER_ID))
 
-    fun isLocalMessage(): Boolean {
-        return (navBackStackEntry.arguments?.getBoolean(MessagesRoutes.MESSAGE_NAV_IS_LOCAL_MESSAGE)) ?: false
-    }
+    val isLocalMessage
+        get() = (navBackStackEntry.arguments?.getBoolean(MessagesRoutes.MESSAGE_NAV_IS_LOCAL_MESSAGE)) ?: false
 
-    fun getOrderDetail(): OrderUseCaseData.OrderDetail? =
-        navBackStackEntry.arguments?.let { bundle ->
-            bundle.getString(MessagesRoutes.MESSAGE_NAV_ORDER_DETAIL)?.let {
-                fromNavigationString<OrderUseCaseData.OrderDetail>(it)
+    val orderDetail
+        get(): OrderUseCaseData.OrderDetail? =
+            navBackStackEntry.arguments?.let { bundle ->
+                bundle.getString(MessagesRoutes.MESSAGE_NAV_ORDER_DETAIL)?.let {
+                    fromNavigationString<OrderUseCaseData.OrderDetail>(it)
+                }
             }
-        }
 
-    fun getSelectedMessage(): OrderUseCaseData.Message? =
-        navBackStackEntry.arguments?.let { bundle ->
-            bundle.getString(MessagesRoutes.MESSAGE_NAV_SELECTED_MESSAGE)?.let {
-                fromNavigationString<OrderUseCaseData.Message>(it)
+    val selectedMessage
+        get(): OrderUseCaseData.Message? =
+            navBackStackEntry.arguments?.let { bundle ->
+                bundle.getString(MessagesRoutes.MESSAGE_NAV_SELECTED_MESSAGE)?.let {
+                    fromNavigationString<OrderUseCaseData.Message>(it)
+                }
             }
-        }
 }

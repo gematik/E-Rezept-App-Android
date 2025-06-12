@@ -42,8 +42,10 @@ import de.gematik.ti.erp.app.debugsettings.data.DebugSettingsData
 import de.gematik.ti.erp.app.debugsettings.data.Environment
 import de.gematik.ti.erp.app.di.DebugSettings.getDebugSettingsDataForEnvironment
 import de.gematik.ti.erp.app.di.EndpointHelper
-import de.gematik.ti.erp.app.featuretoggle.FeatureToggleManager
-import de.gematik.ti.erp.app.featuretoggle.Features
+import de.gematik.ti.erp.app.digas.domain.usecase.GetIknrUseCase
+import de.gematik.ti.erp.app.digas.domain.usecase.UpdateIknrUseCase
+import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
+import de.gematik.ti.erp.app.featuretoggle.datasource.Features
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.AccessToken
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
@@ -56,10 +58,15 @@ import de.gematik.ti.erp.app.prescription.usecase.GetTaskIdsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.PrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.ProfilesUseCase
+import de.gematik.ti.erp.app.utils.compose.ComposableEvent
+import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.vau.repository.VauRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -95,13 +102,15 @@ class DebugSettingsViewModel(
     private val saveInvoiceUseCase: SaveInvoiceUseCase,
     private val idpUseCase: IdpUseCase,
     private val profilesUseCase: ProfilesUseCase,
-    private val featureToggleManager: FeatureToggleManager,
+    private val featureToggleDataStore: FeatureToggleDataStore,
     private val pharmacyDirectRedeemUseCase: PharmacyDirectRedeemUseCase,
     private val getAppUpdateManagerFlagUseCase: GetAppUpdateManagerFlagUseCase,
     private val changeAppUpdateManagerFlagUseCase: ChangeAppUpdateManagerFlagUseCase,
     private val markAllUnreadMessagesAsReadUseCase: MarkAllUnreadMessagesAsReadUseCase,
     private val deletePrescriptionUseCase: DeletePrescriptionUseCase,
     private val getTaskIdsUseCase: GetTaskIdsUseCase,
+    private val getIknrUseCase: GetIknrUseCase,
+    private val updateIknrUseCase: UpdateIknrUseCase,
     private val dispatchers: DispatchProvider
 ) : ViewModel() {
 
@@ -120,10 +129,19 @@ class DebugSettingsViewModel(
         @Composable
         get() = _prescriptionDeletionLoading.collectAsStateWithLifecycle()
 
+    private val aokBwIknr = "108018007"
+    private val _iknr = MutableStateFlow(aokBwIknr)
+    val iknr = _iknr.asStateFlow()
+    val onIknrChangedEvent = ComposableEvent<Unit>()
+
     init {
         viewModelScope.launch {
             val value = getAppUpdateManagerFlagUseCase()
             appUpdateManager.value = value
+
+            getIknrUseCase().collectLatest {
+                _iknr.value = it
+            }
         }
     }
 
@@ -281,15 +299,15 @@ class DebugSettingsViewModel(
         }
     }
 
-    fun features() = featureToggleManager.features
+    fun features() = featureToggleDataStore.features
 
     fun featuresState() =
-        featureToggleManager.featuresState()
+        featureToggleDataStore.featuresState()
 
     fun toggleFeature(feature: Features) {
         viewModelScope.launch {
             val key = booleanPreferencesKey(feature.featureName)
-            featureToggleManager.toggleFeature(key)
+            featureToggleDataStore.toggleFeature(key)
         }
     }
 
@@ -443,6 +461,20 @@ class DebugSettingsViewModel(
                 _prescriptionDeletionLoading.value = false
             }
             onComplete(result)
+        }
+    }
+
+    fun updateIknr(text: String) {
+        viewModelScope.launch {
+            _iknr.value = text
+        }
+    }
+
+    fun saveIknr() {
+        viewModelScope.launch {
+            val iknrToBeSaved = if (_iknr.value.isNotNullOrEmpty()) _iknr.value else aokBwIknr
+            updateIknrUseCase.invoke(iknrToBeSaved)
+            onIknrChangedEvent.trigger()
         }
     }
 }

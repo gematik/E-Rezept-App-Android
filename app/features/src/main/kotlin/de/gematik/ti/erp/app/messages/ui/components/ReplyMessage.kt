@@ -41,7 +41,8 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.em
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.DateTimeUtils
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -49,7 +50,6 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.DynamicText
-import de.gematik.ti.erp.app.utils.extensions.DateTimeUtils
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toJavaLocalDateTime
 import kotlinx.datetime.toLocalDateTime
@@ -122,7 +122,7 @@ internal fun ReplyMessage(
             }
             Text(
                 text = replyMessageDescription,
-                style = AppTheme.typography.body2l
+                style = AppTheme.typography.body2
             )
             replyMessageTitle?.let {
                 SpacerTiny()

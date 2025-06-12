@@ -18,7 +18,8 @@
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
-import de.gematik.ti.erp.app.protocol.model.AuditEventData
+import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
+import de.gematik.ti.erp.app.utils.FhirTemporal
 import kotlinx.datetime.Clock
 import java.util.UUID
 import kotlin.random.Random
@@ -39,18 +40,26 @@ object DemoAuditEventInfo {
         return this.toDuration(unit)
     }
 
-    internal fun downloadDispense(taskId: String = UUID.randomUUID().toString()) = AuditEventData.AuditEvent(
-        auditId = UUID.randomUUID().toString(),
+    internal fun downloadDispense(taskId: String = UUID.randomUUID().toString()) = FhirAuditEventErpModel(
+        id = UUID.randomUUID().toString(),
         taskId = taskId,
         description = "Sie haben eine Medikamentenabgabeliste heruntergeladen",
-        timestamp = Clock.System.now().minus(randomInt.randomDuration())
+        timestamp = FhirTemporal.Instant(
+            Clock.System.now().minus(randomInt.randomDuration())
+        ),
+        telematikId = "1.2.3.4.5.6.7.8.9.0",
+        kvnrNumber = null
     )
 
     internal fun downloadPrescription(taskId: String = UUID.randomUUID().toString()) =
-        AuditEventData.AuditEvent(
-            auditId = UUID.randomUUID().toString(),
+        FhirAuditEventErpModel(
+            id = UUID.randomUUID().toString(),
             taskId = taskId,
             description = "Sie haben ein Rezept heruntergeladen mit taskId $taskId",
-            timestamp = Clock.System.now().minus(randomInt.randomDuration())
+            timestamp = FhirTemporal.Instant(
+                Clock.System.now().minus(randomInt.randomDuration())
+            ),
+            telematikId = null,
+            kvnrNumber = "X11223344"
         )
 }

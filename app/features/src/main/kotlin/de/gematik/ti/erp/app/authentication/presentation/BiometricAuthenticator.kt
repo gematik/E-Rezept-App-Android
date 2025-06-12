@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.authentication.presentation
 
+import android.annotation.SuppressLint
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.BiometricResult
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.BiometricResult.BiometricSuccess
@@ -41,7 +43,6 @@ import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.IdpCommun
 import de.gematik.ti.erp.app.authentication.ui.components.biometricPromptLauncher
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
 import de.gematik.ti.erp.app.idp.usecase.RemoveAuthenticationUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
@@ -105,6 +106,7 @@ class BiometricAuthenticator(
     }
 }
 
+@SuppressLint("ContextCastToActivity")
 @Composable
 fun rememberBiometricAuthenticator(): BiometricAuthenticator {
     val activity = LocalContext.current as AppCompatActivity

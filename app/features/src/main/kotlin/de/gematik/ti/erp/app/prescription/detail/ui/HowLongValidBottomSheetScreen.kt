@@ -38,7 +38,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.dateTimeMediumText
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.prescription.detail.navigation.PrescriptionDetailRoutes
 import de.gematik.ti.erp.app.prescription.detail.presentation.rememberGetPrescriptionByTaskIdController
@@ -51,7 +52,6 @@ import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
-import de.gematik.ti.erp.app.utils.extensions.dateTimeMediumText
 import kotlinx.datetime.Instant
 import kotlin.time.Duration.Companion.days
 

@@ -21,6 +21,7 @@ package de.gematik.ti.erp.app.prescription.usecase
 import de.gematik.ti.erp.app.prescription.mapper.filterNonActiveTasks
 import de.gematik.ti.erp.app.prescription.mapper.toPrescription
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
+import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
@@ -53,14 +54,19 @@ class GetArchivedPrescriptionsUseCase(
                 .filterNonActiveTasks()
                 .map(ScannedTask::toPrescription)
 
-            val syncedPrescriptions = syncedTasks
+            val archivedSyncedPrescriptions = syncedTasks
+                .filterNonDigaTasks()
                 .filterNonActiveTasks()
                 .map(SyncedTask::toPrescription)
 
-            (syncedPrescriptions + scannedPrescriptions).sortArchives()
+            (archivedSyncedPrescriptions + scannedPrescriptions).sortArchives()
         }.flowOn(dispatcher)
 
     companion object {
+
+        private fun List<SyncedTaskData.SyncedTask>.filterNonDigaTasks() =
+            filter { it.deviceRequest == null } // TODO: define as a Type
+
         private fun List<Prescription>.sortArchives() =
             sortedWith(compareByDescending<Prescription> { it.redeemedOn ?: it.expiresOn }.thenBy { it.name })
     }

@@ -263,6 +263,7 @@ class IdpAlternateAuthenticationUseCase(
             expiresOn = idpTokenResult.expiresOn,
             ssoToken = redirectSsoToken,
             idTokenInsuranceIdentifier = idTokenJson.jsonObject["idNummer"]?.jsonPrimitive?.content ?: "",
+            organizationIdentifier = idTokenJson.jsonObject["organizationIK"]?.jsonPrimitive?.content ?: "",
             idTokenInsuranceName = idTokenJson.jsonObject["organizationName"]?.jsonPrimitive?.content ?: "",
             idTokenInsurantName = idTokenJson.jsonObject["given_name"]?.jsonPrimitive?.content?.let {
                 it + " " + idTokenJson.jsonObject["family_name"]?.jsonPrimitive?.content

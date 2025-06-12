@@ -38,7 +38,7 @@ import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes.CardUnlockCa
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockScreen
 import de.gematik.ti.erp.app.cardunlock.presentation.CardUnlockGraphController
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.SpacerLarge

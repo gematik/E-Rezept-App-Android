@@ -38,6 +38,7 @@ data class PrescriptionScreenPreviewData(
     val profileData: UiState<ProfilesUseCaseData.Profile>,
     val activePrescription: UiState<List<Prescription>>,
     val isArchivedEmpty: Boolean,
+    val isOnlyDigas: Boolean,
     val hasRedeemableTasks: Boolean,
     val consentState: ConsentState = ConsentState.ValidState.NotGranted,
     val isTopBarElevated: Boolean = false,
@@ -46,7 +47,7 @@ data class PrescriptionScreenPreviewData(
         onClickLogin = {},
         onClickAvatar = {},
         onClickArchive = {},
-        onClickPrescription = {},
+        onClickPrescription = { _, _ -> },
         onChooseAuthenticationMethod = {},
         onClickRedeem = {},
         onClickRefresh = {}
@@ -86,7 +87,8 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
                     )
                 ),
                 isArchivedEmpty = true,
-                hasRedeemableTasks = false
+                hasRedeemableTasks = false,
+                isOnlyDigas = false
             ),
             PrescriptionScreenPreviewData(
                 name = "empty-prescriptions-user-logged-out",
@@ -103,7 +105,8 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
                 profileData = UiState.Data(MOCK_MODEL_PROFILE),
                 activePrescription = UiState.Empty(),
                 isArchivedEmpty = true,
-                hasRedeemableTasks = false
+                hasRedeemableTasks = false,
+                isOnlyDigas = false
             ),
             PrescriptionScreenPreviewData(
                 name = "with-prescriptions-user-logged-in",
@@ -128,7 +131,8 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
                 ),
                 isArchivedEmpty = false,
                 hasRedeemableTasks = true,
-                isTopBarElevated = true
+                isTopBarElevated = true,
+                isOnlyDigas = false
             ),
             /* Todo: Date conflicts causing below test data to fail. After refactoring the component, this test data should be enabled.
             PrescriptionScreenPreviewData(
@@ -169,7 +173,8 @@ class PrescriptionScreenPreviewParameterProvider : PreviewParameterProvider<Pres
                     )
                 ),
                 isArchivedEmpty = true,
-                hasRedeemableTasks = false
+                hasRedeemableTasks = false,
+                isOnlyDigas = false
             )
         )
 }

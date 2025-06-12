@@ -54,7 +54,7 @@ internal data class FhirCoverageModel(
             FhirCoverageErpModel(
                 name = payer?.firstOrNull()?.name,
                 statusCode = extensions?.firstOrNull { it.coding?.system == FhirConstants.COVERAGE_KBV_STATUS_CODE_SYSTEM }?.coding?.code,
-                identifierNumber = payer?.firstOrNull()?.identifier?.value,
+                insuranceIdentifier = payer?.firstOrNull()?.identifier?.value,
                 coverageType = type?.coding?.firstOrNull()?.code
             )
     }

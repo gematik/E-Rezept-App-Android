@@ -30,13 +30,18 @@ import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AccessTime
+import androidx.compose.material.icons.outlined.Archive
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.HourglassTop
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.EventBusy
 import androidx.compose.material.icons.rounded.HourglassTop
+import androidx.compose.material.icons.rounded.Smartphone
 import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material.icons.rounded.WarningAmber
 import androidx.compose.runtime.Composable
@@ -52,9 +57,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
@@ -247,6 +253,107 @@ fun NumeratorChip(numerator: String, denominator: String) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(text, style = AppTheme.typography.subtitle2, color = AppTheme.colors.neutral600)
+    }
+}
+
+@Composable
+fun DigaIconRowItem() {
+    val shape = RoundedCornerShape(SizeDefaults.one)
+    Row(
+        modifier = Modifier
+            .background(AppTheme.colors.neutral200, shape)
+            .clip(shape)
+            .padding(vertical = SizeDefaults.fivefoldHalf, horizontal = SizeDefaults.half),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Smartphone,
+            tint = AppTheme.colors.neutral500,
+            contentDescription = null
+        )
+    }
+}
+
+@Composable
+fun InReguestStatusChip() = DigaStatusChip(
+    text = stringResource(R.string.diga_status_request),
+    textColor = AppTheme.colors.primary900,
+    backgroundColor = AppTheme.colors.primary100,
+    iconColor = AppTheme.colors.neutral500
+)
+
+@Composable
+fun ArchivedChip() =
+    DigaStatusChip(
+        text = stringResource(R.string.diga_status_archived),
+        icon = Icons.Outlined.Archive,
+        textColor = AppTheme.colors.neutral600,
+        backgroundColor = AppTheme.colors.neutral200,
+        iconColor = AppTheme.colors.neutral500
+    )
+
+@Composable
+fun NotLongerValidChip() =
+    DigaStatusChip(
+        text = stringResource(R.string.diga_status_not_valid),
+        icon = Icons.Outlined.AccessTime,
+        textColor = AppTheme.colors.neutral600,
+        backgroundColor = AppTheme.colors.neutral200,
+        iconColor = AppTheme.colors.neutral500
+    )
+
+@Composable
+fun WaitingForCodeChip() =
+    DigaStatusChip(
+        text = stringResource(R.string.diga_status_waiting),
+        icon = Icons.Outlined.HourglassTop,
+        textColor = AppTheme.colors.yellow900,
+        backgroundColor = AppTheme.colors.yellow100,
+        iconColor = AppTheme.colors.yellow500
+    )
+
+@Composable
+fun CodeRejectChip() =
+    DigaStatusChip(
+        text = stringResource(R.string.diga_status_reject),
+        icon = Icons.Outlined.Close,
+        textColor = AppTheme.colors.red900,
+        backgroundColor = AppTheme.colors.red100,
+        iconColor = AppTheme.colors.red500
+    )
+
+@Composable
+fun InsuranceCodeChip() =
+    DigaStatusChip(
+        text = stringResource(R.string.diga_status_insurance_code),
+        icon = Icons.Outlined.Check,
+        textColor = AppTheme.colors.green900,
+        backgroundColor = AppTheme.colors.green100,
+        iconColor = AppTheme.colors.green900
+    )
+
+@Composable
+fun DigaStatusChip(
+    text: String,
+    icon: ImageVector? = null,
+    textColor: Color,
+    backgroundColor: Color,
+    iconColor: Color,
+    showTrailingIcon: Boolean = true
+) {
+    Row {
+        StatusChip(
+            text = text,
+            icon = icon,
+            textColor = textColor,
+            backgroundColor = backgroundColor,
+            iconColor = iconColor
+        )
+
+        if (showTrailingIcon) {
+            SpacerSmall()
+            DigaIconRowItem()
+        }
     }
 }
 

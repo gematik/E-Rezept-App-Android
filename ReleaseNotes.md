@@ -1,3 +1,27 @@
+# Release 1.30.0
+
+### fixed (1 change)
+
+- Bug fixes
+
+### ⚡ enhancements (1 change)
+
+- Infrastructure improvements
+
+### ✨ features (2 change)
+
+- DiGA Integration:
+  - Added full support for DiGA (Digitale Gesundheitsanwendungen) prescriptions 
+  - View and manage your active DiGA prescriptions directly in the app 
+  - Check real-time redemption status and receive dispense information 
+  - Securely redeem and delete DiGA prescriptions
+- Make FhirVZD as default for pharmacies
+
+### reworked (2 change)
+
+- Parsing FHIR data for Medication dispense and Audit events
+- Add new base module app-core to handle all base functionality of the app
+
 # Release 1.29.0 
 
 ### changed (3 changes)

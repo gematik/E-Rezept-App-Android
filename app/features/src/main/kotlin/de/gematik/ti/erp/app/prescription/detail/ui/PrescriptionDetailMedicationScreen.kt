@@ -51,7 +51,10 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.dateTimeMediumText
+import de.gematik.ti.erp.app.datetime.temporalText
+import de.gematik.ti.erp.app.digas.ui.component.Label
 import de.gematik.ti.erp.app.medicationCategory
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.fromNavigationString
@@ -70,14 +73,11 @@ import de.gematik.ti.erp.app.supplyForm
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
-import de.gematik.ti.erp.app.utils.compose.Label
 import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.extensions.dateTimeMediumText
-import de.gematik.ti.erp.app.utils.extensions.temporalText
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.utils.letNotNullOnCondition
 import kotlinx.datetime.Instant

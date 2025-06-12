@@ -19,9 +19,9 @@
 package de.gematik.ti.erp.app.messages.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.messages.model.MessageTimeState
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.timestate.TimeState
 import kotlinx.datetime.Instant
 
 class MessageDetailInAppPreviewParameterProvider : PreviewParameterProvider<List<InAppMessage>> {
@@ -39,7 +39,7 @@ private val inAppPreview = listOf(
         id = "123",
         from = "Team",
         text = IN_APP_MESSAGE,
-        timeState = MessageTimeState.ShowDate(Instant.parse("2024-11-08T15:20:00Z")),
+        timeState = TimeState.ShowDate(Instant.parse("2024-11-08T15:20:00Z")),
         prescriptionsCount = 0,
         tag = "Version 1.26.0",
         isUnread = true,
@@ -51,7 +51,7 @@ private val inAppPreview = listOf(
         id = "123",
         from = "Team",
         text = IN_APP_MESSAGE,
-        timeState = MessageTimeState.ShowDate(Instant.parse("2024-11-08T15:20:00Z")),
+        timeState = TimeState.ShowDate(Instant.parse("2024-11-08T15:20:00Z")),
         prescriptionsCount = 0,
         tag = "Version 1.27.0",
         isUnread = true,

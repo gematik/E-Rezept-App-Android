@@ -27,6 +27,7 @@ object DemoConstants {
     internal val longerRandomTimeToday = Clock.System.now().minus((2..58).random().minutes)
     internal const val PHARMACY_TELEMATIK_ID = "3-03.2.1006210000.10.795"
     internal const val SYNCED_TASK_PRESET = "110.000.002.345.863"
+    internal const val DIGA_TASK_PRESET = "160.000.001.245.874"
     internal const val DIRECT_ASSIGNMENT_TASK_PRESET = "169.000.002.345.863"
     internal val NOW = Clock.System.now()
     internal val START_DATE = Clock.System.now().minus(5.minutes)

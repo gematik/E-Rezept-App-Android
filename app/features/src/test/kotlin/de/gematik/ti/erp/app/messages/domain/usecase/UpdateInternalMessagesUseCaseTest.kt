@@ -18,11 +18,11 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.messages.domain.repository.ChangeLogLocalDataSource
-import de.gematik.ti.erp.app.messages.model.getTimeState
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.mocks.order.model.welcomeMessage
+import de.gematik.ti.erp.app.timestate.getTimeState
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every

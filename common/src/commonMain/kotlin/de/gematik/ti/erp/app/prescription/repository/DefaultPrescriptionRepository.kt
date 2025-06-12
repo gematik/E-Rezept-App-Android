@@ -59,7 +59,7 @@ class DefaultPrescriptionRepository(
     override fun syncedTasks(profileId: ProfileIdentifier) =
         localDataSource.loadSyncedTasks(profileId)
 
-    override suspend fun redeemPrescription(
+    override suspend fun redeem(
         profileId: ProfileIdentifier,
         communication: JsonElement,
         accessCode: String

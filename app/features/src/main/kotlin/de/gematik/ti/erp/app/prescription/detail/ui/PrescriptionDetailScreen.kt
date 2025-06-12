@@ -38,7 +38,7 @@ import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isConsentGranted
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
 import de.gematik.ti.erp.app.navigation.Screen

@@ -22,13 +22,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AdUnits
 import androidx.compose.material.icons.outlined.Mail
 import androidx.compose.material.icons.outlined.Poll
 import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.settings.model.ContactClickActions
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -39,7 +40,8 @@ import de.gematik.ti.erp.app.utils.extensions.sectionPadding
 
 @Composable
 fun ContactSection(
-    contactClickActions: ContactClickActions
+    contactClickActions: ContactClickActions,
+    hasValidDigas: Boolean
 ) {
     Column {
         Text(
@@ -54,6 +56,16 @@ fun ContactSection(
                 contactClickActions.onClickPoll()
             }
         )
+        if (hasValidDigas) {
+            LabelButton(
+                icon = Icons.Outlined.AdUnits,
+                text = stringResource(R.string.diga_settings_feedback_label),
+                onClick = {
+                    contactClickActions.onClickDigaPoll()
+                }
+            )
+        }
+
         LabelButton(
             icon = Icons.Outlined.Mail,
             text = stringResource(R.string.settings_contact_feedback_form),

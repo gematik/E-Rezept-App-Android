@@ -57,7 +57,7 @@ import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenEvent
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenEvent.DynamicEvent
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenEvent.ScreenEvent
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenViewModel
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults

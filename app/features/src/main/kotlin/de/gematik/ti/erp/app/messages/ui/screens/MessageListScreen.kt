@@ -28,7 +28,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.messages.presentation.rememberMessageListController

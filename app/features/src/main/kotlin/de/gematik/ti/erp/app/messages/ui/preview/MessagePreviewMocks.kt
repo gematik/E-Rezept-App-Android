@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.messages.ui.preview
 
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import kotlinx.datetime.Instant
@@ -48,7 +49,9 @@ object MessagePreviewMocks {
         authoredOn = Instant.fromEpochSeconds(123456),
         acceptUntil = Instant.fromEpochSeconds(123456),
         isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO
+        prescriptionChipInformation = MOCK_CHIP_INFO,
+        deviceRequestState = DigaStatus.Ready,
+        lastModified = Instant.fromEpochSeconds(123456)
     )
 
     val MOCK_PRESCRIPTION_02 = Prescription.SyncedPrescription(
@@ -64,7 +67,9 @@ object MessagePreviewMocks {
         authoredOn = Instant.fromEpochSeconds(123456),
         acceptUntil = Instant.fromEpochSeconds(123456),
         isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO
+        prescriptionChipInformation = MOCK_CHIP_INFO,
+        deviceRequestState = DigaStatus.Ready,
+        lastModified = Instant.fromEpochSeconds(123456)
     )
 
     val MOCK_PRESCRIPTION_03 = Prescription.SyncedPrescription(
@@ -80,6 +85,8 @@ object MessagePreviewMocks {
         authoredOn = Instant.fromEpochSeconds(123456),
         acceptUntil = Instant.fromEpochSeconds(123456),
         isDirectAssignment = false,
-        prescriptionChipInformation = MOCK_CHIP_INFO
+        prescriptionChipInformation = MOCK_CHIP_INFO,
+        deviceRequestState = DigaStatus.Ready,
+        lastModified = Instant.fromEpochSeconds(123456)
     )
 }

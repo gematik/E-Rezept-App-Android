@@ -30,7 +30,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.settings.model.HealthCardClickActions
 import de.gematik.ti.erp.app.theme.AppTheme

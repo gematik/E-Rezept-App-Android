@@ -39,9 +39,10 @@ interface FhirVzdPharmacySearchService {
         @Query("_include") includeOrganization: String = "HealthcareService:organization",
         @Query("_include") includeLocation: String = "HealthcareService:location",
         // filter for Pharmacies of type "offentliche Apotheke"
-        @Query("_text") organizationType: String = FhirVzdPharmacyTypeCode.publicPharmacy,
+        @Query("organization.type") type: String = FhirVzdPharmacyTypeCode.publicPharmacy,
+        @Query("_text") textSearch: String?,
         // filter by name
-        @Query("_text") name: String?,
+        // @Query("_text") name: String?,
         // filter by service type for courier
         @Query("specialty") serviceTypeCourier: String?,
         // filter by service type for pickup
@@ -69,5 +70,20 @@ interface FhirVzdPharmacySearchService {
         @Query("organization.identifier") telematikId: String,
         // always gives only 1 result
         @Query("_count") count: Int = 1
+    ): Response<JsonElement>
+
+    @GET("HealthcareService")
+    suspend fun searchByInsuranceProvider(
+        @Query("organization.active") organizationActive: Boolean = true,
+        // search by type insurance provider
+        @Query("organization.type") organizationType: String = FhirVzdPharmacyTypeCode.insuranceProvider,
+        // required since the telematik-id is in this
+        @Query("_include") includeOrganization: String = "HealthcareService:organization",
+        @Query("endpoint.status") status: String? = null,
+        @Query("_count") count: Int = 1,
+        // required to get it with telematik-id
+        @Query("organization.identifier") telematikIdentifier: String = "https://gematik.de/fhir/sid/telematik-id|",
+        // required to process the iknr number
+        @Query("organization.identifier") organizationIdentifier: String
     ): Response<JsonElement>
 }

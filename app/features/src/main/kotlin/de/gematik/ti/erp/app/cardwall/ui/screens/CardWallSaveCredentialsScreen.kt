@@ -64,7 +64,7 @@ import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsPreviewParameterProvider
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsScreenPreviewData
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults

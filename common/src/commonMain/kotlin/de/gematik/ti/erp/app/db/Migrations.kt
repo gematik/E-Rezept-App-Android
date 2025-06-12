@@ -53,6 +53,7 @@ import de.gematik.ti.erp.app.db.entities.v1.pharmacy.SearchAccessTokenEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.CoverageTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
@@ -133,7 +134,8 @@ fun appSchemas(profileName: String): Set<AppRealmSchema> {
                 PharmacyRemoteDataSourceSelectionEntityV1::class,
                 DebugSettingsEntityV1::class,
                 // support for digas
-                DeviceRequestEntityV1::class
+                DeviceRequestEntityV1::class,
+                DeviceRequestDispenseEntityV1::class
             ),
             migrateOrInitialize = { migrationStartedFrom ->
                 queryFirst<SettingsEntityV1>() ?: run {

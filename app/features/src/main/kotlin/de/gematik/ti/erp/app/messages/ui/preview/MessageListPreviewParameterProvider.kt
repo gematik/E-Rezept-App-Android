@@ -19,11 +19,11 @@
 package de.gematik.ti.erp.app.messages.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.messages.model.MessageTimeState
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.model.LastMessage
 import de.gematik.ti.erp.app.messages.model.LastMessageDetails
+import de.gematik.ti.erp.app.timestate.TimeState
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
@@ -107,7 +107,7 @@ private val PreviewListView1 = InAppMessage(
     id = "1",
     from = "Apotheke",
     text = LATEST_MESSAGE,
-    timeState = MessageTimeState.SentNow(Instant.parse("2023-07-08T15:20:00Z")),
+    timeState = TimeState.SentNow(Instant.parse("2023-07-08T15:20:00Z")),
     prescriptionsCount = 3,
     tag = "tag",
     isUnread = false,
@@ -120,7 +120,7 @@ private val PreviewListView2 = InAppMessage(
     id = "1",
     from = "Apotheke",
     text = LATEST_MESSAGE,
-    timeState = MessageTimeState.ShowTime(Instant.parse("2023-07-08T15:20:00Z")),
+    timeState = TimeState.ShowTime(Instant.parse("2023-07-08T15:20:00Z")),
     prescriptionsCount = 1,
     tag = "tag",
     isUnread = true,
@@ -133,7 +133,7 @@ private val PreviewListView3 = InAppMessage(
     id = "1",
     from = "Team",
     text = LATEST_MESSAGE_LONG,
-    timeState = MessageTimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
+    timeState = TimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
     prescriptionsCount = 1,
     tag = "Team",
     isUnread = true,
@@ -146,7 +146,7 @@ private val PreviewListView4 = InAppMessage(
     id = "1",
     from = "Apotheke",
     text = LATEST_MESSAGE,
-    timeState = MessageTimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
+    timeState = TimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
     prescriptionsCount = 1,
     tag = "tag",
     isUnread = true,
@@ -159,7 +159,7 @@ private val PreviewListView5 = InAppMessage(
     id = "1",
     from = "Apotheke",
     text = LATEST_MESSAGE,
-    timeState = MessageTimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
+    timeState = TimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
     prescriptionsCount = 1,
     tag = "tag",
     isUnread = true,
@@ -172,7 +172,7 @@ private val PreviewListView6 = InAppMessage(
     id = "1",
     from = "Apotheke",
     text = LATEST_MESSAGE,
-    timeState = MessageTimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
+    timeState = TimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
     prescriptionsCount = 1,
     tag = "tag",
     isUnread = true,
@@ -185,7 +185,7 @@ private val PreviewListView7 = InAppMessage(
     id = "1",
     from = "Apotheke",
     text = LATEST_MESSAGE,
-    timeState = MessageTimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
+    timeState = TimeState.ShowDate(Instant.parse("2023-07-08T15:20:00Z")),
     prescriptionsCount = 1,
     tag = "tag",
     isUnread = true,

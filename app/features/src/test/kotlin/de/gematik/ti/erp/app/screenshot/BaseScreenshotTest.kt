@@ -41,7 +41,7 @@ abstract class BaseScreenshotTest(
         deviceConfig = config.deviceConfig,
         theme = config.theme,
         validateAccessibility = true,
-        maxPercentDifference = 0.2,
+        maxPercentDifference = ScreenshotTestDifference.DIFFERENCE,
         renderingMode = renderingMode
     )
 }

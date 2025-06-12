@@ -31,13 +31,13 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.PersonOutline
 import androidx.compose.material.icons.sharp.Alarm
-import androidx.compose.material.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -48,9 +48,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.medicationplan.components.getDayTimeImageAndDescription
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.navigation.MedicationPlanRoutes
@@ -101,7 +101,7 @@ class MedicationNotificationSuccessScreen(
             onClickMedicationPlan = { navController.navigate(MedicationPlanRoutes.MedicationPlanList.path()) },
             onBack = {
                 baseActivity.medicationSuccessHasBeenShown()
-                navController.navigate(PrescriptionRoutes.PrescriptionsScreen.path())
+                navController.navigate(PrescriptionRoutes.PrescriptionListScreen.path())
             }
         )
     }

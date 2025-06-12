@@ -16,5 +16,11 @@
         "text": "📖 **Fonctionnalité de lecture à voix haute** \nNous avons retravaillé plusieurs pages pour les rendre plus faciles à lire à voix haute avec TalkBack. Cela améliore considérablement la convivialité pour les personnes malvoyantes. \n \n📞 **Options de contact étendues** \nNous avons introduit de nouvelles options de contact pour certaines compagnies d'assurance. \n \n🔧 **Fonctions optimisées** \nNous avons corrigé des erreurs mineures lors de la lecture de la carte, nettoyé le code et amélioré l'affichage des messages.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Échangez vos DiGAs prescrits** \n Désormais, vous pouvez échanger vos ordonnances contre des applications de santé numériques (DiGAs) directement via l'application de prescription électronique. Vous recevrez le code d'activation et le lien vers l'application prescrite immédiatement après l'échange. \n \n **🏥 Nouvelle base de données de pharmacies** \n Nous avons introduit une nouvelle base de données évolutive pour les recherches de pharmacies.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

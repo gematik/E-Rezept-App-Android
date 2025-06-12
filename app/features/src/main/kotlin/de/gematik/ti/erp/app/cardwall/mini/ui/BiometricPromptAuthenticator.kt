@@ -30,7 +30,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.authentication.model.PromptAuthenticator
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import kotlinx.coroutines.Dispatchers

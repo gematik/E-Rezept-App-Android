@@ -25,7 +25,7 @@ internal object Versions {
         const val TARGET_SDK_VERSION = 35
     }
 
-    internal const val BUILD_TOOLS_VERSION = "34.0.0"
+    internal const val BUILD_TOOLS_VERSION = "35.0.0"
 
     internal object JavaVersion {
         const val KOTLIN_OPTIONS_JVM_TARGET = "17"

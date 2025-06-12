@@ -41,7 +41,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.settings.model.LicenseEntry
 import de.gematik.ti.erp.app.settings.model.parseLicenses

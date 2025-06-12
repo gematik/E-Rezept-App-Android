@@ -18,14 +18,14 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskAccidentType
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskDataErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirCoverageErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMultiplePrescriptionInfoErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationRequestErpModel
@@ -122,7 +122,7 @@ object FhirTaskDataErpTestData {
             name = "AOK Nordost",
             statusCode = "5",
             coverageType = "GKV",
-            identifierNumber = "109719018"
+            insuranceIdentifier = "109719018"
         ),
         deviceRequest = null
     )
@@ -211,7 +211,7 @@ object FhirTaskDataErpTestData {
             name = "Allianz Private Krankenversicherung",
             statusCode = "1",
             coverageType = "PKV",
-            identifierNumber = "168140346"
+            insuranceIdentifier = "168140346"
         ),
         deviceRequest = null
     )
@@ -297,7 +297,7 @@ object FhirTaskDataErpTestData {
             name = "Techniker Krankenkasse",
             statusCode = "1",
             coverageType = "GKV",
-            identifierNumber = "108077511"
+            insuranceIdentifier = "108077511"
         ),
         deviceRequest = null
     )
@@ -341,7 +341,7 @@ object FhirTaskDataErpTestData {
         coverage = FhirCoverageErpModel(
             name = "AOK Rheinland/Hamburg",
             statusCode = "1",
-            identifierNumber = "104212059",
+            insuranceIdentifier = "104212059",
             coverageType = "GKV"
         ),
         deviceRequest = FhirTaskKbvDeviceRequestErpModel(
@@ -355,7 +355,9 @@ object FhirTaskDataErpTestData {
             authoredOn = LocalDate(
                 value = kotlinx.datetime.LocalDate.parse("2025-03-31"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
-            )
+            ),
+            isNew = true,
+            isArchived = false
         )
     )
 }

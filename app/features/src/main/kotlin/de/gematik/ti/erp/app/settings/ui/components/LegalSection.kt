@@ -31,8 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.semantics.semanticsHeading
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.settings.model.LegalClickActions
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.LabelButton

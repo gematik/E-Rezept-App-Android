@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.prescription.mapper
 
+import de.gematik.ti.erp.app.digas.mapper.mapToDigaStatus
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
@@ -32,29 +33,43 @@ internal fun ScannedTask.toPrescription() = Prescription.ScannedPrescription(
     communications = communications
 )
 
-internal fun SyncedTask.toPrescription() = Prescription.SyncedPrescription(
-    taskId = taskId,
-    isIncomplete = isIncomplete,
-    name = medicationName(),
-    organization = practitioner.name ?: organization.name ?: "",
-    authoredOn = authoredOn,
-    redeemedOn = redeemedOn(),
-    expiresOn = expiresOn,
-    acceptUntil = acceptUntil,
-    state = state(),
-    isDirectAssignment = isDirectAssignment(),
-    prescriptionChipInformation = Prescription.PrescriptionChipInformation(
-        isSelfPayPrescription = insuranceInformation
-            .coverageType == SyncedTaskData.CoverageType.SEL,
-        isPartOfMultiplePrescription = medicationRequest
-            .multiplePrescriptionInfo.indicator,
-        numerator = medicationRequest.multiplePrescriptionInfo
-            .numbering?.numerator?.value,
-        denominator = medicationRequest.multiplePrescriptionInfo
-            .numbering?.denominator?.value,
-        start = medicationRequest.multiplePrescriptionInfo.start
+internal fun SyncedTask.toPrescription(): Prescription.SyncedPrescription {
+    val dispenseDeviceRequest = medicationDispenses.firstOrNull()?.deviceRequest
+
+    return Prescription.SyncedPrescription(
+        taskId = taskId,
+        isIncomplete = isIncomplete,
+        name = deviceRequest?.appName ?: medicationName(),
+        organization = practitioner.name ?: organization.name ?: "",
+        authoredOn = authoredOn,
+        redeemedOn = redeemedOn(),
+        expiresOn = expiresOn,
+        acceptUntil = acceptUntil,
+        state = state(),
+        isDiga = deviceRequest != null,
+        deviceRequestState = status.mapToDigaStatus(
+            userActionState = deviceRequest?.userActionState,
+            sentOn = deviceRequest?.sentOn?.toInstant() ?: lastModified,
+            isDeclined = dispenseDeviceRequest?.isDeclined ?: false,
+            isRedeemed = dispenseDeviceRequest?.isRedeemed ?: false
+        ),
+        isNew = deviceRequest?.isNew ?: false,
+        isArchived = deviceRequest?.isArchived ?: false,
+        isDirectAssignment = isDirectAssignment(),
+        lastModified = lastModified,
+        prescriptionChipInformation = Prescription.PrescriptionChipInformation(
+            isSelfPayPrescription = insuranceInformation
+                .coverageType == SyncedTaskData.CoverageType.SEL,
+            isPartOfMultiplePrescription = medicationRequest
+                .multiplePrescriptionInfo.indicator,
+            numerator = medicationRequest.multiplePrescriptionInfo
+                .numbering?.numerator?.value,
+            denominator = medicationRequest.multiplePrescriptionInfo
+                .numbering?.denominator?.value,
+            start = medicationRequest.multiplePrescriptionInfo.start
+        )
     )
-)
+}
 
 @JvmName("filterScannedNonActiveTasks")
 internal fun List<ScannedTask>.filterNonActiveTasks() =

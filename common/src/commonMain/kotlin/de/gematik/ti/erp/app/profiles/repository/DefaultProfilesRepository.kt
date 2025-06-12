@@ -146,6 +146,7 @@ class DefaultProfilesRepository(
         profileId: ProfileIdentifier,
         insurantName: String,
         insuranceIdentifier: String,
+        organizationIdentifier: String,
         insuranceName: String
     ) {
         lock.withLock {
@@ -177,6 +178,7 @@ class DefaultProfilesRepository(
                 queryFirst<ProfileEntityV1>("id = $0", profileId)?.apply {
                     this.insuranceName = insuranceName
                     this.insuranceIdentifier = insuranceIdentifier
+                    this.organizationIdentifier = organizationIdentifier
                     this.insurantName = insurantName
                     if (this.isNewlyCreated) {
                         this.name = insurantName
@@ -290,4 +292,21 @@ class DefaultProfilesRepository(
         realm.queryFirst<ProfileEntityV1>("id = $0", profileId)
             ?.asFlow()?.mapNotNull { it.obj?.toProfileData() }
             ?.map { it.isSSOTokenValid() } ?: flowOf(false)
+
+    override suspend fun getOrganizationIdentifier(profileId: ProfileIdentifier): Flow<String> =
+        realm.queryFirst<ProfileEntityV1>("id = $0", profileId)?.asFlow()?.mapNotNull {
+            it.obj?.organizationIdentifier
+        } ?: emptyFlow()
+
+    override suspend fun updateOrganizationIdentifier(iknr: String) {
+        activeProfile()
+            .first()
+            .let { activeProfile ->
+                realm.write {
+                    queryFirst<ProfileEntityV1>("id = $0", activeProfile.id)?.apply {
+                        this.organizationIdentifier = iknr
+                    }
+                }
+            }
+    }
 }

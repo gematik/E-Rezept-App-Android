@@ -17,5 +17,6 @@ android {
 
 dependencies {
     implementation(libs.compose.ui)
+    implementation(libs.androidx.work)
     implementation(project(":utils"))
 }

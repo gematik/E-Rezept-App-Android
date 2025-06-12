@@ -18,4 +18,15 @@
 
 package de.gematik.ti.erp.app.protocol.model
 
-data class AuditEventPagingKey(val offset: Int)
+import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
+
+data class AuditEventPagingKey(val offset: Int) {
+    companion object {
+        @JvmStatic
+        fun from(currentOffset: Int?, auditEvents: List<FhirAuditEventErpModel>?): AuditEventPagingKey? {
+            if (auditEvents.isNullOrEmpty()) return null
+            val newOffset = (currentOffset ?: 0) + auditEvents.size
+            return AuditEventPagingKey(newOffset)
+        }
+    }
+}

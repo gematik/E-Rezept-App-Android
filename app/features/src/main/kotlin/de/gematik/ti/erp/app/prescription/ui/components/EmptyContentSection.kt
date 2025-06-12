@@ -33,7 +33,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState
 import de.gematik.ti.erp.app.prescription.ui.MainScreenAvatar
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData

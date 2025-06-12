@@ -57,7 +57,7 @@ import com.google.maps.android.compose.MarkerInfoWindowContent
 import com.google.maps.android.compose.MarkerState
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.permissions.getLocationPermissionLauncher
 import de.gematik.ti.erp.app.permissions.isLocationPermissionAndServiceEnabled
 import de.gematik.ti.erp.app.permissions.locationPermissions

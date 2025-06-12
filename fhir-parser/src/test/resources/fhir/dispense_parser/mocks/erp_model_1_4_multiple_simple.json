@@ -1,0 +1,76 @@
+{
+  "dispensedMedications": [
+    {
+      "dispenseId": "160.000.000.000.000.01",
+      "patientId": "X123456789",
+      "substitutionAllowed": false,
+      "dosageInstruction": null,
+      "performer": "3-SMC-B-Testkarte-883110000095957",
+      "handedOver": {
+        "value": "2025-09-06"
+      },
+      "dispensedMedication": [
+        {
+          "type": "de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedEpaMedicationErpModel",
+          "text": null,
+          "category": null,
+          "form": null,
+          "amount": null,
+          "isVaccine": false,
+          "lotNumber": null,
+          "expirationDate": null,
+          "contextualData": {
+            "identifier": {
+              "pzn": "06313728",
+              "atc": null,
+              "ask": null,
+              "snomed": null
+            },
+            "normSizeCode": null,
+            "manufacturingInstructions": null,
+            "packaging": null,
+            "ingredients": [
+            ]
+          }
+        }
+      ],
+      "dispensedDeviceRequest": null
+    },
+    {
+      "dispenseId": "160.000.000.000.000.02",
+      "patientId": "X123456789",
+      "substitutionAllowed": false,
+      "dosageInstruction": null,
+      "performer": "3-SMC-B-Testkarte-883110000095957",
+      "handedOver": {
+        "value": "2025-09-06"
+      },
+      "dispensedMedication": [
+        {
+          "type": "de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedEpaMedicationErpModel",
+          "text": null,
+          "category": null,
+          "form": null,
+          "amount": null,
+          "isVaccine": false,
+          "lotNumber": null,
+          "expirationDate": null,
+          "contextualData": {
+            "identifier": {
+              "pzn": "06313728",
+              "atc": null,
+              "ask": null,
+              "snomed": null
+            },
+            "normSizeCode": null,
+            "manufacturingInstructions": null,
+            "packaging": null,
+            "ingredients": [
+            ]
+          }
+        }
+      ],
+      "dispensedDeviceRequest": null
+    }
+  ]
+}

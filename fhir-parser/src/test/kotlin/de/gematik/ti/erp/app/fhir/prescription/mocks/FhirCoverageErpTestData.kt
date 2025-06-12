@@ -26,13 +26,13 @@ object FhirCoverageErpTestData {
         name = "HEK",
         statusCode = "3",
         coverageType = "GKV",
-        identifierNumber = "101570104"
+        insuranceIdentifier = "101570104"
     )
 
     val expectedErpCoverageModel110 = FhirCoverageErpModel(
         name = "AOK Nordost",
         statusCode = "5",
         coverageType = "GKV",
-        identifierNumber = "109719018"
+        insuranceIdentifier = "109719018"
     )
 }

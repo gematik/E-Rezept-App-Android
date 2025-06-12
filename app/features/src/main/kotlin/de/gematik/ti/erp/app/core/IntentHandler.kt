@@ -24,6 +24,7 @@ import android.content.Intent
 import android.net.Uri
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.core.net.toUri
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction
@@ -39,6 +40,9 @@ import java.net.URI
 const val ExternalAppAuthenticationBaseUri = "https://das-e-rezept-fuer-deutschland.de/extauth"
 const val WwwExternalAppAuthenticationBaseUri = "https://www.das-e-rezept-fuer-deutschland.de/extauth"
 const val ShareBaseUri = "https://das-e-rezept-fuer-deutschland.de/prescription"
+
+private fun String.isLikelyIosDeeplink(): Boolean =
+    startsWith("itms-apps://") || contains("apps.apple.com") || contains("platform=ios", ignoreCase = true)
 
 data class GidResultIntent(
     val uriData: String,
@@ -122,6 +126,41 @@ class IntentHandler(private val context: Context) {
         } catch (e: ActivityNotFoundException) {
             Napier.e { "Activity missing, user needs to install the other app" }
             onFailure()
+        }
+    }
+
+    @Requirement(
+        "O.Auth_4#7",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "App must initiate an external authentication flow using a provided redirect URI (deepLink)."
+    )
+    fun tryStartingExternalApp(
+        deepLink: String,
+        onIosDeeplink: () -> Unit
+    ) {
+        try {
+            if (!deepLink.isValidUri()) return
+
+            if (deepLink.isLikelyIosDeeplink()) {
+                onIosDeeplink()
+                return
+            }
+
+            val intent = if (deepLink.startsWith("intent://", ignoreCase = true)) {
+                Intent.parseUri(deepLink, Intent.URI_INTENT_SCHEME).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            } else {
+                Intent(Intent.ACTION_VIEW, deepLink.toUri()).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                }
+            }
+
+            context.startActivity(intent)
+        } catch (e: ActivityNotFoundException) {
+            Napier.e(e) { "Activity not found for deepLink: $deepLink" }
+        } catch (e: Exception) {
+            Napier.e(e) { "Failed to open deepLink: $deepLink" }
         }
     }
 

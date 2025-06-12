@@ -26,7 +26,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import de.gematik.ti.erp.app.authentication.presentation.enrollBiometricsIntent
 import de.gematik.ti.erp.app.authentication.presentation.enrollDeviceSecurityIntent
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold

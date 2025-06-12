@@ -84,7 +84,7 @@ import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithDemoMode
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.gid.ui.components.DomainsNotVerifiedDialog
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.semantics.semanticsButton

@@ -32,6 +32,7 @@ class GetPrescriptionByTaskIdUseCase(
     private val repository: PrescriptionRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
+    // TODO für DigaDitail
     operator fun invoke(taskId: String): Flow<PrescriptionData.Prescription> {
         val synced =
             repository

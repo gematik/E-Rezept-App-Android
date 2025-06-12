@@ -18,20 +18,20 @@
 
 package de.gematik.ti.erp.app.redeem.ui.components
 
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
+import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.ErrorOnRedeemablePrescriptionDialogParameters
 import de.gematik.ti.erp.app.redeem.model.RedeemDialogParameters
 import de.gematik.ti.erp.app.redeem.model.RedeemPrescriptionDialogMessageState
 import de.gematik.ti.erp.app.redeem.model.RedeemPrescriptionDialogMessageState.Companion.toDialogMessageState
-import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState.IncompleteOrder
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState.InvalidOrder
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState.OrderCompleted
 import io.github.aakira.napier.Napier
 
 object RedeemStateHandler {
-    fun RedeemedPrescriptionState.handleRedeemedState(
+    fun BaseRedeemState.handleRedeemedState(
         onShowPrescriptionRedeemAlertDialog: (RedeemDialogParameters) -> Unit,
         onOrderHasError: (Boolean) -> Unit,
         onIncompleteOrder: (ErrorOnRedeemablePrescriptionDialogParameters) -> Unit,
@@ -73,7 +73,7 @@ object RedeemStateHandler {
     }
 
     private fun obtainDialogParameters(
-        results: Collection<RedeemedPrescriptionState?>
+        results: Collection<BaseRedeemState?>
     ): RedeemPrescriptionDialogMessageState =
         when {
             // case 1: When one prescription is transferred.
@@ -86,11 +86,11 @@ object RedeemStateHandler {
             else -> RedeemPrescriptionDialogMessageState.MultiplePrescriptionsFailed()
         }
 
-    fun Collection<RedeemedPrescriptionState?>.containsError(): Boolean =
-        any { it is RedeemedPrescriptionState.Error }
+    private fun Collection<BaseRedeemState?>.containsError(): Boolean =
+        any { it is BaseRedeemState.Error }
 
-    private fun Collection<RedeemedPrescriptionState?>.containsNoError(): Boolean =
-        any { it !is RedeemedPrescriptionState.Error }
+    private fun Collection<BaseRedeemState?>.containsNoError(): Boolean =
+        any { it !is BaseRedeemState.Error }
 }
 
 fun (PharmacyScreenData.OrderOption?).selectVideoSource() = when (this) {

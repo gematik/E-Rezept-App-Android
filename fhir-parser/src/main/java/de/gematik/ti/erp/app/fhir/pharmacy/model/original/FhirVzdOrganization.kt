@@ -19,8 +19,9 @@
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdIdentifier.Companion.getTelematikId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -67,15 +68,7 @@ internal data class FhirVzdIdentifier(
 
 @Serializable
 internal data class FhirVzdType(
-    @SerialName("coding") val coding: List<FhirVzdCoding>
-)
-
-// todo move
-@Serializable
-internal data class FhirVzdCoding(
-    @SerialName("code") val code: String?,
-    @SerialName("system") val system: String?,
-    @SerialName("display") val display: String?
+    @SerialName("coding") val coding: List<FhirTypeCoding>
 )
 
 @Serializable
@@ -90,8 +83,8 @@ internal data class FhirVzdAddress(
     @SerialName("country") val country: String?
 ) {
     companion object {
-        fun FhirVzdAddress.toErpModel(): FhirAddressErpModel {
-            return FhirAddressErpModel(
+        fun FhirVzdAddress.toErpModel(): FhirPharmacyAddressErpModel {
+            return FhirPharmacyAddressErpModel(
                 lineAddress = line.joinToString(",").trim(),
                 postalCode = postalCode,
                 city = city

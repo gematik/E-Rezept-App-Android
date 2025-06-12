@@ -22,11 +22,12 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationDispenseRequest
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
-import de.gematik.ti.erp.app.fhir.communication.model.Extension
-import de.gematik.ti.erp.app.fhir.communication.model.Payload
-import de.gematik.ti.erp.app.fhir.communication.model.Recipient
-import de.gematik.ti.erp.app.fhir.communication.model.Reference
-import de.gematik.ti.erp.app.fhir.communication.model.ValueCoding
+import de.gematik.ti.erp.app.fhir.communication.model.CommunicationRecipient
+import de.gematik.ti.erp.app.fhir.communication.model.CommunicationReference
+import de.gematik.ti.erp.app.fhir.communication.model.CommunicationValueCoding
+import de.gematik.ti.erp.app.fhir.communication.model.CommunicationValueCodingExtension
+import de.gematik.ti.erp.app.fhir.communication.model.PayloadForCommunication
+import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import kotlinx.serialization.json.JsonElement
 
@@ -39,7 +40,7 @@ object CommunicationDispenseRequest {
         orderId: String,
         taskId: String,
         accessCode: String,
-        recipientTID: String,
+        recipientId: String,
         payloadContent: CommunicationPayload,
         flowTypeCode: String,
         flowTypeDisplay: String
@@ -55,9 +56,9 @@ object CommunicationDispenseRequest {
                 )
             ),
             extension = listOf(
-                Extension(
+                CommunicationValueCodingExtension(
                     url = FhirCommunicationConstants.PRESCRIPTION_TYPE_EXTENSION,
-                    valueCoding = ValueCoding(
+                    valueCoding = CommunicationValueCoding(
                         system = FhirCommunicationConstants.FLOW_TYPE_SYSTEM,
                         code = flowTypeCode,
                         display = flowTypeDisplay
@@ -65,20 +66,20 @@ object CommunicationDispenseRequest {
                 )
             ),
             basedOn = listOf(
-                Reference(
+                CommunicationReference(
                     reference = "Task/$taskId/\$accept?ac=$accessCode"
                 )
             ),
             recipient = listOf(
-                Recipient(
+                CommunicationRecipient(
                     identifier = FhirIdentifier(
-                        system = FhirCommunicationConstants.RECIPIENT_IDENTIFIER_SYSTEM,
-                        value = recipientTID
+                        system = FhirConstants.TELEMATIK_ID_IDENTIFIER,
+                        value = recipientId
                     )
                 )
             ),
             payload = listOf(
-                Payload(
+                PayloadForCommunication(
                     contentString = SafeJson.value.encodeToString(CommunicationPayload.serializer(), payloadContent)
                 )
             )

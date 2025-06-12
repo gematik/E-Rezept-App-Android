@@ -18,10 +18,13 @@
 
 package de.gematik.ti.erp.app.prescription.mapper
 
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestDispenseEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.task.DeviceRequestEntityV1.Companion.getDigaStatusForUserAction
 import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAccidentInformationErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
 import de.gematik.ti.erp.app.utils.FhirTemporal
@@ -41,6 +44,20 @@ object ErpTaskMappers {
             type = FhirTaskAccidentType.getFhirTaskAccidentByType(accidentType),
             date = accidentDate?.toInstant()?.toLocalDate()?.let { FhirTemporal.LocalDate(it) },
             location = accidentLocation
-        )
+        ),
+        userActionState = getDigaStatusForUserAction(),
+        isNew = isNew,
+        isArchived = isArchived
+    )
+
+    fun DeviceRequestDispenseEntityV1.toErpModel() = FhirDispenseDeviceRequestErpModel(
+        deepLink = deepLink,
+        declineCode = declineCode,
+        referencePzn = referencePzn,
+        redeemCode = redeemCode,
+        note = note,
+        display = display,
+        status = status,
+        modifiedDate = modifiedDate?.toInstant()?.asFhirTemporal()
     )
 }

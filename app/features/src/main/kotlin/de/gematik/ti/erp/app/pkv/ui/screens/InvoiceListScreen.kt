@@ -74,6 +74,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
@@ -81,7 +82,6 @@ import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isNotGranted
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.features.R
 import de.gematik.ti.erp.app.fhir.parser.Year
 import de.gematik.ti.erp.app.invoice.model.InvoiceData.PKVInvoiceRecord
 import de.gematik.ti.erp.app.invoice.model.currencyString
@@ -234,7 +234,7 @@ class InvoiceListScreen(
                 invoiceController.deleteLocalInvoices()
                 consentController.revokeChargeConsent(profileId)
                 consentController.saveConsentDrawerShown(profileId)
-                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionsScreen.route)
+                navController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionListScreen.route)
             }
         )
 
@@ -352,7 +352,7 @@ private fun InvoiceListScreenScaffold(
     scaffoldState: ScaffoldState,
     consentState: ConsentState,
     isConsentGranted: Boolean,
-    invoicesState: UiState<Map<de.gematik.ti.erp.app.fhir.parser.Year, List<PKVInvoiceRecord>>>,
+    invoicesState: UiState<Map<Year, List<PKVInvoiceRecord>>>,
     onClickConnect: (profileId: ProfileIdentifier) -> Unit,
     onClickInvoice: (profileId: ProfileIdentifier, taskId: String) -> Unit,
     onClickGrantConsent: () -> Unit,
@@ -405,7 +405,7 @@ private fun InvoiceListScreenScaffold(
 @Composable
 private fun RefreshInvoicesContent(
     listState: LazyListState,
-    invoicesState: UiState<Map<de.gematik.ti.erp.app.fhir.parser.Year, List<PKVInvoiceRecord>>>,
+    invoicesState: UiState<Map<Year, List<PKVInvoiceRecord>>>,
     onClickInvoice: (String) -> Unit
 ) {
     UiStateMachine(

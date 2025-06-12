@@ -23,6 +23,7 @@ import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.AuthenticationPasswordEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.db.toInstant
 import de.gematik.ti.erp.app.db.toRealmInstant
 import de.gematik.ti.erp.app.db.writeToRealm
 import de.gematik.ti.erp.app.settings.model.SettingsData
@@ -35,6 +36,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 
 @Suppress("TooManyFunctions")
@@ -47,6 +49,10 @@ class DefaultSettingsRepository(
 ) {
     private val settings: Flow<SettingsEntityV1?>
         get() = realm.query<SettingsEntityV1>().first().asFlow().map { it.obj }
+
+    private val lastRefreshed: Flow<Instant>
+        get() = realm.query<SettingsEntityV1>().first().asFlow()
+            .mapNotNull { it.obj?.time?.toInstant() }
 
     override val general: Flow<SettingsData.General>
         get() = realm.query<SettingsEntityV1>().first().asFlow().mapNotNull { query ->
@@ -272,6 +278,14 @@ class DefaultSettingsRepository(
             this.setAcceptedUpdatedDataTerms(now)
         }
     }
+
+    override suspend fun updateRefreshTime() {
+        writeToRealm {
+            this.time = Clock.System.now().toRealmInstant()
+        }
+    }
+
+    override fun getLastRefreshedTime(): Flow<Instant> = lastRefreshed
 
     private fun SettingsEntityV1.setAcceptedUpdatedDataTerms(now: Instant) {
         this.dataProtectionVersionAccepted = now.toRealmInstant()

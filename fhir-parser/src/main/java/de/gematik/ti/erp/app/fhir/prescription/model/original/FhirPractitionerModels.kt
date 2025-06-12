@@ -108,7 +108,15 @@ internal data class FhirPractitioner(
             )
         }
 
-        fun FhirPractitioner.getQualification(): String? {
+        /**
+         * Extracts the qualification text from the FHIR Practitioner resource, if available.
+         *
+         * This function looks for the first qualification entry that has a non-null `code.text` field.
+         * If an error occurs during access or parsing, it logs the error and returns `null`.
+         *
+         * @return The qualification text (e.g., "Hausarzt") if present, otherwise `null`.
+         */
+        private fun FhirPractitioner.getQualification(): String? {
             return try {
                 qualifications.find { it.code?.text != null }?.code?.text
             } catch (e: Exception) {
@@ -117,6 +125,14 @@ internal data class FhirPractitioner(
             }
         }
 
+        /**
+         * Retrieves and processes the practitioner's name from the FHIR Practitioner resource.
+         *
+         * This function takes the first name entry and processes it using the `processName()` utility.
+         * In case of any exception during parsing, it logs the error and returns `null`.
+         *
+         * @return The practitioner's full name as a string if available, otherwise `null`.
+         */
         private fun FhirPractitioner.getName(): String? {
             return try {
                 names.firstOrNull()?.processName()

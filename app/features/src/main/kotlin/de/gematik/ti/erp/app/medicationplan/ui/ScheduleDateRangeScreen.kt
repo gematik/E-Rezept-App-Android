@@ -59,7 +59,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.medicationplan.model.DateEvent
 import de.gematik.ti.erp.app.medicationplan.presentation.PrescriptionSchedule
 import de.gematik.ti.erp.app.medicationplan.presentation.rememberMedicationPlanScheduleScreenController

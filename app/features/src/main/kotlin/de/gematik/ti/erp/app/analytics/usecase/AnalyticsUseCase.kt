@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.analytics.usecase
 
 import android.content.Context
 import androidx.compose.runtime.Immutable
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.Serializable

@@ -18,12 +18,11 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInstitutionTelematikId
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.extractBinaryCertificatesAsBase64
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
-import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser.Companion.FHIRVZD_TAG
+import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.APOVZD
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
@@ -50,11 +49,13 @@ class DefaultPharmacyRepository(
     private val redeemLocalDataSource: RedeemLocalDataSource,
     private val favouriteLocalDataSource: FavouritePharmacyLocalDataSource,
     private val oftenUsedLocalDataSource: OftenUsedPharmacyLocalDataSource,
-    private val parser: PharmacyBundleParser
+    private val parsers: PharmacyParsers
 ) : PharmacyRepository {
 
     companion object {
-        private const val MINIMUM_LOCATION_RESULT_COUNT = 100
+        private const val MAX_LOCATION_RESULT_COUNT = 100
+        private const val MIN_ENTRIES_RETURN_THRESHOLD = 51
+        private const val MAX_ENTRIES_RETURN_THRESHOLD = 99
     }
 
     private val vzdServiceSelection: PharmacyVzdService = getSelectedVzdPharmacyBackend()
@@ -86,15 +87,15 @@ class DefaultPharmacyRepository(
     ): FhirPharmacyErpModelCollection =
         when (vzdServiceSelection) {
             APOVZD -> apoVzdExtractor(jsonElement)
-            FHIRVZD -> parser.extract(jsonElement)
+            FHIRVZD -> parsers.bundleParser.extract(jsonElement)
         }
 
     /**
      * Performs a location-based pharmacy search with progressively increasing radius.
      *
-     * - Starts with a **small radius (5km or 10km)** to optimize performance.
-     * - If results are insufficient, expands to **15km or 20km, 25km**.
-     * - Merges results step-by-step while ensuring unique pharmacies based on `telematikId`.
+     * - Starts with a **small radius (2km )** to optimize performance.
+     * - If results are insufficient, expands to **50km**.
+     * - Search results are increased step-by-step until 51 - 99 pharmacies are found`.
      *
      * @param filter The search filter containing location details.
      * @param onUnauthorizedException A suspend function handling unauthorized API responses.
@@ -105,25 +106,25 @@ class DefaultPharmacyRepository(
         onUnauthorizedException: suspend () -> Unit
     ): Result<FhirPharmacyErpModelCollection> = runCatching {
         @Suppress("MagicNumber")
-        val radiusLevels = listOf(5.0, 10.0, 15.0, 20.0, 25.0) // Progressive radius search
-        var accumulatedEntries = emptySet<FhirPharmacyErpModel>()
+        val kmRadiusLevels = listOf(2.0, 3.0, 5.0, 10.0, 20.0, 50.0) // Progressive radius search
         var lastCollection: FhirPharmacyErpModelCollection? = null
 
-        for (radius in radiusLevels) {
+        for (radius in kmRadiusLevels) {
             val updatedFilter = filter.copy(locationFilter = filter.locationFilter?.copy(radius = radius))
             val collection = fetchPharmacies(updatedFilter, onUnauthorizedException)
-
-            accumulatedEntries = mergeUniquePharmacies(accumulatedEntries.toList(), collection.entries)
-            lastCollection = collection.copy(entries = accumulatedEntries.toList(), total = accumulatedEntries.size)
-
-            Napier.d(tag = FHIRVZD_TAG) { "updated collection size on location search ${lastCollection.entries.size}" }
-
-            if (accumulatedEntries.size > MINIMUM_LOCATION_RESULT_COUNT) {
-                return@runCatching lastCollection
+            when {
+                collection.entries.size in MIN_ENTRIES_RETURN_THRESHOLD..MAX_ENTRIES_RETURN_THRESHOLD -> {
+                    return@runCatching collection.copy(total = collection.entries.size)
+                }
+                collection.entries.size >= MAX_LOCATION_RESULT_COUNT -> {
+                    return@runCatching lastCollection ?: collection.copy(total = collection.entries.size)
+                }
+                else -> {
+                    lastCollection = collection.copy(total = collection.entries.size)
+                }
             }
         }
-
-        lastCollection ?: FhirPharmacyErpModelCollection.emptyCollection()
+        return@runCatching lastCollection ?: FhirPharmacyErpModelCollection.emptyCollection()
     }
 
     private suspend fun fetchPharmacies(
@@ -134,11 +135,6 @@ class DefaultPharmacyRepository(
             .map(::parseData)
             .getOrElse { FhirPharmacyErpModelCollection.emptyCollection() }
     }
-
-    private fun mergeUniquePharmacies(
-        existingList: List<FhirPharmacyErpModel>,
-        newList: List<FhirPharmacyErpModel>
-    ): Set<FhirPharmacyErpModel> = listOf(existingList, newList).flatten().associateBy { it.telematikId }.values.toSet()
 
     override fun getSelectedVzdPharmacyBackend(): PharmacyVzdService =
         remoteDataSourceSelector.getPharmacyVzdService()
@@ -204,6 +200,15 @@ class DefaultPharmacyRepository(
             telematikId = telematikId,
             onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
         ).map(::parseData)
+    }
+
+    override suspend fun searchInsuranceProviderByInstitutionIdentifier(
+        iknr: String
+    ): Result<FhirInstitutionTelematikId?> {
+        return remoteDataSource.searchByInsuranceProvider(
+            institutionIdentifier = iknr,
+            onUnauthorizedException = searchAccessTokenLocalDataSource::clearToken
+        ).map(parsers.organizationParser::extract)
     }
 
     // will only work with APOVZD

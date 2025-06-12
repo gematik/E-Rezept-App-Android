@@ -44,7 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.mainscreen.navigation.MainScreenBottomNavigationItems
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
@@ -75,7 +75,7 @@ internal fun MainScreenBottomBar(
             BottomNavigationItem(
                 modifier = Modifier.testTag(
                     when (screen) {
-                        PrescriptionRoutes.PrescriptionsScreen -> TestTag.BottomNavigation.PrescriptionButton
+                        PrescriptionRoutes.PrescriptionListScreen -> TestTag.BottomNavigation.PrescriptionButton
                         MessagesRoutes.MessageListScreen -> TestTag.BottomNavigation.OrdersButton
                         PharmacyRoutes.PharmacyStartScreen -> TestTag.BottomNavigation.PharmaciesButton
                         SettingsNavigationScreens.SettingsScreen -> TestTag.BottomNavigation.SettingsButton
@@ -87,7 +87,7 @@ internal fun MainScreenBottomBar(
                 icon = {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         when (screen) {
-                            PrescriptionRoutes.PrescriptionsScreen ->
+                            PrescriptionRoutes.PrescriptionListScreen ->
                                 Icon(
                                     painterResource(R.drawable.ic_logo_outlined),
                                     contentDescription = null,
@@ -140,7 +140,7 @@ internal fun MainScreenBottomBar(
                     Text(
                         stringResource(
                             when (screen) {
-                                PrescriptionRoutes.PrescriptionsScreen -> R.string.pres_bottombar_prescriptions
+                                PrescriptionRoutes.PrescriptionListScreen -> R.string.pres_bottombar_prescriptions
                                 MessagesRoutes.MessageListScreen -> R.string.messages_bottombar
                                 PharmacyRoutes.PharmacyStartScreen -> R.string.pres_bottombar_pharmacies
                                 SettingsNavigationScreens.SettingsScreen -> R.string.main_settings_acc
@@ -164,10 +164,10 @@ internal fun MainScreenBottomBar(
                         is MessagesRoutes.MessageListScreen -> {
                             mainNavController.navigate(screen.path())
                         }
-                        is PrescriptionRoutes.PrescriptionsScreen -> {
+                        is PrescriptionRoutes.PrescriptionListScreen -> {
                             mainNavController.navigate(screen.path())
                             // on reaching here the back navigation only closes the app
-                            mainNavController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionsScreen.route)
+                            mainNavController.navigateAndClearStack(route = PrescriptionRoutes.PrescriptionListScreen.route)
                         }
                     }
                 }

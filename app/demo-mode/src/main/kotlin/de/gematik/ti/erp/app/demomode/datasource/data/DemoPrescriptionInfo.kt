@@ -18,14 +18,22 @@
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
+import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.DIGA_TASK_PRESET
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.DIRECT_ASSIGNMENT_TASK_PRESET
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.EXPIRY_DATE
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.NOW
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.SHORT_EXPIRY_DATE
+import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.START_DATE
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.SYNCED_TASK_PRESET
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.longerRandomTimeToday
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.randomTimeToday
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo.demoProfile01
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
@@ -38,6 +46,10 @@ import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Patient
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.Practitioner
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.utils.asFhirTemporal
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import kotlinx.datetime.LocalDate
 import java.util.UUID
 import kotlin.random.Random
 
@@ -46,30 +58,43 @@ object DemoPrescriptionInfo {
     private val BOOLEAN = listOf(true, false)
 
     private val SYNCED_MEDICATION_NAMES = setOf(
-        "Ibuprofen 600", "Meloxicam", "Indomethacin", "Celebrex", "Ketoprofen", "Piroxicam", "Etodolac", "Toradol",
-        "Aspirin", "Voltaren", "Naproxen", "Mobic", "Aleve", "Motrin", "Advil", "Relafen", "Feldene", "Daypro",
-        "Clinoril", "Ansaid", "Orudis", "Dolobid", "Tolectin", "Lodine", "Nalfon", "Indocin", "Arthrotec", "Vimovo",
-        "Cataflam", "Pennsaid", "Zipsor", "Voltaren Gel"
+        "Placebex", "Ibupretend", "Fauxprofen", "Chilladrin", "SniffleSnuff", "Yawnitol", "Laughprofen", "Snorezine",
+        "Zzzquilish", "Hypernex", "Gigglomycin", "Napril", "Procrastifen", "Mildramol", "Slightofen", "Drowsinol",
+        "Blinkofen", "Mehprofen", "Kindaproxin", "Driftazine", "Daydreamex", "Lowkeymax", "Forgetix", "Awkwardol",
+        "Oopsazepam", "Shrugonex", "Dramaquill", "Lazitone", "Yawndol", "Apologex", "Confusitol", "Grumpex",
+        "Overthinkol", "Zoomedol", "Couchacillin", "Unmotivon", "Reactorex", "Stresstonin", "Underthinkol",
+        "Panickinex", "Petmycatin", "Scrolladrine", "Complainex", "Doomazon", "Snackitrol", "Notonightin",
+        "Internexol", "Snackodone", "Zebraline", "Decaffidrin"
     )
 
     val SCANNED_MEDICINE_NAMES = listOf(
-        "Lopressor", "Tenormin", "Prinivil", "Vasetoc", "Cozaar", "Norvasc", "Plavix", "Nitrostat", "Tambocor",
-        "Lanoxin"
+        "Pill-o-tron 5000", "Mood Swinger", "HeartBeats-a-Lot", "PlaceboMax", "NoPainAllGain",
+        "GrumpAway", "Chillaxin", "WakeMeUpNow", "NapZap", "DoctorFeelGood"
     )
 
     private val DOSAGE = listOf("1-0-1-1", "1-1-1-1", "0-0-0-1", "1-0-1", "0-1-1-0")
 
     private val STREET_NAMES = listOf(
-        "Mühlenweg",
-        "Birkenallee",
-        "Sonnenstraße",
-        "Lindenplatz",
-        "Friedensgasse",
-        "Bergstraße",
-        "Am Rosenhain",
-        "Eichenweg",
-        "Schlossallee",
-        "Marktplatz"
+        "Wurstweg", // Sausage Way 🌭
+        "Kaffeeschlürfgasse", // Coffee Slurp Lane ☕
+        "Schnarchplatz", // Snore Square 😴
+        "Bratwurstallee", // Sausage Blvd 🔥
+        "Faulenzerstraße", // Lazybones Street 🛋️
+        "Dönerwinkel", // Döner Corner 🌯
+        "Bierdeckelring", // Beer Coaster Ring 🍺
+        "Schnitzelstraße", // Schnitzel Street 🍽️
+        "Quasselgasse", // Chatter Alley 🗣️
+        "Möpseweg", // Pugs Way 🐶
+        "NichtHierweg", // "NotHere Way" 🚷
+        "Verlorenesockenweg", // Lost Sock Way 🧦
+        "Butterbrotstraße", // Sandwich Street 🧈🍞
+        "Lachflashgasse", // Giggle Burst Lane 😂
+        "Gurkenplatz", // Cucumber Square 🥒
+        "Zahnlückenring", // Tooth Gap Circle 😁
+        "Keksweg", // Cookie Lane 🍪
+        "Mumpitzallee", // Nonsense Ave 🌀
+        "Katzenjammerweg", // Cat Wail Way 😾
+        "Niesattackengasse" // Sneezing Fit Alley 🤧
     )
 
     private val POSTAL_CODES = listOf(
@@ -85,17 +110,27 @@ object DemoPrescriptionInfo {
         "10001"
     )
 
-    private val CITY_NAMES = listOf(
-        "Berlin",
-        "Munich (München)",
-        "Hamburg",
-        "Cologne (Köln)",
-        "Frankfurt",
-        "Stuttgart",
-        "Düsseldorf",
-        "Hannover",
-        "Leipzig",
-        "Gotha"
+    val CITY_NAMES = listOf(
+        "Schnitzelburg", // City of schnitzel pride 🍖
+        "Wursthausen", // Sausage capital 🌭
+        "Bratkartoffelheim", // Pan-fried potato central 🥔
+        "Bierdorf", // Beer Town 🍺
+        "Kaffekranzingen", // Coffee & gossip central ☕
+        "Schnarchstadt", // Sleepy town 😴
+        "Oberunterhinterdorf", // Too many directions to find 🧭
+        "Flauschingen", // Fluffy feels town 🧸
+        "Langweiligen", // Boringville 😐
+        "Müsliberg", // Granola hipster heaven 🌾
+        "Gurkental", // Cucumber Valley 🥒
+        "Pups am See", // Giggle alert 💨 + 🏞️
+        "Knödlingen", // Dumplingville 🥟
+        "Katzenfurt", // Cat River City 🐱
+        "Lachstadt", // Laughter City 😄
+        "Dönerdorf", // Where every street has a kebab 🌯
+        "Neuschwaflingen", // Fake cousin of Neuschwanstein 🏰
+        "Unbekanntstadt", // Unknownville ❓
+        "Sauerkraut am Rhein", // You already smell it 🇩🇪
+        "Technobach" // Raves & baroque music 🎧🎼
     )
 
     private val FLOORS = listOf(
@@ -172,16 +207,21 @@ object DemoPrescriptionInfo {
     )
 
     private val DOCTORS_NOTES = listOf(
-        "Patient hat grippeähnliche Symptome und sollte sich ausruhen.",
-        "Blutdruck im normalen Bereich, Patient sollte regelmäßig Sport treiben.",
-        "Anpassung der Medikation notwendig, um den Blutzuckerspiegel zu kontrollieren.",
-        "Patient klagt über Kopfschmerzen, möglicherweise aufgrund von Stress.",
-        "Regelmäßige Kontrolluntersuchungen werden empfohlen, um den Heilungsverlauf zu überwachen.",
-        "Verdacht auf Lebensmittelallergie, Patient sollte Tagebuch über Ernährung führen.",
-        "Weitere Tests erforderlich, um die Ursache der Beschwerden zu ermitteln.",
-        "Ruhe und ausreichend Schlaf notwendig, um die Genesung zu fördern.",
-        "Patient leidet unter Rückenschmerzen, Physiotherapie wird empfohlen.",
-        "Erhöhte Cholesterinwerte festgestellt, Anpassung der Ernährung notwendig."
+        "Patient zeigt typische Symptome eines Prototypen. Weitere Entwicklung empfohlen.",
+        "Diagnose: leichte Datenmüdigkeit. Bitte regelmäßig cache leeren.",
+        "Symptome deuten auf akute Demomüdigkeit hin. App einfach mal neu starten.",
+        "Keine Auffälligkeiten festgestellt – außer einer Vorliebe für Lorem Ipsum.",
+        "Patient berichtet über Kopfweh – möglicherweise durch zu viele Meetings.",
+        "Blutdruck stabil. Stresslevel steigt nur bei Jenkins-Fehlschlägen.",
+        "Empfehlung: Weniger Scrollen, mehr frische Luft. (Auch für den Entwickler!)",
+        "Ernährungsumstellung empfohlen: weniger Bugs, mehr Features.",
+        "Medikation gut eingestellt. Bitte keine UI-Änderungen mehr vor dem Release.",
+        "Patient im stabilen Zustand, solange keine Netzwerkverbindung unterbrochen wird.",
+        "Rückenschmerzen wahrscheinlich durch stundenlanges Mock-Daten eingeben.",
+        "Nächste Kontrolle bei Release-Kandidaten-Status oder spontaner Regression.",
+        "Patient leidet unter akuter '404 – Motivation Not Found'. Behandlung läuft.",
+        "Verdacht auf Feature Fatigue. Bitte keine neuen Anforderungen diese Woche.",
+        "Testnote für Demo-Zwecke. Keine echten medizinischen Inhalte enthalten."
     )
 
     /**
@@ -272,7 +312,7 @@ object DemoPrescriptionInfo {
         text = SYNCED_MEDICATION_NAMES.elementAtOrElse(index) { SYNCED_MEDICATION_NAMES.random() },
         form = codeToFormMapping.random(),
         lotNumber = DEMO_MODE_IDENTIFIER,
-        expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(EXPIRY_DATE),
+        expirationDate = FhirTemporal.Instant(EXPIRY_DATE),
         identifier = SyncedTaskData.Identifier(DEMO_MODE_IDENTIFIER),
         normSizeCode = normSizeMappings.random(),
         amount = RATIO,
@@ -282,14 +322,30 @@ object DemoPrescriptionInfo {
         packaging = null
     )
 
-    internal val MEDICATION_DISPENSE = MedicationDispense(
+    private fun medicationDispense(
+        isCompleted: Boolean,
+        isDeviceRequest: Boolean
+    ) = MedicationDispense(
         dispenseId = UUID.randomUUID().toString(),
         patientIdentifier = PATIENT.insuranceIdentifier ?: "",
         medication = MEDICATION,
         wasSubstituted = BOOLEAN.random(),
         dosageInstruction = DOSAGE.random(),
         performer = PERFORMERS.random(),
-        whenHandedOver = null
+        whenHandedOver = null,
+        deviceRequest = if (isDeviceRequest) deviceRequestDispense(isCompleted) else null
+    )
+
+    @Suppress("ktlint:max-line-length", "MaxLineLength")
+    private fun deviceRequestDispense(isCompleted: Boolean) = FhirDispenseDeviceRequestErpModel(
+        deepLink = "intent://maps.google.com/maps?q=Friedrichstraße+136+Berlin+Germany#Intent;scheme=https;package=com.google.android.apps.maps;S.browser_fallback_url=https://maps.google.com?q=Friedrichstraße+136+Berlin+Germany;end",
+        redeemCode = FUNNY_REDEEM_CODES.random(),
+        declineCode = null,
+        note = null,
+        referencePzn = "420",
+        display = "Super Legit DiGA App™️ v9000",
+        status = if (isCompleted) "completed" else "reject",
+        modifiedDate = Instant.parse(input = "2024-08-01T10:00:00Z").asFhirTemporal()
     )
 
     internal val INSURANCE_INFORMATION = SyncedTaskData.InsuranceInformation(
@@ -298,8 +354,31 @@ object DemoPrescriptionInfo {
         coverageType = COVERAGE_TYPE
     )
 
-    internal fun medicationRequest(index: Int) = MedicationRequest(
-        medication = medication(index),
+    private val FUNNY_REDEEM_CODES = listOf(
+        "TRUST_ME_BRO",
+        "NOT_A_SCAM",
+        "1234-5678-LOL",
+        "FREECAKE_INSIDE",
+        "CERTIFIED_FAKE",
+        "USE_AT_OWN_RISK",
+        "I_KNOW_A_GUY",
+        "PROB_NOT_EXPIRED",
+        "ACTUALLY_WORKS",
+        "NO_REFUNDS",
+        "REDEEM_AND_REGRET",
+        "DONT_TELL_SUPPORT",
+        "YOLO2025",
+        "ITS_FINE_PROBABLY",
+        "TOTALLY_LEGAL",
+        "SECRET_SAUCE",
+        "REDEEM_YOUR_FAITH",
+        "VALID_UNTIL_YESTERDAY",
+        "FAKECODE123",
+        "IM_NOT_A_ROBOT"
+    )
+
+    internal fun medicationRequest(isDeviceRequest: Boolean, index: Int) = MedicationRequest(
+        medication = if (!isDeviceRequest) medication(index) else null,
         dateOfAccident = null,
         location = CITY_NAMES.random(),
         emergencyFee = BOOLEAN.random(),
@@ -332,15 +411,78 @@ object DemoPrescriptionInfo {
         )
     }
 
+    fun demoDiga(
+        index: Int?,
+        appName: String?
+    ) = FhirTaskKbvDeviceRequestErpModel(
+        id = "199",
+        intent = RequestIntent.Proposal,
+        status = "active",
+        pzn = "123457590456",
+        appName = appName ?: FUNNY_APP_NAMES.random(),
+        accident = FhirAccidentInformationErpModel(
+            type = FhirTaskAccidentType.WorkAccident,
+            date = FhirTemporal.LocalDate(LocalDate.parse("2025-03-28")),
+            location = CITY_NAMES.random()
+        ),
+        userActionState = index?.let { listOfDeviceRequestStatus[it] },
+        isSelfUse = false,
+        authoredOn = FhirTemporal.Instant(START_DATE),
+        isNew = listOf(true, false).random(),
+        isArchived = false
+    )
+
+    private val FUNNY_APP_NAMES = listOf(
+        "Demo DiGa App",
+        "TotallyNotSpyware",
+        "MediLOL",
+        "Prescription Impossible",
+        "Appy McAppface",
+        "Pill It Up!",
+        "Tap That Tablet",
+        "Dr. Feelgood's Assistant",
+        "Placebo Pro",
+        "CureOS",
+        "Heal Yeah!",
+        "Med-Zilla",
+        "The Daily Dose",
+        "404 Symptoms Found",
+        "Take This App And Call Me",
+        "SickNote Simulator",
+        "DigiDripp",
+        "QuackTrack",
+        "PainAway.exe",
+        "Sniffle Solutions™️"
+    )
+
+    private val listOfDeviceRequestStatus: List<DigaStatus> = listOf(
+        DigaStatus.Ready,
+        DigaStatus.InProgress(Instant.parse("2024-07-01T10:00:00Z")),
+        DigaStatus.CompletedSuccessfully,
+        DigaStatus.CompletedWithRejection(Instant.parse("2024-08-01T10:00:00Z")),
+        DigaStatus.DownloadDigaApp,
+        DigaStatus.OpenAppWithRedeemCode,
+        DigaStatus.ReadyForSelfArchiveDiga,
+        DigaStatus.SelfArchiveDiga
+    )
+
     internal object DemoSyncedPrescription {
         internal fun syncedTask(
             profileIdentifier: ProfileIdentifier,
             status: SyncedTaskData.TaskStatus = SyncedTaskData.TaskStatus.Ready,
             isDirectAssignment: Boolean = false,
-            index: Int
+            isDeviceRequest: Boolean = false,
+            isDeviceRequestCompleted: Boolean = false,
+            deviceRequestStatusIndex: Int? = null,
+            medicationNamesIndex: Int,
+            appName: String? = null
         ): SyncedTaskData.SyncedTask {
             val taskId =
-                if (isDirectAssignment) "$DIRECT_ASSIGNMENT_TASK_PRESET.$index" else "$SYNCED_TASK_PRESET.$index"
+                when {
+                    isDirectAssignment -> "$DIRECT_ASSIGNMENT_TASK_PRESET.$medicationNamesIndex"
+                    isDeviceRequest -> "$DIGA_TASK_PRESET.$medicationNamesIndex"
+                    else -> "$SYNCED_TASK_PRESET.$medicationNamesIndex"
+                }
             return SyncedTaskData.SyncedTask(
                 profileId = profileIdentifier,
                 taskId = taskId,
@@ -352,15 +494,21 @@ object DemoPrescriptionInfo {
                 practitioner = PRACTITIONER,
                 patient = PATIENT,
                 insuranceInformation = INSURANCE_INFORMATION,
-                expiresOn = EXPIRY_DATE,
+                expiresOn = if (medicationNamesIndex == 30) Clock.System.now() else EXPIRY_DATE,
                 acceptUntil = SHORT_EXPIRY_DATE,
                 authoredOn = NOW,
                 status = status,
-                medicationRequest = medicationRequest(index),
+                medicationRequest = medicationRequest(isDeviceRequest, medicationNamesIndex),
                 lastMedicationDispense = null,
-                medicationDispenses = listOf(MEDICATION_DISPENSE),
+                medicationDispenses = listOf(
+                    medicationDispense(
+                        isCompleted = isDeviceRequestCompleted,
+                        isDeviceRequest = isDeviceRequest
+                    )
+                ),
                 communications = emptyList(),
-                failureToReport = ""
+                failureToReport = "",
+                deviceRequest = if (isDeviceRequest) demoDiga(deviceRequestStatusIndex, appName) else null
             )
         }
     }

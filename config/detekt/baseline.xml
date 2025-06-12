@@ -1,409 +1,543 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" ?>
 <SmellBaseline>
   <ManuallySuppressedIssues>
-    <ID>ConstructorParameterNaming:PrescriptionDetailController.kt$PrescriptionDetailController$private val _prescription: MutableStateFlow&lt;UiState&lt;PrescriptionData.Prescription>> = MutableStateFlow(UiState.Loading())</ID>
+    <ID>ConstructorParameterNaming:PrescriptionDetailController.kt$PrescriptionDetailController$private val _prescription: MutableStateFlow&lt;UiState&lt;PrescriptionData.Prescription&gt;&gt; = MutableStateFlow(UiState.Loading())</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ClassNaming:SchemaTest.kt$RealmA_V1 : RealmObject</ID>
-    <ID>ClassNaming:SchemaTest.kt$RealmA_V2 : RealmObject</ID>
-    <ID>ClassNaming:SchemaTest.kt$RealmA_V3 : RealmObject</ID>
-    <ID>ClassNaming:SchemaTest.kt$RealmB_V1 : RealmObject</ID>
-    <ID>ComplexCondition:LoginWithHealthCardScreen.kt$(can.length == it || it == 5 &amp;&amp; can.length == 6) &amp;&amp; isFocussed</ID>
-    <ID>ComplexCondition:LoginWithHealthCardScreen.kt$triggerAuth &amp;&amp; state.firstVisibleItemIndex == 4 &amp;&amp; cardAccessNumber.isNotBlank() &amp;&amp; personalIdentificationNumber.isNotBlank()</ID>
-    <ID>ComplexCondition:Workarounds.kt$Workarounds$osName == "Mac OS X" &amp;&amp; majorJavaVersion &lt;= 16 &amp;&amp; (majorOsVersion == 11 || majorOsVersion == 12)</ID>
-    <ID>EmptyDefaultConstructor:PrefixedLogger.kt$NapierLogger$()</ID>
+    <ID>ComposableNaming:ComposableEvent.kt$ComposableEvent$listen</ID>
+    <ID>ComposableNaming:InvoiceExpandedDetailsScreen.kt$invoiceExpandedDetailsScreenContentPreview</ID>
+    <ID>ComposableNaming:Toast.kt$shortToast</ID>
+    <ID>ComposableParamOrder:AnimatedElevationScaffold.kt$AnimatedElevationScaffold</ID>
+    <ID>ComposableParamOrder:AnimatedElevationScaffoldWithScrollState.kt$AnimatedElevationScaffoldWithScrollState</ID>
+    <ID>ComposableParamOrder:Avatar.kt$Avatar</ID>
+    <ID>ComposableParamOrder:Avatar.kt$ChooseAvatar</ID>
+    <ID>ComposableParamOrder:Avatar.kt$extractImageResource</ID>
+    <ID>ComposableParamOrder:Banner.kt$Banner</ID>
+    <ID>ComposableParamOrder:BitmapProfileImage.kt$BitmapImage</ID>
+    <ID>ComposableParamOrder:BitmapProfileImage.kt$CircularBitmapImage</ID>
+    <ID>ComposableParamOrder:BottomSheet.kt$ModalBottomSheet</ID>
+    <ID>ComposableParamOrder:BottomSheetAction.kt$BottomSheetAction</ID>
+    <ID>ComposableParamOrder:ButtonWithConditionalHint.kt$ButtonWithConditionalHint</ID>
+    <ID>ComposableParamOrder:Buttons.kt$OutlinedIconButton</ID>
+    <ID>ComposableParamOrder:CardWallAuthDialog.kt$CardWallAuthenticationDialog</ID>
+    <ID>ComposableParamOrder:CardWallPinScreen.kt$PinInputField</ID>
+    <ID>ComposableParamOrder:CardWallSaveCredentialsScreen.kt$SelectableCard</ID>
+    <ID>ComposableParamOrder:CardWallScaffold.kt$CardWallScaffold</ID>
+    <ID>ComposableParamOrder:Chip.kt$Chip</ID>
+    <ID>ComposableParamOrder:ClickableText.kt$ClickableText</ID>
+    <ID>ComposableParamOrder:Common.kt$AcceptDialog</ID>
+    <ID>ComposableParamOrder:Common.kt$ClickableAnnotatedText</ID>
+    <ID>ComposableParamOrder:Common.kt$CommonAlertDialog</ID>
+    <ID>ComposableParamOrder:Common.kt$DynamicText</ID>
+    <ID>ComposableParamOrder:Common.kt$Label</ID>
+    <ID>ComposableParamOrder:Common.kt$LabeledSwitch</ID>
+    <ID>ComposableParamOrder:Common.kt$NavigationTopAppBar</ID>
+    <ID>ComposableParamOrder:CommonDrawerScreenContent.kt$CommonDrawerScreenContent</ID>
+    <ID>ComposableParamOrder:ConsentMessages.kt$HandleConsentState</ID>
+    <ID>ComposableParamOrder:DebugCard.kt$DebugCard</ID>
+    <ID>ComposableParamOrder:DebugScreen.kt$DebugCard</ID>
+    <ID>ComposableParamOrder:DebugScreen.kt$EditablePathComponentSetButton</ID>
+    <ID>ComposableParamOrder:DebugScreen.kt$FeatureToggles</ID>
+    <ID>ComposableParamOrder:DebugScreen.kt$RotatingLog</ID>
+    <ID>ComposableParamOrder:DebugScreen.kt$VirtualHealthCard</ID>
+    <ID>ComposableParamOrder:DemoModeTopAppBar.kt$DemoModeStatusBar</ID>
+    <ID>ComposableParamOrder:Dialog.kt$AlertDialog</ID>
+    <ID>ComposableParamOrder:DispenseMessage.kt$DispenseMessage</ID>
+    <ID>ComposableParamOrder:EditableHeaderText.kt$EditableTextField</ID>
+    <ID>ComposableParamOrder:EditablePathComponentSetButton.kt$EditablePathComponentSetButton</ID>
+    <ID>ComposableParamOrder:EmptyScreenComponent.kt$EmptyScreenComponent</ID>
+    <ID>ComposableParamOrder:ErezeptAlertDialog.kt$ErezeptAlertDialog</ID>
+    <ID>ComposableParamOrder:ErezeptAlertDialog.kt$InternalErezeptAlertDialog</ID>
+    <ID>ComposableParamOrder:ErezeptOutlineText.kt$ErezeptOutlineText</ID>
+    <ID>ComposableParamOrder:ErezeptText.kt$ErezeptText$CenteredTitle</ID>
+    <ID>ComposableParamOrder:ErezeptText.kt$ErezeptText$UnCenteredTitle</ID>
+    <ID>ComposableParamOrder:ErrorOnRedeemablePrescriptionDialog.kt$ErrorOnRedeemablePrescriptionDialog</ID>
+    <ID>ComposableParamOrder:ErrorOnRedeemablePrescriptionDialog.kt$bodyText</ID>
+    <ID>ComposableParamOrder:ErrorText.kt$ErrorText</ID>
+    <ID>ComposableParamOrder:ExploreSection.kt$DemoModeSwitch</ID>
+    <ID>ComposableParamOrder:FavoritePharmacyCard.kt$FavoritePharmacyCard</ID>
+    <ID>ComposableParamOrder:FilterButtonSection.kt$FilterButtonSection</ID>
+    <ID>ComposableParamOrder:FlatButton.kt$FlatButton</ID>
+    <ID>ComposableParamOrder:GidScreenHeaderSection.kt$ExternalAuthenticationScreenHeader</ID>
+    <ID>ComposableParamOrder:GidScreenHeaderSection.kt$GidScreenHeaderSection</ID>
+    <ID>ComposableParamOrder:Hints.kt$AnimatedHintCard</ID>
+    <ID>ComposableParamOrder:Hints.kt$HintCard</ID>
+    <ID>ComposableParamOrder:Hints.kt$HintLargeImage</ID>
+    <ID>ComposableParamOrder:Hints.kt$HintSmallImage</ID>
+    <ID>ComposableParamOrder:InfoLabel.kt$InfoLabel</ID>
+    <ID>ComposableParamOrder:InsetAwareBars.kt$BottomNavigation</ID>
+    <ID>ComposableParamOrder:ItemsMenu.kt$ItemsMenu</ID>
+    <ID>ComposableParamOrder:LabeledCheckbox.kt$LabeledCheckbox</ID>
+    <ID>ComposableParamOrder:LoadingButton.kt$LoadingButton</ID>
+    <ID>ComposableParamOrder:LocalRedeemScreen.kt$Dot</ID>
+    <ID>ComposableParamOrder:LoggerScreen.kt$CopyButton</ID>
+    <ID>ComposableParamOrder:LowDetailMedication.kt$LowDetailMedication</ID>
+    <ID>ComposableParamOrder:MailClient.kt$buildFeedbackBodyWithDeviceInfo</ID>
+    <ID>ComposableParamOrder:MainScreenAvatar.kt$ConnectionHelper</ID>
+    <ID>ComposableParamOrder:MainScreenAvatar.kt$MainScreenAvatar</ID>
+    <ID>ComposableParamOrder:MedicationPlanReminderCard.kt$MedicationPlanReminderCard</ID>
+    <ID>ComposableParamOrder:MessageTimeStateParser.kt$messageTimeStateParser</ID>
+    <ID>ComposableParamOrder:Messages.kt$Messages</ID>
+    <ID>ComposableParamOrder:OnboardingBottomBar.kt$OnboardingBottomBar</ID>
+    <ID>ComposableParamOrder:OnboardingLazyColumn.kt$OnboardingLazyColumn</ID>
+    <ID>ComposableParamOrder:OnboardingScreenScaffold.kt$OnboardingScreenScaffold</ID>
+    <ID>ComposableParamOrder:OrderHealthCardSelectMethodScreen.kt$OrderHealthCardSelectMethodScreenContent</ID>
+    <ID>ComposableParamOrder:Orders.kt$Order</ID>
+    <ID>ComposableParamOrder:Orders.kt$Orders</ID>
+    <ID>ComposableParamOrder:PersonalSettingsSection.kt$ZoomSwitch</ID>
+    <ID>ComposableParamOrder:PharmacyContact.kt$PharmacyContact</ID>
+    <ID>ComposableParamOrder:PharmacyContact.kt$PharmacyOpeningHoursOverview</ID>
+    <ID>ComposableParamOrder:PharmacyDetailsComponent.kt$BasePharmacyDetailsContent</ID>
+    <ID>ComposableParamOrder:PharmacyDetailsComponent.kt$PharmacyDetailsComponent</ID>
+    <ID>ComposableParamOrder:PharmacySearchErrorHint.kt$PharmacySearchErrorHint</ID>
+    <ID>ComposableParamOrder:PharmacySearchListScreen.kt$SearchResults</ID>
+    <ID>ComposableParamOrder:PharmacyStartScreen.kt$PharmacyStartScreenContent</ID>
+    <ID>ComposableParamOrder:PrescriptionDetailScreenScaffold.kt$PrescriptionDetailScreenScaffold</ID>
+    <ID>ComposableParamOrder:PrescriptionScanScreen.kt$ScanOverlay</ID>
+    <ID>ComposableParamOrder:PrescriptionStateInfo.kt$sentOrCompletedPhrase</ID>
+    <ID>ComposableParamOrder:PrescriptionsSection.kt$PrescriptionsSection</ID>
+    <ID>ComposableParamOrder:ProfileEditNameBottomSheetScreen.kt$ProfileEditNameBottomSheetScreenContent</ID>
+    <ID>ComposableParamOrder:ProfileEditPictureScreen.kt$AvatarSelector</ID>
+    <ID>ComposableParamOrder:ProfileEditPictureScreen.kt$ColorPicker</ID>
+    <ID>ComposableParamOrder:ProfileNameSection.kt$ProfileEditBasicTextField</ID>
+    <ID>ComposableParamOrder:ProfilePairedDevicesScreen.kt$PairedDevicesSection</ID>
+    <ID>ComposableParamOrder:ProfileSheetContent.kt$ProfileSheetContent</ID>
+    <ID>ComposableParamOrder:PullToRefresh.kt$PullToRefresh</ID>
+    <ID>ComposableParamOrder:RedeemFromDetailSection.kt$RedeemSection</ID>
+    <ID>ComposableParamOrder:SaveButton.kt$SaveButton</ID>
+    <ID>ComposableParamOrder:SelfPayerPrescriptionWarning.kt$SelfPayerPrescriptionWarning</ID>
+    <ID>ComposableParamOrder:SettingsAppSecurityScreen.kt$ChangePasswordSection</ID>
+    <ID>ComposableParamOrder:SettingsLanguageScreen.kt$LanguageSelectionItem</ID>
+    <ID>ComposableParamOrder:SettingsOpenSourceLicencesScreen.kt$LicenseItem</ID>
+    <ID>ComposableParamOrder:SwitchWithText.kt$SwitchLeftWithText</ID>
+    <ID>ComposableParamOrder:SwitchWithText.kt$SwitchRightWithText</ID>
+    <ID>ComposableParamOrder:SyncedPrescriptionOverview.kt$SyncedPrescriptionOverview</ID>
+    <ID>ComposableParamOrder:SyncedPrescriptionOverview.kt$SyncedPrescriptionStateInfo</ID>
+    <ID>ComposableParamOrder:TestScaffold.kt$TestScaffold</ID>
+    <ID>ComposableParamOrder:TextFlatButton.kt$TextFlatButton</ID>
+    <ID>ComposableParamOrder:Toggle.kt$Toggle</ID>
+    <ID>ComposableParamOrder:TopBars.kt$TextTabRow</ID>
+    <ID>ComposableParamOrder:UnlockEgkDialog.kt$UnlockEgkDialog</ID>
+    <ID>ComposableParamOrder:VideoContent.kt$VideoContent</ID>
+    <ID>ComposableParamOrder:WebViewScreen.kt$WebViewScreen</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalActivity</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalAnalytics</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalAuthenticator</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalBiometricAuthenticator</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalBottomSheetNavigator</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalBottomSheetNavigatorSheetState</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalDi</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalNavController</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalTimeZone</ID>
+    <ID>CompositionLocalAllowlist:Dialog.kt$LocalDialogHostState</ID>
+    <ID>CompositionLocalAllowlist:IntentHandler.kt$LocalIntentHandler</ID>
+    <ID>CompositionLocalAllowlist:SettingsScreenPreviewData.kt$LocalIsPreviewMode</ID>
+    <ID>CompositionLocalAllowlist:SnackbarScaffold.kt$LocalSnackbarScaffold</ID>
+    <ID>CompositionLocalAllowlist:Theme.kt$LocalAppColors</ID>
+    <ID>CompositionLocalAllowlist:Theme.kt$LocalAppTypography</ID>
+    <ID>CompositionLocalAllowlist:Theme.kt$LocalAppTypographyColors</ID>
+    <ID>CompositionLocalAllowlist:Theme.kt$LocalFonts</ID>
+    <ID>CompositionLocalAllowlist:Theme.kt$LocalSizes</ID>
+    <ID>CompositionLocalAllowlist:UiScopeScaffold.kt$LocalUiScopeScaffold</ID>
+    <ID>CyclomaticComplexMethod:Avatar.kt$@Composable fun ProfilesData.Avatar.toDescription(): String</ID>
+    <ID>CyclomaticComplexMethod:SyncedTaskDataEntityV1Test.kt$SyncedTaskDataEntityV1Test$@Test fun `cascading delete`()</ID>
+    <ID>CyclomaticComplexMethod:UnlockEgkUseCase.kt$UnlockEgkUseCase$private fun handleException(unlockMethod: String, e: Throwable): UnlockEgkState</ID>
+    <ID>CyclomaticComplexMethod:UnlockEgkUseCase.kt$private suspend fun ProducerScope&lt;UnlockEgkState&gt;.healthCardCommunication( unlockMethod: String, channel: NfcCardChannel, can: String, puk: String, oldSecret: String, newSecret: String )</ID>
     <ID>EmptyFunctionBlock:DebugScreenWrapper.kt${}</ID>
-    <ID>EmptyFunctionBlock:Main.kt$LogHandler${ }</ID>
-    <ID>EmptyFunctionBlock:VideoContent.kt$&lt;no name provided>${}</ID>
-    <ID>FunctionParameterNaming:IdpService.kt$IdpService$@Query("redirect_uri") redirect_uri: String = REDIRECT_URI</ID>
-    <ID>ImplicitDefaultLocale:ApplicationIdentifier.kt$ApplicationIdentifier$String.format( "Application File Identifier length out of valid range [%d,%d]", AID_MIN_LENGTH, AID_MAX_LENGTH )</ID>
-    <ID>ImplicitDefaultLocale:CardKey.kt$CardKey$String.format( "Key ID out of range [%d,%d]", MIN_KEY_ID, MAX_KEY_ID )</ID>
-    <ID>ImplicitDefaultLocale:ShortFileIdentifier.kt$ShortFileIdentifier$String.format( "Short File Identifier out of valid range [%d,%d]", MIN_VALUE, MAX_VALUE )</ID>
-    <ID>LargeClass:StringResource.kt$Strings</ID>
-    <ID>LongMethod:AndroidStringResourceGeneratorTask.kt$AndroidStringResourceGeneratorTask$@OptIn(ExperimentalXmlUtilApi::class, ExperimentalStdlibApi::class) @TaskAction fun generateStringResources()</ID>
-    <ID>LongMethod:CardWallComponents.kt$@Composable fun CardWallScreen( mainNavController: NavController, onResumeCardWall: () -> Unit, profileId: ProfileIdentifier )</ID>
-    <ID>LongMethod:KBVCodeMapping.kt$fun Strings.codeToDosageFormMapping()</ID>
-    <ID>LongMethod:LoginWithHealthCardScreen.kt$@OptIn( ExperimentalMaterialApi::class, ExperimentalAnimationApi::class ) @Composable fun LoginWithHealthCard( viewModel: LoginWithHealthCardViewModel, onFinished: () -> Unit, onClose: () -> Unit )</ID>
-    <ID>LongMethod:Main.kt$fun main()</ID>
-    <ID>LongMethod:SyncedTaskEntityV1Test.kt$SyncedTaskEntityV1Test$@Test fun `cascading delete`()</ID>
-    <ID>LongParameterList:HealthCardVersion2.kt$HealthCardVersion2$( /** * Information of C0 with version of filling instruction for version2 */ val fillingInstructionsVersion: ByteArray, // C0 /** * Information of C1 with version of card object system */ val objectSystemVersion: ByteArray, // C1 /** * Information of C2 with version of product identification object system */ val productIdentificationObjectSystemVersion: ByteArray, // C2 /** * Information of C4 with version of filling instruction for EF.GDO */ val fillingInstructionsEfGdoVersion: ByteArray, // C4 /** * Information of C5 with version of filling instruction for EF.ATR */ val fillingInstructionsEfAtrVersion: ByteArray, // C5 /** * Information of C6 with version of filling instruction for EF.KeyInfo * Only filled for gSMC-K and gSMC-KT */ val fillingInstructionsEfKeyInfoVersion: ByteArray, // C6 //only gSMC-K and gSMC-KT /** * Information of C3 with version of filling instruction for Environment Settings * Only filled for gSMC-K */ val fillingInstructionsEfEnvironmentSettingsVersion: ByteArray, // C3 //only gSMC-K /** * Information of C7 with version of filling instruction for EF.GDO */ val fillingInstructionsEfLoggingVersion: ByteArray // C7 )</ID>
-    <ID>LongParameterList:IdpUseCase.kt$IdpUseCase$( private val repository: IdpRepository, private val pairingRepository: IdpPairingRepository, private val altAuthUseCase: IdpAlternateAuthenticationUseCase, private val profilesRepository: ProfilesRepository, private val basicUseCase: IdpBasicUseCase, private val preferences: IdpPreferenceProvider, private val cryptoProvider: IdpCryptoProvider )</ID>
-    <ID>MagicNumber:Animations.kt$1</ID>
-    <ID>MagicNumber:Animations.kt$3</ID>
-    <ID>MagicNumber:Apdu.kt$0xFF</ID>
-    <ID>MagicNumber:Apdu.kt$8</ID>
-    <ID>MagicNumber:Apdu.kt$CommandApdu.Companion$0xFF</ID>
-    <ID>MagicNumber:Apdu.kt$CommandApdu.Companion$255</ID>
-    <ID>MagicNumber:Apdu.kt$CommandApdu.Companion$5</ID>
-    <ID>MagicNumber:Apdu.kt$CommandApdu.Companion$65535</ID>
-    <ID>MagicNumber:Apdu.kt$CommandApdu.Companion$7</ID>
-    <ID>MagicNumber:AuthenticationUseCase.kt$AuthenticationUseCase$1000</ID>
-    <ID>MagicNumber:BasicData.kt$3</ID>
-    <ID>MagicNumber:BasicData.kt$4</ID>
-    <ID>MagicNumber:BasicData.kt$IdpNonce.Companion$32</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$1000</ID>
-    <ID>MagicNumber:CardWallAuthDialog.kt$5000</ID>
-    <ID>MagicNumber:CardWallComponents.kt$6</ID>
-    <ID>MagicNumber:CardWallComponents.kt$8</ID>
-    <ID>MagicNumber:CardWallNfcInstructionScreen.kt$1.5f</ID>
-    <ID>MagicNumber:CardWallNfcInstructionScreen.kt$3</ID>
-    <ID>MagicNumber:CardWallNfcInstructionScreen.kt$6</ID>
-    <ID>MagicNumber:CertUtils.kt$3</ID>
-    <ID>MagicNumber:ClientCrypto.kt$3</ID>
-    <ID>MagicNumber:ClientCrypto.kt$VauChannelSpec$3</ID>
-    <ID>MagicNumber:ClientCrypto.kt$VauChannelSpec$4</ID>
-    <ID>MagicNumber:ClientCrypto.kt$VauChannelSpec$5</ID>
-    <ID>MagicNumber:ClientCrypto.kt$VauChannelSpec$8</ID>
-    <ID>MagicNumber:Common.kt$1</ID>
-    <ID>MagicNumber:Crypto.kt$AesGcm$8</ID>
-    <ID>MagicNumber:Crypto.kt$Ecies$16</ID>
-    <ID>MagicNumber:Crypto.kt$Ecies$32</ID>
-    <ID>MagicNumber:CryptoUtils.kt$256</ID>
-    <ID>MagicNumber:DebugSettingsViewModel.kt$DebugSettingsViewModel$48</ID>
-    <ID>MagicNumber:DebugSettingsViewModel.kt$DebugSettingsViewModel$64</ID>
-    <ID>MagicNumber:Dialog.kt$0.78f</ID>
-    <ID>MagicNumber:EcdsaUsingShaAlgorithmExtending.kt$EcdsaUsingShaAlgorithmExtending.EcdsaBP256R1UsingSha256$64</ID>
-    <ID>MagicNumber:EcdsaUsingShaAlgorithmExtending.kt$EcdsaUsingShaAlgorithmExtending.EcdsaBP384R1UsingSha384$64</ID>
-    <ID>MagicNumber:EcdsaUsingShaAlgorithmExtending.kt$EcdsaUsingShaAlgorithmExtending.EcdsaBP512R1UsingSha512$64</ID>
-    <ID>MagicNumber:FileIdentifier.kt$FileIdentifier$0x011C</ID>
-    <ID>MagicNumber:FileIdentifier.kt$FileIdentifier$0x1000</ID>
-    <ID>MagicNumber:FileIdentifier.kt$FileIdentifier$0x3FFF</ID>
-    <ID>MagicNumber:FileIdentifier.kt$FileIdentifier$0xFEFF</ID>
-    <ID>MagicNumber:GeneralAuthenticateCommand.kt$28</ID>
-    <ID>MagicNumber:HealthCardVersion2.kt$16</ID>
-    <ID>MagicNumber:HealthCardVersion2.kt$8</ID>
-    <ID>MagicNumber:HealthCardVersion2.kt$HealthCardVersion2.Companion$3</ID>
-    <ID>MagicNumber:HealthCardVersion2.kt$HealthCardVersion2.Companion$4</ID>
-    <ID>MagicNumber:HealthCardVersion2.kt$HealthCardVersion2.Companion$5</ID>
-    <ID>MagicNumber:HealthCardVersion2.kt$HealthCardVersion2.Companion$6</ID>
-    <ID>MagicNumber:HealthCardVersion2.kt$HealthCardVersion2.Companion$7</ID>
-    <ID>MagicNumber:Hints.kt$1</ID>
-    <ID>MagicNumber:Hints.kt$2000</ID>
-    <ID>MagicNumber:IdpAlternateAuthenticationUseCase.kt$IdpAlternateAuthenticationUseCase$1000</ID>
-    <ID>MagicNumber:IdpAlternateAuthenticationUseCase.kt$IdpAlternateAuthenticationUseCase$32</ID>
-    <ID>MagicNumber:IdpBasicUseCase.kt$3</ID>
-    <ID>MagicNumber:IdpBasicUseCase.kt$4</ID>
-    <ID>MagicNumber:IdpBasicUseCase.kt$IdpBasicUseCase$60</ID>
-    <ID>MagicNumber:IdpBasicUseCase.kt$IdpNonce.Companion$32</ID>
-    <ID>MagicNumber:IdpUseCase.kt$IdpUseCase$400</ID>
-    <ID>MagicNumber:IdpUseCase.kt$IdpUseCase$401</ID>
-    <ID>MagicNumber:IdpUseCase.kt$IdpUseCase$403</ID>
-    <ID>MagicNumber:JWTExtensions.kt$64</ID>
-    <ID>MagicNumber:LoginWithHealthCardScreen.kt$1000</ID>
-    <ID>MagicNumber:LoginWithHealthCardScreen.kt$3</ID>
-    <ID>MagicNumber:LoginWithHealthCardScreen.kt$4</ID>
-    <ID>MagicNumber:LoginWithHealthCardScreen.kt$5</ID>
-    <ID>MagicNumber:LoginWithHealthCardScreen.kt$6</ID>
-    <ID>MagicNumber:LoginWithHealthCardViewModel.kt$LoginWithHealthCardViewModel$1000</ID>
-    <ID>MagicNumber:LoginWithHealthCardViewModel.kt$LoginWithHealthCardViewModel$2000</ID>
-    <ID>MagicNumber:Main.kt$0.1f</ID>
-    <ID>MagicNumber:Main.kt$1.5f</ID>
-    <ID>MagicNumber:MainComposable.kt$1f</ID>
-    <ID>MagicNumber:MainScreen.kt$0xff</ID>
-    <ID>MagicNumber:MainScreen.kt$4</ID>
-    <ID>MagicNumber:ManageSecurityEnvironmentCommand.kt$3</ID>
-    <ID>MagicNumber:ManageSecurityEnvironmentCommand.kt$4</ID>
-    <ID>MagicNumber:OnboardingComponents.kt$9</ID>
-    <ID>MagicNumber:OverlayPopup.kt$0.5f</ID>
-    <ID>MagicNumber:OverlayPopup.kt$0.7f</ID>
-    <ID>MagicNumber:OverlayPopup.kt$15f</ID>
-    <ID>MagicNumber:PairedDevices.kt$0.33f</ID>
-    <ID>MagicNumber:PasswordScreen.kt$0.05f</ID>
-    <ID>MagicNumber:PasswordScreen.kt$0.1f</ID>
-    <ID>MagicNumber:PasswordScreen.kt$0.3f</ID>
-    <ID>MagicNumber:PasswordScreen.kt$0.6f</ID>
-    <ID>MagicNumber:PasswordScreen.kt$3</ID>
-    <ID>MagicNumber:PasswordScreen.kt$4</ID>
-    <ID>MagicNumber:PharmacySearchModel.kt$Location$180.0</ID>
-    <ID>MagicNumber:ProtocolUseCase.kt$ProtocolUseCase$50</ID>
-    <ID>MagicNumber:QueryUtils.kt$100</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$0.4f</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$0.6f</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$1</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$100</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$1000</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$100L</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$1024</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$200</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$3</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$300</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$300L</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$4</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$5</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$6</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$7</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$768</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$8</ID>
-    <ID>MagicNumber:ScanScreenComponent.kt$800</ID>
-    <ID>MagicNumber:Schema.kt$1</ID>
-    <ID>MagicNumber:SecureMessaging.kt$SecureMessaging$0xFF</ID>
-    <ID>MagicNumber:SecureMessaging.kt$SecureMessaging$1</ID>
-    <ID>MagicNumber:SecureMessaging.kt$SecureMessaging$255</ID>
-    <ID>MagicNumber:SecureMessaging.kt$SecureMessaging$3</ID>
-    <ID>MagicNumber:SettingsData.kt$SettingsData.AuthenticationMode.Password$32</ID>
-    <ID>MagicNumber:TextUtil.kt$0x1F600</ID>
-    <ID>MagicNumber:TextUtil.kt$0xE007F</ID>
-    <ID>MagicNumber:Translatable.kt$Plurals$11</ID>
-    <ID>MagicNumber:Translatable.kt$Plurals$3</ID>
-    <ID>MagicNumber:Translatable.kt$Plurals$4</ID>
-    <ID>MagicNumber:Translatable.kt$Plurals$99</ID>
-    <ID>MagicNumber:TrustedChannelPaceKeyExchange.kt$3</ID>
-    <ID>MagicNumber:TrustedChannelPaceKeyExchange.kt$5</ID>
-    <ID>MagicNumber:TruststoreUseCase.kt$TrustedTruststore.Companion$3</ID>
-    <ID>MagicNumber:TwoDCodeProcessor.kt$126</ID>
-    <ID>MagicNumber:TwoDCodeProcessor.kt$32</ID>
-    <ID>MagicNumber:TwoDCodeProcessor.kt$TwoDCodeProcessor$270</ID>
-    <ID>MagicNumber:TwoDCodeProcessor.kt$TwoDCodeProcessor$90</ID>
-    <ID>MagicNumber:UnlockEgkDialog.kt$1000</ID>
-    <ID>MagicNumber:UnlockEgkDialog.kt$5000</ID>
-    <ID>MagicNumber:Utils.kt$0xFF</ID>
-    <ID>MagicNumber:Utils.kt$10</ID>
-    <ID>MagicNumber:Utils.kt$15</ID>
-    <ID>MagicNumber:Utils.kt$16</ID>
-    <ID>MagicNumber:Utils.kt$48</ID>
-    <ID>MagicNumber:Utils.kt$9</ID>
-    <ID>MagicNumber:Utils.kt$97</ID>
-    <ID>MagicNumber:WebViewScreen.kt$100</ID>
-    <ID>MagicNumber:Workarounds.kt$Workarounds$11</ID>
-    <ID>MagicNumber:Workarounds.kt$Workarounds$12</ID>
-    <ID>MagicNumber:Workarounds.kt$Workarounds$16</ID>
-    <ID>MandatoryBracesIfStatements:EllipticCurvesExtending.kt$EllipticCurvesExtending$else</ID>
-    <ID>MandatoryBracesIfStatements:LoginWithHealthCardScreen.kt$if</ID>
-    <ID>MaxLineLength:CardUtilitiesTest.kt$CardUtilitiesTest$"(4e2778f6aaef54cb42865a3c30c753495af4e53121400802d0ab1acd665e9c77,4c2fae1687e9daa36c64570c909f93176f01eeafcb45f9c08e49805f127d94ef,1,7d5a0975fc2c3057eef67530417affe7fb8055c126dc5c6ce94a4b44f330b5d9)"</ID>
-    <ID>MaxLineLength:CardUtilitiesTest.kt$CardUtilitiesTest$Hex.decode("041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")</ID>
-    <ID>MaxLineLength:CardUtilitiesTest.kt$CardUtilitiesTest$Hex.decode("7C438341041B05278F276BD92E6B0EE3478BD3A93B03FE8E4C35556F0D6C13C89C504F91C065E85C1D289B306F61BE2CECCED4E7532BF0925A4907F246DF7A69C8D69ED24F")</ID>
-    <ID>MaxLineLength:CardUtilitiesTest.kt$CardUtilitiesTest$private val byteArray: ByteArray = Hex.decode("044E2778F6AAEF54CB42865A3C30C753495AF4E53121400802D0AB1ACD665E9C774C2FAE1687E9DAA36C64570C909F93176F01EEAFCB45F9C08E49805F127D94EF")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("19048979039598244295279281525021548448223459855185222892089532512446337024935426033638342846977861914875721218402342")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("21354446258743982691371413536748675410974765754620216137225614281636810686961198361153695003859088327367976229294869")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("21659270770119316173069236842332604979796116387017648600075645274821611501358515537962695117368903252229601718723941")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("3245789008328967059274849584342077916531909009637501918328323668736179176583263496463525128488282611559800773506973771797764811498834995234341530862286627")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("4480579927441533893329522230328287337018133311029754539518372936441756157459087304048546502931308754738349656551198")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("6294860557973063227666421306476379324074715770622746227136910445450301914281276098027990968407983962691151853678563877834221834027439718238065725844264138")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("6592244555240112873324748381429610341312712940326266331327445066687010545415256461097707483288650216992613090185042957716318301180159234788504307628509330")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("6792059140424575174435640431269195087843153390102521881468023012732047482579853077545647446272866794936371522410774532686582484617946013928874296844351522")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("717131854892629093329172042053689661426642816397448020844407951239049616491589607702456460799758882466071646850065")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$BigInteger("8948962207650232551656602815159153422162609644098354511344597187200057010413418528378981730643524959857451398370029280583094215613882043973354392115544169")</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$ECFieldFp(BigInteger("21659270770119316173069236842332604979796116387017648600081618503821089934025961822236561982844534088440708417973331"))</ID>
-    <ID>MaxLineLength:EllipticCurvesExtending.kt$EllipticCurvesExtending$ECFieldFp(BigInteger("8948962207650232551656602815159153422162609644098354511344597187200057010413552439917934304191956942765446530386427345937963894309923928536070534607816947"))</ID>
-    <ID>MaxLineLength:FhirMapper.kt$(dosageInstruction?.getExtensionByUrl("https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_DosageFlag")?.value as? BooleanType?)?.value</ID>
-    <ID>MaxLineLength:FhirMapper.kt$dosageCode = this.form?.coding?.find { it.system == "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM" }?.code</ID>
-    <ID>MaxLineLength:FhirMapper.kt$normSizeCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/normgroesse")?.value as? CodeType?)?.value</ID>
-    <ID>MaxLineLength:FhirMapper.kt$statusCode = (this.getExtensionByUrl("http://fhir.de/StructureDefinition/gkv/versichertenart")?.value as? Coding?)?.code</ID>
-    <ID>MaxLineLength:FhirMapper.kt$uniqueIdentifier = this.identifier?.find { it.system == "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR" }?.value</ID>
-    <ID>MaxLineLength:PrescriptionUseCaseTest.kt$PrescriptionUseCaseTest$fun</ID>
-    <ID>MaxLineLength:ProfilesData.kt$ProfilesData.Profile$return "Profile(id='$id', color=$color, name='$name', insurantName=$insurantName, insuranceIdentifier=$insuranceIdentifier, insuranceName=$insuranceName, lastAuthenticated=$lastAuthenticated, lastAuditEventSynced=$lastAuditEventSynced, lastTaskSynced=$lastTaskSynced, active=$active, singleSignOnTokenScope=$singleSignOnTokenScope)"</ID>
-    <ID>MaxLineLength:SecureMessagingTest.kt$SecureMessagingTest$"0D02030400012287820111013297D4AA774AB26AF8AD539C0A829BCA4D222D3EE2DB100CF86D7DB5A1FAC12B7623328DEFE3F6FDD41A993A"</ID>
-    <ID>MaxLineLength:SecureMessagingTest.kt$SecureMessagingTest$"29AA10B810D53EDB550FB741A68CC6B0BDF928F9EB6BC238416AACB4CF3002E865D486CF42D762C86EEBE6A2B25DECE2E88D569854A0"</ID>
-    <ID>MaxLineLength:SecureMessagingTest.kt$SecureMessagingTest$"7D3F146BC134BAF08B6EDCBEBDFF47EBA6AC7B441A1642B03253B588C49B69ABBEC92BA1723B7260DE8AD6158873141AFA7C70CFCF12"</ID>
-    <ID>MaxLineLength:SecureMessagingTest.kt$SecureMessagingTest$"C917BC17B364C3DD24740079DE60A3D0231A7185D36A77D37E147025913ADA00CD07736CFDE0DB2E0BB09B75C5773607E54A9D84181A"</ID>
-    <ID>MaxLineLength:SecureMessagingTest.kt$SecureMessagingTest$"CBC6F7726762A8BCE324C0B330548114154A13EDDBFF6DCBC3773DCA9A8494404BE4A5654273F9C2B9EBE1BD615CB39FFD0D3F2A0EEA"</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Beim Senden Ihrer Nachricht werden folgende Informationen über genutzte Hardware und Betriebssystem übertragen:")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bir reçete çıktısı aldınız mı? İlgili reçete kodunu tarayarak reçetleri uygulamaya ekleyebilirsiniz.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bitte achten Sie darauf, dass Personen, mit denen Sie gegebenenfalls dieses Gerät teilen und deren biometrische Merkmale auf diesem Gerät gespeichert sein könnten oder die über Geräte-PIN, Wischmuster oder Passwort verfügen, ebenfalls Zugriff auf Ihre Rezepte erhalten.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bitte aktivieren Sie die NFC-Funktion Ihres Geräts, um sich mit Ihrer Gesundheitskarte anzumelden.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bitte beachten Sie die Einnahmehinweise in Ihrem Medikationsplan oder die schriftliche Dosierungsanweisung Ihres Arztes.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bitten Sie ausdrücklich um die Zusendung von Karte &amp; PIN zum Zwecke der Nutzung der E-Rezept-App.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bu uygulamayı daha iyi hale getirmemize yardımcı olun. Tüm kullanım verileri anonim olarak toplanır ve yalnızca kullanıcı deneyimini iyileştirmek için hizmet verir.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bu vesileyle reçeteleriniz bu eczaneye gönderilecektir. Daha sonra bunları artık başka bir eczanede kullanamazsınız.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Bu, telefonunuzun donanım ve yazılım bilgilerini, E-Rezept uygulamasının ayarlarını ve kullanım kapsamını içerir, ancak asla kişiliğiniz veya sağlığınızla ilgili verileri içermez.\nVeriler, veri işleyenler tarafından sadece gematik GmbH\'ye sunulur ve en geç 180 gün sonra silinir. Analizi istediğiniz zaman uygulama menüsünden devre dışı bırakabilirsiniz.\nBu veriler, hangi fonksiyonların sıklıkla kullanıldığını anlamamızı ve bunları geliştirmemizi sağlar. Ayrıca, daha eski teknolojinin ne kadar süreyle desteklenmesi gerektiğini ve örneğin ne zaman (çok fazla) kullanıcıyı etkilemeden daha yeni bir işletim sistemi sürümünü zorunlu hale getirmemiz gerektiğini tahmin edebiliriz.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Burada elektronik reçeteleri seçtiğiniz bir eczanede, doğrudan sitede veya çevrim içi olarak kullanabilirsiniz.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Cihazınızın sunucuya bağlanması için geçen süre, donanım ve internet hızına bağlı olarak değişebilir.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Cinsiyet eşitliğine uygun bir dil kullanmaya çalışıyoruz. Herhangi bir hata fark ederseniz, sizden e-posta ile haber almaktan memnuniyet duyarız.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Convenient and available to you soon: your data will be biometrically protected on the device for this purpose")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Das Verzeichnis der Gesundheitskarten konnte nicht erreicht werden. Bitte versuchen Sie es erneut.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Das Zertifikat Ihrer Gesundheitskarte ist ungültig. Ist Ihre Karte möglicherweise abgelaufen? Bitte kontaktieren Sie Ihre Krankenkasse.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Das hilft Ihnen dabei, den Überblick zu behalten, wenn Sie die Rezepte für mehrere Personen verwalten möchten.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Das umfasst Hard- und Softwareinformationen Ihres Telefons, Einstellungen der E-Rezept App sowie Umfang der Nutzung, jedoch niemals Daten über Ihre Person oder Ihre Gesundheit.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Das umfasst Hard- und Softwareinformationen Ihres Telefons, Einstellungen der E-Rezept App sowie Umfang der Nutzung, jedoch niemals Daten über Ihre Person oder Ihre Gesundheit.\nDie Daten werden durch Datenverarbeitungsnehmer nur der gematik GmbH zur Verfügung gestellt und nach 180 Tagen spätestens gelöscht. Sie können die Analyse jederzeit wieder im Menü der App deaktivieren.\nWir können durch diese Daten nachvollziehen, welche Funktionen häufig genutzt werden, und diese verbessern. Ferner können wir einschätzen, wie lange ältere Technik unterstützt werden muss, und wann wir z. B. eine neuere Betriebssystemversion verpflichtend machen können, ohne (zu viele) Nutzer zu betreffen.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Dear Service Team, I received a message from a pharmacy. Unfortunately, however, I could not tell my user the message because I did not understand it. Please check what happened here and help us. Thank you very much! The e-prescription app")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Demo modu, elektronik sağlık kartı olmadan bile uygulamanın tüm alanlarını keşfetmenize olanak tanır.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Der Demo-Modus erlaubt es Ihnen, alle Bereiche der App auch ohne elektronische Gesundheitskarte zu erkunden.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Die Apotheke wird sich schnellstmöglich mit Ihnen in Verbindung setzen, um Einzelheiten zur Lieferung mit Ihnen zu klären.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Die Daten werden durch Datenverarbeitungsnehmer nur der gematik GmbH zur Verfügung gestellt und nach 180 Tagen spätestens gelöscht. Sie können die Analyse jederzeit wieder im Menü der App deaktivieren.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Die Gesundheitskarte und die zugehörige PIN erhalten Sie kostenfrei von Ihrer Krankenversicherung. Der Antrag kann formlos und per %s gestellt werden.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Die Verbindung Ihres Geräts mit dem Server kann je nach Hardware und Internetgeschwindigkeit unterschiedlich lange dauern.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Die Versandapotheke erstellt Ihnen einen Warenkorb mit Ihren Medikamenten. Dieser Vorgang kann einige Minuten dauern.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Die beste verfügbare Geräteabsicherung wurde nicht eingerichtet. Hierbei kann es sich um Fingerabdruck, Wischmuster oder ähnliches handeln")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Die folgenden Informationen würde ich gerne dem Service-Team mitteilen, damit die Fehlersuche durchgeführt werden kann. Bitte beachten Sie, dass wir auch Ihre eMail-Adresse sowie ggf. Ihren Namen erfahren, wenn Sie ihn als Absender der eMail konfiguriert haben. Wenn Sie diese Informationen ganz oder teilweise nicht übermitteln möchten, löschen Sie diese bitte aus der Mail. Alle Daten werden von der gematik GmbH oder deren beauftragten Unternehmen nur zur Bearbeitung dieser Fehlermeldung gespeichert und verarbeitet. Die Löschung erfolgt automatisiert, spätestens 180 Tage nach Erledigung des Tickets. Ihre eMail-Adresse nutzen wir ausschließlich, um mit Ihnen Kontakt in Bezug auf diese Fehlermeldung aufzunehmen. Für Fragen oder eine vorzeitige Löschung können Sie sich jederzeit an den Datenschutzverantwortlichen des E-Rezept Systems wenden. Sie finden weitere Informationen in der E-Rezept App im Menü unter dem Datenschutz-Eintrag.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Diese App verwendet die sicherste Methode, die von Ihrem Gerät zur Verfügung gestellt wird. Hierbei kann es sich um Fingerabdruck, Wischmuster oder ähnliches handeln.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Diese erhalten Sie kostenfrei von Ihrer Krankenversicherung. Hierfür müssen Sie sich mittels amtlichem Ausweisdokument identifiziert haben.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Dieses Profil wurde noch nicht mit einer Versichertennummer verbunden. Hierfür müssen Sie sich am Rezeptserver anmelden.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Eine PIN für Ihre Gesundheitskarte erhalten Sie in einem separaten Brief von Ihrer Krankenversicherung.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Ermöglicht das Vergrößern der App über das Zusammen- oder Auseinanderziehen der Finger (Pinch-to-Zoom).")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Ersatzpräparate sind zulässig. Aufgrund gesetzlicher Vorgaben Ihrer Krankenversicherung kann Ihnen eine Alternative ausgehändigt werden.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Es kann zu einer Verzögerung kommen, bis eingelöste Rezepte im Bereich „Archiv“ angezeigt werden.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Es werden alle Zugangsdaten zum Gesundheitsnetzwerk gelöscht. Ihre Rezeptdaten bleiben erhalten.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Fachlich geprüfte Informationen zu Krankheiten, ICD-Codes und zu Vorsorge- und Pflegethemen finden Sie im Nationalen Gesundheitsportal.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Für die Anmeldung benötigen Sie eine geeignete Karte mit NFC. Wir unterstützen Sie bei der Bestellung.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Genel Müdür: Dr. med. Markus Leyck Dieken\n Kayıt mahkemesi: Amtsgericht Berlin-Charlottenburg\n Ticaret sicil no.: HRB 96351\n Satış vergisi kimlik numarası: DE241843684")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Geschäftsführer: Dr. med. Markus Leyck Dieken\nRegistergericht: Amtsgericht Berlin-Charlottenburg\nHandelsregister-Nr.: HRB 96351\nUmsatzsteueridentifikationsnummer: DE241843684")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Hand hält ein Smartphone in der Hand und authentifiziert sich mit der neuen elektronischen Gesundheitskarte in der App")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Have you received a prescription printout? You add prescriptions to the app by scanning the respective prescription code.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Helfen Sie uns, diese App besser zu machen. Alle Nutzerdaten werden anonym erhoben und dienen ausschließlich der Verbesserung des Nutzungserlebnisses.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Help us make this app better. All user data is collected anonymously and is used solely to improve the user experience.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Here you can redeem electronic prescriptions at a pharmacy of your choice, directly in person or online.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Hier können Sie elektronische Rezepte in einer Apotheke Ihrer Wahl einlösen, direkt vor Ort oder online.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Hiermit stellen Sie eine Verbindung zum Gesundheitsnetzwerk her. Sie erhalten dadurch automatisch neue Rezepte oder Nachrichten.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Hiermit werden Ihre Rezepte an diese Apotheke gesendet. Sie können sie anschließend in keiner anderen Apotheke mehr einlösen.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Hiermit werden alle Daten des Profils auf diesem Gerät gelöscht. Ihre Rezepte im Gesundheitsnetzwerk bleiben erhalten.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Hinweis für die Apotheken: Die Kontaktdaten und Informationen zu Apotheken beziehen wir von mein-apothekenportal.de des Deutschen Apothekenverbandes e.V. Sie haben einen Fehler entdeckt oder möchten Daten korrigieren?")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Ihre Bestellung liegt üblicherweise zeitnah für Sie bereit. Für einen genauen Termin kontaktieren Sie bitte die Apotheke.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Ihre Kartenzugangsnummer (Card Access Number, kurz: CAN) hat 6 Stellen. Sie finden die CAN in der rechten oberen Ecke der Vorderseite Ihrer Gesundheitskarte. Steht hier keine sechsstellige Zugangsnummer, benötigen Sie eine neue Gesundheitskarte von Ihrer Krankenversicherung.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Im Falle eines Absturzes oder eines Fehlers der App sendet uns die App Hinweise zu den Gründen. Zudem werden Betriebssystemversion und Angaben zur verwendeten Hardware gesendet.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("In order to use the app, please agree to the Terms of Use and confirm that you have read and understood the Privacy Policy. Only data that is essential for the functioning of the services is collected.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("In the event of a crash or an error in the app, the app sends us information about the reasons along with the operating system version and details of the hardware used.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Kart erişim numaranız (Card Access Number, kısaca: CAN) 6 hanelidir. CAN\'ı sağlık sigortası kartınızın ön yüzünün sağ üst köşesinde bulacaksınız. Burada altı haneli bir erişim numarası yoksa sağlık sigortanızdan yeni bir sağlık kartına ihtiyacınız olacaktır.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Kullanışlı ve yakında sizin için kullanılabilir: Bu amaçla verileriniz cihazda biyometrik olarak korunacaktır")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Legen Sie Profile für Ihre Familie oder Angehörige an. Melden Sie sich mit der Gesundheitskarte an, um online bestellen zu können.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Leider erfüllt Ihr Smartphone die Mindestanforderungen für die Nutzung der E-Rezept-App mit Ihrer elektronischen Gesundheitskarte nicht.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Liebes Service-Team, ich habe eine Nachricht von einer Apotheke erhalten. Leider konnte ich meinem Nutzer die Nachricht aber nicht mitteilen, da ich sie nicht verstanden habe. Bitte prüft, was hier passiert ist, und helft uns. Vielen Dank! Die E-Rezept App")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Lütfen bu cihazı paylaşabileceğiniz ve biyometrik özellikleri bu cihazda saklanabilecek veya cihaz PIN\'ini, kaydırma hareketini veya şifreyi bilen kişilerin de reçetelerinize erişebileceğini unutmayın.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Managing Director: Dr. med. Markus Leyck Dieken\nRegister Court: District Court of Berlin-Charlottenburg\nCommercial register no.: HRB 96351\nVAT ID: DE241843684")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Muadillere izin verilir. Sağlık sigortanızın yasal gereklilikleri nedeniyle size bir alternatif verilebilir.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Please be aware that people with whom you may share this device and whose biometrics may be stored on this device or who have the device PIN, swipe pattern or password may also have access to your prescriptions.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Please follow the directions for use in your medication schedule or the written dosage instructions from your doctor.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Pulver für ein Konzentrat zur Herstellung einer Infusionslösung Pulver zur Herstellung einer Lösung zum Einnehmen")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Pulver zur Herstellung einer Injektions- bzw. Infusionslösung oder Pulver und Lösungsmittel zur Herstellung einer Lösung zur intravesikalen Anwendung")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Pulver zur Herstellung einer Injektions- bzw. Infusionslösung oder einer Lösung zur intravesikalen Anwendung")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Senden Sie Ihr Rezept an eine Apotheke und entscheiden Sie, wie Sie Ihre Medikamente erhalten möchten.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Sie haben Fragen oder Probleme bei der Nutzung der App? Unsere technische Hotline erreichen Sie unter %s.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Sie haben einen Rezept-Ausdruck erhalten? Rezepte fügen Sie der App hinzu, indem Sie den jeweiligen Rezeptcode abscannen.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Siparişiniz genellikle kısa sürede teslim almanız için hazırdır. Kesin randevu için lütfen eczane ile irtibata geçin.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Submit your prescription to a pharmacy and decide how you would like to receive your medication.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Substitutes are permitted. You may be given an alternative due to the legal requirements of your health insurance.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Tarayıcıyı kullanabilmek için sistem ayarlarında uygulamanın kameranıza erişmesine izin vermelisiniz.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("The mail-order pharmacy will create a shopping cart for you with your medicines. This process may take a few minutes.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("The time it takes for your device to connect to the server can vary depending on the hardware and Internet speed.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("This includes information about your phone\'s hardware and software, settings of the e-prescription app as well as the extent of use, but never any personal or health data concerning you. \nThis data is made available exclusively to gematik GmbH by data processors and is deleted after 180 days at the latest. You can disable the analysis of your usage behaviour at any time in the settings menu of the app.\nWe can use this data to understand which functions are used frequently and improve them. Furthermore, we can assess how long older technology needs to be supported and when we can, for example, make a newer operating system version mandatory without affecting (too many) users.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Tippen Sie auf „Warenkorb öffnen“ und schließen Sie Ihre Bestellung auf der Webseite der Apotheke ab.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("To be able to use all functions of the app, log in with your medical card. You will receive this card and the required login details from your health insurance company.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Treiber des Kartenlesegeräts möglicherweise nicht geladen. Bitte verbinden Sie das Kartenlesegerät vor dem Start der E-Rezept-Anwendung.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Um alle Funktionen der App nutzen zu können, melden Sie sich mit Ihrer Gesundheitskarte an. Diese Karte sowie die benötigen Zugangsdaten erhalten Sie von Ihrer Krankenversicherung.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Um automatisch Rezepte zu empfangen und leicht Medikamente online einlösen oder reservieren zu können, müssen Sie sich anmelden.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Um den Scanner verwenden zu können, müssen Sie der App in den Systemeinstellungen den Zugriff auf Ihre Kamera gestatten.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Um die App nutzen zu können, stimmen Sie bitte den Nutzungsbedingungen zu und bestätigen Sie die Kenntnisnahme der Datenschutzbedingungen. Es werden nur Daten erfasst, die für das Funktionieren der Dienste unerlässlich sind.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Um sich in dieser App anmelden zu können, benötigen Sie eine NFC-fähige Gesundheitskarte sowie eine zugehörige PIN.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Uygulamada bir çökme veya hata olması durumunda uygulama bize nedenleri hakkında bilgi gönderir. Ayrıca işletim sistemi sürümü ve kullanılan donanımlar ile ilgili bilgiler de gönderilir.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Uygulamanın tüm fonksiyonlarını kullanabilmek için sağlık kartınız ile giriş yapın. Bu kartı ve gerekli erişim verilerini sağlık sigortanızdan alacaksınız.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Uygulamayı kullanmak için lütfen kullanım koşullarını kabul edin ve veri koruma politikasından haberdar olduğunuzu onaylayın. Yalnızca hizmetlerin çalışması için gerekli olan veriler toplanır.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Warum gibt es Mindestanforderungen für die Verbindung von App und elektronischer Gesundheitskarte?")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("We strive to use gender-sensitive language. If you notice any errors, we would be pleased to hear from you by email.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Wir bemühen uns um eine geschlechtergerechte Sprache. Sollten Ihnen Fehler auffallen, freuen wir uns über eine Mitteilung per Mail.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Wir empfehlen Ihnen, Ihre medizinischen Daten zusätzlich durch eine Gerätesicherung wie beispielsweise einen Code oder Biometrie zu schützen.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Wir können durch diese Daten nachvollziehen, welche Funktionen häufig genutzt werden, und diese verbessern. Ferner können wir einschätzen, wie lange ältere Technik unterstützt werden muss, und wann wir z.B. eine neuere Betriebssystemversion verpflichtend machen können, ohne (zu viele) Nutzer zu betreffen.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("You will receive a PIN for your medical card in a separate letter from your health insurance company.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Your card access number (CAN) has six digits. You will find the CAN in the top right-hand corner of the front of your medical card. If there is no six-digit access number here, you will need a new medical card from your health insurance company.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Your order will usually be ready for you as soon as possible. Please contact the pharmacy for exact timings.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Your prescriptions will be sent to this pharmacy. You will then not be able to redeem them in any other pharmacy.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Zum Lesen des Rezeptcodes nutzt diese App einen Service von Google. Dabei werden Daten an Google übertragen.")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("https://www.das-e-rezept-fuer-deutschland.de/fragen-antworten/woran-erkenne-ich-ob-ich-eine-nfc-faehige-gesundheitskarte-habe#c204")</ID>
-    <ID>MaxLineLength:StringResource.kt$Singular("Çevrim içi eczanesi ilaçlarınızla birlikte bir alışveriş sepeti oluşturacaktır. Bu işlem birkaç dakika sürebilir.")</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.Idp1$"MIICsTCCAligAwIBAgIHA61I5ACUjTAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMDA4MDQwMDAwMDBaFw0yNTA4MDQyMzU5NTlaMEkxCzAJBgNVBAYTAkRFMSYwJAYDVQQKDB1nZW1hdGlrIFRFU1QtT05MWSAtIE5PVC1WQUxJRDESMBAGA1UEAwwJSURQIFNpZyAxMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABJZQrG1NWxIB3kz/6Z2zojlkJqN3vJXZ3EZnJ6JXTXw5ZDFZ5XjwWmtgfomv3VOV7qzI5ycUSJysMWDEu3mqRcajge0wgeowHQYDVR0OBBYEFJ8DVLAZWT+BlojTD4MT/Na+ES8YMDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAMBgNVHRMBAf8EAjAAMCEGA1UdIAQaMBgwCgYIKoIUAEwEgUswCgYIKoIUAEwEgSMwHwYDVR0jBBgwFoAUKPD45qnId8xDRduartc6g6wOD6gwLQYFKyQIAwMEJDAiMCAwHjAcMBowDAwKSURQLURpZW5zdDAKBggqghQATASCBDAOBgNVHQ8BAf8EBAMCB4AwCgYIKoZIzj0EAwIDRwAwRAIgVBPhAwyX8HAVH0O0b3+VazpBAWkQNjkEVRkv+EYX1e8CIFdn4O+nivM+XVi9xiKK4dW1R7MD334OpOPTFjeEhIVV"</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.Idp2$"MIICsTCCAligAwIBAgIHAbssqQhqOzAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMTAxMTUwMDAwMDBaFw0yNjAxMTUyMzU5NTlaMEkxCzAJBgNVBAYTAkRFMSYwJAYDVQQKDB1nZW1hdGlrIFRFU1QtT05MWSAtIE5PVC1WQUxJRDESMBAGA1UEAwwJSURQIFNpZyAzMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABIYZnwiGAn5QYOx43Z8MwaZLD3r/bz6BTcQO5pbeum6qQzYD5dDCcriw/VNPPZCQzXQPg4StWyy5OOq9TogBEmOjge0wgeowDgYDVR0PAQH/BAQDAgeAMC0GBSskCAMDBCQwIjAgMB4wHDAaMAwMCklEUC1EaWVuc3QwCgYIKoIUAEwEggQwIQYDVR0gBBowGDAKBggqghQATASBSzAKBggqghQATASBIzAfBgNVHSMEGDAWgBQo8Pjmqch3zENF25qu1zqDrA4PqDA4BggrBgEFBQcBAQQsMCowKAYIKwYBBQUHMAGGHGh0dHA6Ly9laGNhLmdlbWF0aWsuZGUvb2NzcC8wHQYDVR0OBBYEFC94M9LgW44lNgoAbkPaomnLjS8/MAwGA1UdEwEB/wQCMAAwCgYIKoZIzj0EAwIDRwAwRAIgCg4yZDWmyBirgxzawz/S8DJnRFKtYU/YGNlRc7+kBHcCIBuzba3GspqSmoP1VwMeNNKNaLsgV8vMbDJb30aqaiX1"</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.OCSP1$"MIIEFgoBAKCCBA8wggQLBgkrBgEFBQcwAQEEggP8MIID+DCB+6FZMFcxCzAJBgNVBAYTAkRFMRowGAYDVQQKDBFnZW1hdGlrIE5PVC1WQUxJRDEsMCoGA1UEAwwjT0NTUCBTaWduZXIgS29tcC1DQTEwIGVjYyBURVNULU9OTFkYDzIwMjEwNTE3MDYyMzAxWjBoMGYwPjAHBgUrDgMCGgQUXI3/vEvbfD7eUzpI1js5mj5OUC4EFCjw+OapyHfMQ0Xbmq7XOoOsDg+oAgcDrUjkAJSNgAAYDzIwMjEwNTE3MDYyMzAxWqARGA8yMDIxMDUxNzA2MjMwMVqhIzAhMB8GCSsGAQUFBzABAgQSBBDkdyImUBsO+Q8iAA2xbXu8MAkGByqGSM49BAEDRwAwRAIgW+JlwUmnZCVsME2kOyQlcqF01Lel/0nQdE6IaZmFADECIGhOH1k5Dzq42y2jCxZCzxevRc6vY1o8ky0Xy4DxLIWJoIICojCCAp4wggKaMIICQKADAgECAgcDrTZEREJrMAoGCCqGSM49BAMCMIGEMQswCQYDVQQGEwJERTEfMB0GA1UECgwWZ2VtYXRpayBHbWJIIE5PVC1WQUxJRDEyMDAGA1UECwwpS29tcG9uZW50ZW4tQ0EgZGVyIFRlbGVtYXRpa2luZnJhc3RydWt0dXIxIDAeBgNVBAMMF0dFTS5LT01QLUNBMTAgVEVTVC1PTkxZMB4XDTIwMDUwNjAwMDAwMFoXDTIzMDUwNjIzNTk1OVowVzELMAkGA1UEBhMCREUxGjAYBgNVBAoMEWdlbWF0aWsgTk9ULVZBTElEMSwwKgYDVQQDDCNPQ1NQIFNpZ25lciBLb21wLUNBMTAgZWNjIFRFU1QtT05MWTBaMBQGByqGSM49AgEGCSskAwMCCAEBBwNCAAQbB+RoQs3RyvkN+o/Vs2xZlLZeK4fqt4s9kscFIuTIWn9LNMq80N2bucqWno2iuDXPWeOHJqlGtpoLNFLpWt4Po4HHMIHEMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMA4GA1UdDwEB/wQEAwIGQDAVBgNVHSAEDjAMMAoGCCqCFABMBIEjMBMGA1UdJQQMMAoGCCsGAQUFBwMJMAwGA1UdEwEB/wQCMAAwOAYIKwYBBQUHAQEELDAqMCgGCCsGAQUFBzABhhxodHRwOi8vZWhjYS5nZW1hdGlrLmRlL29jc3AvMB0GA1UdDgQWBBQcqomWuxucPpsAjIXZZJyse1SZ4jAKBggqhkjOPQQDAgNIADBFAiEAiR3T/gS0MtFGdvQHyaCa+XF6lisspf+WRUahfLQPrg4CICQ4KZc7AYkTFnHFGbh2In8Y/Nkjh5wCdpWqeKRgBBUJ"</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.OCSP1.SignerCert$val Base64 = "MIICmjCCAkCgAwIBAgIHA602RERCazAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMDA1MDYwMDAwMDBaFw0yMzA1MDYyMzU5NTlaMFcxCzAJBgNVBAYTAkRFMRowGAYDVQQKDBFnZW1hdGlrIE5PVC1WQUxJRDEsMCoGA1UEAwwjT0NTUCBTaWduZXIgS29tcC1DQTEwIGVjYyBURVNULU9OTFkwWjAUBgcqhkjOPQIBBgkrJAMDAggBAQcDQgAEGwfkaELN0cr5DfqP1bNsWZS2XiuH6reLPZLHBSLkyFp/SzTKvNDdm7nKlp6Norg1z1njhyapRraaCzRS6VreD6OBxzCBxDAfBgNVHSMEGDAWgBQo8Pjmqch3zENF25qu1zqDrA4PqDAOBgNVHQ8BAf8EBAMCBkAwFQYDVR0gBA4wDDAKBggqghQATASBIzATBgNVHSUEDDAKBggrBgEFBQcDCTAMBgNVHRMBAf8EAjAAMDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAdBgNVHQ4EFgQUHKqJlrsbnD6bAIyF2WScrHtUmeIwCgYIKoZIzj0EAwIDSAAwRQIhAIkd0/4EtDLRRnb0B8mgmvlxepYrLKX/lkVGoXy0D64OAiAkOCmXOwGJExZxxRm4diJ/GPzZI4ecAnaVqnikYAQVCQ=="</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.OCSP2$"MIIEFgoBAKCCBA8wggQLBgkrBgEFBQcwAQEEggP8MIID+DCB+6FZMFcxCzAJBgNVBAYTAkRFMRowGAYDVQQKDBFnZW1hdGlrIE5PVC1WQUxJRDEsMCoGA1UEAwwjT0NTUCBTaWduZXIgS29tcC1DQTEwIGVjYyBURVNULU9OTFkYDzIwMjEwNTE3MDYyMzAxWjBoMGYwPjAHBgUrDgMCGgQUXI3/vEvbfD7eUzpI1js5mj5OUC4EFCjw+OapyHfMQ0Xbmq7XOoOsDg+oAgcBuyypCGo7gAAYDzIwMjEwNTE3MDYyMzAxWqARGA8yMDIxMDUxNzA2MjMwMVqhIzAhMB8GCSsGAQUFBzABAgQSBBDIsivTG9WljP4InmqVdKQmMAkGByqGSM49BAEDRwAwRAIgZMCyRhqMOaEG10KPz3mL5Yh7oX9fiIdBl8WrxLT2SewCIEvjzedVlnbt/j4e7VALo2xl8wvOcYe8gT04+PqH5vkfoIICojCCAp4wggKaMIICQKADAgECAgcDrTZEREJrMAoGCCqGSM49BAMCMIGEMQswCQYDVQQGEwJERTEfMB0GA1UECgwWZ2VtYXRpayBHbWJIIE5PVC1WQUxJRDEyMDAGA1UECwwpS29tcG9uZW50ZW4tQ0EgZGVyIFRlbGVtYXRpa2luZnJhc3RydWt0dXIxIDAeBgNVBAMMF0dFTS5LT01QLUNBMTAgVEVTVC1PTkxZMB4XDTIwMDUwNjAwMDAwMFoXDTIzMDUwNjIzNTk1OVowVzELMAkGA1UEBhMCREUxGjAYBgNVBAoMEWdlbWF0aWsgTk9ULVZBTElEMSwwKgYDVQQDDCNPQ1NQIFNpZ25lciBLb21wLUNBMTAgZWNjIFRFU1QtT05MWTBaMBQGByqGSM49AgEGCSskAwMCCAEBBwNCAAQbB+RoQs3RyvkN+o/Vs2xZlLZeK4fqt4s9kscFIuTIWn9LNMq80N2bucqWno2iuDXPWeOHJqlGtpoLNFLpWt4Po4HHMIHEMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMA4GA1UdDwEB/wQEAwIGQDAVBgNVHSAEDjAMMAoGCCqCFABMBIEjMBMGA1UdJQQMMAoGCCsGAQUFBwMJMAwGA1UdEwEB/wQCMAAwOAYIKwYBBQUHAQEELDAqMCgGCCsGAQUFBzABhhxodHRwOi8vZWhjYS5nZW1hdGlrLmRlL29jc3AvMB0GA1UdDgQWBBQcqomWuxucPpsAjIXZZJyse1SZ4jAKBggqhkjOPQQDAgNIADBFAiEAiR3T/gS0MtFGdvQHyaCa+XF6lisspf+WRUahfLQPrg4CICQ4KZc7AYkTFnHFGbh2In8Y/Nkjh5wCdpWqeKRgBBUJ"</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.OCSP3$"MIIEFgoBAKCCBA8wggQLBgkrBgEFBQcwAQEEggP8MIID+DCB+6FZMFcxCzAJBgNVBAYTAkRFMRowGAYDVQQKDBFnZW1hdGlrIE5PVC1WQUxJRDEsMCoGA1UEAwwjT0NTUCBTaWduZXIgS29tcC1DQTEwIGVjYyBURVNULU9OTFkYDzIwMjEwNTE3MDYyMzAwWjBoMGYwPjAHBgUrDgMCGgQUXI3/vEvbfD7eUzpI1js5mj5OUC4EFCjw+OapyHfMQ0Xbmq7XOoOsDg+oAgcBPCti7yC3gAAYDzIwMjEwNTE3MDYyMzAwWqARGA8yMDIxMDUxNzA2MjMwMFqhIzAhMB8GCSsGAQUFBzABAgQSBBAWpjYsPzj/U96/S1MvypTWMAkGByqGSM49BAEDRwAwRAIgXfEC3h/1H2/aHGEyJY9L59S6NbqdkStBBk2vczj+3mwCIASMGDqPuhA7ZLBJ5HhHpwKYEQw/YPluyBMnz7j2dXtPoIICojCCAp4wggKaMIICQKADAgECAgcDrTZEREJrMAoGCCqGSM49BAMCMIGEMQswCQYDVQQGEwJERTEfMB0GA1UECgwWZ2VtYXRpayBHbWJIIE5PVC1WQUxJRDEyMDAGA1UECwwpS29tcG9uZW50ZW4tQ0EgZGVyIFRlbGVtYXRpa2luZnJhc3RydWt0dXIxIDAeBgNVBAMMF0dFTS5LT01QLUNBMTAgVEVTVC1PTkxZMB4XDTIwMDUwNjAwMDAwMFoXDTIzMDUwNjIzNTk1OVowVzELMAkGA1UEBhMCREUxGjAYBgNVBAoMEWdlbWF0aWsgTk9ULVZBTElEMSwwKgYDVQQDDCNPQ1NQIFNpZ25lciBLb21wLUNBMTAgZWNjIFRFU1QtT05MWTBaMBQGByqGSM49AgEGCSskAwMCCAEBBwNCAAQbB+RoQs3RyvkN+o/Vs2xZlLZeK4fqt4s9kscFIuTIWn9LNMq80N2bucqWno2iuDXPWeOHJqlGtpoLNFLpWt4Po4HHMIHEMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMA4GA1UdDwEB/wQEAwIGQDAVBgNVHSAEDjAMMAoGCCqCFABMBIEjMBMGA1UdJQQMMAoGCCsGAQUFBwMJMAwGA1UdEwEB/wQCMAAwOAYIKwYBBQUHAQEELDAqMCgGCCsGAQUFBzABhhxodHRwOi8vZWhjYS5nZW1hdGlrLmRlL29jc3AvMB0GA1UdDgQWBBQcqomWuxucPpsAjIXZZJyse1SZ4jAKBggqhkjOPQQDAgNIADBFAiEAiR3T/gS0MtFGdvQHyaCa+XF6lisspf+WRUahfLQPrg4CICQ4KZc7AYkTFnHFGbh2In8Y/Nkjh5wCdpWqeKRgBBUJ"</ID>
-    <ID>MaxLineLength:TestData.kt$TestCertificates.Vau$"MIIC7jCCApWgAwIBAgIHATwrYu8gtzAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMDEwMDcwMDAwMDBaFw0yNTA4MDcwMDAwMDBaMF4xCzAJBgNVBAYTAkRFMSYwJAYDVQQKDB1nZW1hdGlrIFRFU1QtT05MWSAtIE5PVC1WQUxJRDEnMCUGA1UEAwweRVJQIFJlZmVyZW56ZW50d2lja2x1bmcgRkQgRW5jMFowFAYHKoZIzj0CAQYJKyQDAwIIAQEHA0IABKYLzjl704qFX+oEuUOyLV70i2Bn2K4jekh/YOxExtdADB3X/q7fX/tVr09GtDRxe3h1yov9TwuHaHYh91RlyMejggEUMIIBEDAMBgNVHRMBAf8EAjAAMCEGA1UdIAQaMBgwCgYIKoIUAEwEgSMwCgYIKoIUAEwEgUowHQYDVR0OBBYEFK5+wVL9g8tGve6b1MdHK1xs62H7MDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAOBgNVHQ8BAf8EBAMCAwgwUwYFKyQIAwMESjBIMEYwRDBCMEAwMgwwRS1SZXplcHQgdmVydHJhdWVuc3fDvHJkaWdlIEF1c2bDvGhydW5nc3VtZ2VidW5nMAoGCCqCFABMBIICMB8GA1UdIwQYMBaAFCjw+OapyHfMQ0Xbmq7XOoOsDg+oMAoGCCqGSM49BAMCA0cAMEQCIGZ20lLY2WEAGOTmNEFBB1EeU645fE0Iy2U9ypFHMlw4AiAVEP0HYut0Z8sKUk6WVanMmKXjfxO/qgQFzjsbq954dw=="</ID>
-    <ID>MaxLineLength:TestData.kt$TestCrypto$"01 754e548941e5cd073fed6d734578a484be9f0bbfa1b6fa3168ed7ffb22878f0f 9aef9bbd932a020d8828367bd080a3e72b36c41ee40c87253f9b1b0beb8371bf 257db4604af8ae0dfced37ce 86c2b491c7a8309e750b 4e6e307219863938c204dfe85502ee0a"</ID>
-    <ID>MaxLineLength:TestResource.kt$ApduResultEnum$ACTIVATECOMMAND_APDU</ID>
-    <ID>MaxLineLength:TestResource.kt$ParameterEnum$PARAMETER_BYTEARRAY_DEFAULT</ID>
-    <ID>MaxLineLength:TestResource.kt$ParameterEnum$PARAMETER_INT_OFFSET</ID>
-    <ID>MaxLineLength:TruststoreTest.kt$TruststoreTest$fun</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$" \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\",\n"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$" \"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea\"\n"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$" \"Task/2aef43b8c5e8f263d7aef64598b3c40e1d9e348f75d62fd39fe4a7bc5c923de8/\$accept?ac=0936cfa582b447144b71ac89eb7bb83a77c67c99d4054f91ee3703acf5d6a629\",\n"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$" \"Task/2aef43b8c5e8f2d3d7aef64598b3c40e1d9e348f75d62fd39fe4a7bc5c923de8/\$accept?ac=0936cfa582b447144b71ac89eb7bb83a77c67c99d4054f91ee3703acf5d6a629\",\n"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$" \"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5\",\n"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$" \"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5\"\n"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$"Task/234fabe0964598efd23f34dd23e122b2323344ea8e8934dae23e2a9a934513bc/\$accept?ac=777bea0e13cc9c42ceec14aec3ddee2263325dc2c6c699db115f58fe423607ea"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$"Task/2aef43b8c5e8f2d3d7aef64598b3c40e1d9e348f75d62fd39fe4a7bc5c923de8/\$accept?ac=0936cfa582b447144b71ac89eb7bb83a77c67c99d4054f91ee3703acf5d6a629"</ID>
-    <ID>MaxLineLength:TwoDCodeValidatorTest.kt$TwoDCodeValidatorTest$"Task/5e78f21cd6abc35edf4f1726c3d451ea2736d547a263f45726bc13a47e65d189/\$accept?ac=d3e6092ae3af14b5225e2ddbe5a4f59b3939a907d6fdd5ce6a760ca71f45d8e5"</ID>
-    <ID>MayBeConst:TestData.kt$TestCertificates.OCSP1$val CertToCheckSerialNumber = "1034953504625805" // IDP 1</ID>
-    <ID>MayBeConst:TestData.kt$TestCertificates.OCSP1.SignerCert$val Base64 = "MIICmjCCAkCgAwIBAgIHA602RERCazAKBggqhkjOPQQDAjCBhDELMAkGA1UEBhMCREUxHzAdBgNVBAoMFmdlbWF0aWsgR21iSCBOT1QtVkFMSUQxMjAwBgNVBAsMKUtvbXBvbmVudGVuLUNBIGRlciBUZWxlbWF0aWtpbmZyYXN0cnVrdHVyMSAwHgYDVQQDDBdHRU0uS09NUC1DQTEwIFRFU1QtT05MWTAeFw0yMDA1MDYwMDAwMDBaFw0yMzA1MDYyMzU5NTlaMFcxCzAJBgNVBAYTAkRFMRowGAYDVQQKDBFnZW1hdGlrIE5PVC1WQUxJRDEsMCoGA1UEAwwjT0NTUCBTaWduZXIgS29tcC1DQTEwIGVjYyBURVNULU9OTFkwWjAUBgcqhkjOPQIBBgkrJAMDAggBAQcDQgAEGwfkaELN0cr5DfqP1bNsWZS2XiuH6reLPZLHBSLkyFp/SzTKvNDdm7nKlp6Norg1z1njhyapRraaCzRS6VreD6OBxzCBxDAfBgNVHSMEGDAWgBQo8Pjmqch3zENF25qu1zqDrA4PqDAOBgNVHQ8BAf8EBAMCBkAwFQYDVR0gBA4wDDAKBggqghQATASBIzATBgNVHSUEDDAKBggrBgEFBQcDCTAMBgNVHRMBAf8EAjAAMDgGCCsGAQUFBwEBBCwwKjAoBggrBgEFBQcwAYYcaHR0cDovL2VoY2EuZ2VtYXRpay5kZS9vY3NwLzAdBgNVHQ4EFgQUHKqJlrsbnD6bAIyF2WScrHtUmeIwCgYIKoZIzj0EAwIDSAAwRQIhAIkd0/4EtDLRRnb0B8mgmvlxepYrLKX/lkVGoXy0D64OAiAkOCmXOwGJExZxxRm4diJ/GPzZI4ecAnaVqnikYAQVCQ=="</ID>
-    <ID>MayBeConst:TestData.kt$TestCertificates.OCSP2$val CertToCheckSerialNumber = "487275465566779" // IDP 2</ID>
-    <ID>MayBeConst:TestData.kt$TestCertificates.OCSP3$val CertToCheckSerialNumber = "347632017809591" // VAU</ID>
-    <ID>MemberNameEqualsClassName:Navigation.kt$Route$val route = arguments.fold(Uri.Builder().path(path)) { uri, param -> uri.appendQueryParameter(param.name, "{${param.name}}") }.build().toString()</ID>
-    <ID>NestedBlockDepth:EntityUtils.kt$private suspend fun SequenceScope&lt;Deleteable>.flatten( currentObject: Cascading, currentDepth: Int, maxDepth: Int )</ID>
-    <ID>NestedBlockDepth:LicenceRule.kt$LicenceRule$override fun visit( node: ASTNode, autoCorrect: Boolean, emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> Unit )</ID>
-    <ID>MemberNameEqualsClassName:AppDependenciesPlugin.kt$AppDependenciesPlugin.Dependencies.Lottie$const val lottie = "com.airbnb.android:lottie-compose:$lottieVersion"</ID>
-    <ID>NestedBlockDepth:Utils.kt$fun ByteArray.contains(other: ByteArray): Boolean</ID>
-    <ID>ReturnCount:BiometricPrompt.kt$@Requirement( "A_21582", sourceSpecification = "gemSpec_IDP_Frontend", rationale = "Selection of the best available authentication option on the device." ) private fun bestSecureOption(biometricManager: BiometricManager): Int</ID>
-    <ID>ReturnCount:TestResource.kt$TestResource$fun getParameter(parameterEnum: ParameterEnum): Any?</ID>
-    <ID>ReturnCount:Utils.kt$fun ByteArray.contains(other: ByteArray): Boolean</ID>
-    <ID>SpreadOperator:AndroidStringResourceGeneratorTask.kt$AndroidStringResourceGeneratorTask$( "%L to Plurals(${tr.items.toTemplateString()}),", primaryUniqueNamesWithId.getValue(tr.name), *tr.items.toArgArray() )</ID>
-    <ID>SpreadOperator:AndroidStringResourceGeneratorTask.kt$AndroidStringResourceGeneratorTask$("val strings = mapOf($format)", *values)</ID>
-    <ID>SpreadOperator:Common.kt$(id, *(args.map { AnnotatedString(it.toString()) }.toTypedArray()))</ID>
-    <ID>SwallowedException:CertUtils.kt$e: Exception</ID>
-    <ID>SwallowedException:IdpLocalDataSource.kt$IdpLocalDataSource$e: Exception</ID>
-    <ID>SwallowedException:OCSPUtils.kt$e: Exception</ID>
-    <ID>SwallowedException:SecureMessagingTest.kt$SecureMessagingTest$e: Exception</ID>
-    <ID>SwallowedException:TruststoreUseCase.kt$TruststoreUseCase$e: Exception</ID>
-    <ID>ThrowsCount:IdpUseCase.kt$IdpUseCase$private suspend fun loadAccessToken( refresh: Boolean = false, profileId: ProfileIdentifier, scope: IdpScope, singleSignOnTokenScope: suspend () -> IdpData.SingleSignOnTokenScope?, decryptedAccessToken: suspend () -> String?, invalidateDecryptedAccessToken: suspend () -> Unit, invalidateSingleSignOnTokenRetainingScope: suspend () -> Unit, saveDecryptedAccessToken: suspend (decryptedAccessToken: String) -> Unit ): String</ID>
-    <ID>TooGenericExceptionCaught:AuthenticationUseCase.kt$AuthenticationUseCase$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:CertUtils.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:DebugLoadingButton.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:DebugScreen.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:DebugSettingsViewModel.kt$DebugSettingsViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:EllipticCurvesExtending.kt$EllipticCurvesExtending$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:IdpBasicUseCase.kt$IdpBasicUseCase$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:IdpLocalDataSource.kt$IdpLocalDataSource$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:IdpUseCase.kt$IdpUseCase$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:LoginWithHealthCardViewModel.kt$LoginWithHealthCardViewModel$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:NetworkUtil.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:OCSPUtils.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:PharmacyMapper.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:QueryUtils.kt$t: Throwable</ID>
-    <ID>TooGenericExceptionCaught:SafeApiCall.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:SharePrescriptionController.kt$SharePrescriptionController$e: IndexOutOfBoundsException</ID>
-    <ID>TooGenericExceptionCaught:TruststoreUseCase.kt$TruststoreUseCase$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:TruststoreUseCase.kt$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:TwoDCodeScanner.kt$TwoDCodeScanner$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:TwoDCodeValidator.kt$TwoDCodeValidator$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:VauChannelInterceptor.kt$VauChannelInterceptor$e: Exception</ID>
-    <ID>TooManyFunctions:AppDependenciesPlugin.kt$App</ID>
-    <ID>TooManyFunctions:Common.kt$de.gematik.ti.erp.app.utils.compose.Common.kt</ID>
-    <ID>TooManyFunctions:DebugSettingsViewModel.kt$DebugSettingsViewModel : ViewModel</ID>
-    <ID>TooManyFunctions:EditProfileScreen.kt$de.gematik.ti.erp.app.profiles.ui.EditProfileScreen.kt</ID>
-    <ID>TooManyFunctions:FhirMapper.kt$de.gematik.ti.erp.app.fhir.FhirMapper.kt</ID>
-    <ID>TooManyFunctions:Hints.kt$de.gematik.ti.erp.app.utils.compose.Hints.kt</ID>
-    <ID>TooManyFunctions:IdpAlternateAuthenticationUseCase.kt$IdpAlternateAuthenticationUseCase</ID>
-    <ID>TooManyFunctions:IdpBasicUseCase.kt$IdpBasicUseCase</ID>
-    <ID>TooManyFunctions:IdpRemoteDataSource.kt$IdpRemoteDataSource</ID>
-    <ID>TooManyFunctions:IdpRepository.kt$IdpRepository</ID>
-    <ID>TooManyFunctions:PrescriptionDetailScreen.kt$de.gematik.ti.erp.app.prescription.ui.PrescriptionDetailScreen.kt</ID>
-    <ID>TooManyFunctions:SettingsScreen.kt$de.gematik.ti.erp.app.settings.ui.SettingsScreen.kt</ID>
-    <ID>TooManyFunctions:TemporalConverter.kt$de.gematik.ti.erp.app.utils.TemporalConverter.kt</ID>
-    <ID>TopLevelPropertyNaming:ClientCrypto.kt$private const val byteSpace: Byte = 32</ID>
-    <ID>TopLevelPropertyNaming:HeadersInterceptor.kt$private const val invalidAccessTokenHeader = "Www-Authenticate"</ID>
-    <ID>TopLevelPropertyNaming:HeadersInterceptor.kt$private const val invalidAccessTokenValue = "Bearer realm='prescriptionserver.telematik', error='invalACCESS_TOKEN'"</ID>
-    <ID>TopLevelPropertyNaming:IdpRemoteDataSource.kt$private const val defaultScope = "e-rezept openid"</ID>
-    <ID>TopLevelPropertyNaming:IdpRemoteDataSource.kt$private const val pairingScope = "pairing openid"</ID>
-    <ID>TopLevelPropertyNaming:PrescriptionDetailScreen.kt$private const val missingValue = "---"</ID>
-    <ID>UnnecessaryAbstractClass:TestDB.kt$TestDB$TestDB</ID>
-    <ID>UnusedPrivateMember:DebugScreenWrapper.kt$navigation: NavController</ID>
-    <ID>UnusedPrivateMember:Hints.kt$innerPadding: PaddingValues</ID>
-    <ID>UnusedPrivateMember:PrescriptionDetailScreen.kt$@Composable private fun Group( content: @Composable ColumnScope.() -> Unit )</ID>
-    <ID>UnusedPrivateMember:PrescriptionDetailScreen.kt$navigation: Navigation</ID>
-    <ID>UnusedPrivateMember:ResourceMapperVersion_1_0_2.kt$quantityFn: QuantityFn&lt;Quantity></ID>
-    <ID>UnusedPrivateMember:ResourceMapperVersion_1_0_2.kt$ratioFn: RatioFn&lt;Ratio, Quantity></ID>
-    <ID>UnusedPrivateMember:ResourceMapperVersion_1_1_0.kt$quantityFn: QuantityFn&lt;Quantity></ID>
-    <ID>UnusedPrivateMember:ResourceMapperVersion_1_1_0.kt$ratioFn: RatioFn&lt;Ratio, Quantity></ID>
-    <ID>UnusedPrivateMember:TestData.kt$sentOn: Instant?</ID>
-    <ID>UnusedPrivateMember:TestResource.kt$TestResource.Companion$private const val ID_PIN_CH = 1</ID>
-    <ID>UnusedPrivateMember:Theme.kt$private val LocalAppTypographyColors = staticCompositionLocalOf&lt;AppTypographyColors> { error("No AppTypographyColors provided") }</ID>
-    <ID>UnusedPrivateMember:TruststoreUseCase.kt$private const val RCA_PREFIX = "GEM.RCA"</ID>
-    <ID>VariableNaming:CommandApduTest.kt$CommandApduTest$val header_plus_lc = byteArrayOf(0x01, 0x02, 0x03, 0x04, 0x00, (dataSize shr 8).toByte(), dataSize.toByte())</ID>
-    <ID>VariableNaming:CommandApduTest.kt$CommandApduTest$val header_plus_lc = byteArrayOf(0x01, 0x02, 0x03, 0x04, 0x00, 0x00, 0xFF.toByte())</ID>
-    <ID>VariableNaming:CommandApduTest.kt$CommandApduTest$val header_plus_lc = byteArrayOf(0x01, 0x02, 0x03, 0x04, 0x00, 0x01, 0x00)</ID>
-    <ID>VariableNaming:CommandApduTest.kt$CommandApduTest$val header_plus_lc = byteArrayOf(0x01, 0x02, 0x03, 0x04, 0x00, 0xFF.toByte(), 0xFF.toByte())</ID>
-    <ID>VariableNaming:CommandApduTest.kt$CommandApduTest$val header_plus_lc = byteArrayOf(0x01, 0x02, 0x03, 0x04, 0xFF.toByte())</ID>
-    <ID>VariableNaming:CommandApduTest.kt$CommandApduTest$val header_plus_lc = byteArrayOf(0x01, 0x02, 0x03, 0x04, cmdData.size.toByte())</ID>
-    <ID>VariableNaming:DispatchProvider.kt$DispatchProvider$val Default: CoroutineDispatcher get() = Dispatchers.Default</ID>
-    <ID>VariableNaming:DispatchProvider.kt$DispatchProvider$val IO: CoroutineDispatcher get() = Dispatchers.IO</ID>
-    <ID>VariableNaming:DispatchProvider.kt$DispatchProvider$val Main: CoroutineDispatcher get() = Dispatchers.Main</ID>
-    <ID>VariableNaming:DispatchProvider.kt$DispatchProvider$val Unconfined: CoroutineDispatcher get() = Dispatchers.Unconfined</ID>
-    <ID>VariableNaming:FhirMapper.kt$FhirMapper$private val COMMUNICATION_TYPE_DISP_REQ = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationDispReq"</ID>
-    <ID>VariableNaming:FhirMapper.kt$FhirMapper$private val COMMUNICATION_TYPE_REPLY = "https://gematik.de/fhir/StructureDefinition/ErxCommunicationReply"</ID>
+    <ID>MagicNumber:HtmlReportComponents.kt$1</ID>
+    <ID>ModifierComposable:ModifierExtension.kt$animatedCircularBorder</ID>
+    <ID>ModifierComposable:ModifierExtension.kt$circularBorder</ID>
+    <ID>ModifierComposable:ModifierExtension.kt$greyCircularBorder</ID>
+    <ID>ModifierComposable:ModifierExtension.kt$imeHeight</ID>
+    <ID>ModifierMissing:AboutSection.kt$AboutSection</ID>
+    <ID>ModifierMissing:AccessToCameraDenied.kt$AccessToCameraDenied</ID>
+    <ID>ModifierMissing:AddProfileChip.kt$AddProfileChip</ID>
+    <ID>ModifierMissing:AnimatedElevationScaffold.kt$AnimatedElevationScaffold</ID>
+    <ID>ModifierMissing:AppContent.kt$AppContent</ID>
+    <ID>ModifierMissing:ApplicationScaffold.kt$ApplicationScaffold</ID>
+    <ID>ModifierMissing:AuditEventsLoading.kt$AuditEventsLoading</ID>
+    <ID>ModifierMissing:AuthenticationHintCard.kt$AuthenticationHintCard</ID>
+    <ID>ModifierMissing:BiometryScreen.kt$BiometricScreenContent</ID>
+    <ID>ModifierMissing:BiometryScreen.kt$BiometricScreenScaffold</ID>
+    <ID>ModifierMissing:BottomBars.kt$ConnectBottomBar</ID>
+    <ID>ModifierMissing:CameraTopBar.kt$CameraTopBar</ID>
+    <ID>ModifierMissing:CardWallAnimation.kt$CardAnimationBox</ID>
+    <ID>ModifierMissing:CardWallAnimation.kt$ReadingCardAnimation</ID>
+    <ID>ModifierMissing:CardWallAnimation.kt$SearchingCardAnimation</ID>
+    <ID>ModifierMissing:CardWallAnimation.kt$TagLostCard</ID>
+    <ID>ModifierMissing:CardWallAuthDialog.kt$InfoText</ID>
+    <ID>ModifierMissing:CardWallCanScreen.kt$CanDescription</ID>
+    <ID>ModifierMissing:CardWallCanScreen.kt$CanScreenContent</ID>
+    <ID>ModifierMissing:CardWallCanScreen.kt$HealthCardCanImage</ID>
+    <ID>ModifierMissing:CardWallGidListScreen.kt$GidListScreenContent</ID>
+    <ID>ModifierMissing:CardWallSaveCredentialsInfoScreen.kt$CardWallSaveCredentialsInfoScreenScaffold</ID>
+    <ID>ModifierMissing:CardWallScaffold.kt$CardWallBottomBar</ID>
+    <ID>ModifierMissing:Center.kt$Center</ID>
+    <ID>ModifierMissing:ClearTextTrafficSection.kt$ClearTextTrafficSection</ID>
+    <ID>ModifierMissing:ClientIdsSection.kt$ClientIdsSection</ID>
+    <ID>ModifierMissing:ColumnItems.kt$ColumnItems</ID>
+    <ID>ModifierMissing:Common.kt$LabeledText</ID>
+    <ID>ModifierMissing:Common.kt$SimpleCheck</ID>
+    <ID>ModifierMissing:ContactSection.kt$ContactSection</ID>
+    <ID>ModifierMissing:DataMatrixCodesWithSelfPayerWarning.kt$DataMatrixCodesWithSelfPayerWarning</ID>
+    <ID>ModifierMissing:DebugCommon.kt$DebugOverlay</ID>
+    <ID>ModifierMissing:DebugPKV.kt$DebugScreenPKV</ID>
+    <ID>ModifierMissing:DebugScreen.kt$DebugScreenDirectRedeem</ID>
+    <ID>ModifierMissing:DebugSection.kt$DebugMenuSection</ID>
+    <ID>ModifierMissing:DebugSection.kt$DebugSection</ID>
+    <ID>ModifierMissing:DebugTimeoutScreen.kt$DebugTimeoutScreen$Content</ID>
+    <ID>ModifierMissing:DebugTrackerScreen.kt$DebugTrackerScaffold</ID>
+    <ID>ModifierMissing:DebugTrackerScreen.kt$RightwardArrowLine</ID>
+    <ID>ModifierMissing:DemoModeTopAppBar.kt$checkForDemoMode</ID>
+    <ID>ModifierMissing:Dialog.kt$DialogHost</ID>
+    <ID>ModifierMissing:DispenseMessage.kt$PrescriptionSentTo</ID>
+    <ID>ModifierMissing:Divider.kt$BorderDivider</ID>
+    <ID>ModifierMissing:Divider.kt$ElevationDivider</ID>
+    <ID>ModifierMissing:EnvironmentSelector.kt$EnvironmentSelector</ID>
+    <ID>ModifierMissing:ExploreSection.kt$ExploreSection</ID>
+    <ID>ModifierMissing:ExternalAuthPrompt.kt$ExternalAuthPrompt</ID>
+    <ID>ModifierMissing:FullScreenLoadingIndicator.kt$FullScreenLoadingIndicator</ID>
+    <ID>ModifierMissing:GematikErrorDialog.kt$GematikErrorDialog</ID>
+    <ID>ModifierMissing:GidItem.kt$GidItem</ID>
+    <ID>ModifierMissing:HealthCardPrompt.kt$HealthCardPrompt</ID>
+    <ID>ModifierMissing:HealthCardSection.kt$HealthCardSection</ID>
+    <ID>ModifierMissing:Hints.kt$HintActionButton</ID>
+    <ID>ModifierMissing:Hints.kt$HintCloseButton</ID>
+    <ID>ModifierMissing:Hints.kt$HintLargeImage</ID>
+    <ID>ModifierMissing:Hints.kt$HintSmallImage</ID>
+    <ID>ModifierMissing:HowToRedeemScreen.kt$HowToRedeemScreenContent</ID>
+    <ID>ModifierMissing:InfoLabel.kt$InfoLabelInBox</ID>
+    <ID>ModifierMissing:InvoiceCard.kt$InvoiceCard</ID>
+    <ID>ModifierMissing:InvoiceCard.kt$NoConsentGrantedCard</ID>
+    <ID>ModifierMissing:InvoiceDetailsScreen.kt$InvoiceMedicationHeader</ID>
+    <ID>ModifierMissing:InvoiceListLoading.kt$InvoiceListLoading</ID>
+    <ID>ModifierMissing:InvoiceLoadingCard.kt$InvoiceLoadingCard</ID>
+    <ID>ModifierMissing:InvoiceLocalCorrectionScreen.kt$InvoiceLocalCorrectionScreenScaffold</ID>
+    <ID>ModifierMissing:InvoiceMessage.kt$CostReceiptDetail</ID>
+    <ID>ModifierMissing:InvoiceShareScreen.kt$InvoiceShareScreenScaffold</ID>
+    <ID>ModifierMissing:InvoiceThreeDotMenu.kt$InvoiceThreeDotMenu</ID>
+    <ID>ModifierMissing:InvoicesEmptyScreen.kt$InvoicesEmptyScreen</ID>
+    <ID>ModifierMissing:LegalSection.kt$LegalSection</ID>
+    <ID>ModifierMissing:LoadingIndicator.kt$LoadingIndicator</ID>
+    <ID>ModifierMissing:LoadingIndicatorLine.kt$LoadingIndicatorLine</ID>
+    <ID>ModifierMissing:LoggerScreen.kt$LogDetailsTabs</ID>
+    <ID>ModifierMissing:LogoLoadingState.kt$LogoLoadingState</ID>
+    <ID>ModifierMissing:MainScreenAvatar.kt$AvatarScreen</ID>
+    <ID>ModifierMissing:MainScreenAvatar.kt$ProfileConnectionSection</ID>
+    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$EmptyScreenImage</ID>
+    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenBottomBar</ID>
+    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenContent</ID>
+    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenScaffold</ID>
+    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$ProfileHeader</ID>
+    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$ScheduleTitle</ID>
+    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$ChangeMedicationDosageDialog</ID>
+    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$DosageInfo</ID>
+    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$IgnoreBatteryOptimizationSection</ID>
+    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$MedicationPlanScheduleScaffold</ID>
+    <ID>ModifierMissing:MessageBottomSheetScreen.kt$CodeSheetContent</ID>
+    <ID>ModifierMissing:MessageBottomSheetScreen.kt$EmptySheetContent</ID>
+    <ID>ModifierMissing:MessageBottomSheetScreen.kt$LinkSheetContent</ID>
+    <ID>ModifierMissing:MessageBottomSheetScreen.kt$MessageBottomSheetScreenContent</ID>
+    <ID>ModifierMissing:MessageBottomSheetScreen.kt$OrdersCodeInfo</ID>
+    <ID>ModifierMissing:MessageDetailScreen.kt$MessageDetailScreenScaffold</ID>
+    <ID>ModifierMissing:MessageOverviewItemShimmer.kt$MessageOverviewItemShimmer</ID>
+    <ID>ModifierMissing:MessagesLoadingShimmer.kt$MessagesLoadingShimmer</ID>
+    <ID>ModifierMissing:MetricChangeDialog.kt$MetricChangeDialog</ID>
+    <ID>ModifierMissing:OnboardingAnalyticsPreviewScreen.kt$OnboardingScreenScaffold</ID>
+    <ID>ModifierMissing:OnboardingSelectAppLoginScreen.kt$OnboardingScreenContent</ID>
+    <ID>ModifierMissing:OnlineRedeemPreferencesScreen.kt$OnlineRedeemPreferencesScreenScaffold</ID>
+    <ID>ModifierMissing:OutlinedElevatedCard.kt$OutlinedElevatedCard</ID>
+    <ID>ModifierMissing:PasswordScore.kt$PasswordStrengthDescription</ID>
+    <ID>ModifierMissing:PasswordScore.kt$PasswordStrengthIndicator</ID>
+    <ID>ModifierMissing:PasswordScore.kt$Suggestion</ID>
+    <ID>ModifierMissing:PersonalSettingsSection.kt$PersonalSettingsSection</ID>
+    <ID>ModifierMissing:PharmacyContactSelection.kt$PharmacyContactSelection</ID>
+    <ID>ModifierMissing:PharmacyMapsOverlay.kt$pharmacyMapsOverlay</ID>
+    <ID>ModifierMissing:PharmacySearchListScreen.kt$SearchTopAppBar</ID>
+    <ID>ModifierMissing:PrescriptionDetailMedicationScreen.kt$FormLabel</ID>
+    <ID>ModifierMissing:PrescriptionDetailScreenScaffold.kt$PrescriptionDetailScreenScaffold</ID>
+    <ID>ModifierMissing:PrescriptionDetailTechnicalInformationScreen.kt$PrescriptionDetailTechnicalInformationContent</ID>
+    <ID>ModifierMissing:PrescriptionScreen.kt$PrescriptionsScreenScaffold</ID>
+    <ID>ModifierMissing:PrescriptionSelectionScreen.kt$PrescriptionSelectionScreenScaffold</ID>
+    <ID>ModifierMissing:PrescriptionStateInfo.kt$PrescriptionStateInfo</ID>
+    <ID>ModifierMissing:ProfileAvatarSection.kt$ProfileAvatarSection</ID>
+    <ID>ModifierMissing:ProfileBackgroundColorComponent.kt$ProfileBackgroundColorComponent</ID>
+    <ID>ModifierMissing:ProfileChip.kt$ProfileChip</ID>
+    <ID>ModifierMissing:ProfileEditNameBottomSheetScreen.kt$ProfileEditNameBottomSheetScreenContent</ID>
+    <ID>ModifierMissing:ProfileEditPairedDeviceSection.kt$ProfileEditPairedDeviceSection</ID>
+    <ID>ModifierMissing:ProfileEditPictureScreen.kt$AvatarPicker</ID>
+    <ID>ModifierMissing:ProfileEditPictureScreen.kt$ProfileImage</ID>
+    <ID>ModifierMissing:ProfileInsuranceInformationSection.kt$ProfileInsuranceInformationSection</ID>
+    <ID>ModifierMissing:ProfileInvoiceInformationSection.kt$ProfileInvoiceInformationSection</ID>
+    <ID>ModifierMissing:ProfileNameSection.kt$ProfileNameSection</ID>
+    <ID>ModifierMissing:ProfileSection.kt$ProfileSection</ID>
+    <ID>ModifierMissing:ProfileSecuritySection.kt$ProfileSecuritySection</ID>
+    <ID>ModifierMissing:ProfileSheetContent.kt$ProfileSheetContent</ID>
+    <ID>ModifierMissing:PromptScaffold.kt$PromptScaffold</ID>
+    <ID>ModifierMissing:QrCodeScanner.kt$QrCodeScanner</ID>
+    <ID>ModifierMissing:ReadCardScreenScaffold.kt$ReadCardScreenScaffold</ID>
+    <ID>ModifierMissing:RedeemButton.kt$RedeemButton</ID>
+    <ID>ModifierMissing:RedeemEditShippingContactScreen.kt$ContactNumberHeader</ID>
+    <ID>ModifierMissing:RedeemEditShippingContactScreen.kt$RedeemEditShippingContactScreenContent</ID>
+    <ID>ModifierMissing:RedeemEditShippingContactScreen.kt$SaveContactInformationBottomBar</ID>
+    <ID>ModifierMissing:RedeemFromDetailSection.kt$RedeemFromDetailSection</ID>
+    <ID>ModifierMissing:RedeemOrderOverviewScreen.kt$RedeemOrderOverviewScreenContent</ID>
+    <ID>ModifierMissing:ScannedPrescriptionOverview.kt$ScannedPrescriptionOverview</ID>
+    <ID>ModifierMissing:ScheduleDateRangeScreen.kt$ChangeDateDialog</ID>
+    <ID>ModifierMissing:ScheduleDateRangeScreen.kt$ScheduleDateRangeScreenScaffold</ID>
+    <ID>ModifierMissing:SelfPayerPrescriptionWarning.kt$SelfPayerPrescriptionWarning</ID>
+    <ID>ModifierMissing:SettingsAdditionalLicencesScreen.kt$SettingsAdditionalLicencesScreenContent</ID>
+    <ID>ModifierMissing:SettingsAllowAnalyticsScreen.kt$SettingsAllowAnalyticsScaffoldContent</ID>
+    <ID>ModifierMissing:SettingsLegalNoticeScreen.kt$EmailContact</ID>
+    <ID>ModifierMissing:SettingsLegalNoticeScreen.kt$LinkToWeb</ID>
+    <ID>ModifierMissing:SettingsLegalNoticeScreen.kt$PhoneContact</ID>
+    <ID>ModifierMissing:SettingsOpenSourceLicencesScreen.kt$OpenSourceLicensesScreenScaffoldContent</ID>
+    <ID>ModifierMissing:SettingsSetAppPasswordScreen.kt$SettingsSetAppPasswordBottomBar</ID>
+    <ID>ModifierMissing:Shimmer.kt$LimitedTextShimmer</ID>
+    <ID>ModifierMissing:Shimmer.kt$StatusChipShimmer</ID>
+    <ID>ModifierMissing:Shimmer.kt$TinyTextShimmer</ID>
+    <ID>ModifierMissing:SkipOnBoardingButton.kt$SkipOnBoardingButton</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerLarge</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerMedium</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerShortMedium</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerSmall</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerTiny</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerXLarge</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerXXLarge</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerXXLargeMedium</ID>
+    <ID>ModifierMissing:Spacer.kt$SpacerXXXLarge</ID>
+    <ID>ModifierMissing:StatusChip.kt$CompletedStatusChip</ID>
+    <ID>ModifierMissing:StatusChip.kt$DeletedStatusChip</ID>
+    <ID>ModifierMissing:StatusChip.kt$InProgressStatusChip</ID>
+    <ID>ModifierMissing:StatusChip.kt$NumeratorChip</ID>
+    <ID>ModifierMissing:StatusChip.kt$PendingStatusChip</ID>
+    <ID>ModifierMissing:StatusChip.kt$ProvidedStatusChip</ID>
+    <ID>ModifierMissing:StatusChip.kt$ReadyStatusChip</ID>
+    <ID>ModifierMissing:StatusChipShimmer.kt$StatusChipShimmer</ID>
+    <ID>ModifierMissing:SyncedPrescriptionOverview.kt$DirectAssignmentInfo</ID>
+    <ID>ModifierMissing:SyncedPrescriptionOverview.kt$PrescriptionName</ID>
+    <ID>ModifierMissing:SyncedPrescriptionOverview.kt$SyncedPrescriptionOverview</ID>
+    <ID>ModifierMissing:Text.kt$Body1Text</ID>
+    <ID>ModifierMissing:Text.kt$Body1lText</ID>
+    <ID>ModifierMissing:Text.kt$Body2Text</ID>
+    <ID>ModifierMissing:Text.kt$Body2lText</ID>
+    <ID>ModifierMissing:Text.kt$ButtonText</ID>
+    <ID>ModifierMissing:Text.kt$Caption1Text</ID>
+    <ID>ModifierMissing:Text.kt$Caption1lText</ID>
+    <ID>ModifierMissing:Text.kt$Caption2Text</ID>
+    <ID>ModifierMissing:Text.kt$H1Text</ID>
+    <ID>ModifierMissing:Text.kt$H2Text</ID>
+    <ID>ModifierMissing:Text.kt$H3Text</ID>
+    <ID>ModifierMissing:Text.kt$H4Text</ID>
+    <ID>ModifierMissing:Text.kt$H5Text</ID>
+    <ID>ModifierMissing:Text.kt$H6Text</ID>
+    <ID>ModifierMissing:Text.kt$Subtitle1Text</ID>
+    <ID>ModifierMissing:Text.kt$Subtitle1lText</ID>
+    <ID>ModifierMissing:Text.kt$Subtitle2Text</ID>
+    <ID>ModifierMissing:Text.kt$Subtitle2lText</ID>
+    <ID>ModifierMissing:TinyTextShimmer.kt$TinyTextShimmer</ID>
+    <ID>ModifierMissing:TitleInfoCard.kt$TitleInfoCard</ID>
+    <ID>ModifierMissing:Toast.kt$shortToast</ID>
+    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingCloseButton</ID>
+    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingNextButton</ID>
+    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingNextTipButton</ID>
+    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingTip</ID>
+    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingTryMeButton</ID>
+    <ID>ModifierMissing:TroubleShootingScaffold.kt$TroubleShootingScaffold</ID>
+    <ID>ModifierMissing:UnlockEgkDialog.kt$CardCommunicationDialog</ID>
+    <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Card( border = cardBorderStroke, backgroundColor = AppTheme.colors.neutral000, modifier = modifier .padding(horizontal = PaddingDefaults.Medium) .fillMaxWidth(), shape = RoundedCornerShape(SizeDefaults.one) ) { Row( modifier = Modifier .fillMaxWidth() .clickable( enabled = true, onClick = onCardSelected ) .padding(PaddingDefaults.Medium), verticalAlignment = Alignment.CenterVertically ) { Icon( startIcon, null, tint = AppTheme.colors.primary700 ) Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) ) Icon( checkIcon, null, tint = checkIconTint ) } }</ID>
+    <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) )</ID>
+    <ID>ModifierReused:Common.kt$Text( text = text, modifier = modifier, color = color, fontSize = fontSize, fontStyle = fontStyle, fontWeight = fontWeight, fontFamily = fontFamily, letterSpacing = letterSpacing, textDecoration = textDecoration, textAlign = textAlign, lineHeight = lineHeight, overflow = overflow, softWrap = softWrap, maxLines = maxLines, inlineContent = with(LocalDensity.current) { contentPlaceables.mapValues { (_, value) -&gt; val (content, maxSize) = value InlineTextContent( placeholder = content.placeholder.copy( width = maxSize.width.toSp(), height = maxSize.height.toSp() ), children = content.children ) } }, onTextLayout = onTextLayout, style = style )</ID>
+    <ID>ModifierReused:Common.kt$layout(main.measuredWidth, main.measuredHeight) { main.placeRelative(0, 0) }</ID>
+    <ID>ModifierReused:OrderHealthCardSelectMethodScreen.kt$Card( modifier = modifier, onClick = onClick, shape = RoundedCornerShape(SizeDefaults.one), contentColor = AppTheme.colors.primary700, border = BorderStroke(SizeDefaults.eighth, AppTheme.colors.neutral300), backgroundColor = AppTheme.colors.neutral050, elevation = SizeDefaults.zero ) { Column(Modifier.padding(PaddingDefaults.Medium), horizontalAlignment = Alignment.CenterHorizontally) { Icon(icon, null) SpacerSmall() Text( name, modifier = modifier.widthIn(SizeDefaults.ninefold), textAlign = TextAlign.Center, style = AppTheme.typography.subtitle2 ) } }</ID>
+    <ID>ModifierReused:OrderHealthCardSelectMethodScreen.kt$Text( name, modifier = modifier.widthIn(SizeDefaults.ninefold), textAlign = TextAlign.Center, style = AppTheme.typography.subtitle2 )</ID>
+    <ID>ModifierReused:PharmacyContact.kt$ClickableText( modifier = modifier .fillMaxWidth(), text = detailedInfoText, style = AppTheme.typography.body2l, onClick = onTextClicked )</ID>
+    <ID>ModifierReused:PharmacyContact.kt$Row(modifier = modifier) { HintTextActionButton( text = stringResource(R.string.pharmacy_detail_data_info_btn), onClick = onHintClicked ) }</ID>
+    <ID>ModifierWithoutDefault:Avatar.kt$iconModifier</ID>
+    <ID>ModifierWithoutDefault:Avatar.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:CardUnlockNewSecretScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:CardUnlockPukScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:CardWallCanScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:CardWallPinScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:Common.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:ConfirmationPasswordTextField.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:DataMatrix.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:DataMatrixCode.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:DebugScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:EditablePathComponentWithControl.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:FavoritePharmacyCard.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:FilterButton.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:HealthCardCredentials.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:HealthCardPrompt.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:InvoiceDetailsScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:LocalRedeemScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:LoggerScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:MessageBottomSheetScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:OnboardingBottomBar.kt$buttonModifier</ID>
+    <ID>ModifierWithoutDefault:OnboardingWelcomeScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:OrderHealthCardSelectInsuranceCompanyScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:OrderHealthCardSelectMethodScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:OrderSelection.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PasswordScore.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PasswordTextField.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PharmacyContact.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PharmacyContactSelection.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PharmacyImagePlaceholder.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PharmacyResultCard.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PharmacySearchListScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PrescriptionScanScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:PrescriptionSelectionScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:ProfileEditPictureScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:ProfileNameSection.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:ProfilePairedDevicesScreen.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:ReadCardScreenScaffold.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:ScannedPrescriptionOverview.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:SyncedPrescriptionOverview.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:TroubleShootingButtons.kt$modifier</ID>
+    <ID>ModifierWithoutDefault:WebViewScreen.kt$modifier</ID>
+    <ID>MultipleEmitters:CardUnlockPukScreen.kt$PukInputField</ID>
+    <ID>MultipleEmitters:CardWallCanScreen.kt$CanInputField</ID>
+    <ID>MultipleEmitters:InvoiceExpandedDetailsScreen.kt$PriceData</ID>
+    <ID>MultipleEmitters:InvoiceListScreen.kt$InvoicesHeaderThreeDotMenu</ID>
+    <ID>MultipleEmitters:InvoiceLocalCorrectionScreen.kt$InvoiceLocalCorrectionSection</ID>
+    <ID>MultipleEmitters:InvoiceThreeDotMenu.kt$InvoiceThreeDotMenu</ID>
+    <ID>MultipleEmitters:LoggerScreen.kt$OverviewEntry</ID>
+    <ID>MultipleEmitters:LoggerScreen.kt$RequestEntry</ID>
+    <ID>MultipleEmitters:LoggerScreen.kt$ResponseEntry</ID>
+    <ID>MultipleEmitters:MessageBottomSheetScreen.kt$OrdersCodeInfo</ID>
+    <ID>MultipleEmitters:MlKitInformationScreen.kt$Paragraph</ID>
+    <ID>MultipleEmitters:PharmacyContact.kt$DataInfoSection</ID>
+    <ID>MultipleEmitters:PrescriptionDetailScreenScaffold.kt$PrescriptionDetailsDropdownMenu</ID>
+    <ID>MultipleEmitters:PrescriptionScanScreen.kt$SheetContent</ID>
+    <ID>MultipleEmitters:ProfileEditPairedDeviceSection.kt$ProfileEditPairedDeviceSection</ID>
+    <ID>MultipleEmitters:ProfileScreen.kt$ThreeDotMenu</ID>
+    <ID>MultipleEmitters:ProfileSecuritySection.kt$ProfileSecuritySection</ID>
+    <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$ContactOptionsSection</ID>
+    <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$HintSection</ID>
+    <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$IssuerSection</ID>
+    <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$ResponsibilitySection</ID>
+    <ID>MutableParams:Hints.kt$initiallyVisible</ID>
+    <ID>MutableParams:PrescriptionScanScreen.kt$scanPrescriptionVibration</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$BigFontPreview$BigFontPreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkLongPreview$LightDarkLongPreview</ID>
+    <ID>PreviewNaming:LightDarkPreview.kt$LightDarkPreview$LightDarkPreview</ID>
+    <ID>PreviewPublic:ArchiveScreen.kt$PrescriptionsArchiveScreenPreview</ID>
+    <ID>PreviewPublic:CardUnlockCanScreen.kt$CardUnlockCanScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:CardUnlockEgkScreen.kt$CardUnlockEgkScreenPreview</ID>
+    <ID>PreviewPublic:CardUnlockIntroScreen.kt$CardUnlockIntroScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:CardUnlockNewSecretScreen.kt$CardUnlockNewSecretScreenPreview</ID>
+    <ID>PreviewPublic:CardUnlockOldSecretScreen.kt$CardUnlockOldSecretScreenPreview</ID>
+    <ID>PreviewPublic:CardUnlockPukScreen.kt$CardUnlockPukScreenPreview</ID>
+    <ID>PreviewPublic:CardWallCanScreen.kt$CardWallCanScreenPreview</ID>
+    <ID>PreviewPublic:CardWallGidListScreen.kt$GidListScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:CardWallIntroScreen.kt$CardWallIntroScreenContentPreview</ID>
+    <ID>PreviewPublic:CardWallPinScreen.kt$CardWallPinScreenPreview</ID>
+    <ID>PreviewPublic:CardWallReadCardScreen.kt$CardWallReadCardScreenPreview</ID>
+    <ID>PreviewPublic:CardWallSaveCredentialsInfoScreen.kt$CardWallSaveCredentialsInfoScreenPreview</ID>
+    <ID>PreviewPublic:CardWallSaveCredentialsScreen.kt$CardWallSaveCredentialsScreenPreview</ID>
+    <ID>PreviewPublic:ErrorOnRedeemablePrescriptionDialog.kt$ErrorOnRedeemablePrescriptionDialogPreview</ID>
+    <ID>PreviewPublic:InsecureDeviceScreen.kt$InsecureDeviceScreenPreview</ID>
+    <ID>PreviewPublic:IntegrityWarningScreen.kt$IntegrityWarningScreenPreview</ID>
+    <ID>PreviewPublic:InvoiceDetailsScreen.kt$InvoiceDetailsScreenPreview</ID>
+    <ID>PreviewPublic:InvoiceExpandedDetailsScreen.kt$invoiceExpandedDetailsScreenContentPreview</ID>
+    <ID>PreviewPublic:InvoiceListScreen.kt$InvoiceListScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:InvoiceLocalCorrectionScreen.kt$InvoiceLocalCorrectionContentPreview</ID>
+    <ID>PreviewPublic:LocalRedeemScreen.kt$LocalRedeemScreenPreview</ID>
+    <ID>PreviewPublic:MainScreenAvatar.kt$ProfileStatePreviews</ID>
+    <ID>PreviewPublic:MedicationListScheduleScreen.kt$MedicationListScheduleScreenPreview</ID>
+    <ID>PreviewPublic:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenPreview</ID>
+    <ID>PreviewPublic:MedicationPlanDosageInfoBottomSheetScreen.kt$MedicationPlanDosageInfoContentPreview</ID>
+    <ID>PreviewPublic:MedicationPlanScheduleScreen.kt$MedicationPlanScheduleScreenPreview</ID>
+    <ID>PreviewPublic:MessageBottomSheetScreen.kt$MessageBottomSheetScreenContentPreview</ID>
+    <ID>PreviewPublic:MessageDetailScreen.kt$MessageDetailScreenInAppWithPharmacyPreview</ID>
+    <ID>PreviewPublic:MessageDetailScreen.kt$MessageDetailScreenWithPharmacyPreview</ID>
+    <ID>PreviewPublic:MessageListScreen.kt$MessageScreenContentPreview</ID>
+    <ID>PreviewPublic:OnboardingAnalyticsPreviewScreen.kt$OnboardingAnalyticsPreviewContentPreview</ID>
+    <ID>PreviewPublic:OnboardingDataProtectionAndTermsOfUseOverviewScreen.kt$OnboardingDataProtectionAndTermsOfUseOverviewScreenContentPreview</ID>
+    <ID>PreviewPublic:OnboardingSelectAppLoginScreen.kt$PasswordAuthenticationPreview</ID>
+    <ID>PreviewPublic:OnlineRedeemPreferencesScreen.kt$OnlineRedeemPreferencesScreenPreview</ID>
+    <ID>PreviewPublic:OrderHealthCardSelectInsuranceCompanyScreen.kt$OrderHealthCardSelectInsuranceCompanyScreenPreview</ID>
+    <ID>PreviewPublic:PharmacyDetailsComponent.kt$PharmacyDetailsScreenFromMessagePreview</ID>
+    <ID>PreviewPublic:PharmacyDetailsComponent.kt$PharmacyDetailsScreenFromPharmacyPreview</ID>
+    <ID>PreviewPublic:PharmacySearchListScreen.kt$PharmacySearchListScreenContentPreview</ID>
+    <ID>PreviewPublic:PrescriptionDetailAccidentInfoScreen.kt$PrescriptionDetailAccidentInfoScreenPreview</ID>
+    <ID>PreviewPublic:PrescriptionDetailMedicationOverviewScreen.kt$PrescriptionDetailMedicationOverviewScreenPreview</ID>
+    <ID>PreviewPublic:PrescriptionDetailMedicationScreen.kt$PrescriptionDetailMedicationScreenPreview</ID>
+    <ID>PreviewPublic:PrescriptionDetailScreen.kt$PrescriptionDetailScreenPreview</ID>
+    <ID>PreviewPublic:PrescriptionDetailTechnicalInformationScreen.kt$PrescriptionDetailTechnicalInformationScreenPreview</ID>
+    <ID>PreviewPublic:PrescriptionScreen.kt$PrescriptionsScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:PrescriptionSelectionScreen.kt$PrescriptionSelectionScreenPreview</ID>
+    <ID>PreviewPublic:ProfileChip.kt$ProfileChipSelectedPreview</ID>
+    <ID>PreviewPublic:ProfileChip.kt$ProfileChipUnSelectedPreview</ID>
+    <ID>PreviewPublic:ProfileEditNameBottomSheetScreen.kt$ProfileEditNameBottomSheetScreenContentPreview</ID>
+    <ID>PreviewPublic:ProfilePairedDevicesScreen.kt$ProfilePairedDevicesScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:ProfileScreen.kt$ProfileScreenPreview</ID>
+    <ID>PreviewPublic:RedeemEditShippingContactScreen.kt$RedeemEditShippingScreenPreview</ID>
+    <ID>PreviewPublic:ScheduleDateRangeScreen.kt$ScheduleDateRangeScreenPreview</ID>
+    <ID>PreviewPublic:SettingsAppSecurityScreen.kt$SettingsAppSecurityScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:SettingsLanguageScreen.kt$SettingsLanguageScreenScaffoldPreview</ID>
+    <ID>PreviewPublic:SettingsProductImprovementsScreen.kt$PreviewSettingsProductImprovementsScreen</ID>
+    <ID>PreviewPublic:SettingsScreen.kt$SettingsScreenPreview</ID>
+    <ID>PreviewPublic:SettingsSetAppPasswordScreen.kt$SettingsSetAppPasswordScreenPreview</ID>
+    <ID>PreviewPublic:TroubleShootingNoSuccessScreen.kt$TroubleShootingNoSuccessScreenPreview</ID>
+    <ID>PreviewPublic:UserAuthenticationScreen.kt$UserAuthenticationScreenPreview</ID>
+    <ID>UnstableCollections:ColumnItems.kt$List&lt;T&gt;</ID>
+    <ID>UnstableCollections:Common.kt$Map&lt;String, InlineTextContent&gt;</ID>
+    <ID>UnstableCollections:DebugCommon.kt$Map&lt;String, MainActivity.ElementForTest&gt;</ID>
+    <ID>UnstableCollections:DebugTrackerScreen.kt$List&lt;DebugTrackerScreenEvent&gt;</ID>
+    <ID>UnstableCollections:DispenseMessage.kt$List&lt;TaskDetailedBundle&gt;?</ID>
+    <ID>UnstableCollections:ErrorOnRedeemablePrescriptionDialog.kt$List&lt;RedeemablePrescriptionInfo&gt;</ID>
+    <ID>UnstableCollections:InvoiceExpandedDetailsScreen.kt$List&lt;String?&gt;</ID>
+    <ID>UnstableCollections:InvoiceListScreen.kt$Map&lt;de.gematik.ti.erp.app.fhir.parser.Year, List&lt;PKVInvoiceRecord&gt;&gt;</ID>
+    <ID>UnstableCollections:ItemsMenu.kt$List&lt;T&gt;</ID>
+    <ID>UnstableCollections:LocalRedeemScreen.kt$List&lt;DMCode&gt;</ID>
+    <ID>UnstableCollections:LoggerScreen.kt$List&lt;HeaderLog&gt;</ID>
+    <ID>UnstableCollections:LoggerScreen.kt$LoggerScreen$List&lt;LogEntry&gt;</ID>
+    <ID>UnstableCollections:LoggerScreen.kt$LoggerScreen$Map&lt;Int, Boolean&gt;</ID>
+    <ID>UnstableCollections:MedicationListScheduleScreen.kt$List&lt;ProfileWithSchedules&gt;</ID>
+    <ID>UnstableCollections:MedicationNotificationSuccessScreen.kt$List&lt;ProfileWithSchedules&gt;</ID>
+    <ID>UnstableCollections:MessageDetailScreen.kt$List&lt;InAppMessage&gt;</ID>
+    <ID>UnstableCollections:MessageDetailScreen.kt$List&lt;OrderUseCaseData.Message&gt;</ID>
+    <ID>UnstableCollections:Messages.kt$List&lt;InAppMessage&gt;</ID>
+    <ID>UnstableCollections:Messages.kt$List&lt;OrderUseCaseData.Message&gt;</ID>
+    <ID>UnstableCollections:OnlineRedeemPreferencesScreen.kt$List&lt;PharmacyUseCaseData.PrescriptionInOrder&gt;</ID>
+    <ID>UnstableCollections:OrderHealthCardSelectInsuranceCompanyScreen.kt$List&lt;HealthInsuranceCompany&gt;</ID>
+    <ID>UnstableCollections:PharmacyContact.kt$List&lt;OpeningTime&gt;</ID>
+    <ID>UnstableCollections:PharmacySearchMapsScreen.kt$List&lt;PharmacyUseCaseData.Pharmacy&gt;</ID>
+    <ID>UnstableCollections:PharmacyStartScreen.kt$List&lt;OverviewPharmacy&gt;</ID>
+    <ID>UnstableCollections:ProfileEditNameBottomSheetScreen.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
+    <ID>UnstableCollections:ProfileNameSection.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
+    <ID>UnstableCollections:ProfilePairedDevicesScreen.kt$List&lt;PairedDevice&gt;</ID>
+    <ID>UnstableCollections:ProfileSection.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
+    <ID>UnstableCollections:ProfileSheetContent.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
+    <ID>UnstableCollections:RedeemOrderOverviewScreen.kt$List&lt;PharmacyUseCaseData.PrescriptionInOrder&gt;</ID>
+    <ID>UnstableCollections:ReleaseCommon.kt$Map&lt;String, MainActivity.ElementForTest&gt;</ID>
+    <ID>UnstableCollections:SelfPayerPrescriptionWarning.kt$List&lt;String&gt;</ID>
+    <ID>UnstableCollections:SelfPayerPrescriptionWarning.kt$List&lt;String?&gt;</ID>
+    <ID>UnstableCollections:SettingsLanguageScreen.kt$List&lt;LanguageCode&gt;</ID>
+    <ID>UnstableCollections:SettingsScreen.kt$List&lt;Profile&gt;</ID>
+    <ID>UnstableCollections:TopBars.kt$List&lt;String&gt;</ID>
+    <ID>UnstableCollections:TopBars.kt$List&lt;TabPosition&gt;</ID>
+    <ID>UnusedParameter:Buttons.kt$text: String? = null</ID>
+    <ID>UnusedParameter:DebugScreenWrapper.kt$navigation: NavController</ID>
+    <ID>UnusedParameter:EndpointHelper.kt$EndpointHelper$context: Context</ID>
+    <ID>UnusedParameter:ReleaseCommon.kt$elements: Map&lt;String, MainActivity.ElementForTest&gt;</ID>
+    <ID>UnusedParameter:ReleaseCommon.kt$modifier: Modifier = Modifier</ID>
+    <ID>UnusedParameter:ReleaseCommon.kt$onClick: () -&gt; Unit</ID>
+    <ID>UnusedParameter:ReleaseCommon.kt$text: String</ID>
+    <ID>UnusedPrivateProperty:CommunicationMocks.kt$private const val MOCK_COMMUNICATION_ID_01 = "CID-123-001"</ID>
+    <ID>UnusedPrivateProperty:LoadHealthInsuranceListUseCaseTest.kt$LoadHealthInsuranceListUseCaseTest.Companion$private val mockInputStream = ByteArrayInputStream(contacts.toByteArray())</ID>
+    <ID>UnusedPrivateProperty:OnboardingGraphController.kt$private const val PASSWORD_SCORE = 9</ID>
+    <ID>UnusedPrivateProperty:OnboardingSelectAppLoginScreen.kt$private const val FAILURE_SCORE = 0</ID>
+    <ID>UnusedPrivateProperty:OnboardingSelectAppLoginScreen.kt$private const val MEDIOCRE_SCORE = 3</ID>
+    <ID>UnusedPrivateProperty:OnboardingSelectAppLoginScreen.kt$private const val SUCCESS_SCORE = 9</ID>
+    <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_1 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-03T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Apotheke"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessage )</ID>
+    <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_2 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-04T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Flughafen"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessageLong )</ID>
+    <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_3 = OrderUseCaseData.Order( orderId = "3", sentOn = Instant.parse("2023-07-05T15:20:00Z"), hasUnreadMessages = false, pharmacy = OrderUseCaseData.Pharmacy("123", "TaxiStand"), prescriptions = listOf(PREVIEW_PRESCRIPTION), latestCommunicationMessage = null )</ID>
+    <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_4 = OrderUseCaseData.Order( orderId = "4", sentOn = Instant.parse("2023-07-06T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "HauptBahnhof"), prescriptions = listOf(PREVIEW_PRESCRIPTION), latestCommunicationMessage = mockLastMessage )</ID>
+    <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_5 = OrderUseCaseData.Order( orderId = "5", sentOn = Instant.parse("2023-07-08T15:20:00Z"), hasUnreadMessages = false, pharmacy = OrderUseCaseData.Pharmacy("123", "BusStation"), prescriptions = listOf( PREVIEW_PRESCRIPTION, PREVIEW_PRESCRIPTION.copy(index = 1), PREVIEW_PRESCRIPTION.copy(index = 2) ), latestCommunicationMessage = mockLastMessageLong )</ID>
+    <ID>UnusedPrivateProperty:RedeemPrescriptionsOnLoggedInUseCase.kt$private val json = Json { encodeDefaults = true prettyPrint = false }</ID>
+    <ID>UtilityClassWithPublicConstructor:FhirMarkdownGenerator.kt$FhirMarkdownGenerator</ID>
+    <ID>VariableNaming:FhirMedicationDispenseReference.kt$FhirMedicationDispenseReference$private val DECLINE_EXTENSION_URL = "http://hl7.org/fhir/StructureDefinition/data-absent-reason"</ID>
   </CurrentIssues>
 </SmellBaseline>

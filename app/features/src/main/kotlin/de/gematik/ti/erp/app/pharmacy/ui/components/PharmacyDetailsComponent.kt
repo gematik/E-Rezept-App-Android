@@ -54,7 +54,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.base.ClipBoardCopy
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.pharmacy.presentation.PharmacyGraphController

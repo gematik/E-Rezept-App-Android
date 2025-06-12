@@ -83,7 +83,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.profiles.model.PictureDataType
 import de.gematik.ti.erp.app.profiles.model.ProfilesData

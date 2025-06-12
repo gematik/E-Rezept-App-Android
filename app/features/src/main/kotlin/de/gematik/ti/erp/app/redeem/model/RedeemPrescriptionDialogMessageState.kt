@@ -20,7 +20,7 @@ package de.gematik.ti.erp.app.redeem.model
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.HttpErrorState
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 
 @Requirement(
     "A_20085#3",
@@ -111,10 +111,10 @@ sealed class RedeemPrescriptionDialogMessageState(
         rationale = "String resources are used tp show the mapped errors."
     )
     companion object {
-        fun RedeemedPrescriptionState.toDialogMessageState(): RedeemPrescriptionDialogMessageState {
+        fun BaseRedeemState.toDialogMessageState(): RedeemPrescriptionDialogMessageState {
             return when (this) {
-                is RedeemedPrescriptionState.Success -> Success()
-                is RedeemedPrescriptionState.Error -> errorState.toDialogMessageState()
+                is BaseRedeemState.Success -> Success()
+                is BaseRedeemState.Error -> errorState.toDialogMessageState()
                 else -> Unknown()
             }
         }

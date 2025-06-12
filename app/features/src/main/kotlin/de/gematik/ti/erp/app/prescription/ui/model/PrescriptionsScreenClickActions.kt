@@ -25,7 +25,7 @@ data class PrescriptionsScreenContentClickAction(
     val onClickLogin: (ProfilesUseCaseData.Profile) -> Unit,
     val onClickAvatar: (ProfilesUseCaseData.Profile) -> Unit,
     val onClickArchive: () -> Unit,
-    val onClickPrescription: (String) -> Unit,
+    val onClickPrescription: (String, Boolean) -> Unit,
     val onChooseAuthenticationMethod: (ProfileIdentifier) -> Unit,
     val onClickRedeem: () -> Unit,
     val onClickRefresh: () -> Unit

@@ -47,7 +47,7 @@ import de.gematik.ti.erp.app.authentication.presentation.deviceDeviceSecuritySta
 import de.gematik.ti.erp.app.authentication.presentation.deviceHasAuthenticationMethodEnabled
 import de.gematik.ti.erp.app.authentication.ui.components.EnrollBiometricDialog
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController

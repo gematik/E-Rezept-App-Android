@@ -27,7 +27,18 @@ import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
 val applicationControllerModule = DI.Module("applicationControllerModule") {
-    bindSingleton { AppController(instance(), instance(), instance(), instance(), instance(), instance(), instance()) }
+    bindSingleton {
+        AppController(
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance()
+        )
+    }
     bindSingleton {
         val context = instance<Context>()
         val connectivityManager = context.applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager

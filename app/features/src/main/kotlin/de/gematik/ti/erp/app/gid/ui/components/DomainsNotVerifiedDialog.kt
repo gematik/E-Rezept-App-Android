@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.gid.ui.components
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.compose.ErezeptText
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview

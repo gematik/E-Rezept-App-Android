@@ -29,6 +29,6 @@ import retrofit2.http.GET
     rationale = "Interface of search access token of pharmacy search service"
 )
 interface FhirVzdPharmacySearchAccessTokenService {
-    @GET("api/vzd/token")
+    @GET("vzd/token")
     fun getSearchAccessToken(): Call<SearchAccessTokenResponse>
 }

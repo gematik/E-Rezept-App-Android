@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.parser
 
+import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskPayloadErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle
@@ -46,6 +47,18 @@ import kotlinx.serialization.json.jsonObject
  *
  * The extracted data is returned as a [FhirTaskPayloadErpModel], or `null` if required resources are missing.
  */
+@Requirement(
+    "O.Source_2#8",
+    sourceSpecification = "BSI-eRp-ePA",
+    rationale = """
+        This parser validates and sanitizes structured FHIR bundle input by:
+            • Parsing the full task-bundle received via the task ID.
+            • Separating it into `Task` and `KBV Bundle` parts based on profile version checks.
+            • Accepting only entries matching valid profile versions [`GEM_ERP_PR_Task` and `KBV_PR_ERP_Bundle`] via strict matching against regex filters.
+            • Ignoring or rejecting malformed resources or profiles outside of the specification scope.      
+    """,
+    codeLines = 66
+)
 class TaskBundleSeparationParser : BundleParser {
     /**
      * Extracts FHIR task and KBV bundle resources from a given JSON bundle.
@@ -53,7 +66,7 @@ class TaskBundleSeparationParser : BundleParser {
      *
      * Once the [TaskEntryParser] provides the task-id, the task-bundle is fetched from the server.
      * This is then fed to this parser which separates this into two parts called taskBundle and kbvBundle.
-     * These parts are then further processed by [TaskMetadataParser] and [TaskKbvParser] respectively.
+     * These parts are then further processed by [TaskEPrescriptionMetadataParser] and [TaskEPrescriptionMedicalDataParser] respectively.
      *
      * This function parses the `"entry.resource"` section of the JSON, identifies resources
      * based on their FHIR profile URLs, and returns a structured [FhirTaskPayloadErpModel].

@@ -37,7 +37,7 @@ class HasRedeemableTasksUseCase(
         combine(
             prescriptionRepository.syncedTasks(profileId).map { tasks ->
                 tasks.filter {
-                    it.redeemState().isRedeemable()
+                    it.redeemState().isRedeemable() && it.deviceRequest == null // TODO: define as a Type
                 }
             },
             prescriptionRepository.scannedTasks(profileId).map { tasks ->

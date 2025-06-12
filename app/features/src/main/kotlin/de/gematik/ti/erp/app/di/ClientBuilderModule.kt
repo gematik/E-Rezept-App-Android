@@ -18,18 +18,22 @@
 
 package de.gematik.ti.erp.app.di
 
+import android.content.Context
 import com.appmattus.certificatetransparency.certificateTransparencyInterceptor
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.interceptor.UserAgentHeaderInterceptor
 import de.gematik.ti.erp.app.logger.HttpAppLogger
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import okhttp3.CipherSuite
 import okhttp3.ConnectionSpec
 import okhttp3.OkHttpClient
 import okhttp3.TlsVersion
 import okhttp3.logging.HttpLoggingInterceptor
 import org.kodein.di.DI
+import org.kodein.di.bind
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
+import org.kodein.di.singleton
 import java.util.concurrent.TimeUnit
 
 private const val HTTP_CONNECTION_TIMEOUT = 10000L
@@ -49,7 +53,7 @@ internal const val REQUIRED_HTTP_CLIENT = "OkHttpClientWithInterceptors"
 )
 val clientBuilderModule = DI.Module("ClientBuilderModule") {
     bindSingleton(REQUIRED_HTTP_CLIENT) {
-        val clientBuilder = instance<OkHttpClient>().newBuilder()
+        val clientBuilder = OkHttpClient.Builder()
             .connectTimeout(
                 timeout = HTTP_CONNECTION_TIMEOUT,
                 unit = TimeUnit.MILLISECONDS
@@ -68,7 +72,17 @@ val clientBuilderModule = DI.Module("ClientBuilderModule") {
             .addInterceptor(instance<HttpLoggingInterceptor>())
             .addInterceptor(instance<HttpAppLogger>())
 
+        if (BuildConfigExtension.isInternalDebug) {
+            val context = instance<Context>()
+            val endpointHelper = instance<EndpointHelper>()
+            clientBuilder.addInterceptor(endpointHelper.getHttpLoggingInterceptor(context))
+        }
         clientBuilder.build()
+    }
+
+    // fallback that if someone does not call the REQUIRED_HTTP_CLIENT, it still returns the default client
+    bind<OkHttpClient>() with singleton {
+        instance<OkHttpClient>(tag = REQUIRED_HTTP_CLIENT)
     }
 }
 
@@ -116,7 +130,7 @@ private fun getConnectionSpec(): List<ConnectionSpec> = ConnectionSpec
     }
 
 // Certificate Transparency is a security measure that helps protect against mis-issued certificates.
-private fun OkHttpClient.Builder.addCertificateTransparencyInterceptor() =
+fun OkHttpClient.Builder.addCertificateTransparencyInterceptor() =
     addNetworkInterceptor(
         certificateTransparencyInterceptor {
             failOnError = true

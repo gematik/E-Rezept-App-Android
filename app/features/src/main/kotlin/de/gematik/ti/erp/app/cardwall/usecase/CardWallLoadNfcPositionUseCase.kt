@@ -21,7 +21,7 @@ package de.gematik.ti.erp.app.cardwall.usecase
 import android.content.Context
 import android.os.Build
 import de.gematik.ti.erp.app.cardwall.usecase.model.NfcPositionUseCaseData
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import kotlinx.serialization.json.Json
 import java.io.InputStream
 

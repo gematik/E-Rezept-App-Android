@@ -18,6 +18,7 @@
 
 package de.gematik.ti.erp.app.fhir.common.model.erp
 
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskEntryDataErpModel
 import de.gematik.ti.erp.app.fhir.model.TaskStatus
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirCoverageErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
@@ -41,13 +42,6 @@ data class FhirTaskEntryParserResultErpModel(
     val bundleTotal: Int,
     val taskEntries: List<FhirTaskEntryDataErpModel>
 ) : FhirTaskErpModel
-
-@Serializable
-data class FhirTaskEntryDataErpModel(
-    val id: String,
-    val status: TaskStatus,
-    val lastModified: FhirTemporal?
-)
 
 // Represents the FHIR Task + KBV bundle wrapper
 @Serializable
@@ -89,7 +83,7 @@ data class FhirTaskDataErpModel(
             practitioner: FhirTaskKbvPractitionerErpModel?,
             organization: FhirTaskOrganizationErpModel?,
             coverage: FhirCoverageErpModel?,
-            deviceRequest: FhirTaskKbvDeviceRequestErpModel?
+            deviceRequest: FhirTaskKbvDeviceRequestErpModel? // can be empty since it is present only for special types of prescriptions
         ): FhirTaskDataErpModel? {
             val missingItems = listOfNotNull(
                 if (patient == null) "patient" else null,

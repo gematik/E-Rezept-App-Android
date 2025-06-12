@@ -18,7 +18,7 @@
 
 package de.gematik.ti.erp.app.medicationplan.components
 
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.medicationplan.model.MedicationNotification
 
 @Suppress("MagicNumber")

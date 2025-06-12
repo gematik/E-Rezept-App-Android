@@ -18,10 +18,12 @@
 
 package de.gematik.ti.erp.app.prescription
 
+import de.gematik.ti.erp.app.fhir.dispense.parser.TaskMedicationDispenseParser
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskBundleSeparationParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionMedicalDataParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionMetadataParser
+import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEntryParser
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskKbvParser
-import de.gematik.ti.erp.app.fhir.prescription.parser.TaskMetadataParser
 import de.gematik.ti.erp.app.prescription.repository.DefaultTaskRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskLocalDataSource
 import de.gematik.ti.erp.app.prescription.repository.TaskRemoteDataSource
@@ -35,16 +37,23 @@ val taskModule = DI.Module("taskModule") {
     bindProvider { TaskLocalDataSource(instance()) }
     bindProvider { TaskEntryParser() }
     bindProvider { TaskBundleSeparationParser() }
-    bindProvider { TaskMetadataParser() }
-    bindProvider { TaskKbvParser() }
+    bindProvider { TaskEPrescriptionMetadataParser() }
+    bindProvider { TaskEPrescriptionMedicalDataParser() }
+    bindProvider { TaskMedicationDispenseParser() }
+    bindProvider {
+        TaskEPrescriptionParsers(
+            instance(),
+            instance(),
+            instance(),
+            instance(),
+            instance()
+        )
+    }
 }
 
 val taskRepositoryModule = DI.Module("taskRepositoryModule", allowSilentOverride = true) {
     bindProvider<TaskRepository> {
         DefaultTaskRepository(
-            instance(),
-            instance(),
-            instance(),
             instance(),
             instance(),
             instance(),

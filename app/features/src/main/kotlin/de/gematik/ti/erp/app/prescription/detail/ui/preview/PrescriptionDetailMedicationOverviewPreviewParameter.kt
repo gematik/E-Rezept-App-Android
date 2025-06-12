@@ -19,13 +19,16 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
 import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.medicationPzn
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.utils.asFhirTemporal
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import kotlinx.datetime.Instant
 
 class PrescriptionDetailMedicationOverviewPreviewParameter :
     PreviewParameterProvider<UiState<Pair<ProfilesUseCaseData.Profile, PrescriptionData.Prescription>>> {
@@ -92,6 +95,16 @@ private data class PrescriptionPreviewData(
                 wasSubstituted = false,
                 dosageInstruction = "Take twice daily",
                 performer = "Pharmacist A",
+                deviceRequest = FhirDispenseDeviceRequestErpModel(
+                    deepLink = "",
+                    redeemCode = "xx12628491ß2242",
+                    declineCode = "001",
+                    note = "Error",
+                    referencePzn = "123456",
+                    display = "Diga App",
+                    status = "completed",
+                    modifiedDate = Instant.parse(input = "2024-08-01T10:00:00Z").asFhirTemporal()
+                ),
                 whenHandedOver = null
             )
             return default.copy(

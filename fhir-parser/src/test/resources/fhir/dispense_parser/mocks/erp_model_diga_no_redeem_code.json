@@ -1,0 +1,26 @@
+{
+  "dispensedMedications":[
+    {
+      "dispenseId":"Example-MedicationDispense-DiGA-NoRedeemCode",
+      "patientId":"X123456789",
+      "substitutionAllowed":false,
+      "dosageInstruction":null,
+      "performer":"8-SMC-B-Testkarte-883110000095957",
+      "handedOver":{
+        "value":"2024-04-03"
+      },
+      "dispensedDeviceRequest":{
+        "deepLink":null,
+        "redeemCode":null,
+        "declineCode":"asked-declined",
+        "modifiedDate": {
+          "value": "2024-04-03"
+        },
+        "note":"Freischaltcode für DiGA konnte nicht erstellt werden",
+        "referencePzn":null,
+        "display":null,
+        "status": "completed"
+      }
+    }
+  ]
+}

@@ -30,7 +30,6 @@ import de.gematik.ti.erp.app.logger.model.LogEntry
 import de.gematik.ti.erp.app.logger.model.Request
 import de.gematik.ti.erp.app.logger.model.Response
 import de.gematik.ti.erp.app.logger.model.Timings
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 fun List<LogEntry>.toHar() = Har(
@@ -49,7 +48,7 @@ private fun List<LogEntry>.toHarEntries(): List<Entry> =
     this.map { logEntry ->
         Entry(
             startedDateTime = logEntry.timestamp,
-            time = logEntry.timings.send + logEntry.timings.wait + logEntry.timings.receive,
+            time = logEntry.timings.totalTime(),
             request = Request(
                 httpVersion = "HTTP/1.1",
                 method = logEntry.request.method,

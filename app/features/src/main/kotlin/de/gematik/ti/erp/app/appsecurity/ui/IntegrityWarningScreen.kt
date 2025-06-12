@@ -48,7 +48,7 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
 import de.gematik.ti.erp.app.appsecurity.presentation.rememberIntegrityWarningController
 import de.gematik.ti.erp.app.appsecurity.ui.model.AppSecurityResult
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions

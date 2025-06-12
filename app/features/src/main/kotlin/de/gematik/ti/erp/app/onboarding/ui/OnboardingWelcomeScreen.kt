@@ -50,7 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.features.R
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes.OnboardingDataProtectionAndTermsOfUseOverviewScreen

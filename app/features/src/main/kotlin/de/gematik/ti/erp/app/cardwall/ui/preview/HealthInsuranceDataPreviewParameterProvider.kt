@@ -33,60 +33,70 @@ class HealthInsuranceDataPreviewParameterProvider : PreviewParameterProvider<UiS
                     name = "Insurance 1",
                     id = "1",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 2",
                     id = "2",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 3",
                     id = "3",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 4",
                     id = "4",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 5",
                     id = "5",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 6",
                     id = "6",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 7",
                     id = "7",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 8",
                     id = "8",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 9",
                     id = "9",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 ),
                 HealthInsuranceData(
                     name = "Insurance 10",
                     id = "10",
                     isGid = true,
+                    isPKV = false,
                     logo = null
                 )
             )

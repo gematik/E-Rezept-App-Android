@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.pharmacy.usecase.PharmacyMapsUseCase
-import de.gematik.ti.erp.app.pharmacy.usecase.model.DefaultRadiusInMeter
+import de.gematik.ti.erp.app.pharmacy.usecase.model.DEFAULT_RADIUS_IN_KM
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Coordinates
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
@@ -55,7 +55,7 @@ class PharmacySearchMapsController(
 
     private val searchParams by lazy { MutableStateFlow(defaultSearch) }
 
-    private val cameraRadius = MutableStateFlow(DefaultRadiusInMeter)
+    private val cameraRadius = MutableStateFlow(DEFAULT_RADIUS_IN_KM)
 
     val areMapsLoadingEvent = ComposableEvent<Boolean>()
 

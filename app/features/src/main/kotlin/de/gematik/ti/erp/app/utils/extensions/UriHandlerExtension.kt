@@ -18,20 +18,24 @@
 
 package de.gematik.ti.erp.app.utils.extensions
 
-import android.net.Uri
 import androidx.compose.ui.platform.UriHandler
+import androidx.core.net.toUri
 import io.github.aakira.napier.Napier
 
 fun UriHandler.openUriWhenValid(uri: String) {
     if (isValidUri(uri)) {
-        openUri(uri)
+        runCatching {
+            openUri(uri)
+        }.onFailure { exception ->
+            Napier.e(exception) { "URI $uri is not valid: ${exception.message}" }
+        }
     }
 }
 
 private fun isValidUri(uriString: String): Boolean {
     return try {
-        val uri = Uri.parse(uriString)
-        uri != null && uri.scheme != null
+        val uri = uriString.toUri()
+        uri.scheme != null // can still be an invalid uri schema
     } catch (e: Throwable) {
         Napier.e { "uri $uriString is not valid ${e.stackTraceToString()}" }
         false

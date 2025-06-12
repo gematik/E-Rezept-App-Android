@@ -32,7 +32,7 @@ import de.gematik.ti.erp.app.db.tryWrite
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirCommunicationBundleErpModel
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirDispenseCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirReplyCommunicationEntryErpModel
-import de.gematik.ti.erp.app.prescription.mapper.DatabaseMappers.toDatabaseModel
+import de.gematik.ti.erp.app.messages.mapper.CommunicationDatabaseMappers.toDatabaseModel
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier

@@ -18,10 +18,10 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIngredientErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirRatioErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMedicationCategoryErpModel
 

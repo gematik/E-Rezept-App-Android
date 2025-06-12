@@ -19,6 +19,7 @@
 package de.gematik.ti.erp.app.prescription.usecase.model
 
 import androidx.compose.runtime.Immutable
+import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import kotlinx.datetime.Instant
@@ -43,6 +44,11 @@ sealed interface Prescription {
         override val name: String?,
         override val redeemedOn: Instant?,
         override val expiresOn: Instant?,
+        val isDiga: Boolean = false,
+        val deviceRequestState: DigaStatus,
+        val isNew: Boolean = true,
+        val isArchived: Boolean = false,
+        val lastModified: Instant,
         val state: SyncedTaskData.SyncedTask.TaskState,
         val isIncomplete: Boolean,
         val organization: String,

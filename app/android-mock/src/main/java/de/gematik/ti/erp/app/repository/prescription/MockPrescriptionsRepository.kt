@@ -68,7 +68,7 @@ class MockPrescriptionsRepository(
             taskList.filter { it.profileId == profileId }.sortedBy { it.lastModified }
         }.flowOn(dispatcher)
 
-    override suspend fun redeemPrescription(
+    override suspend fun redeem(
         profileId: ProfileIdentifier,
         communication: JsonElement,
         accessCode: String
@@ -134,10 +134,19 @@ class MockPrescriptionsRepository(
             list.find { it.taskId == taskId }
         }.flowOn(dispatcher)
 
+    override fun loadDigaByTaskId(taskId: String) =
+        dataSource.syncedTasks.mapNotNull { list ->
+            list.find { it.taskId == taskId }
+        }.flowOn(dispatcher)
+
     override fun loadSyncedTasksByTaskIds(taskIds: List<String>) =
         dataSource.syncedTasks
             .map { list -> list.filter { task -> task.taskId in taskIds } }
             .flowOn(dispatcher)
+
+    override fun loadScannedTasksByTaskIds(taskIds: List<String>): Flow<List<ScannedTask>> {
+        return flowOf(emptyList())
+    }
 
     override fun loadScannedTaskByTaskId(taskId: String) =
         dataSource.scannedTasks.mapNotNull { list ->

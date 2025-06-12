@@ -16,5 +16,11 @@
         "text": "📖 **Funkce čtení nahlas** \nNěkolik stránek jsme přepracovali, abychom je usnadnili čtení nahlas pomocí aplikace TalkBack. To výrazně zlepšuje použitelnost pro zrakově postižené. \n \n📞 **Rozšířené možnosti kontaktu** \nZavedli jsme nové možnosti kontaktu pro vybrané pojišťovny. \n \n🔧 **Optimalizované funkce** \nOpravili jsme drobné chyby při čtení karty, vyčistili kód a vylepšili zobrazování zpráv.",
         "timestamp": "2025-04-02T08:00:00.000Z",
         "version": "1.29.0"
+    },
+    {
+        "id": "5",
+        "text": "**📲 Uplatněte si předepsané DiGA** \n Odteď můžete uplatnit recepty pro digitální zdravotní aplikace (DiGA) přímo prostřednictvím aplikace pro elektronické recepty. Aktivační kód a odkaz na předepsanou aplikaci obdržíte ihned po uplatnění. \n \n **🏥 Nová databáze lékáren** \n Zavedli jsme novou databázi pro vyhledávání lékáren, která je připravena na budoucnost.",
+        "timestamp": "2025-05-14T08:00:00.000Z",
+        "version": "1.30"
     }
 ]

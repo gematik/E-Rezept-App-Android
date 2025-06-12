@@ -18,10 +18,12 @@
 
 package de.gematik.ti.erp.app.di
 
+import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.debugsettings.data.Environment
+import okhttp3.Interceptor
 
 /**
  * Documentation: documentation-internal/variants/build_variants.adoc
@@ -71,6 +73,10 @@ class EndpointHelper(
 
     val pharmacyFhirVzdSearchAccessTokenUri
         get() = getUriForEndpoint(EndpointUri.PHARMACY_FHIRVZD_SEARCH_ACCESS_TOKEN_URI)
+
+    private val emptyInterceptor = Interceptor { chain ->
+        chain.proceed(chain.request()) // no modification
+    }
 
     private fun getUriForEndpoint(uri: EndpointUri): String {
         var url = uri.original
@@ -222,5 +228,9 @@ class EndpointHelper(
         Environment.RU -> BuildKonfig.CLIENT_ID_RU
         Environment.RUDEV -> BuildKonfig.CLIENT_ID_RU
         Environment.TR -> BuildKonfig.CLIENT_ID_RU
+    }
+
+    fun getHttpLoggingInterceptor(context: Context): Interceptor {
+        return emptyInterceptor
     }
 }

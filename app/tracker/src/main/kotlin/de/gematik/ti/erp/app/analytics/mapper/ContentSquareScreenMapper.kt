@@ -139,7 +139,7 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.SettingsAdditionalLicencesScreen -> "settings:additionalLicence"
                 NavigationRouteNames.SettingsLanguageScreen -> "settings:language"
 
-                NavigationRouteNames.PrescriptionsScreen -> "main"
+                NavigationRouteNames.PrescriptionListScreen -> "main"
                 NavigationRouteNames.PrescriptionsArchiveScreen -> "main:prescriptionArchive"
                 NavigationRouteNames.PrescriptionScanScreen -> "main:scanner"
                 NavigationRouteNames.WelcomeDrawerBottomSheetScreen -> "main:welcomeDrawer"
@@ -179,6 +179,12 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.OrderHealthCardSelectMethodScreen -> "contactInsuranceCompany:selectMethod"
 
                 NavigationRouteNames.UserAuthenticationScreen -> "userAuthentication"
+
+                NavigationRouteNames.DigasMainScreen -> "digas:detail"
+                NavigationRouteNames.DigasValidityBottomSheetScreen -> "digas:validity"
+                NavigationRouteNames.DigasSupportBottomSheetScreen -> "digas:support"
+                NavigationRouteNames.DigasDescriptionScreen -> "digas:description"
+                NavigationRouteNames.DigaFeedbackPromptScreen -> "digas:feedback"
             }
         }
 }

@@ -1,0 +1,27 @@
+{
+  "resourceType":"Medication",
+  "id":"18cac59e-2e3a-4546-983b-6c5f9d375cd9",
+  "meta":{
+    "profile":[
+      "https://gematik.de/fhir/erp/StructureDefinition/GEM_ERP_PR_Medication|1.4"
+    ]
+  },
+  "extension":[
+    {
+      "url":"https://gematik.de/fhir/epa-medication/StructureDefinition/medication-id-vaccine-extension",
+      "valueBoolean":false
+    }
+  ],
+  "code":{
+    "coding":[
+      {
+        "system":"http://fhir.de/CodeSystem/ifa/pzn",
+        "code":"82082973"
+      }
+    ]
+  },
+  "batch":{
+    "lotNumber":"1419556306",
+    "expirationDate":"2024-12-25T02:35:18+00:00"
+  }
+}

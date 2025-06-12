@@ -21,10 +21,6 @@ package de.gematik.ti.erp.app.pharmacy.api
 // https://simplifier.net/packages/de.gematik.fhir.directory/0.12.0/files/2744864
 internal object FhirVzdPharmacyTypeCode {
     const val publicPharmacy = "1.2.276.0.76.4.54"
-    const val hospitalPharmacy = "1.2.276.0.76.4.55"
-    const val federalPharmacy = "1.2.276.0.76.4.56"
+    const val insuranceProvider = "1.2.276.0.76.4.59"
     const val digaProvider = "1.2.276.0.76.4.282"
-    const val hospital = "1.2.276.0.76.4.53"
-    const val dentalPractice = "1.2.276.0.76.4.51"
-    const val doctorOffice = "1.2.276.0.76.4.50"
 }

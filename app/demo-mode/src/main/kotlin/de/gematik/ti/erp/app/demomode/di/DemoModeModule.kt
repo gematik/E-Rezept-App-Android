@@ -20,11 +20,12 @@ package de.gematik.ti.erp.app.demomode.di
 
 import android.content.res.AssetManager
 import de.gematik.ti.erp.app.authentication.mapper.PromptAuthenticationProvider
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
+import de.gematik.ti.erp.app.demomode.datasource.data.FunnyAppNameProvider
 import de.gematik.ti.erp.app.demomode.mapper.authentication.DemoPromptAuthenticationProvider
 import de.gematik.ti.erp.app.demomode.repository.consent.DemoConsentRepository
+import de.gematik.ti.erp.app.demomode.repository.diga.DemoDigaRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoCommunicationRepository
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoDownloadCommunicationResource
 import de.gematik.ti.erp.app.demomode.repository.orders.DemoInternalMessagesRepository
@@ -38,8 +39,10 @@ import de.gematik.ti.erp.app.demomode.repository.prescriptions.DemoTaskRepositor
 import de.gematik.ti.erp.app.demomode.repository.profiles.DemoProfilesRepository
 import de.gematik.ti.erp.app.demomode.repository.protocol.DemoAuditEventsRepository
 import de.gematik.ti.erp.app.demomode.usecase.idp.DemoIdpUseCase
+import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.repository.ShippingContactRepository
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.FavouritePharmacyLocalDataSource
@@ -56,14 +59,16 @@ import org.kodein.di.instance
 
 val demoModeModule = DI.Module("demoModeModule") {
     bindProvider { DemoDownloadCommunicationResource(instance()) }
+    bindSingleton { FunnyAppNameProvider() }
     // only data source for demo mode
-    bindSingleton { DemoModeDataSource() }
+    bindSingleton { DemoModeDataSource(instance()) }
 }
 
 fun DI.MainBuilder.demoModeOverrides() {
     bindProvider<ProfileRepository>(overrides = true) { DemoProfilesRepository(instance()) }
     bindProvider<ConsentRepository>(overrides = true) { DemoConsentRepository() }
     bindProvider<PrescriptionRepository>(overrides = true) { DemoPrescriptionsRepository(instance()) }
+    bindProvider<DigaRepository>(overrides = true) { DemoDigaRepository(instance()) }
     bindProvider<AuditEventsRepository>(overrides = true) { DemoAuditEventsRepository(instance()) }
     bindProvider<RedeemLocalDataSource>(overrides = true) { DemoRedeemLocalDataSource(instance()) }
     bindProvider<FavouritePharmacyLocalDataSource>(overrides = true) { DemoFavouritePharmacyLocalDataSource(instance()) }

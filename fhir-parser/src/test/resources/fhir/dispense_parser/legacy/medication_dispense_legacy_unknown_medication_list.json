@@ -1,0 +1,159 @@
+{
+  "resourceType": "MedicationDispense",
+  "id": "160.000.000.099.999.99",
+  "meta": {
+    "profile": [
+      "https://gematik.de/fhir/StructureDefinition/ErxMedicationDispense"
+    ]
+  },
+  "contained": [
+    {
+      "resourceType": "Medication",
+      "id": "pzn-unknown",
+      "meta": {
+        "profile": [
+          "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Unknown|1.0.2"
+        ]
+      },
+      "code": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/ifa/pzn",
+            "code": "12345678"
+          }
+        ],
+        "text": "Ibuprofen"
+      },
+      "form": {
+        "coding": [
+          {
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_DARREICHUNGSFORM",
+            "code": "TAB"
+          }
+        ]
+      },
+      "amount": {
+        "numerator": {
+          "value": 20,
+          "unit": "Stk"
+        },
+        "denominator": {
+          "value": 1
+        }
+      }
+    },
+    {
+      "resourceType": "Medication",
+      "id": "compounding-unknown",
+      "meta": {
+        "profile": [
+          "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Unknown|1.0.2"
+        ]
+      },
+      "code": {
+        "text": "Compounded Cream"
+      },
+      "form": {
+        "text": "Cream"
+      },
+      "extension": [
+        {
+          "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_CompoundingInstructions",
+          "valueString": "Apply twice daily"
+        }
+      ],
+      "ingredient": [
+        {
+          "itemCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://fhir.de/CodeSystem/bfarm/atc",
+                "code": "D01AE"
+              }
+            ],
+            "text": "Clotrimazole"
+          }
+        }
+      ]
+    },
+    {
+      "resourceType": "Medication",
+      "id": "ingredient-unknown",
+      "meta": {
+        "profile": [
+          "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Unknown|1.0.2"
+        ]
+      },
+      "code": {
+        "text": "Compound X"
+      },
+      "ingredient": [
+        {
+          "itemCodeableConcept": {
+            "coding": [
+              {
+                "system": "http://fhir.de/CodeSystem/bfarm/atc",
+                "code": "R01AC01",
+                "display": "Natriumcromoglicat"
+              }
+            ]
+          },
+          "strength": {
+            "numerator": {
+              "value": 2.8,
+              "unit": "mg",
+              "code": "mg"
+            },
+            "denominator": {
+              "value": 1,
+              "unit": "Sprühstoß",
+              "code": "1"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "resourceType": "Medication",
+      "id": "freetext-unknown",
+      "meta": {
+        "profile": [
+          "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Medication_Unknown|1.0.2"
+        ]
+      },
+      "code": {
+        "text": "Freestyle migraine drops - use as directed"
+      },
+      "form": {
+        "text": "Liquid"
+      }
+    }
+  ],
+  "identifier": [
+    {
+      "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+      "value": "160.000.000.099.999.99"
+    }
+  ],
+  "status": "completed",
+  "subject": {
+    "identifier": {
+      "system": "http://fhir.de/NamingSystem/gkv/kvid-10",
+      "value": "X000000000"
+    }
+  },
+  "performer": [
+    {
+      "actor": {
+        "identifier": {
+          "system": "https://gematik.de/fhir/NamingSystem/TelematikID",
+          "value": "3-SMC-B-Testkarte-000000000000000"
+        }
+      }
+    }
+  ],
+  "whenHandedOver": "2025-03-31",
+  "medicationReference": {
+    "reference": "#pzn-unknown"
+  }
+}

@@ -20,6 +20,7 @@ package de.gematik.ti.erp.app
 
 import android.app.Application
 import android.os.Build
+import android.os.StrictMode
 import coil.ImageLoader
 import coil.ImageLoaderFactory
 import coil.decode.GifDecoder
@@ -37,7 +38,8 @@ open class ErezeptApp : Application(), ImageLoaderFactory {
         super.onCreate()
         installCertificateTransparencyProvider()
         applicationModule = ApplicationModule(this)
-
+        enabledStrictThreadMode()
+        enabledStrictVmMode()
         createNotificationReminderGroup()
         createNotificationReminderChannel()
         scheduleReminderWorker(Duration.ZERO)
@@ -54,6 +56,24 @@ open class ErezeptApp : Application(), ImageLoaderFactory {
                 }
             }
             .build()
+    }
+
+    private fun enabledStrictThreadMode() {
+        StrictMode.setThreadPolicy(
+            StrictMode.ThreadPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .build()
+        )
+    }
+
+    private fun enabledStrictVmMode() {
+        StrictMode.setVmPolicy(
+            StrictMode.VmPolicy.Builder()
+                .detectAll()
+                .penaltyLog()
+                .build()
+        )
     }
 
     companion object {

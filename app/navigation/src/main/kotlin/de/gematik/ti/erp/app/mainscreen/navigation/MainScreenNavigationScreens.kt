@@ -36,7 +36,7 @@ object MainNavigationScreens {
 }
 
 val MainScreenBottomNavigationItems = listOf(
-    PrescriptionRoutes.PrescriptionsScreen,
+    PrescriptionRoutes.PrescriptionListScreen,
     PharmacyRoutes.PharmacyStartScreen,
     MessagesRoutes.MessageListScreen,
     SettingsNavigationScreens.SettingsScreen
