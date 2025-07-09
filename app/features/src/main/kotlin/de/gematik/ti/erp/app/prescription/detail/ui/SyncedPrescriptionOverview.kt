@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.prescription.detail.ui
@@ -156,6 +160,7 @@ fun SyncedPrescriptionOverview(
             SpacerShortMedium()
             SyncedPrescriptionStateInfo(
                 prescriptionState = prescription.state,
+                prescription = prescription,
                 now = now,
                 onClick = when {
                     prescription.state is SyncedTaskData.SyncedTask.Ready ||
@@ -387,6 +392,7 @@ fun PrescriptionName(name: String?) {
 private fun SyncedPrescriptionStateInfo(
     modifier: Modifier = Modifier,
     prescriptionState: SyncedTaskData.SyncedTask.TaskState,
+    prescription: PrescriptionData.Synced,
     now: Instant,
     onClick: (() -> Unit)? = null
 ) {
@@ -398,27 +404,28 @@ private fun SyncedPrescriptionStateInfo(
         } else {
             Modifier
         }
-
-    Column(
-        modifier = modifier
-            .then(clickableModifier)
-            .fillMaxWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            PrescriptionStateInfo(
-                state = prescriptionState,
-                now = now,
-                textAlign = TextAlign.Center
-            )
-            if (onClick != null) {
-                Spacer(Modifier.padding(SizeDefaults.quarter))
-                Icon(
-                    Icons.AutoMirrored.Rounded.KeyboardArrowRight,
-                    null,
-                    modifier = Modifier.size(SizeDefaults.double),
-                    tint = AppTheme.colors.primary700
+    if (!prescription.isDirectAssignment) {
+        Column(
+            modifier = modifier
+                .then(clickableModifier)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                PrescriptionStateInfo(
+                    state = prescriptionState,
+                    now = now,
+                    textAlign = TextAlign.Center
                 )
+                if (onClick != null) {
+                    Spacer(Modifier.padding(SizeDefaults.quarter))
+                    Icon(
+                        Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+                        null,
+                        modifier = Modifier.size(SizeDefaults.double),
+                        tint = AppTheme.colors.primary700
+                    )
+                }
             }
         }
     }

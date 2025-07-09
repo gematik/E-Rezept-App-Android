@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.userauthentication.observer
@@ -59,7 +63,6 @@ sealed class AuthenticationModeAndMethod {
 
 private const val RESET_TIMEOUT = -1L
 
-// tag::AuthenticationUseCase[]
 @Requirement(
     "O.Auth_9#1",
     "O.Plat_9#2",
@@ -98,9 +101,11 @@ class InactivityTimeoutObserver( // TODO: Move to different package
                     this@InactivityTimeoutObserver.authRequired.value = !authentication.methodIsUnspecified
                     this@InactivityTimeoutObserver.lifecycle.value = Lifecycle.Running
                 }
+
                 Lifecycle.Started -> {
                     this@InactivityTimeoutObserver.lifecycle.value = Lifecycle.Running
                 }
+
                 Lifecycle.Running -> {
                     if (authentication.methodIsUnspecified) {
                         emit(AuthenticationModeAndMethod.Authenticated)
@@ -116,6 +121,7 @@ class InactivityTimeoutObserver( // TODO: Move to different package
                         }
                     }
                 }
+
                 Lifecycle.Paused -> emit(AuthenticationModeAndMethod.None)
             }
         }.distinctUntilChanged()
@@ -157,7 +163,6 @@ class InactivityTimeoutObserver( // TODO: Move to different package
         }.flowOn(dispatcher)
             // need replay for buffer
             .shareIn(scope = scope, started = SharingStarted.Lazily, replay = 1)
-    // end::AuthenticationUseCase[]
 
     @Requirement(
         "O.Auth_7#1",
@@ -209,6 +214,7 @@ class InactivityTimeoutObserver( // TODO: Move to different package
                 }
                 inactivityTimerChannel.tryEmit(RESET_TIMEOUT)
             }
+
             else -> {
                 // Pause timeout is being handled in the [BaseActivity]
             }

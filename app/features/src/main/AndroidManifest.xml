@@ -2,9 +2,11 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <uses-permission android:name="android.permission.USE_BIOMETRIC" />
+
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-    
+
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
@@ -68,15 +70,16 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-        
-        <receiver android:name="de.gematik.ti.erp.app.medicationplan.scheduler.DateTimeChangeReceiver"
-                    android:exported="false">
-                    <intent-filter>
-                        <action android:name="android.intent.action.DATE_CHANGED"/>
-                        <action android:name="android.intent.action.TIME_SET"/>
-                        <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
-                    </intent-filter>
-                </receiver>
+
+        <receiver
+            android:name="de.gematik.ti.erp.app.medicationplan.scheduler.DateTimeChangeReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.DATE_CHANGED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 

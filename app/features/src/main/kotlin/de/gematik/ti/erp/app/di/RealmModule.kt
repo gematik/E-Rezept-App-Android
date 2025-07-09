@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.di
@@ -24,13 +28,15 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.db.appSchemas
 import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
 import de.gematik.ti.erp.app.db.openRealmWith
 import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.secureRandomInstance
 import io.realm.kotlin.exceptions.RealmException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
 import org.jose4j.base64url.Base64
 import org.kodein.di.DI
 import org.kodein.di.bindEagerSingleton
@@ -65,22 +71,24 @@ val realmModule = DI.Module("realmModule") {
     bindSingleton(RealmDatabaseSecurePreferencesTag) {
         val context = instance<Context>()
 
-        @Requirement(
-            "O.Arch_2#1",
-            "O.Data_2#1",
-            "O.Data_3#1",
-            "O.Purp_8#1",
-            sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Data storage using EncryptedSharedPreferences."
-        )
-        EncryptedSharedPreferences.create(
-            context,
-            ENCRYPTED_REALM_PREFS_FILE_NAME,
-            MasterKey.Builder(context, REALM_MASTER_KEY_ALIAS)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        runBlocking(Dispatchers.IO) {
+            @Requirement(
+                "O.Arch_2#1",
+                "O.Data_2#1",
+                "O.Data_3#1",
+                "O.Purp_8#1",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "Data storage using EncryptedSharedPreferences."
+            )
+            EncryptedSharedPreferences.create(
+                context,
+                ENCRYPTED_REALM_PREFS_FILE_NAME,
+                MasterKey.Builder(context, REALM_MASTER_KEY_ALIAS)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        }
     }
     bindEagerSingleton {
         val securePrefs = instance<SharedPreferences>(RealmDatabaseSecurePreferencesTag)
@@ -97,16 +105,18 @@ val realmModule = DI.Module("realmModule") {
         try {
             val context = instance<Context>()
             val profileName = context.resources.getString(R.string.onboarding_default_profile_name)
-            openRealmWith(
-                schemas = appSchemas(profileName = profileName),
-                configuration = {
-                    it.encryptionKey(Base64.decode(getPassphrase(securePrefs)))
-                }
-            ).also { realm ->
-                realm.writeBlocking {
-                    queryFirst<SettingsEntityV1>()?.let {
-                        it.latestAppVersionName = BuildKonfig.VERSION_NAME
-                        it.latestAppVersionCode = BuildKonfig.VERSION_CODE
+            runBlocking(Dispatchers.IO) {
+                openRealmWith(
+                    schemas = appSchemas(profileName = profileName),
+                    configuration = {
+                        it.encryptionKey(Base64.decode(getPassphrase(securePrefs)))
+                    }
+                ).also { realm ->
+                    realm.writeBlocking {
+                        queryFirst<SettingsEntityV1>()?.let {
+                            it.latestAppVersionName = BuildKonfig.VERSION_NAME
+                            it.latestAppVersionCode = BuildKonfig.VERSION_CODE
+                        }
                     }
                 }
             }

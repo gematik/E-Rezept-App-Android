@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("ktlint:max-line-length")
@@ -39,8 +43,10 @@ val taskJson_vers_1_2 by lazy { getResourceAsString("/fhir/metadata_parser/task_
 val taskJson_vers_1_3 by lazy { getResourceAsString("/fhir/metadata_parser/task_vers_1_3.json") }
 
 // insurance information
-val insuranceInformationJson by lazy { getResourceAsString("/fhir/kbv_parser/coverage/insurance_information.json") }
-val insuranceInformation110Json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage_vers_1_1_0.json") }
+val coverage1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage1_v103.json") }
+val coverage2_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage2_v103.json") }
+val coverage1_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage1_v110.json") }
+val coverage2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/coverage/coverage2_v110.json") }
 
 // medication request
 val medicationRequestJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/medication_request/medication_request.json") }
@@ -62,21 +68,28 @@ val medicationFreetextJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_p
 val medicationFreetextJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/medication/medication_freetext_vers_1_1_0.json") }
 
 // organization
-val organizationJson by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization.json") }
-val organizationAllPresentJson by lazy { getResourceAsString("/fhir/kbv_parser/organization/kbv_organization_all_present.json") }
-val organizationNoAddressJson by lazy { getResourceAsString("/fhir/kbv_parser/organization/kbv_organization_no_address.json") }
-val organizationNoEmailJson by lazy { getResourceAsString("/fhir/kbv_parser/organization/kbv_organization_no_email.json") }
-val organizationNoFaxJson by lazy { getResourceAsString("/fhir/kbv_parser/organization/kbv_organization_no_fax.json") }
-val organizationNoTelecomJson by lazy { getResourceAsString("/fhir/kbv_parser/organization/kbv_organization_no_telecom.json") }
+val organization1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_v103.json") }
+val organization2_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization2_v103.json") }
+val organization1AllPresent_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_all_present_v110.json") }
+val organization1NoAddress_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_no_address_v110.json") }
+val organization1NoEmail_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_no_email_v110.json") }
+val organization1NoFax_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_no_fax_v110.json") }
+val organization1NoTelecom_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization1_no_telecom_v110.json") }
+val organization2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/organization/organization2_v110.json") }
 
 // patient
-val patientJson_vers_1_0_2 by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient.json") }
-val patientJson_vers_1_0_2_with_incomplete_birthDate by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient_incomplete_birth_date.json") }
-val patientJson_vers_1_1_0 by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient_vers_1_1_0.json") }
+val patient1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient1_v103.json") }
+val patient2_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient2_v103.json") }
+val patient1_incomplete_birth_date_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient1_incomplete_birth_date_v103.json") }
+val patient1_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient1_v110.json") }
+val patient2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient2_v110.json") }
+val patient3_pkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/patient/patient3_pkv_v110.json") }
 
 // practitioner
-val practitionerJson by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner.json") }
-val practitionerJson110 by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner_vers_1_1_0.json") }
+val practitioner1_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner1_v103.json") }
+val practitioner2_v103_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner2_v103.json") }
+val practitioner1_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner1_v110.json") }
+val practitioner2_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/practitioner/practitioner2_v110.json") }
 
 // diga
 val digaSimple by lazy { getResourceAsString("/fhir/kbv_parser/diga/diga.json") }
@@ -90,10 +103,18 @@ val digaInjuryJson by lazy { getResourceAsString("/fhir/kbv_parser/diga/diga_unf
 val digaDentistJson by lazy { getResourceAsString("/fhir/kbv_parser/diga/diga_zahnarzt.json") }
 
 // kbv-bundle
-val kbvBundle_110_1 by lazy { getResourceAsString("/fhir/kbv_parser/kbv_cleaned_20250212_175155.json") }
-val kbvBundle_110_2 by lazy { getResourceAsString("/fhir/kbv_parser/kbv_cleaned_20250212_175156.json") }
-val kbvBundle_110_3 by lazy { getResourceAsString("/fhir/kbv_parser/kbv_with_different_full_url.json") }
-val kbvBundle_device_request_1_4 by lazy { getResourceAsString("/fhir/kbv_parser/kbv_with_diga.json") }
+val kbvBundle1_v102_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle1_v102.json") }
+val kbvBundle1_incomplete_v102_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle1_incomplete_v102.json") }
+val kbvBundle1_gkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle1_gkv_v110.json") }
+val kbvBundle1_incomplete_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle1_incomplete_v110.json") }
+val kbvBundle2_pkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle2_pkv_v110.json") }
+val kbvBundle3_gkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle3_gkv_v110.json") }
+val kbvBundle4_pkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle4_pkv_v110.json") }
+val kbvBundle5_gkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle5_gkv_v110.json") }
+val kbvBundle6_gkv_v110_json by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbvBundle6_gkv_v110.json") }
+
+// kbv-diga-bundle
+val kbvBundle_device_request_1_4 by lazy { getResourceAsString("/fhir/kbv_parser/bundle/kbv_with_diga.json") }
 
 // fhir-vzd pharmacy bundle
 val fhirVzdPharmacyBundle by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/pharamcy_bundle_fhirvzd.json") }

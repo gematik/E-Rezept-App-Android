@@ -19,8 +19,14 @@
     },
     {
         "id": "5",
-        "text": "**📲 Wykorzystaj przepisane recepty DiGA** \n Od teraz możesz realizować recepty na aplikacje związane ze zdrowiem cyfrowym (DiGA) bezpośrednio za pomocą aplikacji do e-recept. Kod aktywacyjny i link do wskazanej aplikacji otrzymasz natychmiast po wykorzystaniu kodu. \n \n **🏥 Nowa baza danych aptek** \n Wprowadziliśmy nową, odporną na wyzwania przyszłości bazę danych do wyszukiwania aptek.",
+        "text": "**📲 Wykorzystaj przepisane DiGA** \nTeraz możesz realizować recepty na aplikacje zdrowia cyfrowego (DiGA) bezpośrednio za pośrednictwem aplikacji e-recept. Kod aktywacyjny i link do przepisanego DiGA znajdziesz tutaj, w aplikacji e-recept. \n \n **🏥 Nowa baza danych aptek** \nWprowadziliśmy nową, przyjazną dla przyszłości bazę danych do wyszukiwania aptek.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
+    },
+    {
+        "id": "6",
+        "text": "**🌐 Nowa funkcja tłumaczenia** \nJeśli korzystasz z aplikacji w innym języku, możesz teraz bezpośrednio tłumaczyć odpowiedzi apteki. \n \n **♿️ Dostępność** \nNasze oświadczenie o dostępności jest teraz dostępne w ustawieniach. Proces wdrażania również stał się bardziej dostępny. \n \n **📲 Realizuj DiGA u firm ubezpieczeniowych** \nRecepty na aplikacje dotyczące zdrowia cyfrowego (DiGA) można teraz realizować również u innych firm ubezpieczeniowych.",
+        "timestamp": "2025-06-26T08:00:00.000Z",
+        "version": "1.31"
     }
 ]

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.datetime
@@ -25,18 +29,10 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.timestate.TimeState
-import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.format
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
-import java.time.format.DateTimeFormatter
 
 /**
  * Parses the given [TimeState] into a user-friendly string representation.
  *
- * @param dateFormatter A [DateTimeFormatter] used to format dates when the [timeState] is [TimeState.ShowDate].
- *                      Defaults to [DateTimeUtils.dateFormatter].
  * @param timeState The [TimeState] indicating how the timestamp should be displayed:
  * - [TimeState.SentNow]: Represents a timestamp within 5 minutes of the current time.
  * - [TimeState.ShowTime]: Represents a timestamp from today but not within 5 minutes.
@@ -56,31 +52,17 @@ import java.time.format.DateTimeFormatter
  */
 @Composable
 fun timeStateParser(
-    dateFormatter: DateTimeFormatter = DateTimeUtils.dateFormatter,
     timeState: TimeState
 ): String {
     return when (timeState) {
         is TimeState.SentNow -> stringResource(R.string.time_description_few_minutes)
         is TimeState.ShowTime -> {
-            val time = timeString(timeState.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()))
+            val time = rememberErpTimeFormatter().time(timeState.timestamp)
             annotatedStringResource(R.string.message_list_time_state_hours, time).toString()
         }
 
-        is TimeState.ShowDate -> {
-            val date = dateFormatter.format(timeState.timestamp.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime())
-            date
-        }
+        is TimeState.ShowDate -> rememberErpTimeFormatter().date(timeState.timestamp)
     }
-}
-
-private fun timeString(time: LocalDateTime): String {
-    return time.format(
-        LocalDateTime.Format {
-            hour()
-            chars(":")
-            minute()
-        }
-    )
 }
 
 @Composable

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,17 +11,20 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.di
 
-import de.gematik.ti.erp.app.analytics.di.analyticsModule
+import de.gematik.ti.erp.app.analytics.di.cardCommunicationAnalyticsModule
 import de.gematik.ti.erp.app.appsecurity.appSecurityModule
 import de.gematik.ti.erp.app.appupdate.di.appUpdateModule
-import de.gematik.ti.erp.app.authentication.di.authenticationModule
 import de.gematik.ti.erp.app.cardunlock.di.cardUnlockModule
 import de.gematik.ti.erp.app.cardwall.cardWallModule
 import de.gematik.ti.erp.app.debugsettings.di.debugSettingsModule
@@ -52,6 +55,7 @@ import de.gematik.ti.erp.app.redeem.redeemModule
 import de.gematik.ti.erp.app.settings.settingsModule
 import de.gematik.ti.erp.app.settings.settingsRepositoryModule
 import de.gematik.ti.erp.app.timeouts.di.timeoutsSharedPrefsModule
+import de.gematik.ti.erp.app.userauthentication.di.userAuthenticationModule
 import de.gematik.ti.erp.app.vau.vauModule
 import kotlinx.coroutines.Dispatchers
 import org.kodein.di.DI
@@ -62,6 +66,7 @@ import org.kodein.di.bindProvider
  */
 val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
     importAll(
+        userAuthenticationModule,
         applicationControllerModule,
         onboardingModule,
         dispatchersModule,
@@ -87,12 +92,11 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         vauModule,
         cardUnlockModule,
         pkvModule,
-        authenticationModule,
         digaModule,
         // shared-prefs modules
         timeoutsSharedPrefsModule,
         // other modules
-        analyticsModule,
+        cardCommunicationAnalyticsModule,
 
         debugSettingsModule,
         mlKitModule,
@@ -108,6 +112,7 @@ val featureModule = DI.Module("featureModule", allowSilentOverride = true) {
         taskRepositoryModule,
         medicationPlanModule,
         digaRepositoryModule,
+
         allowOverride = true
     )
 }

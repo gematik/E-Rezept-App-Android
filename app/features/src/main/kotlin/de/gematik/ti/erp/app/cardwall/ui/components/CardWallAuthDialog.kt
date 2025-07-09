@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("MagicNumber")
@@ -63,14 +67,14 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.analytics.trackAuth
+import de.gematik.ti.erp.app.analytics.trackCardCommunication
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.onNfcNotEnabled
 import de.gematik.ti.erp.app.base.retryOnNfcEnabled
 import de.gematik.ti.erp.app.cardwall.presentation.CardWallController
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.LocalAnalytics
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.LocalCardCommunicationAnalytics
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -134,7 +138,7 @@ fun CardWallAuthenticationDialog(
     var showEnableNfcDialog by remember { mutableStateOf(false) }
     var errorCount by remember(troubleShootingEnabled) { mutableStateOf(0) }
 
-    val tracker = LocalAnalytics.current
+    val tracker = LocalCardCommunicationAnalytics.current
 
     var cancelEnabled by remember { mutableStateOf(true) }
     val state by produceState<AuthenticationState>(initialValue = AuthenticationState.None) {
@@ -159,6 +163,7 @@ fun CardWallAuthenticationDialog(
                         value = AuthenticationState.None
                     }
                 }
+
                 is ToggleAuth.ToggleByHealthCard -> {
                     val collectedOnce = AtomicBoolean(false)
                     val tagFlow = flow {
@@ -193,7 +198,7 @@ fun CardWallAuthenticationDialog(
             errorCount += if (it == AuthenticationState.HealthCardCommunicationInterrupted) 1 else 0
             value = it
 
-            tracker.trackAuth(it)
+            tracker.trackCardCommunication(it)
         }
     }
 
@@ -264,6 +269,7 @@ fun CardWallAuthenticationDialog(
                     AuthenticationState.HealthCardCardAccessNumberWrong -> onRetryCan()
                     AuthenticationState.HealthCardPin2RetriesLeft,
                     AuthenticationState.HealthCardPin1RetryLeft -> onRetryPin()
+
                     AuthenticationState.HealthCardBlocked -> onUnlockEgk()
                     else -> if (cardWallController.isNfcEnabled()) {
                         coroutineScope.launch {
@@ -283,32 +289,39 @@ fun extractRetryText(state: AuthenticationState): Pair<AnnotatedString, Annotate
             stringResource(R.string.cdw_nfc_intro_step1_header_on_error).toAnnotatedString(),
             stringResource(R.string.cdw_idp_error_time_and_connection).toAnnotatedString()
         )
+
         AuthenticationState.IDPCommunicationInvalidCertificate -> Pair(
             stringResource(R.string.cdw_nfc_error_title_invalid_certificate).toAnnotatedString(),
             stringResource(R.string.cdw_nfc_error_body_invalid_certificate).toAnnotatedString()
         )
+
         AuthenticationState.IDPCommunicationInvalidOCSPResponseOfHealthCardCertificate -> Pair(
             stringResource(R.string.cdw_nfc_error_title_invalid_ocsp_response_of_health_card_certificate)
                 .toAnnotatedString(),
             stringResource(R.string.cdw_nfc_error_body_invalid_ocsp_response_of_health_card_certificate)
                 .toAnnotatedString()
         )
+
         AuthenticationState.HealthCardCardAccessNumberWrong -> Pair(
             stringResource(R.string.cdw_nfc_intro_step2_header_on_can_error_alert).toAnnotatedString(),
             stringResource(R.string.cdw_nfc_intro_step2_info_on_can_error).toAnnotatedString()
         )
+
         AuthenticationState.HealthCardPin2RetriesLeft -> Pair(
             stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error_alert).toAnnotatedString(),
             pinRetriesLeft(2)
         )
+
         AuthenticationState.HealthCardPin1RetryLeft -> Pair(
             stringResource(R.string.cdw_nfc_intro_step2_header_on_pin_error_alert).toAnnotatedString(),
             pinRetriesLeft(1)
         )
+
         AuthenticationState.HealthCardBlocked -> Pair(
             stringResource(R.string.cdw_header_on_card_blocked).toAnnotatedString(),
             stringResource(R.string.cdw_info_on_card_blocked).toAnnotatedString()
         )
+
         is AuthenticationState.InsuranceIdentifierAlreadyExists -> {
             Pair(
                 stringResource(R.string.cdw_nfc_error_assign_title).toAnnotatedString(),
@@ -319,6 +332,7 @@ fun extractRetryText(state: AuthenticationState): Pair<AnnotatedString, Annotate
                 }
             )
         }
+
         else -> null
     }
 
@@ -328,6 +342,7 @@ fun extractNextText(state: AuthenticationState): String =
         AuthenticationState.HealthCardCardAccessNumberWrong -> stringResource(R.string.cdw_auth_retry_pin_can)
         AuthenticationState.HealthCardPin2RetriesLeft,
         AuthenticationState.HealthCardPin1RetryLeft -> stringResource(R.string.cdw_auth_retry_pin_can)
+
         AuthenticationState.HealthCardBlocked -> stringResource(R.string.cdw_auth_retry_unlock_egk)
         else -> stringResource(R.string.cdw_auth_retry)
     }
@@ -500,26 +515,32 @@ fun extractInfo(state: AuthenticationState): Pair<String, String>? =
             stringResource(R.string.cdw_nfc_found_headline),
             stringResource(R.string.cdw_nfc_found_info)
         )
+
         AuthenticationState.HealthCardCommunicationTrustedChannelEstablished -> Pair(
             stringResource(R.string.cdw_nfc_communication_headline_trusted_channel_established),
             stringResource(R.string.cdw_nfc_communication_info)
         )
+
         AuthenticationState.HealthCardCommunicationFinished -> Pair(
             stringResource(R.string.cdw_nfc_communication_headline_certificate_loaded),
             stringResource(R.string.cdw_nfc_communication_info)
         )
+
         AuthenticationState.IDPCommunicationFinished -> Pair(
             stringResource(R.string.cdw_nfc_communication_headline_pin_verified),
             stringResource(R.string.cdw_nfc_communication_info)
         )
+
         AuthenticationState.AuthenticationFlowFinished -> Pair(
             stringResource(R.string.cdw_nfc_communication_headline_challenge_signed),
             stringResource(R.string.cdw_nfc_communication_info)
         )
+
         AuthenticationState.HealthCardCommunicationInterrupted -> Pair(
             stringResource(R.string.cdw_nfc_tag_lost_headline),
             stringResource(R.string.cdw_nfc_tag_lost_info)
         )
+
         else -> null
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.cardwall.ui.screens
@@ -56,7 +60,8 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.authentication.presentation.deviceDeviceSecurityStatus
+import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.authentication.presentation.deviceSecurityStatus
 import de.gematik.ti.erp.app.authentication.ui.components.EnrollBiometricDialog
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
@@ -64,7 +69,6 @@ import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsPreviewParameterProvider
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallSaveCredentialsScreenPreviewData
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -185,7 +189,7 @@ private fun CardWallSaveCredentialsScreenContent(
                 text = stringResource(R.string.cdw_selection_save)
             ) {
                 onShowFutureLogOutHint(false)
-                if (context.deviceDeviceSecurityStatus() == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
+                if (context.deviceSecurityStatus() == BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED) {
                     onShowBiometricDialog()
                 } else {
                     onSelectAlternativeOption(AuthenticationMethod.Alternative)

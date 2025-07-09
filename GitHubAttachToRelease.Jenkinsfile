@@ -25,9 +25,9 @@ pipeline {
     }
 
     stages {
-        stage('Download xcframework from Nexus and attach to GitHub release') {
+        stage('Download apk from Nexus and attach to GitHub release') {
             steps {
-                sh label: 'Download xcframework from Nexus and attach to GitHub release', script: '''#!/bin/bash -l
+                sh label: 'Download apk from Nexus and attach to GitHub release', script: '''#!/bin/bash -l
                     source /etc/profile.d/android.sh
 
                     bundle exec fastlane download_apk_from_nexus_and_attach_to_github_release

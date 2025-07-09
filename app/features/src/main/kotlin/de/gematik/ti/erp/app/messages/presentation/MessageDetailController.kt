@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.presentation
@@ -26,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import de.gematik.ti.erp.app.base.ContextExtensions.getCurrentLocale
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessageUsingOrderIdUseCase
@@ -39,18 +44,32 @@ import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
+import de.gematik.ti.erp.app.translation.domain.model.TranslationState
+import de.gematik.ti.erp.app.translation.usecase.DownloadLanguageModelUseCase
+import de.gematik.ti.erp.app.translation.usecase.GetTranslationConsentUseCase
+import de.gematik.ti.erp.app.translation.usecase.IsTargetLanguageSetUseCase
+import de.gematik.ti.erp.app.translation.usecase.ToggleTranslationConsentUseCase
+import de.gematik.ti.erp.app.translation.usecase.TranslateTextUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.mapLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
 @Stable
 class MessageDetailController(
-    application: Application,
+    private val application: Application,
     private val orderId: String,
     private val isLocalMessage: Boolean = false,
     private val getRepliedMessagesUseCase: GetRepliedMessagesUseCase,
@@ -60,20 +79,50 @@ class MessageDetailController(
     private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase,
     private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase,
     private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase,
-    private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase
+    private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase,
+    private val getTranslationConsentUseCase: GetTranslationConsentUseCase,
+    private val isTargetLanguageSetUseCase: IsTargetLanguageSetUseCase,
+    private val toggleTranslationConsentUseCase: ToggleTranslationConsentUseCase,
+    private val downloadedLanguagesUseCase: DownloadLanguageModelUseCase,
+    private val translateTextUseCase: TranslateTextUseCase
 ) : AndroidViewModel(application) {
-    private val selectedAppLanguage = application.resources.configuration.locales[0].language
     internal val _localMessages = MutableStateFlow<List<InAppMessage>>(listOf())
+
+    private val selectedAppLanguage = application.resources.configuration.locales[0].language
+    private val isTargetLanguageSet: Flow<Boolean> by lazy { isTargetLanguageSetUseCase.invoke() }
+    private val isTranslationEnabled: Flow<Boolean> by lazy { getTranslationConsentUseCase.invoke() }
+
     private val _messages = MutableStateFlow<UiState<List<OrderUseCaseData.Message>>>(UiState.Loading())
     private val _order = MutableStateFlow<UiState<OrderUseCaseData.OrderDetail>>(UiState.Loading())
     private val _pharmacy = MutableStateFlow<UiState<PharmacyUseCaseData.Pharmacy>>(UiState.Loading())
     private val _profile = MutableStateFlow<ProfilesUseCaseData.Profile?>(null)
+    private val _translationInProgress = MutableStateFlow<Map<String, Boolean>>(mapOf())
 
-    val localMessages: StateFlow<List<InAppMessage>> = _localMessages
-    val messages: StateFlow<UiState<List<OrderUseCaseData.Message>>> = _messages
-    val order: StateFlow<UiState<OrderUseCaseData.OrderDetail>> = _order
-    val pharmacy: StateFlow<UiState<PharmacyUseCaseData.Pharmacy>> = _pharmacy
-    val profile: StateFlow<ProfilesUseCaseData.Profile?> = _profile
+    val localMessages = _localMessages.asStateFlow()
+    val messages = _messages.asStateFlow()
+    val order = _order.asStateFlow()
+    val pharmacy = _pharmacy.asStateFlow()
+    val profile = _profile.asStateFlow()
+    val translationInProgress = _translationInProgress.asStateFlow()
+
+    val isTranslationsAllowed: StateFlow<Boolean> =
+        combine(isTargetLanguageSet, isTranslationEnabled) { targetSet, translationEnabled ->
+            targetSet && translationEnabled
+        }.stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(50),
+            initialValue = false
+        )
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val hasReplyMessages: StateFlow<Boolean> =
+        messages
+            .mapLatest { it.data?.count()?.let { count -> count > 0 } ?: false }
+            .stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = false
+            )
 
     fun init() {
         if (isLocalMessage) {
@@ -85,6 +134,73 @@ class MessageDetailController(
         }
     }
 
+    fun toggleTranslationConsentUseCase() {
+        viewModelScope.launch {
+            val currentState = isTranslationEnabled.firstOrNull()
+            currentState?.let {
+                val expectedState = !it
+                toggleTranslationConsentUseCase.invoke(expectedState)
+                // silent download of the current locale language model
+                if (expectedState) downloadedLanguagesUseCase.invoke(application.getCurrentLocale())
+            }
+        }
+    }
+
+    fun translateText(
+        id: String,
+        text: String,
+        onSuccess: (String) -> Unit
+    ) {
+        viewModelScope.launch {
+            translateTextUseCase.invoke(text = text)
+                .collectLatest { state ->
+                    when (state) {
+                        TranslationState.Loading -> startTranslationFor(id)
+                        is TranslationState.Error -> endTranslationFor()
+                        is TranslationState.Success -> {
+                            endTranslationFor()
+                            state.translation.let(onSuccess)
+                        }
+                    }
+                }
+        }
+    }
+
+    @VisibleForTesting
+    fun getPrescriptions(taskIds: List<String>, order: OrderUseCaseData.OrderDetail) = taskIds.map { taskId ->
+        order.taskDetailedBundles.first { it.prescription?.taskId == taskId }.prescription
+    }
+
+    fun consumeAllMessages(onMessagesConsumed: () -> Unit) {
+        viewModelScope.launch {
+            // Marks the replied messages as read
+            _messages.value.data?.forEach { message ->
+                updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Communication(message.communicationId))
+            }
+
+            // Marks the dispense request and invoice messages as read
+            _order.value.data?.let { orderDetail ->
+                updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Order(orderDetail.orderId))
+                updateInvoicesByOrderIdAndTaskIdUseCase(orderDetail.orderId)
+            }
+
+            if (isLocalMessage) {
+                setInternalMessageIsReadUseCase.invoke()
+            }
+
+            onMessagesConsumed()
+        }
+    }
+
+    private fun startTranslationFor(id: String) {
+        val allIds = _translationInProgress.value.keys + id
+        _translationInProgress.value = allIds.associateWith { it == id }
+    }
+
+    private fun endTranslationFor() {
+        _translationInProgress.value = _translationInProgress.value.mapValues { false }
+    }
+
     private fun fetchLocalMessages() {
         viewModelScope.launch {
             try {
@@ -92,7 +208,7 @@ class MessageDetailController(
                     _localMessages.value = messagesList.sortedByDescending { it.timeState.timestamp }
                 }
             } catch (e: Exception) {
-                Napier.e { "Error Loading Internal Messages" }
+                Napier.e { "Error Loading Internal Messages ${e.stackTraceToString()}" }
                 _localMessages.value = listOf()
             }
         }
@@ -147,32 +263,6 @@ class MessageDetailController(
         }
     }
 
-    @VisibleForTesting
-    fun getPrescriptions(taskIds: List<String>, order: OrderUseCaseData.OrderDetail) = taskIds.map { taskId ->
-        order.taskDetailedBundles.first { it.prescription?.taskId == taskId }.prescription
-    }
-
-    fun consumeAllMessages(onMessagesConsumed: () -> Unit) {
-        viewModelScope.launch {
-            // Marks the replied messages as read
-            _messages.value.data?.forEach { message ->
-                updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Communication(message.communicationId))
-            }
-
-            // Marks the dispense request and invoice messages as read
-            _order.value.data?.let { orderDetail ->
-                updateCommunicationConsumedStatusUseCase(CommunicationIdentifier.Order(orderDetail.orderId))
-                updateInvoicesByOrderIdAndTaskIdUseCase(orderDetail.orderId)
-            }
-
-            if (isLocalMessage) {
-                setInternalMessageIsReadUseCase.invoke()
-            }
-
-            onMessagesConsumed()
-        }
-    }
-
     private fun getPharmacy(telematikId: String) {
         viewModelScope.launch {
             getPharmacyByTelematikIdUseCase(telematikId).fold(onSuccess = { pharmacy ->
@@ -209,6 +299,11 @@ fun rememberMessageDetailController(
     val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase by rememberInstance()
     val getPharmacyByTelematikIdUseCase by rememberInstance<GetPharmacyByTelematikIdUseCase>()
     val getProfileByOrderIdUseCase by rememberInstance<GetProfileByOrderIdUseCase>()
+    val getTranslationConsentUseCase by rememberInstance<GetTranslationConsentUseCase>()
+    val isTargetLanguageSetUseCase by rememberInstance<IsTargetLanguageSetUseCase>()
+    val translateTextUseCase by rememberInstance<TranslateTextUseCase>()
+    val toggleTranslationConsentUseCase by rememberInstance<ToggleTranslationConsentUseCase>()
+    val downloadedLanguagesUseCase by rememberInstance<DownloadLanguageModelUseCase>()
     val application = LocalContext.current.applicationContext as Application
 
     return remember(orderId) {
@@ -223,6 +318,11 @@ fun rememberMessageDetailController(
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
+            translateTextUseCase = translateTextUseCase,
+            isTargetLanguageSetUseCase = isTargetLanguageSetUseCase,
+            getTranslationConsentUseCase = getTranslationConsentUseCase,
+            toggleTranslationConsentUseCase = toggleTranslationConsentUseCase,
+            downloadedLanguagesUseCase = downloadedLanguagesUseCase,
             application = application
         )
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.settings.ui.components
@@ -45,7 +49,9 @@ fun ExploreSection(
         Text(
             text = stringResource(R.string.settings_explore_headline),
             style = AppTheme.typography.h6,
-            modifier = Modifier.sectionPadding().semanticsHeading()
+            modifier = Modifier
+                .sectionPadding()
+                .semanticsHeading()
         )
         DemoModeSwitch(isDemoMode = isDemoMode) {
             exploreClickActions.onToggleDemoMode()
@@ -58,13 +64,15 @@ fun ExploreSection(
         LabelButton(
             icon = Icons.Outlined.People,
             text = stringResource(R.string.settings_contact_community_label),
+            contentDescription = stringResource(R.string.settings_contact_community_label_talkback),
             onClick = {
                 exploreClickActions.onClickForum()
             }
         )
         LabelButton(
             icon = Icons.Outlined.Info,
-            text = stringResource(id = R.string.gesund_bund_de)
+            text = stringResource(id = R.string.gesund_bund_de),
+            contentDescription = stringResource(id = R.string.gesund_bund_de_talkback)
         ) {
             exploreClickActions.onClickGesundBund()
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.idp.api
@@ -73,30 +77,51 @@ interface IdpService {
     @GET
     suspend fun externalAuthenticationIDList(@Url url: String): Response<JsonWebSignature>
 
+    @Requirement(
+        "A_20601#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = """
+            • Added `state` to bind the authorization response to the original client request and mitigate CSRF attacks.  
+            • Added `nonce` in the ID Token to ensure token uniqueness and prevent replay attacks.  
+            • Included `code_challenge` [derived from the `code_verifier`] and `code_challenge_method` [S256] to enforce PKCE per RFC 7636, preventing interception of the authorization code.  
+            • All standard OAuth2/OIDC parameters [`response_type`, `scope`, `client_id`, `redirect_uri`] are preserved to maintain conformance with the spec.
+        """
+    )
     @GET
     suspend fun requestGidAuthenticationRedirect(
         @Url url: String,
-        @Query("idp_iss") externalAppId: String,
-        @Query("nonce") nonce: String,
-        @Query("state") state: String,
-        @Query("client_id") clientID: String = CLIENT_ID,
-        @Query("redirect_uri") redirectUri: String = EXT_AUTH_REDIRECT_URI, // In-case of error use REDIRECT_URI
-        @Query("code_challenge_method") codeChallengeMethod: String = CODE_CHALLENGE_METHOD,
         @Query("response_type") responseType: String = RESPONSE_CODE,
         @Query("scope") scope: String,
-        @Query("code_challenge") codeChallenge: String
+        @Query("client_id") clientID: String = CLIENT_ID,
+        @Query("redirect_uri") redirectUri: String = EXT_AUTH_REDIRECT_URI, // In-case of error use REDIRECT_URI
+        @Query("code_challenge") codeChallenge: String,
+        @Query("code_challenge_method") codeChallengeMethod: String = CODE_CHALLENGE_METHOD,
+        @Query("state") state: String,
+        @Query("nonce") nonce: String,
+        @Query("idp_iss") externalAppId: String
     ): Response<ResponseBody>
 
+    @Requirement(
+        "A_20483#1",
+        sourceSpecification = "gemSpec_IDP_Frontend",
+        rationale = """
+        • Use HTTP GET via Private-Use URI Scheme Redirection per RFC 8252 §7.1 to securely deliver the authorization code back to the application.  
+        • Include `response_type`, `scope`, `client_id` and `redirect_uri` to remain fully compliant with OAuth2/OpenID Connect core requirements.  
+        • Add `code_challenge` and `code_challenge_method` (S256) to enforce PKCE and prevent authorization-code interception (RFC 7636).  
+        • Add `state` to bind the authorization response to the initiating request and guard against CSRF attacks.  
+        • Add `nonce` in the ID Token to ensure token uniqueness and prevent replay attacks.
+    """
+    )
     @GET
     suspend fun fetchTokenChallenge(
         @Url url: String,
-        @Query("client_id") clientId: String = CLIENT_ID,
         @Query("response_type") responseType: String = RESPONSE_CODE,
+        @Query("client_id") clientId: String = CLIENT_ID,
+        @Query("scope") scope: String,
         @Query("redirect_uri") redirectUri: String,
-        @Query("state") state: String,
         @Query("code_challenge") codeChallenge: String,
         @Query("code_challenge_method") codeChallengeMethod: String = CODE_CHALLENGE_METHOD,
-        @Query("scope") scope: String,
+        @Query("state") state: String,
         @Query("nonce") nonce: String
     ): Response<Challenge>
 
@@ -110,7 +135,7 @@ interface IdpService {
 
     @Requirement(
         "A_20529-01#2",
-        "A_20483#1",
+        "A_20483#2",
         sourceSpecification = "gemSpec_IDP_Frontend",
         rationale = "Sending encrypted KEY_VERIFIER and AUTHORIZATION_CODE."
     )
@@ -180,18 +205,6 @@ interface IdpService {
     suspend fun authenticate(
         @Url url: String,
         @Field("encrypted_signed_authentication_data") data: String
-    ): Response<ResponseBody>
-
-    /**
-     * Authorization External App as Fast-track process
-     */
-    @FormUrlEncoded
-    @POST
-    suspend fun externalFastTrackAuthorization(
-        @Url url: String,
-        @Field("code") code: String,
-        @Field("state") state: String,
-        @Field("kk_app_redirect_uri") redirectUri: String
     ): Response<ResponseBody>
 
     /**

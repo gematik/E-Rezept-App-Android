@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,23 +11,31 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.cardwall.ui.screens
 
+import android.nfc.NfcAdapter
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.navOptions
+import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
@@ -43,9 +51,11 @@ import de.gematik.ti.erp.app.cardwall.ui.components.ReadCardScreenScaffold
 import de.gematik.ti.erp.app.cardwall.ui.components.rememberCardWallAuthenticationDialogState
 import de.gematik.ti.erp.app.cardwall.ui.preview.NfcPositionPreview
 import de.gematik.ti.erp.app.cardwall.ui.preview.NfcPositionPreviewParameter
+import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.troubleshooting.navigation.TroubleShootingRoutes
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
+import kotlinx.coroutines.launch
 
 class CardWallReadCardScreen(
     override val navController: NavController,
@@ -59,6 +69,24 @@ class CardWallReadCardScreen(
 
         val nfcPositionState = rememberCardWallNfcPositionState()
         val nfcPos = nfcPositionState.state.nfcData.nfcPos
+
+        // Allows the nfcTag in the activity to emit the tag
+        val activity = LocalActivity.current as MainActivity
+        val readerCallback = remember {
+            NfcAdapter.ReaderCallback { tag ->
+                activity.lifecycleScope.launch {
+                    activity.nfcTag.emit(tag)
+                }
+            }
+        }
+
+        // Nfc reader mode is only enabled in this screen and is disabled when leaving the screen
+        DisposableEffect(Unit) {
+            activity.enableNfcReaderMode(readerCallback)
+            onDispose {
+                activity.disableNfcReaderMode()
+            }
+        }
 
         val profileId by graphController.profileId.collectAsStateWithLifecycle()
         val saveCredentials by graphController.saveCredentials.collectAsStateWithLifecycle()

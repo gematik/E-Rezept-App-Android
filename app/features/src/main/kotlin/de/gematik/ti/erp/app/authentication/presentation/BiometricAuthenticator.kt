@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,18 +11,23 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.authentication.presentation
 
 import android.annotation.SuppressLint
-import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -40,7 +45,9 @@ import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.IdpCommun
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationStarted
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationSuccess
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult.IdpCommunicationUpdate.IdpCommunicationUpdated
+import de.gematik.ti.erp.app.authentication.model.BiometricMethod
 import de.gematik.ti.erp.app.authentication.ui.components.biometricPromptLauncher
+import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.idp.api.models.IdpScope
@@ -109,20 +116,42 @@ class BiometricAuthenticator(
 @SuppressLint("ContextCastToActivity")
 @Composable
 fun rememberBiometricAuthenticator(): BiometricAuthenticator {
-    val activity = LocalContext.current as AppCompatActivity
+    val context = LocalContext.current
+    val activity = context as BaseActivity
+
     val authenticationUseCase by rememberInstance<AuthenticationUseCase>()
     val removeAuthenticationUseCase by rememberInstance<RemoveAuthenticationUseCase>()
     val biometricPromptBuilder = remember { BiometricPromptBuilder(activity) }
-    val biometricPromptInfo = biometricPromptBuilder.buildPromptInfoWithBestSecureOption(
-        title = stringResource(R.string.auth_prompt_headline),
-        description = stringResource(R.string.alternate_auth_info),
-        negativeButton = stringResource(R.string.auth_prompt_cancel)
-    )
-    return remember {
+
+    val title = stringResource(R.string.auth_prompt_headline)
+    val description = stringResource(R.string.alternate_auth_info)
+    val negativeButton = stringResource(R.string.auth_prompt_cancel)
+
+    // Track the current method type (Strong, Weak, Device)
+    val biometricMethod = remember { mutableStateOf(BiometricMethod.None) }
+
+    LaunchedEffect(Unit) {
+        activity.biometricStateChangedFlow.collect {
+            Napier.i(tag = "Biometric") { "Biometric state changed, refreshing authenticator: $it" }
+            biometricMethod.value = it
+        }
+    }
+
+    // PromptInfo is rebuilt on method change
+    val promptInfo = remember(biometricMethod.value) {
+        biometricPromptBuilder.buildPromptInfoDynamically(
+            title = title,
+            description = description,
+            negativeButton = negativeButton,
+            method = biometricMethod.value // pass enum
+        )
+    }
+
+    return remember(promptInfo) {
         BiometricAuthenticator(
             authenticationUseCase = authenticationUseCase,
             removeAuthenticationUseCase = removeAuthenticationUseCase,
-            promptInfo = biometricPromptInfo,
+            promptInfo = promptInfo,
             biometricPromptBuilder = biometricPromptBuilder
         )
     }

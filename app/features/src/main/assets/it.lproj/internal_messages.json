@@ -19,8 +19,14 @@
     },
     {
         "id": "5",
-        "text": "**📲 Riscatta le prescrizioni DiGA** \n D'ora in poi puoi riscattare le prescrizioni per le applicazioni sanitarie digitali (DiGA) direttamente tramite l'app per le prescrizioni elettroniche. Riceverai il codice di attivazione e il link all'app prescritta subito dopo il riscatto. \n \n **🏥 Nuovo database delle farmacie** \n Abbiamo introdotto un nuovo database a prova di futuro per le ricerche in farmacia.",
+        "text": "**📲 Riscatta le DiGA prescritte** \nOra puoi riscattare le prescrizioni per le applicazioni sanitarie digitali (DiGA) direttamente tramite l'app per le prescrizioni elettroniche. Puoi trovare il codice di attivazione e il link alla DiGA prescritta proprio qui nell'app per le prescrizioni elettroniche. \n \n **🏥 Nuovo database delle farmacie** \nAbbiamo introdotto un nuovo database a prova di futuro per le ricerche in farmacia.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
+    },
+    {
+        "id": "6",
+        "text": "**🌐 Nuova funzione di traduzione** \nSe utilizzi l'app in un'altra lingua, ora puoi tradurre direttamente le risposte della farmacia. \n \n **♿️ Accessibilità** \nLa nostra dichiarazione di accessibilità è ora disponibile nelle impostazioni. Anche il processo di onboarding è stato reso più accessibile. \n \n **📲 Riscatta DiGA con le compagnie assicurative** \nLe prescrizioni per le applicazioni sanitarie digitali (DiGA) ora possono essere riscattate anche con altre compagnie assicurative.",
+        "timestamp": "2025-06-26T08:00:00.000Z",
+        "version": "1.31"
     }
 ]

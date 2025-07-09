@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.api
@@ -30,6 +34,7 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Tag
+import retrofit2.http.Url
 
 @Requirement(
     "O.Purp_8#4",
@@ -54,9 +59,20 @@ interface ErpService {
     suspend fun getTasks(
         @Tag profileId: ProfileIdentifier,
         @Query("modified") lastUpdated: String?,
-        @Query("_sort") sort: String = "modified",
+        // https://gemspec.gematik.de/docs/gemSpec/gemSpec_FD_eRp/gemSpec_FD_eRp_V2.3.0/#5.10.1
+        @Query("_sort") sort: String = "modified", // sorts based on Task.lastModified
         @Query("_count") count: Int? = null,
         @Query("__offset") offset: Int? = null
+    ): Response<JsonElement>
+
+    /**
+     * @param url expects format like that https://erp-test.zentral.erp.splitdns.ti-dienste.de/Task?_sort=modified&_count=50&__offset=0
+     * This is used to fetch tasks from a specific URL, which might be useful for pagination or specific queries.
+     */
+    @GET
+    suspend fun getTasksByUrl(
+        @Url url: String,
+        @Tag profileId: ProfileIdentifier
     ): Response<JsonElement>
 
     /**

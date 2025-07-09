@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("TooManyFunctions", "MagicNumber")
@@ -24,18 +28,16 @@ import de.gematik.ti.erp.app.api.ResourcePaging
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
 import de.gematik.ti.erp.app.demomode.datasource.INDEX_OUT_OF_BOUNDS
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoConstants.longerRandomTimeToday
-import de.gematik.ti.erp.app.demomode.datasource.data.DemoPharmacyInfo.PHARMACY_NAMES
 import de.gematik.ti.erp.app.demomode.datasource.data.DemoProfileInfo
 import de.gematik.ti.erp.app.demomode.extensions.demo
 import de.gematik.ti.erp.app.demomode.model.DemoModeProfileLinkedCommunication
 import de.gematik.ti.erp.app.demomode.model.toProfile
 import de.gematik.ti.erp.app.demomode.model.toSyncedTaskDataCommunication
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
-import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationReply
+import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
+import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -46,7 +48,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.async
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -71,8 +72,6 @@ class DemoCommunicationRepository(
 ) : CommunicationRepository {
 
     private val scope = CoroutineScope(dispatcher)
-    override val pharmacyCacheError = Channel<Throwable>()
-    override val pharmacyDownloaded = Channel<FhirPharmacyErpModel?>()
 
     override suspend fun downloadCommunications(profileId: ProfileIdentifier) = withContext(dispatcher) {
         Napier.demo { "Simulating communication download" }
@@ -158,20 +157,6 @@ class DemoCommunicationRepository(
         }
 
     override fun loadPharmacies(): Flow<List<CachedPharmacy>> = dataSource.cachedPharmacies
-
-    override suspend fun downloadMissingPharmacy(telematikId: String): Result<CachedPharmacy?> {
-        val addedPharmacy = CachedPharmacy(
-            telematikId = telematikId,
-            name = PHARMACY_NAMES.random()
-        )
-        withContext(dispatcher) {
-            dataSource.cachedPharmacies.value = dataSource.cachedPharmacies.updateAndGet { cachedPharmacies ->
-                cachedPharmacies.add(addedPharmacy)
-                cachedPharmacies
-            }
-        }
-        return Result.success(addedPharmacy)
-    }
 
     override fun loadSyncedByTaskId(taskId: String): Flow<SyncedTaskData.SyncedTask?> =
         try {

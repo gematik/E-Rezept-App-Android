@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.mainscreen.ui
@@ -50,7 +54,7 @@ import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
 import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
-import de.gematik.ti.erp.app.settings.navigation.SettingsNavigationScreens
+import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.BottomNavigation
@@ -78,7 +82,7 @@ internal fun MainScreenBottomBar(
                         PrescriptionRoutes.PrescriptionListScreen -> TestTag.BottomNavigation.PrescriptionButton
                         MessagesRoutes.MessageListScreen -> TestTag.BottomNavigation.OrdersButton
                         PharmacyRoutes.PharmacyStartScreen -> TestTag.BottomNavigation.PharmaciesButton
-                        SettingsNavigationScreens.SettingsScreen -> TestTag.BottomNavigation.SettingsButton
+                        SettingsRoutes.SettingsScreen -> TestTag.BottomNavigation.SettingsButton
                         else -> ""
                     }
                 ),
@@ -128,7 +132,7 @@ internal fun MainScreenBottomBar(
                                     )
                                 }
 
-                            SettingsNavigationScreens.SettingsScreen -> Icon(
+                            SettingsRoutes.SettingsScreen -> Icon(
                                 Icons.Outlined.Settings,
                                 contentDescription = null,
                                 modifier = Modifier.size(24.dp)
@@ -143,7 +147,7 @@ internal fun MainScreenBottomBar(
                                 PrescriptionRoutes.PrescriptionListScreen -> R.string.pres_bottombar_prescriptions
                                 MessagesRoutes.MessageListScreen -> R.string.messages_bottombar
                                 PharmacyRoutes.PharmacyStartScreen -> R.string.pres_bottombar_pharmacies
-                                SettingsNavigationScreens.SettingsScreen -> R.string.main_settings_acc
+                                SettingsRoutes.SettingsScreen -> R.string.main_settings_acc
                                 else -> R.string.pres_bottombar_prescriptions
                             }
                         ),
@@ -158,7 +162,7 @@ internal fun MainScreenBottomBar(
                         is PharmacyRoutes.PharmacyStartScreen -> {
                             mainNavController.navigate(screen.path(""))
                         }
-                        is SettingsNavigationScreens.SettingsScreen -> {
+                        is SettingsRoutes.SettingsScreen -> {
                             mainNavController.navigate(screen.path())
                         }
                         is MessagesRoutes.MessageListScreen -> {

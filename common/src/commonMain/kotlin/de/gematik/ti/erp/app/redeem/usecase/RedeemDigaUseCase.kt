@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.redeem.usecase
@@ -24,13 +28,10 @@ import de.gematik.ti.erp.app.api.httpErrorState
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
 import de.gematik.ti.erp.app.fhir.model.DigaStatus
-import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState
 import de.gematik.ti.erp.app.redeem.model.MissingInformation
-import de.gematik.ti.erp.app.redeem.usecase.RedeemDigaUseCase.RedeemDigaProgressState
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -50,9 +51,7 @@ import kotlinx.datetime.Clock
  * Progress can optionally be tracked using [RedeemDigaProgressState].
  */
 class RedeemDigaUseCase(
-    private val profileRepository: ProfileRepository,
     private val prescriptionRepository: PrescriptionRepository,
-    private val pharmacyRepository: PharmacyRepository,
     private val digaRepository: DigaRepository,
     private val digaDispenseRequestBuilder: DigaDispenseRequestBuilder,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -78,6 +77,7 @@ class RedeemDigaUseCase(
     data class RedeemDigaArguments(
         val profileId: String,
         val taskId: String,
+        val telematikId: String? = null,
         val orderId: String,
         val lifecycleHooks: RedeemDigaProgressState? = null
     )
@@ -86,6 +86,7 @@ class RedeemDigaUseCase(
      * Redeems a DiGA prescription using the provided [arguments].
      * Returns a [BaseRedeemState] representing the result of the redemption process.
      */
+    @Suppress("CyclomaticComplexMethod")
     suspend operator fun invoke(
         arguments: RedeemDigaArguments
     ): BaseRedeemState {
@@ -113,23 +114,14 @@ class RedeemDigaUseCase(
                 value = "No Kvnr found for taskId ${arguments.taskId}"
             ).also { arguments.lifecycleHooks?.onRedeemFailure?.invoke() }
 
-        // get the iknr required for sending the comm-res
-        val iknr = profileRepository.getOrganizationIdentifier(arguments.profileId).firstOrNull() ?: prescription.insuranceInformation.digaIdentifier
-            ?: return DigaRedeemedPrescriptionState.NotAvailableInDatabase(
-                missingType = MissingInformation.Iknr,
-                value = "No iknr found for taskId ${arguments.taskId}"
-            ).also { arguments.lifecycleHooks?.onRedeemFailure?.invoke() }
+        // Extract the telematik ID from the insurance provider
+        val telematikId = arguments.telematikId
 
-        // add a remote call to get the telematik id from the fhir-vzd
-        val telematikId = withContext(dispatcher) {
-            pharmacyRepository.searchInsuranceProviderByInstitutionIdentifier(iknr)
-                .onFailure { Napier.e { "error obtaining telematik-id ${it.stackTraceToString()} for $iknr" } }
-                .onSuccess { Napier.d { "obtaining telematik-id ${it?.id} for iknr: $iknr" } }
-                .getOrNull()?.id
-            // could occur if the doctor enters the IKNR wrongly or insurance not in FHIR-VZD
-        } ?: return DigaRedeemedPrescriptionState.NotAvailableInInsuranceDirectory(
-            "No telematikId found for IKNR $iknr"
-        ).also { arguments.lifecycleHooks?.onRedeemFailure?.invoke() }
+        if (telematikId.isNullOrEmpty()) {
+            return DigaRedeemedPrescriptionState.NotAvailableInInsuranceDirectory(
+                missingTelematikId = "No Telematik ID found for taskId ${arguments.taskId}"
+            ).also { arguments.lifecycleHooks?.onRedeemFailure?.invoke() }
+        }
 
         arguments.lifecycleHooks?.onTelematikIdObtained?.invoke()
 

@@ -1,0 +1,70 @@
+{
+  "resourceType": "Practitioner",
+  "id": "20597e0e-cb2a-45b3-95f0-dc3dbdb617c3",
+  "meta": {
+    "profile":  [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Practitioner|1.0.3"
+    ]
+  },
+  "identifier":  [
+    {
+      "type": {
+        "coding":  [
+          {
+            "system": "http://terminology.hl7.org/CodeSystem/v2-0203",
+            "code": "LANR"
+          }
+        ]
+      },
+      "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_ANR",
+      "value": "838382202"
+    }
+  ],
+  "name":  [
+    {
+      "use": "official",
+      "family": "Topp-Glücklich",
+      "_family": {
+        "extension":  [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Topp-Glücklich"
+          }
+        ]
+      },
+      "given":  [
+        "Hans"
+      ],
+      "prefix":  [
+        "Dr. med."
+      ],
+      "_prefix":  [
+        {
+          "extension":  [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-EN-qualifier",
+              "valueCode": "AC"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "qualification":  [
+    {
+      "code": {
+        "coding":  [
+          {
+            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_FOR_Qualification_Type",
+            "code": "00"
+          }
+        ]
+      }
+    },
+    {
+      "code": {
+        "text": "Hausarzt"
+      }
+    }
+  ]
+}

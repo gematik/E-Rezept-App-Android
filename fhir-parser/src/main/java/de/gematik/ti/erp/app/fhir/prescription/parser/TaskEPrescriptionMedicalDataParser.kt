@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.fhir.prescription.parser
@@ -21,7 +25,6 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskDataErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskDataErpModel.Companion.createFhirTaskDataErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundleMetaProfile.Companion.containsExpectedProfileVersionForTaskKbvPhase
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceBundle.Companion.parseResourceBundle
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceEntry
@@ -139,7 +142,6 @@ class TaskEPrescriptionMedicalDataParser : BundleParser {
 
                     FhirKbvResourceType.Coverage -> {
                         val coverageBundle = entry.resource
-                        Napier.e { "device request coverage ${entry.resource}" }
                         val areValidVersions = entry.areIncludedCoveragesVersion()
                         if (areValidVersions) {
                             coverage = coverageBundle.getCoverage()?.toErpModel()
@@ -150,8 +152,6 @@ class TaskEPrescriptionMedicalDataParser : BundleParser {
 
                     FhirKbvResourceType.DeviceRequest -> {
                         val deviceRequestBundle = entry.resource
-                        Napier.e { "device request raw ${entry.resource}" }
-                        Napier.e { "device request parsed ${deviceRequestBundle.getDeviceRequest()?.toErpModel()}" }
                         deviceRequest = deviceRequestBundle.getDeviceRequest()?.toErpModel()
                     }
 
@@ -159,7 +159,7 @@ class TaskEPrescriptionMedicalDataParser : BundleParser {
                 }
             }
 
-            return createFhirTaskDataErpModel(
+            return FhirTaskDataErpModel(
                 pvsId = pvsId,
                 medicationRequest = medicationRequest,
                 medication = medication,

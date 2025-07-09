@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,14 +11,18 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.analytics.di
 
-import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
 import de.gematik.ti.erp.app.analytics.mapper.ContentSquareScreenMapper
 import de.gematik.ti.erp.app.analytics.presentation.DebugTrackerScreenViewModel
 import de.gematik.ti.erp.app.analytics.tracker.ContentSquareTracker
@@ -37,19 +41,19 @@ import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
 import org.kodein.di.instance
 
-val analyticsModule = DI.Module("analyticsModule") {
+val cardCommunicationAnalyticsModule = DI.Module("analyticsModule") {
     bindProvider { IsAnalyticsAllowedUseCase(instance()) }
     bindProvider { ChangeAnalyticsStateUseCase(instance()) }
     bindProvider { AnalyticsUseCase(instance()) }
     bindProvider { StartTrackerUseCase(instance()) }
     bindProvider { StopTrackerUseCase(instance()) }
 
-    bindSingleton { Analytics(instance(), instance(), instance(), instance(), instance()) }
+    bindSingleton { CardCommunicationAnalytics(instance()) }
     bindSingleton { DebugTrackerSession() }
 
     bindProvider { ContentSquareScreenMapper() }
     bindProvider {
-        val isNonReleaseMode = BuildConfigExtension.isNonReleaseMode
+        val isNonReleaseMode = BuildConfigExtension.isInternalDebug
         Tracker(instance(), instance(), instance(), isNonReleaseMode)
     }
     bindProvider { ContentSquareTracker() }

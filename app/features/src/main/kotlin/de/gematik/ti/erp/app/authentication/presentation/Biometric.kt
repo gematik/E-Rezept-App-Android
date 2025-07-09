@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.authentication.presentation
@@ -37,13 +41,14 @@ fun deviceSupportsAuthenticationMethod(status: Int) = when (status) {
     BiometricManager.BIOMETRIC_SUCCESS,
     BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED ->
         true
+
     else ->
         false
 }
 
 fun deviceHasAuthenticationMethodEnabled(status: Int) = status == BiometricManager.BIOMETRIC_SUCCESS
 
-fun Context.deviceDeviceSecurityStatus(): Int {
+fun Context.deviceSecurityStatus(): Int {
     val biometricManager = BiometricManager.from(this)
     return biometricManager.canAuthenticate(
         BiometricManager.Authenticators.BIOMETRIC_STRONG or
@@ -52,7 +57,7 @@ fun Context.deviceDeviceSecurityStatus(): Int {
     )
 }
 
-fun Context.deviceBiometricStatus(): Int {
+fun Context.biometricStatus(): Int {
     val biometricManager = BiometricManager.from(this)
     return biometricManager.canAuthenticate(
         BiometricManager.Authenticators.BIOMETRIC_STRONG or
@@ -105,6 +110,7 @@ fun Context.deviceHardwareBackedKeystoreStatus(): Boolean {
         }
     }
 }
+
 fun enrollBiometricsIntent(): Intent {
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
         val intent = Intent(Settings.ACTION_BIOMETRIC_ENROLL)

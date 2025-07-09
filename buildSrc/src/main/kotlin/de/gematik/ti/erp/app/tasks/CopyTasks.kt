@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.tasks
@@ -28,9 +32,6 @@ import de.gematik.ti.erp.app.utils.HUAWEI_STORE_MAPPING_PATH
 import de.gematik.ti.erp.app.utils.KONNY_APP_APK_FILE
 import de.gematik.ti.erp.app.utils.KONNY_APP_APK_PATH
 import de.gematik.ti.erp.app.utils.MAPPING_FILE
-import de.gematik.ti.erp.app.utils.MINIFIED_APP_APK_FILE
-import de.gematik.ti.erp.app.utils.MINIFIED_APP_APK_PATH
-import de.gematik.ti.erp.app.utils.MINIFIED_APP_MAPPING_PATH
 import de.gematik.ti.erp.app.utils.MOCK_APP_APK_FILE
 import de.gematik.ti.erp.app.utils.MOCK_APP_APK_PATH
 import de.gematik.ti.erp.app.utils.OUTPUT_DIRECTORY
@@ -168,24 +169,6 @@ internal fun TaskContainer.copyMockApp() {
             doLast {
                 val inputFile = sourceDir.resolve("$MOCK_APP_APK_PATH/$MOCK_APP_APK_FILE")
                 project copyFileFrom inputFile
-            }
-        } ?: run {
-            throw GradleScriptException("Project missing", Exception("Expected project not found"))
-        }
-    }
-}
-
-internal fun TaskContainer.copyMinifiedApp() {
-    register(TaskNames.copyMinifiedApp) {
-        project.makeAppOutputDirectoryIfNotExists()
-        project.subprojects.find { it.name == APP_PROJECT_NAME }?.let { androidProject ->
-            println("in ${androidProject.name} sub-project")
-            val sourceDir = androidProject.buildDir
-            doLast {
-                val inputFile = sourceDir.resolve("$MINIFIED_APP_APK_PATH/$MINIFIED_APP_APK_FILE")
-                project copyFileFrom inputFile
-                val inputMappingFile = sourceDir.resolve("$MINIFIED_APP_MAPPING_PATH/$MAPPING_FILE")
-                inputMappingFile moveMappingFileAndRenameTo BuildAppFlavoursPlugin.MappingFileName.MinifiedApp.fileName()
             }
         } ?: run {
             throw GradleScriptException("Project missing", Exception("Expected project not found"))

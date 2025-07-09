@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("LongMethod", "MagicNumber", "TooManyFunctions")
@@ -34,6 +38,7 @@ import androidx.annotation.ColorRes
 import androidx.annotation.DrawableRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.view.ContextThemeWrapper
+import androidx.biometric.BiometricManager
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.ComposeView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -45,15 +50,16 @@ import de.gematik.ti.erp.app.DomainVerifier
 import de.gematik.ti.erp.app.OlderSdkDomainVerifier
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.Sdk31DomainVerifier
-import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
 import de.gematik.ti.erp.app.app.ApplicationInnerPadding
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.appupdate.usecase.AppUpdateInfoUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.CheckVersionUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerUseCase
-import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
+import de.gematik.ti.erp.app.authentication.model.BiometricMethod
 import de.gematik.ti.erp.app.core.IntentHandler
 import de.gematik.ti.erp.app.debugOverrides
 import de.gematik.ti.erp.app.demomode.DefaultDemoModeObserver
@@ -61,9 +67,9 @@ import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.demomode.di.demoModeModule
 import de.gematik.ti.erp.app.demomode.di.demoModeOverrides
 import de.gematik.ti.erp.app.features.BuildConfig
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.medicationplan.DefaultShowMedicationPlanSuccessScreenObserver
 import de.gematik.ti.erp.app.medicationplan.ShowMedicationPlanSuccessObserver
+import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
 import de.gematik.ti.erp.app.timeouts.usecase.GetPauseMetricUseCase
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
@@ -125,9 +131,9 @@ open class BaseActivity :
     private val changeAppUpdateFlagUseCase: ChangeAppUpdateFlagUseCase by instance()
     private val updateManagerUseCase: GetAppUpdateManagerUseCase by instance()
     private val updateInternalMessagesUseCase: UpdateInternalMessagesUseCase by instance()
-    private val _nfcTag = MutableSharedFlow<Tag>()
+    val nfcTag = MutableSharedFlow<Tag>()
 
-    val analytics: Analytics by instance()
+    val cardCommunicationAnalytics: CardCommunicationAnalytics by instance()
     val getAppUpdateFlagUseCase: GetAppUpdateFlagUseCase by instance()
     val intentHandler = IntentHandler(this@BaseActivity)
 
@@ -142,6 +148,8 @@ open class BaseActivity :
     // this value is added to provide screens with the extra padding that they require since the app is inside a scaffold
     var applicationInnerPadding: ApplicationInnerPadding? = null
 
+    val biometricStateChangedFlow = MutableSharedFlow<BiometricMethod>(replay = 1)
+
     /**
      * A [Runnable] that makes the app require an authentication
      */
@@ -154,6 +162,26 @@ open class BaseActivity :
     )
     private val pauseTimerRunnable = Runnable {
         inactivityTimeoutObserver.forceRequireAuthentication()
+    }
+
+    private fun checkBiometricStateChanged() {
+        val biometricManager = BiometricManager.from(this)
+        val strongAvailable = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_STRONG) == BiometricManager.BIOMETRIC_SUCCESS
+        val weakAvailable = biometricManager.canAuthenticate(BiometricManager.Authenticators.BIOMETRIC_WEAK) == BiometricManager.BIOMETRIC_SUCCESS
+        val deviceAvailable = biometricManager.canAuthenticate(BiometricManager.Authenticators.DEVICE_CREDENTIAL) == BiometricManager.BIOMETRIC_SUCCESS
+
+        val result = when {
+            strongAvailable -> BiometricMethod.StrongBiometric
+            weakAvailable -> BiometricMethod.WeakBiometric
+            deviceAvailable -> BiometricMethod.DeviceCredential
+            else -> BiometricMethod.None
+        }
+
+        Napier.i(tag = "Biometric") {
+            "Biometric state changed: result $result → strong: $strongAvailable → weak: $weakAvailable → device: $deviceAvailable"
+        }
+
+        Napier.d(tag = "Biometric") { "Emitting the value $result and emit state is ${biometricStateChangedFlow.tryEmit(result)}" }
     }
 
     @Requirement(
@@ -190,19 +218,7 @@ open class BaseActivity :
         super.onResume()
         Napier.i { "Stopped pause timer" }
         pauseTimerHandler.removeCallbacks(pauseTimerRunnable)
-
-        NfcAdapter.getDefaultAdapter(applicationContext)?.let {
-            if (it.isEnabled) {
-                it.enableReaderMode(
-                    this,
-                    ::onTagDiscovered,
-                    NfcAdapter.FLAG_READER_NFC_A
-                        or NfcAdapter.FLAG_READER_NFC_B
-                        or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
-                    Bundle()
-                )
-            }
-        }
+        checkBiometricStateChanged()
     }
 
     override fun show(content: @Composable (Dialog) -> Unit) {
@@ -248,12 +264,6 @@ open class BaseActivity :
         snackbar.show()
     }
 
-    private fun onTagDiscovered(tag: Tag) {
-        lifecycleScope.launch {
-            _nfcTag.emit(tag)
-        }
-    }
-
     val authenticationModeAndMethod: StateFlow<AuthenticationModeAndMethod>
         get() = inactivityTimeoutObserver.authenticationModeAndMethod
             .stateIn(lifecycleScope, SharingStarted.Eagerly, AuthenticationModeAndMethod.None)
@@ -291,9 +301,28 @@ open class BaseActivity :
 
     // Flow on a non main thread to avoid ANR
     val nfcTagFlow: Flow<Tag>
-        get() = _nfcTag.onStart {
+        get() = nfcTag.onStart {
             throwExceptionOnNfcNotEnabled()
         }.flowOn(Dispatchers.IO)
+
+    fun enableNfcReaderMode(callback: NfcAdapter.ReaderCallback) {
+        val nfcAdapter = NfcAdapter.getDefaultAdapter(this) ?: return
+        val options = Bundle().apply {
+            putInt(NfcAdapter.EXTRA_READER_PRESENCE_CHECK_DELAY, 250)
+        }
+        nfcAdapter.enableReaderMode(
+            this,
+            callback,
+            NfcAdapter.FLAG_READER_NFC_A
+                or NfcAdapter.FLAG_READER_NFC_B
+                or NfcAdapter.FLAG_READER_SKIP_NDEF_CHECK,
+            options
+        )
+    }
+
+    fun disableNfcReaderMode() {
+        NfcAdapter.getDefaultAdapter(this)?.disableReaderMode(this)
+    }
 
     companion object {
 

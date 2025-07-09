@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.ui.components
@@ -53,6 +57,7 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.ClipBoardCopy
+import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutesBackStackEntryArguments
 import de.gematik.ti.erp.app.messages.ui.preview.MessageSheetsPreviewData
@@ -76,11 +81,6 @@ import de.gematik.ti.erp.app.utils.extensions.openUriWhenValid
 import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.utils.letNotNull
 import de.gematik.ti.erp.app.utils.letNotNullOnCondition
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 
 class MessageBottomSheetScreen(
     override val navController: NavController,
@@ -235,21 +235,20 @@ fun TextSheetContent(
         )
 
         SpacerSmall()
+
+        val formatter = rememberErpTimeFormatter()
+        val sentOnString = remember { // do we need to remember???
+            formatter.timestamp(message.sentOn)
+        }
+
         Text(
-            sentOn(message),
+            sentOnString,
             style = AppTheme.typography.caption1l,
             textAlign = TextAlign.Center,
             modifier = Modifier.align(Alignment.End)
         )
     }
 }
-
-@Composable
-private fun sentOn(message: OrderUseCaseData.Message): String =
-    remember(message) {
-        val dateFormatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
-        dateFormatter.format(message.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime())
-    }
 
 @Composable
 fun CodeSheetContent(

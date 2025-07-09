@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.utils.compose
@@ -76,11 +80,13 @@ fun PasswordTextField(
     value: String,
     onValueChange: (String) -> Unit,
     onSubmit: () -> Unit,
+    enabled: Boolean = true,
     isConsistent: Boolean = false,
     isError: Boolean = false,
     allowAutofill: Boolean = false,
     allowVisiblePassword: Boolean = false,
     label: @Composable (() -> Unit)? = null,
+    supportingText: @Composable (() -> Unit)? = null,
     colors: TextFieldColors = erezeptTextFieldColors()
 ) {
     var passwordVisible by remember { mutableStateOf(false) }
@@ -113,6 +119,7 @@ fun PasswordTextField(
         ErezeptOutlineText(
             value = value,
             onValueChange = onValueChange,
+            enabled = enabled,
             modifier = modifier
                 .heightIn(min = 56.dp)
                 .then(autofillModifier)
@@ -156,7 +163,8 @@ fun PasswordTextField(
             isError = isError,
             label = label,
             shape = RoundedCornerShape(SizeDefaults.one),
-            colors = colors
+            colors = colors,
+            supportingText = supportingText
         )
     }
 }

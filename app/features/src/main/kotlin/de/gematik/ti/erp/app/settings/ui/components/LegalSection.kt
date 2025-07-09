@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.settings.ui.components
@@ -22,6 +26,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Wysiwyg
+import androidx.compose.material.icons.outlined.AccessibilityNew
 import androidx.compose.material.icons.outlined.Code
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.PrivacyTip
@@ -31,8 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.settings.model.LegalClickActions
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.utils.compose.LabelButton
@@ -46,7 +51,9 @@ fun LegalSection(
         Text(
             text = stringResource(R.string.settings_legal_headline),
             style = AppTheme.typography.h6,
-            modifier = Modifier.sectionPadding().semanticsHeading()
+            modifier = Modifier
+                .sectionPadding()
+                .semanticsHeading()
         )
         LabelButton(
             Icons.Outlined.Info,
@@ -87,6 +94,13 @@ fun LegalSection(
             modifier = Modifier.testTag("settings/additional_licences")
         ) {
             legalClickActions.onClickAdditionalLicences()
+        }
+        LabelButton(
+            icon = Icons.Outlined.AccessibilityNew,
+            text = stringResource(R.string.settings_accessibility_statement),
+            contentDescription = stringResource(R.string.settings_accessibility_statement_talkback)
+        ) {
+            legalClickActions.onClickAccessibilityStatement()
         }
     }
 }

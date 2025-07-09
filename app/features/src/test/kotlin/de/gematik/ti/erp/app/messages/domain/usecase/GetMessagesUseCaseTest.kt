@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.domain.usecase
@@ -32,6 +36,7 @@ import de.gematik.ti.erp.app.mocks.order.model.communicationDataReply
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
+import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask.Ready
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStateSerializationType
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.PrescriptionChipInformation
@@ -40,6 +45,7 @@ import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPresc
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.mockk.clearMocks
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,6 +64,7 @@ class GetMessagesUseCaseTest {
     private val communicationRepository: CommunicationRepository = mockk()
     private val invoiceRepository: InvoiceRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
+    private val pharmacyRepository: PharmacyRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
 
@@ -76,7 +83,6 @@ class GetMessagesUseCaseTest {
         coEvery { communicationRepository.hasUnreadDispenseMessage(listOf("task-id-2"), "order-id-2") } returns flowOf(false)
 
         coEvery { communicationRepository.hasUnreadRepliedMessages(any(), any()) } returns flowOf(false)
-        coEvery { communicationRepository.downloadMissingPharmacy("telematik-id-1") } returns Result.success(null)
 
         // the first task returns a synced task, the second a scanned task
         coEvery { communicationRepository.loadSyncedByTaskId("task-id-1") } returns flowOf(API_ACTIVE_SYNCED_TASK_STRUCTURED_DOSAGE.copy(taskId = "task-id-1"))
@@ -90,6 +96,9 @@ class GetMessagesUseCaseTest {
         coEvery { communicationRepository.taskIdsByOrder("order-id-2") } returns flowOf(listOf("task-id-2"))
 
         coEvery { invoiceRepository.invoiceByTaskId(any()) } returns flowOf(null)
+
+        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
+        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(emptyList())
 
         // the first order has one communication, the second order has one communication
         coEvery { communicationRepository.loadDispReqCommunicationsByProfileId(any()) } returns flowOf(
@@ -133,7 +142,16 @@ class GetMessagesUseCaseTest {
             )
         )
         coEvery { invoiceRepository.hasUnreadInvoiceMessages(any()) } returns flowOf(false)
-        usecaseUnderTest = GetMessagesUseCase(communicationRepository, invoiceRepository, profileRepository, dispatcher)
+        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
+        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(emptyList())
+
+        usecaseUnderTest = GetMessagesUseCase(
+            communicationRepository,
+            invoiceRepository,
+            profileRepository,
+            pharmacyRepository,
+            dispatcher
+        )
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

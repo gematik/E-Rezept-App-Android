@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,14 +11,19 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.order.messge.presentation
 
 import android.app.Application
+import com.google.mlkit.common.model.RemoteModelManager
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.info.BuildConfigInformation
@@ -62,6 +67,13 @@ import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.GetPharmacyByTelematikIdUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
+import de.gematik.ti.erp.app.translation.domain.model.LanguageDownloadState
+import de.gematik.ti.erp.app.translation.repository.TranslationRepository
+import de.gematik.ti.erp.app.translation.usecase.DownloadLanguageModelUseCase
+import de.gematik.ti.erp.app.translation.usecase.GetTranslationConsentUseCase
+import de.gematik.ti.erp.app.translation.usecase.IsTargetLanguageSetUseCase
+import de.gematik.ti.erp.app.translation.usecase.ToggleTranslationConsentUseCase
+import de.gematik.ti.erp.app.translation.usecase.TranslateTextUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isErrorState
@@ -78,6 +90,7 @@ import io.mockk.spyk
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -92,6 +105,7 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import kotlin.test.assertNotNull
+import kotlin.test.fail
 
 class MessageDetailControllerTest {
     private val profileRepository: ProfileRepository = mockk()
@@ -103,6 +117,7 @@ class MessageDetailControllerTest {
     private val buildConfigInformation: BuildConfigInformation = mockk()
     private val pharmacyRepository: PharmacyRepository = mockk()
     private val changeLogLocalDataSource: ChangeLogLocalDataSource = mockk()
+    private val translationRepository: TranslationRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
     private val testScope = TestScope(dispatcher)
     private val mockContext = mockk<Application>()
@@ -120,6 +135,11 @@ class MessageDetailControllerTest {
     private lateinit var updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase
     private lateinit var getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase
     private lateinit var getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase
+    private lateinit var getTranslationConsentUseCase: GetTranslationConsentUseCase
+    private lateinit var translateTextUseCase: TranslateTextUseCase
+    private lateinit var isTargetLanguageSetUseCase: IsTargetLanguageSetUseCase
+    private lateinit var toggleTranslationConsentUseCase: ToggleTranslationConsentUseCase
+    private lateinit var downloadLanguageModelUseCase: DownloadLanguageModelUseCase
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Before
@@ -139,10 +159,6 @@ class MessageDetailControllerTest {
             internalMessagesRepository = internalMessagesRepository,
             changeLogLocalDataSource = changeLogLocalDataSource
         )
-        getActiveProfileUseCase = GetActiveProfileUseCase(
-            repository = profileRepository,
-            dispatcher = dispatcher
-        )
 
         getRepliedMessagesUseCase = GetRepliedMessagesUseCase(
             communicationRepository = communicationRepository,
@@ -151,6 +167,7 @@ class MessageDetailControllerTest {
         getMessageUsingOrderIdUseCase = GetMessageUsingOrderIdUseCase(
             communicationRepository = communicationRepository,
             invoiceRepository = invoiceRepository,
+            pharmacyRepository = pharmacyRepository,
             dispatcher = dispatcher
         )
         updateCommunicationConsumedStatusUseCase = spyk(
@@ -174,6 +191,25 @@ class MessageDetailControllerTest {
         )
         getInternalMessagesUseCase = spyk(GetInternalMessagesUseCase(internalMessagesRepository, changeLogLocalDataSource))
 
+        translateTextUseCase = TranslateTextUseCase(
+            remoteModelManager = mockk<RemoteModelManager>(relaxed = true),
+            repository = translationRepository
+        )
+
+        getTranslationConsentUseCase = GetTranslationConsentUseCase(repository = translationRepository)
+
+        isTargetLanguageSetUseCase = IsTargetLanguageSetUseCase(repository = translationRepository)
+
+        toggleTranslationConsentUseCase = ToggleTranslationConsentUseCase(
+            repository = translationRepository,
+            dispatcher = dispatcher
+        )
+
+        downloadLanguageModelUseCase = DownloadLanguageModelUseCase(
+            repository = translationRepository,
+            dispatcher = dispatcher
+        )
+
         every { mockContext.getString(any()) } returns IN_APP_MESSAGE_TEXT
         every { mockContext.resources.configuration.locales[0].language } returns "de"
         every { clock.now() } returns Instant.parse(WELCOME_MESSAGE_TIMESTAMP)
@@ -182,8 +218,19 @@ class MessageDetailControllerTest {
         every { communicationRepository.taskIdsByOrder(ORDER_ID) } returns flowOf(listOf(TASK_ID))
         every { communicationRepository.loadScannedByTaskId(TASK_ID) } returns flowOf(null)
         coEvery { communicationRepository.profileByOrderId(ORDER_ID) } returns flowOf(MOCK_PROFILE)
+        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(listOf())
+        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
+        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.failure(Exception())
+        coEvery { translationRepository.getTargetLanguageTag() } returns flowOf("de")
+        coEvery { translationRepository.isTranslationAllowed() } returns MutableStateFlow(true)
+        coEvery { translationRepository.enableConsentForLocalTranslation() } returns Unit
+        coEvery { translationRepository.disableConsentForLocalTranslation() } returns Unit
+        coEvery { translationRepository.clearTargetLanguageTag() } returns Unit
+        coEvery { translationRepository.setTargetLanguageTag(any()) } returns Unit
+        coEvery { translationRepository.downloadLanguageModels(any()) } returns flowOf(LanguageDownloadState.Completed)
 
         isLocalMessageControllerUnderTest = MessageDetailController(
+            application = mockContext,
             orderId = ORDER_ID,
             isLocalMessage = true,
             getRepliedMessagesUseCase = getRepliedMessagesUseCase,
@@ -194,9 +241,14 @@ class MessageDetailControllerTest {
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
-            application = mockContext
+            getTranslationConsentUseCase = getTranslationConsentUseCase,
+            isTargetLanguageSetUseCase = isTargetLanguageSetUseCase,
+            translateTextUseCase = translateTextUseCase,
+            toggleTranslationConsentUseCase = toggleTranslationConsentUseCase,
+            downloadedLanguagesUseCase = downloadLanguageModelUseCase
         )
         controllerUnderTest = MessageDetailController(
+            application = mockContext,
             orderId = ORDER_ID,
             isLocalMessage = false,
             getRepliedMessagesUseCase = getRepliedMessagesUseCase,
@@ -207,7 +259,11 @@ class MessageDetailControllerTest {
             updateInvoicesByOrderIdAndTaskIdUseCase = updateInvoicesByOrderIdAndTaskIdUseCase,
             getPharmacyByTelematikIdUseCase = getPharmacyByTelematikIdUseCase,
             getProfileByOrderIdUseCase = getProfileByOrderIdUseCase,
-            application = mockContext
+            getTranslationConsentUseCase = getTranslationConsentUseCase,
+            isTargetLanguageSetUseCase = isTargetLanguageSetUseCase,
+            translateTextUseCase = translateTextUseCase,
+            toggleTranslationConsentUseCase = toggleTranslationConsentUseCase,
+            downloadedLanguagesUseCase = downloadLanguageModelUseCase
         )
     }
 
@@ -261,7 +317,6 @@ class MessageDetailControllerTest {
             )
         )
         every { communicationRepository.loadSyncedByTaskId(TASK_ID) } returns flowOf(MOCK_SYNCED_TASK_DATA_01_NEW)
-        coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
 
         testScope.runTest {
             controllerUnderTest.init()
@@ -296,7 +351,6 @@ class MessageDetailControllerTest {
         every { communicationRepository.loadDispReqCommunications(ORDER_ID) } returns flowOf(emptyList())
         every { communicationRepository.loadPharmacies() } returns flowOf(emptyList())
         every { communicationRepository.loadSyncedByTaskId(any()) } returns flowOf(null)
-        coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
         coEvery { communicationRepository.setCommunicationStatus(any(), any()) } returns Unit
 
         testScope.runTest {
@@ -415,7 +469,6 @@ class MessageDetailControllerTest {
         every { communicationRepository.taskIdsByOrder(ORDER_ID) } returns flowOf(listOf(TASK_ID))
         every { communicationRepository.loadRepliedCommunications(any(), any()) } returns flowOf(listOf(COMMUNICATION_DATA_WITH_TASK_ID))
         every { communicationRepository.loadSyncedByTaskId(TASK_ID) } returns flowOf(MOCK_SYNCED_TASK_DATA_01_NEW)
-        coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
         coEvery { communicationRepository.setCommunicationStatus(any(), any()) } just Runs
         coEvery { invoiceRepository.updateInvoiceCommunicationStatus(TASK_ID, true) } just Runs
 
@@ -440,5 +493,65 @@ class MessageDetailControllerTest {
                 )
             }
         }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `translateText sets progress and gives error on no consent`() = testScope.runTest {
+        val communicationId = "comm-2"
+        val inputText = "Hallo"
+
+        coEvery { translationRepository.getTargetLanguageTag() } returns flowOf("en")
+        coEvery { translationRepository.isTranslationAllowed() } returns flowOf(false)
+
+        controllerUnderTest.translateText(communicationId, inputText) {
+            fail("Success callback should not be called")
+        }
+
+        advanceUntilIdle()
+
+        // translation progress should be cleared
+        val inProgress = controllerUnderTest.translationInProgress.value
+        assert(inProgress[communicationId] == false)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `translateText sets progress and gives error on no target language`() = testScope.runTest {
+        val communicationId = "comm-2"
+        val inputText = "Hallo"
+
+        coEvery { translationRepository.getTargetLanguageTag() } returns flowOf(null)
+        coEvery { translationRepository.isTranslationAllowed() } returns flowOf(true)
+
+        controllerUnderTest.translateText(communicationId, inputText) {
+            fail("Success callback should not be called")
+        }
+
+        advanceUntilIdle()
+
+        // translation progress should be cleared
+        val inProgress = controllerUnderTest.translationInProgress.value
+        assert(inProgress[communicationId] == false)
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `translateText sets in-progress flag on loading`() = testScope.runTest {
+        val communicationId = "comm-3"
+        val inputText = "Hallo"
+
+        coEvery { translationRepository.getTargetLanguageTag() } returns flowOf("en")
+        coEvery { translationRepository.isTranslationAllowed() } returns flowOf(true)
+
+        controllerUnderTest.translateText(communicationId, inputText) {}
+
+        advanceUntilIdle()
+
+        val final = controllerUnderTest.translationInProgress.value
+        assert(final[communicationId] == true)
+
+        val inProgressDuring = controllerUnderTest.translationInProgress.value[communicationId]
+        assertNotNull(inProgressDuring)
     }
 }

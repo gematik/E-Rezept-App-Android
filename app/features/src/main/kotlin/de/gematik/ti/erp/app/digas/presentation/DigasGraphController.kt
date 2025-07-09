@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.digas.presentation
@@ -35,8 +39,10 @@ import de.gematik.ti.erp.app.digas.mapper.toDigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.worker.FeedbackNavigationTriggerWorker
 import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.insurance.usecase.FetchInsuranceProviderUseCase
 import de.gematik.ti.erp.app.prescription.usecase.DeletePrescriptionUseCase
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.ui.extension.extract
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
@@ -58,6 +64,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import org.jetbrains.annotations.VisibleForTesting
 import java.util.concurrent.TimeUnit
 import kotlin.time.Duration.Companion.hours
 
@@ -74,8 +81,13 @@ abstract class DigasGraphController(
     abstract val lastRefreshedOn: StateFlow<Instant>
     abstract val isDownloading: StateFlow<Boolean>
     abstract val isBfarmReachable: StateFlow<Boolean>
+    abstract val insuranceName: StateFlow<String?>
+    abstract val telematikId: String?
+    abstract val isLoadingTask: StateFlow<Boolean>
+    abstract val isLoadingInsurance: StateFlow<Boolean>
 
-    abstract fun updateTaskId(id: String?)
+    abstract fun updateTaskId(id: String?, isReady: Boolean?)
+    abstract fun updateInsuranceInfo(id: String?, name: String?)
     abstract fun refresh()
     abstract fun reset()
     abstract fun onOpenAppWithRedeemCodeDiga()
@@ -93,19 +105,24 @@ class DefaultDigasGraphController(
     private val updateDigaIsNewUseCase: UpdateDigaIsNewUseCase,
     private val updateDigaStatusUseCase: UpdateDigaStatusUseCase,
     private val getDigaByTaskIdUseCase: GetDigaByTaskIdUseCase,
+    private val fetchInsuranceProviderUseCase: FetchInsuranceProviderUseCase,
     private val deletePrescriptionUseCase: DeletePrescriptionUseCase,
     private val updateArchivedStatusUseCase: UpdateArchivedStatusUseCase,
     private val getLastSuccessfulRefreshedTimeUseCase: GetLastSuccessfulRefreshedTimeUseCase
 ) : DigasGraphController(
     getActiveProfileUseCase = getActiveProfileUseCase
 ) {
+    private val _isBfarmReachable = MutableStateFlow(false)
+    private val _isProfileRefreshing = MutableStateFlow(false)
+    private val _isDownloading = MutableStateFlow(false)
+    private val _isLoadingTask = MutableStateFlow(false)
+    private val _isLoadingInsurance = MutableStateFlow(false)
 
-    private val _isBafimReachable = MutableStateFlow(false)
-    private val _isProfileRefreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    private val _isDownloading: MutableStateFlow<Boolean> = MutableStateFlow(false)
-    override val isBfarmReachable: StateFlow<Boolean> = _isBafimReachable
+    override val isBfarmReachable: StateFlow<Boolean> = _isBfarmReachable
     override val isProfileRefreshing = _isProfileRefreshing.asStateFlow()
     override val isDownloading = _isDownloading.asStateFlow()
+    override val isLoadingTask = _isLoadingTask.asStateFlow()
+    override val isLoadingInsurance = _isLoadingInsurance.asStateFlow()
     override val needLoggedInTokenForDeletionEvent = ComposableEvent<ProfileIdentifier>()
 
     init {
@@ -114,9 +131,17 @@ class DefaultDigasGraphController(
         }
     }
 
-    private val refreshTrigger = MutableStateFlow(Unit) // Trigger for refreshing the flow
+    @VisibleForTesting
+    val refreshTrigger = MutableStateFlow(Unit) // Trigger for refreshing the flow
 
     private val _taskId: MutableStateFlow<String?> = MutableStateFlow(null)
+    private val _isReady: MutableStateFlow<Boolean?> = MutableStateFlow(false)
+
+    private var _telematikId: String? = null
+    override val telematikId get() = _telematikId
+
+    private val _insuranceName = MutableStateFlow<String?>(null)
+    override val insuranceName = _insuranceName.asStateFlow()
 
     private suspend fun getProfile() = activeProfile.first { it.isDataState }.data
 
@@ -125,20 +150,43 @@ class DefaultDigasGraphController(
         _taskId
             .flatMapLatest { taskId ->
                 if (taskId.isNullOrEmpty()) {
-                    flowOf(UiState.Empty()) // no task id, we do not show the diga
+                    flowOf(UiState.Empty())
                 } else {
                     refreshTrigger.flatMapLatest {
                         getDigaByTaskIdUseCase.invoke(taskId).map { task ->
-                            UiState.Data(data = task.toDigaMainScreenUiModel())
+                            UiState.Data(task.toDigaMainScreenUiModel())
                         }
                     }
                 }
-            }.distinctUntilChanged() // avoids UI recompositions unless data changes
+            }
+            .distinctUntilChanged()
             .stateIn(
                 controllerScope,
                 started = SharingStarted.WhileSubscribed(),
                 initialValue = UiState.Loading()
             )
+
+    private fun fetchInsuranceProviderInfo() {
+        controllerScope.launch {
+            if (_isReady.value == true) {
+                _isLoadingTask.value = true
+                controllerScope.launch {
+                    try {
+                        activeProfile.extract()?.let { profile ->
+                            if (_insuranceName.value.isNullOrEmpty()) {
+                                fetchInsuranceProviderUseCase.invoke(profile.id)?.let {
+                                    _insuranceName.value = it.name
+                                    _telematikId = it.id
+                                }
+                            }
+                        }
+                    } finally {
+                        _isLoadingTask.value = false
+                    }
+                }
+            }
+        }
+    }
 
     override val taskId: StateFlow<String?> = _taskId.asStateFlow()
 
@@ -176,18 +224,27 @@ class DefaultDigasGraphController(
     }
 
     override fun observeIsDownloading(state: WorkInfo.State?) {
-        when (state) {
-            WorkInfo.State.SUCCEEDED -> _isDownloading.value = false
-            WorkInfo.State.FAILED -> _isDownloading.value = false
-            WorkInfo.State.RUNNING -> _isDownloading.value = true
-            else -> _isDownloading.value = false
+        _isDownloading.value = when (state) {
+            WorkInfo.State.RUNNING -> true
+            else -> false
         }
     }
 
-    override fun updateTaskId(id: String?) {
+    override fun updateTaskId(id: String?, isReady: Boolean?) {
         id?.takeIf { it.isNotNullOrEmpty() }?.let {
             updateNewLabel(it)
             _taskId.value = it
+        }
+        _isReady.value = isReady
+        if (isReady == true) {
+            fetchInsuranceProviderInfo()
+        }
+    }
+
+    override fun updateInsuranceInfo(id: String?, name: String?) {
+        id?.takeIf { it.isNotNullOrEmpty() }?.let {
+            _telematikId = it
+            _insuranceName.value = name
         }
     }
 
@@ -199,6 +256,8 @@ class DefaultDigasGraphController(
     // the cleanup method when we are leaving the diga process
     override fun reset() {
         _taskId.value = null
+        _telematikId = null
+        _insuranceName.value = null
     }
 
     override fun onDownloadDiga() {
@@ -245,6 +304,7 @@ class DefaultDigasGraphController(
         }
     }
 
+    @Suppress("MagicNumber")
     override fun registerFeedbackPrompt(context: Context) {
         controllerScope.launch {
             activeProfile.first { it.isDataState }.data?.let { activeProfile ->

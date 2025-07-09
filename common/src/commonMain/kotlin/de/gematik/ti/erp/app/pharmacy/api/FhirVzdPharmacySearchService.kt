@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.pharmacy.api
@@ -55,6 +59,18 @@ interface FhirVzdPharmacySearchService {
         @Query("_sortby") sortBy: String = "near",
         // this makes the backend search to always give 100 (max value)
         @Query("_count") count: Int = 100
+    ): Response<JsonElement>
+
+    @GET("HealthcareService")
+    suspend fun searchInsurance(
+        // this is a required filter
+        @Query("organization.active") organizationActive: Boolean = true,
+        // Include all related resources
+        @Query("_include") includeOrganization: String = "HealthcareService:organization",
+        @Query("_include") includeLocation: String = "HealthcareService:location",
+        // filter for Pharmacies of type "KrankenKassen"
+        @Query("organization.type") type: String = FhirVzdPharmacyTypeCode.insuranceProvider,
+        @Query("_text") textSearch: String?
     ): Response<JsonElement>
 
     @GET("HealthcareService")

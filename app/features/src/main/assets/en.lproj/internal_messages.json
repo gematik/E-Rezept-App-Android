@@ -19,8 +19,14 @@
     },
     {
         "id": "5",
-        "text": "**📲 Redeem prescribed DiGAs** \n You can now redeem prescriptions for digital health applications (DiGAs) directly via the e-prescription app. You will receive the activation code and the link to the prescribed app immediately after redemption. \n \n **🏥 New pharmacy database** \n We have introduced a new, future-proof database for pharmacy searches.",
+        "text": "**📲 Redeem prescribed DiGAs** \nYou can now redeem prescriptions for digital health applications (DiGAs) directly via the e-prescription app. You can find your activation code and the link to the prescribed DiGA right here in the e-prescription app. \n \n **🏥 New pharmacy database** \nWe have introduced a new, future-proof database for pharmacy searches.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
+    },
+    {
+        "id": "6",
+        "text": "**🌐 New translation function** \nIf you use the app in another language, you can now translate the pharmacy's answers directly. \n \n **♿️ Accessibility** \nOur accessibility statement is now available in the settings. The onboarding process has also been made more accessible. \n \n **📲 Redeem DiGAs with insurance companies** \nPrescriptions for digital health applications (DiGAs) can now also be redeemed with other insurance companies.",
+        "timestamp": "2025-06-26T08:00:00.000Z",
+        "version": "1.31"
     }
 ]

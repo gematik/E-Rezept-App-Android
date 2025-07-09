@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.base.usecase
@@ -28,14 +32,14 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.Channel.Factory.CONFLATED
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.cancellation.CancellationException
@@ -46,152 +50,120 @@ import kotlin.coroutines.cancellation.CancellationException
  */
 
 class DownloadAllResourcesUseCase(
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
     private val taskRepository: TaskRepository,
     private val communicationRepository: CommunicationRepository,
     private val invoicesRepository: InvoiceRepository,
     private val profileRepository: ProfileRepository,
     private val stateRepository: DownloadResourcesStateRepository,
     private val settingsRepository: SettingsRepository,
-    private val networkStatusTracker: NetworkStatusTracker,
-    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val networkStatusTracker: NetworkStatusTracker
 ) {
-    suspend operator fun invoke(profileId: ProfileIdentifier): Result<Int> =
-        withContext(dispatcher) {
-            val resultChannel = Channel<Result<Int>>()
-            try {
-                Napier.i { "Requesting download for $profileId" }
-                requestChannel.send(
-                    Request(
-                        resultChannel = resultChannel,
-                        profileId = profileId
-                    )
-                )
-                return@withContext resultChannel.receive()
-            } catch (cancelException: CancellationException) {
-                withContext(NonCancellable) {
-                    resultChannel.close(cancelException)
-                }
-                return@withContext Result.failure(cancelException)
-            }
-        }
+    // 1) A SupervisorJob + IO dispatcher that lives as long as this UseCase lives.
+    //    Because it's not tied to any ViewModel, it will keep working across
+    //    configuration changes/screens.
+    private val scope = CoroutineScope(SupervisorJob() + dispatcher)
 
-    private class Request(
-        val resultChannel: Channel<Result<Int>>,
-        val profileId: ProfileIdentifier
+    // 2) An unbounded queue so we never drop requests
+    private data class Request(
+        val profileId: ProfileIdentifier,
+        val reply: CompletableDeferred<Int>
     )
 
-    private val scope = CoroutineScope(dispatcher + SupervisorJob()) // to allow it to run even if the viewmodel is cleared
-
-    private val requestChannel =
-        Channel<Request>(
-            capacity = CONFLATED,
-            onUndeliveredElement = {
-                stateRepository.closeSnapshotState()
-                it.resultChannel.close(CancellationException())
-            }
-        )
+    private val requests = Channel<Request>(
+        capacity = Channel.CONFLATED,
+        onUndeliveredElement = { droppedRequest ->
+            // rollback any “started” state for that profile
+            stateRepository.closeSnapshotState()
+            // tell the caller it failed
+            droppedRequest.reply.completeExceptionally(
+                CancellationException("Download request dropped")
+            )
+        }
+    )
 
     init {
+        // 3) Start one consumer in that long-lived scope
         scope.launch {
-            for (request in requestChannel) {
-                Napier.i { "Downloading queue has ${request.profileId}" }
-                handleDownloadRequest(request)
+            for (req in requests) {
+                handleDownload(req)
             }
         }
     }
 
-    private suspend fun handleDownloadRequest(request: Request) =
-        runCatching {
-            val profileId = request.profileId
-            stateRepository.updateSnapshotState(DownloadResourcesState.NotStarted)
-            if (networkStatusTracker.networkStatus.first()) { // tell in progress only if nw is connected
-                with(stateRepository) {
-                    updateSnapshotState(DownloadResourcesState.InProgress)
-                    updateDetailState(DownloadResourcesState.InProgress)
-                }
-            }
+    /**
+     * Public API:
+     * Enqueue a download request and return either
+     *   • Result.success(newPrescriptionsCount)
+     *   • Result.failure(exception)
+     */
+    suspend operator fun invoke(profileId: ProfileIdentifier): Result<Int> = runCatching {
+        // 1) Prepare a one-shot deferred for the reply
+        val deferred = CompletableDeferred<Int>()
 
-            val newPrescriptionsCount = downloadTasks(profileId)
+        // 2) Enqueue; if the channel is already closed this will throw,
+        //    and runCatching will catch it for you.
+        requests.send(Request(profileId, deferred))
+
+        // 3) Wait for either a success or an exception from handleDownload
+        deferred.await()
+    }
+
+    private suspend fun handleDownload(request: Request) {
+        val (profileId, reply) = request
+
+        stateRepository.updateSnapshotState(DownloadResourcesState.NotStarted)
+
+        if (networkStatusTracker.networkStatus.firstOrNull() == true) {
+            stateRepository.updateSnapshotState(DownloadResourcesState.InProgress)
+            stateRepository.updateDetailState(DownloadResourcesState.InProgress)
+        }
+
+        runCatching {
+            // 1) Tasks
+            val newCount = safeDownload("tasks") {
+                taskRepository.downloadTasks(profileId)
+            }
             stateRepository.updateDetailState(DownloadResourcesState.TasksDownloaded)
 
-            downloadCommunications(profileId) {
-                stateRepository.updateDetailState(DownloadResourcesState.CommunicationsDownloaded)
+            // 2) Communications
+            safeDownload("communications") {
+                communicationRepository.downloadCommunications(profileId)
             }
+            stateRepository.updateDetailState(DownloadResourcesState.CommunicationsDownloaded)
 
+            // 3) Invoices (if PKV)
             if (profileRepository.checkIsProfilePKV(profileId)) {
-                Napier.i { "Downloaded invoices for $profileId" }
-                downloadInvoices(profileId)
+                safeDownload("invoices") {
+                    invoicesRepository.downloadInvoices(profileId)
+                }
                 stateRepository.updateDetailState(DownloadResourcesState.InvoicesDownloaded)
             }
-            Napier.i { "Refresh finished for $profileId with $newPrescriptionsCount new prescriptions" }
-            request.resultChannel.send(Result.success(newPrescriptionsCount))
-        }.onFailure { error ->
-            when (error) {
-                is CancellationException -> {
-                    Napier.e(error) { "CancellationException on downloading resources" }
-                    request.resultChannel.close(error)
-                }
 
-                else -> {
-                    Napier.e(error) { "Error downloading resources" }
-                    request.resultChannel.send(Result.failure(error))
-                }
-            }
-        }.onSuccess {
-            settingsRepository.updateRefreshTime()
+            newCount
         }
-            .finally {
-                with(stateRepository) {
-                    updateSnapshotState(DownloadResourcesState.Finished)
-                    updateDetailState(DownloadResourcesState.Finished)
-                }
+            .onSuccess { count ->
+                settingsRepository.updateRefreshTime() //  Change this to profile based if needed
+                reply.complete(count)
             }
-
-    private suspend fun downloadTasks(profileId: ProfileIdentifier): Int =
-        withContext(NonCancellable) {
-            try {
-                taskRepository.downloadTasks(profileId).getOrThrow { throw it }
-            } catch (e: Exception) {
-                Napier.e(e) { "Error downloading tasks" }
-                throw e
+            .onFailure { error ->
+                Napier.e(error) { "Download failed for $profileId" }
+                reply.completeExceptionally(error)
             }
-        }
-
-    private suspend fun downloadCommunications(
-        profileId: ProfileIdentifier,
-        onComplete: () -> Unit
-    ) {
-        withContext(NonCancellable) {
-            try {
-                communicationRepository.downloadCommunications(profileId).getOrThrow { throw it }
-            } catch (e: Exception) {
-                Napier.e(e) { "Error downloading communications" }
-                throw e
-            } finally {
-                onComplete()
+            .also {
+                stateRepository.updateSnapshotState(DownloadResourcesState.Finished)
+                stateRepository.updateDetailState(DownloadResourcesState.Finished)
             }
-        }
     }
 
-    private suspend fun downloadInvoices(profileId: ProfileIdentifier): Int =
-        withContext(NonCancellable) {
-            try {
-                invoicesRepository.downloadInvoices(profileId).getOrThrow { throw it }
-            } catch (e: Exception) {
-                Napier.e(e) { "Error downloading invoices" }
-                throw e
-            }
-        }
-
-    private fun <T> Result<T>.getOrThrow(block: (Throwable) -> Nothing): T {
-        return getOrElse {
-            Napier.e(it) { "Error downloading resources" }
-            block(it)
-        }
-    }
-
-    private inline fun <T> Result<T>.finally(block: () -> Unit): Result<T> {
+    /** Log failures and rethrow, inside NonCancellable so downloads finish even if cancelled */
+    private suspend fun <T> safeDownload(
+        name: String,
+        block: suspend () -> Result<T>
+    ): T = withContext(NonCancellable) {
         block()
-        return this
+            .onSuccess { Napier.i { "Successfully downloaded $name" } }
+            .onFailure { Napier.e(it) { "Error downloading $name" } }
+            .getOrThrow()
     }
 }

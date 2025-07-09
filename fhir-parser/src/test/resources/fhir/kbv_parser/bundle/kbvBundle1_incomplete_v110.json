@@ -1,0 +1,139 @@
+{
+    "resourceType": "Bundle",
+    "id": "a9cd8303-0000-0000-0002-000000000000",
+    "meta": {
+        "lastUpdated": "2025-01-16T15:06:08Z",
+        "profile": [
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.1.0"
+        ]
+    },
+    "identifier": {
+        "system": "https://gematik.de/fhir/erp/NamingSystem/GEM_ERP_NS_PrescriptionId",
+        "value": "169.000.000.230.349.46"
+    },
+    "type": "document",
+    "timestamp": "2025-01-16T15:06:08Z",
+    "entry": [
+        {
+            "fullUrl": "http://pvs.praxis.local/fhir/Composition/70e4e747-a1e6-44cd-b91d-7cc2eef89c0c",
+            "resource": {
+                "resourceType": "Composition",
+                "id": "70e4e747-a1e6-44cd-b91d-7cc2eef89c0c",
+                "meta": {
+                    "profile": [
+                        "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.1.0"
+                    ]
+                },
+                "extension": [
+                    {
+                        "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
+                        "valueCoding": {
+                            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN",
+                            "code": "01"
+                        }
+                    }
+                ],
+                "status": "final",
+                "type": {
+                    "coding": [
+                        {
+                            "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART",
+                            "code": "e16A"
+                        }
+                    ]
+                },
+                "subject": {
+                    "reference": "Patient/93866fdc-3e50-4902-a7e9-891b54737b5e"
+                },
+                "date": "2025-01-16T15:06:08Z",
+                "author": [
+                    {
+                        "reference": "Practitioner/cb7558e2-0fdf-4107-93f6-07f13f39e067",
+                        "type": "Practitioner"
+                    },
+                    {
+                        "type": "Device",
+                        "identifier": {
+                            "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer",
+                            "value": "Y/400/2107/36/999"
+                        }
+                    }
+                ],
+                "title": "elektronische Arzneimittelverordnung",
+                "attester": [
+                    {
+                        "mode": "legal",
+                        "party": {
+                            "reference": "Practitioner/667ffd79-42a3-4002-b7ca-6b9098f20ccb"
+                        }
+                    }
+                ],
+                "custodian": {
+                    "reference": "Organization/5d3f4ac0-2b44-4d48-b363-e63efa72973b"
+                },
+                "section": [
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type",
+                                    "code": "Prescription"
+                                }
+                            ]
+                        },
+                        "entry": [
+                            {
+                                "reference": "MedicationRequest/877e9689-523e-46ca-aa78-8de34a023583"
+                            }
+                        ]
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type",
+                                    "code": "Coverage"
+                                }
+                            ]
+                        },
+                        "entry": [
+                            {
+                                "reference": "Coverage/1b89236c-ab14-4e92-937e-5af0b59d0cd4"
+                            }
+                        ]
+                    },
+                    {
+                        "code": {
+                            "coding": [
+                                {
+                                    "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type",
+                                    "code": "FOR_PractitionerRole"
+                                }
+                            ]
+                        },
+                        "entry": [
+                            {
+                                "reference": "PractitionerRole/cfa278d2-0b57-4889-a6a9-d3ff59983107"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
+    ],
+    "signature": {
+        "type": [
+            {
+                "system": "urn:iso-astm:E1762-95:2013",
+                "code": "1.2.840.10065.1.12.1.5"
+            }
+        ],
+        "when": "2025-02-12T16:51:53.569+00:00",
+        "who": {
+            "reference": "https://erp-test.zentral.erp.splitdns.ti-dienste.de/Device/1"
+        },
+        "sigFormat": "application/jose",
+        "data": "ZXlKaGJHY2lPaUpDVURJMU5sSXhJaXdpZURWMEkxTXlOVFlpT2lKYWJVcHNUMWRhYUUxRWJHcE9iVnBwVDBSQ2JVOUhVbXhhVkZKcVQwUldhRTF0UlROWmVrVXlXbXBuZUZwSFVteE9SR3Q0VDFSQ2FFNTZUbWxhYW1zd1RsUkpNRTlIV21oUFYwbDNXWHBaTUUxRVdUTk9VU0lzSW5SNWNDSTZJbUZ3Y0d4cFkyRjBhVzl1TDJwdmMyVWlMQ0pqZEhraU9pSmhjSEJzYVdOaGRHbHZiaTltYUdseUsycHpiMjQ3WTJoaGNuTmxkRDExZEdZdE9DSXNJbmcxWXlJNld5Sk5TVWxETVZSRFEwRnVkV2RCZDBsQ1FXZEpSRUZWYlN0TlFXOUhRME54UjFOTk5EbENRVTFEVFVsSFJVMVJjM2REVVZsRVZsRlJSMFYzU2tWU1ZFVm1UVUl3UjBFeFZVVkRaM2RYV2pKV2RGbFlVbkJoZVVKSVlsZEtTVWxGTlZCV1F6RlhVVlY0U2xKRVJYbE5SRUZIUVRGVlJVTjNkM0JUTWpsMFkwYzVkVnBYTlRCYVZ6UjBVVEJGWjFwSFZubEpSbEpzWWtkV2RGbFlVbkJoTW14MVdtNUthR016VW5sa1YzUXdaRmhKZUVsRVFXVkNaMDVXUWtGTlRVWXdaRVpVVXpWTVZEQXhVVXhWVGtKT1ZFRm5Wa1ZXVkZaRE1WQlVhM2hhVFVJMFdFUlVTVEJOUkVWNFRVUkJOVTVFUlhoTlZtOVlSRlJKTlUxRVJYZFBSRUUxVGtSRmVFMUdiM2RZUkVWTVRVRnJSMEV4VlVWQ2FFMURVa1ZWZUVscVFXZENaMDVXUWtGdlRVZFZiRU5VVTBKVlVsWk9WVXhWT1U5VVJtdG5URk5DVDFReFVYUldhMFpOVTFWUmVFWjZRVlpDWjA1V1FrRlZWRVJxUVRST2VsRXpURlpTVmxVd2JFaE5SRUV4VFZKQmQwUm5XVVJXVVZGRVJFRmtiR050VmpaYVdFSXdUVVp2ZDBaQldVaExiMXBKZW1vd1EwRlJXVXBMZVZGRVFYZEpTVUZSUlVoQk1FbEJRa00yTUhoamRGQkZlRmd6YlhCcVozbEVOV3BGVDBOdWFrVXhWVzA1ZUcxd2VFdFVXbHAyZEhacVVrOW5OMk5OTUZGc2RVRTNiWGd2TjNKd2VXOHJOMjVLWkdWVlpXcDRaakEzVGxsNGIyMUdhazUwYzBsdGFtZG5SVUZOU1VnNVRVSXdSMEV4VldSRVoxRlhRa0pVTjJwME5tWlRiMUJ0VDJSQ2FITlJOVll3TVZBMlZIbFBhMUZxUVdaQ1owNVdTRk5OUlVkRVFWZG5RbEUyTkhGdmJHdHJObk54V2xJNWVuaHNjRFpvVFVkMVlXZDNNSHBDVGtKblozSkNaMFZHUWxGalFrRlJVa0pOUkRoM1VGRlpTVXQzV1VKQ1VWVklUVUZIUjAxWGFEQmtTRUUyVEhrNWEySXpaSFZpUnpsb1drTXhNRnBZVGpCamJWWnRURzFPZVdKRE5UQmhVekZyWVZkV2RXTXpVbXhNYlZKc1RESTVhbU16UVhaYVYwMTNSR2RaUkZaU01GQkJVVWd2UWtGUlJFRm5Xa0ZOUTBWSFFURlZaRWxCVVdGTlFtZDNRMmRaU1V0dlNWVkJSWGRGWjFOTmQwTm5XVWxMYjBsVlFVVjNSV2RvYzNkRVFWbEVWbEl3VkVGUlNDOUNRVWwzUVVSQmNrSm5WWEpLUVdkRVFYZFJhVTFEUVhkSWFrRmpUVUp2ZDBkRVFVdEVRV2hHVEZaS2JHVnRWbmRrUkVGTFFtZG5jV2RvVVVGVVFWTkRRWHBCUzBKblozRm9hMnBQVUZGUlJFRm5Ua2xCUkVKR1FXbEZRVzV2YzA5RlFUZHpNR2wzY2l0V2JrSkJjWHBuZFRkVWRHMVlZa3BCVld3NVNtOTNiSE00WVZOMVQwbERTVVo2Y2xFMVUxRlRhalZZTDBOalVHeHNZVGwyT0ZGbGExSnVkV1JFZFhjd1ZWSXJWemhwYTIxa00wa2lYWDAuLk1hVzdwOUM5ak9nUzI5bTlxWlYxMkRoaklYNmZFejBEVDdlUjhxOGpQUkE4bXU0VTFqN1BjOEN4ek9XaFR2aEY1LWVpTWtObVRVQ2o4NDdSRGRsMmtB",
+        "targetFormat": "application/fhir+json"
+    }
+}

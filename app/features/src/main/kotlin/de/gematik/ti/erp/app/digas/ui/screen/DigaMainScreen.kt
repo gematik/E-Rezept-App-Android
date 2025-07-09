@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.digas.ui.screen
@@ -130,9 +134,10 @@ class DigasMainScreen(
         val snackbarClose = stringResource(R.string.snackbar_close)
 
         val taskId = navBackStackEntry.arguments?.getString(DigasRoutes.DIGAS_NAV_TASK_ID)
+        val isReady = navBackStackEntry.arguments?.getBoolean(DigasRoutes.DIGAS_IS_READY)
         val controller = rememberRedeemDigasController()
 
-        LaunchedEffect(Unit) { graphController.updateTaskId(taskId) }
+        LaunchedEffect(Unit) { graphController.updateTaskId(taskId, isReady) }
 
         // events
         val iosDeepLinkDetectedEvent: ComposableEvent<Unit> = ComposableEvent()
@@ -148,11 +153,13 @@ class DigasMainScreen(
         // redeem state
         val isRedeeming by controller.isRedeeming.collectAsStateWithLifecycle()
         val isProfileRefreshing by graphController.isProfileRefreshing.collectAsStateWithLifecycle()
+        val isLoadingTask by graphController.isLoadingTask.collectAsStateWithLifecycle()
         val showLoadingIndicator by remember(isRedeeming, isProfileRefreshing) {
             mutableStateOf(isRedeeming || isProfileRefreshing)
         }
 
         // ui infos
+        val insuranceName by graphController.insuranceName.collectAsStateWithLifecycle()
         val isConnectionValid by graphController.isInternetConnected.collectAsStateWithLifecycle()
         val isDownloading by graphController.isDownloading.collectAsStateWithLifecycle()
 
@@ -208,8 +215,7 @@ class DigasMainScreen(
                         taskId = taskId,
                         context = context,
                         isRedemptionAllowed = isRedemptionAllowed,
-                        controller = controller,
-                        isRedeemAgain = false
+                        controller = controller
                     )
                 }
             }
@@ -233,6 +239,8 @@ class DigasMainScreen(
 
         DigaMainScreenScaffold(
             uiState = diga,
+            isLoadingTask = isLoadingTask,
+            insuranceName = insuranceName,
             errorScreenData = errorScreenData,
             listState = listState,
             isBfarmReachable = isBfarmReachable,
@@ -245,12 +253,11 @@ class DigasMainScreen(
                 selectedTab = DigaSegmentedControllerTap.entries.toTypedArray()[it]
             },
             actions = DigasActions(
-                onClickOnReady = { isRedeemAgain ->
+                onClickOnReady = { _ ->
                     scope.launch {
                         redeem(
                             taskId = taskId,
                             context = context,
-                            isRedeemAgain = isRedeemAgain,
                             isRedemptionAllowed = isRedemptionAllowed,
                             controller = controller
                         )
@@ -356,6 +363,9 @@ class DigasMainScreen(
                         )
                     }
                 },
+                onNavigateToInsuranceSearch = {
+                    navController.navigate(DigasRoutes.InsuranceSearchListScreen.path())
+                },
                 onRegisterFeedBack = {
                     graphController.registerFeedbackPrompt(context)
                 },
@@ -372,7 +382,6 @@ class DigasMainScreen(
         taskId: String?,
         context: Context,
         isRedemptionAllowed: Boolean,
-        isRedeemAgain: Boolean,
         controller: RedeemDigaController
     ) {
         graphController.activeProfile.extract()?.let { profile ->
@@ -386,7 +395,7 @@ class DigasMainScreen(
                     controller.redeem(
                         context = context,
                         profileId = profile.id,
-                        isRedeemAgain = isRedeemAgain,
+                        telematikId = graphController.telematikId,
                         taskId = notNullTaskId
                     )
                 }
@@ -446,6 +455,8 @@ class DigasMainScreen(
 @Composable
 fun DigaMainScreenScaffold(
     listState: LazyListState = rememberLazyListState(),
+    insuranceName: String?,
+    isLoadingTask: Boolean,
     uiState: UiState<DigaMainScreenUiModel>,
     errorScreenData: ErrorScreenData,
     isDownloading: Boolean,
@@ -519,6 +530,8 @@ fun DigaMainScreenScaffold(
                             }
                             ActionSection(
                                 step = state.status,
+                                isLoadingTask = isLoadingTask,
+                                insuranceName = insuranceName,
                                 isArchived = state.isArchived,
                                 onClickOnReady = {
                                     actions.onClickOnReady(false)
@@ -527,7 +540,8 @@ fun DigaMainScreenScaffold(
                                 onClickOnOpenAppWithRedeemCode = actions.onClickOnOpenAppWithRedeemCode,
                                 onClickOnReadyForSelfArchive = { actions.onClickOnReadyForSelfArchive(state.status) },
                                 onClickOnDigaOpen = actions.onClickOnDigaOpen,
-                                onClickOnRevertArchive = { actions.onClickOnArchiveRevert(state.status) }
+                                onClickOnRevertArchive = { actions.onClickOnArchiveRevert(state.status) },
+                                onClickOnNavigateToInsuranceSearch = { actions.onNavigateToInsuranceSearch() }
                             )
                         }
                     }
@@ -554,9 +568,10 @@ fun DigaMainScreenScaffold(
     }
 }
 
+@Suppress("MultipleEmitters")
 @LightDarkPreview
 @Composable
-fun DigaMainScreenScaffoldOverviewPreview(
+internal fun DigaMainScreenScaffoldOverviewPreview(
     @PreviewParameter(DigaOverviewPreviewParameterProvider::class) previewData: DigaPreviewData
 ) {
     PreviewAppTheme {
@@ -565,6 +580,7 @@ fun DigaMainScreenScaffoldOverviewPreview(
         ) {
             DigaMainScreenScaffold(
                 uiState = previewData.uiData,
+                insuranceName = null,
                 isBfarmReachable = false,
                 errorScreenData = ErrorScreenDataWithoutRetry(),
                 selectedTab = previewData.selectedTap,
@@ -572,6 +588,7 @@ fun DigaMainScreenScaffoldOverviewPreview(
                 actions = DigasActions(),
                 isConnectionValid = true,
                 showLoadingIndicator = false,
+                isLoadingTask = false,
                 isDownloading = false,
                 onTabChange = {}
             )
@@ -581,7 +598,7 @@ fun DigaMainScreenScaffoldOverviewPreview(
 
 @LightDarkLongPreview
 @Composable
-fun DigaMainScreenScaffoldDetailPreview(
+internal fun DigaMainScreenScaffoldDetailPreview(
     @PreviewParameter(DigaDetailPreviewParameterProvider::class) previewData: DigaPreviewData
 ) {
     PreviewAppTheme {
@@ -590,6 +607,7 @@ fun DigaMainScreenScaffoldDetailPreview(
         ) {
             DigaMainScreenScaffold(
                 uiState = previewData.uiData,
+                insuranceName = null,
                 isBfarmReachable = false,
                 errorScreenData = ErrorScreenDataWithoutRetry(),
                 selectedTab = previewData.selectedTap,
@@ -597,6 +615,7 @@ fun DigaMainScreenScaffoldDetailPreview(
                 lastRefreshedTime = Instant.parse("2024-08-01T10:00:00Z"),
                 isConnectionValid = true,
                 showLoadingIndicator = false,
+                isLoadingTask = false,
                 isDownloading = false,
                 onTabChange = {}
             )

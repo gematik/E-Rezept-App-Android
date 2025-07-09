@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,19 +11,24 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.demomode.repository.pharmacy
 
 import android.content.res.AssetManager
 import de.gematik.ti.erp.app.demomode.util.pharmacyFhirBundle
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInstitutionTelematikId
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyBundleParser
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
+import de.gematik.ti.erp.app.messages.repository.CachedPharmacy
 import de.gematik.ti.erp.app.pharmacy.model.OverviewPharmacyData
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyFilter
@@ -37,6 +42,9 @@ class DemoPharmacyRepository(
     private val redeemLocalDataSource: RedeemLocalDataSource,
     private val assetManager: AssetManager
 ) : PharmacyRepository {
+    override suspend fun searchInsurances(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection> {
+        return Result.success(parser.extract(pharmacyFhirBundle(assetManager)))
+    }
 
     override suspend fun searchPharmacies(filter: PharmacyFilter): Result<FhirPharmacyErpModelCollection> {
         return Result.success(parser.extract(pharmacyFhirBundle(assetManager)))
@@ -78,8 +86,8 @@ class DemoPharmacyRepository(
         // do nothing
     }
 
-    override suspend fun searchInsuranceProviderByInstitutionIdentifier(iknr: String): Result<FhirInstitutionTelematikId?> {
-        return Result.success(FhirInstitutionTelematikId("123456"))
+    override suspend fun searchInsuranceProviderByInstitutionIdentifier(iknr: String): Result<FhirInsuranceProvider?> {
+        return Result.success(FhirInsuranceProvider("123456", "TK"))
     }
 
     override suspend fun searchPharmacyByTelematikId(telematikId: String): Result<FhirPharmacyErpModelCollection> {
@@ -111,6 +119,14 @@ class DemoPharmacyRepository(
     }
 
     override suspend fun updateSelectedVzdPharmacyBackend(pharmacyVzdService: PharmacyVzdService) {
+        // do nothing
+    }
+
+    override fun loadCachedPharmacies(): Flow<List<CachedPharmacy>> {
+        return flowOf(emptyList())
+    }
+
+    override suspend fun savePharmacyToCache(cachedPharmacy: CachedPharmacy) {
         // do nothing
     }
 }

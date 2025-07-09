@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,37 +11,42 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.onboarding.ui
 
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.toggleableState
-import androidx.compose.ui.state.ToggleableState
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.PreviewParameter
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
@@ -51,14 +56,16 @@ import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
+import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.SpacerMedium
+import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.SecondaryButton
-import de.gematik.ti.erp.app.utils.compose.SwitchLeftWithText
-import de.gematik.ti.erp.app.utils.compose.preview.BooleanPreviewParameterProvider
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 
@@ -73,16 +80,21 @@ class OnboardingDataProtectionAndTermsOfUseOverviewScreen(
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Display data protection as part of the onboarding"
     )
+    @Requirement(
+        "O.Purp_3#3",
+        sourceSpecification = "BSI-eRp-ePA",
+        rationale = "User acceptance for terms of use and data protection as part of the onboarding"
+    )
     @Composable
     override fun Content() {
-        var accepted by rememberSaveable { mutableStateOf(false) }
         val lazyListState = rememberLazyListState()
-
+        val currentStep by graphController.currentStep.collectAsStateWithLifecycle(1)
+        BackHandler {}
         OnboardingDataProtectionAndTermsOfUseOverviewScreenContent(
             lazyListState = lazyListState,
-            isAccepted = accepted,
-            onAcceptanceStateChanged = { accepted = it },
+            currentStep = currentStep,
             onClickOnboardingBottomBar = {
+                graphController.nextStep()
                 navController.navigate(OnboardingRoutes.OnboardingSelectAppLoginScreen.path())
             },
             onClickOpenDataProtectionButton = {
@@ -93,7 +105,7 @@ class OnboardingDataProtectionAndTermsOfUseOverviewScreen(
             }
         )
 
-        if (BuildConfigExtension.isNonReleaseMode) {
+        if (BuildConfigExtension.isInternalDebug) {
             SkipOnBoardingButton {
                 graphController.createProfileOnSkipOnboarding()
                 navController.finishOnboardingAsSuccessAndOpenPrescriptions()
@@ -105,21 +117,32 @@ class OnboardingDataProtectionAndTermsOfUseOverviewScreen(
 @Composable
 private fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContent(
     lazyListState: LazyListState,
-    isAccepted: Boolean,
-    onAcceptanceStateChanged: (Boolean) -> Unit,
+    currentStep: Int,
     onClickOnboardingBottomBar: () -> Unit,
     onClickOpenDataProtectionButton: () -> Unit,
     onClickOpenTermsOfUseButton: () -> Unit
 ) {
     OnboardingScreenScaffold(
         state = lazyListState,
+        topBar = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PaddingDefaults.Medium)
+            ) {
+                SpacerXXLarge()
+                OnboardingProgressIndicator(currentStep = currentStep)
+                SpacerXXLarge()
+            }
+        },
         bottomBar = {
             OnboardingBottomBar(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .testTag(TestTag.Onboarding.NextButton)
+                    .fillMaxWidth(),
                 info = null,
-                buttonText = stringResource(R.string.onboarding_bottom_button_accept),
-                buttonEnabled = isAccepted,
-                buttonModifier = Modifier.testTag(TestTag.Onboarding.NextButton),
+                buttonText = stringResource(R.string.onboarding_bottom_app_safety_button_next),
+                buttonEnabled = true,
                 onButtonClick = onClickOnboardingBottomBar
             )
         },
@@ -128,8 +151,6 @@ private fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContent(
             .fillMaxSize()
     ) {
         dataProtectionAndTermsOfUseOverviewScreenContent(
-            isAccepted = isAccepted,
-            onCheckedChange = onAcceptanceStateChanged,
             onClickOpenDataProtectionButton = onClickOpenDataProtectionButton,
             onClickOpenTermsOfUseButton = onClickOpenTermsOfUseButton
         )
@@ -137,13 +158,10 @@ private fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContent(
 }
 
 private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
-    isAccepted: Boolean,
-    onCheckedChange: (Boolean) -> Unit,
     onClickOpenDataProtectionButton: () -> Unit,
     onClickOpenTermsOfUseButton: () -> Unit
 ) {
     item {
-        SpacerXXLarge()
         Image(
             painter = painterResource(R.drawable.paragraph),
             contentDescription = null,
@@ -155,12 +173,22 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
     item {
         Text(
             text = stringResource(R.string.onb_page_4_header),
-            style = AppTheme.typography.h4,
+            style = AppTheme.typography.h5,
             fontWeight = FontWeight.W700,
             textAlign = TextAlign.Start,
-            modifier = Modifier.padding(bottom = PaddingDefaults.Medium, top = PaddingDefaults.XXLarge)
+            modifier = Modifier.padding(bottom = PaddingDefaults.Small, top = PaddingDefaults.Tiny).semanticsHeading()
         )
-        SpacerMedium()
+        SpacerSmall()
+    }
+
+    item {
+        Text(
+            text = stringResource(R.string.onboarding_data_and_terms_use_use_text),
+            style = AppTheme.typography.body1,
+            textAlign = TextAlign.Start,
+            color = AppTheme.colors.neutral600
+        )
+        SpacerLarge()
     }
     item {
         @Requirement(
@@ -173,7 +201,14 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .testTag(TestTag.Onboarding.DataTerms.OpenDataProtectionButton),
-                onClick = onClickOpenDataProtectionButton
+                onClick = onClickOpenDataProtectionButton,
+                shape = RoundedCornerShape(SizeDefaults.triple),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = AppTheme.colors.neutral000,
+                    contentColor = AppTheme.colors.primary700
+                ),
+                border = BorderStroke(1.dp, AppTheme.colors.primary700),
+                contentPadding = PaddingValues(PaddingDefaults.Medium)
             ) {
                 Text(stringResource(R.string.onboarding_data_button))
             }
@@ -190,43 +225,33 @@ private fun LazyListScope.dataProtectionAndTermsOfUseOverviewScreenContent(
             SecondaryButton(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .testTag(TestTag.Onboarding.DataTerms.OpenTermsOfUseButton),
-                onClick = onClickOpenTermsOfUseButton
+                    .testTag(TestTag.Onboarding.DataTerms.OpenDataProtectionButton),
+                onClick = onClickOpenTermsOfUseButton,
+                shape = RoundedCornerShape(SizeDefaults.triple),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = AppTheme.colors.neutral000,
+                    contentColor = AppTheme.colors.primary700
+                ),
+                border = BorderStroke(1.dp, AppTheme.colors.primary700),
+                contentPadding = PaddingValues(
+                    horizontal = PaddingDefaults.Medium,
+                    vertical = 16.dp
+                )
             ) {
                 Text(stringResource(R.string.onboarding_terms_button))
             }
             )
         SpacerXXLarge()
     }
-    item {
-        @Requirement(
-            "O.Purp_3#3",
-            sourceSpecification = "BSI-eRp-ePA",
-            rationale = "User acceptance for terms of use and dar´ta protection as part of the onboarding"
-        )
-        SwitchLeftWithText(
-            modifier =
-            Modifier.testTag(TestTag.Onboarding.DataTerms.AcceptDataTermsSwitch).semantics {
-                toggleableState = ToggleableState.Off
-            },
-            text = stringResource(R.string.onboarding_data_terms_info),
-            checked = isAccepted,
-            onCheckedChange = onCheckedChange
-        )
-        SpacerMedium()
-    }
 }
 
 @LightDarkPreview
 @Composable
-fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContentPreview(
-    @PreviewParameter(BooleanPreviewParameterProvider::class) isAccepted: Boolean
-) {
+fun OnboardingDataProtectionAndTermsOfUseOverviewScreenContentPreview() {
     PreviewAppTheme {
         OnboardingDataProtectionAndTermsOfUseOverviewScreenContent(
             lazyListState = rememberLazyListState(),
-            isAccepted = isAccepted,
-            onAcceptanceStateChanged = {},
+            currentStep = 1,
             onClickOnboardingBottomBar = {},
             onClickOpenDataProtectionButton = {},
             onClickOpenTermsOfUseButton = {}

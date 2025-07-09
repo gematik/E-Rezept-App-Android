@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.digas.navigation
@@ -27,15 +31,17 @@ import de.gematik.ti.erp.app.navigation.Routes
 object DigasRoutes : NavigationRoutes {
     override fun subGraphName(): String = "digas"
     const val DIGAS_NAV_TASK_ID = "taskId"
+    const val DIGAS_IS_READY = "DigaIsReady"
     const val DIGAS_NAV_TITLE = "title"
     const val DIGAS_NAV_DESCRIPTION = "description"
     const val DIGAS_NAV_LINK = "digaLink"
 
     object DigasMainScreen : Routes(
         NavigationRouteNames.DigasMainScreen.name,
-        navArgument(DIGAS_NAV_TASK_ID) { type = NavType.StringType }
+        navArgument(DIGAS_NAV_TASK_ID) { type = NavType.StringType },
+        navArgument(DIGAS_IS_READY) { type = NavType.BoolType; defaultValue = false }
     ) {
-        fun path(taskId: String) = path(DIGAS_NAV_TASK_ID to taskId)
+        fun path(taskId: String, isReady: Boolean) = path(DIGAS_NAV_TASK_ID to taskId, DIGAS_IS_READY to isReady)
     }
 
     object DigasValidityBottomSheetScreen : Routes(
@@ -69,4 +75,6 @@ object DigasRoutes : NavigationRoutes {
     }
 
     object DigaFeedbackPromptScreen : Routes(NavigationRouteNames.DigaFeedbackPromptScreen.name)
+
+    object InsuranceSearchListScreen : Routes(NavigationRouteNames.InsuranceSearchListScreen.name)
 }

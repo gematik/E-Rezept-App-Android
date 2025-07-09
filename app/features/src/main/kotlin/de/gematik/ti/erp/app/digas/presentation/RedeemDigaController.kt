@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.digas.presentation
@@ -65,6 +69,7 @@ class RedeemDigaController(
     biometricAuthenticator: BiometricAuthenticator,
     getActiveProfileUseCase: GetActiveProfileUseCase,
     networkStatusTracker: NetworkStatusTracker,
+    val redeemEvent: ComposableEvent<RedeemEvent> = ComposableEvent(),
     private val redeemDigaUseCase: RedeemDigaUseCase
 ) : ChooseAuthenticationController(
     getProfileByIdUseCase = getProfileByIdUseCase,
@@ -81,7 +86,6 @@ class RedeemDigaController(
 
     val showAuthenticationErrorDialog = ComposableEvent<AuthenticationResult.Error>()
     val onBiometricAuthenticationSuccessEvent = ComposableEvent<Unit>()
-    val redeemEvent = ComposableEvent<RedeemEvent>()
     val onAutoDownloadEvent = ComposableEvent<Pair<WorkManager, WorkRequest>>()
     val isRedeeming: StateFlow<Boolean> = _isRedeeming.asStateFlow()
 
@@ -105,7 +109,7 @@ class RedeemDigaController(
 
     fun redeem(
         profileId: ProfileIdentifier,
-        isRedeemAgain: Boolean,
+        telematikId: String?,
         taskId: String,
         context: Context,
         orderId: UUID = orderID()
@@ -115,6 +119,7 @@ class RedeemDigaController(
                 redeemDigaUseCase.invoke(
                     arguments = RedeemDigaUseCase.RedeemDigaArguments(
                         profileId = profileId,
+                        telematikId = telematikId,
                         taskId = taskId,
                         orderId = orderId.toString(),
                         lifecycleHooks = RedeemDigaUseCase.RedeemDigaProgressState(
@@ -125,43 +130,50 @@ class RedeemDigaController(
                         )
                     )
                 )
-            }.fold(onSuccess = { state ->
-                when (state) {
-                    BaseRedeemState.Success -> {
-                        downloadResources(context, DOWNLOAD_WAIT_TIME_SECONDS)
-                    }
-
-                    is DigaRedeemedPrescriptionState.AlreadyRedeemed -> {
-                        redeemEvent.trigger(RedeemEvent.AlreadyRedeemed)
-                    }
-
-                    is DigaRedeemedPrescriptionState.NotAvailableInDatabase -> {
-                        redeemEvent.trigger(RedeemEvent.LocalError)
-                    }
-
-                    is DigaRedeemedPrescriptionState.NotAvailableInInsuranceDirectory -> {
-                        redeemEvent.trigger(RedeemEvent.DirectoryError)
-                    }
-
-                    is BaseRedeemState.Error -> {
-                        redeemEvent.trigger(RedeemEvent.HttpError(state.errorState))
-                    }
-
-                    else -> {
-                        Napier.d { "redeem event $state should not occur" }
-                        // not applicable at the moment
-                    }
-                }
-            }, onFailure = { exception ->
-                    redeemEvent.trigger(
-                        RedeemEvent.HttpError(
-                            HttpErrorState.ErrorWithCause(
-                                exception.message ?: exception.stackTraceToString()
-                            )
-                        )
-                    )
-                })
+            }.fold(
+                onSuccess = { state -> handleRedeemSuccess(state, context) },
+                onFailure = { exception -> handleRedeemFailure(exception) }
+            )
         }
+    }
+
+    private fun handleRedeemSuccess(state: BaseRedeemState, context: Context) {
+        when (state) {
+            BaseRedeemState.Success -> {
+                downloadResources(context, DOWNLOAD_WAIT_TIME_SECONDS)
+            }
+
+            is DigaRedeemedPrescriptionState.AlreadyRedeemed -> {
+                redeemEvent.trigger(RedeemEvent.AlreadyRedeemed)
+            }
+
+            is DigaRedeemedPrescriptionState.NotAvailableInDatabase -> {
+                redeemEvent.trigger(RedeemEvent.LocalError)
+            }
+
+            is DigaRedeemedPrescriptionState.NotAvailableInInsuranceDirectory -> {
+                redeemEvent.trigger(RedeemEvent.DirectoryError)
+            }
+
+            is BaseRedeemState.Error -> {
+                redeemEvent.trigger(RedeemEvent.HttpError(state.errorState))
+            }
+
+            else -> {
+                Napier.d { "redeem event $state should not occur" }
+                // not applicable at the moment
+            }
+        }
+    }
+
+    private fun handleRedeemFailure(exception: Throwable) {
+        redeemEvent.trigger(
+            RedeemEvent.HttpError(
+                HttpErrorState.ErrorWithCause(
+                    exception.message ?: exception.stackTraceToString()
+                )
+            )
+        )
     }
 
     fun downloadResources(
@@ -170,8 +182,10 @@ class RedeemDigaController(
     ) {
         controllerScope.launch {
             activeProfile.first { it.isDataState }.data?.let { activeProfile ->
-                val workRequest = OneTimeWorkRequestBuilder<DownloadResourcesWorker>().setInitialDelay(delay, TimeUnit.SECONDS)
-                    .setInputData(workDataOf("profileId" to activeProfile.id)).build()
+                val workRequest = OneTimeWorkRequestBuilder<DownloadResourcesWorker>()
+                    .setInitialDelay(delay, TimeUnit.SECONDS)
+                    .setInputData(workDataOf("profileId" to activeProfile.id))
+                    .build()
 
                 val uniqueWorkName = "DownloadResources-${activeProfile.id}"
 

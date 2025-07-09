@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.settings.navigation
@@ -28,8 +32,8 @@ import de.gematik.ti.erp.app.navigation.slideOutLeft
 import de.gematik.ti.erp.app.navigation.slideOutUp
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsAdditionalLicencesScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsAllowAnalyticsScreen
-import de.gematik.ti.erp.app.settings.ui.screens.SettingsDataProtectionScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsAppSecurityScreen
+import de.gematik.ti.erp.app.settings.ui.screens.SettingsDataProtectionScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsLanguageScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsLegalNoticeScreen
 import de.gematik.ti.erp.app.settings.ui.screens.SettingsOpenSourceLicencesScreen
@@ -40,19 +44,19 @@ import de.gematik.ti.erp.app.settings.ui.screens.SettingsTermsOfUseScreen
 
 @Suppress("LongMethod")
 fun NavGraphBuilder.settingsGraph(
-    startDestination: String = SettingsNavigationScreens.SettingsScreen.route,
+    startDestination: String = SettingsRoutes.SettingsScreen.route,
     navController: NavController
 ) {
     navigation(
         startDestination = startDestination,
-        route = SettingsNavigationScreens.subGraphName()
+        route = SettingsRoutes.subGraphName()
     ) {
         renderComposable(
             stackEnterAnimation = { slideInDown() },
             stackExitAnimation = { slideOutUp() },
             popExitAnimation = { slideOutUp() },
-            route = SettingsNavigationScreens.SettingsScreen.route,
-            arguments = SettingsNavigationScreens.SettingsScreen.arguments
+            route = SettingsRoutes.SettingsScreen.route,
+            arguments = SettingsRoutes.SettingsScreen.arguments
         ) { navEntry ->
             SettingsScreen(
                 navController = navController,
@@ -60,8 +64,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsProductImprovementsScreen.route,
-            arguments = SettingsNavigationScreens.SettingsProductImprovementsScreen.arguments
+            route = SettingsRoutes.SettingsProductImprovementsScreen.route,
+            arguments = SettingsRoutes.SettingsProductImprovementsScreen.arguments
         ) { navEntry ->
             SettingsProductImprovementsScreen(
                 navController = navController,
@@ -69,8 +73,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsAppSecurityScreen.route,
-            arguments = SettingsNavigationScreens.SettingsAppSecurityScreen.arguments,
+            route = SettingsRoutes.SettingsAppSecurityScreen.route,
+            arguments = SettingsRoutes.SettingsAppSecurityScreen.arguments,
             stackEnterAnimation = { slideInRight() },
             stackExitAnimation = { slideOutLeft() }
         ) { navEntry ->
@@ -80,8 +84,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsTermsOfUseScreen.route,
-            arguments = SettingsNavigationScreens.SettingsTermsOfUseScreen.arguments
+            route = SettingsRoutes.SettingsTermsOfUseScreen.route,
+            arguments = SettingsRoutes.SettingsTermsOfUseScreen.arguments
         ) { navEntry ->
             SettingsTermsOfUseScreen(
                 navController = navController,
@@ -89,8 +93,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsLegalNoticeScreen.route,
-            arguments = SettingsNavigationScreens.SettingsLegalNoticeScreen.arguments
+            route = SettingsRoutes.SettingsLegalNoticeScreen.route,
+            arguments = SettingsRoutes.SettingsLegalNoticeScreen.arguments
         ) { navEntry ->
             SettingsLegalNoticeScreen(
                 navController = navController,
@@ -98,8 +102,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsDataProtectionScreen.route,
-            arguments = SettingsNavigationScreens.SettingsDataProtectionScreen.arguments
+            route = SettingsRoutes.SettingsDataProtectionScreen.route,
+            arguments = SettingsRoutes.SettingsDataProtectionScreen.arguments
         ) { navEntry ->
             SettingsDataProtectionScreen(
                 navController = navController,
@@ -107,8 +111,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsOpenSourceLicencesScreen.route,
-            arguments = SettingsNavigationScreens.SettingsOpenSourceLicencesScreen.arguments
+            route = SettingsRoutes.SettingsOpenSourceLicencesScreen.route,
+            arguments = SettingsRoutes.SettingsOpenSourceLicencesScreen.arguments
         ) { navEntry ->
             SettingsOpenSourceLicencesScreen(
                 navController = navController,
@@ -116,8 +120,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsAdditionalLicencesScreen.route,
-            arguments = SettingsNavigationScreens.SettingsAdditionalLicencesScreen.arguments
+            route = SettingsRoutes.SettingsAdditionalLicencesScreen.route,
+            arguments = SettingsRoutes.SettingsAdditionalLicencesScreen.arguments
         ) { navEntry ->
             SettingsAdditionalLicencesScreen(
                 navController = navController,
@@ -125,8 +129,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsAllowAnalyticsScreen.route,
-            arguments = SettingsNavigationScreens.SettingsAllowAnalyticsScreen.arguments
+            route = SettingsRoutes.SettingsAllowAnalyticsScreen.route,
+            arguments = SettingsRoutes.SettingsAllowAnalyticsScreen.arguments
         ) { navEntry ->
             SettingsAllowAnalyticsScreen(
                 navController = navController,
@@ -134,8 +138,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsSetAppPasswordScreen.route,
-            arguments = SettingsNavigationScreens.SettingsSetAppPasswordScreen.arguments,
+            route = SettingsRoutes.SettingsSetAppPasswordScreen.route,
+            arguments = SettingsRoutes.SettingsSetAppPasswordScreen.arguments,
             stackEnterAnimation = { slideInRight() },
             stackExitAnimation = { slideOutLeft() }
         ) { navEntry ->
@@ -145,8 +149,8 @@ fun NavGraphBuilder.settingsGraph(
             )
         }
         renderComposable(
-            route = SettingsNavigationScreens.SettingsLanguageScreen.route,
-            arguments = SettingsNavigationScreens.SettingsLanguageScreen.arguments
+            route = SettingsRoutes.SettingsLanguageScreen.route,
+            arguments = SettingsRoutes.SettingsLanguageScreen.arguments
         ) { navEntry ->
             SettingsLanguageScreen(
                 navController = navController,
