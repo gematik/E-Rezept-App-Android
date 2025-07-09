@@ -4,128 +4,11 @@
     <ID>ConstructorParameterNaming:PrescriptionDetailController.kt$PrescriptionDetailController$private val _prescription: MutableStateFlow&lt;UiState&lt;PrescriptionData.Prescription&gt;&gt; = MutableStateFlow(UiState.Loading())</ID>
   </ManuallySuppressedIssues>
   <CurrentIssues>
-    <ID>ComposableNaming:ComposableEvent.kt$ComposableEvent$listen</ID>
-    <ID>ComposableNaming:InvoiceExpandedDetailsScreen.kt$invoiceExpandedDetailsScreenContentPreview</ID>
-    <ID>ComposableNaming:Toast.kt$shortToast</ID>
-    <ID>ComposableParamOrder:AnimatedElevationScaffold.kt$AnimatedElevationScaffold</ID>
-    <ID>ComposableParamOrder:AnimatedElevationScaffoldWithScrollState.kt$AnimatedElevationScaffoldWithScrollState</ID>
-    <ID>ComposableParamOrder:Avatar.kt$Avatar</ID>
-    <ID>ComposableParamOrder:Avatar.kt$ChooseAvatar</ID>
-    <ID>ComposableParamOrder:Avatar.kt$extractImageResource</ID>
-    <ID>ComposableParamOrder:Banner.kt$Banner</ID>
-    <ID>ComposableParamOrder:BitmapProfileImage.kt$BitmapImage</ID>
-    <ID>ComposableParamOrder:BitmapProfileImage.kt$CircularBitmapImage</ID>
-    <ID>ComposableParamOrder:BottomSheet.kt$ModalBottomSheet</ID>
-    <ID>ComposableParamOrder:BottomSheetAction.kt$BottomSheetAction</ID>
-    <ID>ComposableParamOrder:ButtonWithConditionalHint.kt$ButtonWithConditionalHint</ID>
-    <ID>ComposableParamOrder:Buttons.kt$OutlinedIconButton</ID>
-    <ID>ComposableParamOrder:CardWallAuthDialog.kt$CardWallAuthenticationDialog</ID>
-    <ID>ComposableParamOrder:CardWallPinScreen.kt$PinInputField</ID>
-    <ID>ComposableParamOrder:CardWallSaveCredentialsScreen.kt$SelectableCard</ID>
-    <ID>ComposableParamOrder:CardWallScaffold.kt$CardWallScaffold</ID>
-    <ID>ComposableParamOrder:Chip.kt$Chip</ID>
-    <ID>ComposableParamOrder:ClickableText.kt$ClickableText</ID>
-    <ID>ComposableParamOrder:Common.kt$AcceptDialog</ID>
-    <ID>ComposableParamOrder:Common.kt$ClickableAnnotatedText</ID>
-    <ID>ComposableParamOrder:Common.kt$CommonAlertDialog</ID>
-    <ID>ComposableParamOrder:Common.kt$DynamicText</ID>
-    <ID>ComposableParamOrder:Common.kt$Label</ID>
-    <ID>ComposableParamOrder:Common.kt$LabeledSwitch</ID>
-    <ID>ComposableParamOrder:Common.kt$NavigationTopAppBar</ID>
-    <ID>ComposableParamOrder:CommonDrawerScreenContent.kt$CommonDrawerScreenContent</ID>
-    <ID>ComposableParamOrder:ConsentMessages.kt$HandleConsentState</ID>
-    <ID>ComposableParamOrder:DebugCard.kt$DebugCard</ID>
-    <ID>ComposableParamOrder:DebugScreen.kt$DebugCard</ID>
-    <ID>ComposableParamOrder:DebugScreen.kt$EditablePathComponentSetButton</ID>
-    <ID>ComposableParamOrder:DebugScreen.kt$FeatureToggles</ID>
-    <ID>ComposableParamOrder:DebugScreen.kt$RotatingLog</ID>
-    <ID>ComposableParamOrder:DebugScreen.kt$VirtualHealthCard</ID>
-    <ID>ComposableParamOrder:DemoModeTopAppBar.kt$DemoModeStatusBar</ID>
-    <ID>ComposableParamOrder:Dialog.kt$AlertDialog</ID>
-    <ID>ComposableParamOrder:DispenseMessage.kt$DispenseMessage</ID>
-    <ID>ComposableParamOrder:EditableHeaderText.kt$EditableTextField</ID>
-    <ID>ComposableParamOrder:EditablePathComponentSetButton.kt$EditablePathComponentSetButton</ID>
-    <ID>ComposableParamOrder:EmptyScreenComponent.kt$EmptyScreenComponent</ID>
-    <ID>ComposableParamOrder:ErezeptAlertDialog.kt$ErezeptAlertDialog</ID>
-    <ID>ComposableParamOrder:ErezeptAlertDialog.kt$InternalErezeptAlertDialog</ID>
-    <ID>ComposableParamOrder:ErezeptOutlineText.kt$ErezeptOutlineText</ID>
-    <ID>ComposableParamOrder:ErezeptText.kt$ErezeptText$CenteredTitle</ID>
-    <ID>ComposableParamOrder:ErezeptText.kt$ErezeptText$UnCenteredTitle</ID>
-    <ID>ComposableParamOrder:ErrorOnRedeemablePrescriptionDialog.kt$ErrorOnRedeemablePrescriptionDialog</ID>
-    <ID>ComposableParamOrder:ErrorOnRedeemablePrescriptionDialog.kt$bodyText</ID>
-    <ID>ComposableParamOrder:ErrorText.kt$ErrorText</ID>
-    <ID>ComposableParamOrder:ExploreSection.kt$DemoModeSwitch</ID>
-    <ID>ComposableParamOrder:FavoritePharmacyCard.kt$FavoritePharmacyCard</ID>
-    <ID>ComposableParamOrder:FilterButtonSection.kt$FilterButtonSection</ID>
-    <ID>ComposableParamOrder:FlatButton.kt$FlatButton</ID>
-    <ID>ComposableParamOrder:GidScreenHeaderSection.kt$ExternalAuthenticationScreenHeader</ID>
-    <ID>ComposableParamOrder:GidScreenHeaderSection.kt$GidScreenHeaderSection</ID>
-    <ID>ComposableParamOrder:Hints.kt$AnimatedHintCard</ID>
-    <ID>ComposableParamOrder:Hints.kt$HintCard</ID>
-    <ID>ComposableParamOrder:Hints.kt$HintLargeImage</ID>
-    <ID>ComposableParamOrder:Hints.kt$HintSmallImage</ID>
-    <ID>ComposableParamOrder:InfoLabel.kt$InfoLabel</ID>
-    <ID>ComposableParamOrder:InsetAwareBars.kt$BottomNavigation</ID>
-    <ID>ComposableParamOrder:ItemsMenu.kt$ItemsMenu</ID>
-    <ID>ComposableParamOrder:LabeledCheckbox.kt$LabeledCheckbox</ID>
-    <ID>ComposableParamOrder:LoadingButton.kt$LoadingButton</ID>
-    <ID>ComposableParamOrder:LocalRedeemScreen.kt$Dot</ID>
-    <ID>ComposableParamOrder:LoggerScreen.kt$CopyButton</ID>
-    <ID>ComposableParamOrder:LowDetailMedication.kt$LowDetailMedication</ID>
-    <ID>ComposableParamOrder:MailClient.kt$buildFeedbackBodyWithDeviceInfo</ID>
-    <ID>ComposableParamOrder:MainScreenAvatar.kt$ConnectionHelper</ID>
-    <ID>ComposableParamOrder:MainScreenAvatar.kt$MainScreenAvatar</ID>
-    <ID>ComposableParamOrder:MedicationPlanReminderCard.kt$MedicationPlanReminderCard</ID>
-    <ID>ComposableParamOrder:MessageTimeStateParser.kt$messageTimeStateParser</ID>
-    <ID>ComposableParamOrder:Messages.kt$Messages</ID>
-    <ID>ComposableParamOrder:OnboardingBottomBar.kt$OnboardingBottomBar</ID>
-    <ID>ComposableParamOrder:OnboardingLazyColumn.kt$OnboardingLazyColumn</ID>
-    <ID>ComposableParamOrder:OnboardingScreenScaffold.kt$OnboardingScreenScaffold</ID>
-    <ID>ComposableParamOrder:OrderHealthCardSelectMethodScreen.kt$OrderHealthCardSelectMethodScreenContent</ID>
-    <ID>ComposableParamOrder:Orders.kt$Order</ID>
-    <ID>ComposableParamOrder:Orders.kt$Orders</ID>
-    <ID>ComposableParamOrder:PersonalSettingsSection.kt$ZoomSwitch</ID>
-    <ID>ComposableParamOrder:PharmacyContact.kt$PharmacyContact</ID>
-    <ID>ComposableParamOrder:PharmacyContact.kt$PharmacyOpeningHoursOverview</ID>
-    <ID>ComposableParamOrder:PharmacyDetailsComponent.kt$BasePharmacyDetailsContent</ID>
-    <ID>ComposableParamOrder:PharmacyDetailsComponent.kt$PharmacyDetailsComponent</ID>
-    <ID>ComposableParamOrder:PharmacySearchErrorHint.kt$PharmacySearchErrorHint</ID>
-    <ID>ComposableParamOrder:PharmacySearchListScreen.kt$SearchResults</ID>
-    <ID>ComposableParamOrder:PharmacyStartScreen.kt$PharmacyStartScreenContent</ID>
-    <ID>ComposableParamOrder:PrescriptionDetailScreenScaffold.kt$PrescriptionDetailScreenScaffold</ID>
-    <ID>ComposableParamOrder:PrescriptionScanScreen.kt$ScanOverlay</ID>
-    <ID>ComposableParamOrder:PrescriptionStateInfo.kt$sentOrCompletedPhrase</ID>
-    <ID>ComposableParamOrder:PrescriptionsSection.kt$PrescriptionsSection</ID>
-    <ID>ComposableParamOrder:ProfileEditNameBottomSheetScreen.kt$ProfileEditNameBottomSheetScreenContent</ID>
-    <ID>ComposableParamOrder:ProfileEditPictureScreen.kt$AvatarSelector</ID>
-    <ID>ComposableParamOrder:ProfileEditPictureScreen.kt$ColorPicker</ID>
-    <ID>ComposableParamOrder:ProfileNameSection.kt$ProfileEditBasicTextField</ID>
-    <ID>ComposableParamOrder:ProfilePairedDevicesScreen.kt$PairedDevicesSection</ID>
-    <ID>ComposableParamOrder:ProfileSheetContent.kt$ProfileSheetContent</ID>
-    <ID>ComposableParamOrder:PullToRefresh.kt$PullToRefresh</ID>
-    <ID>ComposableParamOrder:RedeemFromDetailSection.kt$RedeemSection</ID>
-    <ID>ComposableParamOrder:SaveButton.kt$SaveButton</ID>
-    <ID>ComposableParamOrder:SelfPayerPrescriptionWarning.kt$SelfPayerPrescriptionWarning</ID>
-    <ID>ComposableParamOrder:SettingsAppSecurityScreen.kt$ChangePasswordSection</ID>
-    <ID>ComposableParamOrder:SettingsLanguageScreen.kt$LanguageSelectionItem</ID>
-    <ID>ComposableParamOrder:SettingsOpenSourceLicencesScreen.kt$LicenseItem</ID>
-    <ID>ComposableParamOrder:SwitchWithText.kt$SwitchLeftWithText</ID>
-    <ID>ComposableParamOrder:SwitchWithText.kt$SwitchRightWithText</ID>
-    <ID>ComposableParamOrder:SyncedPrescriptionOverview.kt$SyncedPrescriptionOverview</ID>
-    <ID>ComposableParamOrder:SyncedPrescriptionOverview.kt$SyncedPrescriptionStateInfo</ID>
-    <ID>ComposableParamOrder:TestScaffold.kt$TestScaffold</ID>
-    <ID>ComposableParamOrder:TextFlatButton.kt$TextFlatButton</ID>
-    <ID>ComposableParamOrder:Toggle.kt$Toggle</ID>
-    <ID>ComposableParamOrder:TopBars.kt$TextTabRow</ID>
-    <ID>ComposableParamOrder:UnlockEgkDialog.kt$UnlockEgkDialog</ID>
-    <ID>ComposableParamOrder:VideoContent.kt$VideoContent</ID>
-    <ID>ComposableParamOrder:WebViewScreen.kt$WebViewScreen</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalActivity</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalAnalytics</ID>
-    <ID>CompositionLocalAllowlist:AppContent.kt$LocalAuthenticator</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalBiometricAuthenticator</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalBottomSheetNavigator</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalBottomSheetNavigatorSheetState</ID>
+    <ID>CompositionLocalAllowlist:AppContent.kt$LocalCardCommunicationAnalytics</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalDi</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalNavController</ID>
     <ID>CompositionLocalAllowlist:AppContent.kt$LocalTimeZone</ID>
@@ -144,207 +27,13 @@
     <ID>CyclomaticComplexMethod:UnlockEgkUseCase.kt$UnlockEgkUseCase$private fun handleException(unlockMethod: String, e: Throwable): UnlockEgkState</ID>
     <ID>CyclomaticComplexMethod:UnlockEgkUseCase.kt$private suspend fun ProducerScope&lt;UnlockEgkState&gt;.healthCardCommunication( unlockMethod: String, channel: NfcCardChannel, can: String, puk: String, oldSecret: String, newSecret: String )</ID>
     <ID>EmptyFunctionBlock:DebugScreenWrapper.kt${}</ID>
-    <ID>MagicNumber:HtmlReportComponents.kt$1</ID>
-    <ID>ModifierComposable:ModifierExtension.kt$animatedCircularBorder</ID>
-    <ID>ModifierComposable:ModifierExtension.kt$circularBorder</ID>
-    <ID>ModifierComposable:ModifierExtension.kt$greyCircularBorder</ID>
-    <ID>ModifierComposable:ModifierExtension.kt$imeHeight</ID>
-    <ID>ModifierMissing:AboutSection.kt$AboutSection</ID>
-    <ID>ModifierMissing:AccessToCameraDenied.kt$AccessToCameraDenied</ID>
-    <ID>ModifierMissing:AddProfileChip.kt$AddProfileChip</ID>
-    <ID>ModifierMissing:AnimatedElevationScaffold.kt$AnimatedElevationScaffold</ID>
-    <ID>ModifierMissing:AppContent.kt$AppContent</ID>
-    <ID>ModifierMissing:ApplicationScaffold.kt$ApplicationScaffold</ID>
-    <ID>ModifierMissing:AuditEventsLoading.kt$AuditEventsLoading</ID>
-    <ID>ModifierMissing:AuthenticationHintCard.kt$AuthenticationHintCard</ID>
-    <ID>ModifierMissing:BiometryScreen.kt$BiometricScreenContent</ID>
-    <ID>ModifierMissing:BiometryScreen.kt$BiometricScreenScaffold</ID>
-    <ID>ModifierMissing:BottomBars.kt$ConnectBottomBar</ID>
-    <ID>ModifierMissing:CameraTopBar.kt$CameraTopBar</ID>
-    <ID>ModifierMissing:CardWallAnimation.kt$CardAnimationBox</ID>
-    <ID>ModifierMissing:CardWallAnimation.kt$ReadingCardAnimation</ID>
-    <ID>ModifierMissing:CardWallAnimation.kt$SearchingCardAnimation</ID>
-    <ID>ModifierMissing:CardWallAnimation.kt$TagLostCard</ID>
-    <ID>ModifierMissing:CardWallAuthDialog.kt$InfoText</ID>
-    <ID>ModifierMissing:CardWallCanScreen.kt$CanDescription</ID>
-    <ID>ModifierMissing:CardWallCanScreen.kt$CanScreenContent</ID>
-    <ID>ModifierMissing:CardWallCanScreen.kt$HealthCardCanImage</ID>
-    <ID>ModifierMissing:CardWallGidListScreen.kt$GidListScreenContent</ID>
-    <ID>ModifierMissing:CardWallSaveCredentialsInfoScreen.kt$CardWallSaveCredentialsInfoScreenScaffold</ID>
-    <ID>ModifierMissing:CardWallScaffold.kt$CardWallBottomBar</ID>
-    <ID>ModifierMissing:Center.kt$Center</ID>
-    <ID>ModifierMissing:ClearTextTrafficSection.kt$ClearTextTrafficSection</ID>
-    <ID>ModifierMissing:ClientIdsSection.kt$ClientIdsSection</ID>
-    <ID>ModifierMissing:ColumnItems.kt$ColumnItems</ID>
-    <ID>ModifierMissing:Common.kt$LabeledText</ID>
-    <ID>ModifierMissing:Common.kt$SimpleCheck</ID>
-    <ID>ModifierMissing:ContactSection.kt$ContactSection</ID>
-    <ID>ModifierMissing:DataMatrixCodesWithSelfPayerWarning.kt$DataMatrixCodesWithSelfPayerWarning</ID>
-    <ID>ModifierMissing:DebugCommon.kt$DebugOverlay</ID>
-    <ID>ModifierMissing:DebugPKV.kt$DebugScreenPKV</ID>
-    <ID>ModifierMissing:DebugScreen.kt$DebugScreenDirectRedeem</ID>
-    <ID>ModifierMissing:DebugSection.kt$DebugMenuSection</ID>
-    <ID>ModifierMissing:DebugSection.kt$DebugSection</ID>
-    <ID>ModifierMissing:DebugTimeoutScreen.kt$DebugTimeoutScreen$Content</ID>
-    <ID>ModifierMissing:DebugTrackerScreen.kt$DebugTrackerScaffold</ID>
-    <ID>ModifierMissing:DebugTrackerScreen.kt$RightwardArrowLine</ID>
-    <ID>ModifierMissing:DemoModeTopAppBar.kt$checkForDemoMode</ID>
-    <ID>ModifierMissing:Dialog.kt$DialogHost</ID>
-    <ID>ModifierMissing:DispenseMessage.kt$PrescriptionSentTo</ID>
-    <ID>ModifierMissing:Divider.kt$BorderDivider</ID>
-    <ID>ModifierMissing:Divider.kt$ElevationDivider</ID>
-    <ID>ModifierMissing:EnvironmentSelector.kt$EnvironmentSelector</ID>
-    <ID>ModifierMissing:ExploreSection.kt$ExploreSection</ID>
-    <ID>ModifierMissing:ExternalAuthPrompt.kt$ExternalAuthPrompt</ID>
-    <ID>ModifierMissing:FullScreenLoadingIndicator.kt$FullScreenLoadingIndicator</ID>
-    <ID>ModifierMissing:GematikErrorDialog.kt$GematikErrorDialog</ID>
-    <ID>ModifierMissing:GidItem.kt$GidItem</ID>
-    <ID>ModifierMissing:HealthCardPrompt.kt$HealthCardPrompt</ID>
-    <ID>ModifierMissing:HealthCardSection.kt$HealthCardSection</ID>
-    <ID>ModifierMissing:Hints.kt$HintActionButton</ID>
-    <ID>ModifierMissing:Hints.kt$HintCloseButton</ID>
-    <ID>ModifierMissing:Hints.kt$HintLargeImage</ID>
-    <ID>ModifierMissing:Hints.kt$HintSmallImage</ID>
-    <ID>ModifierMissing:HowToRedeemScreen.kt$HowToRedeemScreenContent</ID>
-    <ID>ModifierMissing:InfoLabel.kt$InfoLabelInBox</ID>
-    <ID>ModifierMissing:InvoiceCard.kt$InvoiceCard</ID>
-    <ID>ModifierMissing:InvoiceCard.kt$NoConsentGrantedCard</ID>
-    <ID>ModifierMissing:InvoiceDetailsScreen.kt$InvoiceMedicationHeader</ID>
-    <ID>ModifierMissing:InvoiceListLoading.kt$InvoiceListLoading</ID>
-    <ID>ModifierMissing:InvoiceLoadingCard.kt$InvoiceLoadingCard</ID>
-    <ID>ModifierMissing:InvoiceLocalCorrectionScreen.kt$InvoiceLocalCorrectionScreenScaffold</ID>
-    <ID>ModifierMissing:InvoiceMessage.kt$CostReceiptDetail</ID>
-    <ID>ModifierMissing:InvoiceShareScreen.kt$InvoiceShareScreenScaffold</ID>
-    <ID>ModifierMissing:InvoiceThreeDotMenu.kt$InvoiceThreeDotMenu</ID>
-    <ID>ModifierMissing:InvoicesEmptyScreen.kt$InvoicesEmptyScreen</ID>
-    <ID>ModifierMissing:LegalSection.kt$LegalSection</ID>
-    <ID>ModifierMissing:LoadingIndicator.kt$LoadingIndicator</ID>
-    <ID>ModifierMissing:LoadingIndicatorLine.kt$LoadingIndicatorLine</ID>
-    <ID>ModifierMissing:LoggerScreen.kt$LogDetailsTabs</ID>
-    <ID>ModifierMissing:LogoLoadingState.kt$LogoLoadingState</ID>
-    <ID>ModifierMissing:MainScreenAvatar.kt$AvatarScreen</ID>
-    <ID>ModifierMissing:MainScreenAvatar.kt$ProfileConnectionSection</ID>
-    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$EmptyScreenImage</ID>
-    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenBottomBar</ID>
-    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenContent</ID>
-    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$MedicationNotificationSuccessScreenScaffold</ID>
-    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$ProfileHeader</ID>
-    <ID>ModifierMissing:MedicationNotificationSuccessScreen.kt$ScheduleTitle</ID>
-    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$ChangeMedicationDosageDialog</ID>
-    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$DosageInfo</ID>
-    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$IgnoreBatteryOptimizationSection</ID>
-    <ID>ModifierMissing:MedicationPlanScheduleScreen.kt$MedicationPlanScheduleScaffold</ID>
-    <ID>ModifierMissing:MessageBottomSheetScreen.kt$CodeSheetContent</ID>
-    <ID>ModifierMissing:MessageBottomSheetScreen.kt$EmptySheetContent</ID>
-    <ID>ModifierMissing:MessageBottomSheetScreen.kt$LinkSheetContent</ID>
-    <ID>ModifierMissing:MessageBottomSheetScreen.kt$MessageBottomSheetScreenContent</ID>
-    <ID>ModifierMissing:MessageBottomSheetScreen.kt$OrdersCodeInfo</ID>
-    <ID>ModifierMissing:MessageDetailScreen.kt$MessageDetailScreenScaffold</ID>
-    <ID>ModifierMissing:MessageOverviewItemShimmer.kt$MessageOverviewItemShimmer</ID>
-    <ID>ModifierMissing:MessagesLoadingShimmer.kt$MessagesLoadingShimmer</ID>
-    <ID>ModifierMissing:MetricChangeDialog.kt$MetricChangeDialog</ID>
-    <ID>ModifierMissing:OnboardingAnalyticsPreviewScreen.kt$OnboardingScreenScaffold</ID>
-    <ID>ModifierMissing:OnboardingSelectAppLoginScreen.kt$OnboardingScreenContent</ID>
-    <ID>ModifierMissing:OnlineRedeemPreferencesScreen.kt$OnlineRedeemPreferencesScreenScaffold</ID>
-    <ID>ModifierMissing:OutlinedElevatedCard.kt$OutlinedElevatedCard</ID>
-    <ID>ModifierMissing:PasswordScore.kt$PasswordStrengthDescription</ID>
-    <ID>ModifierMissing:PasswordScore.kt$PasswordStrengthIndicator</ID>
-    <ID>ModifierMissing:PasswordScore.kt$Suggestion</ID>
-    <ID>ModifierMissing:PersonalSettingsSection.kt$PersonalSettingsSection</ID>
-    <ID>ModifierMissing:PharmacyContactSelection.kt$PharmacyContactSelection</ID>
-    <ID>ModifierMissing:PharmacyMapsOverlay.kt$pharmacyMapsOverlay</ID>
-    <ID>ModifierMissing:PharmacySearchListScreen.kt$SearchTopAppBar</ID>
-    <ID>ModifierMissing:PrescriptionDetailMedicationScreen.kt$FormLabel</ID>
-    <ID>ModifierMissing:PrescriptionDetailScreenScaffold.kt$PrescriptionDetailScreenScaffold</ID>
-    <ID>ModifierMissing:PrescriptionDetailTechnicalInformationScreen.kt$PrescriptionDetailTechnicalInformationContent</ID>
-    <ID>ModifierMissing:PrescriptionScreen.kt$PrescriptionsScreenScaffold</ID>
-    <ID>ModifierMissing:PrescriptionSelectionScreen.kt$PrescriptionSelectionScreenScaffold</ID>
-    <ID>ModifierMissing:PrescriptionStateInfo.kt$PrescriptionStateInfo</ID>
-    <ID>ModifierMissing:ProfileAvatarSection.kt$ProfileAvatarSection</ID>
-    <ID>ModifierMissing:ProfileBackgroundColorComponent.kt$ProfileBackgroundColorComponent</ID>
-    <ID>ModifierMissing:ProfileChip.kt$ProfileChip</ID>
-    <ID>ModifierMissing:ProfileEditNameBottomSheetScreen.kt$ProfileEditNameBottomSheetScreenContent</ID>
-    <ID>ModifierMissing:ProfileEditPairedDeviceSection.kt$ProfileEditPairedDeviceSection</ID>
-    <ID>ModifierMissing:ProfileEditPictureScreen.kt$AvatarPicker</ID>
-    <ID>ModifierMissing:ProfileEditPictureScreen.kt$ProfileImage</ID>
-    <ID>ModifierMissing:ProfileInsuranceInformationSection.kt$ProfileInsuranceInformationSection</ID>
-    <ID>ModifierMissing:ProfileInvoiceInformationSection.kt$ProfileInvoiceInformationSection</ID>
-    <ID>ModifierMissing:ProfileNameSection.kt$ProfileNameSection</ID>
-    <ID>ModifierMissing:ProfileSection.kt$ProfileSection</ID>
-    <ID>ModifierMissing:ProfileSecuritySection.kt$ProfileSecuritySection</ID>
-    <ID>ModifierMissing:ProfileSheetContent.kt$ProfileSheetContent</ID>
-    <ID>ModifierMissing:PromptScaffold.kt$PromptScaffold</ID>
-    <ID>ModifierMissing:QrCodeScanner.kt$QrCodeScanner</ID>
-    <ID>ModifierMissing:ReadCardScreenScaffold.kt$ReadCardScreenScaffold</ID>
-    <ID>ModifierMissing:RedeemButton.kt$RedeemButton</ID>
-    <ID>ModifierMissing:RedeemEditShippingContactScreen.kt$ContactNumberHeader</ID>
-    <ID>ModifierMissing:RedeemEditShippingContactScreen.kt$RedeemEditShippingContactScreenContent</ID>
-    <ID>ModifierMissing:RedeemEditShippingContactScreen.kt$SaveContactInformationBottomBar</ID>
-    <ID>ModifierMissing:RedeemFromDetailSection.kt$RedeemFromDetailSection</ID>
-    <ID>ModifierMissing:RedeemOrderOverviewScreen.kt$RedeemOrderOverviewScreenContent</ID>
-    <ID>ModifierMissing:ScannedPrescriptionOverview.kt$ScannedPrescriptionOverview</ID>
-    <ID>ModifierMissing:ScheduleDateRangeScreen.kt$ChangeDateDialog</ID>
-    <ID>ModifierMissing:ScheduleDateRangeScreen.kt$ScheduleDateRangeScreenScaffold</ID>
-    <ID>ModifierMissing:SelfPayerPrescriptionWarning.kt$SelfPayerPrescriptionWarning</ID>
-    <ID>ModifierMissing:SettingsAdditionalLicencesScreen.kt$SettingsAdditionalLicencesScreenContent</ID>
-    <ID>ModifierMissing:SettingsAllowAnalyticsScreen.kt$SettingsAllowAnalyticsScaffoldContent</ID>
-    <ID>ModifierMissing:SettingsLegalNoticeScreen.kt$EmailContact</ID>
-    <ID>ModifierMissing:SettingsLegalNoticeScreen.kt$LinkToWeb</ID>
-    <ID>ModifierMissing:SettingsLegalNoticeScreen.kt$PhoneContact</ID>
-    <ID>ModifierMissing:SettingsOpenSourceLicencesScreen.kt$OpenSourceLicensesScreenScaffoldContent</ID>
-    <ID>ModifierMissing:SettingsSetAppPasswordScreen.kt$SettingsSetAppPasswordBottomBar</ID>
-    <ID>ModifierMissing:Shimmer.kt$LimitedTextShimmer</ID>
-    <ID>ModifierMissing:Shimmer.kt$StatusChipShimmer</ID>
-    <ID>ModifierMissing:Shimmer.kt$TinyTextShimmer</ID>
-    <ID>ModifierMissing:SkipOnBoardingButton.kt$SkipOnBoardingButton</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerLarge</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerMedium</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerShortMedium</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerSmall</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerTiny</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerXLarge</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerXXLarge</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerXXLargeMedium</ID>
-    <ID>ModifierMissing:Spacer.kt$SpacerXXXLarge</ID>
-    <ID>ModifierMissing:StatusChip.kt$CompletedStatusChip</ID>
-    <ID>ModifierMissing:StatusChip.kt$DeletedStatusChip</ID>
-    <ID>ModifierMissing:StatusChip.kt$InProgressStatusChip</ID>
-    <ID>ModifierMissing:StatusChip.kt$NumeratorChip</ID>
-    <ID>ModifierMissing:StatusChip.kt$PendingStatusChip</ID>
-    <ID>ModifierMissing:StatusChip.kt$ProvidedStatusChip</ID>
-    <ID>ModifierMissing:StatusChip.kt$ReadyStatusChip</ID>
-    <ID>ModifierMissing:StatusChipShimmer.kt$StatusChipShimmer</ID>
-    <ID>ModifierMissing:SyncedPrescriptionOverview.kt$DirectAssignmentInfo</ID>
-    <ID>ModifierMissing:SyncedPrescriptionOverview.kt$PrescriptionName</ID>
-    <ID>ModifierMissing:SyncedPrescriptionOverview.kt$SyncedPrescriptionOverview</ID>
-    <ID>ModifierMissing:Text.kt$Body1Text</ID>
-    <ID>ModifierMissing:Text.kt$Body1lText</ID>
-    <ID>ModifierMissing:Text.kt$Body2Text</ID>
-    <ID>ModifierMissing:Text.kt$Body2lText</ID>
-    <ID>ModifierMissing:Text.kt$ButtonText</ID>
-    <ID>ModifierMissing:Text.kt$Caption1Text</ID>
-    <ID>ModifierMissing:Text.kt$Caption1lText</ID>
-    <ID>ModifierMissing:Text.kt$Caption2Text</ID>
-    <ID>ModifierMissing:Text.kt$H1Text</ID>
-    <ID>ModifierMissing:Text.kt$H2Text</ID>
-    <ID>ModifierMissing:Text.kt$H3Text</ID>
-    <ID>ModifierMissing:Text.kt$H4Text</ID>
-    <ID>ModifierMissing:Text.kt$H5Text</ID>
-    <ID>ModifierMissing:Text.kt$H6Text</ID>
-    <ID>ModifierMissing:Text.kt$Subtitle1Text</ID>
-    <ID>ModifierMissing:Text.kt$Subtitle1lText</ID>
-    <ID>ModifierMissing:Text.kt$Subtitle2Text</ID>
-    <ID>ModifierMissing:Text.kt$Subtitle2lText</ID>
-    <ID>ModifierMissing:TinyTextShimmer.kt$TinyTextShimmer</ID>
-    <ID>ModifierMissing:TitleInfoCard.kt$TitleInfoCard</ID>
-    <ID>ModifierMissing:Toast.kt$shortToast</ID>
-    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingCloseButton</ID>
-    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingNextButton</ID>
-    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingNextTipButton</ID>
-    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingTip</ID>
-    <ID>ModifierMissing:TroubleShootingButtons.kt$TroubleShootingTryMeButton</ID>
-    <ID>ModifierMissing:TroubleShootingScaffold.kt$TroubleShootingScaffold</ID>
-    <ID>ModifierMissing:UnlockEgkDialog.kt$CardCommunicationDialog</ID>
+    <ID>FunctionNaming:MapsSection.kt$internal fun LazyListScope.MapsSection( previewCoordinates: Coordinates, previewMap: PharmacyMap, onClick: () -&gt; Unit )</ID>
+    <ID>LongParameterList:MessageDetailController.kt$MessageDetailController$( private val application: Application, private val orderId: String, private val isLocalMessage: Boolean = false, private val getRepliedMessagesUseCase: GetRepliedMessagesUseCase, private val getMessageUsingOrderIdUseCase: GetMessageUsingOrderIdUseCase, private val getInternalMessagesUseCase: GetInternalMessagesUseCase, private val setInternalMessageIsReadUseCase: SetInternalMessagesAsReadUseCase, private val updateCommunicationConsumedStatusUseCase: UpdateCommunicationConsumedStatusUseCase, private val updateInvoicesByOrderIdAndTaskIdUseCase: UpdateInvoicesByOrderIdAndTaskIdUseCase, private val getPharmacyByTelematikIdUseCase: GetPharmacyByTelematikIdUseCase, private val getProfileByOrderIdUseCase: GetProfileByOrderIdUseCase, private val getTranslationConsentUseCase: GetTranslationConsentUseCase, private val isTargetLanguageSetUseCase: IsTargetLanguageSetUseCase, private val toggleTranslationConsentUseCase: ToggleTranslationConsentUseCase, private val downloadedLanguagesUseCase: DownloadLanguageModelUseCase, private val translateTextUseCase: TranslateTextUseCase )</ID>
+    <ID>MagicNumber:CrashCollector.kt$1</ID>
+    <ID>MagicNumber:TranslationRemoteDataSource.kt$TranslationRemoteDataSource$10</ID>
+    <ID>MagicNumber:TranslationRemoteDataSource.kt$TranslationRemoteDataSource$300</ID>
+    <ID>MagicNumber:UncaughtException.kt$UncaughtException$1</ID>
+    <ID>MagicNumber:UncaughtException.kt$UncaughtException$20</ID>
     <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Card( border = cardBorderStroke, backgroundColor = AppTheme.colors.neutral000, modifier = modifier .padding(horizontal = PaddingDefaults.Medium) .fillMaxWidth(), shape = RoundedCornerShape(SizeDefaults.one) ) { Row( modifier = Modifier .fillMaxWidth() .clickable( enabled = true, onClick = onCardSelected ) .padding(PaddingDefaults.Medium), verticalAlignment = Alignment.CenterVertically ) { Icon( startIcon, null, tint = AppTheme.colors.primary700 ) Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) ) Icon( checkIcon, null, tint = checkIconTint ) } }</ID>
     <ID>ModifierReused:CardWallSaveCredentialsScreen.kt$Text( text, style = AppTheme.typography.subtitle1, modifier = modifier .weight(1f) .padding(start = PaddingDefaults.Medium) )</ID>
     <ID>ModifierReused:Common.kt$Text( text = text, modifier = modifier, color = color, fontSize = fontSize, fontStyle = fontStyle, fontWeight = fontWeight, fontFamily = fontFamily, letterSpacing = letterSpacing, textDecoration = textDecoration, textAlign = textAlign, lineHeight = lineHeight, overflow = overflow, softWrap = softWrap, maxLines = maxLines, inlineContent = with(LocalDensity.current) { contentPlaceables.mapValues { (_, value) -&gt; val (content, maxSize) = value InlineTextContent( placeholder = content.placeholder.copy( width = maxSize.width.toSp(), height = maxSize.height.toSp() ), children = content.children ) } }, onTextLayout = onTextLayout, style = style )</ID>
@@ -367,13 +56,10 @@
     <ID>ModifierWithoutDefault:EditablePathComponentWithControl.kt$modifier</ID>
     <ID>ModifierWithoutDefault:FavoritePharmacyCard.kt$modifier</ID>
     <ID>ModifierWithoutDefault:FilterButton.kt$modifier</ID>
-    <ID>ModifierWithoutDefault:HealthCardCredentials.kt$modifier</ID>
-    <ID>ModifierWithoutDefault:HealthCardPrompt.kt$modifier</ID>
     <ID>ModifierWithoutDefault:InvoiceDetailsScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:LocalRedeemScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:LoggerScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:MessageBottomSheetScreen.kt$modifier</ID>
-    <ID>ModifierWithoutDefault:OnboardingBottomBar.kt$buttonModifier</ID>
     <ID>ModifierWithoutDefault:OnboardingWelcomeScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:OrderHealthCardSelectInsuranceCompanyScreen.kt$modifier</ID>
     <ID>ModifierWithoutDefault:OrderHealthCardSelectMethodScreen.kt$modifier</ID>
@@ -397,6 +83,7 @@
     <ID>ModifierWithoutDefault:WebViewScreen.kt$modifier</ID>
     <ID>MultipleEmitters:CardUnlockPukScreen.kt$PukInputField</ID>
     <ID>MultipleEmitters:CardWallCanScreen.kt$CanInputField</ID>
+    <ID>MultipleEmitters:DigaDropdownMenu.kt$DigaDropdownMenu</ID>
     <ID>MultipleEmitters:InvoiceExpandedDetailsScreen.kt$PriceData</ID>
     <ID>MultipleEmitters:InvoiceListScreen.kt$InvoicesHeaderThreeDotMenu</ID>
     <ID>MultipleEmitters:InvoiceLocalCorrectionScreen.kt$InvoiceLocalCorrectionSection</ID>
@@ -405,6 +92,7 @@
     <ID>MultipleEmitters:LoggerScreen.kt$RequestEntry</ID>
     <ID>MultipleEmitters:LoggerScreen.kt$ResponseEntry</ID>
     <ID>MultipleEmitters:MessageBottomSheetScreen.kt$OrdersCodeInfo</ID>
+    <ID>MultipleEmitters:MessageDetailDropDown.kt$MessageDetailDropdownMenu</ID>
     <ID>MultipleEmitters:MlKitInformationScreen.kt$Paragraph</ID>
     <ID>MultipleEmitters:PharmacyContact.kt$DataInfoSection</ID>
     <ID>MultipleEmitters:PrescriptionDetailScreenScaffold.kt$PrescriptionDetailsDropdownMenu</ID>
@@ -416,6 +104,7 @@
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$HintSection</ID>
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$IssuerSection</ID>
     <ID>MultipleEmitters:SettingsLegalNoticeScreen.kt$ResponsibilitySection</ID>
+    <ID>MultipleEmitters:TranslationSettingsDropDownMenu.kt$TranslationSettingsDropDownMenu</ID>
     <ID>MutableParams:Hints.kt$initiallyVisible</ID>
     <ID>MutableParams:PrescriptionScanScreen.kt$scanPrescriptionVibration</ID>
     <ID>PreviewNaming:LightDarkPreview.kt$BigFontPreview$BigFontPreview</ID>
@@ -453,8 +142,8 @@
     <ID>PreviewPublic:MessageDetailScreen.kt$MessageDetailScreenWithPharmacyPreview</ID>
     <ID>PreviewPublic:MessageListScreen.kt$MessageScreenContentPreview</ID>
     <ID>PreviewPublic:OnboardingAnalyticsPreviewScreen.kt$OnboardingAnalyticsPreviewContentPreview</ID>
-    <ID>PreviewPublic:OnboardingDataProtectionAndTermsOfUseOverviewScreen.kt$OnboardingDataProtectionAndTermsOfUseOverviewScreenContentPreview</ID>
-    <ID>PreviewPublic:OnboardingSelectAppLoginScreen.kt$PasswordAuthenticationPreview</ID>
+    <ID>PreviewPublic:OnboardingPasswordAuthenticationScreen.kt$PasswordAuthenticationPreview</ID>
+    <ID>PreviewPublic:OnboardingSelectAppLoginScreen.kt$OnboardingSelectAppLoginPreview</ID>
     <ID>PreviewPublic:OnlineRedeemPreferencesScreen.kt$OnlineRedeemPreferencesScreenPreview</ID>
     <ID>PreviewPublic:OrderHealthCardSelectInsuranceCompanyScreen.kt$OrderHealthCardSelectInsuranceCompanyScreenPreview</ID>
     <ID>PreviewPublic:PharmacyDetailsComponent.kt$PharmacyDetailsScreenFromMessagePreview</ID>
@@ -465,7 +154,6 @@
     <ID>PreviewPublic:PrescriptionDetailMedicationScreen.kt$PrescriptionDetailMedicationScreenPreview</ID>
     <ID>PreviewPublic:PrescriptionDetailScreen.kt$PrescriptionDetailScreenPreview</ID>
     <ID>PreviewPublic:PrescriptionDetailTechnicalInformationScreen.kt$PrescriptionDetailTechnicalInformationScreenPreview</ID>
-    <ID>PreviewPublic:PrescriptionScreen.kt$PrescriptionsScreenScaffoldPreview</ID>
     <ID>PreviewPublic:PrescriptionSelectionScreen.kt$PrescriptionSelectionScreenPreview</ID>
     <ID>PreviewPublic:ProfileChip.kt$ProfileChipSelectedPreview</ID>
     <ID>PreviewPublic:ProfileChip.kt$ProfileChipUnSelectedPreview</ID>
@@ -483,13 +171,14 @@
     <ID>PreviewPublic:UserAuthenticationScreen.kt$UserAuthenticationScreenPreview</ID>
     <ID>UnstableCollections:ColumnItems.kt$List&lt;T&gt;</ID>
     <ID>UnstableCollections:Common.kt$Map&lt;String, InlineTextContent&gt;</ID>
+    <ID>UnstableCollections:CustomSegmentedButton.kt$List&lt;String&gt;</ID>
     <ID>UnstableCollections:DebugCommon.kt$Map&lt;String, MainActivity.ElementForTest&gt;</ID>
     <ID>UnstableCollections:DebugTrackerScreen.kt$List&lt;DebugTrackerScreenEvent&gt;</ID>
-    <ID>UnstableCollections:DispenseMessage.kt$List&lt;TaskDetailedBundle&gt;?</ID>
     <ID>UnstableCollections:ErrorOnRedeemablePrescriptionDialog.kt$List&lt;RedeemablePrescriptionInfo&gt;</ID>
     <ID>UnstableCollections:InvoiceExpandedDetailsScreen.kt$List&lt;String?&gt;</ID>
     <ID>UnstableCollections:InvoiceListScreen.kt$Map&lt;de.gematik.ti.erp.app.fhir.parser.Year, List&lt;PKVInvoiceRecord&gt;&gt;</ID>
     <ID>UnstableCollections:ItemsMenu.kt$List&lt;T&gt;</ID>
+    <ID>UnstableCollections:LanguagePickerList.kt$List&lt;Pair&lt;String, String&gt;&gt;</ID>
     <ID>UnstableCollections:LocalRedeemScreen.kt$List&lt;DMCode&gt;</ID>
     <ID>UnstableCollections:LoggerScreen.kt$List&lt;HeaderLog&gt;</ID>
     <ID>UnstableCollections:LoggerScreen.kt$LoggerScreen$List&lt;LogEntry&gt;</ID>
@@ -498,8 +187,10 @@
     <ID>UnstableCollections:MedicationNotificationSuccessScreen.kt$List&lt;ProfileWithSchedules&gt;</ID>
     <ID>UnstableCollections:MessageDetailScreen.kt$List&lt;InAppMessage&gt;</ID>
     <ID>UnstableCollections:MessageDetailScreen.kt$List&lt;OrderUseCaseData.Message&gt;</ID>
+    <ID>UnstableCollections:MessageDetailScreen.kt$Map&lt;String, Boolean&gt;</ID>
     <ID>UnstableCollections:Messages.kt$List&lt;InAppMessage&gt;</ID>
     <ID>UnstableCollections:Messages.kt$List&lt;OrderUseCaseData.Message&gt;</ID>
+    <ID>UnstableCollections:Messages.kt$Map&lt;String, Boolean&gt;</ID>
     <ID>UnstableCollections:OnlineRedeemPreferencesScreen.kt$List&lt;PharmacyUseCaseData.PrescriptionInOrder&gt;</ID>
     <ID>UnstableCollections:OrderHealthCardSelectInsuranceCompanyScreen.kt$List&lt;HealthInsuranceCompany&gt;</ID>
     <ID>UnstableCollections:PharmacyContact.kt$List&lt;OpeningTime&gt;</ID>
@@ -509,7 +200,6 @@
     <ID>UnstableCollections:ProfileNameSection.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
     <ID>UnstableCollections:ProfilePairedDevicesScreen.kt$List&lt;PairedDevice&gt;</ID>
     <ID>UnstableCollections:ProfileSection.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
-    <ID>UnstableCollections:ProfileSheetContent.kt$List&lt;ProfilesUseCaseData.Profile&gt;</ID>
     <ID>UnstableCollections:RedeemOrderOverviewScreen.kt$List&lt;PharmacyUseCaseData.PrescriptionInOrder&gt;</ID>
     <ID>UnstableCollections:ReleaseCommon.kt$Map&lt;String, MainActivity.ElementForTest&gt;</ID>
     <ID>UnstableCollections:SelfPayerPrescriptionWarning.kt$List&lt;String&gt;</ID>
@@ -519,18 +209,24 @@
     <ID>UnstableCollections:TopBars.kt$List&lt;String&gt;</ID>
     <ID>UnstableCollections:TopBars.kt$List&lt;TabPosition&gt;</ID>
     <ID>UnusedParameter:Buttons.kt$text: String? = null</ID>
+    <ID>UnusedParameter:CardWallGidListScreen.kt$onClickHealthInsuranceWithGidNotSupported: () -&gt; Unit</ID>
     <ID>UnusedParameter:DebugScreenWrapper.kt$navigation: NavController</ID>
     <ID>UnusedParameter:EndpointHelper.kt$EndpointHelper$context: Context</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$elements: Map&lt;String, MainActivity.ElementForTest&gt;</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$modifier: Modifier = Modifier</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$onClick: () -&gt; Unit</ID>
     <ID>UnusedParameter:ReleaseCommon.kt$text: String</ID>
+    <ID>UnusedPrivateMember:DownloadedLanguageItem.kt$@LightDarkPreview @Composable private fun ClickableTextFieldDeletablePreview()</ID>
+    <ID>UnusedPrivateMember:DownloadedLanguageItem.kt$@LightDarkPreview @Composable private fun ClickableTextFieldNonDeletablePreview()</ID>
+    <ID>UnusedPrivateMember:GemDropdownMenuItem.kt$@LightDarkPreview @Composable private fun GemDropdownMenuItemPreview()</ID>
+    <ID>UnusedPrivateMember:TranslateChip.kt$@LightDarkPreview @Composable private fun TranslateChipPreview()</ID>
+    <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.LanguageNotDownloaded$private fun readResolve(): Any</ID>
+    <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.SourceLanguageNotSupported$private fun readResolve(): Any</ID>
+    <ID>UnusedPrivateMember:TranslationFailure.kt$TranslationFailure.TargetLanguageNotSet$private fun readResolve(): Any</ID>
     <ID>UnusedPrivateProperty:CommunicationMocks.kt$private const val MOCK_COMMUNICATION_ID_01 = "CID-123-001"</ID>
+    <ID>UnusedPrivateProperty:DefaultProfilesRepository.kt$private const val DEBUG_ORGANIZATION_IDENTIFIER = "104212505"</ID>
     <ID>UnusedPrivateProperty:LoadHealthInsuranceListUseCaseTest.kt$LoadHealthInsuranceListUseCaseTest.Companion$private val mockInputStream = ByteArrayInputStream(contacts.toByteArray())</ID>
     <ID>UnusedPrivateProperty:OnboardingGraphController.kt$private const val PASSWORD_SCORE = 9</ID>
-    <ID>UnusedPrivateProperty:OnboardingSelectAppLoginScreen.kt$private const val FAILURE_SCORE = 0</ID>
-    <ID>UnusedPrivateProperty:OnboardingSelectAppLoginScreen.kt$private const val MEDIOCRE_SCORE = 3</ID>
-    <ID>UnusedPrivateProperty:OnboardingSelectAppLoginScreen.kt$private const val SUCCESS_SCORE = 9</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_1 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-03T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Apotheke"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessage )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_2 = OrderUseCaseData.Order( orderId = "2", sentOn = Instant.parse("2023-07-04T15:20:00Z"), hasUnreadMessages = true, pharmacy = OrderUseCaseData.Pharmacy("123", "Flughafen"), prescriptions = emptyList(), latestCommunicationMessage = mockLastMessageLong )</ID>
     <ID>UnusedPrivateProperty:OrdersPreviewParameterProvider.kt$private val PREVIEW_ORDER_3 = OrderUseCaseData.Order( orderId = "3", sentOn = Instant.parse("2023-07-05T15:20:00Z"), hasUnreadMessages = false, pharmacy = OrderUseCaseData.Pharmacy("123", "TaxiStand"), prescriptions = listOf(PREVIEW_PRESCRIPTION), latestCommunicationMessage = null )</ID>

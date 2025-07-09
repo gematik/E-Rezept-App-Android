@@ -1,0 +1,101 @@
+{
+  "resourceType": "Bundle",
+  "id": "44420ed9-7388-4be5-acc5-9c124fad9f34",
+  "meta": {
+    "lastUpdated": "04/06/2021 08:30:00",
+    "profile":  [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Bundle|1.0.2"
+    ]
+  },
+  "identifier": {
+    "system": "https://gematik.de/fhir/NamingSystem/PrescriptionID",
+    "value": "160.100.000.000.006.24"
+  },
+  "type": "document",
+  "timestamp": "04/06/2021 08:30:00",
+  "entry":  [
+    {
+      "fullUrl": "http://pvs.praxis.local/fhir/Composition/6ac6d8bc-3acd-4e31-ad9b-442fc343c6c0",
+      "resource": {
+        "resourceType": "Composition",
+        "id": "6ac6d8bc-3acd-4e31-ad9b-442fc343c6c0",
+        "meta": {
+          "profile":  [
+            "https://fhir.kbv.de/StructureDefinition/KBV_PR_ERP_Composition|1.0.2"
+          ]
+        },
+        "extension":  [
+          {
+            "url": "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_Legal_basis",
+            "valueCoding": {
+              "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_STATUSKENNZEICHEN",
+              "code": "00"
+            }
+          }
+        ],
+        "status": "final",
+        "type": {
+          "coding":  [
+            {
+              "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_SFHIR_KBV_FORMULAR_ART",
+              "code": "e16A"
+            }
+          ]
+        },
+        "subject": {
+          "reference": "Patient/93866fdc-3e50-4902-a7e9-891b54737b5e"
+        },
+        "date": "04/05/2021 08:00:00",
+        "author":  [
+          {
+            "reference": "Practitioner/bc329f24-3d65-4286-bf06-b54dd6cad655",
+            "type": "Practitioner"
+          },
+          {
+            "type": "Device",
+            "identifier": {
+              "system": "https://fhir.kbv.de/NamingSystem/KBV_NS_FOR_Pruefnummer",
+              "value": "Y/400/2107/36/999"
+            }
+          }
+        ],
+        "title": "elektronische Arzneimittelverordnung",
+        "custodian": {
+          "reference": "Organization/5d3f4ac0-2b44-4d48-b363-e63efa72973b"
+        },
+        "section":  [
+          {
+            "code": {
+              "coding":  [
+                {
+                  "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type",
+                  "code": "Prescription"
+                }
+              ]
+            },
+            "entry":  [
+              {
+                "reference": "MedicationRequest/000abe24-f690-481e-9a9f-1cd0eb434e2f"
+              }
+            ]
+          },
+          {
+            "code": {
+              "coding":  [
+                {
+                  "system": "https://fhir.kbv.de/CodeSystem/KBV_CS_ERP_Section_Type",
+                  "code": "Coverage"
+                }
+              ]
+            },
+            "entry":  [
+              {
+                "reference": "Coverage/1b89236c-ab14-4e92-937e-5af0b59d0cd4"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

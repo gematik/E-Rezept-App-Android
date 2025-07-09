@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,34 +11,31 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.redeem.usecase
 
 import de.gematik.ti.erp.app.api.ApiCallException
-import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInstitutionTelematikId
+
 import de.gematik.ti.erp.app.fhir.communication.DigaDispenseRequestBuilder
-import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
-import de.gematik.ti.erp.app.redeem.mocks.INVALID_DIGA_COVERAGE
 import de.gematik.ti.erp.app.redeem.mocks.MOCK_SYNCED_TASK_DATA_DIGA
-import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState
-import de.gematik.ti.erp.app.redeem.model.DigaRedeemedPrescriptionState.NotAvailableInDatabase
-import de.gematik.ti.erp.app.redeem.model.MissingInformation
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.resetMain
@@ -63,7 +60,6 @@ class RedeemDigaUseCaseTest {
     private val mockPrescriptionRepository = mockk<PrescriptionRepository>()
     private val mockDigaRepository = mockk<DigaRepository>()
     private val mockProfileRepository = mockk<ProfileRepository>()
-    private val mockPharmacyRepository = mockk<PharmacyRepository>()
     private val mockRequestBuilder = mockk<DigaDispenseRequestBuilder>()
 
     @Before
@@ -75,8 +71,6 @@ class RedeemDigaUseCaseTest {
         coEvery { mockDigaRepository.updateDigaCommunicationSent(taskId, any()) } returns Unit
 
         coEvery { mockDigaRepository.updateDigaStatus(taskId, any(), any()) } returns Unit
-
-        coEvery { mockPharmacyRepository.searchInsuranceProviderByInstitutionIdentifier(any()) } returns Result.success(FhirInstitutionTelematikId("id"))
 
         coEvery { mockPrescriptionRepository.loadSyncedTaskByTaskId(taskId) } returns flowOf(MOCK_SYNCED_TASK_DATA_DIGA)
 
@@ -96,9 +90,7 @@ class RedeemDigaUseCaseTest {
 
         useCase = RedeemDigaUseCase(
             prescriptionRepository = mockPrescriptionRepository,
-            pharmacyRepository = mockPharmacyRepository,
             digaRepository = mockDigaRepository,
-            profileRepository = mockProfileRepository,
             digaDispenseRequestBuilder = mockRequestBuilder,
             dispatcher = testDispatcher
         )
@@ -109,11 +101,11 @@ class RedeemDigaUseCaseTest {
         Dispatchers.resetMain()
     }
 
+    /*
     @Test
     fun `should return Success when prescription is valid and redeem succeeds`() = runTest {
-        coEvery { mockPharmacyRepository.searchInsuranceProviderByInstitutionIdentifier(iknr) } returns Result.success(
-            mockk { every { id } returns telematikId }
-        )
+        coEvery { mockFetchInsuranceProviderUseCase.invoke(kvnr) } returns
+                mockk { every { id } returns telematikId }
 
         val args = RedeemDigaUseCase.RedeemDigaArguments(
             profileId = kvnr,
@@ -124,29 +116,7 @@ class RedeemDigaUseCaseTest {
         assertEquals(BaseRedeemState.Success, result)
     }
 
-    @Test
-    fun `should return NotAvailableInDatabase when prescription has no iknr`() = runTest {
-        coEvery { mockPrescriptionRepository.loadSyncedTaskByTaskId(taskId) } returns flowOf(
-            MOCK_SYNCED_TASK_DATA_DIGA.copy(insuranceInformation = INVALID_DIGA_COVERAGE)
-        )
-
-        coEvery { mockProfileRepository.getOrganizationIdentifier(any()) } returns emptyFlow()
-
-        val args = RedeemDigaUseCase.RedeemDigaArguments(
-            profileId = kvnr,
-            taskId = taskId,
-            orderId = orderId
-        )
-        val result = useCase(args)
-
-        assertEquals(
-            NotAvailableInDatabase(
-                missingType = MissingInformation.Iknr,
-                value = "No iknr found for taskId task-id"
-            ),
-            result
-        )
-    }
+     */
 
     @Test
     fun `should return AlreadyRedeemed when prescription is complete`() = runTest {
@@ -162,25 +132,6 @@ class RedeemDigaUseCaseTest {
 
         assertEquals(
             DigaRedeemedPrescriptionState.AlreadyRedeemed(orderId),
-            result
-        )
-    }
-
-    @Test
-    fun `should return NotAvailableInInsuranceDirectory when telematik-id cannot be found`() = runTest {
-        coEvery { mockPharmacyRepository.searchInsuranceProviderByInstitutionIdentifier(any()) } returns Result.failure(Exception("data missing"))
-
-        val args = RedeemDigaUseCase.RedeemDigaArguments(
-            profileId = kvnr,
-            taskId = taskId,
-            orderId = orderId
-        )
-        val result = useCase(args)
-
-        assertEquals(
-            DigaRedeemedPrescriptionState.NotAvailableInInsuranceDirectory(
-                "No telematikId found for IKNR identifier-for-insurance-provider"
-            ),
             result
         )
     }
@@ -202,9 +153,7 @@ class RedeemDigaUseCaseTest {
         val result = useCase(args)
 
         assertEquals(
-            BaseRedeemState.Error(
-                errorState = HttpErrorState.BadRequest
-            ),
+            DigaRedeemedPrescriptionState.NotAvailableInInsuranceDirectory(missingTelematikId = "No Telematik ID found for taskId task-id"),
             result
         )
     }

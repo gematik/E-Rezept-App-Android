@@ -1,0 +1,65 @@
+{
+  "resourceType": "Patient",
+  "id": "9774f67f-a238-4daf-b4e6-679deeef3811",
+  "meta": {
+    "profile":  [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0"
+    ]
+  },
+  "identifier":  [
+    {
+      "type": {
+        "coding":  [
+          {
+            "system": "http://fhir.de/CodeSystem/identifier-type-de-basis",
+            "code": "GKV"
+          }
+        ]
+      },
+      "system": "http://fhir.de/sid/gkv/kvid-10",
+      "value": "X234567890"
+    }
+  ],
+  "name":  [
+    {
+      "use": "official",
+      "family": "Königsstein",
+      "_family": {
+        "extension":  [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Königsstein"
+          }
+        ]
+      },
+      "given":  [
+        "Ludger"
+      ]
+    }
+  ],
+  "birthDate": "1935-06-22",
+  "address":  [
+    {
+      "type": "both",
+      "line":  [
+        "Musterstr. 1"
+      ],
+      "_line":  [
+        {
+          "extension":  [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-houseNumber",
+              "valueString": "1"
+            },
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "Musterstr."
+            }
+          ]
+        }
+      ],
+      "city": "Berlin",
+      "postalCode": "10623"
+    }
+  ]
+}

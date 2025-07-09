@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.onboarding.ui
@@ -60,8 +64,8 @@ import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension.isDebugOrMinifiedDebug
-import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension.isNonReleaseMode
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
+import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension.isDebug
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -91,14 +95,14 @@ class OnboardingWelcomeScreen(
         LaunchedEffect(Unit) {
             // `gemSpec_eRp_FdV A_20203` default settings are not allow screenshots
             // (on debug builds should be allowed for testing)
-            if (isDebugOrMinifiedDebug) {
+            if (isDebug) {
                 graphController.allowScreenshots(true)
             }
         }
 
         OnboardingWelcomeScreenContent()
 
-        if (isNonReleaseMode) {
+        if (BuildConfigExtension.isInternalDebug) {
             SkipOnBoardingButton {
                 job?.cancel()
                 graphController.createProfileOnSkipOnboarding()
@@ -113,7 +117,7 @@ class OnboardingWelcomeScreen(
         action: () -> Unit
     ) {
         val coroutineScope = rememberCoroutineScope()
-        val delayTime = if (isNonReleaseMode) DEBUG_WELCOME_TIMEOUT else WELCOME_TIMEOUT
+        val delayTime = if (BuildConfigExtension.isInternalDebug) DEBUG_WELCOME_TIMEOUT else WELCOME_TIMEOUT
 
         DisposableEffect(Unit) {
             val job = coroutineScope.launch {

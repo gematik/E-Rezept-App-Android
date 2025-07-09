@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.di
@@ -26,10 +30,15 @@ import androidx.security.crypto.EncryptedSharedPreferences
 import androidx.security.crypto.MasterKey
 import de.gematik.ti.erp.app.DispatchProvider
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.base.BaseConstants.applicationScope
 import de.gematik.ti.erp.app.featuretoggle.datasource.FeatureToggleDataStore
 import de.gematik.ti.erp.app.featuretoggle.datasource.NavigationTriggerDataStore
 import de.gematik.ti.erp.app.info.di.buildConfigInformationModule
 import de.gematik.ti.erp.app.pkv.fileProviderAuthorityModule
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -58,13 +67,21 @@ val appModules = DI.Module("appModules") {
         val context = instance<Context>()
         context.mainLooper
     }
+    // A scope for the whole application
+    bindSingleton<CoroutineScope>(applicationScope) {
+        CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    }
     bindSingleton(ApplicationPreferencesTag) {
         val context = instance<Context>()
-        context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+        runBlocking(Dispatchers.IO) {
+            context.getSharedPreferences(PREFERENCES_FILE_NAME, Context.MODE_PRIVATE)
+        }
     }
     bindSingleton(NetworkPreferencesTag) {
         val context = instance<Context>()
-        context.getSharedPreferences(NETWORK_PREFS_FILE_NAME, Context.MODE_PRIVATE)
+        runBlocking(Dispatchers.IO) {
+            context.getSharedPreferences(NETWORK_PREFS_FILE_NAME, Context.MODE_PRIVATE)
+        }
     }
     bindSingleton(NetworkSecurePreferencesTag) {
         val context = instance<Context>()
@@ -76,14 +93,16 @@ val appModules = DI.Module("appModules") {
             sourceSpecification = "BSI-eRp-ePA",
             rationale = "Data storage using EncryptedSharedPreferences."
         )
-        EncryptedSharedPreferences.create(
-            context,
-            NETWORK_SECURE_PREFS_FILE_NAME,
-            MasterKey.Builder(context, MASTER_KEY_ALIAS)
-                .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
-            EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
-            EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
-        )
+        runBlocking(Dispatchers.IO) {
+            EncryptedSharedPreferences.create(
+                context,
+                NETWORK_SECURE_PREFS_FILE_NAME,
+                MasterKey.Builder(context, MASTER_KEY_ALIAS)
+                    .setKeyScheme(MasterKey.KeyScheme.AES256_GCM).build(),
+                EncryptedSharedPreferences.PrefKeyEncryptionScheme.AES256_SIV,
+                EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM
+            )
+        }
     }
 
     bindSingleton { EndpointHelper(networkPrefs = instance(NetworkPreferencesTag)) }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.utils.compose
@@ -58,7 +62,7 @@ fun SecondaryButton(
     ),
     contentPadding: PaddingValues = PaddingValues(
         horizontal = PaddingDefaults.Medium,
-        vertical = 13.dp
+        vertical = PaddingDefaults.MediumSmall
     ),
     content: @Composable RowScope.() -> Unit
 ) =
@@ -128,8 +132,8 @@ fun PrimaryButtonLarge(
     border = border,
     colors = colors,
     contentPadding = PaddingValues(
-        horizontal = 64.dp,
-        vertical = 13.dp
+        horizontal = PaddingDefaults.XXLargeLarge,
+        vertical = PaddingDefaults.MediumSmall
     ),
     content = content
 )
@@ -155,8 +159,8 @@ fun PrimaryButtonSmall(
     border = border,
     colors = colors,
     contentPadding = PaddingValues(
-        horizontal = 48.dp,
-        vertical = 13.dp
+        horizontal = PaddingDefaults.XXLargePlus,
+        vertical = PaddingDefaults.MediumSmall
     ),
     content = content
 )
@@ -182,8 +186,8 @@ fun PrimaryButtonTiny(
     border = border,
     colors = colors,
     contentPadding = PaddingValues(
-        horizontal = 16.dp,
-        vertical = 4.dp
+        horizontal = PaddingDefaults.Medium,
+        vertical = PaddingDefaults.Tiny
     ),
     content = content
 )

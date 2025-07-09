@@ -35,7 +35,7 @@ afterEvaluate {
         config.setFrom(files("${rootDir}/config/detekt/detekt.yml"))
         baseline = file("${rootDir}/config/detekt/baseline.xml")
         buildUponDefaultConfig = true
-        allRules = false
+        allRules = true
         disableDefaultRuleSets = false
         debug = false
         ignoreFailures = false

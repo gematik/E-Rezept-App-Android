@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp
@@ -29,17 +33,10 @@ import org.jetbrains.kotlin.psi.KtFile
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 
-val licencePlaceholderHeader =
-    """
-    /*
-     * ${'$'}{GEMATIK_COPYRIGHT_STATEMENT}
-     */
-    """.trimIndent()
-
 val oldLicenceHeader =
     """
     /*
-     * Copyright 2024, gematik GmbH
+     * Copyright (Change Date see Readme), gematik GmbH
      *
      * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
      * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -51,13 +48,18 @@ val oldLicenceHeader =
      * Unless required by applicable law or agreed to in writing,
      * software distributed under the Licence is distributed on an "AS IS" basis,
      * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
-     * In case of changes by gematik find details in the "Readme" file.
+     * In case of changes by gematik GmbH find details in the "Readme" file.
      *
      * See the Licence for the specific language governing permissions and limitations under the Licence.
+     *
+     * *******
+     *
+     * For additional notes and disclaimer from gematik GmbH
+     * and in case of changes by gematik GmbH find details in the "Readme" file.
      */
     """.trimIndent()
 
-val licenceHeader =
+val deprecatedLicenseHeader =
     """
     /*
      * Copyright 2025, gematik GmbH
@@ -78,6 +80,31 @@ val licenceHeader =
      */
     """.trimIndent()
 
+val licenceHeader =
+    """
+    /*
+     * Copyright (Change Date see Readme), gematik GmbH
+     *
+     * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
+     * European Commission – subsequent versions of the EUPL (the "Licence").
+     * You may not use this work except in compliance with the Licence.
+     *
+     * You find a copy of the Licence in the "Licence" file or at
+     * https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12
+     *
+     * Unless required by applicable law or agreed to in writing,
+     * software distributed under the Licence is distributed on an "AS IS" basis,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
+     * In case of changes by gematik GmbH find details in the "Readme" file.
+     *
+     * See the Licence for the specific language governing permissions and limitations under the Licence.
+     *
+     * *******
+     *
+     * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
+     */
+    """.trimIndent()
+
 @Suppress("NestedBlockDepth")
 class LicenceRule : Rule("licence-header") {
     override fun visit(
@@ -89,11 +116,11 @@ class LicenceRule : Rule("licence-header") {
             node.children().forEach { child ->
                 if (child.elementType == KtTokens.BLOCK_COMMENT) {
                     when {
-                        child.isLicencePlaceholderHeader() -> {
-                            emit(child.startOffset, "Licence header placeholder found", true)
+                        child.isOldLicenceHeader() -> {
+                            emit(child.startOffset, "Deprecated licence header found", true)
                             if (autoCorrect) removeNodeWithWhitespace(node, child)
                         }
-                        child.isOldLicenceHeader() -> {
+                        child.isDeprecatedLicenceHeader() -> {
                             emit(child.startOffset, "Deprecated licence header found", true)
                             if (autoCorrect) removeNodeWithWhitespace(node, child)
                         }
@@ -115,11 +142,11 @@ class LicenceRule : Rule("licence-header") {
     private fun ASTNode.isLicenceHeader() =
         this.elementType == KtTokens.BLOCK_COMMENT && this.text.trim() == licenceHeader.trim() && this.lineNumber() == 1
 
-    private fun ASTNode.isLicencePlaceholderHeader() =
-        this.text.trim() == licencePlaceholderHeader.trim()
-
     private fun ASTNode.isOldLicenceHeader() =
         this.text.trim() == oldLicenceHeader.trim()
+
+    private fun ASTNode.isDeprecatedLicenceHeader() =
+        this.text.trim() == deprecatedLicenseHeader.trim()
 
     private fun ASTNode.isMisplacedLicenceHeader() =
         this.text.trim() == licenceHeader.trim() && this.lineNumber() != 1

@@ -1,0 +1,62 @@
+{
+  "resourceType": "Patient",
+  "id": "93866fdc-3e50-4902-a7e9-891b54737b5e",
+  "meta": {
+    "profile": [
+      "https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Patient|1.1.0"
+    ]
+  },
+  "identifier": [
+    {
+      "type": {
+        "coding": [
+          {
+            "system": "http://fhir.de/CodeSystem/identifier-type-de-basis",
+            "code": "PKV"
+          }
+        ]
+      },
+      "system": "http://fhir.de/sid/pkv/kvid-10",
+      "value": "X110411675"
+    }
+  ],
+  "name": [
+    {
+      "use": "official",
+      "family": "Privati",
+      "_family": {
+        "extension": [
+          {
+            "url": "http://hl7.org/fhir/StructureDefinition/humanname-own-name",
+            "valueString": "Privati"
+          }
+        ]
+      },
+      "given": [
+        "Paula"
+      ]
+    }
+  ],
+  "birthDate": "1935-06-22",
+  "address": [
+    {
+      "type": "both",
+      "line": [
+        "Blumenweg"
+      ],
+      "_line": [
+        {
+          "extension": [
+            {
+              "url": "http://hl7.org/fhir/StructureDefinition/iso21090-ADXP-streetName",
+              "valueString": "Blumenweg"
+            }
+          ]
+        }
+      ],
+      "city": "Esens",
+      "postalCode": "26427",
+      "country": "D"
+    }
+  ]
+}

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.usecase
@@ -33,7 +37,9 @@ import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_SYNCED_TASK_DATA_0
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_TASK_ID_01
 import de.gematik.ti.erp.app.messages.mocks.MessageMocks.MOCK_TASK_ID_02
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.InjectMockKs
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -52,6 +58,7 @@ class GetMessageUsingOrderIdUseCaseTest {
 
     private val communicationRepository: CommunicationRepository = mockk()
     private val invoiceRepository: InvoiceRepository = mockk()
+    private val pharmacyRepository: PharmacyRepository = mockk()
 
     @InjectMockKs
     private lateinit var useCase: GetMessageUsingOrderIdUseCase
@@ -67,13 +74,15 @@ class GetMessageUsingOrderIdUseCaseTest {
         coEvery { communicationRepository.hasUnreadRepliedMessages(any(), any()) } returns flowOf(false)
         coEvery { communicationRepository.loadSyncedByTaskId(MOCK_TASK_ID_01) } returns flowOf(MOCK_SYNCED_TASK_DATA_01)
         coEvery { communicationRepository.loadSyncedByTaskId(MOCK_TASK_ID_02) } returns flowOf(MOCK_SYNCED_TASK_DATA_02)
-        coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
         coEvery { invoiceRepository.invoiceByTaskId(MOCK_TASK_ID_01) } returns flowOf(MOCK_INVOICE_01)
         coEvery { invoiceRepository.invoiceByTaskId(MOCK_TASK_ID_02) } returns flowOf(MOCK_INVOICE_02)
-
+        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(listOf(MOCK_PHARMACY_O1, MOCK_PHARMACY_O2))
+        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
+        coEvery { pharmacyRepository.searchPharmacyByTelematikId(any()) } returns Result.failure(Exception())
         useCase = GetMessageUsingOrderIdUseCase(
             communicationRepository = communicationRepository,
             invoiceRepository = invoiceRepository,
+            pharmacyRepository = pharmacyRepository,
             dispatcher = dispatcher
         )
     }

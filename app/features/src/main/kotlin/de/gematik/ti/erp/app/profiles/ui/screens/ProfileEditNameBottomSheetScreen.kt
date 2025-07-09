@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.profiles.ui.screens
@@ -23,9 +27,11 @@ import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
@@ -33,6 +39,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -63,7 +70,6 @@ import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfileEditData
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfilePreviewParameterProvider
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
-import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.containsProfileWithName
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -77,52 +83,34 @@ import de.gematik.ti.erp.app.utils.compose.fullscreen.FullScreenLoadingIndicator
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.isKeyboardVisible
 import de.gematik.ti.erp.app.utils.extensions.sanitizeProfileName
-import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 import de.gematik.ti.erp.app.utils.compose.Center as ComposeCenter
 
 class ProfileEditNameBottomSheetScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
 ) : BottomSheetScreen(forceToMaxHeight = false) {
+
     @Composable
     override fun Content() {
         val profileId = remember { navBackStackEntry.arguments?.getString(ProfileRoutes.PROFILE_NAV_PROFILE_ID) }
         val controller = rememberProfileEditNameController(profileId)
-
         val combinedProfileData by controller.combinedProfile.collectAsStateWithLifecycle()
-
         val keyboardController = LocalSoftwareKeyboardController.current
 
         UiStateMachine(
             state = combinedProfileData,
-            onEmpty = {
-                ComposeCenter {
-                    ErrorScreenComponent(noMaxSize = true)
-                }
-            },
-            onLoading = {
-                FullScreenLoadingIndicator()
-            },
-            onError = {
-                ComposeCenter {
-                    ErrorScreenComponent(noMaxSize = true)
-                }
-            }
+            onEmpty = { ComposeCenter { ErrorScreenComponent(noMaxSize = true) } },
+            onLoading = { FullScreenLoadingIndicator() },
+            onError = { ComposeCenter { ErrorScreenComponent(noMaxSize = true) } }
         ) { data ->
             ProfileEditNameBottomSheetScreenContent(
                 existingProfiles = data.profiles,
                 profileToEdit = data.selectedProfile,
                 keyboardController = keyboardController,
                 addProfile = profileId == null,
-                onUpdate = { _, newName ->
-                    controller.updateProfileName(newName)
-                },
-                onAdd = { newName ->
-                    controller.addNewProfile(newName)
-                },
-                onCancel = {
-                    navController.popBackStack()
-                }
+                onUpdate = { _, newName -> controller.updateProfileName(newName) },
+                onAdd = controller::addNewProfile,
+                onCancel = navController::popBackStack
             )
         }
     }
@@ -137,7 +125,7 @@ class ProfileEditNameBottomSheetScreen(
  */
 @Suppress("CyclomaticComplexMethod")
 @Composable
-fun ProfileEditNameBottomSheetScreenContent(
+internal fun ProfileEditNameBottomSheetScreenContent(
     existingProfiles: List<ProfilesUseCaseData.Profile>,
     profileToEdit: ProfilesUseCaseData.Profile?,
     keyboardController: SoftwareKeyboardController?,
@@ -146,44 +134,41 @@ fun ProfileEditNameBottomSheetScreenContent(
     onAdd: (String) -> Unit,
     onCancel: () -> Unit,
     initialTextValue: TextFieldValue = TextFieldValue(
-        text = profileToEdit?.name ?: "",
-        selection = TextRange((profileToEdit?.name ?: "").length)
+        text = profileToEdit?.name.orEmpty(),
+        selection = TextRange((profileToEdit?.name.orEmpty()).length)
     ),
-    initialDuplicated: Boolean = false,
     initialHasUserInteracted: Boolean = false
 ) {
     val view = LocalView.current
     val focusRequester = remember { FocusRequester() }
 
     var textValue by remember { mutableStateOf(initialTextValue) }
-    var duplicated by remember { mutableStateOf(initialDuplicated) }
-    var isNewProfile by remember { mutableStateOf(initialTextValue.text.isEmpty()) }
     var hasUserInteracted by remember { mutableStateOf(initialHasUserInteracted) }
+    var isSaving by remember { mutableStateOf(false) }
 
-    val showError by remember(duplicated, textValue, isNewProfile, hasUserInteracted) {
-        mutableStateOf((duplicated || textValue.text.isEmpty()) && hasUserInteracted)
+    val showError by remember(textValue, hasUserInteracted) {
+        derivedStateOf { textValue.text.isEmpty() && hasUserInteracted }
+    }
+    val canSave by remember(textValue, isSaving) {
+        derivedStateOf { textValue.text.isNotEmpty() && !isSaving }
     }
 
     val onSave = {
-        if (addProfile) {
-            onAdd(textValue.text)
-        } else {
-            profileToEdit?.let {
-                onUpdate(it.id, textValue.text)
+        if (canSave) {
+            isSaving = true
+            when {
+                addProfile -> onAdd(textValue.text)
+                else -> profileToEdit?.let { onUpdate(it.id, textValue.text) }
             }
+            onCancel()
+            keyboardController?.hide()
         }
-        onCancel()
-        keyboardController?.hide()
     }
 
     DisposableEffect(profileToEdit) {
         focusRequester.requestFocus()
-        if (!view.isKeyboardVisible) {
-            keyboardController?.show()
-        }
-        onDispose {
-            keyboardController?.hide()
-        }
+        if (!view.isKeyboardVisible) keyboardController?.show()
+        onDispose { keyboardController?.hide() }
     }
 
     Column(
@@ -191,6 +176,7 @@ fun ProfileEditNameBottomSheetScreenContent(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         SpacerLarge()
+
         ErezeptOutlineText(
             modifier = Modifier
                 .testTag(TestTag.Main.MainScreenBottomSheet.ProfileNameField)
@@ -198,42 +184,33 @@ fun ProfileEditNameBottomSheetScreenContent(
             shape = RoundedCornerShape(SizeDefaults.one),
             value = textValue,
             singleLine = true,
+            enabled = !isSaving,
             onValueChange = { changedValue ->
-                isNewProfile = false // once the user starts typing, it is no longer a new profile for this composable
-                hasUserInteracted = true
-                textValue = TextFieldValue(
-                    text = changedValue.text.sanitizeProfileName(),
-                    selection = changedValue.selection,
-                    composition = changedValue.composition
-                )
-                val isExistingText = textValue.text.trim() == profileToEdit?.name?.trim()
-                val isExistingProfileName = existingProfiles.containsProfileWithName(textValue.text)
-                duplicated = isExistingProfileName || isExistingText
+                if (!isSaving) {
+                    hasUserInteracted = true
+                    textValue = changedValue.copy(
+                        text = changedValue.text.sanitizeProfileName()
+                    )
+                }
             },
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done,
                 capitalization = KeyboardCapitalization.Sentences
             ),
             keyboardActions = KeyboardActions {
-                if (!duplicated && textValue.text.isNotEmpty()) {
-                    onSave()
-                }
+                if (canSave) onSave()
             },
             placeholder = { Text(stringResource(R.string.profile_edit_name_place_holder)) },
             isError = showError,
             trailingIcon = {
                 Crossfade(
                     label = "",
-                    targetState = textValue.text.isNotEmpty()
-                ) { expectedState ->
-                    if (expectedState) {
+                    targetState = textValue.text.isNotEmpty() && !isSaving
+                ) { shouldShow ->
+                    if (shouldShow) {
                         IconButton(
                             onClick = {
-                                textValue = TextFieldValue(
-                                    text = "",
-                                    selection = TextRange(0)
-                                )
-                                duplicated = false
+                                textValue = TextFieldValue(text = "", selection = TextRange(0))
                                 hasUserInteracted = true
                             }
                         ) {
@@ -246,14 +223,10 @@ fun ProfileEditNameBottomSheetScreenContent(
                 }
             }
         )
+
         AnimatedVisibility(showError) {
             Text(
-                text = when {
-                    textValue.text.isNotNullOrEmpty() && duplicated -> stringResource(
-                        R.string.edit_profile_duplicated_profile_name
-                    )
-                    else -> stringResource(id = R.string.edit_profile_empty_profile_name)
-                },
+                text = stringResource(R.string.edit_profile_empty_profile_name),
                 color = AppTheme.colors.red600,
                 style = AppTheme.typography.caption1,
                 modifier = Modifier.padding(
@@ -262,15 +235,23 @@ fun ProfileEditNameBottomSheetScreenContent(
                 )
             )
         }
+
         SpacerLarge()
+
         PrimaryButton(
             modifier = Modifier.testTag(TestTag.Main.MainScreenBottomSheet.SaveProfileNameButton),
-            enabled = !duplicated && textValue.text.isNotEmpty(),
-            onClick = {
-                onSave()
-            }
+            enabled = canSave,
+            onClick = onSave
         ) {
-            Text(stringResource(R.string.profile_bottom_sheet_save))
+            if (isSaving) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(SizeDefaults.double),
+                    color = AppTheme.colors.neutral000,
+                    strokeWidth = SizeDefaults.quarter
+                )
+            } else {
+                Text(stringResource(R.string.profile_bottom_sheet_save))
+            }
         }
     }
 }
@@ -281,22 +262,18 @@ fun ProfileEditNameBottomSheetScreenContentPreview(
     @PreviewParameter(ProfilePreviewParameterProvider::class) editProfilePreviewParameter: ProfileEditData
 ) {
     PreviewAppTheme {
-        val existingProfiles = listOf(editProfilePreviewParameter.profile)
-        val profileToEdit = editProfilePreviewParameter.profile
-
         ProfileEditNameBottomSheetScreenContent(
-            existingProfiles = existingProfiles,
-            profileToEdit = profileToEdit,
+            existingProfiles = listOf(editProfilePreviewParameter.profile),
+            profileToEdit = editProfilePreviewParameter.profile,
             keyboardController = null,
             addProfile = false,
             onUpdate = { _, _ -> },
             onAdd = { },
             onCancel = { },
             initialTextValue = TextFieldValue(
-                text = profileToEdit.name,
-                selection = TextRange(profileToEdit.name.length)
+                text = editProfilePreviewParameter.profile.name,
+                selection = TextRange(editProfilePreviewParameter.profile.name.length)
             ),
-            initialDuplicated = editProfilePreviewParameter.initialDuplicated,
             initialHasUserInteracted = editProfilePreviewParameter.initialHasUserInteracted
         )
     }

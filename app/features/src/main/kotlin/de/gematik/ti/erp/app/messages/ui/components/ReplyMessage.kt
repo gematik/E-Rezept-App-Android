@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.ui.components
@@ -24,6 +28,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.InlineTextContent
@@ -35,6 +40,7 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.Placeholder
@@ -42,57 +48,37 @@ import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.em
 import de.gematik.ti.erp.app.app_core.R
-import de.gematik.ti.erp.app.datetime.DateTimeUtils
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
+import de.gematik.ti.erp.app.messages.mappers.ReplyMessageType
+import de.gematik.ti.erp.app.messages.ui.model.ReplyMessageUiModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.DynamicText
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
-import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun ReplyMessage(
-    message: OrderUseCaseData.Message,
-    isFirstMessage: Boolean,
-    isLastMessage: Boolean,
-    dateFormatter: DateTimeFormatter = DateTimeUtils.dateFormatter,
-    timeFormatter: DateTimeFormatter = DateTimeUtils.timeFormatter,
+    item: ReplyMessageUiModel,
+    isTranslationsAllowed: Boolean,
+    isTranslationInProgress: Boolean,
+    onClickTranslation: (String) -> Unit,
     onClick: () -> Unit
 ) {
-    val localDateTime = remember(message) {
-        message.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
-    }
-
-    val date = remember(localDateTime) {
-        dateFormatter.format(localDateTime)
-    }
-
-    val time = remember(localDateTime) {
-        timeFormatter.format(localDateTime)
-    }
-
     // State for dynamically tracking the circle position
     val circleYPositionState = remember { mutableFloatStateOf(0f) }
-
-    val replyMessageTitle = getTitleForMessageType(message)
-    val replyMessageDescription = getDescriptionForMessageType(message)
 
     Row(
         Modifier
             .drawConnectedLine(
-                drawFilledTop = !isFirstMessage,
-                drawFilledBottom = !isLastMessage,
+                drawFilledTop = !item.isFirstMessage,
+                drawFilledBottom = !item.isLastMessage,
                 circleYPosition = { circleYPositionState.floatValue }
             )
             .clickable(
                 onClick = onClick,
-                enabled = message.type != OrderUseCaseData.Message.Type.Text
+                enabled = item.isEnabled
             )
     ) {
         Spacer(Modifier.width(SizeDefaults.triple))
@@ -102,18 +88,24 @@ internal fun ReplyMessage(
                 .padding(PaddingDefaults.Medium)
         ) {
             SpacerMedium()
-            Text(
-                stringResource(R.string.orders_timestamp, date, time),
-                style = AppTheme.typography.subtitle2,
-                modifier = Modifier.calculateVerticalCenter(
-                    onCenterCalculated = { circleYPositionState.floatValue = it }
+            Row(
+                modifier = Modifier
+                    .calculateVerticalCenter(
+                        onCenterCalculated = { circleYPositionState.floatValue = it }
+                    )
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.sentOn,
+                    style = AppTheme.typography.subtitle2
                 )
-            )
+            }
             FlowRow(modifier = Modifier.padding(top = PaddingDefaults.Small, bottom = PaddingDefaults.Tiny)) {
-                if (message.isTaskIdCountMatching && message.prescriptions.size != 1) {
+                if (item.showInfoChip) {
                     InfoChip(stringResource(R.string.all_prescriptions_of_order))
                 } else {
-                    message.prescriptions.forEach {
+                    item.prescriptionsLinked.forEach {
                         it?.name?.let { prescriptionName ->
                             InfoChip(prescriptionName)
                         }
@@ -121,12 +113,17 @@ internal fun ReplyMessage(
                 }
             }
             Text(
-                text = replyMessageDescription,
+                text = item.description.second,
                 style = AppTheme.typography.body2
             )
-            replyMessageTitle?.let {
+            item.title?.let {
                 SpacerTiny()
                 AnnotatedInfoText(info = it)
+            }
+            if (item.description.first == ReplyMessageType.Text) {
+                TranslateChip(isTranslationsAllowed, isTranslationInProgress) {
+                    onClickTranslation(item.description.second)
+                }
             }
         }
     }

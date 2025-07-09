@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,32 +11,42 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.fhir.prescription.parser
 
-import de.gematik.ti.erp.app.data.organizationAllPresentJson
-import de.gematik.ti.erp.app.data.organizationJson
-import de.gematik.ti.erp.app.data.organizationNoAddressJson
-import de.gematik.ti.erp.app.data.organizationNoEmailJson
-import de.gematik.ti.erp.app.data.organizationNoFaxJson
-import de.gematik.ti.erp.app.data.organizationNoTelecomJson
-import de.gematik.ti.erp.app.data.patientJson_vers_1_0_2
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganizationAllPresent2
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganizationNoAddress
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganizationNoContact
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganizationNoEmail
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganizationNoStreet
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpTaskOrganizationAllPresent1
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganizationAllPresent1
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganizationAllPresent2
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganizationNoAddress
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.organizationNoEmail
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.organizationNoFax
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.organizationNoTelecom
+import de.gematik.ti.erp.app.data.organization1AllPresent_v110_json
+import de.gematik.ti.erp.app.data.organization1NoAddress_v110_json
+import de.gematik.ti.erp.app.data.organization1NoEmail_v110_json
+import de.gematik.ti.erp.app.data.organization1NoFax_v110_json
+import de.gematik.ti.erp.app.data.organization1NoTelecom_v110_json
+import de.gematik.ti.erp.app.data.organization1_v103_json
+import de.gematik.ti.erp.app.data.organization2_v103_json
+import de.gematik.ti.erp.app.data.organization2_v110_json
+import de.gematik.ti.erp.app.data.patient1_v103_json
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1AllPresent_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1NoAddress_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1NoContact_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1NoEmail_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1NoFax_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization1_v103
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization2_v103
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationErpTestData.erpOrganization2_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1_v103
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1AllPresent_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoAddress_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoEmail_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoFax_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization1NoTelecom_v110
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization2_v103
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirOrganizationTestData.fhirOrganization2_v110
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization.Companion.getOrganization
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization.Companion.toErpModel
 import kotlinx.serialization.json.Json
@@ -46,61 +56,80 @@ import kotlin.test.assertEquals
 class TaskEPrescriptionMedicalDataParserOrganizationTest {
 
     @Test
-    fun `test parser for organization all present`() {
-        // bundle 1
-        val bundle = Json.parseToJsonElement(organizationJson)
+    fun `test parser for organization organization 1 version 1_0_3`() {
+        val bundle = Json.parseToJsonElement(organization1_v103_json)
         val fhirModel = bundle.getOrganization()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(fhirOrganizationAllPresent1, fhirModel)
-        assertEquals(erpTaskOrganizationAllPresent1, erpModel)
+        assertEquals(fhirOrganization1_v103, fhirModel)
+        assertEquals(erpOrganization1_v103, erpModel)
+    }
 
-        // bundle 2
-        val bundleAllPresent = Json.parseToJsonElement(organizationAllPresentJson)
+    @Test
+    fun `test parser for organization organization 2 version 1_0_3`() {
+        val bundle = Json.parseToJsonElement(organization2_v103_json)
+        val fhirModel = bundle.getOrganization()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirOrganization2_v103, fhirModel)
+        assertEquals(erpOrganization2_v103, erpModel)
+    }
+
+    @Test
+    fun `test parser for organization 1 version 1_1_0 all present`() {
+        val bundleAllPresent = Json.parseToJsonElement(organization1AllPresent_v110_json)
         val fhirModelPresent = bundleAllPresent.getOrganization()
         val erpModelModelPresent = fhirModelPresent?.toErpModel()
-        assertEquals(fhirOrganizationAllPresent2, fhirModelPresent)
-        assertEquals(erpOrganizationAllPresent2, erpModelModelPresent)
+        assertEquals(fhirOrganization1AllPresent_v110, fhirModelPresent)
+        assertEquals(erpOrganization1AllPresent_v110, erpModelModelPresent)
     }
 
     @Test
-    fun `test parser for organization no address`() {
-        val bundle = Json.parseToJsonElement(organizationNoAddressJson)
+    fun `test parser for organization 1 version 1_1_0 no address`() {
+        val bundle = Json.parseToJsonElement(organization1NoAddress_v110_json)
         val fhirModel = bundle.getOrganization()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(fhirOrganizationNoAddress, fhirModel)
-        assertEquals(erpOrganizationNoAddress, erpModel)
+        assertEquals(fhirOrganization1NoAddress_v110, fhirModel)
+        assertEquals(erpOrganization1NoAddress_v110, erpModel)
     }
 
     @Test
-    fun `test parser for organization no email`() {
-        val bundle = Json.parseToJsonElement(organizationNoEmailJson)
+    fun `test parser for organization 1 version 1_1_0 no email`() {
+        val bundle = Json.parseToJsonElement(organization1NoEmail_v110_json)
         val fhirModel = bundle.getOrganization()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(organizationNoEmail, fhirModel)
-        assertEquals(erpOrganizationNoEmail, erpModel)
+        assertEquals(fhirOrganization1NoEmail_v110, fhirModel)
+        assertEquals(erpOrganization1NoEmail_v110, erpModel)
     }
 
     @Test
-    fun `test parser for organization no fax`() {
-        val bundle = Json.parseToJsonElement(organizationNoFaxJson)
+    fun `test parser for organization 1 version 1_1_0 no fax`() {
+        val bundle = Json.parseToJsonElement(organization1NoFax_v110_json)
         val fhirModel = bundle.getOrganization()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(organizationNoFax, fhirModel)
-        assertEquals(erpOrganizationNoStreet, erpModel)
+        assertEquals(fhirOrganization1NoFax_v110, fhirModel)
+        assertEquals(erpOrganization1NoFax_v110, erpModel)
     }
 
     @Test
-    fun `test parser for organization no telecom`() {
-        val bundle = Json.parseToJsonElement(organizationNoTelecomJson)
+    fun `test parser for organization 1 version 1_1_0 no telecom`() {
+        val bundle = Json.parseToJsonElement(organization1NoTelecom_v110_json)
         val fhirModel = bundle.getOrganization()
         val erpModel = fhirModel?.toErpModel()
-        assertEquals(organizationNoTelecom, fhirModel)
-        assertEquals(erpOrganizationNoContact, erpModel)
+        assertEquals(fhirOrganization1NoTelecom_v110, fhirModel)
+        assertEquals(erpOrganization1NoContact_v110, erpModel)
     }
 
     @Test
-    fun `test parser for organization with wrong profile`() {
-        val bundle = Json.parseToJsonElement(patientJson_vers_1_0_2)
+    fun `test parser for organization 2 version 1_1_0`() {
+        val bundle = Json.parseToJsonElement(organization2_v110_json)
+        val fhirModel = bundle.getOrganization()
+        val erpModel = fhirModel?.toErpModel()
+        assertEquals(fhirOrganization2_v110, fhirModel)
+        assertEquals(erpOrganization2_v110, erpModel)
+    }
+
+    @Test
+    fun `test parser for organization 1 version 1_1_0 with wrong profile`() {
+        val bundle = Json.parseToJsonElement(patient1_v103_json)
         val fhirModel = bundle.getOrganization()
         val erpModel = fhirModel?.toErpModel()
         assertEquals(null, fhirModel)

@@ -19,4 +19,6 @@ dependencies {
     implementation(project(namesPlugin.utils))
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.multiplatform))
+    implementation(libs.text.translation)
+    implementation(project(namesPlugin.uiComponents))
 }

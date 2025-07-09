@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.ui.components
@@ -51,11 +55,14 @@ import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.InAppMessage
+import de.gematik.ti.erp.app.messages.ui.model.DispenseMessageUiModel.Companion.toDispenseMessage
+import de.gematik.ti.erp.app.messages.ui.model.InAppMessageUiModel.Companion.toInAppMessage
 import de.gematik.ti.erp.app.messages.ui.model.MessageDetailCombinedMessage
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.DISPENSE
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.INVOICE
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.IN_APP
 import de.gematik.ti.erp.app.messages.ui.model.MessageType.REPLY
+import de.gematik.ti.erp.app.messages.ui.model.ReplyMessageUiModel.Companion.toReplyMessage
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.ScannedPrescription
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription.SyncedPrescription
 import de.gematik.ti.erp.app.prescriptionId
@@ -77,9 +84,12 @@ internal fun Messages(
     order: UiState<OrderUseCaseData.OrderDetail>,
     messages: List<OrderUseCaseData.Message>,
     inAppMessages: List<InAppMessage>,
+    isTranslationInProgress: Map<String, Boolean>,
+    isTranslationsAllowed: Boolean,
     onClickReplyMessage: (OrderUseCaseData.Message) -> Unit,
     onClickPrescription: (String) -> Unit,
     onClickInvoiceMessage: (String) -> Unit,
+    onClickTranslation: (String, String) -> Unit,
     onClickPharmacy: () -> Unit
 ) {
     val combinedMessages = rememberSaveable(messages, order, inAppMessages, saver = complexAutoSaver()) {
@@ -109,12 +119,16 @@ internal fun Messages(
             when (displayMessage.type) {
                 REPLY -> {
                     displayMessage.message?.let { message ->
+                        val isCurrentMessageBeingTranslated = isTranslationInProgress[message.communicationId] ?: false
                         item {
                             ReplyMessage(
-                                message = message,
-                                isFirstMessage = isFirstMessage,
-                                isLastMessage = isLastMessage,
-                                onClick = { onClickReplyMessage(message) }
+                                item = message.toReplyMessage(isFirstMessage, isLastMessage),
+                                isTranslationsAllowed = isTranslationsAllowed,
+                                isTranslationInProgress = isCurrentMessageBeingTranslated,
+                                onClick = { onClickReplyMessage(message) },
+                                onClickTranslation = {
+                                    onClickTranslation(message.communicationId, it)
+                                }
                             )
                         }
                     }
@@ -136,24 +150,21 @@ internal fun Messages(
                 }
 
                 DISPENSE -> {
-                    item {
-                        DispenseMessage(
-                            pharmacyName = displayMessage.orderDetail?.pharmacy?.name ?: "",
-                            orderSentOn = displayMessage.timestamp,
-                            isOnlyMessage = isFirstMessage && isLastMessage,
-                            onClickPharmacy = onClickPharmacy,
-                            taskDetails = displayMessage.orderDetail?.taskDetailedBundles
-                        )
+                    displayMessage.orderDetail?.let { message ->
+                        item {
+                            DispenseMessage(
+                                item = message.toDispenseMessage(isFirstMessage && isLastMessage),
+                                onClickPharmacy = onClickPharmacy
+                            )
+                        }
                     }
                 }
 
                 IN_APP -> {
                     displayMessage.message?.let { message ->
                         item {
-                            InAppMessage(
-                                message = message,
-                                isFirstMessage = isFirstMessage,
-                                isLastMessage = isLastMessage
+                            LocalMessage(
+                                item = message.toInAppMessage(isFirstMessage, isLastMessage)
                             )
                         }
                     }

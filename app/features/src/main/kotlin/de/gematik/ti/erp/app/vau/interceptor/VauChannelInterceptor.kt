@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.vau.interceptor
@@ -31,6 +35,7 @@ import de.gematik.ti.erp.app.logger.model.LogEntry
 import de.gematik.ti.erp.app.logger.model.RequestLog
 import de.gematik.ti.erp.app.logger.model.ResponseLog
 import de.gematik.ti.erp.app.logger.model.TimingsLog
+import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.secureRandomInstance
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
 import de.gematik.ti.erp.app.vau.VauChannelSpec
@@ -96,57 +101,72 @@ class VauChannelInterceptor(
     private val baseUrl = endpointHelper.eRezeptServiceUri.toHttpUrl()
 
     override fun intercept(chain: Interceptor.Chain): Response {
+        val original = chain.request()
+
         if (BuildKonfig.INTERNAL && !BuildKonfig.VAU_ENABLE_INTERCEPTOR) {
             Napier.d("VAU interceptor disabled - pass requests")
             return chain.proceed(chain.request())
         }
 
+        // 1) extract profileId tag from original request
+        val profileId = original.tag(ProfileIdentifier::class.java) ?: error("no profile id given")
+
         try {
-            val encryptedRequest = runBlocking(Dispatchers.IO) {
+            // 2) encrypt the HTTP request with VAU channel spec
+            val (encryptedReq, context) = runBlocking(Dispatchers.IO) {
                 truststore.withValidVauPublicKey { publicKey ->
                     VauChannelSpec.V1.encryptHttpRequest(
-                        chain.request(),
-                        previousUserAlias,
-                        publicKey,
-                        baseUrl,
-                        cryptoConfig
+                        innerRequest = chain.request(),
+                        userpseudonym = previousUserAlias,
+                        publicKey = publicKey,
+                        baseUrl = baseUrl,
+                        cryptoConfig = cryptoConfig
                     )
                 }
             }
 
-            // outer response
-            val encryptedResponse = chain.proceed(encryptedRequest.first)
+            // 3) re-attach the ProfileIdentifier tag to the encrypted request
+            val taggedEncryptedReq = encryptedReq.newBuilder()
+                .tag(ProfileIdentifier::class.java, profileId)
+                .build()
+
+            // 4) send the encrypted request
+            val encryptedResponse = chain.proceed(taggedEncryptedReq)
+
             @Requirement(
                 "A_20174#7",
                 sourceSpecification = "gemSpec_Krypt",
                 rationale = "handle encrypted response and user pseudonym"
             )
-            return if (!encryptedResponse.isSuccessful) {
-                // e.g. 401 -> user pseudonym unknown -> reset to zero
-                if (encryptedResponse.code == HTTP_UNAUTHORIZED || encryptedResponse.code == HTTP_FORBIDDEN) {
-                    previousUserAlias = "0"
-                }
-
-                encryptedResponse
-            } else {
-                val (decryptedResponse, userpseudonym) = VauChannelSpec.V1.decryptHttpResponse(
-                    encryptedResponse,
-                    encryptedRequest.first,
-                    encryptedRequest.second,
-                    cryptoConfig
-                )
-
-                if (BuildConfigExtension.isInternalDebug) {
-                    val logEntry = decryptedResponse.buildLogEntryFromVau(chain.request())
-                    sessionLog.addLog(logEntry)
-                }
-
-                userpseudonym?.let {
-                    previousUserAlias = it
-                }
-
-                decryptedResponse
+            // 5) handle 401/403 by resetting alias
+            if (!encryptedResponse.isSuccessful &&
+                (
+                    encryptedResponse.code == HTTP_UNAUTHORIZED ||
+                        encryptedResponse.code == HTTP_FORBIDDEN
+                    )
+            ) {
+                previousUserAlias = "0"
+                return encryptedResponse
             }
+
+            // 6) decrypt and update alias
+            val (decryptedResponse, userpseudonym) = VauChannelSpec.V1.decryptHttpResponse(
+                encryptedResponse,
+                taggedEncryptedReq,
+                context,
+                cryptoConfig
+            )
+
+            // 7) log for debug builds
+            if (BuildConfigExtension.isInternalDebug) {
+                val logEntry = decryptedResponse.buildLogEntryFromVau(taggedEncryptedReq)
+                sessionLog.addLog(logEntry)
+            }
+
+            // 8) store new alias if provided
+            userpseudonym?.let { previousUserAlias = it }
+
+            return decryptedResponse
         } catch (e: Exception) {
             previousUserAlias = "0"
 

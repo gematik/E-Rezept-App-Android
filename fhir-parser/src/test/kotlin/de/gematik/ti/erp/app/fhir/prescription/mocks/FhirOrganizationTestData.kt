@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
@@ -27,7 +31,7 @@ import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirOrganization
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTelecom
 
 internal object FhirOrganizationTestData {
-    val fhirOrganizationAllPresent1 = FhirOrganization(
+    val fhirOrganization1_v103 = FhirOrganization(
         resourceType = "Organization",
         id = "5d3f4ac0-2b44-4d48-b363-e63efa72973b",
         meta = FhirMeta(
@@ -68,7 +72,46 @@ internal object FhirOrganizationTestData {
         )
     )
 
-    val fhirOrganizationAllPresent2 = FhirOrganization(
+    val fhirOrganization2_v103 = FhirOrganization(
+        resourceType = "Organization",
+        id = "cf042e44-086a-4d51-9c77-172f9a972e3b",
+        meta = FhirMeta(
+            profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.0.3")
+        ),
+        identifiers = listOf(
+            FhirIdentifier(
+                system = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR",
+                value = "031234567",
+                type = FhirCodeableConcept(
+                    coding = listOf(
+                        FhirCoding(
+                            system = "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            code = "BSNR"
+                        )
+                    )
+                )
+            )
+        ),
+        name = "Hausarztpraxis Dr. Topp-Glücklich",
+        telecoms = listOf(
+            FhirTelecom(system = "phone", value = "0301234567")
+        ),
+        addresses = listOf(
+            FhirAddress(
+                type = "both",
+                line = listOf("Musterstr. 2"),
+                city = "Berlin",
+                postalCode = "10623",
+                country = null,
+                extractedLine = mapOf(
+                    "houseNumber" to "2",
+                    "streetName" to "Musterstr."
+                )
+            )
+        )
+    )
+
+    val fhirOrganization1AllPresent_v110 = FhirOrganization(
         resourceType = "Organization",
         id = "5d3f4ac0-2b44-4d48-b363-e63efa72973b",
         meta = FhirMeta(
@@ -109,7 +152,7 @@ internal object FhirOrganizationTestData {
         )
     )
 
-    val organizationNoFax = FhirOrganization(
+    val fhirOrganization1NoFax_v110 = FhirOrganization(
         resourceType = "Organization",
         id = "5d3f4ac0-2b44-4d48-b363-e63efa72973b",
         meta = FhirMeta(
@@ -145,7 +188,7 @@ internal object FhirOrganizationTestData {
         )
     )
 
-    val organizationNoTelecom = FhirOrganization(
+    val fhirOrganization1NoTelecom_v110 = FhirOrganization(
         resourceType = "Organization",
         id = "5d3f4ac0-2b44-4d48-b363-e63efa72973b",
         meta = FhirMeta(profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0")),
@@ -173,7 +216,7 @@ internal object FhirOrganizationTestData {
         )
     )
 
-    val fhirOrganizationNoAddress = organizationNoTelecom.copy(
+    val fhirOrganization1NoAddress_v110 = fhirOrganization1NoTelecom_v110.copy(
         telecoms = listOf(
             FhirTelecom(system = "phone", value = "0301234567"),
             FhirTelecom(system = "fax", value = "030123456789"),
@@ -182,7 +225,7 @@ internal object FhirOrganizationTestData {
         addresses = emptyList()
     )
 
-    private val organizationComplete = fhirOrganizationNoAddress.copy(
+    private val noEmail_v110 = fhirOrganization1NoAddress_v110.copy(
         addresses = listOf(
             FhirAddress(
                 type = "both",
@@ -198,14 +241,65 @@ internal object FhirOrganizationTestData {
         )
     )
 
-    private val addressWithoutLines = organizationComplete.addresses?.first()
+    private val addressWithoutLines = noEmail_v110.addresses?.first()
         ?.copy(extractedLine = emptyMap())
 
-    val organizationNoEmail = organizationComplete.copy(
+    val fhirOrganization1NoEmail_v110 = noEmail_v110.copy(
         telecoms = listOf(
             FhirTelecom(system = "phone", value = "0301234567"),
             FhirTelecom(system = "fax", value = "030123456789")
         ),
         addresses = listOf(addressWithoutLines!!)
+    )
+
+    val fhirOrganization2_v110 = FhirOrganization(
+        resourceType = "Organization",
+        id = "cf042e44-086a-4d51-9c77-172f9a972e3b",
+        meta = FhirMeta(
+            profiles = listOf("https://fhir.kbv.de/StructureDefinition/KBV_PR_FOR_Organization|1.1.0")
+        ),
+        identifiers = listOf(
+            FhirIdentifier(
+                system = "https://fhir.kbv.de/NamingSystem/KBV_NS_Base_BSNR",
+                value = "031234567",
+                type = FhirCodeableConcept(
+                    coding = listOf(
+                        FhirCoding(
+                            system = "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            code = "BSNR"
+                        )
+                    )
+                )
+            ),
+            FhirIdentifier(
+                system = "https://gematik.de/fhir/sid/telematik-id",
+                value = "1-031234567",
+                type = FhirCodeableConcept(
+                    coding = listOf(
+                        FhirCoding(
+                            system = "http://terminology.hl7.org/CodeSystem/v2-0203",
+                            code = "PRN"
+                        )
+                    )
+                )
+            )
+        ),
+        name = "Hausarztpraxis Dr. Topp-Glücklich",
+        telecoms = listOf(
+            FhirTelecom(system = "phone", value = "0301234567")
+        ),
+        addresses = listOf(
+            FhirAddress(
+                type = "both",
+                line = listOf("Musterstr. 2"),
+                city = "Berlin",
+                postalCode = "10623",
+                country = null,
+                extractedLine = mapOf(
+                    "houseNumber" to "2",
+                    "streetName" to "Musterstr."
+                )
+            )
+        )
     )
 }

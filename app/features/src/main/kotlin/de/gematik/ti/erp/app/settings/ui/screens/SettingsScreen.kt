@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.settings.ui.screens
@@ -68,13 +72,12 @@ import de.gematik.ti.erp.app.settings.model.HealthCardClickActions
 import de.gematik.ti.erp.app.settings.model.LegalClickActions
 import de.gematik.ti.erp.app.settings.model.PersonalSettingsClickActions
 import de.gematik.ti.erp.app.settings.model.SettingsActions
-import de.gematik.ti.erp.app.settings.navigation.SettingsNavigationScreens
+import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
 import de.gematik.ti.erp.app.settings.presentation.SettingStatesData
 import de.gematik.ti.erp.app.settings.presentation.rememberSettingsController
 import de.gematik.ti.erp.app.settings.ui.components.AboutSection
 import de.gematik.ti.erp.app.settings.ui.components.AllowScreenshotDialogWithListener
 import de.gematik.ti.erp.app.settings.ui.components.ContactSection
-import de.gematik.ti.erp.app.settings.ui.components.DebugMenuSection
 import de.gematik.ti.erp.app.settings.ui.components.DebugSection
 import de.gematik.ti.erp.app.settings.ui.components.ExploreSection
 import de.gematik.ti.erp.app.settings.ui.components.HealthCardSection
@@ -86,6 +89,7 @@ import de.gematik.ti.erp.app.settings.ui.preview.LocalIsPreviewMode
 import de.gematik.ti.erp.app.settings.ui.preview.SettingsScreenPreviewData
 import de.gematik.ti.erp.app.settings.ui.preview.SettingsScreenPreviewProvider
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.translation.navigation.TranslationRoutes
 import de.gematik.ti.erp.app.utils.SpacerLarge
 import de.gematik.ti.erp.app.utils.buildFeedbackBodyWithDeviceInfo
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
@@ -144,6 +148,7 @@ class SettingsScreen(
         val subject = stringResource(R.string.settings_feedback_mail_subject)
         val surveyAddress = stringResource(R.string.settings_contact_survey_address)
         val digaSurveyAddress = stringResource(R.string.diga_settings_feedback_address)
+        val accessibilityStatementAddress = stringResource(R.string.settings_accessibility_statement_address)
         val body = buildFeedbackBodyWithDeviceInfo(
             darkMode = buildConfig.inDarkTheme(),
             versionName = buildConfig.versionName(),
@@ -172,17 +177,17 @@ class SettingsScreen(
                 },
                 onClickLanguageSettings = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        navController.navigate(SettingsNavigationScreens.SettingsLanguageScreen.path())
+                        navController.navigate(SettingsRoutes.SettingsLanguageScreen.path())
                     } else {
                         val intent = Intent(Settings.ACTION_LOCALE_SETTINGS).apply { flags = Intent.FLAG_ACTIVITY_NEW_TASK }
                         context.startActivity(intent)
                     }
                 },
                 onClickProductImprovementSettings = {
-                    navController.navigate(SettingsNavigationScreens.SettingsProductImprovementsScreen.path())
+                    navController.navigate(SettingsRoutes.SettingsProductImprovementsScreen.path())
                 },
                 onClickDeviceSecuritySettings = {
-                    navController.navigate(SettingsNavigationScreens.SettingsAppSecurityScreen.path())
+                    navController.navigate(SettingsRoutes.SettingsAppSecurityScreen.path())
                 },
                 onClickMedicationPlan = {
                     navController.navigate(MedicationPlanRoutes.MedicationPlanList.path())
@@ -219,22 +224,30 @@ class SettingsScreen(
                 }
             ),
             legalClickActions = LegalClickActions(
-                onClickLegalNotice = { navController.navigate(SettingsNavigationScreens.SettingsLegalNoticeScreen.path()) },
+                onClickLegalNotice = { navController.navigate(SettingsRoutes.SettingsLegalNoticeScreen.path()) },
                 onClickDataProtection = {
-                    navController.navigate(SettingsNavigationScreens.SettingsDataProtectionScreen.path())
+                    navController.navigate(SettingsRoutes.SettingsDataProtectionScreen.path())
                 },
                 onClickOpenSourceLicences = {
-                    navController.navigate(SettingsNavigationScreens.SettingsOpenSourceLicencesScreen.path())
+                    navController.navigate(SettingsRoutes.SettingsOpenSourceLicencesScreen.path())
                 },
                 onClickAdditionalLicences = {
-                    navController.navigate(SettingsNavigationScreens.SettingsAdditionalLicencesScreen.path())
+                    navController.navigate(SettingsRoutes.SettingsAdditionalLicencesScreen.path())
                 },
-                onClickTermsOfUse = { navController.navigate(SettingsNavigationScreens.SettingsTermsOfUseScreen.path()) }
+                onClickTermsOfUse = {
+                    navController.navigate(SettingsRoutes.SettingsTermsOfUseScreen.path())
+                },
+                onClickAccessibilityStatement = {
+                    context.handleIntent(provideWebIntent(accessibilityStatementAddress))
+                }
             ),
             debugClickActions = DebugClickActions(
                 onClickDebug = { navController.navigate(MainNavigationScreens.Debug.path()) },
                 onClickBottomSheetShowcase = {
                     navController.navigate(ShowcaseScreensRoutes.BottomSheetShowcaseScreen.path())
+                },
+                onClickTranslation = {
+                    navController.navigate(TranslationRoutes.TranslationSettingsScreen.path())
                 },
                 onClickDemoTracking = { navController.navigate(TrackingScreenRoutes.subGraphName()) }
             ),
@@ -304,6 +317,7 @@ private fun SettingsScreenContent(
     profilesState: List<Profile>,
     listState: LazyListState,
     isDemoMode: Boolean,
+    isDebug: Boolean = BuildConfigExtension.isInternalDebug,
     buildConfig: BuildConfigInformation,
     zoomState: State<SettingStatesData.ZoomState>,
     isMedicationPlanEnabled: Boolean,
@@ -317,12 +331,15 @@ private fun SettingsScreenContent(
         state = listState
     ) {
         @Requirement(
-            "O.Source_8#1",
+            "O.Source_8#2",
             sourceSpecification = "BSI-eRp-ePA",
             rationale = "Debug menu is shown only for debug builds."
         )
-        if (BuildConfigExtension.isInternalDebug) {
-            item { DebugMenuSection(settingsActions.debugClickActions.onClickDebug) }
+        if (isDebug) {
+            item {
+                DebugSection(debugClickActions = settingsActions.debugClickActions)
+                SpacerLarge()
+            }
         }
 
         item {
@@ -366,18 +383,6 @@ private fun SettingsScreenContent(
         item {
             LegalSection(settingsActions.legalClickActions)
             SpacerLarge()
-        }
-
-        @Requirement(
-            "O.Source_8#2",
-            sourceSpecification = "BSI-eRp-ePA",
-            rationale = "Debug menu is shown only for debug builds."
-        )
-        if (BuildConfigExtension.isInternalDebug) {
-            item {
-                DebugSection(debugClickActions = settingsActions.debugClickActions)
-                SpacerLarge()
-            }
         }
 
         item {
@@ -426,12 +431,14 @@ fun SettingsScreenPreview(
                     onClickDataProtection = {},
                     onClickOpenSourceLicences = {},
                     onClickAdditionalLicences = {},
-                    onClickTermsOfUse = {}
+                    onClickTermsOfUse = {},
+                    onClickAccessibilityStatement = {}
                 ),
                 debugClickActions = DebugClickActions(
                     onClickDebug = {},
                     onClickBottomSheetShowcase = {},
-                    onClickDemoTracking = {}
+                    onClickDemoTracking = {},
+                    onClickTranslation = {}
                 ),
                 onClickEditProfile = {}
             )
@@ -440,6 +447,7 @@ fun SettingsScreenPreview(
                 contentPadding = PaddingValues(SizeDefaults.zero),
                 profilesState = previewData.profiles,
                 listState = lazyListState,
+                isDebug = false,
                 isDemoMode = false,
                 buildConfig = previewData.buildConfig,
                 zoomState = previewData.zoomState,

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.digas.ui.component
@@ -67,7 +71,7 @@ fun ColumnScope.OverviewExpirationInfo(
                 Text(
                     text = stringResource(
                         R.string.pres_detail_medication_expired_on,
-                        data.lifeCycleTimestamps.expiresOnTimeState.lowercase()
+                        data.lifeCycleTimestamps.expiresOnTimeState
                     ),
                     style = AppTheme.typography.body1
                 )
@@ -93,7 +97,7 @@ fun ColumnScope.OverviewExpirationInfo(
                 Text(
                     text = stringResource(
                         R.string.redeemable_until_date,
-                        data.lifeCycleTimestamps.expiresOnTimeState.lowercase()
+                        data.lifeCycleTimestamps.expiresOnTimeState
                     ),
                     style = AppTheme.typography.body1
                 )
@@ -165,6 +169,7 @@ fun ColumnScope.OverviewExpirationInfo(
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @LightDarkPreview
 @Composable
 private fun OverviewExpirationInfoExpiredPreview() {
@@ -184,6 +189,7 @@ private fun OverviewExpirationInfoExpiredPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @LightDarkPreview
 @Composable
 private fun OverviewExpirationInfoReadyPreview() {
@@ -203,6 +209,7 @@ private fun OverviewExpirationInfoReadyPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @LightDarkPreview
 @Composable
 private fun OverviewExpirationInfoCompletedPreview() {
@@ -222,6 +229,7 @@ private fun OverviewExpirationInfoCompletedPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @LightDarkPreview
 @Composable
 private fun OverviewExpirationInfoCompletedWithRejectionPreview() {
@@ -241,6 +249,7 @@ private fun OverviewExpirationInfoCompletedWithRejectionPreview() {
     }
 }
 
+@Suppress("UnusedPrivateMember")
 @LightDarkPreview
 @Composable
 private fun OverviewExpirationInfoInProgressPreview() {

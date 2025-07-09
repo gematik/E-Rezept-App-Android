@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("TooManyFunctions")
@@ -53,7 +57,6 @@ internal const val KONNY_APP_APK_PATH = "outputs/apk/konnektathonRuInternal/debu
 internal const val TU_INTERNAL_APP_APK_PATH = "outputs/apk/googleTuInternal/debug"
 internal const val TU_EXTERNAL_APP_APK_PATH = "outputs/apk/googleTuExternal/release"
 internal const val MOCK_APP_APK_PATH = "outputs/apk/debug"
-internal const val MINIFIED_APP_APK_PATH = "outputs/apk/googleTuInternal/minifiedDebug"
 internal const val PLAY_STORE_BUNDLE_FILE = "android-googlePuExternal-release.aab"
 internal const val HUAWEI_STORE_BUNDLE_FILE = "android-huaweiPuExternal-release.aab"
 internal const val KONNY_APP_APK_FILE = "android-konnektathonRuInternal-debug.apk"
@@ -61,11 +64,9 @@ internal const val TU_INTERNAL_APP_APK_FILE = "android-googleTuInternal-debug.ap
 internal const val TU_EXTERNAL_APP_APK_FILE = "android-googleTuExternal-release.apk"
 internal const val TU_EXTERNAL_APP_APK_FILE_UNSIGNED = "android-googleTuExternal-release-unsigned.apk"
 internal const val MOCK_APP_APK_FILE = "android-mock-debug.apk"
-internal const val MINIFIED_APP_APK_FILE = "android-googleTuInternal-minifiedDebug.apk"
 internal const val PLAY_STORE_MAPPING_PATH = "outputs/mapping/googlePuExternalRelease"
 internal const val HUAWEI_STORE_MAPPING_PATH = "outputs/mapping/huaweiPuExternalRelease"
 internal const val GOOGLE_TU_EXTERNAL_MAPPING_PATH = "outputs/mapping/googleTuExternalRelease"
-internal const val MINIFIED_APP_MAPPING_PATH = "outputs/mapping/googleTuInternalMinifiedDebug"
 internal const val MAPPING_FILE = "mapping.txt"
 internal const val PAYLOAD = "payload"
 internal const val OS_NAME = "os.name"

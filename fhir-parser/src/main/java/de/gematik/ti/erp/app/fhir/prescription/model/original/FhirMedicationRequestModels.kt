@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
@@ -33,10 +37,12 @@ import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMultiplePrescriptionInfoErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.ADDITIONAL_FEE_EXTENSION_URL
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.CO_PAYMENT_EXTENSION_URL_102
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.CO_PAYMENT_EXTENSION_URL_110
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.EMERGENCY_FEE_EXTENSION_URL
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.IS_BVG_EXTENSION_URL
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequest.FhirMedicationRequestConstants.MULTIPLE_PRESCRIPTION_INFO_EXTENSION_URL
+import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findCoPaymentStatus
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriptionIndicator
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriptionPeriod
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestExtension.findPrescriptionRatio
@@ -60,21 +66,22 @@ internal data class FhirMedicationRequest(
     @SerialName("dispenseRequest") val dispenseRequest: FhirMedicationRequestDispenseRequest? = null,
     @SerialName("substitution") val substitution: FhirMedicationRequestSubstitution? = null
 ) {
-    private object FhirMedicationRequestConstants {
+    internal object FhirMedicationRequestConstants {
         const val MULTIPLE_PRESCRIPTION_INFO_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_Multiple_Prescription"
         const val EMERGENCY_FEE_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_EmergencyServicesFee"
         const val IS_BVG_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_BVG"
-        const val ADDITIONAL_FEE_EXTENSION_URL = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment"
+        const val CO_PAYMENT_EXTENSION_URL_102 = "https://fhir.kbv.de/StructureDefinition/KBV_EX_ERP_StatusCoPayment"
+        const val CO_PAYMENT_EXTENSION_URL_110 = "https://fhir.kbv.de/StructureDefinition/KBV_EX_FOR_StatusCoPayment"
     }
 
     fun multiplePrescriptionInfoExtension() = extensions.find { it.url == MULTIPLE_PRESCRIPTION_INFO_EXTENSION_URL }
 
     val isEmergencyFee = extensions.find { it.url == EMERGENCY_FEE_EXTENSION_URL }?.valueBoolean
     val isBvg = extensions.find { it.url == IS_BVG_EXTENSION_URL }?.valueBoolean == true
-    val additionalFee = extensions.find { it.url == ADDITIONAL_FEE_EXTENSION_URL }?.valueCoding?.code
     val quantity = (dispenseRequest?.quantity?.value)?.toDoubleOrNull()?.toInt() ?: 0
     val dosageInstructionText = dosageInstruction.map { it.text }.firstOrNull()
     val noteText = note.map { it.text }.firstOrNull()
+    val additionalFee = extensions.findCoPaymentStatus()
 
     companion object {
         private fun JsonElement.isValidMedicationRequest(): Boolean = isValidKbvResource(
@@ -178,4 +185,8 @@ object FhirMedicationRequestExtension {
 
     internal fun List<FhirExtension>.findPrescriptionIndicator(): Boolean? =
         findExtensionByUrl(PRESCRIPTION_INDICATOR)?.valueBoolean
+
+    internal fun List<FhirExtension>.findCoPaymentStatus(): String? =
+        findExtensionByUrl(CO_PAYMENT_EXTENSION_URL_110)?.valueCoding?.code
+            ?: findExtensionByUrl(CO_PAYMENT_EXTENSION_URL_102)?.valueCoding?.code
 }

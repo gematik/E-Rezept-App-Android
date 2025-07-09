@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("UsingMaterialAndMaterial3Libraries")
@@ -257,9 +261,9 @@ class PrescriptionListScreen(
                 onClickArchive = { navController.navigate(PrescriptionRoutes.PrescriptionsArchiveScreen.path()) },
                 onChooseAuthenticationMethod = controller::chooseAuthenticationMethod,
                 onClickRefresh = controller::refreshDownload,
-                onClickPrescription = { taskId, isDiga ->
+                onClickPrescription = { taskId, isDiga, isReady ->
                     if (isDiga) {
-                        navController.navigate(DigasRoutes.DigasMainScreen.path(taskId))
+                        navController.navigate(DigasRoutes.DigasMainScreen.path(taskId, isReady))
                     } else {
                         navController.navigate(PrescriptionDetailRoutes.PrescriptionDetailScreen.path(taskId))
                     }
@@ -404,7 +408,7 @@ private fun PrescriptionListScreenScaffold(
 @OptIn(ExperimentalMaterial3Api::class)
 @LightDarkPreview
 @Composable
-fun PrescriptionsScreenScaffoldPreview(
+internal fun PrescriptionsScreenScaffoldPreview(
     @PreviewParameter(PrescriptionScreenPreviewParameterProvider::class) data: PrescriptionScreenPreviewData
 ) {
     PreviewAppTheme {

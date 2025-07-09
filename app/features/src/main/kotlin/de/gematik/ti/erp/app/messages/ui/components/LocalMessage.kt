@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.ui.components
@@ -23,6 +27,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -33,10 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
-import de.gematik.ti.erp.app.datetime.DateTimeUtils
-import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
+import de.gematik.ti.erp.app.messages.ui.model.InAppMessageUiModel
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -45,40 +47,19 @@ import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import dev.jeziellago.compose.markdowntext.MarkdownText
-import kotlinx.datetime.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toJavaLocalDateTime
-import kotlinx.datetime.toLocalDateTime
-import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun InAppMessage(
-    message: OrderUseCaseData.Message,
-    isFirstMessage: Boolean,
-    isLastMessage: Boolean,
-    dateFormatter: DateTimeFormatter = DateTimeUtils.dateFormatter,
-    timeFormatter: DateTimeFormatter = DateTimeUtils.timeFormatter
+internal fun LocalMessage(
+    item: InAppMessageUiModel
 ) {
-    val localDateTime = remember(message) {
-        message.sentOn.toLocalDateTime(TimeZone.currentSystemDefault()).toJavaLocalDateTime()
-    }
-
     // State for dynamically tracking the circle position
     val circleYPositionState = remember { mutableFloatStateOf(0f) }
-
-    val date = remember(localDateTime) {
-        dateFormatter.format(localDateTime)
-    }
-
-    val time = remember(localDateTime) {
-        timeFormatter.format(localDateTime)
-    }
 
     Row(
         Modifier
             .drawConnectedLine(
-                drawFilledTop = !isFirstMessage,
-                drawFilledBottom = !isLastMessage,
+                drawFilledTop = !item.isFirstMessage,
+                drawFilledBottom = !item.isLastMessage,
                 circleYPosition = { circleYPositionState.floatValue } // Use a lambda for dynamic value
             )
     ) {
@@ -89,15 +70,20 @@ internal fun InAppMessage(
                 .padding(PaddingDefaults.Medium)
         ) {
             SpacerMedium()
-            Text(
-                stringResource(R.string.orders_timestamp, date, time),
-                style = AppTheme.typography.subtitle2,
-                modifier = Modifier.calculateVerticalCenter(
-                    onCenterCalculated = { circleYPositionState.floatValue = it }
+            Row(
+                modifier = Modifier.fillMaxWidth()
+                    .calculateVerticalCenter(
+                        onCenterCalculated = { circleYPositionState.floatValue = it }
+                    ),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = item.sentOn,
+                    style = AppTheme.typography.subtitle2
                 )
-            )
+            }
             SpacerTiny()
-            if (message.additionalInfo.isNotEmpty()) {
+            if (item.chipText?.isNotEmpty() == true) {
                 Box(
                     Modifier
                         .clip(CircleShape)
@@ -106,12 +92,12 @@ internal fun InAppMessage(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = message.additionalInfo,
+                        text = item.chipText,
                         style = AppTheme.typography.caption2
                     )
                 }
             }
-            message.content?.let {
+            item.content?.let {
                 SpacerTiny()
                 MarkdownText(
                     markdown = it,
@@ -127,35 +113,16 @@ internal fun InAppMessage(
 
 @LightDarkPreview
 @Composable
-fun InAppMessagePreview() {
+fun LocalMessagePreview() {
     PreviewAppTheme {
-        InAppMessage(
-            message = OrderUseCaseData.Message(
-                communicationId = "1",
-                sentOn = Instant.parse("2022-01-01T00:00:00Z"),
-                content = """
-                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                    sed diam nonumy eirmod tempor invidunt ut labore et dolore 
-                    magna aliquyam erat, sed diam voluptua. At vero eos et accusam 
-                    et justo duo dolores et ea rebum. Stet clita kasd gubergren, 
-                    no sea takimata sanctus est Lorem ipsum dolor sit amet. 
-                    Lorem ipsum dolor sit amet, consetetur sadipscing elitr, 
-                    sed diam nonumy eirmod tempor invidunt ut labore et dolore 
-                    magna aliquyam erat, sed diam voluptua. At vero eos et 
-                    accusam et justo duo dolores et ea rebum. Stet clita kasd 
-                    gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.
-                """.trimIndent(),
-                additionalInfo = "",
-                pickUpCodeDMC = "",
-                pickUpCodeHR = "",
-                link = "",
-                consumed = false,
-                prescriptions = emptyList(),
-                taskIds = emptyList(),
-                isTaskIdCountMatching = false
-            ),
-            isFirstMessage = true,
-            isLastMessage = true
+        LocalMessage(
+            item = InAppMessageUiModel(
+                isFirstMessage = true,
+                isLastMessage = true,
+                chipText = "Lorem ipsum",
+                content = "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna",
+                sentOn = "23 Feb 2023"
+            )
         )
     }
 }

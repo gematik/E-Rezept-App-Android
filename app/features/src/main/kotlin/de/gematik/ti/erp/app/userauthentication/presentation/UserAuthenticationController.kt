@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,13 +11,18 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.userauthentication.presentation
 
+import android.os.SystemClock
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
@@ -33,23 +38,53 @@ import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMe
 import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
 import de.gematik.ti.erp.app.userauthentication.presentation.AuthenticationStateData.AuthenticationState
-import de.gematik.ti.erp.app.utils.compose.ComposableEvent
+import de.gematik.ti.erp.app.userauthentication.usecase.ResetAuthenticationTimeOutSystemUptimeUseCase
+import de.gematik.ti.erp.app.userauthentication.usecase.SetAuthenticationTimeOutSystemUptimeUseCase
 import de.gematik.ti.erp.app.utils.uistate.UiState
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
+import kotlin.math.min
 
-class AuthenticationController(
+private const val PASSWORD_TRIES_TILL_TIMEOUT = 5
+private const val PASSWORD_TIMEOUT_SECONDS = 5
+private const val MAX_FIBONACCI_FACTOR = 8L // 8x5 = 40 sec max timeout
+private const val MILLISECONDS_SECONDS_FACTOR = 1000L
+
+class UserAuthenticationController(
     private val inactivityTimeoutObserver: InactivityTimeoutObserver,
+    private val setAuthenticationTimeOutSystemUptimeUseCase: SetAuthenticationTimeOutSystemUptimeUseCase,
+    private val resetAuthenticationTimeOutSystemUptimeUseCase: ResetAuthenticationTimeOutSystemUptimeUseCase,
     private val biometricPromptBuilder: BiometricPromptBuilder,
     private val promptInfo: BiometricPrompt.PromptInfo
 ) : Controller() {
-    val authenticationWithPasswordEvent = ComposableEvent<Unit>()
-
     private val _authentication = MutableStateFlow(AuthenticationStateData.defaultAuthenticationState)
+    private val _showPasswordLogin = MutableStateFlow(false)
+    private val _enteredPassword: MutableStateFlow<String> = MutableStateFlow("")
+    private val _enteredPasswordError = MutableStateFlow(false)
+
+    val authenticationState: StateFlow<AuthenticationState> = _authentication
+    val showPasswordLogin: StateFlow<Boolean> = _showPasswordLogin
+    val enteredPassword: StateFlow<String> = _enteredPassword
+    val enteredPasswordError: StateFlow<Boolean> = _enteredPasswordError
+    val uiState = _authentication.map {
+        when {
+            it.authentication.failedAuthenticationAttempts == 0 -> UiState.Empty()
+            it.authenticationError != null -> UiState.Error(it)
+            else -> {
+                UiState.Data(it)
+            }
+        }
+    }
 
     init {
         controllerScope.launch {
@@ -63,7 +98,8 @@ class AuthenticationController(
                             SettingsData.Authentication(
                                 password = null,
                                 deviceSecurity = false,
-                                failedAuthenticationAttempts = 0
+                                failedAuthenticationAttempts = 0,
+                                authenticationTimeOutSystemUptime = null
                             )
                         )
                     }
@@ -78,82 +114,7 @@ class AuthenticationController(
         }
     }
 
-    val authenticationState: StateFlow<AuthenticationState> = _authentication
-
-    val uiState = _authentication.map {
-        when {
-            it.authentication.failedAuthenticationAttempts == 0 -> UiState.Empty()
-            it.biometricError != null -> UiState.Error(it)
-            else -> {
-                UiState.Data(it)
-            }
-        }
-    }
-
-    private val _password: MutableStateFlow<String> = MutableStateFlow("")
-
-    fun onChangePassword(password: String) {
-        _password.value = password
-    }
-
-    fun onClickAuthenticate(
-        onSuccessLeaveAuthScreen: () -> Unit
-    ) {
-        when {
-            authenticationState.value.authentication.methodIsPassword -> {
-                authenticationWithPasswordEvent.trigger(Unit)
-            }
-            else -> {
-                onAuthenticateWithDeviceSecurity(onSuccessLeaveAuthScreen)
-            }
-        }
-    }
-
-    fun onAuthenticateWithPassword(
-        onSuccessLeaveAuthScreen: () -> Unit
-    ) {
-        controllerScope.launch {
-            @Requirement(
-                "O.Pass_4#1",
-                sourceSpecification = "BSI-eRp-ePA",
-                rationale = "If the password is not correct, the function onFailedAuthentication is called."
-            )
-            if (inactivityTimeoutObserver.isPasswordValid(_password.value)) {
-                onSuccessfulAuthentication(
-                    onSuccessLeaveAuthScreen = onSuccessLeaveAuthScreen
-                )
-            } else {
-                onFailedAuthentication()
-            }
-        }
-    }
-
-    private fun onAuthenticateWithDeviceSecurity(
-        onSuccessLeaveAuthScreen: () -> Unit
-    ) {
-        val prompt = biometricPromptBuilder.buildBiometricPrompt(
-            onSuccess = {
-                onSuccessfulAuthentication(
-                    onSuccessLeaveAuthScreen = onSuccessLeaveAuthScreen
-                )
-            },
-            onFailure = {
-                onFailedAuthentication()
-            },
-            onError = { errorMessage, errorCode ->
-                _authentication.update {
-                    it.copy(
-                        biometricError = AuthenticationStateData.BiometricError(
-                            name = errorMessage,
-                            code = errorCode
-                        )
-                    )
-                }
-            }
-        )
-        prompt.authenticate(promptInfo)
-    }
-
+    // general authentication
     fun onSuccessfulAuthentication(
         onSuccessLeaveAuthScreen: () -> Unit
     ) {
@@ -174,11 +135,131 @@ class AuthenticationController(
             inactivityTimeoutObserver.incrementNumberOfAuthenticationFailures()
         }
     }
+
+    // device specific authentication
+    fun onAuthenticateWithDeviceSecurity(
+        onSuccessLeaveAuthScreen: () -> Unit
+    ) {
+        val prompt = biometricPromptBuilder.buildBiometricPrompt(
+            onSuccess = {
+                onSuccessfulAuthentication(
+                    onSuccessLeaveAuthScreen = onSuccessLeaveAuthScreen
+                )
+            },
+            onFailure = {
+                onFailedAuthentication()
+            },
+            onError = { errorMessage, errorCode ->
+                onFailedAuthentication()
+                _authentication.update {
+                    it.copy(
+                        authenticationError = AuthenticationStateData.AuthenticationError(
+                            name = errorMessage,
+                            code = errorCode
+                        )
+                    )
+                }
+            }
+        )
+        prompt.authenticate(promptInfo)
+    }
+
+    // password authentication
+    fun onChangeEnteredPassword(password: String) {
+        _enteredPassword.value = password
+    }
+
+    fun onShowPasswordLogin() {
+        _showPasswordLogin.update { true }
+    }
+
+    fun onHidePasswordLogin() {
+        _showPasswordLogin.update { false }
+    }
+
+    fun onRemovePasswordError() {
+        _enteredPasswordError.update { false }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    val authenticationTimeOut =
+        _authentication.flatMapLatest {
+            val timeout = calculateAuthenticationTimeOut(it)
+            var remainingTimeout = timeout
+            flow {
+                while (remainingTimeout >= 0L) {
+                    emit(remainingTimeout--)
+                    delay(MILLISECONDS_SECONDS_FACTOR)
+                    if (remainingTimeout == 0L) {
+                        resetAuthenticationTimeOutSystemUptimeUseCase.invoke()
+                    }
+                }
+                emit(0L)
+            }
+        }.stateIn(scope = controllerScope, started = SharingStarted.Eagerly, initialValue = 0L)
+
+    fun onAuthenticateWithPassword(
+        onSuccessLeaveAuthScreen: () -> Unit
+    ) {
+        controllerScope.launch {
+            @Requirement(
+                "O.Pass_4#1",
+                sourceSpecification = "BSI-eRp-ePA",
+                rationale = "If the password is not correct, the function onFailedAuthentication is called."
+            )
+            when {
+                inactivityTimeoutObserver.isPasswordValid(_enteredPassword.value) -> {
+                    onSuccessfulAuthentication(
+                        onSuccessLeaveAuthScreen = onSuccessLeaveAuthScreen
+                    )
+                }
+                else -> {
+                    onFailedAuthentication()
+                    _enteredPasswordError.update { true }
+                    if (checkTriggerAuthenticationTimeOut()) {
+                        setAuthenticationTimeOutSystemUptimeUseCase.invoke(SystemClock.elapsedRealtime())
+                    }
+                }
+            }
+        }
+    }
+
+    private fun checkTriggerAuthenticationTimeOut(): Boolean =
+        _authentication.value.authentication.failedAuthenticationAttempts != 0 &&
+            (_authentication.value.authentication.failedAuthenticationAttempts + 1) % PASSWORD_TRIES_TILL_TIMEOUT == 0 // db update takes too long therefore + 1
+
+    suspend fun calculateAuthenticationTimeOut(it: AuthenticationState): Long =
+        it.authentication.authenticationTimeOutSystemUptime?.let { savedSystemUptime ->
+            val currentSystemUptime = SystemClock.elapsedRealtime()
+            val fibonacciBasedTimeOutModifier = min(
+                fibonacci().elementAt(it.authentication.failedAuthenticationAttempts / PASSWORD_TRIES_TILL_TIMEOUT),
+                MAX_FIBONACCI_FACTOR
+            )
+            val totalTimeout = PASSWORD_TIMEOUT_SECONDS * MILLISECONDS_SECONDS_FACTOR * fibonacciBasedTimeOutModifier
+            val currentTimeOut = ((savedSystemUptime + totalTimeout) - currentSystemUptime) / MILLISECONDS_SECONDS_FACTOR
+            when {
+                savedSystemUptime > currentSystemUptime -> {
+                    setAuthenticationTimeOutSystemUptimeUseCase.invoke(currentSystemUptime)
+                }
+                currentTimeOut <= 0 -> {
+                    resetAuthenticationTimeOutSystemUptimeUseCase.invoke()
+                }
+                else -> {}
+            }
+            currentTimeOut
+        } ?: 0
+
+    private fun fibonacci(): Sequence<Long> {
+        return generateSequence(Pair(0L, 1L)) { Pair(it.second, it.first + it.second) }
+            .map { it.first }
+    }
 }
 
 @Composable
-fun rememberAuthenticationController(): AuthenticationController {
+fun rememberAuthenticationController(): UserAuthenticationController {
     val inactivityTimeoutObserver by rememberInstance<InactivityTimeoutObserver>()
+    val resetAuthenticationTimeOutSystemUptimeUseCase by rememberInstance<ResetAuthenticationTimeOutSystemUptimeUseCase>()
+    val setAuthenticationTimeOutSystemUptimeUseCase by rememberInstance<SetAuthenticationTimeOutSystemUptimeUseCase>()
     val activity = LocalActivity.current
     val biometricPromptBuilder = remember { BiometricPromptBuilder(activity as AppCompatActivity) }
     val promptInfo = biometricPromptBuilder.buildPromptInfoWithAllAuthenticatorsAvailable(
@@ -187,8 +268,10 @@ fun rememberAuthenticationController(): AuthenticationController {
     )
 
     return remember {
-        AuthenticationController(
+        UserAuthenticationController(
             inactivityTimeoutObserver = inactivityTimeoutObserver,
+            resetAuthenticationTimeOutSystemUptimeUseCase = resetAuthenticationTimeOutSystemUptimeUseCase,
+            setAuthenticationTimeOutSystemUptimeUseCase = setAuthenticationTimeOutSystemUptimeUseCase,
             biometricPromptBuilder = biometricPromptBuilder,
             promptInfo = promptInfo
         )
@@ -199,19 +282,20 @@ object AuthenticationStateData {
     @Immutable
     data class AuthenticationState(
         val authentication: SettingsData.Authentication,
-        val biometricError: BiometricError? = null
+        val authenticationError: AuthenticationError? = null
     ) : Throwable()
 
     val defaultAuthenticationState = AuthenticationState(
         authentication = SettingsData.Authentication(
             password = null,
             deviceSecurity = false,
-            failedAuthenticationAttempts = 0
+            failedAuthenticationAttempts = 0,
+            authenticationTimeOutSystemUptime = null
         ),
-        biometricError = null
+        authenticationError = null
     )
 
-    data class BiometricError(
+    data class AuthenticationError(
         val name: String? = null,
         val code: Int? = null
     )

@@ -14,6 +14,7 @@ plugins {
 // these two need to be in uppercase since it is declared that way in gradle.properties
 @Suppress("VariableNaming", "PropertyName")
 val VERSION_CODE: String by overrides()
+
 @Suppress("VariableNaming", "PropertyName")
 val VERSION_NAME: String by overrides()
 val gematik = AppDependencyNamesPlugin()
@@ -124,20 +125,6 @@ android {
                 }
             }
         }
-        create(gematik.minifiedDebug) {
-            applicationIdSuffix = ".minirelease"
-            isDebuggable = true
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro",
-            )
-            if (!signingProperties.isNullOrEmpty()) {
-                signingConfig = signingConfigs.getByName("googleRelease")
-            }
-            resValue("string", "app_label", "E-Rezept Mini")
-        }
     }
     flavorDimensions += listOf("version")
     productFlavors {
@@ -199,7 +186,8 @@ android {
 }
 
 dependencies {
-    implementation(project(":utils"))
+    implementation(project(gematik.utils))
+    implementation(project(gematik.core))
     implementation(project(gematik.feature))
     implementation(project(gematik.demoMode))
     implementation(project(gematik.uiComponents))

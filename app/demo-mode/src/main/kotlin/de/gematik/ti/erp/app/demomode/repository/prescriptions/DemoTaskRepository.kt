@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,16 +11,19 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("MagicNumber")
 
 package de.gematik.ti.erp.app.demomode.repository.prescriptions
 
-import de.gematik.ti.erp.app.api.ResourcePaging.ResourceResult
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
@@ -32,17 +35,14 @@ import kotlinx.datetime.Instant
 class DemoTaskRepository(
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TaskRepository {
+
+    override val tag: String = "DemoTaskRepository"
+
     override suspend fun downloadTasks(profileId: ProfileIdentifier): Result<Int> =
         withContext(dispatcher) {
             delay(250)
             Result.success(0)
         }
-
-    override suspend fun downloadResource(
-        profileId: ProfileIdentifier,
-        timestamp: String?,
-        count: Int?
-    ): Result<ResourceResult<Int>> = Result.success(ResourceResult(0, 0))
 
     override suspend fun syncedUpTo(profileId: ProfileIdentifier): Instant? = null
 }

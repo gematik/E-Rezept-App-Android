@@ -1,7 +1,6 @@
 @file:Suppress("UnstableApiUsage")
 
 import extensions.BuildNames
-import extensions.BuildNames.minifiedDebug
 import extensions.BuildNames.versionCatalogLibrary
 import extensions.Versions.BUILD_TOOLS_VERSION
 import extensions.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
@@ -104,9 +103,6 @@ android {
             isJniDebuggable = true
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
-        }
-        create(minifiedDebug) {
-            initWith(debug)
         }
     }
     buildFeatures {

@@ -1,6 +1,5 @@
 @file:Suppress("UnusedPrivateProperty")
 
-import extensions.BuildNames.minifiedDebug
 import extensions.BuildNames.targetDesktop
 import extensions.BuildNames.versionCatalogLibrary
 import extensions.RealmPaparazziFix
@@ -46,43 +45,43 @@ kotlin {
         }
     }
     jvm(targetDesktop)
-     sourceSets {
-          val commonMain by getting {
-             dependencies {
-                 implementation(kotlin("reflect"))
-                 implementation(versionCatalog.multiplatformPagingLibrary)
-                 implementation(versionCatalog.coroutinesCoreLibrary)
-                 implementation(versionCatalog.datetimeBundle)
-                 implementation(versionCatalog.databaseBundle)
-                 implementation(versionCatalog.cryptoBundle)
-                 implementation(versionCatalog.serializationBundle)
-                 implementation(versionCatalog.napierLibrary)
-                 implementation(versionCatalog.networkBundle)
-                 implementation(versionCatalog.diKotlinBundle)
-                 implementation(RealmPaparazziFix.realmKotlinV3)
-             }
-         }
-         val commonTest by getting {
-             dependencies {
-                 implementation(versionCatalog.databaseBundle)
-                 implementation(versionCatalog.coroutinesTestBundle)
-                 implementation(versionCatalog.serializationBundle)
-                 implementation(versionCatalog.kotlinTestBundle)
-                 implementation(versionCatalog.junitBundle)
-                 implementation(versionCatalog.cryptoBundle)
-                 implementation(versionCatalog.datetimeBundle)
-                 implementation(versionCatalog.networkRetrofitLibrary)
-                 implementation(versionCatalog.networkOkhttpMockWebServerLibrary)
-             }
-         }
-         val desktopTest by getting {
-             dependencies {
-                 dependsOn(commonTest)
-                 implementation(versionCatalog.cryptoBundle)
-                 implementation(versionCatalog.datetimeBundle)
-             }
-         }
-      }
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(kotlin("reflect"))
+                implementation(versionCatalog.multiplatformPagingLibrary)
+                implementation(versionCatalog.coroutinesCoreLibrary)
+                implementation(versionCatalog.datetimeBundle)
+                implementation(versionCatalog.databaseBundle)
+                implementation(versionCatalog.cryptoBundle)
+                implementation(versionCatalog.serializationBundle)
+                implementation(versionCatalog.napierLibrary)
+                implementation(versionCatalog.networkBundle)
+                implementation(versionCatalog.diKotlinBundle)
+                implementation(RealmPaparazziFix.realmKotlinV3)
+            }
+        }
+        val commonTest by getting {
+            dependencies {
+                implementation(versionCatalog.databaseBundle)
+                implementation(versionCatalog.coroutinesTestBundle)
+                implementation(versionCatalog.serializationBundle)
+                implementation(versionCatalog.kotlinTestBundle)
+                implementation(versionCatalog.junitBundle)
+                implementation(versionCatalog.cryptoBundle)
+                implementation(versionCatalog.datetimeBundle)
+                implementation(versionCatalog.networkRetrofitLibrary)
+                implementation(versionCatalog.networkOkhttpMockWebServerLibrary)
+            }
+        }
+        val desktopTest by getting {
+            dependencies {
+                dependsOn(commonTest)
+                implementation(versionCatalog.cryptoBundle)
+                implementation(versionCatalog.datetimeBundle)
+            }
+        }
+    }
 }
 
 android {
@@ -103,9 +102,6 @@ android {
             isJniDebuggable = true
             enableUnitTestCoverage = true
             enableAndroidTestCoverage = true
-        }
-        create(minifiedDebug) {
-            initWith(debug)
         }
     }
     buildFeatures {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("TooManyFunctions", "MagicNumber")
@@ -29,12 +33,11 @@ import android.content.res.Resources
 import android.net.Uri
 import android.text.format.DateFormat
 import android.util.Patterns
-import androidx.activity.addCallback
 import androidx.annotation.PluralsRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.LocalIndication
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -56,10 +59,6 @@ import androidx.compose.foundation.text.InlineTextContent
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.AppBarDefaults
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonColors
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.ButtonElevation
 import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.LocalAbsoluteElevation
@@ -79,7 +78,6 @@ import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.TextFieldColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -90,7 +88,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -103,7 +100,9 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
@@ -119,6 +118,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Devices
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
@@ -128,56 +129,25 @@ import androidx.core.net.toUri
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.app_core.R
-import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.core.LocalTimeZone
+import de.gematik.ti.erp.app.datetime.ErpTimeFormatter.Style
+import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
+import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.openUriWhenValid
 import io.github.aakira.napier.Napier
+import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.format
-import kotlinx.datetime.format.Padding
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.LocalTime
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Date
-import kotlinx.datetime.LocalDateTime as KotlinLocalDateTime
-
-@Composable
-fun LargeButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true,
-    interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
-    elevation: ButtonElevation? = ButtonDefaults.elevation(),
-    shape: Shape = RoundedCornerShape(8.dp),
-    border: BorderStroke? = null,
-    colors: ButtonColors = ButtonDefaults.buttonColors(),
-    contentPadding: PaddingValues = PaddingValues(
-        horizontal = PaddingDefaults.Medium,
-        vertical = PaddingDefaults.Large / 2
-    ),
-    content: @Composable RowScope.() -> Unit
-) {
-    Button(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth(),
-        enabled = enabled,
-        interactionSource = interactionSource,
-        elevation = elevation,
-        shape = shape,
-        border = border,
-        colors = colors,
-        contentPadding = contentPadding,
-        content = content
-    )
-}
 
 /**
  * Internal testing only. This extension changes the [contentDescription] to [id].
@@ -192,23 +162,6 @@ fun Modifier.testId(id: String) =
     } else {
         this
     }
-
-@Composable
-fun BackInterceptor(
-    onBack: () -> Unit
-) {
-    val activity = LocalActivity.current
-
-    DisposableEffect(activity) {
-        val callback = activity.onBackPressedDispatcher.addCallback {
-            onBack()
-        }
-
-        onDispose {
-            callback.remove()
-        }
-    }
-}
 
 @Composable
 fun NavigationClose(modifier: Modifier = Modifier, onClick: () -> Unit) {
@@ -441,12 +394,12 @@ fun LabeledSwitch(
             .padding(SizeDefaults.double)
             .semantics(true) {},
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(SizeDefaults.onefold)
+        horizontalArrangement = Arrangement.spacedBy(SizeDefaults.one)
     ) {
         label()
 
         // for better visibility in dark mode
-        CompositionLocalProvider(LocalAbsoluteElevation provides SizeDefaults.onefold) {
+        CompositionLocalProvider(LocalAbsoluteElevation provides SizeDefaults.one) {
             Switch(
                 checked = checked,
                 onCheckedChange = null,
@@ -461,6 +414,7 @@ fun LabelButton(
     icon: ImageVector,
     text: String,
     modifier: Modifier = Modifier,
+    contentDescription: String = text,
     onClick: () -> Unit
 ) {
     Row(
@@ -468,9 +422,14 @@ fun LabelButton(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
+            .clickable(
+                onClick = onClick
+            )
             .padding(PaddingDefaults.Medium)
-            .semantics(mergeDescendants = true) {}
+            .clearAndSetSemantics {
+                this.contentDescription = contentDescription
+                role = Role.Button
+            }
     ) {
         Icon(icon, null, tint = AppTheme.colors.primary700)
         SpacerMedium()
@@ -527,12 +486,6 @@ private fun resources(): Resources {
     LocalConfiguration.current
     return LocalContext.current.resources
 }
-
-@Composable
-fun annotatedPluralsResource(@PluralsRes id: Int, quantity: Int): AnnotatedString =
-    buildAnnotatedString {
-        append(resources().getQuantityString(id, quantity))
-    }
 
 @Composable
 fun annotatedPluralsResource(
@@ -924,35 +877,13 @@ fun phrasedDateString(date: LocalDateTime): String {
     return "${date.format(dateFormatter)} $at ${timeFormatter.format(timeOfDate)}"
 }
 
-fun dateString(date: KotlinLocalDateTime): String {
-    return date.format(
-        KotlinLocalDateTime.Format {
-            dayOfMonth(Padding.ZERO)
-            chars(".")
-            monthNumber(Padding.ZERO)
-            chars(".")
-            year()
-        }
-    )
-}
-
-fun timeString(time: KotlinLocalDateTime): String {
-    return time.format(
-        KotlinLocalDateTime.Format {
-            hour()
-            chars(":")
-            minute()
-        }
-    )
-}
-
 /**
  * Combines the two args to something like "created at Jan 12, 1952"
  */
 @Composable
 fun dateWithIntroductionString(@StringRes id: Int, instant: Instant): String {
-    val zone = LocalTimeZone.current
-    val date = remember { dateString(instant.toLocalDateTime(zone)) }
+    val formatter = rememberErpTimeFormatter()
+    val date = remember { formatter.date(instant) }
     val combinedString = annotatedStringResource(id, date).toString()
     return remember { combinedString }
 }
@@ -967,15 +898,6 @@ fun LabeledText(description: String, content: String?) {
         Text(description, style = AppTheme.typography.body2l)
         SpacerMedium()
     }
-}
-
-/**
- * Same as [LabeledText] but uses the given resource for the description tag.
- *
- */
-@Composable
-fun LabeledText(descriptionResource: Int, content: String?) {
-    LabeledText(stringResource(descriptionResource), content)
 }
 
 @Composable
@@ -1100,5 +1022,75 @@ fun ClickableAnnotatedText(
             overflow = overflow,
             maxLines = maxLines
         )
+    }
+}
+
+/**
+ * Just a overview for formatting dates and times.
+ * todo Con be deleted when ticket is closed
+ * erp locales: de, ar, bg, cs, da, en, fr, iw, it, nl, pl, ro, ru, tr, uk, es, ga,
+ */
+@Preview(locale = "de", device = Devices.NEXUS_7)
+@Composable
+fun DateTimePreview() {
+    PreviewAppTheme {
+        val formatter = rememberErpTimeFormatter()
+        val now = Clock.System.now()
+        val timeString = formatter.time(now)
+        val dateString = formatter.date(now)
+
+        val nine = LocalTime.parse("09:00")
+        val five = LocalTime.parse("17:00")
+
+        Column(modifier = Modifier.padding(PaddingDefaults.Large)) {
+            Line("Locale", formatter.locale)
+            Line("timezone", formatter.timezone)
+            Line("default SHORT")
+            Line("time", formatter.time(now, style = Style.SHORT))
+            Line("date", formatter.date(now, style = Style.SHORT))
+            Line("ts", formatter.timestamp(now, style = Style.SHORT))
+            Line("MEDIUM")
+            Line("time", formatter.time(now, style = Style.MEDIUM))
+            Line("date", formatter.date(now, style = Style.MEDIUM))
+            Line("ts", formatter.timestamp(now, style = Style.MEDIUM))
+            Line("LONG")
+            Line("time", formatter.time(now, style = Style.LONG))
+            Line("date", formatter.date(now, style = Style.LONG))
+            Line("ts", formatter.timestamp(now, style = Style.LONG))
+            Line("FULL")
+            Line("time", formatter.time(now, style = Style.FULL))
+            Line("date", formatter.date(now, style = Style.FULL))
+            Line("ts", formatter.timestamp(now, style = Style.FULL))
+            Line("ERP")
+            Line("orders_timestamp", stringResource(R.string.orders_timestamp, dateString, timeString))
+            Line("received_on_minute", stringResource(R.string.received_on_minute, timeString))
+            Line("provided_at_hour", stringResource(R.string.provided_at_hour, timeString))
+
+            Line("nine to five", right = "${formatter.time(nine)} - ${formatter.time(five)}")
+        }
+    }
+}
+
+@Composable
+private fun Line(left: String, right: Any? = null) {
+    if (right == null) {
+        Text(
+            text = left,
+            fontWeight = FontWeight.ExtraBold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .background(color = Color.Gray)
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+    } else {
+        Row {
+            Text(
+                left,
+                modifier = Modifier.weight(1f),
+                fontWeight = FontWeight.Thin
+            )
+            Text(right.toString())
+        }
     }
 }

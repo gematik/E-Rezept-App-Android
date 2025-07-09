@@ -1,3 +1,26 @@
+# Release 1.31.0
+
+### fixed (4 changes)
+
+- Save cache pharmacies from fhirvzd
+- Show dual pharmacy times
+- Paging for prescriptions
+- Fix nfc being always on read mode
+
+### ⚡ enhancements (4 changes):
+
+- KBV parsing & show damaged bundles
+- Add Gutachter Documentation for Finding A.06
+- Add accessibility for maps
+- Add link to accessibility
+
+### ✨ features (4 changes):
+
+- Update Onboarding screens
+- Add password timeout
+- Fallback when insurer information missing
+- Offline language translations
+
 # Release 1.30.0
 
 ### fixed (1 change)
@@ -11,10 +34,10 @@
 ### ✨ features (2 change)
 
 - DiGA Integration:
-  - Added full support for DiGA (Digitale Gesundheitsanwendungen) prescriptions 
-  - View and manage your active DiGA prescriptions directly in the app 
-  - Check real-time redemption status and receive dispense information 
-  - Securely redeem and delete DiGA prescriptions
+    - Added full support for DiGA (Digitale Gesundheitsanwendungen) prescriptions
+    - View and manage your active DiGA prescriptions directly in the app
+    - Check real-time redemption status and receive dispense information
+    - Securely redeem and delete DiGA prescriptions
 - Make FhirVZD as default for pharmacies
 
 ### reworked (2 change)
@@ -22,7 +45,7 @@
 - Parsing FHIR data for Medication dispense and Audit events
 - Add new base module app-core to handle all base functionality of the app
 
-# Release 1.29.0 
+# Release 1.29.0
 
 ### changed (3 changes)
 

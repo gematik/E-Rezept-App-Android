@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,13 +11,18 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.redeem.model
 
+import androidx.annotation.StringRes
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.app_core.R
@@ -32,78 +37,20 @@ import de.gematik.ti.erp.app.app_core.R
     sourceSpecification = "BSI-eRp-ePA",
     rationale = "String resources are used tp show the mapped errors."
 )
-sealed class RedeemPrescriptionDialogMessageState(
-    open val redeemDialogParameters: RedeemDialogParameters
+enum class RedeemPrescriptionDialogMessageState(
+    @StringRes val title: Int,
+    @StringRes val description: Int
 ) {
-    data class Success(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_200_title,
-            description = R.string.server_return_code_200
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class IncorrectDataStructure(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_400_title,
-            description = R.string.server_return_code_400
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class JsonViolated(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_title_failure,
-            description = R.string.server_return_code_401
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class UnableToRedeem(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_title_failure,
-            description = R.string.server_return_code_404
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class Timeout(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_408_title,
-            description = R.string.server_return_code_408
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class Conflict(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_409_title,
-            description = R.string.server_return_code_409
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class Gone(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_410_title,
-            description = R.string.server_return_code_410
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class NotFound(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_no_code_title,
-            description = R.string.server_return_no_code
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class Unknown(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_no_code_title,
-            description = R.string.server_return_no_code
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
-
-    data class MultiplePrescriptionsFailed(
-        override val redeemDialogParameters: RedeemDialogParameters = RedeemDialogParameters(
-            title = R.string.server_return_code_title_failure,
-            description = R.string.several_return_code
-        )
-    ) : RedeemPrescriptionDialogMessageState(redeemDialogParameters)
+    SUCCESS(R.string.server_return_code_200_title, R.string.server_return_code_200),
+    INCORRECT_DATA_STRUCTURE(R.string.server_return_code_400_title, R.string.server_return_code_400),
+    JSON_VIOLATED(R.string.server_return_code_title_failure, R.string.server_return_code_401),
+    UNABLE_TO_REDEEM(R.string.server_return_code_title_failure, R.string.server_return_code_404),
+    TIMEOUT(R.string.server_return_code_408_title, R.string.server_return_code_408),
+    CONFLICT(R.string.server_return_code_409_title, R.string.server_return_code_409),
+    GONE(R.string.server_return_code_410_title, R.string.server_return_code_410),
+    NOT_FOUND(R.string.prescription_not_found_on_server_title, R.string.prescription_not_found_on_server),
+    UNKNOWN(R.string.prescription_unknown_problem_title, R.string.prescription_unknown_problem),
+    MULTIPLE_PRESCRIPTIONS_FAILED(R.string.server_return_code_title_failure, R.string.several_return_code);
 
     @Requirement(
         "O.Plat_4#2",
@@ -113,23 +60,23 @@ sealed class RedeemPrescriptionDialogMessageState(
     companion object {
         fun BaseRedeemState.toDialogMessageState(): RedeemPrescriptionDialogMessageState {
             return when (this) {
-                is BaseRedeemState.Success -> Success()
+                is BaseRedeemState.Success -> SUCCESS
                 is BaseRedeemState.Error -> errorState.toDialogMessageState()
-                else -> Unknown()
+                else -> UNKNOWN
             }
         }
 
         private fun HttpErrorState.toDialogMessageState(): RedeemPrescriptionDialogMessageState =
             when (this) {
-                HttpErrorState.BadRequest -> IncorrectDataStructure()
-                HttpErrorState.Conflict -> Conflict()
-                HttpErrorState.Gone -> Gone()
-                HttpErrorState.Unauthorized -> JsonViolated()
-                HttpErrorState.RequestTimeout -> Timeout()
-                HttpErrorState.NotFound -> NotFound()
+                HttpErrorState.BadRequest -> INCORRECT_DATA_STRUCTURE
+                HttpErrorState.Conflict -> CONFLICT
+                HttpErrorState.Gone -> GONE
+                HttpErrorState.Unauthorized -> JSON_VIOLATED
+                HttpErrorState.RequestTimeout -> TIMEOUT
+                HttpErrorState.NotFound -> NOT_FOUND
                 // TODO: Add more ui states
                 HttpErrorState.ServerError, HttpErrorState.TooManyRequest, HttpErrorState.MethodNotAllowed, HttpErrorState.Forbidden,
-                is HttpErrorState.ErrorWithCause, HttpErrorState.Unknown -> Unknown()
+                is HttpErrorState.ErrorWithCause, HttpErrorState.Unknown -> UNKNOWN
             }
     }
 }

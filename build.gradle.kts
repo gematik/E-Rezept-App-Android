@@ -73,12 +73,11 @@ try {
     println("No ci-overrides.properties found")
 }
 
+
 val sourcesKt: List<String> by lazy {
-    rootProject.allprojects.flatMap { project ->
-        project.fileTree("src") {
-            include("**/*.kt")
-        }.files.filter { it.exists() }.map { it.absolutePath }
-    }
+    rootProject.fileTree(rootProject.projectDir) {
+        include("**/src/**/*.kt")
+    }.files.filter { it.exists() }.map { it.absolutePath }
 }
 
 dependencies {

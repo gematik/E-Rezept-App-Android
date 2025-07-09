@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.prescription.ui.components
@@ -40,8 +44,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.em
-import de.gematik.ti.erp.app.core.LocalTimeZone
 import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.SentOrCompletedPhrase
 import de.gematik.ti.erp.app.prescription.ui.model.sentOrCompleted
@@ -56,13 +60,10 @@ import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.compose.DynamicText
 import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
-import de.gematik.ti.erp.app.utils.compose.dateString
 import de.gematik.ti.erp.app.utils.compose.dateWithIntroductionString
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
-import de.gematik.ti.erp.app.utils.compose.timeString
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
-import kotlinx.datetime.toLocalDateTime
 
 // todo: split into smaller functions ready/laterRedeemable/inProgress/pending/deleted/expired/other
 @Suppress("CyclomaticComplexMethod")
@@ -276,7 +277,7 @@ private fun sentOrCompletedPhrase(
     completed: Boolean = false,
     state: SyncedTaskData.SyncedTask.TaskState
 ): String {
-    val timeZone = LocalTimeZone.current
+    val formatter = rememberErpTimeFormatter()
     return when (
         val phrase = sentOrCompleted(
             lastModified = lastModified,
@@ -297,7 +298,7 @@ private fun sentOrCompletedPhrase(
         is SentOrCompletedPhrase.ProvidedHoursAgo -> {
             annotatedStringResource(
                 R.string.provided_at_hour,
-                remember { timeString(lastModified.toLocalDateTime(timeZone)) }
+                remember { formatter.time(lastModified) }
             ).toString()
         }
         SentOrCompletedPhrase.ProvidedJustNow -> stringResource(R.string.provided_now)
@@ -306,7 +307,7 @@ private fun sentOrCompletedPhrase(
 
         is SentOrCompletedPhrase.ProvidedOn -> annotatedStringResource(
             R.string.provided_on_date,
-            remember { dateString(phrase.on.toLocalDateTime(timeZone)) }
+            remember { formatter.date(phrase.on) }
         ).toString()
 
         is SentOrCompletedPhrase.RedeemedMinutesAgo -> {
@@ -326,7 +327,7 @@ private fun sentOrCompletedPhrase(
         is SentOrCompletedPhrase.RedeemedHoursAgo -> {
             annotatedStringResource(
                 R.string.received_on_minute,
-                remember { timeString(lastModified.toLocalDateTime(timeZone)) }
+                remember { formatter.time(lastModified) }
             ).toString()
         }
 
@@ -339,14 +340,14 @@ private fun sentOrCompletedPhrase(
                 }
             annotatedStringResource(
                 resourceId,
-                remember { timeString(lastModified.toLocalDateTime(timeZone)) }
+                remember { formatter.time(lastModified) }
             ).toString()
         }
 
         is SentOrCompletedPhrase.RedeemedOn -> {
             annotatedStringResource(
                 R.string.received_on_day,
-                remember { dateString(phrase.on.toLocalDateTime(timeZone)) }
+                remember { formatter.date(phrase.on) }
             ).toString()
         }
 
@@ -359,7 +360,7 @@ private fun sentOrCompletedPhrase(
                 }
             annotatedStringResource(
                 resourceId,
-                remember { dateString(phrase.on.toLocalDateTime(timeZone)) }
+                remember { formatter.date(phrase.on) }
             ).toString()
         }
     }

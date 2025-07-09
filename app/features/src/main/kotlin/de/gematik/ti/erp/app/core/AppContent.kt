@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 @file:Suppress("MagicNumber")
@@ -66,11 +70,11 @@ import com.google.accompanist.navigation.material.BottomSheetNavigator
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import de.gematik.ti.erp.app.MainActivity
-import de.gematik.ti.erp.app.analytics.Analytics
+import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
+import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
 import de.gematik.ti.erp.app.base.BaseActivity
 import de.gematik.ti.erp.app.base.falseStateFlow
-import de.gematik.ti.erp.app.cardwall.mini.ui.Authenticator
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithNormalMode
 import de.gematik.ti.erp.app.demomode.ui.DemoModeStatusBar
@@ -79,7 +83,6 @@ import de.gematik.ti.erp.app.settings.presentation.rememberSettingsController
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import kotlinx.coroutines.Job
-import de.gematik.ti.erp.app.app_core.R
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
@@ -92,14 +95,11 @@ import kotlin.math.min
 val LocalBiometricAuthenticator =
     staticCompositionLocalOf<BiometricAuthenticator> { error("No BiometricAuthenticator provided!") }
 
-val LocalAuthenticator =
-    staticCompositionLocalOf<Authenticator> { error("No authenticator provided!") }
-
 val LocalActivity =
     staticCompositionLocalOf<ComponentActivity> { error("No ComponentActivity provided!") }
 
-val LocalAnalytics =
-    staticCompositionLocalOf<Analytics> { error("No Analytics provided!") }
+val LocalCardCommunicationAnalytics =
+    staticCompositionLocalOf<CardCommunicationAnalytics> { error("No Analytics provided!") }
 
 val LocalDi = staticCompositionLocalOf<DI> { error("No DI provided!") }
 val LocalTimeZone = staticCompositionLocalOf<TimeZone> { error("No Timezone provided!") }

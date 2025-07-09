@@ -44,10 +44,17 @@
         android:theme="@style/Theme.ERezApp">
         <service
             android:name=".DefaultErezeptApp"
-            android:foregroundServiceType="location"/>
+            android:foregroundServiceType="location" />
+
         <meta-data
             android:name="com.contentsquare.android.autostart"
             android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_deactivated"
+            android:value="true" />
         <!-- Blocks mlKit/firebase from initializing at startup -->
         <provider
             android:name="com.google.mlkit.common.internal.MlKitInitProvider"

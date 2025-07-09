@@ -19,8 +19,14 @@
     },
     {
         "id": "5",
-        "text": "**📲 Valorificați rețetele DiGA prescrise** \n De acum înainte puteți valorifica rețetele pentru aplicațiile digitale de sănătate (DiGA) direct prin intermediul aplicației de rețete electronice. Vei primi codul de activare și linkul către aplicația prescrisă imediat după valorificare. \n \n **🏥 Noua bază de date pentru farmacii** \n Am introdus o nouă bază de date, pregătită pentru viitor, pentru căutările în farmacii.",
+        "text": "**📲 Valorificați rețetele DiGA prescrise** \nAcum puteți valorifica rețetele pentru aplicații digitale de sănătate (DiGA) direct prin intermediul aplicației de rețete electronice. Puteți găsi codul de activare și linkul către DiGA prescris chiar aici, în aplicația de rețete electronice. \n \n **🏥 Noua bază de date a farmaciilor** \nAm introdus o nouă bază de date, pregătită pentru viitor, pentru căutările în farmacii.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
+    },
+    {
+        "id": "6",
+        "text": "**🌐 Nouă funcție de traducere** \nDacă utilizați aplicația în altă limbă, acum puteți traduce direct răspunsurile farmaciei. \n \n **♿️ Accesibilitate** \nDeclarația noastră de accesibilitate este acum disponibilă în setări. Procesul de integrare a fost, de asemenea, făcut mai accesibil. \n \n **📲 Valorificați DiGA-uri la companiile de asigurări** \nRețetele pentru aplicații digitale de sănătate (DiGA) pot fi acum valorificate și la alte companii de asigurări.",
+        "timestamp": "2025-06-26T08:00:00.000Z",
+        "version": "1.31"
     }
 ]

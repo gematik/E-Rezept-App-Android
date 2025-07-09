@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.fhir.pharmacy.model.original
@@ -26,6 +30,8 @@ import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdAvailableTime.Companion.toErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.ServiceProviderSpecialityType.APOVZD
+import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.ServiceProviderSpecialityType.LDAP
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.getSpecialtyTypes
 import de.gematik.ti.erp.app.utils.letNotNull
 import kotlinx.datetime.DayOfWeek
@@ -124,7 +130,7 @@ internal data class FhirVzdAvailableTime(
 ) {
     companion object {
         fun List<FhirVzdAvailableTime>.toErpModel(): Map<DayOfWeek, List<OpeningTimeErpModel>> {
-            val openingTimeMap = mutableMapOf<DayOfWeek, List<OpeningTimeErpModel>>()
+            val openingTimeMap = mutableMapOf<DayOfWeek, MutableList<OpeningTimeErpModel>>()
 
             forEach { element ->
                 val dayOfWeek = element.daysOfWeek.firstOrNull()?.toDayOfWeek()
@@ -132,11 +138,13 @@ internal data class FhirVzdAvailableTime(
                 val endTime = element.availableEndTime?.let { LocalTime.parse(it) }
 
                 letNotNull(dayOfWeek, startTime, endTime) { day, start, end ->
-                    // list is overkill
-                    openingTimeMap[day] = listOf(OpeningTimeErpModel(start, end))
+                    openingTimeMap
+                        .getOrPut(day) { mutableListOf() }
+                        .add(OpeningTimeErpModel(start, end))
                 }
             }
-            return openingTimeMap.toMap()
+
+            return openingTimeMap.mapValues { it.value.toList() }
         }
 
         private fun String.toDayOfWeek(): DayOfWeek? =
@@ -170,16 +178,22 @@ internal data class FhirVzdSpecialty(
     @SerialName("text") val text: String?
 ) {
     companion object {
-        // using the app-vzd since only that matches with the data from APO-VZD backend
-        private const val SERVICE_PROVIDER_IDENTIFIER = "apo-vzd"
 
-        private fun List<FhirVzdSpecialty>.getServiceProvider(): FhirVzdSpecialty? =
-            find { it.text == SERVICE_PROVIDER_IDENTIFIER }
+        private enum class ServiceProviderSpecialityType(val value: String) {
+            APOVZD("apo-vzd"),
+            LDAP("ldap");
+        }
+
+        private fun List<FhirVzdSpecialty>.getServiceProvider(type: ServiceProviderSpecialityType): FhirVzdSpecialty? =
+            find { it.text == type.value }
 
         private fun FhirVzdSpecialty.mapToSpecialtyTypes(): List<FhirVzdSpecialtyType> =
             codings.map { FhirVzdSpecialtyType.fromCode(it.code) }
 
-        fun List<FhirVzdSpecialty>.getSpecialtyTypes(): List<FhirVzdSpecialtyType> =
-            getServiceProvider()?.mapToSpecialtyTypes().orEmpty()
+        fun List<FhirVzdSpecialty>.getSpecialtyTypes(): List<FhirVzdSpecialtyType> {
+            val apoVzdServices = getServiceProvider(APOVZD)?.mapToSpecialtyTypes().orEmpty()
+            val ldapServices = getServiceProvider(LDAP)?.mapToSpecialtyTypes().orEmpty()
+            return (apoVzdServices + ldapServices).toSet().toList()
+        }
     }
 }

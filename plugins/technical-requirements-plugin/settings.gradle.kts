@@ -1,3 +1,5 @@
+rootProject.name = "technical-requirements-plugin"
+
 pluginManagement {
     repositories {
         google()

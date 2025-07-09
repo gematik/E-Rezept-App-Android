@@ -134,7 +134,7 @@
     <string name="settings_contact_headline">Kontakt</string>
     <string name="settings_contact_hotline">Telefonischen Support anrufen</string>
     <string name="settings_contact_feedback">Umfrage zur App</string>
-    <string name="settings_contact_hotline_number">+49 800 277 377 7</string>
+    <string name="settings_contact_hotline_number" translatable="false">+49 800 277 377 7</string>
     <string name="settings_contact_mail_address" translatable="false">app-feedback@gematik.de</string>
     <string name="on_boarding_page_5_label">Ich möchte dabei helfen, diese App besser zu machen</string>
     <string name="settings_tracking_dialog_text_1">Das umfasst Hard- und Softwareinformationen Ihres Telefons, Einstellungen der E-Rezept App sowie Umfang der Nutzung, jedoch niemals Daten über Ihre Person oder Ihre Gesundheit.</string>
@@ -260,7 +260,7 @@
     <string name="prescription_status_completed">Eingelöst</string>
     <string name="prescription_status_unknown">Unbekannt</string>
     <string name="settings_show_audit_events">Zugriffsprotokolle anzeigen</string>
-    <string name="settings_show_audit_events_info">Wer hat wann auf Ihre Rezepte zugegriffen?</string>
+    <string name="settings_show_audit_events_info">Hier können Sie sehen, wer wann auf Ihre Rezepte zugegriffen hat.</string>
     <string name="settings_show_token_info">Zugangsschlüssel zum Rezeptdienst</string>
     <string name="autitEvents_headline">Zugriffsprotokolle</string>
     <string name="no_audit_events_header">Keine Zugriffsprotokolle</string>
@@ -569,15 +569,11 @@
         <item quantity="one">%s Rezept</item>
         <item quantity="other">%s Rezepte</item>
     </plurals>
+    <string name="onboarding_progress_description">Seite %1$d von %2$d</string>
     <string name="onboarding_data_terms_info">Ich habe die Datenschutzerklärung und Nutzungsbestimmungen gelesen und akzeptiere sie.</string>
     <string name="onboarding_data_button">Datenschutzerklärung</string>
     <string name="onboarding_terms_button">Nutzungsbestimmungen</string>
     <string name="onboarding_analytics_we_want">Wir werden:</string>
-    <string name="onboarding_analytics_ww_usability">Die Nutzbarkeit verbessern.</string>
-    <string name="onboarding_analytics_ww_errors">Fehler und Abstürze erkennen.</string>
-    <string name="onboarding_analytics_ww_anon">Alle Daten selbstverständlich anonym erheben.</string>
-    <string name="onboarding_analytics_bottom_you_can_change">Sie können diese Entscheidung in den Systemeinstellungen jederzeit ändern.</string>
-    <string name="onboarding_bottom_button_next">Fortfahren</string>
     <string name="onboarding_bottom_button_accept">Akzeptieren</string>
     <string name="onboarding_auth_biometric_info">Die App verwendet die sicherste Methode, die Sie auf Ihrem Gerät zur eingerichtet haben.</string>
     <string name="onboarding_bottom_button_save">Speichern</string>
@@ -1389,4 +1385,84 @@
     <string name="diga_description_screen_title">Der Hersteller der DiGA hat Ihnen folgende Beschreibung zur Verfügung gestellt.</string>
     <string name="diga_description_screen_information_missing">Für diese DiGA sind aktuell keine Details hinterlegt. Besuchen Sie die offizielle DiGA-Übersicht für mehr Informationen.</string>
     <string name="diga_deletion_error">Das Rezept ist gerade in Bearbeitung durch Ihre Krankenkasse und kann nicht gelöscht werden.</string>
+    <string name="prescription_not_found_on_server_title">Rezept nicht gefunden</string>
+    <string name="prescription_not_found_on_server">Das Rezept konnte auf dem Server nicht gefunden werden.</string>
+    <string name="prescription_unknown_problem_title">Unbekannter Fehler</string>
+    <string name="prescription_unknown_problem">Das Rezept konnte nicht verarbeitet werden. Versuchen Sie es ggf. später erneut.</string>
+    <string name="offline_translation_consent_title">Übersetzung erlauben</string>
+    <string name="offline_translation_consent_text">Für die Offline-Übersetzung von Texten nutzen wir die von ML Kit bereitgestellten Sprachmodelle direkt auf Ihrem Gerät. Dazu laden wir das Sprachpaket für %s herunter und ermöglichen so eine lokale Übersetzung. Dabei werden keinerlei Daten an externe Server übermittelt.\nSie können diese Funktion jederzeit über das Drei-Punkte-Menü oben rechts auf dieser Seite deaktivieren.</string>
+    <string name="offline_translation_consent_allow">Erlauben</string>
+    <string name="offline_translation_consent_deny">Ablehnen</string>
+    <string name="offline_translation_show_original">Original anzeigen</string>
+    <string name="offline_translation_translate">Übersetzen</string>
+    <string name="offline_translation_menu_allow_translation">Übersetzungen erlauben</string>
+    <string name="offline_translation_menu_deny_translation">Übersetzungen deaktivieren</string>
+    <string name="offline_translation_downloading">Sprachmodell wird heruntergeladen ...</string>
+    <string name="analytics_why_important_title">Warum ist die Analyse wichtig?</string>
+    <string name="analytics_why_important_text">Um die App möglichst für die gesamte Bevölkerung optimal ausgestalten und Nutzungsbarrieren abbauen zu können, möchten wir verstehen, wie die App genutzt wird. Die Erkenntnisse können dann berücksichtigt werden, um die Bedienbarkeit, Übersichtlichkeit und Verständlichkeit der App zu verbessern und die sichere Nutzung ihrer Funktionen sicherzustellen. Die Analyse hilft uns auch festzustellen, wie lange beispielsweise ältere Technik unterstützt werden muss oder wann davon ausgegangen werden kann, dass die meisten Nutzenden auf ein neues Betriebssystem umgestellt haben.</string>
+    <string name="analytics_how_it_works_title">Wie funktioniert die Analyse und was wird erfasst?</string>
+    <string name="analytics_how_it_works_intro">Wenn Sie die Analyse erlauben werden:</string>
+    <string name="analytics_bullet_usage_stats">allgemeine Nutzungsstatistiken (z.B. Art und den Umfang der Nutzung und Bedienung der App-Funktionen) und</string>
+    <string name="analytics_bullet_hardware_info">Angaben zur verwendeten Hard- und Software (z.B. Art, Version und Hersteller des Gerätes und des Betriebssystems) sowie</string>
+    <string name="analytics_bullet_settings">gewählte Einstellungen (z.B. Spracheinstellung) übermittelt.</string>
+    <string name="analytics_data_explanation">Die Daten beziehen sich stets nur auf einen aktiven Nutzungsvorgang und werden nicht über längere Zeiträume erfasst. IP-Adressen werden nicht gespeichert. In keinem Fall werden Angaben zu Ihrer Identität oder Angaben zu Ihrer Gesundheit an die E-Rezept-App erfasst. Bei Abstürzen wird ein standardisierter Bericht mit allgemeinen technischen Fehlerdaten übermittelt. Die Nutzungsdaten werden ausschließlich anonymisiert ausgewertet.</string>
+    <string name="analytics_can_end_title">Sie können die Analyse jederzeit beenden</string>
+    <string name="analytics_can_end_text">Sie können die Analyse jederzeit beenden. Wenn Sie die Analyse in den Einstellungen der App deaktivieren, wird die Datenerfassung sofort beendet.</string>
+    <string name="bulletpoint" translatable="false">• </string>
+    <string name="settings_contact_feedback_talkback">Umfrage zur App auf externer Webseite</string>
+    <string name="auth_error_password_timeout" formatted="false">Die Anmeldung wurde für %s %s gesperrt.</string>
+    <string name="seconds">Sekunden</string>
+    <string name="wrong_password">Falsches Passwort.</string>
+    <string name="try_again">Bitte probieren Sie es erneut.</string>
+    <plurals name="wrong_password_timeout_description">
+        <item quantity="one">Bitte probieren Sie es in %s Sekunde erneut.</item>
+        <item quantity="other">Bitte probieren Sie es in %s Sekunden erneut.</item>
+    </plurals>
+    <string name="settings_accessibility_statement">Barrierefreiheitserklärung</string>
+    <string name="settings_accessibility_statement_talkback">Barrierefreiheitserklärung auf externer Webseite</string>
+    <string name="settings_accessibility_statement_address" translatable="false">https://www.das-e-rezept-fuer-deutschland.de/erklaerung-zur-barrierefreiheit-e-rezept-app\n    </string>
+    <string name="onboarding_bottom_app_safety_button_next">Weiter</string>
+    <string name="onboarding_analytics_consent_title">Helfen Sie, die App zu verbessern!</string>
+    <string name="onboarding_analytics_consent_text">Mit Ihrer Zustimmung möchten wir eine Analyse der Appverwendung durchführen. Dafür möchten wir Daten zur Nutzung der App und technische Daten erfassen und anonymisiert auswerten und so:</string>
+    <string name="onboarding_analytics_link_text">Analyse der Appverwendung</string>
+    <string name="onboarding_analytics_optimize_user_experience_text">Die Nutzungserfahrung für die gesamte Bevölkerung optimal ausgestalten</string>
+    <string name="onboarding_analytics_reduce_barriers_text">Nutzungsbarrieren abbauen</string>
+    <string name="onboarding_analytics_resolve_errors_text">Fehler frühzeitig erkennen und beheben</string>
+    <string name="onboarding_analytics_bottom_text">Sie können die Analyse in den Einstellungen jederzeit wieder deaktivieren.</string>
+    <string name="onboarding_analytics_agree_button">Zustimmen</string>
+    <string name="onboarding_analytics_reject_button">Ablehnen</string>
+    <string name="onboarding_select_app_login_device_credentials_enabled_info">Entsperren Sie bequem mit Ihrer eingerichteten Gerätesicherung.</string>
+    <string name="onboarding_select_app_login_device_credentials_not_enabled_info">Ihre Gerätesicherung ist nicht eingerichtet.</string>
+    <string name="onboarding_select_app_login_biometric_not_enabled_info">Ihre Biometrie ist deaktiviert.</string>
+    <string name="onboarding_select_app_login_screen_header">Wie möchten Sie diese App sichern?</string>
+    <string name="onboarding_select_app_login_screen_info">Diese App muss gesichert werden. Wählen Sie bitte zwischen:</string>
+    <string name="onboarding_select_app_login_biometric_info">Es wird die sicherste verfügbare biometrische Methode genutzt. Dennoch könnten Angreifende bei Überwindung des lokalen biometrischen Systems Zugang zu Ihren medizinischen Daten erhalten. Mit der Wahl der Biometrie akzeptieren Sie dieses Risiko.</string>
+    <string name="onboarding_select_app_login_password_info">Geben Sie bei jedem Appstart das Passwort ein.</string>
+    <string name="onboarding_select_app_login_dialog_device_security_title">Gerätesicherung einrichten</string>
+    <string name="onboarding_select_app_login_dialog_biometric_title">Biometrie aktivieren</string>
+    <string name="onboarding_select_app_login_dialog_device_security_desc">Möchten Sie Ihre Gerätesicherung einrichten?</string>
+    <string name="onboarding_select_app_login_dialog_biometric_desc">Möchten Sie Ihre Biometrie aktivieren?</string>
+    <string name="onboarding_select_app_login_dialog_setup">Einrichten</string>
+    <string name="onboarding_select_app_login_dialog_activate">Aktivieren</string>
+    <string name="onboarding_select_app_login_dialog_cancel">Abbrechen</string>
+    <string name="onboarding_data_and_terms_use_use_text">Hier finden Sie Informationen zur Datenverarbeitung und den geltenden Nutzungsbedingungen.</string>
+    <string name="auth_next_button">Weiter</string>
+    <string name="settings_contact_community_label_talkback">"Forum zum E-Rezept auf externer Webseite"</string>
+    <string name="auth_failed_both_methods_error_info">Ausgesperrt? Bitte überprüfen Sie Ihre Einstellungen zur Gerätesicherheit oder löschen Sie die App und installieren Sie sie anschließend neu. Dies ist notwendig, da wir Ihre Zugangsdaten nur lokal speichern und keine E-Mail-Adresse zur Verifizierung nutzen.</string>
+    <string name="gesund_bund_de_talkback" translatable="false">gesundbund auf externer Webseite</string>
+    <string name="diga_Insurance_is_determined">Versicherung wird ermittelt:</string>
+    <string name="a11y_deleted_text">Text löschen</string>
+    <string name="diga_settings_feedback_label_talkback">Umfrage zur DiGA Verordnung auf externer Webseite</string>
+    <string name="diga_requesting_code_from">Wir fragen den Code an bei: %s </string>
+    <string name="a11y_diga_change_insurance">Ändern der Versichrung</string>
+    <string name="diga_insurance_selection">Versicherung wählen</string>
+    <string name="diga_insurance_searchbar">Versicherungssuche</string>
+    <string name="diga_select_insurance_for_diga_header">Versicherung für die DiGA wählen</string>
+    <string name="diga_select_insurance_for_diga_discription">Wählen Sie die Versicherung, die Ihnen die Digitale Gesundheitsverordnung bezahlt. Bei dieser Versicherung fragen wir den Freischaltcode an.</string>
+    <string name="diga_insurance_search_empty_title">Leider keine passende Versicherung gefunden</string>
+    <string name="diga_insurance_search_empty_text">Versuchen Sie es mit einem anderen Suchbegriff.</string>
+    <string name="a11y_diga_arrow">bis</string>
+    <string name="a11y_diga_code_received">Freischaltcode erhalten: </string>
+    <string name="a11y_diga_feedback_submit">Feedback auf externer Webseite abgeben</string>
+    <string name="maps_unaccessible_description">Kartensuche. Nicht für TalkBack optimiert, bitte verwenden Sie die Listensuche.</string>
 </resources>

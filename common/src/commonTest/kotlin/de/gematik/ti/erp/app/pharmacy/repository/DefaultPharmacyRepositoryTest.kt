@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.pharmacy.repository
@@ -22,6 +26,7 @@ import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollectio
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
+import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacyRemoteSelectorLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.local.PharmacySearchAccessTokenLocalDataSource
 import de.gematik.ti.erp.app.pharmacy.repository.datasource.remote.ApoVzdRemoteDataSource
@@ -33,6 +38,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.JsonElement
 import org.junit.Assert.assertEquals
@@ -47,6 +53,8 @@ class DefaultPharmacyRepositoryTest {
     private val apoVzdRemoteDataSource = mockk<ApoVzdRemoteDataSource>()
     private val fhirVzdRemoteDataSource = mockk<FhirVzdRemoteDataSource>()
     private val searchAccessTokenLocalDataSource = mockk<PharmacySearchAccessTokenLocalDataSource>(relaxed = true)
+
+    private val cachedPharmacyLocalDataSource = mockk<PharmacyCacheLocalDataSource>(relaxed = true)
     private val parser = mockk<PharmacyParsers>()
     private val filter = PharmacyFilter()
 
@@ -56,6 +64,8 @@ class DefaultPharmacyRepositoryTest {
     fun setUp() {
         every { remoteSelector.getPharmacyVzdService() } returns FHIRVZD
         every { parser.bundleParser.extract(any()) } returns expectedCollection
+        coEvery { cachedPharmacyLocalDataSource.savePharmacy(any(), any()) } returns Unit
+        every { cachedPharmacyLocalDataSource.loadPharmacies() } returns flowOf(emptyList())
         remoteDataSource = fhirVzdRemoteDataSource
 
         repository = DefaultPharmacyRepository(
@@ -63,6 +73,7 @@ class DefaultPharmacyRepositoryTest {
             apoVzdRemoteDataSource = apoVzdRemoteDataSource,
             fhirVzdRemoteDataSource = fhirVzdRemoteDataSource,
             searchAccessTokenLocalDataSource = searchAccessTokenLocalDataSource,
+            cachedPharmacyLocalDataSource = cachedPharmacyLocalDataSource,
             parsers = parser,
             redeemLocalDataSource = mockk(),
             favouriteLocalDataSource = mockk(),

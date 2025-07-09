@@ -9,6 +9,10 @@
     {
       "relation": "self",
       "url": "https://erp.app.ti-dienste.de/Task/"
+    },
+    {
+      "relation": "next",
+      "url": "https://erp.app.ti-dienste.de/Task/?_count=10&_offset=10"
     }
   ],
   "entry": [

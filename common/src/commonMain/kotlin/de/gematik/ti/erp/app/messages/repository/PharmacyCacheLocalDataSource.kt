@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,17 +11,21 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.messages.repository
 
 import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
 import de.gematik.ti.erp.app.db.queryFirst
+import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
-import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow
@@ -69,13 +73,11 @@ fun PharmacyCacheEntityV1.toCachedPharmacy() =
         telematikId = this.telematikId
     )
 
-fun PharmacyUseCaseData.Pharmacy.toCachedPharmacy() =
-    CachedPharmacy(
-        name = this.name,
-        telematikId = this.telematikId
-    )
+fun Result<FhirPharmacyErpModelCollection>.firstOrNullCachedPharmacy(): CachedPharmacy? =
+    this.getOrNull()?.entries?.firstOrNull()
+        ?.toCachedPharmacy()
 
-fun FhirPharmacyErpModel.toCachedPharmacy() =
+private fun FhirPharmacyErpModel.toCachedPharmacy() =
     CachedPharmacy(
         name = this.name,
         telematikId = this.telematikId

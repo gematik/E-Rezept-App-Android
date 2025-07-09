@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.digas.ui.component
@@ -70,7 +74,12 @@ fun InsuranceRowItem(currentProcess: DigaStatus, code: String, declineNote: Stri
     when {
         currentProcess.step > DigaStatusSteps.InProgress.step || currentProcess == DigaStatus.CompletedSuccessfully -> {
             onRegisterFeedback()
-            DigaRowItem(text = stringResource(R.string.code_received), copyCode = code, onClick = onClick)
+            DigaRowItem(
+                text = stringResource(R.string.code_received),
+                contentDescr = stringResource(R.string.a11y_diga_code_received),
+                copyCode = code,
+                onClick = onClick
+            )
         }
 
         currentProcess is DigaStatus.CompletedWithRejection -> {
@@ -129,7 +138,6 @@ fun ActivateRowItem(current: DigaStatus) {
         process = DigaStatus.OpenAppWithRedeemCode,
         stepNumber = 4,
         defaultText = R.string.enter_code_in_diga_app,
-        inProgressText = R.string.request_unlock_code,
         completedText = R.string.code_entered_in_diga_app
     )
 }
@@ -140,7 +148,6 @@ fun DigaStepRowItem(
     process: DigaStatus,
     stepNumber: Int,
     defaultText: Int,
-    inProgressText: Int? = null,
     completedText: Int
 ) {
     val isCurrent = currentStatus.step == process.step
@@ -150,7 +157,7 @@ fun DigaStepRowItem(
     val backgroundColor = if (isCurrent) AppTheme.colors.primary100 else AppTheme.colors.neutral000
     val textRes = when {
         isAfter -> completedText
-        isCurrent -> inProgressText ?: defaultText
+        isCurrent -> defaultText
         else -> defaultText
     }
 
@@ -165,6 +172,7 @@ fun DigaStepRowItem(
 @Composable
 fun DigaRowItem(
     text: String = "",
+    contentDescr: String? = null,
     stepNumber: Int = 0,
     backgroundColor: Color = AppTheme.colors.neutral000,
     contentColor: Color = AppTheme.colors.neutral900,
@@ -212,11 +220,15 @@ fun DigaRowItem(
             }
             SpacerSmall()
             Text(
+                modifier = Modifier.clearAndSetSemantics {
+                    contentDescription = contentDescr ?: text
+                },
                 text = text,
                 style = AppTheme.typography.body2,
                 color = contentColor
             )
             if (onClick != null && copyCode.isNotBlank()) {
+                @Suppress("MagicNumber")
                 Text(
                     text = copyCode,
                     style = AppTheme.typography.body2,

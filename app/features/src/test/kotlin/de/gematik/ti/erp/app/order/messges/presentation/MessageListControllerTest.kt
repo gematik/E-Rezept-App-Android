@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, gematik GmbH
+ * Copyright (Change Date see Readme), gematik GmbH
  *
  * Licensed under the EUPL, Version 1.2 or - as soon they will be approved by the
  * European Commission – subsequent versions of the EUPL (the "Licence").
@@ -11,9 +11,13 @@
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the Licence is distributed on an "AS IS" basis,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either expressed or implied.
- * In case of changes by gematik find details in the "Readme" file.
+ * In case of changes by gematik GmbH find details in the "Readme" file.
  *
  * See the Licence for the specific language governing permissions and limitations under the Licence.
+ *
+ * *******
+ *
+ * For additional notes and disclaimer from gematik and in case of changes by gematik find details in the "Readme" file.
  */
 
 package de.gematik.ti.erp.app.order.messges.presentation
@@ -21,7 +25,6 @@ package de.gematik.ti.erp.app.order.messges.presentation
 import android.content.Context
 import app.cash.turbine.test
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
-import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.InternalMessageResources
@@ -30,6 +33,7 @@ import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
 import de.gematik.ti.erp.app.messages.presentation.MessageListController
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
+import de.gematik.ti.erp.app.messages.repository.InternalMessagesRepository
 import de.gematik.ti.erp.app.mocks.order.model.CACHED_PHARMACY
 import de.gematik.ti.erp.app.mocks.order.model.COMMUNICATION_DATA
 import de.gematik.ti.erp.app.mocks.order.model.IN_APP_MESSAGE_TEXT
@@ -37,6 +41,7 @@ import de.gematik.ti.erp.app.mocks.order.model.TASK_ID
 import de.gematik.ti.erp.app.mocks.order.model.WELCOME_MESSAGE_VERSION
 import de.gematik.ti.erp.app.mocks.order.model.welcomeMessage
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
+import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isDataState
 import de.gematik.ti.erp.app.utils.uistate.UiState.Companion.isEmptyState
@@ -69,6 +74,7 @@ class MessageListControllerTest {
     private val profileRepository: ProfileRepository = mockk()
     private val invoiceRepository: InvoiceRepository = mockk()
     private val internalMessagesRepository: InternalMessagesRepository = mockk()
+    private val pharmacyRepository: PharmacyRepository = mockk()
     private val changeLogLocalDataSource: ChangeLogLocalDataSource = mockk()
 
     private val messageResources: InternalMessageResources = mockk()
@@ -99,7 +105,6 @@ class MessageListControllerTest {
         coEvery { communicationRepository.loadPharmacies() } returns flowOf(listOf(CACHED_PHARMACY))
         coEvery { communicationRepository.hasUnreadDispenseMessage(any(), any()) } returns flowOf(true)
         coEvery { communicationRepository.hasUnreadRepliedMessages(any(), any()) } returns flowOf(true)
-        coEvery { communicationRepository.downloadMissingPharmacy(any()) } returns Result.success(null)
         coEvery { communicationRepository.loadSyncedByTaskId(any()) } returns flowOf(null)
         coEvery { communicationRepository.loadScannedByTaskId(any()) } returns flowOf(null)
         coEvery { communicationRepository.taskIdsByOrder(any()) } returns flowOf(listOf(TASK_ID))
@@ -108,11 +113,13 @@ class MessageListControllerTest {
         coEvery { communicationRepository.loadDispReqCommunications(any()) } returns flowOf(emptyList())
         coEvery { internalMessagesRepository.getInternalMessages() } returns flowOf(listOf(welcomeMessage))
         coEvery { invoiceRepository.hasUnreadInvoiceMessages(any()) } returns flowOf(false)
+        coEvery { pharmacyRepository.savePharmacyToCache(any()) } returns Unit
+        every { pharmacyRepository.loadCachedPharmacies() } returns flowOf(emptyList())
         every { mockContext.getString(any()) } returns IN_APP_MESSAGE_TEXT
         every { mockContext.resources.configuration.locales[0].language } returns "de"
         coEvery { tracker.trackEvent(any()) } just Runs
 
-        getMessagesUseCase = GetMessagesUseCase(communicationRepository, invoiceRepository, profileRepository, dispatcher)
+        getMessagesUseCase = GetMessagesUseCase(communicationRepository, invoiceRepository, profileRepository, pharmacyRepository, dispatcher)
         getInternalMessagesUseCase = GetInternalMessagesUseCase(
             internalMessagesRepository,
             changeLogLocalDataSource
