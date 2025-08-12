@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.fhir.communication.model.original
 
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationConstants
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationVersions.COMMUNICATION_DISPENSE_PROFILE_REGEX
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationVersions.COMMUNICATION_REPLY_PROFILE_REGEX
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_DISPENSE_PROFILE_REGEX
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationVersions.COMMUNICATION_REPLY_PROFILE_REGEX
 
 enum class CommunicationProfileType(val profileIdentifier: String) {
     REPLY(FhirCommunicationConstants.COMMUNICATION_REPLY_PROFILE_BASE),
@@ -45,7 +45,7 @@ enum class CommunicationProfileType(val profileIdentifier: String) {
     companion object {
         fun fromProfiles(profiles: List<String>?): CommunicationProfileType {
             return profiles?.firstNotNullOfOrNull { profile ->
-                values().firstOrNull { it != UNKNOWN && profile.contains(it.profileIdentifier) }
+                CommunicationProfileType.entries.firstOrNull { it != UNKNOWN && profile.contains(it.profileIdentifier) }
             } ?: UNKNOWN
         }
     }

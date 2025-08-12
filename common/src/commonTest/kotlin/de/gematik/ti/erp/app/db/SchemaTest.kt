@@ -24,6 +24,9 @@
 
 package de.gematik.ti.erp.app.db
 
+import de.gematik.ti.erp.app.database.realm.schema.AppRealmSchema
+import de.gematik.ti.erp.app.database.realm.schema.LatestManualMigration
+import de.gematik.ti.erp.app.database.realm.schema.openRealmWith
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration
 import io.realm.kotlin.ext.query

@@ -28,14 +28,14 @@ import de.gematik.ti.erp.app.prescription.repository.RemoteRedeemOption
 
 internal fun PharmacyScreenData.OrderOption.toRedeemOption(): RemoteRedeemOption =
     when (this) {
-        PharmacyScreenData.OrderOption.PickupService -> RemoteRedeemOption.Local
-        PharmacyScreenData.OrderOption.CourierDelivery -> RemoteRedeemOption.Delivery
-        PharmacyScreenData.OrderOption.MailDelivery -> RemoteRedeemOption.Shipment
+        PharmacyScreenData.OrderOption.Pickup -> RemoteRedeemOption.Local
+        PharmacyScreenData.OrderOption.Delivery -> RemoteRedeemOption.Delivery
+        PharmacyScreenData.OrderOption.Online -> RemoteRedeemOption.Shipment
     }
 
 internal fun PharmacyScreenData.OrderOption.toPharmacyContact(data: PharmacyUseCaseData.Pharmacy): String =
     when (this) {
-        PharmacyScreenData.OrderOption.PickupService -> data.contact.pickUpUrl
-        PharmacyScreenData.OrderOption.CourierDelivery -> data.contact.deliveryUrl
-        PharmacyScreenData.OrderOption.MailDelivery -> data.contact.onlineServiceUrl
+        PharmacyScreenData.OrderOption.Pickup -> data.contact.pickUpUrl
+        PharmacyScreenData.OrderOption.Delivery -> data.contact.deliveryUrl
+        PharmacyScreenData.OrderOption.Online -> data.contact.onlineServiceUrl
     }

@@ -23,10 +23,10 @@
 package de.gematik.ti.erp.app.prescription.repository
 
 import de.gematik.ti.erp.app.api.FhirPagination
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskEntryDataErpModel
-import de.gematik.ti.erp.app.fhir.model.TaskStatus
 import de.gematik.ti.erp.app.fhir.prescription.parser.TaskEPrescriptionParsers
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.fhir.support.FhirTaskEntryDataErpModel
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.task.model.TaskStatus
 import de.gematik.ti.erp.app.utils.toFachdienstTimestampString
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -44,7 +44,7 @@ import kotlinx.serialization.json.JsonElement
  */
 class DefaultTaskRepository(
     private val remoteDataSource: TaskRemoteDataSource,
-    private val localDataSource: TaskLocalDataSource,
+    private val localDataSource: RealmLegacyTaskLocalDataSource,
     private val parsers: TaskEPrescriptionParsers,
     private val paginator: FhirPagination,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO

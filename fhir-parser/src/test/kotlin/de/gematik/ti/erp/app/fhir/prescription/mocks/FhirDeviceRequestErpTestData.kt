@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirAccidentInformationErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
+import de.gematik.ti.erp.app.fhir.support.FhirAccidentInformationErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType
 import kotlinx.datetime.LocalDate
 
 internal object FhirDeviceRequestErpTestData {

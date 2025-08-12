@@ -25,6 +25,7 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile.ErxCommunicationDispReq
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
@@ -195,7 +196,7 @@ internal val SYNCED_TASK = SyncedTaskData.SyncedTask(
             text = "Ibuprofen",
             form = "AEO",
             lotNumber = "1234567890",
-            expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(farAwayFutureDate),
+            expirationDate = FhirTemporal.Instant(farAwayFutureDate),
             identifier = SyncedTaskData.Identifier("1234567890"),
             normSizeCode = "KA",
             amount = Ratio(
@@ -224,7 +225,8 @@ internal val SYNCED_TASK = SyncedTaskData.SyncedTask(
     communications = emptyList(),
     failureToReport = "",
     isIncomplete = false,
-    pvsIdentifier = "1234567890"
+    pvsIdentifier = "1234567890",
+    isEuRedeemable = false
 )
 
 private val PREVIEW_SYNCED_PRESCRIPTION = PrescriptionData.Synced(

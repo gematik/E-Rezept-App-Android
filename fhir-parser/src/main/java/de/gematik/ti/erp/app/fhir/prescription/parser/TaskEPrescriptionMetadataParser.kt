@@ -24,16 +24,16 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskMetaDataErpModel
+import de.gematik.ti.erp.app.fhir.FhirTaskMetaDataErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findAccessCode
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier.Companion.findPrescriptionId
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTaskResource.Companion.getResourceIdentifiers
 import de.gematik.ti.erp.app.fhir.error.fhirError
-import de.gematik.ti.erp.app.fhir.model.TaskStatus
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskExtensionValues.Companion.getExtensionValues
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskLifeCycleMetadata.Companion.getAuthoredOn
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskLifeCycleMetadata.Companion.getLastModified
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTaskStatus.Companion.getStatus
+import de.gematik.ti.erp.app.task.model.TaskStatus
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement
 

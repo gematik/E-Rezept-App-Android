@@ -97,6 +97,8 @@ open class MainActivity : BaseActivity() {
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
+        registerDialogVisibilityProvider() // registration needs to happen before setContent
+
         setContent {
             val view = LocalView.current
             val isUpdateAvailable by getAppUpdateFlagUseCase.invoke().collectAsStateWithLifecycle()

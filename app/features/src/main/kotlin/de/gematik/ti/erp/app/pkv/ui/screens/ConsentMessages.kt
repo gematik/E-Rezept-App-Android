@@ -27,7 +27,7 @@ import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.api.ErpServiceState
 import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
 

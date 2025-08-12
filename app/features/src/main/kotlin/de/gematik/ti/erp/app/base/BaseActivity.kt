@@ -51,8 +51,6 @@ import de.gematik.ti.erp.app.OlderSdkDomainVerifier
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.Sdk31DomainVerifier
 import de.gematik.ti.erp.app.analytics.CardCommunicationAnalytics
-import de.gematik.ti.erp.app.app.ApplicationInnerPadding
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.appupdate.usecase.AppUpdateInfoUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.CheckVersionUseCase
@@ -60,16 +58,22 @@ import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerFlagUseCase
 import de.gematik.ti.erp.app.appupdate.usecase.GetAppUpdateManagerUseCase
 import de.gematik.ti.erp.app.authentication.model.BiometricMethod
+import de.gematik.ti.erp.app.authentication.observer.BiometricStateProvider
+import de.gematik.ti.erp.app.authentication.observer.BiometricStateProviderHolder
+import de.gematik.ti.erp.app.base.dialog.provider.DialogVisibilityProvider
+import de.gematik.ti.erp.app.base.dialog.provider.DialogVisibilityProviderHolder
 import de.gematik.ti.erp.app.core.IntentHandler
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugOverrides
 import de.gematik.ti.erp.app.demomode.DefaultDemoModeObserver
 import de.gematik.ti.erp.app.demomode.DemoModeObserver
 import de.gematik.ti.erp.app.demomode.di.demoModeModule
 import de.gematik.ti.erp.app.demomode.di.demoModeOverrides
 import de.gematik.ti.erp.app.features.BuildConfig
-import de.gematik.ti.erp.app.medicationplan.DefaultShowMedicationPlanSuccessScreenObserver
-import de.gematik.ti.erp.app.medicationplan.ShowMedicationPlanSuccessObserver
+import de.gematik.ti.erp.app.medicationplan.DefaultMedicationPlanNotificationObserver
+import de.gematik.ti.erp.app.medicationplan.MedicationPlanNotificationObserver
 import de.gematik.ti.erp.app.messages.domain.usecase.UpdateInternalMessagesUseCase
+import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.timeouts.usecase.GetPauseMetricUseCase
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
@@ -80,8 +84,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.stateIn
@@ -101,7 +107,7 @@ open class BaseActivity :
     DIAware,
     AppCompatActivity(),
     DemoModeObserver by DefaultDemoModeObserver(),
-    ShowMedicationPlanSuccessObserver by DefaultShowMedicationPlanSuccessScreenObserver() {
+    MedicationPlanNotificationObserver by DefaultMedicationPlanNotificationObserver() {
     override val di by retainedSubDI(closestDI(), copy = Copy.All) {
         // should be only done from feature module
         import(demoModeModule)
@@ -123,6 +129,7 @@ open class BaseActivity :
         }
     }
 
+    private val isDialogVisible: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val checkVersionUseCase: CheckVersionUseCase by instance()
     private val getAppUpdateManagerFlagUseCase: GetAppUpdateManagerFlagUseCase by instance()
     private val appUpdateInfoUseCase: AppUpdateInfoUseCase by instance()
@@ -131,14 +138,15 @@ open class BaseActivity :
     private val changeAppUpdateFlagUseCase: ChangeAppUpdateFlagUseCase by instance()
     private val updateManagerUseCase: GetAppUpdateManagerUseCase by instance()
     private val updateInternalMessagesUseCase: UpdateInternalMessagesUseCase by instance()
+    private val biometricStateChangedFlow = MutableSharedFlow<BiometricMethod>(replay = 1)
     val nfcTag = MutableSharedFlow<Tag>()
-
     val cardCommunicationAnalytics: CardCommunicationAnalytics by instance()
-    val getAppUpdateFlagUseCase: GetAppUpdateFlagUseCase by instance()
-    val intentHandler = IntentHandler(this@BaseActivity)
+    internal val getAppUpdateFlagUseCase: GetAppUpdateFlagUseCase by instance()
+
+    internal val intentHandler = IntentHandler(this@BaseActivity)
 
     // This is needed to be declared here so that the dialog can be cancelled on-pause and when needed
-    var dialog: Dialog? = null
+    private var dialog: Dialog? = null
 
     private var pauseTimerHandler: Handler = Handler(Looper.getMainLooper())
 
@@ -147,8 +155,6 @@ open class BaseActivity :
 
     // this value is added to provide screens with the extra padding that they require since the app is inside a scaffold
     var applicationInnerPadding: ApplicationInnerPadding? = null
-
-    val biometricStateChangedFlow = MutableSharedFlow<BiometricMethod>(replay = 1)
 
     /**
      * A [Runnable] that makes the app require an authentication
@@ -180,8 +186,16 @@ open class BaseActivity :
         Napier.i(tag = "Biometric") {
             "Biometric state changed: result $result → strong: $strongAvailable → weak: $weakAvailable → device: $deviceAvailable"
         }
+        biometricStateChangedFlow.tryEmit(result)
+    }
 
-        Napier.d(tag = "Biometric") { "Emitting the value $result and emit state is ${biometricStateChangedFlow.tryEmit(result)}" }
+    // Adding a provider for the biometric state change, which is then used by other authenticators in other modules
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        BiometricStateProviderHolder.provider = object : BiometricStateProvider {
+            override val biometricStateChangedFlow: SharedFlow<BiometricMethod>
+                get() = this@BaseActivity.biometricStateChangedFlow.asSharedFlow()
+        }
     }
 
     @Requirement(
@@ -230,6 +244,14 @@ open class BaseActivity :
             it.setDecorView(this)
             it.setDialogContent(dialog, content)
         }
+        // Observe that dialog is shown
+        isDialogVisible.value = true
+
+        // Observe on dialog closed
+        dialog?.setOnDismissListener {
+            isDialogVisible.value = false
+        }
+
         dialog?.setViewAndShow(composableView)
     }
 
@@ -322,6 +344,13 @@ open class BaseActivity :
 
     fun disableNfcReaderMode() {
         NfcAdapter.getDefaultAdapter(this)?.disableReaderMode(this)
+    }
+
+    fun registerDialogVisibilityProvider() {
+        DialogVisibilityProviderHolder.provider = object : DialogVisibilityProvider {
+            override val isVisible: MutableStateFlow<Boolean>
+                get() = isDialogVisible
+        }
     }
 
     companion object {

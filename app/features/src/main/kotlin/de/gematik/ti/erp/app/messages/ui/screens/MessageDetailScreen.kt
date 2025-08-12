@@ -40,7 +40,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.InAppMessage
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
@@ -210,6 +210,8 @@ fun MessageDetailScreenScaffold(
 ) {
     AnimatedElevationScaffold(
         modifier = Modifier.testTag(TestTag.Orders.Details.Screen),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         topBarTitle = when {
             isLocalMessage -> stringResource(R.string.internal_message_from)
             else -> order.data?.pharmacy?.name ?: stringResource(R.string.messages_title)

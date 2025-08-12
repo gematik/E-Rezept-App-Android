@@ -25,11 +25,10 @@ package de.gematik.ti.erp.app.prescription.usecase
 import de.gematik.ti.erp.app.prescription.mapper.filterNonActiveTasks
 import de.gematik.ti.erp.app.prescription.mapper.toPrescription
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
-import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -68,7 +67,7 @@ class GetArchivedPrescriptionsUseCase(
 
     companion object {
 
-        private fun List<SyncedTaskData.SyncedTask>.filterNonDigaTasks() =
+        private fun List<SyncedTask>.filterNonDigaTasks() =
             filter { it.deviceRequest == null } // TODO: define as a Type
 
         private fun List<Prescription>.sortArchives() =

@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.idp.model
 
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 data class UniversalLinkIdp(
     val authenticatorId: String,

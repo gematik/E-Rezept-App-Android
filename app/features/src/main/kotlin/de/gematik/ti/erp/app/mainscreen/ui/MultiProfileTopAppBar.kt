@@ -49,7 +49,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.animated.AnimationTime
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.model.ProfileIconState.IsError.rememberProfileIconState
 import de.gematik.ti.erp.app.mainscreen.ui.components.AddProfileChip

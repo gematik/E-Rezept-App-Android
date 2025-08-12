@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.idp.repository
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged

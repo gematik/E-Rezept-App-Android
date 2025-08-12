@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.consent.usecase
 
 import de.gematik.ti.erp.app.consent.repository.ConsentRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 class SaveGrantConsentDrawerShownUseCase(private val consentRepository: ConsentRepository) {
     suspend operator fun invoke(profileId: ProfileIdentifier) {

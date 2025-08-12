@@ -24,6 +24,7 @@
 
 package de.gematik.ti.erp.app.utils
 
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.pharmacy.mocks.MEDICATION
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
@@ -46,7 +47,7 @@ fun syncedTask(
     authoredOn: Instant,
     status: SyncedTaskData.TaskStatus,
     medicationName: String,
-    medicationDispenseWhenHandedOver: de.gematik.ti.erp.app.utils.FhirTemporal? = null
+    medicationDispenseWhenHandedOver: FhirTemporal? = null
 ) =
     SyncedTaskData.SyncedTask(
         profileId = "",
@@ -130,7 +131,8 @@ fun syncedTask(
         },
         communications = listOf(),
         lastMedicationDispense = medicationDispenseWhenHandedOver?.toInstant(),
-        failureToReport = "abcdefg"
+        failureToReport = "abcdefg",
+        isEuRedeemable = false
     )
 
 val testSyncedTasks =

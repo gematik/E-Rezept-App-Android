@@ -11,22 +11,22 @@ import extensions.Versions.SdkVersions.COMPILE_SDK_VERSION
 import extensions.Versions.SdkVersions.MIN_SDK_VERSION
 import extensions.Versions.SdkVersions.TARGET_SDK_VERSION
 import extensions.androidTestExtension
-import extensions.androidxAppBundle
 import extensions.checks
-import extensions.databaseBundle
-import extensions.datetimeBundle
-import extensions.desugarLibrary
-import extensions.diComposeLibrary
-import extensions.imageBundle
 import extensions.junitExtension
-import extensions.lifecycleBundle
-import extensions.napierLibrary
-import extensions.networkBundle
-import extensions.pdfboxBundle
-import extensions.processPhoenixBundle
-import extensions.serializationBundle
 import extensions.testExtension
-import extensions.trackingBundle
+import generated.androidxAppBundle
+import generated.databaseBundle
+import generated.datetimeBundle
+import generated.desugarJdkLibsLibrary
+import generated.diComposeLibrary
+import generated.imageBundle
+import generated.kotlinStdlibLibrary
+import generated.lifecycleBundle
+import generated.loggingNapierLibrary
+import generated.networkBundle
+import generated.pdfboxBundle
+import generated.processphoenixBundle
+import generated.serializationBundle
 
 plugins {
     id("com.android.application")
@@ -92,7 +92,7 @@ android {
         execution = "ANDROIDX_TEST_ORCHESTRATOR"
         animationsDisabled = true
         emulatorSnapshots.compressSnapshots = true
-        managedDevices.devices {
+        managedDevices.allDevices {
             maybeCreate<ManagedVirtualDevice>(pixel5Api30.name).apply {
                 device = pixel5Api30.device
                 apiLevel = pixel5Api30.apiLevel
@@ -126,22 +126,22 @@ android {
 }
 
 dependencies {
+    implementation(project(":erp-model"))
     implementation(versionCatalog.pdfboxBundle) {
         exclude(group = "org.bouncycastle")
     }
-    implementation(kotlin("stdlib"))
+    implementation(versionCatalog.kotlinStdlibLibrary)
     implementation(kotlin("reflect"))
     implementation(versionCatalog.datetimeBundle)
-    debugImplementation(versionCatalog.processPhoenixBundle)
+    debugImplementation(versionCatalog.processphoenixBundle)
     implementation(versionCatalog.androidxAppBundle)
     implementation(versionCatalog.lifecycleBundle)
-    implementation(versionCatalog.trackingBundle)
     compileOnly(versionCatalog.databaseBundle)
     implementation(versionCatalog.networkBundle)
     implementation(versionCatalog.serializationBundle)
     compileOnly(versionCatalog.diComposeLibrary)
-    implementation(versionCatalog.napierLibrary)
-    coreLibraryDesugaring(versionCatalog.desugarLibrary)
+    implementation(versionCatalog.loggingNapierLibrary)
+    coreLibraryDesugaring(versionCatalog.desugarJdkLibsLibrary)
     implementation(versionCatalog.imageBundle)
 
     androidTestExtension(versionCatalog)

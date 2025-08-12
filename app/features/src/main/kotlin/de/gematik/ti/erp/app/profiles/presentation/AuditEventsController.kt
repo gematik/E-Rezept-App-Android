@@ -27,12 +27,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
-import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase

@@ -22,16 +22,19 @@
 
 package de.gematik.ti.erp.app.db.entities
 
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.fhir.parser.Year
-import de.gematik.ti.erp.app.utils.asFhirTemporal
+import de.gematik.ti.erp.app.database.realm.utils.byteArrayBase64
+import de.gematik.ti.erp.app.database.realm.utils.enumName
+import de.gematik.ti.erp.app.database.realm.utils.temporalAccessorNullable
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.Year
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.datetime.Instant
+import org.bouncycastle.util.encoders.Base64
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertContentEquals
 import kotlin.test.assertEquals
 import kotlin.test.assertFails
-import org.bouncycastle.util.encoders.Base64
 
 private object Clazz {
     enum class EnumA {

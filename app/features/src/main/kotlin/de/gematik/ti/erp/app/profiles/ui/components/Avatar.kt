@@ -42,7 +42,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfileInsuranceInformation
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -51,7 +51,7 @@ import de.gematik.ti.erp.app.theme.SizeDefaults
 
 @Composable
 fun Avatar(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     emptyIcon: ImageVector,
     profile: ProfilesUseCaseData.Profile,
     active: Boolean = false,
@@ -68,7 +68,7 @@ fun Avatar(
             modifier = Modifier
                 .fillMaxSize(),
             shape = CircleShape,
-            color = currentSelectedColors.backGroundColor,
+            color = currentSelectedColors.backgroundColor,
             border = if (active) BorderStroke(SizeDefaults.quarter, currentSelectedColors.borderColor) else null
         ) {
             Box(
@@ -101,7 +101,7 @@ fun ChooseAvatar(
         ProfilesData.Avatar.PersonalizedImage -> {
             if (image != null) {
                 BitmapImage(
-                    modifier = Modifier.background(profileColor.backGroundColor),
+                    modifier = Modifier.background(profileColor.backgroundColor),
                     image = image
                 )
             } else {
@@ -117,7 +117,7 @@ fun ChooseAvatar(
             val imageResource = extractImageResource(useSmallImages, avatar)
             if (imageResource == 0) {
                 Icon(
-                    modifier = modifier.background(profileColor.backGroundColor),
+                    modifier = modifier.background(profileColor.backgroundColor),
                     imageVector = emptyIcon,
                     tint = AppTheme.colors.neutral600,
                     contentDescription = null
@@ -127,7 +127,7 @@ fun ChooseAvatar(
                     modifier = Modifier
                         .testTag(avatar.name)
                         .fillMaxSize()
-                        .background(profileColor.backGroundColor),
+                        .background(profileColor.backgroundColor),
                     painter = painterResource(id = imageResource),
                     contentDescription = null
                 )

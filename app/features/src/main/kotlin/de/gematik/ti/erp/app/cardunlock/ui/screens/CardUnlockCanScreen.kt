@@ -26,6 +26,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -39,11 +40,12 @@ import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockScreen
 import de.gematik.ti.erp.app.cardunlock.presentation.CardUnlockGraphController
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallBottomBar
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.screens.CAN_LENGTH
 import de.gematik.ti.erp.app.cardwall.ui.screens.CanScreenContent
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -63,6 +65,14 @@ class CardUnlockCanScreen(
 
         val unlockMethod by graphController.unlockMethod.collectAsStateWithLifecycle()
         val can by graphController.can.collectAsStateWithLifecycle()
+
+        val scannedCan = navBackStackEntry.arguments?.getString(CardUnlockRoutes.CARD_UNLOCK_NAV_SCANNED_CAN) ?: ""
+
+        LaunchedEffect(scannedCan) {
+            if (scannedCan.isNotEmpty() && scannedCan.length == CAN_LENGTH) {
+                graphController.setCardAccessNumber(scannedCan)
+            }
+        }
 
         CardWallScaffold(
             modifier = Modifier.testTag(TestTag.CardWall.CAN.CANScreen),
@@ -118,7 +128,8 @@ class CardUnlockCanScreen(
                             CardUnlockRoutes.CardUnlockPukScreen.path()
                         )
                     }
-                }
+                },
+                onClickScanNow = { navController.navigate(CardWallRoutes.CardWallScannerScreen.path()) }
             )
         }
     }
@@ -150,7 +161,8 @@ fun CardUnlockCanScreenScaffoldPreview(
                 onClickLearnMore = { },
                 onNext = { },
                 can = canNext.can,
-                onCanChange = { }
+                onCanChange = { },
+                onClickScanNow = { }
             )
         }
     }

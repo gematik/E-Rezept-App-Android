@@ -26,15 +26,12 @@ import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.analytics.usecase.ChangeAnalyticsStateUseCase
-import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.analytics.usecase.StartTrackerUseCase
 import de.gematik.ti.erp.app.analytics.usecase.StopTrackerUseCase
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.Controller
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.onboarding.model.OnboardingAuthScenario
 import de.gematik.ti.erp.app.onboarding.usecase.DetermineAuthScenarioUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -42,6 +39,7 @@ import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.AllowScreenshotsUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveOnboardingDataUseCase
 import de.gematik.ti.erp.app.utils.letNotNull
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -50,7 +48,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
 
-private const val PASSWORD_SCORE = 9
 private const val ONBOARDING_FIRST_STEP = 1
 private const val ONBOARDING_LAST_STEP = 3
 
@@ -63,7 +60,6 @@ private const val ONBOARDING_LAST_STEP = 3
 class OnboardingGraphController(
     private val allowScreenshotsUseCase: AllowScreenshotsUseCase,
     private val changeAnalyticsStateUseCase: ChangeAnalyticsStateUseCase,
-    private val isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
     private val getProfilesUseCase: GetProfilesUseCase,
     private val saveOnboardingDataUseCase: SaveOnboardingDataUseCase,
     private val startTrackerUseCase: StartTrackerUseCase,
@@ -87,12 +83,12 @@ class OnboardingGraphController(
     private val _currentStep = MutableStateFlow(ONBOARDING_FIRST_STEP)
     val currentStep: StateFlow<Int> = _currentStep.asStateFlow()
 
+    private var createProfileJob: Job? = null
+    private val _isCreatingProfile = MutableStateFlow(false)
+    val isCreatingProfile = _isCreatingProfile.asStateFlow()
+
     fun nextStep() {
         _currentStep.update { minOf(ONBOARDING_LAST_STEP, _currentStep.value + 1) }
-    }
-
-    private val isAnalyticsAllowed by lazy {
-        isAnalyticsAllowedUseCase.invoke()
     }
 
     val authScenario: OnboardingAuthScenario
@@ -102,26 +98,28 @@ class OnboardingGraphController(
         _authScenario.value = determineAuthScenarioUseCase()
     }
 
-    val isAnalyticsAllowedState
-        @Composable
-        get() = isAnalyticsAllowed.collectAsStateWithLifecycle(
-            initialValue = false,
-            minActiveState = Lifecycle.State.RESUMED
-        )
-
     fun onChooseAuthentication(authentication: SettingsData.Authentication) {
         this.authentication.update { authentication }
     }
 
-    fun createProfile() = controllerScope.launch {
-        letNotNull(
-            authentication.value,
-            profileName.value
-        ) { auth, name ->
-            saveOnboardingDataUseCase(
-                authentication = auth,
-                profileName = name
-            )
+    fun createProfile() {
+        if (createProfileJob?.isActive == true) return
+
+        _isCreatingProfile.value = true
+        createProfileJob = controllerScope.launch {
+            try {
+                letNotNull(
+                    authentication.value,
+                    profileName.value
+                ) { auth, name ->
+                    saveOnboardingDataUseCase(
+                        authentication = auth,
+                        profileName = name
+                    )
+                }
+            } finally {
+                _isCreatingProfile.value = false
+            }
         }
     }
 
@@ -172,7 +170,6 @@ fun rememberOnboardingController(): OnboardingGraphController {
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()
     val saveOnboardingSucceededUseCase by rememberInstance<SaveOnboardingDataUseCase>()
     val allowScreenshotsUseCase by rememberInstance<AllowScreenshotsUseCase>()
-    val isAnalyticsAllowedUseCase by rememberInstance<IsAnalyticsAllowedUseCase>()
     val changeAnalyticsStateUseCase by rememberInstance<ChangeAnalyticsStateUseCase>()
     val startTrackerUseCase by rememberInstance<StartTrackerUseCase>()
     val stopTrackerUseCase by rememberInstance<StopTrackerUseCase>()
@@ -184,7 +181,6 @@ fun rememberOnboardingController(): OnboardingGraphController {
             getProfilesUseCase = getProfilesUseCase,
             saveOnboardingDataUseCase = saveOnboardingSucceededUseCase,
             allowScreenshotsUseCase = allowScreenshotsUseCase,
-            isAnalyticsAllowedUseCase = isAnalyticsAllowedUseCase,
             changeAnalyticsStateUseCase = changeAnalyticsStateUseCase,
             startTrackerUseCase = startTrackerUseCase,
             stopTrackerUseCase = stopTrackerUseCase,

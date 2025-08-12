@@ -54,7 +54,7 @@ fun TaskContainer.uploadLokaliseStrings() {
             )
 
         val sourceFilePath = project.findProperty("sourcePath") as? String
-            ?: "app-core/src/main/res/values/strings.xml"
+            ?: "core/src/main/res/values/strings.xml"
 
         val sourceFile = File(sourceFilePath)
 

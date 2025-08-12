@@ -32,7 +32,7 @@ import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.DirectRedemptionArguments
 import de.gematik.ti.erp.app.pharmacy.model.PrescriptionRedeemArguments.LoggedInUserRedemptionArguments
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.PrescriptionReadinessResult
 import de.gematik.ti.erp.app.redeem.model.RedeemReadyPrescriptionsState

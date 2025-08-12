@@ -22,6 +22,8 @@
 
 package de.gematik.ti.erp.app.idp
 
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
+import de.gematik.ti.erp.app.cardwall.usecase.RemoveAuthenticationUseCase
 import de.gematik.ti.erp.app.di.EndpointHelper
 import de.gematik.ti.erp.app.idp.repository.AccessTokenDataSource
 import de.gematik.ti.erp.app.idp.repository.DefaultIdpRepository
@@ -30,7 +32,6 @@ import de.gematik.ti.erp.app.idp.repository.IdpPairingRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRemoteDataSource
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
 import de.gematik.ti.erp.app.idp.usecase.AuthenticateWithExternalHealthInsuranceAppUseCase
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.idp.usecase.DefaultIdpUseCase
 import de.gematik.ti.erp.app.idp.usecase.GetHealthInsuranceAppIdpsUseCase
 import de.gematik.ti.erp.app.idp.usecase.GetUniversalLinkForHealthInsuranceAppsUseCase
@@ -40,7 +41,6 @@ import de.gematik.ti.erp.app.idp.usecase.IdpCryptoProvider
 import de.gematik.ti.erp.app.idp.usecase.IdpDeviceInfoProvider
 import de.gematik.ti.erp.app.idp.usecase.IdpPreferenceProvider
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.idp.usecase.RemoveAuthenticationUseCase
 import kotlinx.coroutines.sync.Mutex
 import org.kodein.di.DI
 import org.kodein.di.bindProvider

@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Uplatněte si předepsané DiGA** \nNyní můžete uplatnit recepty pro digitální zdravotní aplikace (DiGA) přímo prostřednictvím aplikace pro elektronické recepty. Aktivační kód a odkaz na předepsané DiGA najdete přímo zde v aplikaci pro elektronické recepty. \n \n **🏥 Nová databáze lékáren** \nZavedli jsme novou databázi pro vyhledávání lékáren, která je připravena na budoucnost.",
+        "text": "**📲 Uplatněte si předepsané DiGA** \nNyní můžete uplatnit recepty pro digitální zdravotnické aplikace (DiGA) přímo prostřednictvím aplikace pro elektronické recepty. Recepty budou vydávány specialisty v Hamburku v rámci pilotního projektu. Aktivační kód a odkaz na DiGA najdete přímo zde v aplikaci pro elektronické recepty. \n \n **🏥 Nová databáze lékáren** \nZavedli jsme novou, do budoucna připravenou databázi pro vyhledávání lékáren.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Nová funkce překladu** \nPokud aplikaci používáte v jiném jazyce, můžete nyní přímo přeložit odpovědi z lékárny. \n \n **♿️ Přístupnost** \nNaše prohlášení o přístupnosti je nyní k dispozici v nastavení. Proces registrace byl také zjednodušen. \n \n **📲 Uplatněte si DiGA u pojišťoven** \nRecepty pro digitální zdravotní aplikace (DiGA) lze nyní uplatnit i u jiných pojišťoven.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Registrace pro soukromě pojištěné osoby** \nRegistrace pro soukromě pojištěné osoby byla optimalizována. Můžete se pohodlně přihlásit pomocí svého zdravotního ID během několika kliknutí. \n \n **⏰ Připomenutí léků** \nNyní si můžete nastavit připomenutí k užívání léků. \n \n **🛒 Vylepšený proces objednávání** \nProces objednávání je nyní jednodušší a rychlejší. \n \n **♿️ Přístupnost** \nPřístupové číslo ke zdravotní kartě lze nyní naskenovat také fotoaparátem. \n \n **📲 Více informací pro DiGA** \nOd nynějška budete dostávat podrobnější informace o vašich receptech DiGA, jako je prodejní cena nebo logo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

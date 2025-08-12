@@ -25,6 +25,7 @@ package de.gematik.ti.erp.app.prescription.presentation
 import app.cash.turbine.test
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.NotStarted
@@ -33,7 +34,6 @@ import de.gematik.ti.erp.app.consent.repository.ConsentRepository
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.mocks.prescription.api.API_ACTIVE_SCANNED_TASK
@@ -567,13 +567,13 @@ class PrescriptionListControllerTest : TestWatcher() {
     fun `test tracking`() {
         every { prescriptionRepository.scannedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SCANNED_TASK, API_ARCHIVE_SCANNED_TASK))
         every { prescriptionRepository.syncedTasks(any()) } returns flowOf(listOf(API_ACTIVE_SYNCED_TASK, API_ARCHIVE_SYNCED_TASK))
-        coEvery { tracker.trackEvent(any()) } returns Unit
+        coEvery { tracker.trackMetric(any()) } returns Unit
         testScope.runTest {
             advanceUntilIdle()
             controllerUnderTest.trackPrescriptionCounts()
         }
 
-        coVerify(exactly = 3) { tracker.trackEvent(any()) }
+        coVerify(exactly = 3) { tracker.trackMetric(any()) }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

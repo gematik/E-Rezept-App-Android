@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyAddressErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyAddressErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdIdentifier.Companion.getTelematikId
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

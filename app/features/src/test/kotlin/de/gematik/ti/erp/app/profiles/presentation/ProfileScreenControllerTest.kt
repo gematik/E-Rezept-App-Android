@@ -23,9 +23,10 @@
 package de.gematik.ti.erp.app.profiles.presentation
 
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
+import de.gematik.ti.erp.app.medicationplan.repository.MedicationPlanRepository
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
@@ -58,7 +59,7 @@ import org.junit.Before
 import org.junit.Test
 
 class ProfileScreenControllerTest {
-
+    private val medicationPlanRepository: MedicationPlanRepository = mockk()
     private val profileRepository: ProfileRepository = mockk()
     private val idpRepository: IdpRepository = mockk()
     private val dispatcher = StandardTestDispatcher()
@@ -89,7 +90,7 @@ class ProfileScreenControllerTest {
         getProfileByIdUseCase = GetProfileByIdUseCase(profileRepository, dispatcher)
         getProfilesUseCase = GetProfilesUseCase(profileRepository, dispatcher)
         addProfileUseCase = spyk(AddProfileUseCase(profileRepository, dispatcher))
-        deleteProfileUseCase = spyk(DeleteProfileUseCase(profileRepository, idpRepository, dispatcher))
+        deleteProfileUseCase = spyk(DeleteProfileUseCase(profileRepository, idpRepository, medicationPlanRepository, dispatcher))
         logoutProfileUseCase = spyk(LogoutProfileUseCase(idpRepository, dispatcher))
         switchActiveProfileUseCase = spyk(SwitchActiveProfileUseCase(profileRepository, dispatcher))
         updateProfileUseCase = spyk(UpdateProfileUseCase(profileRepository, dispatcher))
@@ -183,6 +184,7 @@ class ProfileScreenControllerTest {
     @Test
     fun `Delete profile should invoke the deleteProfileUseCase, invalidate and remove the data in the repositories`() {
         coEvery { profileRepository.removeProfile(any(), any()) } returns Unit
+        coEvery { medicationPlanRepository.deleteAllMedicationSchedulesForProfile(any()) } returns Unit
         coEvery { idpRepository.invalidateDecryptedAccessToken(any()) } returns Unit
 
         testScope.runTest {

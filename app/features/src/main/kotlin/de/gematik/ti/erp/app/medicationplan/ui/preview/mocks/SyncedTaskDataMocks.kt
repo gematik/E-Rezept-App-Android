@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.medicationplan.ui.preview.mocks
 
-import de.gematik.ti.erp.app.medicationplan.ui.preview.medicationPlanPreviewCurrentTime
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
@@ -54,7 +54,7 @@ private val MEDICATION = Medication(
     text = "Medication",
     form = "AEO",
     lotNumber = "123456",
-    expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(Clock.System.now().plus(30.days)),
+    expirationDate = FhirTemporal.Instant(Clock.System.now().plus(30.days)),
     identifier = SyncedTaskData.Identifier("1234567890"),
     normSizeCode = "KA",
     amount = Ratio(
@@ -136,7 +136,9 @@ val SYNCED_TASK = SyncedTaskData.SyncedTask(
     medicationRequest = MEDICATION_REQUEST,
     medicationDispenses = emptyList(),
     lastMedicationDispense = null,
-    communications = emptyList()
+    communications = emptyList(),
+    isEuRedeemable = false
+
 )
 
 val SYNCED_TASK_STRUCTURED_DOSAGE = SYNCED_TASK.copy(

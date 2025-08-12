@@ -22,37 +22,67 @@
 
 package extensions
 
-import extensions.BuildNames.androidTestImplementation
-import extensions.BuildNames.androidTestUtil
-import extensions.BuildNames.testCompileOnly
-import extensions.BuildNames.testImplementation
+import generated.androidxTestArchCoreBundle
+import generated.androidxtestBundle
+import generated.androidxtestutilsBundle
+import generated.composetestBundle
+import generated.corutinestestBundle
+import generated.cryptoBundle
+import generated.databaseBundle
+import generated.datetimeBundle
+import generated.diComposeLibrary
+import generated.mockandroidBundle
+import generated.networkOkhttpLibrary
+import generated.networktestBundle
+import generated.testingBundle
+import generated.testjunitBundle
 import org.gradle.api.artifacts.VersionCatalog
 import org.gradle.kotlin.dsl.DependencyHandlerScope
 import org.gradle.kotlin.dsl.kotlin
+
+private fun DependencyHandlerScope.androidTestImplementation(dependency: Any) {
+    implementationInScope("androidTestImplementation", dependency)
+}
+
+private fun DependencyHandlerScope.androidTestUtil(dependency: Any) {
+    implementationInScope("androidTestUtil", dependency)
+}
+
+private fun DependencyHandlerScope.testImplementation(dependency: Any) {
+    implementationInScope("testImplementation", dependency)
+}
+
+private fun DependencyHandlerScope.testCompileOnly(dependency: Any) {
+    implementationInScope("testImplementation", dependency)
+}
+
+private fun DependencyHandlerScope.implementationInScope(configurationName: String, dependency: Any) {
+    add(configurationName, dependency)
+}
 
 fun DependencyHandlerScope.androidTestExtension(libs: VersionCatalog) {
     androidTestImplementation(kotlin("reflect"))
     androidTestImplementation(kotlin("stdlib"))
     androidTestImplementation(libs.diComposeLibrary)
-    androidTestImplementation(libs.networkOkHttpLibrary)
-    androidTestImplementation(libs.androidXTestBundle)
-    androidTestImplementation(libs.composeTestBundle)
-    androidTestImplementation(libs.mockkAndroidBundle)
-    androidTestUtil(libs.androidXTestUtilsBundle)
+    androidTestImplementation(libs.networkOkhttpLibrary)
+    androidTestImplementation(libs.androidxtestBundle)
+    androidTestImplementation(libs.composetestBundle)
+    androidTestImplementation(libs.mockandroidBundle)
+    androidTestUtil(libs.androidxtestutilsBundle)
 }
 
 fun DependencyHandlerScope.testExtension(libs: VersionCatalog) {
     testImplementation(kotlin("test"))
     testImplementation(libs.cryptoBundle)
     testImplementation(libs.androidxTestArchCoreBundle)
-    testImplementation(libs.coroutinesTestBundle)
-    testImplementation(libs.networkTestBundle)
-    testImplementation(libs.composeTestBundle)
+    testImplementation(libs.corutinestestBundle)
+    testImplementation(libs.networktestBundle)
+    testImplementation(libs.composetestBundle)
     testImplementation(libs.testingBundle)
     testCompileOnly(libs.databaseBundle)
     testCompileOnly(libs.datetimeBundle)
 }
 
 fun DependencyHandlerScope.junitExtension(libs: VersionCatalog) {
-    testImplementation(libs.junitBundle)
+    testImplementation(libs.testjunitBundle)
 }

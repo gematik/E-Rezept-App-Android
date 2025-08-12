@@ -25,15 +25,14 @@ package de.gematik.ti.erp.app.fhir.pharmacy.model.original
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirTypeCoding
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirContactInformationErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirVzdSpecialtyType
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningHoursErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.OpeningTimeErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirContactInformationErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirVzdSpecialtyType
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningHoursErpModel
+import de.gematik.ti.erp.app.fhir.pharmacy.model.OpeningTimeErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdAvailableTime.Companion.toErpModel
-import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.ServiceProviderSpecialityType.APOVZD
-import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.ServiceProviderSpecialityType.LDAP
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdSpecialty.Companion.getSpecialtyTypes
 import de.gematik.ti.erp.app.utils.letNotNull
+import io.github.aakira.napier.Napier
 import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalTime
 import kotlinx.serialization.SerialName
@@ -179,21 +178,10 @@ internal data class FhirVzdSpecialty(
 ) {
     companion object {
 
-        private enum class ServiceProviderSpecialityType(val value: String) {
-            APOVZD("apo-vzd"),
-            LDAP("ldap");
-        }
-
-        private fun List<FhirVzdSpecialty>.getServiceProvider(type: ServiceProviderSpecialityType): FhirVzdSpecialty? =
-            find { it.text == type.value }
-
-        private fun FhirVzdSpecialty.mapToSpecialtyTypes(): List<FhirVzdSpecialtyType> =
-            codings.map { FhirVzdSpecialtyType.fromCode(it.code) }
-
-        fun List<FhirVzdSpecialty>.getSpecialtyTypes(): List<FhirVzdSpecialtyType> {
-            val apoVzdServices = getServiceProvider(APOVZD)?.mapToSpecialtyTypes().orEmpty()
-            val ldapServices = getServiceProvider(LDAP)?.mapToSpecialtyTypes().orEmpty()
-            return (apoVzdServices + ldapServices).toSet().toList()
-        }
+        fun List<FhirVzdSpecialty>.getSpecialtyTypes(): List<FhirVzdSpecialtyType> =
+            flatMap { it.codings }
+                .onEach { Napier.d { "Processing code: ${it.code}" } }
+                .map { FhirVzdSpecialtyType.fromCode(it.code) }
+                .distinct()
     }
 }

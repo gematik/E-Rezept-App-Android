@@ -25,11 +25,11 @@ package de.gematik.ti.erp.app.medicationplan.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import de.gematik.ti.erp.app.medicationplan.ui.MedicationPlanDosageInfoBottomSheetScreen
-import de.gematik.ti.erp.app.medicationplan.ui.MedicationPlanScheduleScreen
-import de.gematik.ti.erp.app.medicationplan.ui.ScheduleDateRangeScreen
-import de.gematik.ti.erp.app.medicationplan.ui.MedicationListScheduleScreen
-import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationNotificationSuccessScreen
+import de.gematik.ti.erp.app.medicationplan.ui.MedicationPlanDosageInstructionBottomSheetScreen
+import de.gematik.ti.erp.app.medicationplan.ui.MedicationPlanScheduleDetailScreen
+import de.gematik.ti.erp.app.medicationplan.ui.MedicationPlanScheduleDurationAndIntervalScreen
+import de.gematik.ti.erp.app.medicationplan.ui.MedicationPlanScheduleListScreen
+import de.gematik.ti.erp.app.medicationplan.ui.components.MedicationPlanNotificationScreen
 import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown
@@ -38,7 +38,7 @@ import de.gematik.ti.erp.app.navigation.slideOutLeft
 import de.gematik.ti.erp.app.navigation.slideOutUp
 
 fun NavGraphBuilder.medicationPlanGraph(
-    startDestination: String = MedicationPlanRoutes.MedicationPlanList.route,
+    startDestination: String = MedicationPlanRoutes.MedicationPlanScheduleListScreen.route,
     navController: NavController
 ) {
     navigation(
@@ -46,53 +46,53 @@ fun NavGraphBuilder.medicationPlanGraph(
         route = MedicationPlanRoutes.subGraphName()
     ) {
         renderComposable(
-            route = MedicationPlanRoutes.MedicationPlanList.route,
-            arguments = MedicationPlanRoutes.MedicationPlanList.arguments,
+            route = MedicationPlanRoutes.MedicationPlanScheduleListScreen.route,
+            arguments = MedicationPlanRoutes.MedicationPlanScheduleListScreen.arguments,
             stackEnterAnimation = { slideInDown() },
             stackExitAnimation = { slideOutUp() }
         ) {
-            MedicationListScheduleScreen(
+            MedicationPlanScheduleListScreen(
                 navController = navController,
                 navBackStackEntry = it
             )
         }
         renderComposable(
-            route = MedicationPlanRoutes.MedicationPlanPerPrescription.route,
-            arguments = MedicationPlanRoutes.MedicationPlanPerPrescription.arguments,
+            route = MedicationPlanRoutes.MedicationPlanScheduleDetailScreen.route,
+            arguments = MedicationPlanRoutes.MedicationPlanScheduleDetailScreen.arguments,
             stackEnterAnimation = { slideInRight() },
             stackExitAnimation = { slideOutLeft() }
         ) {
-            MedicationPlanScheduleScreen(
+            MedicationPlanScheduleDetailScreen(
                 navController = navController,
                 navBackStackEntry = it
             )
         }
 
         renderComposable(
-            route = MedicationPlanRoutes.ScheduleDateRange.route,
-            arguments = MedicationPlanRoutes.ScheduleDateRange.arguments,
+            route = MedicationPlanRoutes.MedicationPlanScheduleDurationAndIntervalScreen.route,
+            arguments = MedicationPlanRoutes.MedicationPlanScheduleDurationAndIntervalScreen.arguments,
             stackEnterAnimation = { slideInRight() },
             stackExitAnimation = { slideOutLeft() }
         ) {
-            ScheduleDateRangeScreen(
+            MedicationPlanScheduleDurationAndIntervalScreen(
                 navController = navController,
                 navBackStackEntry = it
             )
         }
         renderComposable(
-            route = MedicationPlanRoutes.MedicationPlanNotificationSuccess.route,
-            arguments = MedicationPlanRoutes.MedicationPlanNotificationSuccess.arguments
+            route = MedicationPlanRoutes.MedicationPlanNotificationScreen.route,
+            arguments = MedicationPlanRoutes.MedicationPlanNotificationScreen.arguments
         ) {
-            MedicationNotificationSuccessScreen(
+            MedicationPlanNotificationScreen(
                 navController = navController,
                 navBackStackEntry = it
             )
         }
         renderBottomSheet(
-            route = MedicationPlanRoutes.MedicationPlanDosageInfo.route,
-            arguments = MedicationPlanRoutes.MedicationPlanDosageInfo.arguments
+            route = MedicationPlanRoutes.MedicationPlanDosageInstructionBottomSheetScreen.route,
+            arguments = MedicationPlanRoutes.MedicationPlanDosageInstructionBottomSheetScreen.arguments
         ) {
-            MedicationPlanDosageInfoBottomSheetScreen(
+            MedicationPlanDosageInstructionBottomSheetScreen(
                 navController = navController,
                 navBackStackEntry = it
             )

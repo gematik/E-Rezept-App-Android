@@ -23,17 +23,25 @@
 package de.gematik.ti.erp.app.medicationplan.repository
 
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.Flow
+import kotlinx.datetime.LocalTime
 
-class MedicationPlanRepository(
-    private val localDataSource: MedicationPlanLocalDataSource
-) {
-    fun loadMedicationSchedule(taskId: String): Flow<MedicationSchedule?> =
-        localDataSource.loadMedicationSchedule(taskId)
-
-    suspend fun updateMedicationSchedule(newMedicationSchedule: MedicationSchedule) =
-        localDataSource.updateMedicationSchedule(newMedicationSchedule)
-
-    fun loadAllMedicationSchedules(): Flow<List<MedicationSchedule>> =
-        localDataSource.loadAllMedicationSchedules()
+interface MedicationPlanRepository {
+    fun getMedicationSchedule(taskId: String): Flow<MedicationSchedule?>
+    fun getAllMedicationSchedules(): Flow<List<MedicationSchedule>>
+    suspend fun deleteMedicationSchedule(taskId: String)
+    suspend fun deleteAllMedicationSchedulesForProfile(profileIdentifier: ProfileIdentifier)
+    suspend fun setOrCreateActiveMedicationSchedule(medicationSchedule: MedicationSchedule)
+    suspend fun deactivateMedicationSchedule(taskId: String)
+    suspend fun setMedicationScheduleDuration(taskId: String, medicationScheduleDuration: MedicationScheduleDuration)
+    suspend fun setMedicationScheduleInterval(taskId: String, medicationScheduleInterval: MedicationScheduleInterval)
+    suspend fun setOrCreateMedicationScheduleNotification(taskId: String, medicationScheduleNotification: MedicationScheduleNotification)
+    suspend fun deleteMedicationScheduleNotification(medicationScheduleNotificationId: String)
+    suspend fun setMedicationScheduleNotificationDosage(medicationScheduleNotificationId: String, dosage: MedicationScheduleNotificationDosage)
+    suspend fun setMedicationScheduleNotificationTime(medicationScheduleNotificationId: String, time: LocalTime)
 }

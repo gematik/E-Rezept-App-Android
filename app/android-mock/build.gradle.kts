@@ -1,27 +1,27 @@
-@file:Suppress("VariableNaming", "PropertyName", "UnusedPrivateProperty")
+@file:Suppress("VariableNaming", "PropertyName", "UnusedPrivateProperty", "unused")
 
 import de.gematik.ti.erp.app.plugins.dependencies.overrides
 import de.gematik.ti.erp.app.plugins.names.AppDependencyNamesPlugin
 
 plugins {
-    id("base-android-application")
-    id("de.gematik.ti.erp.names")
-    id("de.gematik.ti.erp.dependency-overrides")
+    alias(libs.plugins.base.android.app)
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.module.names)
+    alias(libs.plugins.dependency.overrides)
 }
 
 val VERSION_CODE: String by overrides()
 val VERSION_NAME: String by overrides()
-val gematik = AppDependencyNamesPlugin()
+val namesPlugin = AppDependencyNamesPlugin()
 
 android {
-    namespace = gematik.moduleName("mock")
+    namespace = namesPlugin.moduleName("mock")
     defaultConfig {
-        applicationId = gematik.idName("mock")
+        applicationId = namesPlugin.idName("mock")
         versionCode = VERSION_CODE.toInt()
         versionName = VERSION_NAME
 
-        testApplicationId = gematik.moduleName("mock.test")
+        testApplicationId = namesPlugin.moduleName("mock.test")
         // Check if MAPS_API_KEY is defined, otherwise provide a default value
         val mapsApiKey = project.findProperty("MAPS_API_KEY") ?: "DEFAULT_PLACEHOLDER_KEY"
         manifestPlaceholders["MAPS_API_KEY"] = mapsApiKey
@@ -42,19 +42,17 @@ android {
 }
 
 dependencies {
-    implementation(project(":utils"))
-    implementation(project(gematik.fhirParser))
-    implementation(project(gematik.feature))
-    implementation(project(gematik.demoMode))
-    implementation(project(gematik.uiComponents))
-    implementation(project(gematik.multiplatform))
-    implementation(project(gematik.fhirParser))
-    implementation(libs.tracing)
+    implementation(project(namesPlugin.utils))
+    implementation(project(namesPlugin.fhirParser))
+    implementation(project(namesPlugin.feature))
+    implementation(project(namesPlugin.demoMode))
+    implementation(project(namesPlugin.uiComponents))
+    implementation(project(namesPlugin.multiplatform))
+    implementation(project(namesPlugin.fhirParser))
+    implementation(project(namesPlugin.database))
     implementation(libs.bundles.crypto)
     implementation(libs.bundles.accompanist)
     implementation(libs.bundles.database)
-    testImplementation(project(gematik.multiplatform))
-    androidTestImplementation(project(gematik.testActions))
-    androidTestImplementation(project(gematik.testTags))
-    debugImplementation(libs.tracing)
+    androidTestImplementation(project(namesPlugin.testActions))
+    androidTestImplementation(project(namesPlugin.testTags))
 }

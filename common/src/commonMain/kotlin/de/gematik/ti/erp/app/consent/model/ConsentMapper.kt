@@ -27,7 +27,7 @@ import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.profileValue
-import de.gematik.ti.erp.app.utils.asFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.datetime.Clock
 import kotlinx.serialization.json.JsonElement
 
@@ -93,6 +93,7 @@ fun createConsent(
 enum class ConsentType {
     Charge
 }
+
 fun extractConsentBundle(
     bundle: JsonElement,
     save: (
@@ -115,6 +116,7 @@ fun extractConsentBundle(
             ).invoke(
                 profileString
             ) -> extractConsent(bundle)
+
             else -> error("unsupported profile")
         }
     }.toList()

@@ -62,11 +62,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
 import de.gematik.ti.erp.app.profiles.presentation.rememberProfileEditNameController
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfileEditData
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfilePreviewParameterProvider
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData

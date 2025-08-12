@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.repository.CommunicationRepository
 import de.gematik.ti.erp.app.prescription.repository.DownloadResourcesStateRepository
 import de.gematik.ti.erp.app.prescription.repository.TaskRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.settings.repository.SettingsRepository
 import io.github.aakira.napier.Napier

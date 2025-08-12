@@ -73,7 +73,7 @@ fun NavGraphBuilder.renderComposable(
         @JvmSuppressWildcards
         AnimatedContentTransitionScope<NavBackStackEntry>.() -> ExitTransition?
     )? = stackExitAnimation,
-    screen: AnimatedContentScope.(NavBackStackEntry) -> Screen
+    screen: @Composable AnimatedContentScope.(NavBackStackEntry) -> Screen
 ) {
     @Requirement(
         "A_19094-01#1",
@@ -89,14 +89,15 @@ fun NavGraphBuilder.renderComposable(
         popEnterTransition = popEnterAnimation ?: stackEnterAnimation,
         popExitTransition = popExitAnimation ?: stackExitAnimation,
         content = {
-            val screenToBeRendered = screen(this, it)
             val tracker by rememberInstance<Tracker>()
-            val routeToBeTracked = remember { route.routeEnum() }
-            tracker.computeScreenTrackingProperty(routeToBeTracked)?.let { screenName ->
-                tracker.trackScreen(screenName)
-            }
+            val evaluatedScreen = screen(this, it)
 
-            screenToBeRendered.Content()
+            val rememberedScreen = remember { evaluatedScreen }
+            val routeToBeTracked = remember { route.routeEnum() }
+
+            tracker.routeToScreenTrackingName(routeToBeTracked)
+                ?.let { screenName -> tracker.trackScreen(screenName) }
+            rememberedScreen.Content()
         }
     )
 }
@@ -114,7 +115,7 @@ fun NavGraphBuilder.renderBottomSheet(
     route: String,
     arguments: List<NamedNavArgument> = emptyList(),
     deepLinks: List<NavDeepLink> = emptyList(),
-    screen: ColumnScope.(NavBackStackEntry) -> BottomSheetScreen
+    screen: @Composable ColumnScope.(NavBackStackEntry) -> BottomSheetScreen
 ) {
     @Requirement(
         "A_19094-01#2",
@@ -126,13 +127,15 @@ fun NavGraphBuilder.renderBottomSheet(
         arguments = arguments,
         deepLinks = deepLinks,
         content = {
-            val screenToBeRendered = screen(this, it)
             val tracker by rememberInstance<Tracker>()
+            val evaluatedScreen = screen(this, it)
+
+            val rememberedScreen = remember { evaluatedScreen }
             val routeToBeTracked = remember { route.routeEnum() }
-            tracker.computeScreenTrackingProperty(routeToBeTracked)?.let { screenName ->
-                tracker.trackScreen(screenName)
-            }
-            screenToBeRendered.BottomSheetContent()
+
+            tracker.routeToScreenTrackingName(routeToBeTracked)
+                ?.let { screenName -> tracker.trackScreen(screenName) }
+            rememberedScreen.BottomSheetContent()
         }
     )
 }

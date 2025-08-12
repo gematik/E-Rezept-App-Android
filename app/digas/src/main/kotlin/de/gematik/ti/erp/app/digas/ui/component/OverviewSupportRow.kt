@@ -29,7 +29,7 @@ import androidx.compose.material.icons.automirrored.outlined.ContactSupport
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme

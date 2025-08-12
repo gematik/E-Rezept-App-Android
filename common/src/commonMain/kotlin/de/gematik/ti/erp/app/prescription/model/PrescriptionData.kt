@@ -24,8 +24,8 @@ package de.gematik.ti.erp.app.prescription.model
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer
@@ -87,6 +87,7 @@ object PrescriptionData {
         val isIncomplete = task.isIncomplete
         val failureToReport = task.failureToReport
         val deviceRequest: FhirTaskKbvDeviceRequestErpModel? = task.deviceRequest
+        val isEuRedeemable = task.isEuRedeemable
     }
 
     @Serializable(with = MedicationInterfaceSerializer::class)

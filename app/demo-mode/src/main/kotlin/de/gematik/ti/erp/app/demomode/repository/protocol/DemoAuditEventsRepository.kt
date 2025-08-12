@@ -23,8 +23,8 @@
 package de.gematik.ti.erp.app.demomode.repository.protocol
 
 import de.gematik.ti.erp.app.demomode.datasource.DemoModeDataSource
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAuditEventsErpModelCollection
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.fhir.FhirAuditEventsErpModelCollection
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.protocol.repository.AuditEventsRepository
 import java.util.UUID
 

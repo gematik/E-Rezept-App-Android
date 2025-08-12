@@ -31,6 +31,7 @@ import de.gematik.ti.erp.app.navigation.Routes
 object CardUnlockRoutes : NavigationRoutes {
     override fun subGraphName() = "cardUnlock"
     const val CARD_UNLOCK_NAV_UNLOCK_METHOD = "unlockMethod"
+    const val CARD_UNLOCK_NAV_SCANNED_CAN = "scannedCan"
 
     object CardUnlockIntroScreen : Routes(
         NavigationRouteNames.CardUnlockIntroScreen.name,
@@ -39,7 +40,16 @@ object CardUnlockRoutes : NavigationRoutes {
         fun path(unlockMethod: String) = path(CARD_UNLOCK_NAV_UNLOCK_METHOD to unlockMethod)
     }
 
-    object CardUnlockCanScreen : Routes(NavigationRouteNames.CardUnlockCanScreen.name)
+    object CardUnlockCanScreen : Routes(
+        NavigationRouteNames.CardUnlockCanScreen.name,
+        navArgument(CARD_UNLOCK_NAV_SCANNED_CAN) {
+            type = NavType.StringType
+            defaultValue = ""
+            nullable = false
+        }
+    ) {
+        fun path(scannedCan: String = "") = path(CARD_UNLOCK_NAV_SCANNED_CAN to scannedCan)
+    }
 
     object CardUnlockPukScreen : Routes(NavigationRouteNames.CardUnlockPukScreen.name)
 

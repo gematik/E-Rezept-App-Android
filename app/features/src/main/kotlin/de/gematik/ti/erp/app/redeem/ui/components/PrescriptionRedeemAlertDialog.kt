@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.redeem.ui.components
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.redeem.model.RedeemPrescriptionDialogMessageState
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemPrescriptionDialogParameter

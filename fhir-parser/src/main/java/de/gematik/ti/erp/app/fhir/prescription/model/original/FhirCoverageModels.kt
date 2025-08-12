@@ -28,7 +28,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirCoverageErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirCoverageErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

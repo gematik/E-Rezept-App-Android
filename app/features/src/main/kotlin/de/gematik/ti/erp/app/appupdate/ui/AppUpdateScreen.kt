@@ -47,10 +47,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.appupdate.usecase.ChangeAppUpdateFlagUseCase
-import de.gematik.ti.erp.app.base.BaseActivity
-import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
+import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -74,10 +73,10 @@ class AppUpdateScreen(
 
 @Composable
 private fun UpdateAppScreenContent(
+    applicationPadding: ApplicationInnerPadding? = null,
     onClick: () -> Unit
 ) {
     val context = LocalContext.current
-    val padding = (LocalActivity.current as? BaseActivity)?.applicationInnerPadding
 
     // TODO: Convert to AnimatedElevationScaffold
     Scaffold(
@@ -107,7 +106,7 @@ private fun UpdateAppScreenContent(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(padding?.combineWithInnerScaffold(innerPadding) ?: innerPadding)
+                    .padding(applicationPadding?.combineWithInnerScaffold(innerPadding) ?: innerPadding)
                     .padding(PaddingDefaults.Large),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center

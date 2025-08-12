@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.messages.domain.usecase
 
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.Order
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData.Pharmacy

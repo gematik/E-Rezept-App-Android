@@ -22,24 +22,24 @@
 
 package de.gematik.ti.erp.app.fhir.communication.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirDispenseCommunicationEntryErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirReplyCommunicationEntryErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension.Companion.findExtensionByUrl
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationConstants
-import de.gematik.ti.erp.app.fhir.communication.constants.CommunicationDigaConstants
-import de.gematik.ti.erp.app.fhir.communication.model.erp.CommunicationParticipantErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.DispenseCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.DispensePrescriptionTypeErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.DispenseSupplyOptionsType
-import de.gematik.ti.erp.app.fhir.communication.model.erp.ReplyCommunicationPayloadContentErpModel
-import de.gematik.ti.erp.app.fhir.communication.model.erp.ReplyCommunicationSupplyOptionsErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirDispenseCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.FhirReplyCommunicationEntryErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.CommunicationParticipantErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseCommunicationPayloadContentErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.DispensePrescriptionTypeErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.DispenseSupplyOptionsType
+import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationPayloadContentErpModel
+import de.gematik.ti.erp.app.fhir.communication.model.support.ReplyCommunicationSupplyOptionsErpModel
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirInstantSerializer
 import de.gematik.ti.erp.app.fhir.serializer.SafeTaskIdSerializer
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

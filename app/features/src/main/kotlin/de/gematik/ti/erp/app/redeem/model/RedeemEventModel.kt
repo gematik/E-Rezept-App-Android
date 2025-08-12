@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.redeem.model
 
+import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 
 object RedeemEventModel {
@@ -36,6 +37,7 @@ object RedeemEventModel {
     data class RedeemClickEvent(
         val onSelectPrescriptions: () -> Unit,
         val onChangePharmacy: () -> Unit,
+        val onChangeService: (PharmacyScreenData.OrderOption) -> Unit,
         val onClickContacts: () -> Unit,
         val onBack: () -> Unit
     )

@@ -22,11 +22,11 @@
 
 package de.gematik.ti.erp.app.profiles.mapper
 
-import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
-import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
-import de.gematik.ti.erp.app.db.entities.v1.ProfileColorNamesV1
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.v1.AvatarFigureV1
+import de.gematik.ti.erp.app.database.realm.v1.InsuranceTypeV1
+import de.gematik.ti.erp.app.database.realm.v1.ProfileColorNamesV1
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
 import de.gematik.ti.erp.app.idp.repository.toSingleSignOnTokenScope
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.repository.SetToActiveProfile

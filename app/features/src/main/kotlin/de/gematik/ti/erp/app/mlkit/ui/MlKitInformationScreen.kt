@@ -41,7 +41,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -67,6 +67,8 @@ class MlKitInformationScreen(
             modifier = Modifier
                 .systemBarsPadding(),
             topBarTitle = stringResource(R.string.ml_information_title),
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             listState = listState,
             navigationMode = NavigationBarMode.Back,
             onBack = navController::popBackStack

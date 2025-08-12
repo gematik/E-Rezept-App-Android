@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.prescription.model
 
 import de.gematik.ti.erp.app.messages.model.Communication
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.datetime.Instant
 
 object ScannedTaskData {

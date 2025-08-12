@@ -64,6 +64,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -78,15 +79,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.authentication.ui.components.AuthenticationFailureDialog
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.consent.model.ConsentContext
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.consent.model.ConsentState.Companion.isNotGranted
 import de.gematik.ti.erp.app.core.LocalIntentHandler
-import de.gematik.ti.erp.app.fhir.parser.Year
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.fhir.temporal.Year
 import de.gematik.ti.erp.app.invoice.model.InvoiceData.PKVInvoiceRecord
 import de.gematik.ti.erp.app.invoice.model.currencyString
 import de.gematik.ti.erp.app.loading.LoadingIndicator
@@ -105,7 +105,7 @@ import de.gematik.ti.erp.app.pkv.ui.components.RevokeConsentDialog
 import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceListScreenPreviewData
 import de.gematik.ti.erp.app.pkv.ui.preview.InvoiceListScreenPreviewParameterProvider
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.pulltorefresh.PullToRefresh
 import de.gematik.ti.erp.app.pulltorefresh.extensions.trigger
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -162,6 +162,7 @@ class InvoiceListScreen(
         val invoicesState: UiState<Map<Year, List<PKVInvoiceRecord>>> by invoiceController.invoices.collectAsStateWithLifecycle()
         val isSsoTokenValid by invoiceController.isSsoTokenValidForSelectedProfile.collectAsStateWithLifecycle()
         val isRefreshing by invoiceController.isRefreshing.collectAsStateWithLifecycle()
+        val activeProfile by invoiceController.activeProfile.collectAsStateWithLifecycle()
 
         val onGrantConsentEvent = ComposableEvent<Unit>()
         val onRevokeConsentEvent = ComposableEvent<Unit>()
@@ -172,7 +173,7 @@ class InvoiceListScreen(
 
         var consentRecentlyRevoked by remember { mutableStateOf(false) } // required for back navigation
 
-        val onBack: () -> Unit = {
+        val onBack by rememberUpdatedState {
             // when navigation came from prescription details and
             // the user removes the consent we need to skip the invoice detail screen
             if (isConsentGranted && !consentRecentlyRevoked) {
@@ -182,14 +183,13 @@ class InvoiceListScreen(
             }
         }
 
-        BackHandler { onBack() }
-
         navBackStackEntry.onReturnAction(PkvRoutes.InvoiceListScreen) {
             invoiceController.refreshCombinedProfile()
             invoiceController.downloadInvoices()
             invoiceController.invoiceListScreenEvents.getConsentEvent.trigger(profileId)
         }
 
+        ChooseAuthenticationNavigationEventsListener(invoiceController, navController)
         with(invoiceController) {
             invoiceListScreenEvents.invoiceErrorEvent.listen { error ->
                 snackbar.show(
@@ -200,26 +200,6 @@ class InvoiceListScreen(
             invoiceListScreenEvents.downloadCompletedEvent.listen {
                 pullToRefreshState.endRefresh()
             }
-
-            showCardWallEvent.listen { id ->
-                navController.navigate(CardWallIntroScreen.path(id))
-            }
-            showCardWallWithFilledCanEvent.listen { cardWallData ->
-                navController.navigate(
-                    CardWallRoutes.CardWallPinScreen.path(
-                        profileIdentifier = cardWallData.profileId,
-                        can = cardWallData.can
-                    )
-                )
-            }
-            showGidEvent.listen { gidData ->
-                navController.navigate(
-                    CardWallIntroScreen.pathWithGid(
-                        gidNavigationData = gidData
-                    )
-                )
-            }
-
             invoiceListScreenEvents.getConsentEvent.listen { profileId ->
                 consentController.getChargeConsent(profileId)
             }
@@ -268,7 +248,7 @@ class InvoiceListScreen(
                     ConsentContext.RevokeConsent -> consentController.revokeChargeConsent(profileId)
                 }
             },
-            onShowCardWall = { invoiceController.chooseAuthenticationMethod(profileId) },
+            onShowCardWall = { activeProfile.data?.let { invoiceController.chooseAuthenticationMethod(it) } },
             onDeleteLocalInvoices = { invoiceController.deleteLocalInvoices() },
             onConsentGranted = { snackbar.show(consentGrantedInfo, scope) },
             onConsentRevoked = { snackbar.show(consentRevokedInfo, scope) }
@@ -300,7 +280,7 @@ class InvoiceListScreen(
                 onNavigation = {
                     if (!isSsoTokenValid) {
                         endRefresh()
-                        invoiceController.chooseAuthenticationMethod(profileId)
+                        activeProfile.data?.let { invoiceController.chooseAuthenticationMethod(it) }
                     }
                 }
             )
@@ -311,7 +291,7 @@ class InvoiceListScreen(
                 onGrantConsentEvent.trigger()
             }
         }
-
+        BackHandler { onBack() }
         Box(
             Modifier
                 .fillMaxSize()
@@ -326,14 +306,14 @@ class InvoiceListScreen(
                 consentState = consentState,
                 invoicesState = invoicesState,
                 onClickConnect = { _ ->
-                    invoiceController.chooseAuthenticationMethod(profileId)
+                    activeProfile.data?.let { invoiceController.chooseAuthenticationMethod(it) }
                 },
                 onClickInvoice = { id, taskId ->
                     navController.navigate(PkvRoutes.InvoiceDetailsScreen.path(taskId = taskId, profileId = id))
                 },
                 onClickGrantConsent = { onGrantConsentEvent.trigger() },
                 onClickRevokeConsent = { onRevokeConsentEvent.trigger() },
-                onBack = onBack
+                onBack = { onBack() }
             )
 
             if (isRefreshing) {
@@ -366,6 +346,8 @@ private fun InvoiceListScreenScaffold(
     AnimatedElevationScaffold(
         modifier = Modifier.imePadding(),
         topBarTitle = stringResource(R.string.profile_invoices),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         snackbarHost = { SnackbarHost(it, modifier = Modifier.systemBarsPadding()) },
         bottomBar = {
             when {
@@ -473,7 +455,7 @@ private fun InvoicesHeaderThreeDotMenu(
 @Composable
 private fun Invoices(
     listState: LazyListState,
-    invoices: Map<de.gematik.ti.erp.app.fhir.parser.Year, List<PKVInvoiceRecord>>,
+    invoices: Map<Year, List<PKVInvoiceRecord>>,
     onClickInvoice: (String) -> Unit
 ) {
     LazyColumn(

@@ -50,7 +50,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.onReturnAction
 import de.gematik.ti.erp.app.pharmacy.ui.components.addressSupplementInputField
@@ -80,7 +80,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.ShippingContactState
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRouteBackStackEntryArguments
 import de.gematik.ti.erp.app.redeem.navigation.RedeemRoutes
-import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
+import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.preview.RedeemEditShippingPreviewParameter
 import de.gematik.ti.erp.app.redeem.ui.preview.ShippingContactPreviewData
 import de.gematik.ti.erp.app.theme.AppTheme
@@ -92,7 +92,7 @@ import de.gematik.ti.erp.app.utils.compose.BottomAppBar
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
-import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
+import de.gematik.ti.erp.app.utils.compose.LightDarkLongPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.DialogScaffold
@@ -112,7 +112,7 @@ data class ValidationResult(
 class RedeemEditShippingContactScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    private val graphController: OnlineRedeemGraphController
+    private val sharedViewModel: OnlineRedeemSharedViewModel
 ) : Screen() {
 
     @Composable
@@ -120,7 +120,7 @@ class RedeemEditShippingContactScreen(
         val listState = rememberLazyListState()
         val showDialogEvent = ComposableEvent<Unit>()
 
-        val activeProfile by graphController.activeProfile.collectAsStateWithLifecycle()
+        val activeProfile by sharedViewModel.activeProfile.collectAsStateWithLifecycle()
         var isDirectRedeemEnabled = remember(activeProfile) { false }
 
         CheckAddressChangeDialog(
@@ -138,12 +138,12 @@ class RedeemEditShippingContactScreen(
         RedeemRouteBackStackEntryArguments(navBackStackEntry)
             .getOrderOption()?.let { selectedOrderOption ->
 
-                val orderState by graphController.selectedOrderState
+                val orderState by sharedViewModel.selectedOrderState
 
                 var contact by remember(orderState.contact) { mutableStateOf(orderState.contact) }
 
                 val shippingContactState = remember(orderState, contact) {
-                    graphController.validateAndGetShippingContactState(contact, selectedOrderOption)
+                    sharedViewModel.validateAndGetShippingContactState(contact, selectedOrderOption)
                 }
 
                 letNotNull(
@@ -157,7 +157,7 @@ class RedeemEditShippingContactScreen(
                         listState = listState,
                         onContactChange = { contact = it },
                         onSave = {
-                            graphController.saveShippingContact(contact)
+                            sharedViewModel.saveShippingContact(contact)
                             navController.popBackStack()
                         },
                         onShowDialog = { showDialogEvent.trigger() }
@@ -179,6 +179,8 @@ fun RedeemEditShippingContactScreenContent(
 ) {
     AnimatedElevationScaffold(
         navigationMode = NavigationBarMode.Back,
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         bottomBar = {
             @Requirement(
                 "O.Data_6#7",
@@ -386,7 +388,7 @@ fun ContactNumberHeader() {
     )
 }
 
-@LightDarkPreview
+@LightDarkLongPreview
 @Composable
 fun RedeemEditShippingScreenPreview(
     @PreviewParameter(RedeemEditShippingPreviewParameter::class) shippingContactPreviewData: ShippingContactPreviewData
@@ -399,11 +401,13 @@ fun RedeemEditShippingScreenPreview(
                         errorList = shippingContactPreviewData.invalidShippingContactState.errorList
                     )
                 }
+
                 shippingContactPreviewData.errorShippingContactState != null -> {
                     ShippingContactState.InvalidShippingContactState(
                         errorList = shippingContactPreviewData.errorShippingContactState.errorList
                     )
                 }
+
                 else -> ShippingContactState.ValidShippingContactState.OK
             },
             notNullContact = shippingContactPreviewData.shippingContact,

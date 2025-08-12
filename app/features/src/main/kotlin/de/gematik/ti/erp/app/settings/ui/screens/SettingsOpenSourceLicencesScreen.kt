@@ -45,7 +45,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.settings.model.LicenseEntry
 import de.gematik.ti.erp.app.settings.model.parseLicenses
@@ -86,6 +86,8 @@ fun OpenSourceLicensesScreenScaffoldContent(
         navigationMode = NavigationBarMode.Back,
         listState = listState,
         topBarTitle = stringResource(R.string.settings_legal_licences),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         onBack = onBack
     ) {
         val insetPaddings = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()

@@ -45,6 +45,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -61,16 +62,16 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.authentication.presentation.deviceHardwareBackedKeystoreStatus
 import de.gematik.ti.erp.app.authentication.presentation.deviceSecurityStatus
 import de.gematik.ti.erp.app.authentication.presentation.deviceSupportsAuthenticationMethod
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallPinScreenPreviewData
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallPinScreenPreviewParameterProvider
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -104,12 +105,12 @@ val PIN_RANGE = 6..8
 class CardWallPinScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
         val canNumber = navBackStackEntry.arguments?.getString(CardWallRoutes.CARD_WALL_NAV_CAN)
-        val profileId = navBackStackEntry.arguments?.getString(CardWallRoutes.CARD_WALL_PIN_NAV_PROFILE_ID)
+        val profileId = navBackStackEntry.arguments?.getString(CardWallRoutes.CARD_WALL_NAV_PROFILE_ID)
 
         // set the CAN and profileId in the graphController when its starting this screen from the navigation
         letNotNullOnCondition(
@@ -119,11 +120,11 @@ class CardWallPinScreen(
                 canNumber.isNotNullOrEmpty() && profileId.isNotNullOrEmpty()
             }
         ) { can, id ->
-            graphController.setCardAccessNumber(can)
-            graphController.setProfileId(id)
+            sharedViewModel.setCardAccessNumber(can)
+            sharedViewModel.setProfileId(id)
         }
 
-        val pin by graphController.pin.collectAsStateWithLifecycle()
+        val pin by sharedViewModel.pin.collectAsStateWithLifecycle()
         val lazyListState = rememberLazyListState()
         val context = LocalContext.current
         val biometricState = remember { context.deviceSecurityStatus() }
@@ -136,19 +137,18 @@ class CardWallPinScreen(
                 navController.navigate(CardWallRoutes.CardWallReadCardScreen.path())
             }
         }
-        val onBack: () -> Unit = {
-            graphController.resetPin()
+        val onBack by rememberUpdatedState {
+            sharedViewModel.resetPin()
             navController.popBackStack()
         }
-        val onExit: () -> Unit = {
-            graphController.reset()
+        val onExit by rememberUpdatedState {
             navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)
         }
         BackHandler { onBack() }
 
         CardWallScaffold(
             modifier = Modifier.testTag(TestTag.CardWall.PIN.PinScreen),
-            onBack = onBack,
+            onBack = { onBack() },
             title = stringResource(R.string.cdw_top_bar_title),
             nextEnabled = pin.length in PIN_RANGE,
             onNext = onNext,
@@ -156,7 +156,7 @@ class CardWallPinScreen(
             nextText = stringResource(R.string.unlock_egk_next),
             actions = {
                 TextButton(
-                    onClick = onExit
+                    onClick = { onExit() }
                 ) {
                     Text(stringResource(R.string.cancel))
                 }
@@ -167,7 +167,7 @@ class CardWallPinScreen(
                 innerPadding = innerPadding,
                 pin = pin,
                 onNext = onNext,
-                onPinChange = { graphController.setPersonalIdentificationNumber(it) },
+                onPinChange = { sharedViewModel.setPersonalIdentificationNumber(it) },
                 onClickNoPinReceived = {
                     navController.navigate(OrderHealthCardRoutes.OrderHealthCardSelectInsuranceCompanyScreen.path())
                 }

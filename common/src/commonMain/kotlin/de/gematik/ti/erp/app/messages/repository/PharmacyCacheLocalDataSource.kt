@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.messages.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.PharmacyCacheEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.v1.pharmacy.PharmacyCacheEntityV1
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import kotlinx.coroutines.flow.Flow

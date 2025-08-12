@@ -22,7 +22,6 @@
 
 package de.gematik.ti.erp.app.profiles.presentation
 
-import de.gematik.ti.erp.app.base.presentation.GetProfileByIdController
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
 import de.gematik.ti.erp.app.mocks.profile.api.API_MOCK_PROFILE
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository

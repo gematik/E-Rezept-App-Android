@@ -24,20 +24,24 @@ package de.gematik.ti.erp.app.analytics.tracker
 
 import com.contentsquare.android.Contentsquare
 import de.gematik.ti.erp.app.analytics.mapper.ContentSquareEventMapper
+import de.gematik.ti.erp.app.analytics.model.TrackedParameter
 import io.github.aakira.napier.Napier
 
 class ContentSquareTracker {
 
-    fun track(
-        screenName: String
-    ) {
+    internal fun track(parameter: TrackedParameter) {
+        when (parameter) {
+            is TrackedParameter.Metric -> track(parameter.value.key to parameter.value.value)
+            is TrackedParameter.Screen -> track(parameter.name)
+        }
+    }
+
+    private fun track(screenName: String) {
         Napier.i { "Contentsquare send screenName=$screenName" }
         Contentsquare.send(screenName)
     }
 
-    fun send(
-        event: Pair<ContentSquareEventMapper, String>
-    ) {
+    private fun track(event: Pair<ContentSquareEventMapper, String>) {
         Napier.i { "Contentsquare send eventName=${event.first.trackingParameter} | ${event.second}" }
         Contentsquare.send(event.first.trackingParameter, event.second)
     }

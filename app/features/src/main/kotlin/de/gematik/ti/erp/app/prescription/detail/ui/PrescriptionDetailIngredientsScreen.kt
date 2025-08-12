@@ -43,7 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.component.Label
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.fromNavigationString
@@ -80,6 +80,8 @@ class PrescriptionDetailIngredientsScreen(
         AnimatedElevationScaffold(
             scaffoldState = scaffoldState,
             listState = listState,
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             onBack = navController::popBackStack,
             topBarTitle = stringResource(R.string.synced_medication_ingredient_header),
             navigationMode = NavigationBarMode.Back,

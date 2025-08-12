@@ -32,8 +32,10 @@ import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
@@ -60,6 +62,8 @@ fun TestScaffold(
                 navigationMode = navigationMode,
                 backgroundColor = topBarColor,
                 title = topBarTitle,
+                backLabel = stringResource(R.string.back),
+                closeLabel = stringResource(R.string.cancel),
                 elevation = if (elevated) {
                     AppBarDefaults.TopAppBarElevation
                 } else {

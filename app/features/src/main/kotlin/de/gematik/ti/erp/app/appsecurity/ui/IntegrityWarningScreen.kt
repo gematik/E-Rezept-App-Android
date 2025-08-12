@@ -49,10 +49,10 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
 import de.gematik.ti.erp.app.appsecurity.presentation.rememberIntegrityWarningController
 import de.gematik.ti.erp.app.appsecurity.ui.model.AppSecurityResult
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
@@ -108,6 +108,8 @@ class IntegrityWarningScreen(
         AnimatedElevationScaffold(
             listState = listState,
             navigationMode = NavigationBarMode.Close,
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             bottomBar = {
                 BottomAppBar(backgroundColor = MaterialTheme.colors.surface) {
                     Spacer(modifier = Modifier.weight(1f))

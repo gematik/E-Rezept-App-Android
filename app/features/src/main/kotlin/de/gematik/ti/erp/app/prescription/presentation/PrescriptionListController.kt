@@ -36,15 +36,15 @@ import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.httpErrorState
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
-import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState
 import de.gematik.ti.erp.app.base.usecase.DownloadAllResourcesUseCase
 import de.gematik.ti.erp.app.consent.usecase.ShowGrantConsentDrawerUseCase
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.core.complexAutoSaver
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.mainscreen.model.MultiProfileAppBarWrapper
 import de.gematik.ti.erp.app.mainscreen.model.ProfileLifecycleState
 import de.gematik.ti.erp.app.prescription.model.PrescriptionErrorState
@@ -54,7 +54,7 @@ import de.gematik.ti.erp.app.prescription.usecase.GetArchivedDigasUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetArchivedPrescriptionsUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesSnapshotStateUseCase
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfileByIdUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetProfilesUseCase
@@ -64,7 +64,6 @@ import de.gematik.ti.erp.app.redeem.usecase.HasRedeemableTasksUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetMLKitAcceptedUseCase
 import de.gematik.ti.erp.app.settings.usecase.GetShowWelcomeDrawerUseCase
 import de.gematik.ti.erp.app.settings.usecase.SaveToolTipsShownUseCase
-import de.gematik.ti.erp.app.settings.usecase.SaveWelcomeDrawerShownUseCase
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -235,7 +234,7 @@ class PrescriptionListController(
             }
 
             Napier.i { "SSO token is invalid. Triggering authentication..." }
-            chooseAuthenticationMethod(currentProfile.id)
+            chooseAuthenticationMethod(currentProfile)
 
             // Now suspend until the profile becomes valid
             activeProfile.waitUntilValidProfile(currentProfile.id)
@@ -380,9 +379,9 @@ class PrescriptionListController(
     fun trackPrescriptionCounts() {
         controllerScope.launch {
             with(tracker) {
-                activePrescriptions.syncedCount()?.let { trackEvent(SyncedPrescriptionCount(it)) }
-                activePrescriptions.scannedCount()?.let { trackEvent(ScannedPrescriptionCount(it)) }
-                archivedPrescriptions.count()?.let { trackEvent(ArchivePrescriptionCount(it)) }
+                activePrescriptions.syncedCount()?.let { trackMetric(SyncedPrescriptionCount(it)) }
+                activePrescriptions.scannedCount()?.let { trackMetric(ScannedPrescriptionCount(it)) }
+                archivedPrescriptions.count()?.let { trackMetric(ArchivePrescriptionCount(it)) }
             }
         }
     }
@@ -417,7 +416,6 @@ fun rememberPrescriptionListController(): PrescriptionListController {
     val mlKitAcceptedUseCase by rememberInstance<GetMLKitAcceptedUseCase>()
     val getShowWelcomeDrawerUseCase by rememberInstance<GetShowWelcomeDrawerUseCase>()
     val showGrantConsentDrawerUseCase by rememberInstance<ShowGrantConsentDrawerUseCase>()
-    val saveWelcomeDrawerShownUseCase by rememberInstance<SaveWelcomeDrawerShownUseCase>()
     val saveToolTipsShownUseCase by rememberInstance<SaveToolTipsShownUseCase>()
     val getProfileByIdUseCase by rememberInstance<GetProfileByIdUseCase>()
     val getProfilesUseCase by rememberInstance<GetProfilesUseCase>()

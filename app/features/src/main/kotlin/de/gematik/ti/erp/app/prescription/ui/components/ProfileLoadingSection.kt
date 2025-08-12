@@ -30,7 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.consent.model.ConsentState
 import de.gematik.ti.erp.app.pkv.presentation.ConsentValidator
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.pulltorefresh.extensions.trigger
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
@@ -45,7 +45,7 @@ internal fun ProfileLoadingSection(
     pullToRefreshState: PullToRefreshState,
     consentState: ConsentState,
     onGetConsent: (id: ProfileIdentifier) -> Unit,
-    onChooseAuthenticationMethod: (id: ProfileIdentifier) -> Unit,
+    onChooseAuthenticationMethod: (profile: ProfilesUseCaseData.Profile) -> Unit,
     onRefresh: () -> Unit
 ) {
     UiStateMachine(
@@ -109,7 +109,7 @@ internal fun ProfileLoadingSection(
                     onNavigation = {
                         if (!ssoTokenValid) {
                             endRefresh()
-                            onChooseAuthenticationMethod(activeProfile.id)
+                            onChooseAuthenticationMethod(activeProfile)
                         }
                     }
                 )

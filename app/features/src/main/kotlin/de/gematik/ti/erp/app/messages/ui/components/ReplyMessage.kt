@@ -47,7 +47,7 @@ import androidx.compose.ui.text.Placeholder
 import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.unit.em
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.messages.mappers.ReplyMessageType
 import de.gematik.ti.erp.app.messages.ui.model.ReplyMessageUiModel
 import de.gematik.ti.erp.app.theme.AppTheme

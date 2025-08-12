@@ -44,7 +44,7 @@ import kotlinx.coroutines.CoroutineScope
  * [navBackStackEntry] is required to obtain args that we might get that is
  * required for the screens
  * Method [Content] is the one used to the host the composable and show the content
- * The internal method [de.gematik.ti.erp.app.analytics.tracker.Tracker.computeScreenTrackingProperty] is
+ * The internal method [de.gematik.ti.erp.app.analytics.tracker.Tracker.routeToScreenTrackingName] is
  * used to track the screen by used the route
  * variable that is used for accessing the Screen
  */

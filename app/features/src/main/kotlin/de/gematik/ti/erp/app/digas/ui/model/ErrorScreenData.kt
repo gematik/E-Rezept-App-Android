@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.digas.ui.model
 
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 
 sealed class ErrorScreenData(
     open val title: Int,

@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.fhir.pharmacy
 
 import de.gematik.ti.erp.app.data.fhirVzdOrganizationBundle
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInsuranceProvider
+import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.OrganizationParser
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json

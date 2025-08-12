@@ -22,10 +22,12 @@
 
 package de.gematik.ti.erp.app.fhir.parser
 
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.Year
+import de.gematik.ti.erp.app.fhir.temporal.YearMonth
+import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
 import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.toFhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime

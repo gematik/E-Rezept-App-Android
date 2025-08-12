@@ -1,4 +1,4 @@
-@file:Suppress("UnstableApiUsage")
+@file:Suppress("UnstableApiUsage", "unused")
 
 import extensions.BuildNames
 import extensions.BuildNames.versionCatalogLibrary
@@ -7,33 +7,34 @@ import extensions.Versions.JavaVersion.KOTLIN_OPTIONS_JVM_TARGET
 import extensions.Versions.JavaVersion.PROJECT_JAVA_VERSION
 import extensions.Versions.SdkVersions.COMPILE_SDK_VERSION
 import extensions.Versions.SdkVersions.MIN_SDK_VERSION
-import extensions.accompanistBundle
 import extensions.androidTestExtension
-import extensions.androidxBundle
-import extensions.animationBundle
-import extensions.cameraBundle
 import extensions.checks
-import extensions.coroutinesBundle
-import extensions.cryptoBundle
-import extensions.databaseBundle
-import extensions.datamatrixBundle
-import extensions.datetimeBundle
-import extensions.diBundle
 import extensions.excludeList
-import extensions.imageBundle
 import extensions.junitExtension
-import extensions.lifecycleBundle
-import extensions.mapsBundle
-import extensions.materialLibrary
-import extensions.napierLibrary
-import extensions.networkBundle
-import extensions.othersBundle
-import extensions.pdfboxBundle
-import extensions.playBundle
-import extensions.processPhoenixBundle
-import extensions.serializationBundle
 import extensions.testExtension
-import extensions.trackingBundle
+import generated.accompanistBundle
+import generated.androidxBundle
+import generated.animationBundle
+import generated.cameraBundle
+import generated.coroutinesBundle
+import generated.cryptoBundle
+import generated.databaseBundle
+import generated.datamatrixBundle
+import generated.datetimeBundle
+import generated.diBundle
+import generated.imageBundle
+import generated.kotlinStdlibLibrary
+import generated.lifecycleBundle
+import generated.loggingNapierLibrary
+import generated.mapsBundle
+import generated.materialLibrary
+import generated.networkBundle
+import generated.othersBundle
+import generated.pdfboxBundle
+import generated.playBundle
+import generated.processphoenixBundle
+import generated.serializationBundle
+import gradle.kotlin.dsl.accessors._df5e7e2b12759c4235c86666f0629e28.implementation
 
 plugins {
     id("com.android.library")
@@ -138,10 +139,11 @@ tasks.register<JacocoReport>("jacocoTestReport") {
 }
 
 dependencies {
+    implementation(project(":erp-model"))
     implementation(versionCatalog.pdfboxBundle) {
         exclude(group = "org.bouncycastle")
     }
-    implementation(kotlin("stdlib"))
+    implementation(versionCatalog.kotlinStdlibLibrary)
     implementation(kotlin("reflect"))
     implementation(versionCatalog.materialLibrary)
     implementation(versionCatalog.datamatrixBundle)
@@ -149,7 +151,7 @@ dependencies {
     implementation(versionCatalog.datetimeBundle)
     implementation(versionCatalog.accompanistBundle)
     implementation(versionCatalog.othersBundle)
-    debugImplementation(versionCatalog.processPhoenixBundle)
+    debugImplementation(versionCatalog.processphoenixBundle)
     implementation(versionCatalog.androidxBundle)
     implementation(versionCatalog.lifecycleBundle)
     implementation(versionCatalog.cameraBundle)
@@ -160,10 +162,9 @@ dependencies {
     implementation(versionCatalog.mapsBundle)
     implementation(versionCatalog.networkBundle)
     implementation(versionCatalog.animationBundle)
-    implementation(versionCatalog.napierLibrary)
+    implementation(versionCatalog.loggingNapierLibrary)
     implementation(versionCatalog.playBundle)
     implementation(versionCatalog.serializationBundle)
-    implementation(versionCatalog.trackingBundle)
 
     androidTestExtension(versionCatalog)
     testExtension(versionCatalog)

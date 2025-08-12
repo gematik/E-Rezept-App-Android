@@ -25,15 +25,19 @@ package de.gematik.ti.erp.app.digas.ui.component
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.Text
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import com.valentinilk.shimmer.shimmer
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
@@ -42,6 +46,7 @@ import de.gematik.ti.erp.app.shimmer.LimitedTextShimmer
 import de.gematik.ti.erp.app.shimmer.TinyTextShimmer
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -49,7 +54,8 @@ import de.gematik.ti.erp.app.utils.uistate.UiState
 @Composable
 fun HeaderSection(
     modifier: Modifier = Modifier,
-    data: UiState<DigaMainScreenUiModel>
+    uiState: UiState<DigaMainScreenUiModel>,
+    logo: @Composable ColumnScope.() -> Unit
 ) {
     Column(
         modifier = modifier
@@ -58,7 +64,7 @@ fun HeaderSection(
 
     ) {
         UiStateMachine(
-            state = data,
+            state = uiState,
             onLoading = {
                 Column(
                     modifier = Modifier
@@ -74,16 +80,20 @@ fun HeaderSection(
                 }
             },
             onEmpty = {
-                ContentHeader()
+                ContentHeader(logo = {
+                    Image(painter = painterResource(R.drawable.digas_logo_placeholder), contentDescription = null)
+                })
             },
             onError = {
-                ContentHeader()
+                ContentHeader(logo = {
+                    Image(painter = painterResource(R.drawable.digas_logo_placeholder), contentDescription = null)
+                })
             },
             onContent = { state ->
                 ContentHeader(
-                    logo = state.logoUrl,
                     name = state.name,
-                    insuredPerson = state.insuredPerson
+                    insuredPerson = state.insuredPerson,
+                    logo = logo
                 )
             }
         )
@@ -92,20 +102,18 @@ fun HeaderSection(
 
 @Composable
 private fun ContentHeader(
-    logo: String? = null,
     name: String? = null,
-    insuredPerson: String? = null
+    insuredPerson: String? = null,
+    logo: @Composable ColumnScope.() -> Unit
 ) {
     Column {
-        val contentDescriptionLogo = if (logo != null) {
-            stringResource(R.string.diga_Logo)
-        } else {
-            stringResource(R.string.diga_Logo_placeholder)
+        Column(
+            modifier = Modifier
+                .height(SizeDefaults.sevenfold)
+                .fillMaxWidth()
+        ) {
+            logo()
         }
-        Image(
-            painter = painterResource(R.drawable.digas_logo_placeholder),
-            contentDescription = contentDescriptionLogo
-        )
         SpacerSmall()
         Text(
             modifier = Modifier.semanticsHeading(),
@@ -125,7 +133,8 @@ private fun ContentHeader(
 internal fun HeaderSectionPreview() {
     PreviewTheme {
         HeaderSection(
-            data = UiState.Empty()
+            uiState = UiState.Empty(),
+            logo = { Image(painter = painterResource(R.drawable.digas_logo_placeholder), contentDescription = null) }
         )
     }
 }
@@ -135,7 +144,17 @@ internal fun HeaderSectionPreview() {
 internal fun HeaderSectionLoadingPreview() {
     PreviewTheme {
         HeaderSection(
-            data = UiState.Loading()
+            uiState = UiState.Loading(),
+            logo = {
+                Icon(
+                    modifier = Modifier
+                        .statusBarsPadding()
+                        .height(SizeDefaults.fifteenfold)
+                        .fillMaxWidth(),
+                    painter = painterResource(id = android.R.drawable.ic_menu_myplaces),
+                    contentDescription = "Video content comes here"
+                )
+            }
         )
     }
 }

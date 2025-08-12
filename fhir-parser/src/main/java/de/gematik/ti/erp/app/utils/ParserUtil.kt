@@ -22,8 +22,9 @@
 
 package de.gematik.ti.erp.app.utils
 
-import de.gematik.ti.erp.app.fhir.parser.Year
-import de.gematik.ti.erp.app.fhir.parser.YearMonth
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.Year
+import de.gematik.ti.erp.app.fhir.temporal.YearMonth
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime

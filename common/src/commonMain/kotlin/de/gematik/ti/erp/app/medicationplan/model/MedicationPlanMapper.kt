@@ -22,98 +22,172 @@
 
 package de.gematik.ti.erp.app.medicationplan.model
 
-import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationDosageEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationNotificationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleEntityV1
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleNotificationDosageEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleNotificationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleDurationEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleDurationTypeV1
+import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleIntervalEntityV1
+import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleIntervalTypeV1
+import de.gematik.ti.erp.app.fhir.temporal.toLocalDate
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.toRatio
-import de.gematik.ti.erp.app.utils.toLocalDate
+import io.realm.kotlin.ext.realmSetOf
 import io.realm.kotlin.ext.toRealmList
-import io.realm.kotlin.types.RealmList
+import io.realm.kotlin.ext.toRealmSet
 import kotlinx.datetime.Clock
-import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.atStartOfDayIn
 import kotlinx.datetime.plus
 import kotlinx.datetime.toLocalDateTime
 import java.util.UUID
-import kotlin.time.Duration.Companion.days
 
-private val MORNING_HOUR = LocalTime.parse("08:00")
-private val NOON_HOUR = LocalTime.parse("12:00")
-private val EVENING_HOUR = LocalTime.parse("18:00")
-private val NIGHT_HOUR = LocalTime.parse("20:00")
+val MORNING_HOUR = LocalTime.parse("08:00")
+val NOON_HOUR = LocalTime.parse("12:00")
+val EVENING_HOUR = LocalTime.parse("18:00")
+val NIGHT_HOUR = LocalTime.parse("20:00")
 
-fun MedicationDosageEntityV1.toMedicationDosage(): MedicationDosage = MedicationDosage(
-    form = this.form,
-    ratio = this.ratio
-)
-
-fun RealmList<MedicationNotificationEntityV1>.toNotifications(): List<MedicationNotification> =
-    this.map { notification ->
-        MedicationNotification(
-            time = LocalDateTime.parse(notification.time).time,
-            dosage = notification.dosage?.toMedicationDosage() ?: MedicationDosage("", ""),
-            id = notification.id
-        )
+// Data -> Entity
+fun MedicationSchedule.toMedicationScheduleEntityV1(): MedicationScheduleEntityV1 =
+    MedicationScheduleEntityV1().apply {
+        taskId = this@toMedicationScheduleEntityV1.taskId
+        amount = this@toMedicationScheduleEntityV1.amount?.toRatioEntity()
+        isActive = this@toMedicationScheduleEntityV1.isActive
+        profileId = this@toMedicationScheduleEntityV1.profileId
+        duration = this@toMedicationScheduleEntityV1.duration.toMedicationScheduleDurationEntityV1()
+        interval = this@toMedicationScheduleEntityV1.interval.toMedicationScheduleIntervalEntityV1()
+        title = this@toMedicationScheduleEntityV1.message.title
+        body = this@toMedicationScheduleEntityV1.message.body
+        notifications = this@toMedicationScheduleEntityV1.notifications.map { it.toMedicationScheduleNotificationEntityV1() }.toRealmList()
+    }
+fun MedicationScheduleDuration.toMedicationScheduleDurationEntityV1(): MedicationScheduleDurationEntityV1 =
+    MedicationScheduleDurationEntityV1().apply {
+        startDate = this@toMedicationScheduleDurationEntityV1.startDate.atStartOfDayIn(TimeZone.currentSystemDefault()).toRealmInstant()
+        endDate = this@toMedicationScheduleDurationEntityV1.endDate.atStartOfDayIn(TimeZone.currentSystemDefault()).toRealmInstant()
+        type = when (this@toMedicationScheduleDurationEntityV1) {
+            is MedicationScheduleDuration.Endless -> MedicationScheduleDurationTypeV1.ENDLESS
+            is MedicationScheduleDuration.EndOfPack -> MedicationScheduleDurationTypeV1.END_OF_PACK
+            is MedicationScheduleDuration.Personalized -> MedicationScheduleDurationTypeV1.PERSONALIZED
+        }
     }
 
-fun MedicationScheduleEntityV1.update(newMedicationSchedule: MedicationSchedule) {
-    this.apply {
-        this.start = newMedicationSchedule.start.toString()
-        this.end = newMedicationSchedule.end.toString()
-        this.title = newMedicationSchedule.message.title
-        this.body = newMedicationSchedule.message.body
-        this.taskId = newMedicationSchedule.taskId
-        this.notifications = newMedicationSchedule.notifications.map { notification ->
-            MedicationNotificationEntityV1().apply {
-                time = notification.time.toString()
-                dosage = MedicationDosageEntityV1().apply {
-                    this.form = notification.dosage.form
-                    this.ratio = notification.dosage.ratio
-                }
+fun MedicationScheduleInterval.toMedicationScheduleIntervalEntityV1(): MedicationScheduleIntervalEntityV1 =
+    MedicationScheduleIntervalEntityV1().apply {
+        when (this@toMedicationScheduleIntervalEntityV1) {
+            is MedicationScheduleInterval.Daily -> {
+                this.type = MedicationScheduleIntervalTypeV1.DAILY
+                this.selectedDaysStrings = realmSetOf()
             }
-        }.toRealmList()
+            is MedicationScheduleInterval.EveryTwoDays -> {
+                this.type = MedicationScheduleIntervalTypeV1.EVERY_TWO_DAYS
+                this.selectedDaysStrings = realmSetOf()
+            }
+            is MedicationScheduleInterval.Personalized -> {
+                this.type = MedicationScheduleIntervalTypeV1.PERSONALIZED
+                this.selectedDaysStrings = this@toMedicationScheduleIntervalEntityV1.selectedDays.map { it.value }.toRealmSet()
+            }
+        }
     }
-}
 
+fun MedicationScheduleNotification.toMedicationScheduleNotificationEntityV1(): MedicationScheduleNotificationEntityV1 =
+    MedicationScheduleNotificationEntityV1().apply {
+        id = this@toMedicationScheduleNotificationEntityV1.id
+        time = this@toMedicationScheduleNotificationEntityV1.time.toString()
+        dosage = this@toMedicationScheduleNotificationEntityV1.dosage.toMedicationScheduleNotificationDosageEntityV1()
+    }
+
+fun MedicationScheduleNotificationDosage.toMedicationScheduleNotificationDosageEntityV1(): MedicationScheduleNotificationDosageEntityV1 =
+    MedicationScheduleNotificationDosageEntityV1().apply {
+        this.form = this@toMedicationScheduleNotificationDosageEntityV1.form
+        this.ratio = this@toMedicationScheduleNotificationDosageEntityV1.ratio
+    }
+
+// Entity -> Data
 fun MedicationScheduleEntityV1.toMedicationSchedule() =
     MedicationSchedule(
-        start = LocalDate.parse(this.start),
-        end = LocalDate.parse(this.end),
         isActive = this.isActive,
+        profileId = this.profileId,
+        taskId = this.taskId,
+        amount = this.amount.toRatio() ?: Ratio(Quantity("", ""), Quantity("", "")),
+        interval = this.interval?.toMedicationScheduleInterval() ?: MedicationScheduleInterval.Daily,
+        duration = this.duration?.toMedicationScheduleDuration() ?: MedicationScheduleDuration.Endless(),
         message = MedicationNotificationMessage(
             title = this.title,
             body = this.body
         ),
-        taskId = this.taskId,
-        profileId = this.profileId,
-        amount = this.amount.toRatio() ?: Ratio(Quantity("", ""), Quantity("", "")),
-        notifications = this.notifications.toNotifications()
+        notifications = this.notifications.map { it.toMedicationScheduleNotification() }.sortedBy { it.time }
     )
 
+fun MedicationScheduleDurationEntityV1.toMedicationScheduleDuration(): MedicationScheduleDuration {
+    val parsedStartDate = this.startDate.toInstant().toLocalDate()
+    val parsedEndDate = this.endDate.toInstant().toLocalDate()
+    return when (this.type) {
+        MedicationScheduleDurationTypeV1.ENDLESS -> MedicationScheduleDuration.Endless(
+            startDate = parsedStartDate,
+            endDate = parsedEndDate
+        )
+        MedicationScheduleDurationTypeV1.END_OF_PACK -> MedicationScheduleDuration.EndOfPack(
+            startDate = parsedStartDate,
+            endDate = parsedEndDate
+        )
+        MedicationScheduleDurationTypeV1.PERSONALIZED -> MedicationScheduleDuration.Personalized(
+            startDate = parsedStartDate,
+            endDate = parsedEndDate
+        )
+    }
+}
+
+fun MedicationScheduleIntervalEntityV1.toMedicationScheduleInterval(): MedicationScheduleInterval {
+    return when (this.type) {
+        MedicationScheduleIntervalTypeV1.DAILY -> MedicationScheduleInterval.Daily
+        MedicationScheduleIntervalTypeV1.EVERY_TWO_DAYS -> MedicationScheduleInterval.EveryTwoDays
+        MedicationScheduleIntervalTypeV1.PERSONALIZED -> MedicationScheduleInterval.Personalized(
+            selectedDays = this.selectedDaysStrings.map { DayOfWeek(it) }.toSet()
+        )
+    }
+}
+
+fun MedicationScheduleNotificationEntityV1.toMedicationScheduleNotification(): MedicationScheduleNotification =
+    MedicationScheduleNotification(
+        time = LocalTime.parse(this.time),
+        dosage = this.dosage?.toMedicationScheduleNotificationDosage() ?: MedicationScheduleNotificationDosage("", ""),
+        id = this.id
+    )
+
+fun MedicationScheduleNotificationDosageEntityV1.toMedicationScheduleNotificationDosage(): MedicationScheduleNotificationDosage =
+    MedicationScheduleNotificationDosage(
+        form = this.form,
+        ratio = this.ratio
+    )
+
+// Prescription -> MedicationSchedule
+// initialise every new MedicationSchedule as inactive, endless and daily MedicationSchedule
 fun PrescriptionData.Prescription.toMedicationSchedule(
     now: Instant = Clock.System.now()
 ): MedicationSchedule {
     when (this) {
         is PrescriptionData.Scanned -> {
             return MedicationSchedule(
-                start = now.toLocalDateTime(TimeZone.currentSystemDefault()).date,
-                end = now.toLocalDateTime(TimeZone.currentSystemDefault()).date.plus(DatePeriod(days = 10)),
                 isActive = false,
+                profileId = this.profileId,
+                taskId = this.taskId,
+                amount = null,
+                duration = MedicationScheduleDuration.Endless(
+                    startDate = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                ),
+                interval = MedicationScheduleInterval.Daily,
                 message = MedicationNotificationMessage(
                     title = this.name,
                     body = ""
                 ),
-                taskId = this.taskId,
-                profileId = this.profileId,
-                amount = null,
                 notifications = emptyList()
             )
         }
@@ -123,69 +197,24 @@ fun PrescriptionData.Prescription.toMedicationSchedule(
             val amount = getAmount(this.medicationRequest)
 
             return MedicationSchedule(
-                start = now.toLocalDate(),
-                end = getCalculatedEndDate(
-                    start = now,
-                    amount = amount,
-                    dosageInstruction = dosageInstruction,
-                    form = medicationRequest.medication?.form ?: ""
-                ),
                 isActive = false,
+                profileId = this.profileId,
+                taskId = this.taskId,
+                amount = amount,
+                duration = MedicationScheduleDuration.Endless(
+                    startDate = now.toLocalDateTime(TimeZone.currentSystemDefault()).date
+                ),
+                interval = MedicationScheduleInterval.Daily,
                 message = MedicationNotificationMessage(
                     title = this.medicationRequest.medication?.name() ?: "",
                     body = ""
                 ),
-                amount = amount,
-                taskId = this.taskId,
-                profileId = this.profileId,
                 notifications = mapDosageInstructionToNotifications(
                     dosageInstruction,
                     medicationRequest.medication?.form
                 )
             )
         }
-    }
-}
-
-fun getCalculatedEndDate(
-    start: Instant = Clock.System.now(),
-    amount: Ratio,
-    dosageInstruction: MedicationPlanDosageInstruction,
-    form: String
-): LocalDate {
-    return if (pieceableForm.contains(form)) {
-        when (dosageInstruction) {
-            // 1-0-1
-            is MedicationPlanDosageInstruction.Structured -> {
-                val currentTime = start.toLocalDateTime(TimeZone.currentSystemDefault()).time
-
-                val amountToConsumePerDay = dosageInstruction.interpretation.entries.map {
-                    it.value.toFloatOrNull() ?: 1f
-                }.sum()
-
-                val amountToConsumeToDay = dosageInstruction.interpretation.map { (dayTime, amount) ->
-                    val hour = when (dayTime) {
-                        MedicationPlanDosageInstruction.DayTime.MORNING -> MORNING_HOUR
-                        MedicationPlanDosageInstruction.DayTime.NOON -> NOON_HOUR
-                        MedicationPlanDosageInstruction.DayTime.EVENING -> EVENING_HOUR
-                        MedicationPlanDosageInstruction.DayTime.NIGHT -> NIGHT_HOUR
-                    }
-                    if (currentTime <= hour) {
-                        amount.toFloatOrNull() ?: 0f
-                    } else {
-                        0f
-                    }
-                }.sum()
-
-                val amountInPackage = amount?.numerator?.value?.toInt() ?: 1
-
-                val daysLeft = (amountInPackage / amountToConsumePerDay).takeIf { amountToConsumePerDay != 0f } ?: 0
-                val adjustedDaysLeft = daysLeft.toLong() - if (amountToConsumeToDay == amountToConsumePerDay) 1 else 0
-                start.plus(adjustedDaysLeft.days).toLocalDate()
-            } else -> start.toLocalDate()
-        }
-    } else {
-        start.toLocalDate()
     }
 }
 
@@ -221,18 +250,18 @@ fun multiplyMedicationAmount(value: Ratio?, multiplier: Int): Ratio? {
 fun mapDosageInstructionToNotifications(
     dosageInstruction: MedicationPlanDosageInstruction,
     form: String?
-): List<MedicationNotification> {
+): List<MedicationScheduleNotification> {
     return when (dosageInstruction) {
         is MedicationPlanDosageInstruction.Structured -> {
             dosageInstruction.interpretation.map { (dayTime, dosage) ->
-                MedicationNotification(
+                MedicationScheduleNotification(
                     time = when (dayTime) {
                         MedicationPlanDosageInstruction.DayTime.MORNING -> MORNING_HOUR
                         MedicationPlanDosageInstruction.DayTime.NOON -> NOON_HOUR
                         MedicationPlanDosageInstruction.DayTime.EVENING -> EVENING_HOUR
                         MedicationPlanDosageInstruction.DayTime.NIGHT -> NIGHT_HOUR
                     },
-                    dosage = MedicationDosage(
+                    dosage = MedicationScheduleNotificationDosage(
                         form = form ?: "",
                         ratio = dosage
                     ),

@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.settings.ui.components
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Medication
+import androidx.compose.material.icons.outlined.Alarm
 import androidx.compose.material.icons.outlined.Security
 import androidx.compose.material.icons.outlined.Timeline
 import androidx.compose.material.icons.rounded.Camera
@@ -35,7 +35,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.semantics.semanticsHeading
 import de.gematik.ti.erp.app.settings.model.PersonalSettingsClickActions
 import de.gematik.ti.erp.app.settings.presentation.SettingStatesData
@@ -49,7 +49,7 @@ import de.gematik.ti.erp.app.utils.extensions.sectionPadding
 fun PersonalSettingsSection(
     zoomState: State<SettingStatesData.ZoomState>,
     screenShotState: State<Boolean>,
-    isMedicationPlanEnabled: Boolean,
+    isDemoMode: Boolean,
     personalSettingsClickActions: PersonalSettingsClickActions
 ) {
     Column {
@@ -58,9 +58,9 @@ fun PersonalSettingsSection(
             style = AppTheme.typography.h6,
             modifier = Modifier.sectionPadding().semanticsHeading()
         )
-        if (isMedicationPlanEnabled) {
+        if (!isDemoMode) {
             LabelButton(
-                Icons.Outlined.Medication,
+                Icons.Outlined.Alarm,
                 stringResource(R.string.medication_plan_settings_title)
             ) {
                 personalSettingsClickActions.onClickMedicationPlan()

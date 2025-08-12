@@ -26,7 +26,7 @@ import de.gematik.ti.erp.app.diga.repository.DigaRepository
 import de.gematik.ti.erp.app.prescription.mapper.toPrescription
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

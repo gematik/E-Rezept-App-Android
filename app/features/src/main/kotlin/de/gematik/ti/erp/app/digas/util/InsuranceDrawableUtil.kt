@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.digas.util
 
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 
 object InsuranceDrawableUtil {

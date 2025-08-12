@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.api
 
 import de.gematik.ti.erp.app.CoroutineTestRule
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.Instant

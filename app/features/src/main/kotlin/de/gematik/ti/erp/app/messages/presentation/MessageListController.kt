@@ -30,8 +30,8 @@ import androidx.compose.ui.platform.LocalContext
 import de.gematik.ti.erp.app.analytics.model.TrackedEvent
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.animated.AnimationTime
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.Controller
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.domain.usecase.GetInternalMessagesUseCase
 import de.gematik.ti.erp.app.messages.domain.usecase.GetMessagesUseCase
@@ -82,8 +82,7 @@ class MessageListController(
         controllerScope.launch {
             _messagesList.value = UiState.Loading()
             try {
-                getInternalMessagesUseCase.invoke(selectedAppLanguage).collect {
-                        internalMessages ->
+                getInternalMessagesUseCase.invoke(selectedAppLanguage).collect { internalMessages ->
                     val externalMessages = getMessagesUseCase.invoke().map {
                         InAppMessage(
                             id = it.orderId,
@@ -105,7 +104,12 @@ class MessageListController(
                     }
                     val combinedMessages = buildList {
                         addAll(externalMessages)
-                        add(internalMessages.first())
+                        if (internalMessages.isNotEmpty()) {
+                            val representativeMessage = internalMessages.first()
+                            val hasAnyUnreadInternalMessage = internalMessages.any { it.isUnread }
+
+                            add(representativeMessage.copy(isUnread = hasAnyUnreadInternalMessage))
+                        }
                     }.sortedByDescending { it.timeState.timestamp }
                     if (combinedMessages.isEmpty()) {
                         _messagesList.value = UiState.Empty()
@@ -157,7 +161,7 @@ class MessageListController(
         controllerScope.launch {
             messagesList.first { it.isDataState }.data?.let { messages ->
                 val messageCount = messages.size
-                tracker.trackEvent(TrackedEvent.MessageCount(messageCount))
+                tracker.trackMetric(TrackedEvent.MessageCount(messageCount))
             }
         }
     }

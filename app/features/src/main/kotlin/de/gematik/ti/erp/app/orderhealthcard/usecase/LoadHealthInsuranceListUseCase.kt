@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.orderhealthcard.usecase
 
 import android.content.Context
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.orderhealthcard.presentation.HealthInsuranceCompany
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

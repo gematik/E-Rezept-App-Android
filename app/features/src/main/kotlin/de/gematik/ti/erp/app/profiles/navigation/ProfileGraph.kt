@@ -30,6 +30,7 @@ import de.gematik.ti.erp.app.navigation.renderComposable
 import de.gematik.ti.erp.app.navigation.slideInDown
 import de.gematik.ti.erp.app.navigation.slideOutUp
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileAuditEventsScreen
+import de.gematik.ti.erp.app.profiles.ui.screens.ProfileChangeInsuranceTypeBottomSheetScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileEditNameBottomSheetScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileEditPictureBottomSheetScreen
 import de.gematik.ti.erp.app.profiles.ui.screens.ProfileEditPictureScreen
@@ -136,6 +137,15 @@ fun NavGraphBuilder.profileGraph(
             arguments = ProfileRoutes.ProfilePairedDevicesScreen.arguments
         ) { navEntry ->
             ProfilePairedDevicesScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
+            )
+        }
+        renderBottomSheet(
+            route = ProfileRoutes.ProfileChangeInsuranceTypeBottomSheetScreen.route,
+            arguments = ProfileRoutes.ProfileChangeInsuranceTypeBottomSheetScreen.arguments
+        ) { navEntry ->
+            ProfileChangeInsuranceTypeBottomSheetScreen(
                 navController = navController,
                 navBackStackEntry = navEntry
             )

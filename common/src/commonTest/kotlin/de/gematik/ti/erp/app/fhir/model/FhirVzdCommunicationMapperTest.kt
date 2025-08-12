@@ -27,7 +27,7 @@ package de.gematik.ti.erp.app.fhir.model
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.containedString
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.serialization.json.Json
 import java.io.File

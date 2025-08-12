@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.prescription.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.ui.model.ArchiveSegmentedControllerTap
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription

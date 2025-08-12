@@ -50,6 +50,7 @@ import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -70,14 +71,13 @@ import androidx.navigation.NavController
 import de.gematik.ti.erp.app.MainActivity
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.authentication.model.GidNavigationData.Companion.isPkv
 import de.gematik.ti.erp.app.base.fold
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
 import de.gematik.ti.erp.app.base.requireNonNull
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.processGidEventData
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.presentation.rememberCardWallController
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
 import de.gematik.ti.erp.app.cardwall.ui.components.EnableNfcDialog
@@ -86,10 +86,10 @@ import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallIntroScreenContentPrevi
 import de.gematik.ti.erp.app.cardwall.ui.preview.CardWallIntroScreenPreviewData
 import de.gematik.ti.erp.app.core.LocalActivity
 import de.gematik.ti.erp.app.core.LocalIntentHandler
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.demomode.DemoModeIntent
 import de.gematik.ti.erp.app.demomode.startAppWithDemoMode
-import de.gematik.ti.erp.app.app_core.R
-import de.gematik.ti.erp.app.gid.ui.components.DomainsNotVerifiedDialog
+import de.gematik.ti.erp.app.cardwall.ui.components.DomainsNotVerifiedDialog
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.semantics.semanticsButton
 import de.gematik.ti.erp.app.semantics.semanticsHeading
@@ -108,6 +108,7 @@ import de.gematik.ti.erp.app.utils.compose.ClickableText
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent.Companion.trigger
 import de.gematik.ti.erp.app.utils.compose.ErezeptAlertDialog
+import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.HintTextActionButton
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.LoadingDialog
@@ -122,7 +123,7 @@ import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 class CardWallIntroScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
@@ -131,13 +132,16 @@ class CardWallIntroScreen(
                 CardWallRoutes.CARD_WALL_NAV_PROFILE_ID
             )
         ).fold(
+            onFailure = {
+                ErrorScreenComponent()
+            },
             onSuccess = { profileId ->
                 // this information is available on the screen only when the process wants gid authentication
                 val gidEventData = navBackStackEntry.processGidEventData()
 
                 var loadingDialog: Dialog? = remember { null }
 
-                graphController.setProfileId(profileId)
+                sharedViewModel.setProfileId(profileId)
 
                 val lazyListState = rememberLazyListState()
                 val cardWallController = rememberCardWallController()
@@ -152,8 +156,9 @@ class CardWallIntroScreen(
 
                 val isDomainVerified = cardWallController.isDomainVerified
                 val isNfcAvailable by cardWallController.isNFCAvailable
+                val onBack by rememberUpdatedState { navController.popBackStack() }
 
-                with(graphController) {
+                with(sharedViewModel) {
                     authorizationWithExternalAppInBackgroundEvent.listen { isStarted ->
                         if (isStarted) {
                             dialog.show {
@@ -164,14 +169,11 @@ class CardWallIntroScreen(
                             loadingDialog?.dismiss()
                         }
                     }
-                    redirectUriEvent.listen { (redirectUri, gidEventData) ->
+                    redirectUriEvent.listen { (redirectUri) ->
                         intentHandler.tryStartingExternalHealthInsuranceAuthenticationApp(
                             redirect = redirectUri,
                             onSuccess = {
-                                if (gidEventData.isPkv()) {
-                                    graphController.switchToPKV(profileId)
-                                }
-                                navController.popBackStack()
+                                onBack()
                             },
                             onFailure = {
                                 dialog.show {
@@ -225,9 +227,7 @@ class CardWallIntroScreen(
                     }
                 }
 
-                BackHandler {
-                    navController.popBackStack()
-                }
+                BackHandler { onBack() }
                 CardWallScaffold(
                     modifier = Modifier
                         .testTag(TestTag.CardWall.Intro.IntroScreen)
@@ -240,14 +240,13 @@ class CardWallIntroScreen(
                     actions = {
                         TextButton(
                             onClick = {
-                                graphController.reset()
                                 navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)
                             }
                         ) {
                             Text(stringResource(R.string.cancel))
                         }
                     },
-                    onBack = { navController.popBackStack() }
+                    onBack = { onBack() }
                 ) {
                     CardWallIntroScreenContent(
                         isNfcAvailable = isNfcAvailable,
@@ -264,8 +263,8 @@ class CardWallIntroScreen(
                         onClickHealthCardAuth = { navController.navigate(CardWallRoutes.CardWallCanScreen.path()) },
                         onClickInsuranceAuth = {
                             gidEventData?.let {
-                                graphController.startAuthorizationWithExternal(gidEventData)
-                            } ?: navController.navigate(CardWallRoutes.CardWallGidListScreen.path())
+                                sharedViewModel.startAuthorizationWithExternal(gidEventData)
+                            } ?: navController.navigate(CardWallRoutes.CardWallGidListScreen.path(profileId))
                         },
                         showVerifyDomainDialog = { domainsAreNotVerifiedEvent.trigger() },
                         onClickDemoMode = {

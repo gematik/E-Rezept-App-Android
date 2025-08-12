@@ -22,14 +22,12 @@
 
 package de.gematik.ti.erp.app.vau.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.TruststoreEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.writeOrCopyToRealm
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.writeOrCopyToRealm
+import de.gematik.ti.erp.app.database.realm.v1.TruststoreEntityV1
 import de.gematik.ti.erp.app.vau.api.model.UntrustedCertList
 import de.gematik.ti.erp.app.vau.api.model.UntrustedOCSPList
 import io.realm.kotlin.Realm
-import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class VauLocalDataSource(

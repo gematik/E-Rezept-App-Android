@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.prescription.model
 
-import de.gematik.ti.erp.app.db.entities.v1.task.QuantityEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.RatioEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.QuantityEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
 import kotlinx.serialization.Serializable
 
 @Serializable

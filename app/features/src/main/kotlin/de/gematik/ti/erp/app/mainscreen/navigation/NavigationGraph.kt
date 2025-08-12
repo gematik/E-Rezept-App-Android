@@ -25,7 +25,6 @@ package de.gematik.ti.erp.app.mainscreen.navigation
 import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -33,7 +32,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.composable
 import com.google.accompanist.navigation.material.ExperimentalMaterialNavigationApi
 import de.gematik.ti.erp.app.analytics.navigation.trackingGraph
-import de.gematik.ti.erp.app.app.ApplicationInnerPadding
 import de.gematik.ti.erp.app.appsecurity.navigation.AppSecurityRoutes
 import de.gematik.ti.erp.app.appsecurity.navigation.appSecurityGraph
 import de.gematik.ti.erp.app.base.BaseActivity
@@ -56,14 +54,14 @@ import de.gematik.ti.erp.app.navigation.navigateAndClearStack
 import de.gematik.ti.erp.app.onboarding.navigation.OnboardingRoutes
 import de.gematik.ti.erp.app.onboarding.navigation.onboardingGraph
 import de.gematik.ti.erp.app.orderhealthcard.navigation.orderHealthCardGraph
-import de.gematik.ti.erp.app.pharmacy.navigation.pharmacyGraph
+import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.pkv.navigation.pkvGraph
 import de.gematik.ti.erp.app.prescription.detail.navigation.prescriptionDetailGraph
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.prescription.navigation.prescriptionGraph
 import de.gematik.ti.erp.app.profiles.navigation.profileGraph
-import de.gematik.ti.erp.app.redeem.navigation.redeemGraph
 import de.gematik.ti.erp.app.settings.navigation.settingsGraph
+import de.gematik.ti.erp.app.shared.navigation.redeemAndPharmacySharedGraph
 import de.gematik.ti.erp.app.translation.navigation.translationGraph
 import de.gematik.ti.erp.app.troubleshooting.navigation.troubleShootingGraph
 import de.gematik.ti.erp.app.ui.DebugScreenWrapper
@@ -102,23 +100,16 @@ fun NavigationGraph(
     val mainScreenController = rememberAppController()
 
     val onboardingSucceeded = mainScreenController.onboardingSucceeded
-    val showMedicationSuccess by currentActivity.shouldShowMedicationSuccess.collectAsStateWithLifecycle()
+    val showMedicationSuccess by currentActivity.pendingNavigationToMedicationNotificationScreen.collectAsStateWithLifecycle()
 
-    val startDestinationScreen = shouldOnboardingBeDone(onboardingSucceeded, showMedicationSuccess)
+    val startDestinationScreen = calculateStartDestination(onboardingSucceeded, showMedicationSuccess)
 
-    val currentBackStack by navHostController.currentBackStack.collectAsStateWithLifecycle()
-
-    DisposableEffect(showMedicationSuccess, authRequired) {
-        if (showMedicationSuccess && currentBackStack.isNotEmpty()) {
-            navHostController.navigate(MedicationPlanRoutes.MedicationPlanNotificationSuccess.path())
-        }
-        onDispose {
-            currentActivity.medicationSuccessHasBeenShown()
-        }
-    }
-    LaunchedEffect(authRequired) {
-        if (authentication is AuthenticationModeAndMethod.AuthenticationRequired && !isDemoMode) {
+    LaunchedEffect(authRequired, showMedicationSuccess) {
+        if (authRequired) {
             navHostController.navigate(UserAuthenticationRoutes.UserAuthenticationScreen.path())
+        }
+        if (isAuthenticated && showMedicationSuccess) {
+            navHostController.navigate(MedicationPlanRoutes.MedicationPlanNotificationScreen.path())
         }
     }
 
@@ -145,7 +136,7 @@ fun NavigationGraph(
         prescriptionDetailGraph(navController = navHostController)
         messagesGraph(navController = navHostController)
         profileGraph(navController = navHostController)
-        pharmacyGraph(
+        redeemAndPharmacySharedGraph(
             dependencyInjector = dependencyInjector,
             navController = navHostController
         )
@@ -162,16 +153,8 @@ fun NavigationGraph(
             navController = navHostController
         )
         medicationPlanGraph(navController = navHostController)
-        cardWallGraph(
-            dependencyInjector = dependencyInjector,
-            navController = navHostController
-        )
-        redeemGraph(
-            dependencyInjector = dependencyInjector,
-            navController = navHostController
-        )
+        cardWallGraph(navController = navHostController)
         digasGraph(
-            dependencyInjector = dependencyInjector,
             navController = navHostController
         )
         userAuthenticationGraph(navController = navHostController)
@@ -197,11 +180,11 @@ private fun ObserveDigaFeedbackNavigation(
     }
 }
 
-private fun shouldOnboardingBeDone(onboardingSucceeded: Boolean, showMedicationSuccess: Boolean): String =
+private fun calculateStartDestination(onboardingSucceeded: Boolean, showMedicationSuccess: Boolean): String =
     when (onboardingSucceeded) {
         true -> {
             if (showMedicationSuccess) {
-                MedicationPlanRoutes.MedicationPlanNotificationSuccess.path()
+                MedicationPlanRoutes.MedicationPlanNotificationScreen.path()
             } else {
                 PrescriptionRoutes.PrescriptionListScreen.path()
             }

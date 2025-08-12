@@ -35,6 +35,8 @@ import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -42,7 +44,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.AnnotatedString
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -55,7 +57,10 @@ fun Label(
     text: String?,
     label: String? = null,
     onClick: (() -> Unit)? = null,
-    setHorizontalPadding: Boolean = true
+    setHorizontalPadding: Boolean = true,
+    imageVector: ImageVector = Icons.AutoMirrored.Rounded.KeyboardArrowRight,
+    iconTint: Color = AppTheme.colors.neutral400,
+    iconContentDescription: String? = null
 ) {
     val haptic = LocalHapticFeedback.current
     val clipboardManager = LocalClipboardManager.current
@@ -104,7 +109,7 @@ fun Label(
         }
         if (onClick != null) {
             SpacerMedium()
-            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = AppTheme.colors.neutral400)
+            Icon(imageVector, iconContentDescription, tint = iconTint)
         }
     }
 }

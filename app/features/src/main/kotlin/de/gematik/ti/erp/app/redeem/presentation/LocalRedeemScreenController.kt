@@ -25,9 +25,9 @@ package de.gematik.ti.erp.app.redeem.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import de.gematik.ti.erp.app.base.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.redeem.model.DMCode
 import de.gematik.ti.erp.app.redeem.usecase.GetDMCodesForLocalRedeemUseCase
@@ -55,8 +55,7 @@ class LocalRedeemScreenController(
     private val _dmCodes: MutableStateFlow<UiState<List<DMCode>>> = MutableStateFlow(UiState.Loading())
 ) : GetActiveProfileController(
     getActiveProfileUseCase = getActiveProfileUseCase,
-    onSuccess = {
-            profile, coroutineScope ->
+    onSuccess = { profile, coroutineScope ->
         coroutineScope.launch {
             runCatching {
                 getRedeemableTasksForDmCodesUseCase(profile.id)

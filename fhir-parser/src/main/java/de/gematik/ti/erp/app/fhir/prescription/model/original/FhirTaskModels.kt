@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.fhir.prescription.model.original
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirInstantSerializer
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirTaskExtensionArraySerializer
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate

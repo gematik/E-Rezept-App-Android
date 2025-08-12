@@ -23,17 +23,20 @@
 package de.gematik.ti.erp.app.profiles.ui.components
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AddAPhoto
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,13 +49,11 @@ import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.text.style.TextAlign
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.semantics.semanticsMergeDescendants
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerLarge
-import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.extensions.circularBorder
 
@@ -63,27 +64,25 @@ fun ProfileAvatarSection(
 ) {
     val selectedColor = profileColor(profileColorNames = profile.color)
     val contentDesription = stringResource(R.string.edit_profile_picture)
-    SpacerLarge()
     Column(
         modifier =
         Modifier
             .fillMaxSize()
-            .padding(PaddingDefaults.Medium)
             .semanticsMergeDescendants { }
             .clearAndSetSemantics {
                 heading()
                 role = Role.Button
                 contentDescription = contentDesription
-            }
+            }.padding(horizontal = PaddingDefaults.Medium),
+        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
     ) {
-        SpacerTiny()
         Surface(
             modifier =
             Modifier
                 .size(SizeDefaults.eighteenfold)
                 .align(Alignment.CenterHorizontally),
             shape = CircleShape,
-            color = selectedColor.backGroundColor
+            color = selectedColor.backgroundColor
         ) {
             Box(
                 modifier =
@@ -104,7 +103,7 @@ fun ProfileAvatarSection(
                 )
             }
         }
-        SpacerSmall()
+
         TextButton(
             modifier =
             Modifier
@@ -112,6 +111,8 @@ fun ProfileAvatarSection(
                 .testTag(TestTag.Profile.EditProfileImageButton),
             onClick = onClickEditAvatar
         ) {
+            Icon(Icons.Rounded.Edit, null)
+            SpacerTiny()
             Text(text = stringResource(R.string.edit_profile_avatar), textAlign = TextAlign.Center)
         }
     }

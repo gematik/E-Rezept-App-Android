@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInsuranceProvider
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.model.extractBinaryCertificatesAsBase64
 import de.gematik.ti.erp.app.fhir.model.extractPharmacyServices
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers

@@ -22,6 +22,9 @@
 
 package de.gematik.ti.erp.app.db
 
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toLocalDateTime
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
 import io.realm.kotlin.types.RealmInstant
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime

@@ -3,9 +3,9 @@
 import com.android.build.gradle.BaseExtension
 import extensions.BuildNames.implementation
 import extensions.BuildNames.versionCatalogLibrary
-import extensions.composeBomLibrary
-import extensions.composeLibsWithBomBundle
-import extensions.composeLibsWithoutBomBundle
+import generated.androidxComposeBomLibrary
+import generated.composeLibsWithBomBundle
+import generated.composeLibsWithoutBomBundle
 
 plugins {
     id("com.android.base")
@@ -19,7 +19,7 @@ val versionCatalog: VersionCatalog = extensions.getByType<VersionCatalogsExtensi
     .named(versionCatalogLibrary)
 
 dependencies {
-    implementation(platform(versionCatalog.composeBomLibrary))
+    implementation(platform(versionCatalog.androidxComposeBomLibrary))
     implementation(versionCatalog.composeLibsWithBomBundle)
     implementation(versionCatalog.composeLibsWithoutBomBundle)
 }

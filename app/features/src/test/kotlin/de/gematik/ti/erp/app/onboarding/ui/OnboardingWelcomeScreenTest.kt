@@ -31,7 +31,7 @@ class OnboardingWelcomeScreenTest(config: ScreenshotConfig) : BaseScreenshotTest
     @Test
     fun screenShotTest() {
         paparazzi.snapshot {
-            OnboardingWelcomeScreenContentPreview()
+            OnboardingWelcomeScreenContentPreviews()
         }
     }
 }

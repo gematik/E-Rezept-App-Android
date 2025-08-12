@@ -63,7 +63,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.em
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData.Profile.Companion.containsProfileWithName
@@ -104,7 +104,7 @@ fun ProfileNameSection(
 
     Column {
         Row(
-            modifier = Modifier.padding(PaddingDefaults.Medium)
+            modifier = Modifier.padding(horizontal = PaddingDefaults.Medium)
         ) {
             if (!textFieldEnabled) {
                 val txt =
@@ -123,7 +123,7 @@ fun ProfileNameSection(
                                     placeholderVerticalAlign = PlaceholderVerticalAlign.TextCenter
                                 )
                             ) {
-                                Icon(Icons.Outlined.Edit, null, tint = AppTheme.colors.neutral400)
+                                Icon(Icons.Outlined.Edit, null, tint = AppTheme.colors.primary700)
                             }
                     )
                 DynamicText(

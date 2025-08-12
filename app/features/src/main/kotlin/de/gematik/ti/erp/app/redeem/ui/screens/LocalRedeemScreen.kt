@@ -62,8 +62,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.core.LocalActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.redeem.model.DMCode
@@ -168,6 +168,8 @@ private fun LocalRedeemScreenScaffold(
         listState = listState,
         navigationMode = NavigationBarMode.Back,
         topBarTitle = "",
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         onBack = onBack,
         actions = {
             TextButton(

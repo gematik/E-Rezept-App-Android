@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.invoice.model
 
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.utils.FhirTemporal
 import de.gematik.ti.erp.app.utils.createDMPayload
 import kotlinx.datetime.Instant
 

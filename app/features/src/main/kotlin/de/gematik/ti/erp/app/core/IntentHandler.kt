@@ -35,7 +35,7 @@ import de.gematik.ti.erp.app.demomode.DemoModeIntentAction
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeEnded
 import de.gematik.ti.erp.app.demomode.DemoModeIntentAction.DemoModeStarted
 import de.gematik.ti.erp.app.idp.api.models.UniversalLinkToken.Companion.toUniversalLinkToken
-import de.gematik.ti.erp.app.medicationplan.worker.REMINDER_NOTIFICATION_INTENT_ACTION
+import de.gematik.ti.erp.app.medicationplan.alarm.REMINDER_NOTIFICATION_INTENT_ACTION
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -80,7 +80,7 @@ class IntentHandler(private val context: Context) {
         } else {
             (context as BaseActivity).cancelDemoMode()
             if (intent.action == REMINDER_NOTIFICATION_INTENT_ACTION) {
-                (context).shouldShowMedicationSuccess()
+                (context).setPendingNavigationToMedicationNotificationScreen()
             }
         }
 

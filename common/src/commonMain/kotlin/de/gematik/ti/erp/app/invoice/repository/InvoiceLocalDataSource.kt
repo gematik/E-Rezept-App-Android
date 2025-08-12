@@ -22,30 +22,30 @@
 
 package de.gematik.ti.erp.app.invoice.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.ChargeableItemV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.DescriptionTypeV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.InvoiceEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.PKVInvoiceEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.invoice.PriceComponentV1
-import de.gematik.ti.erp.app.db.entities.v1.task.AccidentTypeV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CoverageTypeV1
-import de.gematik.ti.erp.app.db.entities.v1.task.IngredientEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.InsuranceInformationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MedicationCategoryV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MedicationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MedicationRequestEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.MultiplePrescriptionInfoEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.OrganizationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.PatientEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.PractitionerEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.QuantityEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.RatioEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.db.toRealmInstant
-import de.gematik.ti.erp.app.db.tryWrite
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.tryWrite
+import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.invoice.ChargeableItemV1
+import de.gematik.ti.erp.app.database.realm.v1.invoice.DescriptionTypeV1
+import de.gematik.ti.erp.app.database.realm.v1.invoice.InvoiceEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.invoice.PKVInvoiceEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.invoice.PriceComponentV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.AccidentTypeV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CoverageTypeV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.IngredientEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.InsuranceInformationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.MedicationCategoryV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.MedicationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.MedicationRequestEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.MultiplePrescriptionInfoEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.OrganizationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.PatientEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.PractitionerEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.QuantityEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.RatioEntityV1
 import de.gematik.ti.erp.app.fhir.model.AccidentType
 import de.gematik.ti.erp.app.fhir.model.MedicationCategory
 import de.gematik.ti.erp.app.fhir.model.extractBinary
@@ -57,7 +57,7 @@ import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.repository.toMedication
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
@@ -74,6 +74,7 @@ import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
 import kotlinx.serialization.json.JsonElement
+
 @Suppress("SpreadOperator")
 class InvoiceLocalDataSource(
     private val realm: Realm
@@ -227,7 +228,6 @@ class InvoiceLocalDataSource(
                                 IngredientEntityV1().apply {
                                     this.text = text
                                     this.form = form
-                                    this.number = number
                                     this.amount = amount
                                     this.identifier = identifier.toIdentifierEntityV1()
                                     this.strength = strength

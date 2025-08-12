@@ -30,15 +30,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.settings.usecase.DisableDeviceSecurityUseCase
-import de.gematik.ti.erp.app.settings.usecase.GetAuthenticationUseCase
 import de.gematik.ti.erp.app.settings.usecase.EnableDeviceSecurityUseCase
+import de.gematik.ti.erp.app.settings.usecase.GetAuthenticationUseCase
 import de.gematik.ti.erp.app.settings.usecase.ResetPasswordUseCase
-import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.stateIn
@@ -70,9 +70,11 @@ class AppSecuritySettingsController(
                 !keyguardManager.isDeviceSecure -> {
                     events.enrollBiometryEvent.trigger(Unit)
                 }
+
                 isChecked -> {
                     onAuthenticateWithDeviceSecurity()
                 }
+
                 !isChecked -> {
                     disableDeviceSecurityUseCase()
                 }
@@ -106,6 +108,7 @@ class AppSecuritySettingsController(
                 true -> {
                     events.openPasswordScreenEvent.trigger(Unit)
                 }
+
                 false -> {
                     resetPasswordUseCase()
                 }

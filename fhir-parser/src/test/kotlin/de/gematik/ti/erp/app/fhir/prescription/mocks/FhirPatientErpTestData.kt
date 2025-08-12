@@ -22,19 +22,19 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskKbvAddressErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPatientErpModel
-import de.gematik.ti.erp.app.utils.FhirTemporal.LocalDate
-import de.gematik.ti.erp.app.utils.FhirTemporal.Year
-import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalLocalDate
-import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalYear
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPatientErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskKbvAddressErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType
+import de.gematik.ti.erp.app.fhir.temporal.Year
+import kotlinx.datetime.LocalDate
 
 object FhirPatientErpTestData {
     val erpPatient1_v103 = FhirTaskKbvPatientErpModel(
         name = "Prinzessin Lars Graf Freiherr von Schinder",
-        birthDate = LocalDate(
-            value = kotlinx.datetime.LocalDate.parse("1964-04-04"),
-            type = FhirTemporalLocalDate
+        birthDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("1964-04-04"),
+            type = FhirTemporalSerializationType.FhirTemporalLocalDate
         ),
         address = FhirTaskKbvAddressErpModel(
             streetName = "Siegburger Str.",
@@ -47,9 +47,9 @@ object FhirPatientErpTestData {
 
     val erpPatient2_v103 = FhirTaskKbvPatientErpModel(
         name = "Ludger Königsstein",
-        birthDate = LocalDate(
-            value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
-            type = FhirTemporalLocalDate
+        birthDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("1935-06-22"),
+            type = FhirTemporalSerializationType.FhirTemporalLocalDate
         ),
         address = FhirTaskKbvAddressErpModel(
             streetName = "Musterstr.",
@@ -62,9 +62,9 @@ object FhirPatientErpTestData {
 
     val erpPatient1IncompleteBirth_v103 = FhirTaskKbvPatientErpModel(
         name = "Prinzessin Lars Graf Freiherr von Schinder",
-        birthDate = Year(
-            value = de.gematik.ti.erp.app.fhir.parser.Year.parse("1964"),
-            type = FhirTemporalYear
+        birthDate = FhirTemporal.Year(
+            value = Year.parse("1964"),
+            type = FhirTemporalSerializationType.FhirTemporalYear
         ),
         address = FhirTaskKbvAddressErpModel(
             streetName = "Siegburger Str.",
@@ -77,9 +77,9 @@ object FhirPatientErpTestData {
 
     val erpPatient1_v110 = FhirTaskKbvPatientErpModel(
         name = "Ludger Königsstein",
-        birthDate = LocalDate(
-            value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
-            type = FhirTemporalLocalDate
+        birthDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("1935-06-22"),
+            type = FhirTemporalSerializationType.FhirTemporalLocalDate
         ),
         address = FhirTaskKbvAddressErpModel(
             streetName = "Blumenweg",
@@ -92,9 +92,9 @@ object FhirPatientErpTestData {
 
     val erpPatient2_v110 = FhirTaskKbvPatientErpModel(
         name = "Ludger Königsstein",
-        birthDate = LocalDate(
-            value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
-            type = FhirTemporalLocalDate
+        birthDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("1935-06-22"),
+            type = FhirTemporalSerializationType.FhirTemporalLocalDate
         ),
         address = FhirTaskKbvAddressErpModel(
             streetName = "Musterstr.",
@@ -107,9 +107,9 @@ object FhirPatientErpTestData {
 
     val erpPatient3_v110 = FhirTaskKbvPatientErpModel(
         name = "Paula Privati",
-        birthDate = LocalDate(
-            value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
-            type = FhirTemporalLocalDate
+        birthDate = FhirTemporal.LocalDate(
+            value = LocalDate.parse("1935-06-22"),
+            type = FhirTemporalSerializationType.FhirTemporalLocalDate
         ),
         address = FhirTaskKbvAddressErpModel(
             streetName = "Blumenweg",

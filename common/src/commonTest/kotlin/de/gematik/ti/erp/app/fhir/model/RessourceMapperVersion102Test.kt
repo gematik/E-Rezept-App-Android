@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.fhir.parser.Year
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.asFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.Year
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -93,10 +93,9 @@ class RessourceMapperVersion102Test {
         val medicationPznJson = Json.parseToJsonElement(medicationPznJson_vers_1_0_2)
         val result = extractPZNMedication<ReturnType, ReturnType, ReturnType, ReturnType>(
             medicationPznJson,
-            processMedication = {
-                    text, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier, ingredientMedication,
-                    ingredients, lotnumber, expirationDate ->
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier, ingredientMedication,
+                ingredients, lotnumber, expirationDate ->
                 assertEquals("Ich bin in Einlösung", text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("IHP", form)
@@ -144,11 +143,10 @@ class RessourceMapperVersion102Test {
                 assertEquals(ReturnType.Ratio, strength)
                 ReturnType.Ingredient
             },
-            processMedication = {
-                    text, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, identifier,
-                    _,
-                    ingredients, lotNumber, expirationDate ->
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, identifier,
+                _,
+                ingredients, lotNumber, expirationDate ->
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Flüssigkeiten", form)
@@ -183,10 +181,9 @@ class RessourceMapperVersion102Test {
                 assertEquals(ReturnType.Ratio, strength)
                 ReturnType.Ingredient
             },
-            processMedication = {
-                    text, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
-                    ingredientMedication, ingredients, lotNumber, expirationDate ->
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                ingredientMedication, ingredients, lotNumber, expirationDate ->
                 assertEquals(null, text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals("Lösung", form)
@@ -217,10 +214,9 @@ class RessourceMapperVersion102Test {
             ratioFn = { _, _ ->
                 ReturnType.Ratio
             },
-            processMedication = {
-                    text, medicationCategory, form, amount, vaccine,
-                    manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
-                    ingredientMedication, ingredients, lotNumber, expirationDate ->
+            processMedication = { text, medicationCategory, form, amount, vaccine,
+                manufacturingInstructions, packaging, normSizeCode, uniqueIdentifier,
+                ingredientMedication, ingredients, lotNumber, expirationDate ->
                 assertEquals("Freitext", text)
                 assertEquals(MedicationCategory.ARZNEI_UND_VERBAND_MITTEL, medicationCategory)
                 assertEquals(null, form)
@@ -259,19 +255,18 @@ class RessourceMapperVersion102Test {
                 assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-11-25")), end)
                 ReturnType.MultiplePrescriptionInfo
             },
-            processMedicationRequest = {
-                    authoredOn,
-                    dateOfAccident,
-                    location,
-                    accidentType,
-                    emergencyFee,
-                    substitutionAllowed,
-                    dosageInstruction,
-                    quantity,
-                    multiplePrescriptionInfo,
-                    note,
-                    bvg,
-                    additionalFee ->
+            processMedicationRequest = { authoredOn,
+                dateOfAccident,
+                location,
+                accidentType,
+                emergencyFee,
+                substitutionAllowed,
+                dosageInstruction,
+                quantity,
+                multiplePrescriptionInfo,
+                note,
+                bvg,
+                additionalFee ->
                 assertEquals(null, authoredOn)
                 assertEquals(FhirTemporal.LocalDate(LocalDate.parse("2022-06-29")), dateOfAccident)
                 assertEquals("Dummy-Betrieb", location)

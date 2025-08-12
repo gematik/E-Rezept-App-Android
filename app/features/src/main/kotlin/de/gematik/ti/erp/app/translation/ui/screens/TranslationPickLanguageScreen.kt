@@ -28,9 +28,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.loading.LoadingIndicator
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.translation.domain.model.LanguageDownloadState
@@ -85,6 +87,8 @@ class TranslationPickLanguageScreen(
         AnimatedElevationScaffold(
             listState = listState,
             topBarTitle = "Select Language",
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             actions = {
             },
             onBack = navController::navigateUp

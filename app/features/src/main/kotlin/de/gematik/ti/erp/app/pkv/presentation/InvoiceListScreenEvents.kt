@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.pkv.presentation
 
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
 import de.gematik.ti.erp.app.invoice.model.InvoiceResult.InvoiceError
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.utils.compose.ComposableEvent
 
 data class InvoiceListScreenEvents(

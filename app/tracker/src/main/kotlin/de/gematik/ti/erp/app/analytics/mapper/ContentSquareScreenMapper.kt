@@ -32,11 +32,11 @@ import de.gematik.ti.erp.app.navigation.NavigationRouteNames
 )
 class ContentSquareScreenMapper {
     @Suppress("ComplexMethod")
-    fun map(routeName: NavigationRouteNames): String? =
-        if (routeName.doNoTrack) {
+    fun map(route: NavigationRouteNames): String? =
+        if (route.doNoTrack) {
             null
         } else {
-            when (routeName) {
+            when (route) {
                 NavigationRouteNames.DeviceCheckLoadingScreen -> null
                 NavigationRouteNames.InsecureDeviceScreen -> "main:deviceSecurity"
                 NavigationRouteNames.IntegrityWarningScreen -> "main:integrityWarning"
@@ -89,6 +89,7 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.ProfileEditPictureBottomSheetScreen -> "main:editProfilePicture"
                 NavigationRouteNames.ProfileEditNameBottomSheetScreen -> "main:editName"
                 NavigationRouteNames.ProfileAddNameBottomSheetScreen -> "main:createProfile"
+                NavigationRouteNames.ProfileChangeInsuranceTypeBottomSheetScreen -> "profile:changeInsuranceType"
 
                 NavigationRouteNames.InvoiceListScreen -> "chargeItem:list"
                 NavigationRouteNames.InvoiceDetailsScreen -> "chargeItem:details"
@@ -125,6 +126,7 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.CardWallReadCardScreen -> "cardWall:connect"
                 NavigationRouteNames.CardWallGidListScreen -> "cardWall:extAuth"
                 NavigationRouteNames.CardWallGidHelpScreen -> "cardWall:extAuth:help"
+                NavigationRouteNames.CardWallSelectInsuranceTypeBottomSheetScreen -> "cardWall:selectInsuranceType"
 
                 NavigationRouteNames.TroubleShootingIntroScreen -> "troubleShooting"
                 NavigationRouteNames.TroubleShootingDeviceOnTopScreen -> "troubleShooting:readCardHelp1"
@@ -146,7 +148,6 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.PrescriptionListScreen -> "main"
                 NavigationRouteNames.PrescriptionsArchiveScreen -> "main:prescriptionArchive"
                 NavigationRouteNames.PrescriptionScanScreen -> "main:scanner"
-                NavigationRouteNames.WelcomeDrawerBottomSheetScreen -> "main:welcomeDrawer"
                 NavigationRouteNames.GrantConsentBottomSheetScreen -> "main:grantConsent"
 
                 NavigationRouteNames.MessageListScreen -> "orders"
@@ -165,15 +166,15 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.DemoTrackerScreen -> null
 
                 NavigationRouteNames.AppUpdateScreen -> "appUpdate"
-                NavigationRouteNames.RedeemMethodSelection -> "redeem:methodSelection"
+                NavigationRouteNames.HowToRedeemScreen -> "redeem:methodSelection"
                 NavigationRouteNames.RedeemPrescriptionSelection -> "redeem:prescriptionChooseSubset"
                 NavigationRouteNames.RedeemLocal -> "redeem:matrixcode"
                 NavigationRouteNames.RedeemOnline -> "redeem:prescriptionAllOrSelection"
-                NavigationRouteNames.SuccessScreen -> "medicationplan:success"
-                NavigationRouteNames.DosageInfoScreen -> "medicationplan:dosageInfo"
-                NavigationRouteNames.ScheduleListScreen -> "medicationplan:scheduleList"
-                NavigationRouteNames.ScheduleScreen -> "medicationplan:schedule"
-                NavigationRouteNames.ScheduleDateRangeScreen -> "medicationplan:scheduleDateRange"
+                NavigationRouteNames.MedicationPlanNotificationScreen -> "medicationplan:success"
+                NavigationRouteNames.MedicationPlanDosageInstructionBottomSheetScreen -> "medicationplan:dosageInfo"
+                NavigationRouteNames.MedicationPlanScheduleListScreen -> "medicationplan:scheduleList"
+                NavigationRouteNames.MedicationPlanScheduleDetailScreen -> "medicationplan:schedule"
+                NavigationRouteNames.MedicationPlanScheduleDurationAndIntervalScreen -> "medicationplan:scheduleDateRange"
                 NavigationRouteNames.RedeemOrderOverviewScreen -> "redeem:viaTI"
                 NavigationRouteNames.RedeemEditShippingContactScreen -> "redeem:editContactInformation"
                 NavigationRouteNames.RedeemPrescriptionSelectionScreen -> "redeem:prescriptionChooseSubset"
@@ -193,6 +194,8 @@ class ContentSquareScreenMapper {
                 NavigationRouteNames.TranslationConsentBottomSheetScreen -> "translation:consent"
                 NavigationRouteNames.TranslationSettingsScreen -> "translation:settings"
                 NavigationRouteNames.TranslationPickLanguageScreen -> "translation:pickLanguage"
+                NavigationRouteNames.CardWallScannerScreen -> "cardWall:MlKitCamera"
+                NavigationRouteNames.DigaContributionInfoSheetScreen -> "digas:contributionInfo"
             }
         }
 }

@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.cardwall.navigation
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.cardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallCanScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallGidHelpScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallGidListScreen
@@ -34,17 +34,15 @@ import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallPinScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallReadCardScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallSaveCredentialsInfoScreen
 import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallSaveCredentialsScreen
+import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallScannerScreen
+import de.gematik.ti.erp.app.navigation.renderBottomSheet
 import de.gematik.ti.erp.app.navigation.renderComposable
-import org.kodein.di.DI
-import org.kodein.di.instance
+import de.gematik.ti.erp.app.cardwall.ui.screens.CardWallSelectInsuranceTypeBottomSheetScreen
 
 fun NavGraphBuilder.cardWallGraph(
-    dependencyInjector: DI,
     startDestination: String = CardWallRoutes.CardWallIntroScreen.route,
     navController: NavController
 ) {
-    val controller by dependencyInjector.instance<CardWallGraphController>()
-
     navigation(
         startDestination = startDestination,
         route = CardWallRoutes.subGraphName()
@@ -56,7 +54,7 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallIntroScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
             )
         }
         renderComposable(
@@ -66,7 +64,17 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallCanScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
+            )
+        }
+        renderComposable(
+            route = CardWallRoutes.CardWallScannerScreen.route,
+            arguments = CardWallRoutes.CardWallScannerScreen.arguments
+        ) { navEntry ->
+            CardWallScannerScreen(
+                navController = navController,
+                navBackStackEntry = navEntry,
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
             )
         }
         renderComposable(
@@ -76,7 +84,7 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallPinScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
             )
         }
         renderComposable(
@@ -86,7 +94,7 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallSaveCredentialsScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
             )
         }
         renderComposable(
@@ -96,7 +104,7 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallSaveCredentialsInfoScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
             )
         }
         renderComposable(
@@ -106,7 +114,7 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallReadCardScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
             )
         }
         renderComposable(
@@ -116,7 +124,7 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallGidListScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
             )
         }
         renderComposable(
@@ -125,7 +133,15 @@ fun NavGraphBuilder.cardWallGraph(
             CardWallGidHelpScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                graphController = controller
+                sharedViewModel = cardWallSharedViewModel(navController, navEntry)
+            )
+        }
+        renderBottomSheet(
+            route = CardWallRoutes.CardWallSelectInsuranceTypeBottomSheetScreen.route
+        ) { navEntry ->
+            CardWallSelectInsuranceTypeBottomSheetScreen(
+                navController = navController,
+                navBackStackEntry = navEntry
             )
         }
     }

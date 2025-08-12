@@ -1,4 +1,4 @@
-import extensions.detektComposeRules
+import generated.qualitydetektcomposerulesBundle
 import io.gitlab.arturbosch.detekt.Detekt
 import io.gitlab.arturbosch.detekt.DetektPlugin
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
@@ -8,7 +8,7 @@ val versionCatalog: VersionCatalog = extensions.getByType<VersionCatalogsExtensi
 apply<DetektPlugin>()
 
 dependencies {
-    "detektPlugins"(versionCatalog.detektComposeRules)
+    "detektPlugins"(versionCatalog.qualitydetektcomposerulesBundle)
 }
 
 afterEvaluate {

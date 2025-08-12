@@ -23,10 +23,10 @@
 package de.gematik.ti.erp.app.pharmacy.repository.datasource.local
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.db.entities.v1.pharmacy.SearchAccessTokenEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.safeWrite
-import de.gematik.ti.erp.app.db.updateOrCreate
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.safeWrite
+import de.gematik.ti.erp.app.database.realm.utils.updateOrCreate
+import de.gematik.ti.erp.app.database.realm.v1.pharmacy.SearchAccessTokenEntityV1
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query
 import io.realm.kotlin.types.RealmInstant

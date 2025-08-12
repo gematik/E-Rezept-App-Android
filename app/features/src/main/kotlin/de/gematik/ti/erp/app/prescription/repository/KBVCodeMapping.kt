@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.prescription.repository
 
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 
 val statusMapping = mapOf(
     "1" to R.string.kbv_member_status_1,

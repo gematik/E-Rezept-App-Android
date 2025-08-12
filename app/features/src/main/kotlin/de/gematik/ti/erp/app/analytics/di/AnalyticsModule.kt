@@ -29,7 +29,6 @@ import de.gematik.ti.erp.app.analytics.tracker.ContentSquareTracker
 import de.gematik.ti.erp.app.analytics.tracker.DebugTracker
 import de.gematik.ti.erp.app.analytics.tracker.DebugTrackerSession
 import de.gematik.ti.erp.app.analytics.tracker.Tracker
-import de.gematik.ti.erp.app.analytics.usecase.AnalyticsUseCase
 import de.gematik.ti.erp.app.analytics.usecase.ChangeAnalyticsStateUseCase
 import de.gematik.ti.erp.app.analytics.usecase.GetDebugTrackingSessionUseCase
 import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
@@ -44,11 +43,10 @@ import org.kodein.di.instance
 val cardCommunicationAnalyticsModule = DI.Module("analyticsModule") {
     bindProvider { IsAnalyticsAllowedUseCase(instance()) }
     bindProvider { ChangeAnalyticsStateUseCase(instance()) }
-    bindProvider { AnalyticsUseCase(instance()) }
     bindProvider { StartTrackerUseCase(instance()) }
     bindProvider { StopTrackerUseCase(instance()) }
 
-    bindSingleton { CardCommunicationAnalytics(instance()) }
+    bindSingleton { CardCommunicationAnalytics(instance(), instance()) }
     bindSingleton { DebugTrackerSession() }
 
     bindProvider { ContentSquareScreenMapper() }

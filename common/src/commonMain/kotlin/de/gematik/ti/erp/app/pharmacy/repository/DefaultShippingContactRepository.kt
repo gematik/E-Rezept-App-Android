@@ -23,9 +23,9 @@
 package de.gematik.ti.erp.app.pharmacy.repository
 
 import de.gematik.ti.erp.app.DispatchProvider
-import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.ext.query

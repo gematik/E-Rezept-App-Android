@@ -23,7 +23,7 @@
 package de.gematik.ti.erp.app.settings.model
 
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 
 data class SettingsActions(
     val healthCardClickActions: HealthCardClickActions,

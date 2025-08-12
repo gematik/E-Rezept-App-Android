@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.prescription.usecase
 
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.diga.repository.DigaRepository
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.prescription.usecase.model.Prescription
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant

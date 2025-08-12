@@ -37,11 +37,16 @@ import androidx.compose.material.icons.automirrored.outlined.Input
 import androidx.compose.material.icons.automirrored.outlined.Segment
 import androidx.compose.material.icons.automirrored.rounded.More
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.debugsettings.showcase.presentation.rememberBottomSheetShowcaseScreenController
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.navigation.Screen
@@ -70,20 +75,41 @@ class BottomSheetShowcaseScreen(
         val scope = rememberCoroutineScope()
 
         val controller = rememberBottomSheetShowcaseScreenController()
-        val profileData = controller.activeProfile
+        val profileData by controller.activeProfile.collectAsStateWithLifecycle()
 
         BackHandler {
             navController.popBackStack()
         }
         AnimatedElevationScaffold(
             topBarTitle = "Bottom sheet screes",
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             listState = listState,
             onBack = { navController.navigateUp() }
         ) {
             BottomSheetShowcaseScreenContent(
                 paddingValues = it,
-                onClickWelcomeDrawer = {
-                    navController.navigate(PrescriptionRoutes.WelcomeDrawerBottomSheetScreen.path())
+                onClickSelectInsuranceType = {
+                    profileData.data?.let { activeProfile ->
+                        navController.navigate(
+                            CardWallRoutes.CardWallSelectInsuranceTypeBottomSheetScreen.path(activeProfile.id)
+                        )
+                    } ?: run {
+                        scope.launch {
+                            snackbar.showSnackbar("No active profile found")
+                        }
+                    }
+                },
+                onClickChangeInsuranceType = {
+                    profileData.data?.let { activeProfile ->
+                        navController.navigate(
+                            ProfileRoutes.ProfileChangeInsuranceTypeBottomSheetScreen.path(activeProfile.id)
+                        )
+                    } ?: run {
+                        scope.launch {
+                            snackbar.showSnackbar("No active profile found")
+                        }
+                    }
                 },
                 onClickGrantConsent = {
                     navController.navigate(PrescriptionRoutes.GrantConsentBottomSheetScreen.path())
@@ -113,7 +139,7 @@ class BottomSheetShowcaseScreen(
                     )
                 },
                 onClickChangeProfilePicture = {
-                    profileData.value.data?.let { activeProfile ->
+                    profileData.data?.let { activeProfile ->
                         navController.navigate(
                             ProfileRoutes.ProfileEditPictureBottomSheetScreen.path(profileId = activeProfile.id)
                         )
@@ -124,7 +150,7 @@ class BottomSheetShowcaseScreen(
                     }
                 },
                 onClickChangeProfileName = {
-                    profileData.value.data?.let { activeProfile ->
+                    profileData.data?.let { activeProfile ->
                         navController.navigate(
                             ProfileRoutes.ProfileEditNameBottomSheetScreen.path(profileId = activeProfile.id)
                         )
@@ -145,7 +171,8 @@ class BottomSheetShowcaseScreen(
 @Composable
 private fun BottomSheetShowcaseScreenContent(
     paddingValues: PaddingValues,
-    onClickWelcomeDrawer: () -> Unit,
+    onClickSelectInsuranceType: () -> Unit,
+    onClickChangeInsuranceType: () -> Unit,
     onClickGrantConsent: () -> Unit,
     onClickPharmacyDetailFromMessage: () -> Unit,
     onClickPharmacyDetailFromDetail: () -> Unit,
@@ -166,9 +193,17 @@ private fun BottomSheetShowcaseScreenContent(
         item {
             LabelButton(
                 Icons.AutoMirrored.Outlined.Announcement,
-                "Welcome drawer"
+                "Select InsuranceType"
             ) {
-                onClickWelcomeDrawer()
+                onClickSelectInsuranceType()
+            }
+        }
+        item {
+            LabelButton(
+                Icons.AutoMirrored.Outlined.Announcement,
+                "Change InsuranceType"
+            ) {
+                onClickChangeInsuranceType()
             }
         }
         item {
@@ -239,8 +274,9 @@ fun BottomSheetShowcaseScreenContentPreview() {
     PreviewAppTheme {
         BottomSheetShowcaseScreenContent(
             paddingValues = PaddingValues(),
-            onClickWelcomeDrawer = {},
+            onClickSelectInsuranceType = {},
             onClickGrantConsent = {},
+            onClickChangeInsuranceType = {},
             onClickPharmacyDetailFromMessage = {},
             onClickPharmacyFilter = {},
             onClickChangeProfilePicture = {},

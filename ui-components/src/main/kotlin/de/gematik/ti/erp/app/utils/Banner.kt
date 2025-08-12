@@ -51,7 +51,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.text.AnnotatedString
+import de.gematik.ti.erp.app.preview.LightDarkPreview
+import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -91,7 +92,6 @@ fun Banner(
     modifier: Modifier = Modifier,
     title: String? = null,
     text: String? = null,
-    annotatedText: AnnotatedString? = null,
     contentColor: Color = Color.White,
     containerColor: Color = AppTheme.colors.primary300,
     borderColor: Color = AppTheme.colors.primary500,
@@ -133,7 +133,7 @@ fun Banner(
                         modifier = Modifier
                             .padding(horizontal = PaddingDefaults.MediumPlus)
                             .weight(MAX_WEIGHT),
-                        color = AppTheme.colors.primary700,
+                        color = contentColor,
                         text = title
                     )
                 }
@@ -161,7 +161,7 @@ fun Banner(
                             else -> it.padding(end = PaddingDefaults.Medium)
                         }
                     },
-                verticalAlignment = Alignment.Top,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 letNotNullOnCondition(
@@ -174,6 +174,7 @@ fun Banner(
                         onClick = { startIcon.onClick?.invoke() }
                     ) {
                         Icon(
+                            modifier = Modifier.align(Alignment.CenterVertically),
                             imageVector = vector,
                             tint = contentColor,
                             contentDescription = "Info"
@@ -181,9 +182,7 @@ fun Banner(
                     }
                 }
 
-                val bannerText = text?.let { AnnotatedString(it) } ?: annotatedText
-
-                bannerText?.let {
+                text?.let {
                     Text(
                         modifier = Modifier.weight(MAX_WEIGHT),
                         style = AppTheme.typography.body1,
@@ -203,6 +202,7 @@ fun Banner(
                         onClick = { gearsIcon.onClick?.invoke() }
                     ) {
                         Icon(
+                            modifier = Modifier.align(Alignment.CenterVertically),
                             imageVector = vector,
                             tint = color,
                             contentDescription = "Close"
@@ -224,6 +224,7 @@ fun Banner(
                     ErezeptText.Body(text = text, color = color)
                     SpacerTiny()
                     Icon(
+                        modifier = Modifier.align(Alignment.CenterVertically),
                         imageVector = vector,
                         tint = color,
                         contentDescription = "ArrowForward"
@@ -254,5 +255,36 @@ fun SimpleBanner(
             color = contentColor,
             text = text
         )
+    }
+}
+
+@LightDarkPreview
+@Composable
+private fun BannerPreview() {
+    PreviewTheme {
+        Column(
+            verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Medium)
+        ) {
+            Banner(
+                contentColor = AppTheme.colors.yellow900,
+                containerColor = AppTheme.colors.yellow100,
+                borderColor = AppTheme.colors.yellow600,
+                text = "Here we are explaining you why",
+                startIcon = BannerClickableIcon(icon = BannerIcon.Warning) {}
+            )
+
+            Banner(
+                text = "Another way to use this banner, as a information segment",
+                startIcon = BannerClickableIcon(icon = BannerIcon.Info) {},
+                bottomIcon = BannerClickableTextIcon(text = "You do something here and you click this for that", icon = BannerIcon.Gears) {}
+            )
+
+            Banner(
+                title = "The big banner with the warning text",
+                contentColor = AppTheme.colors.red900,
+                containerColor = AppTheme.colors.red100,
+                borderColor = AppTheme.colors.red600
+            )
+        }
     }
 }

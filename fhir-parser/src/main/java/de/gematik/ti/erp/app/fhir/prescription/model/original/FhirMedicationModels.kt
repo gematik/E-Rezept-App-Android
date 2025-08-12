@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirMedicationBatch
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirCodeableConcept
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtension
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirExtensionReduced.Companion.findExtensionByUrl
+import de.gematik.ti.erp.app.fhir.common.model.original.FhirMedicationBatch
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatio.Companion.toErpModel
@@ -39,16 +39,16 @@ import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicatio
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getCompoundingPackaging
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getNormSizeCode
 import de.gematik.ti.erp.app.fhir.constant.prescription.medication.FhirMedicationConstants.getVaccine
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIngredientErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMedicationCategoryErpModel.Companion.fromCode
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMedicationCategoryErpModel.Companion.fromCode
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio102
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationAmount.Companion.getRatio110
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationIngredient.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationProfile.Companion.getMedicationProfile
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationProfileType.FreeText
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationProfileType.PZN
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
@@ -193,9 +193,8 @@ internal data class FhirMedicationProfile(
 
         fun FhirMeta.getMedicationProfile(): FhirMedicationProfile? {
             val profileType = profiles.firstOrNull()
-            profileType?.let {
-                return extractMedicationProfile(it)
-            } ?: return null
+            if (profileType == null) return null
+            return extractMedicationProfile(profileType)
         }
     }
 }

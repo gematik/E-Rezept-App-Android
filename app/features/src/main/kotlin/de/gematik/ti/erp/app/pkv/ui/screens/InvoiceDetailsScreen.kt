@@ -59,7 +59,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.invoice.model.PkvHtmlTemplate.joinMedicationInfo
 import de.gematik.ti.erp.app.navigation.Screen
@@ -259,6 +259,8 @@ private fun InvoiceDetailScreenScaffold(
     AnimatedElevationScaffold(
         modifier = Modifier.imePadding(),
         topBarTitle = stringResource(R.string.invoices_detail_title),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Back,
         listState = listState,
         scaffoldState = scaffoldState,

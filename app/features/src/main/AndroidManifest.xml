@@ -11,7 +11,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
     <!-- Required for Android 10 and below -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
@@ -70,16 +71,19 @@
                     android:scheme="https" />
             </intent-filter>
         </activity>
-
-        <receiver
-            android:name="de.gematik.ti.erp.app.medicationplan.scheduler.DateTimeChangeReceiver"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="android.intent.action.DATE_CHANGED" />
-                <action android:name="android.intent.action.TIME_SET" />
-                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
-            </intent-filter>
-        </receiver>
+        
+        <receiver android:name="de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanRescheduleAllSchedulesReceiver"
+                    android:exported="false">
+                    <intent-filter>
+                        <action android:name="android.intent.action.BOOT_COMPLETED" />
+                        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                        <action android:name="android.intent.action.DATE_CHANGED"/>
+                        <action android:name="android.intent.action.TIME_SET"/>
+                        <action android:name="android.intent.action.TIMEZONE_CHANGED"/>
+                    </intent-filter>
+                </receiver>
+        <receiver android:name="de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanNotificationReceiver"
+            android:exported="false"/>
     </application>
 
 

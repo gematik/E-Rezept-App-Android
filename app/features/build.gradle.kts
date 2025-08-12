@@ -1,8 +1,8 @@
 import de.gematik.ti.erp.app.plugins.names.AppDependencyNamesPlugin
 
 plugins {
-    id("base-android-library")
-    id("de.gematik.ti.erp.names")
+    alias(libs.plugins.base.android.library)
+    alias(libs.plugins.module.names)
     id("jacoco")
     alias(libs.plugins.paparazzi)
     alias(libs.plugins.compose.compiler)
@@ -23,9 +23,11 @@ dependencies {
     implementation(project(namesPlugin.fhirParser))
     implementation(project(namesPlugin.demoMode))
     implementation(project(namesPlugin.digas))
+    implementation(project(namesPlugin.eurezept))
     implementation(project(namesPlugin.tracker))
     implementation(project(namesPlugin.navigation))
     implementation(project(namesPlugin.testTags))
+    implementation(project(namesPlugin.database))
     implementation(project(namesPlugin.multiplatform))
     implementation(project(namesPlugin.uiComponents))
     implementation(libs.androidx.work)
@@ -34,4 +36,5 @@ dependencies {
     debugImplementation(libs.leak.canary)
     testImplementation(libs.test.turbine)
     testImplementation(project(namesPlugin.multiplatform))
+    implementation(libs.text.recognition)
 }

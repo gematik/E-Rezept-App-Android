@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.pharmacy.repository
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
-import de.gematik.ti.erp.app.fhir.pharmacy.model.erp.FhirPharmacyErpModel
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.pharmacy.model.FhirPharmacyErpModel
 import de.gematik.ti.erp.app.fhir.pharmacy.parser.PharmacyParsers
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService.FHIRVZD
 import de.gematik.ti.erp.app.messages.repository.PharmacyCacheLocalDataSource

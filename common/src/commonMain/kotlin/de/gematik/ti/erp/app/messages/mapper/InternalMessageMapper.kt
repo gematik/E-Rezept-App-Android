@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.messages.mapper
 
-import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
-import de.gematik.ti.erp.app.db.toInstant
-import de.gematik.ti.erp.app.db.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.toInstant
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
 import de.gematik.ti.erp.app.messages.model.ChangeLogMessage
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
 import de.gematik.ti.erp.app.messages.model.InAppMessage
@@ -75,7 +75,9 @@ fun InternalMessageEntityV1.toInternalMessage(): InternalMessage {
         isUnread = isUnread,
         messageProfile = if (this.messageProfile == CommunicationProfileV1.InApp) {
             CommunicationProfile.InApp
-        } else { error("should not happen") },
+        } else {
+            error("should not happen")
+        },
         version = version,
         languageCode = languageCode
     )

@@ -32,7 +32,7 @@ import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData.Shipping
 import de.gematik.ti.erp.app.prescription.model.ScannedTaskData.ScannedTask
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.SyncedTask
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers

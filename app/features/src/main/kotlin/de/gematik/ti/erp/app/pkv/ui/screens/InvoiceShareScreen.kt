@@ -64,7 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.FileProviderAuthority
 import de.gematik.ti.erp.app.pkv.navigation.PkvNavigationArguments.Companion.getPkvNavigationArguments
@@ -151,6 +151,8 @@ fun InvoiceShareScreenScaffold(
         modifier = Modifier
             .imePadding()
             .testTag(TestTag.Profile.InvoiceShareScreen),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         topBarTitle = "",
         navigationMode = NavigationBarMode.Close,
         scaffoldState = scaffoldState,

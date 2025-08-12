@@ -1,86 +1,86 @@
 {
-  "dispensedMedications":[
+  "dispensedMedications": [
     {
-      "dispenseId":"3465270a-11e7-4bbf-ae53-378f9cc52747",
-      "patientId":"X234567890",
-      "substitutionAllowed":false,
-      "dosageInstruction":"1-0-1-0",
-      "performer":"3-abc-1234567890",
-      "handedOver":{
-        "value":"2022-02-28"
+      "dispenseId": "3465270a-11e7-4bbf-ae53-378f9cc52747",
+      "patientId": "X234567890",
+      "substitutionAllowed": false,
+      "dosageInstruction": "1-0-1-0",
+      "performer": "3-abc-1234567890",
+      "handedOver": {
+        "value": "2022-02-28"
       },
-      "dispensedMedication":[
+      "dispensedMedication": [
         {
-          "type":"de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedPznMedicationErpModel",
-          "text":"Sumatriptan-1a Pharma 100 mg Tabletten",
-          "category":"00",
-          "form":"TAB",
-          "amount":{
-            "numerator":{
-              "value":"20 St.",
-              "unit":"St"
+          "type": "de.gematik.ti.erp.app.fhir.dispense.model.DispensedPznMedicationErpModel",
+          "text": "Sumatriptan-1a Pharma 100 mg Tabletten",
+          "category": "00",
+          "form": "TAB",
+          "amount": {
+            "numerator": {
+              "value": "20 St.",
+              "unit": "St"
             },
-            "denominator":{
-              "value":"1",
-              "unit":""
+            "denominator": {
+              "value": "1",
+              "unit": ""
             }
           },
-          "isVaccine":false,
-          "lotNumber":null,
-          "expirationDate":null,
-          "contextualData":{
-            "identifier":{
-              "pzn":"06313728",
-              "atc":null,
-              "ask":null,
-              "snomed":null
+          "isVaccine": false,
+          "lotNumber": null,
+          "expirationDate": null,
+          "contextualData": {
+            "identifier": {
+              "pzn": "06313728",
+              "atc": null,
+              "ask": null,
+              "snomed": null
             },
-            "normSizeCode":"N1"
+            "normSizeCode": "N1"
           }
         }
       ],
-      "dispensedDeviceRequest":null
+      "dispensedDeviceRequest": null
     },
     {
-      "dispenseId":"3465270a-11e7-4bbf-ae53-378f9cc52747",
-      "patientId":"X234567890",
-      "substitutionAllowed":false,
-      "dosageInstruction":"1-0-1-0",
-      "performer":"3-abc-1234567890",
-      "handedOver":{
-        "value":"2022-02-28"
+      "dispenseId": "3465270a-11e7-4bbf-ae53-378f9cc52747",
+      "patientId": "X234567890",
+      "substitutionAllowed": false,
+      "dosageInstruction": "1-0-1-0",
+      "performer": "3-abc-1234567890",
+      "handedOver": {
+        "value": "2022-02-28"
       },
-      "dispensedMedication":[
+      "dispensedMedication": [
         {
-          "type":"de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedPznMedicationErpModel",
-          "text":"Sumatriptan-1a Pharma 100 mg Tabletten",
-          "category":"00",
-          "form":"TAB",
-          "amount":{
-            "numerator":{
-              "value":"20 St.",
-              "unit":"St"
+          "type": "de.gematik.ti.erp.app.fhir.dispense.model.DispensedPznMedicationErpModel",
+          "text": "Sumatriptan-1a Pharma 100 mg Tabletten",
+          "category": "00",
+          "form": "TAB",
+          "amount": {
+            "numerator": {
+              "value": "20 St.",
+              "unit": "St"
             },
-            "denominator":{
-              "value":"1",
-              "unit":""
+            "denominator": {
+              "value": "1",
+              "unit": ""
             }
           },
-          "isVaccine":false,
-          "lotNumber":null,
-          "expirationDate":null,
-          "contextualData":{
-            "identifier":{
-              "pzn":"06313728",
-              "atc":null,
-              "ask":null,
-              "snomed":null
+          "isVaccine": false,
+          "lotNumber": null,
+          "expirationDate": null,
+          "contextualData": {
+            "identifier": {
+              "pzn": "06313728",
+              "atc": null,
+              "ask": null,
+              "snomed": null
             },
-            "normSizeCode":"N1"
+            "normSizeCode": "N1"
           }
         }
       ],
-      "dispensedDeviceRequest":null
+      "dispensedDeviceRequest": null
     }
   ]
 }

@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.fhir.prescription.parser
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskPayloadErpModel
+import de.gematik.ti.erp.app.fhir.FhirTaskPayloadErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirBundle
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta.Companion.getProfile
@@ -35,8 +35,8 @@ import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_DEVICE_REQUEST_VERSI
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.KBV_VERSION_REGEX
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_VERSION_REGEX
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMetaDataPayloadErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FirTaskKbvPayloadErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMetaDataPayloadErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FirTaskKbvPayloadErpModel
 import de.gematik.ti.erp.app.utils.letNotNull
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement

@@ -26,15 +26,13 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.navigation
 import de.gematik.ti.erp.app.navigation.renderComposable
-import de.gematik.ti.erp.app.redeem.presentation.OnlineRedeemGraphController
+import de.gematik.ti.erp.app.redeem.presentation.redeemSharedViewModel
 import de.gematik.ti.erp.app.redeem.ui.screens.HowToRedeemScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.LocalRedeemScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.OnlineRedeemPreferencesScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.PrescriptionSelectionScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.RedeemEditShippingContactScreen
 import de.gematik.ti.erp.app.redeem.ui.screens.RedeemOrderOverviewScreen
-import org.kodein.di.DI
-import org.kodein.di.instance
 
 /**
  * Defines the navigation graph for the redemption process.
@@ -42,22 +40,18 @@ import org.kodein.di.instance
  * This function sets up a subgraph for all screens related to the redemption process.
  * It utilizes `renderComposable` to define each screen and its route.
  *
- * @param dependencyInjector The dependency injection container providing required instances.
- * @param startDestination The initial screen of the redemption process. Defaults to [RedeemRoutes.RedeemMethodSelection].
+ * @param startDestination The initial screen of the redemption process. Defaults to [RedeemRoutes.HowToRedeemScreen].
  * @param navController The navigation controller responsible for managing navigation between screens.
  */
 @Suppress("LongMethod")
 fun NavGraphBuilder.redeemGraph(
-    dependencyInjector: DI,
-    startDestination: String = RedeemRoutes.RedeemMethodSelection.route,
+    startDestination: String = RedeemRoutes.HowToRedeemScreen.route,
     navController: NavController
 ) {
     /**
      * Retrieves the controller for handling online redemption processes.
      * This controller is shared across multiple screens in this subgraph.
      */
-    val onlineRedeemController by dependencyInjector.instance<OnlineRedeemGraphController>()
-
     navigation(
         startDestination = startDestination,
         route = RedeemRoutes.subGraphName()
@@ -68,16 +62,15 @@ fun NavGraphBuilder.redeemGraph(
          * This screen allows the user to select a redemption method.
          * It acts as the entry point to decide between redeeming from the app or using the data-matrix code.
          *
-         * [RedeemRoutes.RedeemMethodSelection] provides the route and arguments for this screen.
+         * [RedeemRoutes.HowToRedeemScreen] provides the route and arguments for this screen.
          */
         renderComposable(
-            route = RedeemRoutes.RedeemMethodSelection.route,
-            arguments = RedeemRoutes.RedeemMethodSelection.arguments
+            route = RedeemRoutes.HowToRedeemScreen.route,
+            arguments = RedeemRoutes.HowToRedeemScreen.arguments
         ) { navEntry ->
             HowToRedeemScreen(
                 navController = navController,
-                navBackStackEntry = navEntry,
-                controller = onlineRedeemController
+                navBackStackEntry = navEntry
             )
         }
 
@@ -114,7 +107,7 @@ fun NavGraphBuilder.redeemGraph(
             OnlineRedeemPreferencesScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                controller = onlineRedeemController
+                sharedViewModel = redeemSharedViewModel(navController, navEntry)
             )
         }
 
@@ -133,7 +126,7 @@ fun NavGraphBuilder.redeemGraph(
             PrescriptionSelectionScreen(
                 navController = navController,
                 navBackStackEntry = navEntry,
-                controller = onlineRedeemController
+                sharedViewModel = redeemSharedViewModel(navController, navEntry)
             )
         }
 
@@ -149,11 +142,11 @@ fun NavGraphBuilder.redeemGraph(
         renderComposable(
             route = RedeemRoutes.RedeemOrderOverviewScreen.route,
             arguments = RedeemRoutes.RedeemOrderOverviewScreen.arguments
-        ) {
+        ) { navEntry ->
             RedeemOrderOverviewScreen(
                 navController = navController,
-                navBackStackEntry = it,
-                graphController = onlineRedeemController
+                navBackStackEntry = navEntry,
+                sharedViewModel = redeemSharedViewModel(navController, navEntry)
             )
         }
 
@@ -168,11 +161,11 @@ fun NavGraphBuilder.redeemGraph(
         renderComposable(
             route = RedeemRoutes.RedeemEditShippingContactScreen.route,
             arguments = RedeemRoutes.RedeemEditShippingContactScreen.arguments
-        ) {
+        ) { navEntry ->
             RedeemEditShippingContactScreen(
                 navController = navController,
-                navBackStackEntry = it,
-                graphController = onlineRedeemController
+                navBackStackEntry = navEntry,
+                sharedViewModel = redeemSharedViewModel(navController, navEntry)
             )
         }
     }

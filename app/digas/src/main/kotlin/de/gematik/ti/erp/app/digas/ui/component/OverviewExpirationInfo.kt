@@ -38,11 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.semantics
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.preview.digaMainScreenUiModel
 import de.gematik.ti.erp.app.extensions.roundedCornerShape
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme

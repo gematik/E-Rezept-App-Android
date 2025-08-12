@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.fhir.serializer
 
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.datetime.Instant
 import kotlinx.serialization.KSerializer

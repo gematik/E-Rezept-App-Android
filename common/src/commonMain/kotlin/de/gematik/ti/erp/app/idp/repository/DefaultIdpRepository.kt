@@ -40,7 +40,7 @@ import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.parseToError
 import de.gematik.ti.erp.app.idp.model.error.GematikResponseError.Companion.parsedUriToError
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.vau.extractECPublicKey
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.Flow

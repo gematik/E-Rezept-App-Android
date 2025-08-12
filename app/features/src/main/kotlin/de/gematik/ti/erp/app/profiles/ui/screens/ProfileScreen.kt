@@ -22,15 +22,24 @@
 
 package de.gematik.ti.erp.app.profiles.ui.screens
 
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
 import androidx.compose.material.DropdownMenu
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.Icon
@@ -42,14 +51,15 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.rememberScaffoldState
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -66,11 +76,10 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
+import de.gematik.ti.erp.app.authentication.observer.ChooseAuthenticationNavigationEventsListener
 import de.gematik.ti.erp.app.base.BaseActivity
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
-import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes.CardWallIntroScreen
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.pkv.navigation.PkvRoutes
 import de.gematik.ti.erp.app.profiles.model.ProfileCombinedData
@@ -86,12 +95,15 @@ import de.gematik.ti.erp.app.profiles.ui.components.ProfileSecuritySection
 import de.gematik.ti.erp.app.profiles.ui.preview.ProfileStatePreviewParameterProvider
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.theme.AppTheme
+import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.utils.SpacerXXLarge
 import de.gematik.ti.erp.app.utils.compose.AnimatedElevationScaffold
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.NavigationBarMode
+import de.gematik.ti.erp.app.utils.compose.PrimaryButtonLarge
 import de.gematik.ti.erp.app.utils.compose.UiStateMachine
-import de.gematik.ti.erp.app.utils.compose.fullscreen.Center
+import de.gematik.ti.erp.app.utils.compose.fullscreen.FullScreenLoadingIndicator
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.extensions.LocalDialog
 import de.gematik.ti.erp.app.utils.uistate.UiState
@@ -116,6 +128,16 @@ class ProfileScreen(
         val listState = rememberLazyListState()
         val scaffoldState = rememberScaffoldState()
         val defaultProfileName = stringResource(id = R.string.onboarding_default_profile_name)
+
+        val context = LocalContext.current
+        val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+        val kvnrString = stringResource(R.string.insurance_information_insurance_identifier)
+        var triggerIsKVNRCopiedCheck by remember { mutableStateOf(true) }
+        val isKVNRCopied by remember(triggerIsKVNRCopiedCheck) {
+            mutableStateOf(clipboard.primaryClipDescription?.label == kvnrString)
+        }
+
+        val onBack by rememberUpdatedState { navController.popBackStack() }
         @Requirement(
             "A_19229-01#3",
             sourceSpecification = "gemSpec_eRp_FdV",
@@ -126,40 +148,23 @@ class ProfileScreen(
             dialogScaffold = dialog,
             onClickAction = {
                 profileScreenController.deleteProfile(profileId, defaultProfileName)
-                navController.popBackStack()
+                onBack()
             }
         )
-
-        with(profileScreenController) {
-            showCardWallEvent.listen { profileId ->
-                navController.navigate(CardWallIntroScreen.path(profileId))
-            }
-            showCardWallWithFilledCanEvent.listen { cardWallData ->
-                navController.navigate(
-                    CardWallRoutes.CardWallPinScreen.path(
-                        profileIdentifier = cardWallData.profileId,
-                        can = cardWallData.can
-                    )
-                )
-            }
-            showGidEvent.listen { gidData ->
-                navController.navigate(
-                    CardWallIntroScreen.pathWithGid(gidData)
-                )
-            }
-        }
-
+        ChooseAuthenticationNavigationEventsListener(profileScreenController, navController)
+        BackHandler { onBack() }
         ProfileScreenScaffold(
             profileState = combinedProfileState,
             scaffoldState = scaffoldState,
             listState = listState,
             isDemoMode = isDemoMode,
+            isKVNRCopied = isKVNRCopied,
             color = color,
             keyboardController = keyboardController,
             onClickLogIn = {
                 combinedProfileState.data?.selectedProfile?.let { profile ->
                     profileScreenController.switchActiveProfile(profile.id)
-                    profileScreenController.chooseAuthenticationMethod(profile.id)
+                    profileScreenController.chooseAuthenticationMethod(profile)
                 }
             },
             onClickLogout = {
@@ -170,6 +175,10 @@ class ProfileScreen(
             },
             onClickDelete = {
                 profileScreenController.triggerDeleteProfileDialog()
+            },
+            onClickCopy = {
+                clipboard.setPrimaryClip(it)
+                triggerIsKVNRCopiedCheck = !triggerIsKVNRCopiedCheck
             },
             onUpdateProfileName = { name ->
                 profileScreenController.updateProfileName(name)
@@ -193,8 +202,13 @@ class ProfileScreen(
                 combinedProfileState.data?.selectedProfile?.let { profile ->
                     navController.navigate(ProfileRoutes.ProfileAuditEventsScreen.path(profileId = profile.id))
                 }
+            },
+            onClickChangeInsuranceType = {
+                navController.navigate(
+                    ProfileRoutes.ProfileChangeInsuranceTypeBottomSheetScreen.path(profileId = profileId)
+                )
             }
-        ) { navController.popBackStack() }
+        ) { onBack() }
     }
 }
 
@@ -206,21 +220,25 @@ internal fun ProfileScreenScaffold(
     listState: LazyListState,
     isDemoMode: Boolean,
     color: Color,
+    isKVNRCopied: Boolean,
     keyboardController: SoftwareKeyboardController?,
     onClickLogIn: () -> Unit,
     onClickLogout: () -> Unit,
     onClickDelete: () -> Unit,
     onUpdateProfileName: (String) -> Unit,
     onClickEditAvatar: () -> Unit,
+    onClickCopy: (ClipData) -> Unit,
+    onClickChangeInsuranceType: () -> Unit,
     onClickInvoices: () -> Unit,
     onShowPairedDevices: () -> Unit,
     onClickAuditEvents: () -> Unit,
     onBack: () -> Unit
 ) {
     AnimatedElevationScaffold(
-        modifier =
-        Modifier.imePadding(),
+        modifier = Modifier.imePadding(),
         topBarTitle = stringResource(R.string.edit_profile_title),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         navigationMode = NavigationBarMode.Back,
         scaffoldState = scaffoldState,
         listState = listState,
@@ -245,9 +263,7 @@ internal fun ProfileScreenScaffold(
                 ErrorScreenComponent()
             },
             onLoading = {
-                Center {
-                    CircularProgressIndicator()
-                }
+                FullScreenLoadingIndicator()
             },
             onContent = { profileCombinedData ->
                 profileCombinedData.selectedProfile?.let { selectedProfile ->
@@ -256,11 +272,16 @@ internal fun ProfileScreenScaffold(
                         profileState = profileState,
                         selectedProfile = selectedProfile,
                         isDemoMode = isDemoMode,
+                        isKVNRCopied = isKVNRCopied,
                         keyboardController = keyboardController,
                         color = color,
                         onUpdateProfileName = onUpdateProfileName,
                         onClickEditAvatar = onClickEditAvatar,
                         onClickLogIn = onClickLogIn,
+                        onClickLogOut = onClickLogout,
+                        onClickDeleteProfile = onClickDelete,
+                        onClickCopy = onClickCopy,
+                        onClickChangeInsuranceType = onClickChangeInsuranceType,
                         onClickInvoices = onClickInvoices,
                         onShowPairedDevices = onShowPairedDevices,
                         onClickAuditEvents = onClickAuditEvents
@@ -277,12 +298,17 @@ internal fun ProfileScreenContent(
     listState: LazyListState,
     profileState: UiState<ProfileCombinedData>,
     selectedProfile: ProfilesUseCaseData.Profile,
+    isKVNRCopied: Boolean,
     isDemoMode: Boolean,
     color: Color,
     keyboardController: SoftwareKeyboardController?,
     onUpdateProfileName: (String) -> Unit,
     onClickEditAvatar: () -> Unit,
+    onClickCopy: (ClipData) -> Unit,
     onClickLogIn: () -> Unit,
+    onClickLogOut: () -> Unit,
+    onClickDeleteProfile: () -> Unit,
+    onClickChangeInsuranceType: () -> Unit,
     onClickInvoices: () -> Unit,
     onShowPairedDevices: () -> Unit,
     onClickAuditEvents: () -> Unit
@@ -290,7 +316,8 @@ internal fun ProfileScreenContent(
     LazyColumn(
         modifier = Modifier.testTag(TestTag.Profile.ProfileScreenContent),
         state = listState,
-        contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues()
+        contentPadding = WindowInsets.navigationBars.only(WindowInsetsSides.Bottom).asPaddingValues(),
+        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.XXLarge)
     ) {
         item {
             ProfileNameSection(profileState, color, keyboardController) { name ->
@@ -303,18 +330,38 @@ internal fun ProfileScreenContent(
             }
         }
         item {
-            ProfileInsuranceInformationSection(
-                selectedProfile
-            ) {
-                onClickLogIn()
-            }
+            Divider(
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                color = AppTheme.colors.neutral300
+            )
         }
-
+        item {
+            ProfileInsuranceInformationSection(
+                selectedProfile,
+                isKVNRCopied = isKVNRCopied,
+                onClickCopy = onClickCopy,
+                onClickLogIn = onClickLogIn,
+                onClickLogOut = onClickLogOut,
+                onClickChangeInsuranceType = onClickChangeInsuranceType
+            )
+        }
+        item {
+            Divider(
+                modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                color = AppTheme.colors.neutral300
+            )
+        }
         if (selectedProfile.insurance.insuranceType == ProfilesUseCaseData.InsuranceType.PKV) {
             item {
                 ProfileInvoiceInformationSection {
                     onClickInvoices()
                 }
+            }
+            item {
+                Divider(
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                    color = AppTheme.colors.neutral300
+                )
             }
         }
 
@@ -324,12 +371,33 @@ internal fun ProfileScreenContent(
                     onShowPairedDevices()
                 }
             }
+            item {
+                Divider(
+                    modifier = Modifier.padding(horizontal = PaddingDefaults.Medium),
+                    color = AppTheme.colors.neutral300
+                )
+            }
         }
 
         item {
             ProfileSecuritySection {
                 onClickAuditEvents()
             }
+        }
+        item {
+            PrimaryButtonLarge(
+                modifier = Modifier
+                    .padding(horizontal = PaddingDefaults.Medium)
+                    .fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = AppTheme.colors.red700,
+                    contentColor = AppTheme.colors.neutral000
+                ),
+                onClick = { onClickDeleteProfile() }
+            ) {
+                Text(text = stringResource(id = R.string.remove_profile))
+            }
+            SpacerXXLarge()
         }
     }
 }
@@ -346,7 +414,8 @@ internal fun ThreeDotMenu(
     val isSsoTokenValid by remember { mutableStateOf(selectedProfile.isSSOTokenValid()) }
     IconButton(
         onClick = { expanded = true },
-        modifier = Modifier.testTag(TestTag.Profile.ThreeDotMenuButton)
+        modifier = Modifier
+            .testTag(TestTag.Profile.ThreeDotMenuButton)
             .semantics { contentDescription = description }
     ) {
         Icon(Icons.Rounded.MoreVert, null, tint = AppTheme.colors.neutral600)
@@ -358,13 +427,15 @@ internal fun ThreeDotMenu(
     ) {
         DropdownMenuItem(
             modifier =
-            Modifier.testTag(
-                if (isSsoTokenValid) {
-                    TestTag.Profile.LogoutButton
-                } else {
-                    TestTag.Profile.LoginButton
-                }
-            ).semantics { role = Role.Button },
+            Modifier
+                .testTag(
+                    if (isSsoTokenValid) {
+                        TestTag.Profile.LogoutButton
+                    } else {
+                        TestTag.Profile.LoginButton
+                    }
+                )
+                .semantics { role = Role.Button },
             onClick =
             if (isSsoTokenValid) {
                 onClickLogout
@@ -414,13 +485,16 @@ fun ProfileScreenPreview(
             isDemoMode = false,
             color = color,
             keyboardController = null,
+            isKVNRCopied = false,
             onUpdateProfileName = {},
             onClickEditAvatar = {},
             onClickLogIn = {},
             onClickInvoices = {},
             onShowPairedDevices = {},
+            onClickChangeInsuranceType = {},
             onClickAuditEvents = {},
             onBack = {},
+            onClickCopy = {},
             onClickDelete = {},
             onClickLogout = {},
             scaffoldState = scaffoldState

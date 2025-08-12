@@ -68,6 +68,7 @@ fun VideoContent(
     var aspectRatio by remember(aspectRatioOverwrite) {
         mutableFloatStateOf(aspectRatioOverwrite ?: 0f)
     }
+    var isSurfaceValid by remember { mutableStateOf(false) }
 
     // Maintain player outside SurfaceHolder.Callback
     val player = remember(source) {
@@ -106,6 +107,7 @@ fun VideoContent(
     val surfaceCallback = remember(source) {
         object : SurfaceHolder.Callback {
             override fun surfaceCreated(holder: SurfaceHolder) {
+                isSurfaceValid = true
                 player.setDisplay(holder)
                 player.prepareAsync()
                 player.setOnVideoSizeChangedListener { _, width, height ->
@@ -122,8 +124,15 @@ fun VideoContent(
             }
 
             override fun surfaceDestroyed(holder: SurfaceHolder) {
-                // No longer calling setDisplay(null) to avoid main thread Binder ANRs
-                // Cleanup is handled in onDispose below
+                // Disconnect the surface to avoid abandoned BufferQueue logs
+                if (!isSurfaceValid) return
+                try {
+                    player.setDisplay(null) // This prevents dangling draw attempts
+                } catch (e: IllegalStateException) {
+                    Napier.e("Error detaching surface", e, TAG)
+                } finally {
+                    isSurfaceValid = false
+                }
             }
         }
     }

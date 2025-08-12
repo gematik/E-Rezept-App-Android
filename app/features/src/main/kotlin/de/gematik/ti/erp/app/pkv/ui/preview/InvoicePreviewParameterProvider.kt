@@ -23,6 +23,8 @@
 package de.gematik.ti.erp.app.pkv.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.Year
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.pkv.model.InvoiceState
 import de.gematik.ti.erp.app.pkv.ui.preview.PkvMockData.invoiceRecord
@@ -33,7 +35,7 @@ import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.MedicationRequest
 import kotlinx.datetime.Instant
-import de.gematik.ti.erp.app.utils.FhirTemporal.Instant as FhirInstant
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal.Instant as FhirInstant
 
 data class InvoiceDetailScreenPreviewData(
     val isFromPrescriptionDetails: Boolean,
@@ -41,14 +43,14 @@ data class InvoiceDetailScreenPreviewData(
 )
 
 data class InvoiceListScreenPreviewData(
-    val invoices: Map<de.gematik.ti.erp.app.fhir.parser.Year, List<InvoiceData.PKVInvoiceRecord>>,
+    val invoices: Map<Year, List<InvoiceData.PKVInvoiceRecord>>,
     val isSsoTokenValid: Boolean,
     val isConsentGranted: Boolean
 )
 
 private val invoiceListData = InvoiceListScreenPreviewData(
     invoices = mapOf(
-        de.gematik.ti.erp.app.fhir.parser.Year(2023) to listOf(
+        Year(2023) to listOf(
             invoiceRecord.copy(
                 timestamp = Instant.parse("2023-10-23T12:34:56Z"),
                 medicationRequest = medicationRequest.copy(
@@ -58,7 +60,7 @@ private val invoiceListData = InvoiceListScreenPreviewData(
                 )
             )
         ),
-        de.gematik.ti.erp.app.fhir.parser.Year(2022) to listOf(
+        Year(2022) to listOf(
             invoiceRecord.copy(
                 timestamp = Instant.parse("2024-11-23T12:34:56Z"),
                 medicationRequest = medicationRequest.copy(
@@ -149,7 +151,7 @@ object PkvMockData {
         text = "Präparat",
         form = "AEO",
         lotNumber = "lotNumber",
-        expirationDate = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(timestamp),
+        expirationDate = FhirTemporal.Instant(timestamp),
         identifier = SyncedTaskData.Identifier("FJHE98383JGK"),
         normSizeCode = "FRE4347",
         amount = Ratio(
@@ -201,7 +203,7 @@ object PkvMockData {
             birthdate = FhirInstant(value = timestamp)
         ),
         medicationRequest = medicationRequest,
-        whenHandedOver = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(value = handoverTimestamp),
+        whenHandedOver = FhirTemporal.Instant(value = handoverTimestamp),
         invoice = invoice,
         consumed = false
     )

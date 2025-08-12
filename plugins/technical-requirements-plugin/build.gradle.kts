@@ -1,4 +1,4 @@
-@file:Suppress("UseTomlInstead", "MagicNumber")
+@file:Suppress("UseTomlInstead", "MagicNumber", "AndroidGradlePluginVersion")
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
@@ -24,9 +24,9 @@ tasks.withType<KotlinCompile>().configureEach {
 }
 
 dependencies {
-    implementation("com.android.tools.build:gradle:8.2.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-html:0.11.0")
-    implementation("org.jsoup:jsoup:1.17.2")
+    implementation("com.android.tools.build:gradle:8.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-html:0.12.0")
+    implementation("org.jsoup:jsoup:1.21.1")
 }
 
 gradlePlugin {

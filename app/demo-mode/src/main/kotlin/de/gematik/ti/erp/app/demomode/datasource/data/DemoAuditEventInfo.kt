@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
-import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.audit.model.FhirAuditEventErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Clock
 import java.util.UUID
 import kotlin.random.Random

@@ -30,12 +30,12 @@ import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.authentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.base.Controller
 import de.gematik.ti.erp.app.core.LocalActivity
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
-import de.gematik.ti.erp.app.userauthentication.observer.BiometricPromptBuilder
 import de.gematik.ti.erp.app.userauthentication.observer.InactivityTimeoutObserver
 import de.gematik.ti.erp.app.userauthentication.presentation.AuthenticationStateData.AuthenticationState
 import de.gematik.ti.erp.app.userauthentication.usecase.ResetAuthenticationTimeOutSystemUptimeUseCase
@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.kodein.di.compose.rememberInstance
+import kotlin.math.max
 import kotlin.math.min
 
 private const val PASSWORD_TRIES_TILL_TIMEOUT = 5
@@ -94,6 +95,7 @@ class UserAuthenticationController(
                         is AuthenticationModeAndMethod.AuthenticationRequired -> AuthenticationState(
                             it.authentication
                         )
+
                         else -> AuthenticationState( // only reached in failure state
                             SettingsData.Authentication(
                                 password = null,
@@ -127,6 +129,7 @@ class UserAuthenticationController(
 
     @Requirement(
         "O.Pass_4#2",
+        "O.Auth_7#3",
         sourceSpecification = "BSI-eRp-ePA",
         rationale = "Increments the number of authentication failures when the user fails to authenticate."
     )
@@ -213,6 +216,7 @@ class UserAuthenticationController(
                         onSuccessLeaveAuthScreen = onSuccessLeaveAuthScreen
                     )
                 }
+
                 else -> {
                     onFailedAuthentication()
                     _enteredPasswordError.update { true }
@@ -225,14 +229,15 @@ class UserAuthenticationController(
     }
 
     private fun checkTriggerAuthenticationTimeOut(): Boolean =
-        _authentication.value.authentication.failedAuthenticationAttempts != 0 &&
-            (_authentication.value.authentication.failedAuthenticationAttempts + 1) % PASSWORD_TRIES_TILL_TIMEOUT == 0 // db update takes too long therefore + 1
+        (_authentication.value.authentication.failedAuthenticationAttempts + 1) > PASSWORD_TRIES_TILL_TIMEOUT // db update takes too long therefore + 1
 
     suspend fun calculateAuthenticationTimeOut(it: AuthenticationState): Long =
         it.authentication.authenticationTimeOutSystemUptime?.let { savedSystemUptime ->
             val currentSystemUptime = SystemClock.elapsedRealtime()
             val fibonacciBasedTimeOutModifier = min(
-                fibonacci().elementAt(it.authentication.failedAuthenticationAttempts / PASSWORD_TRIES_TILL_TIMEOUT),
+                fibonacci().elementAt(
+                    max(it.authentication.failedAuthenticationAttempts - PASSWORD_TRIES_TILL_TIMEOUT, 0)
+                ),
                 MAX_FIBONACCI_FACTOR
             )
             val totalTimeout = PASSWORD_TIMEOUT_SECONDS * MILLISECONDS_SECONDS_FACTOR * fibonacciBasedTimeOutModifier
@@ -241,9 +246,11 @@ class UserAuthenticationController(
                 savedSystemUptime > currentSystemUptime -> {
                     setAuthenticationTimeOutSystemUptimeUseCase.invoke(currentSystemUptime)
                 }
+
                 currentTimeOut <= 0 -> {
                     resetAuthenticationTimeOutSystemUptimeUseCase.invoke()
                 }
+
                 else -> {}
             }
             currentTimeOut

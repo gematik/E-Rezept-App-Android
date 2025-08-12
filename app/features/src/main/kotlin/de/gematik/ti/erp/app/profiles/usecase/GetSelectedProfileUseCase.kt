@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.profiles.usecase
 
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
@@ -32,6 +32,10 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.mapNotNull
 
+@Deprecated(
+    message = "Duplicate",
+    replaceWith = ReplaceWith("GetProfileByIdUseCase")
+)
 class GetSelectedProfileUseCase(
     private val repository: ProfileRepository,
     private val dispatcher: CoroutineDispatcher = Dispatchers.IO

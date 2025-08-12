@@ -23,9 +23,10 @@
 package de.gematik.ti.erp.app.di
 
 import de.gematik.ti.erp.app.Requirement
-import de.gematik.ti.erp.app.interceptor.PharmacySearchAccessTokenApiKeyInterceptor
+import de.gematik.ti.erp.app.digas.data.repository.DigaInformationRemoteDataSource
+import de.gematik.ti.erp.app.interceptor.ERezeptBackendTokenApiKeyInterceptor
 import de.gematik.ti.erp.app.interceptor.PharmacySearchApiKeyInterceptor
-import de.gematik.ti.erp.app.pharmacy.api.FhirVzdPharmacySearchAccessTokenService
+import de.gematik.ti.erp.app.pharmacy.api.ERezeptBackendService
 import de.gematik.ti.erp.app.pharmacy.api.FhirVzdPharmacySearchService
 import de.gematik.ti.erp.app.pharmacy.api.model.SearchAccessTokenInterceptor
 import de.gematik.ti.erp.app.pharmacy.repository.DefaultPharmacySearchAccessTokenRepository
@@ -49,7 +50,8 @@ val fhirVzdNetworkModule = DI.Module("FhirVzdNetworkModule") {
 
     // data sources
     bindProvider { PharmacySearchAccessTokenLocalDataSource(instance()) }
-    bindProvider { PharmacySearchAccessTokenRemoteDataSource(instance<FhirVzdPharmacySearchAccessTokenService>()) }
+    bindProvider { DigaInformationRemoteDataSource(instance()) }
+    bindProvider { PharmacySearchAccessTokenRemoteDataSource(instance<ERezeptBackendService>()) }
 
     // repository
     bindProvider<PharmacySearchAccessTokenRepository> { DefaultPharmacySearchAccessTokenRepository(instance(), instance()) }
@@ -86,13 +88,13 @@ val fhirVzdNetworkModule = DI.Module("FhirVzdNetworkModule") {
         val endpointHelper = instance<EndpointHelper>()
 
         // adding the API-Key to handle versioning
-        clientBuilder.addInterceptor(PharmacySearchAccessTokenApiKeyInterceptor(instance()))
+        clientBuilder.addInterceptor(ERezeptBackendTokenApiKeyInterceptor(instance()))
 
         Retrofit.Builder()
             .client(clientBuilder.build())
             .baseUrl(endpointHelper.pharmacyFhirVzdSearchAccessTokenUri)
             .addConverterFactory(instance(JsonConverterFactoryTag))
             .build()
-            .create(FhirVzdPharmacySearchAccessTokenService::class.java)
+            .create(ERezeptBackendService::class.java)
     }
 }

@@ -44,12 +44,12 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.card.model.command.UnlockMethod
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockRoutes
 import de.gematik.ti.erp.app.cardunlock.navigation.CardUnlockScreen
 import de.gematik.ti.erp.app.cardunlock.presentation.CardUnlockGraphController
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults

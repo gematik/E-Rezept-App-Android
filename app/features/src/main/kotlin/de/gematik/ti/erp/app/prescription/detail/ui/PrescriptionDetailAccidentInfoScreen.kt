@@ -42,7 +42,7 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.digas.ui.component.Label
 import de.gematik.ti.erp.app.navigation.Screen
@@ -113,6 +113,8 @@ private fun PrescriptionDetailAccidentInfoScreenScaffold(
 ) {
     AnimatedElevationScaffold(
         topBarTitle = stringResource(R.string.pres_detail_accident_title),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         listState = listState,
         onBack = onBack,
         navigationMode = NavigationBarMode.Back

@@ -87,7 +87,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import coil.compose.AsyncImage
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.profiles.model.PictureDataType
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
@@ -174,7 +174,7 @@ fun ProfileImageEmojiComponent(
 
     // these two change the background color of the profile image
     var colorName = profile?.color
-    val backgroundColor = colorName?.color()?.backGroundColor ?: Color.White
+    val backgroundColor = colorName?.color()?.backgroundColor ?: Color.White
 
     val shouldAnimateImage by remember(keyboardState, pictureDataType) {
         derivedStateOf { !keyboardState && pictureDataType == PictureDataType.EMPTY }
@@ -307,6 +307,8 @@ private fun ProfileImageEmojiScreenContent(
         topBar = {
             NavigationTopAppBar(
                 navigationMode = NavigationBarMode.Close,
+                backLabel = stringResource(R.string.back),
+                closeLabel = stringResource(R.string.cancel),
                 title = stringResource(R.string.profile_image_selector_title),
                 onBack = onBack
             )
@@ -363,14 +365,14 @@ private fun ProfileImageEmojiScreenContent(
                         context = context,
                         text = textData,
                         isDarkMode = isDarkMode,
-                        backgroundColor = profile?.color?.color()?.backGroundColor ?: Color.White
+                        backgroundColor = profile?.color?.color()?.backgroundColor ?: Color.White
                     )?.let { bitmap ->
                         CircularBitmapImage(
                             modifier = Modifier
                                 .size(SizeDefaults.twelvefold)
                                 .clip(CircleShape)
                                 .circularBorder(profile?.color?.color()?.borderColor ?: Color.Gray)
-                                .background(profile?.color?.color()?.backGroundColor ?: Color.White)
+                                .background(profile?.color?.color()?.backgroundColor ?: Color.White)
                                 .clickable { focusContentEvent.trigger() },
                             image = bitmap
                         )
@@ -383,7 +385,7 @@ private fun ProfileImageEmojiScreenContent(
                             .size(SizeDefaults.twelvefold)
                             .clip(CircleShape)
                             .circularBorder(profile?.color?.color()?.borderColor ?: Color.Gray)
-                            .background(profile?.color?.color()?.backGroundColor ?: Color.White)
+                            .background(profile?.color?.color()?.backgroundColor ?: Color.White)
                             .clickable { focusContentEvent.trigger() },
                         contentScale = ContentScale.Fit
                     )

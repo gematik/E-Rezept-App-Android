@@ -23,32 +23,28 @@
 package de.gematik.ti.erp.app
 
 import android.app.Application
-import android.os.Build
 import android.os.StrictMode
 import coil.ImageLoader
 import coil.ImageLoaderFactory
-import coil.decode.GifDecoder
-import coil.decode.ImageDecoderDecoder
 import com.appmattus.certificatetransparency.installCertificateTransparencyProvider
 import com.google.mlkit.common.MlKit
 import de.gematik.ti.erp.app.core.AppScopedCache
+import de.gematik.ti.erp.app.database.settings.initSharedPrefsSettings
 import de.gematik.ti.erp.app.di.ApplicationModule
 import de.gematik.ti.erp.app.di.delayedLeakCanary
-import de.gematik.ti.erp.app.medicationplan.worker.createNotificationReminderChannel
-import de.gematik.ti.erp.app.medicationplan.worker.createNotificationReminderGroup
-import de.gematik.ti.erp.app.medicationplan.worker.scheduleReminderWorker
+import de.gematik.ti.erp.app.medicationplan.alarm.MedicationPlanRescheduleAllSchedulesManager
 import de.gematik.ti.erp.app.utils.extensions.BuildConfigExtension
-import kotlin.time.Duration
+import de.gematik.ti.erp.app.utils.buildImageLoader
 
 open class ErezeptApp : Application(), ImageLoaderFactory {
     override fun onCreate() {
         super.onCreate()
+        initSharedPrefsSettings(this)
         installCertificateTransparencyProvider()
         applicationModule = ApplicationModule(this)
         debugChecks()
-        createNotificationReminderGroup()
-        createNotificationReminderChannel()
-        scheduleReminderWorker(Duration.ZERO)
+
+        MedicationPlanRescheduleAllSchedulesManager(context = this).enqueueRescheduling()
         MlKit.initialize(this)
     }
 
@@ -59,17 +55,7 @@ open class ErezeptApp : Application(), ImageLoaderFactory {
      * @return A new instance of [ImageLoader] configured for the application.
      */
     @Suppress("MagicNumber")
-    override fun newImageLoader(): ImageLoader {
-        return ImageLoader(this)
-            .newBuilder()
-            .components {
-                when {
-                    Build.VERSION.SDK_INT >= 28 -> add(ImageDecoderDecoder.Factory())
-                    else -> add(GifDecoder.Factory())
-                }
-            }
-            .build()
-    }
+    override fun newImageLoader(): ImageLoader = buildImageLoader()
 
     /**
      * Performs debug checks if the application is in internal debug mode.

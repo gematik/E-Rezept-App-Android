@@ -22,11 +22,15 @@
 
 package de.gematik.ti.erp.app.cardwall
 
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import com.google.mlkit.vision.text.TextRecognition
+import com.google.mlkit.vision.text.TextRecognizer
+import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallLoadNfcPositionUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.CardWallUseCase
-import de.gematik.ti.erp.app.cardwall.usecase.MiniCardWallUseCase
+import de.gematik.ti.erp.app.mlkitscanner.usecase.CalculateScanRegionUseCase
+import de.gematik.ti.erp.app.mlkitscanner.usecase.CardScannerUseCase
+import de.gematik.ti.erp.app.mlkitscanner.usecase.SetupCameraUseCase
 import org.kodein.di.DI
 import org.kodein.di.bindProvider
 import org.kodein.di.bindSingleton
@@ -36,6 +40,10 @@ val cardWallModule = DI.Module("cardWallModule") {
     bindProvider { AuthenticationUseCase(instance()) }
     bindProvider { CardWallLoadNfcPositionUseCase(instance()) }
     bindProvider { CardWallUseCase(instance(), instance()) }
-    bindSingleton { MiniCardWallUseCase(instance(), instance()) }
-    bindSingleton { CardWallGraphController(instance(), instance()) }
+    bindSingleton<TextRecognizer> {
+        TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
+    }
+    bindSingleton { CardScannerUseCase(instance()) }
+    bindProvider { SetupCameraUseCase() }
+    bindProvider { CalculateScanRegionUseCase() }
 }

@@ -55,10 +55,11 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import de.gematik.ti.erp.app.BuildKonfig
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.datetime.rememberErpTimeFormatter
 import de.gematik.ti.erp.app.datetime.temporalText
 import de.gematik.ti.erp.app.digas.ui.component.Label
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.medicationCategory
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.navigation.fromNavigationString
@@ -136,6 +137,8 @@ class PrescriptionDetailMedicationScreen(
                 val listState = rememberLazyListState()
                 AnimatedElevationScaffold(
                     modifier = Modifier.testTag(TestTag.Prescriptions.Details.Medication.Screen),
+                    backLabel = stringResource(R.string.back),
+                    closeLabel = stringResource(R.string.cancel),
                     scaffoldState = scaffoldState,
                     listState = listState,
                     onBack = navController::popBackStack,
@@ -186,8 +189,7 @@ private fun PrescriptionDetailMedicationScreenContent(
         medication?.let { med ->
             medicationInformation(
                 med,
-                onClickIngredient = {
-                        ingredient ->
+                onClickIngredient = { ingredient ->
                     navController.navigate(
                         PrescriptionDetailRoutes.PrescriptionDetailIngredientsScreen.path(
                             selectedIngredient = ingredient.toNavigationString()
@@ -202,8 +204,10 @@ private fun PrescriptionDetailMedicationScreenContent(
         when (prescriptionDataMedication) {
             is PrescriptionData.Medication.Dispense ->
                 medicationDispense(prescriptionDataMedication.medicationDispense)
+
             is PrescriptionData.Medication.Request ->
                 medicationRequest(prescriptionDataMedication.medicationRequest)
+
             null -> {}
         }
         item {
@@ -525,7 +529,7 @@ private fun PerformerLabel(performer: String) {
 }
 
 @Composable
-private fun HandedOverLabel(whenHandedOver: de.gematik.ti.erp.app.utils.FhirTemporal?) {
+private fun HandedOverLabel(whenHandedOver: FhirTemporal?) {
     whenHandedOver?.let {
         Label(
             text = remember { temporalText(it, TimeZone.currentSystemDefault()) },
@@ -535,7 +539,7 @@ private fun HandedOverLabel(whenHandedOver: de.gematik.ti.erp.app.utils.FhirTemp
 }
 
 @Composable
-private fun ExpirationDateLabel(expirationDate: de.gematik.ti.erp.app.utils.FhirTemporal) {
+private fun ExpirationDateLabel(expirationDate: FhirTemporal) {
     Label(
         text = remember { temporalText(expirationDate, TimeZone.currentSystemDefault()) },
         label = stringResource(id = R.string.pres_detail_medication_label_expiration_date)

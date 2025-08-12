@@ -22,98 +22,141 @@
 
 package de.gematik.ti.erp.app.medicationplan.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationDosageEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationNotificationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.medicationplan.MedicationScheduleEntityV1
-import de.gematik.ti.erp.app.db.writeOrCopyToRealm
-import de.gematik.ti.erp.app.medicationplan.model.MedicationDosage
-import de.gematik.ti.erp.app.medicationplan.model.MedicationNotification
-import de.gematik.ti.erp.app.medicationplan.model.MedicationNotificationMessage
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.medicationplan.MedicationScheduleNotificationEntityV1
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotificationDosage
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleNotification
 import de.gematik.ti.erp.app.medicationplan.model.MedicationSchedule
-import de.gematik.ti.erp.app.prescription.repository.toRatio
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleDuration
+import de.gematik.ti.erp.app.medicationplan.model.MedicationScheduleInterval
+import de.gematik.ti.erp.app.medicationplan.model.toMedicationSchedule
+import de.gematik.ti.erp.app.medicationplan.model.toMedicationScheduleDurationEntityV1
+import de.gematik.ti.erp.app.medicationplan.model.toMedicationScheduleEntityV1
+import de.gematik.ti.erp.app.medicationplan.model.toMedicationScheduleIntervalEntityV1
+import de.gematik.ti.erp.app.medicationplan.model.toMedicationScheduleNotificationDosageEntityV1
+import de.gematik.ti.erp.app.medicationplan.model.toMedicationScheduleNotificationEntityV1
 import io.realm.kotlin.Realm
+import io.realm.kotlin.UpdatePolicy
 import io.realm.kotlin.ext.query
-import io.realm.kotlin.ext.toRealmList
-import io.realm.kotlin.types.RealmList
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.datetime.LocalDate
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.LocalTime
 
-private const val QUERY_TASK_ID = "taskId = $0"
-
 class MedicationPlanLocalDataSource(
-    private val realm: Realm
+    private val realm: Realm,
+    private val dispatchers: CoroutineDispatcher = Dispatchers.IO
 ) {
-    fun loadMedicationSchedule(taskId: String): Flow<MedicationSchedule?> =
-        realm.query<MedicationScheduleEntityV1>(
-            QUERY_TASK_ID,
-            taskId
-        ).asFlow().map {
+    fun getMedicationSchedule(taskId: String): Flow<MedicationSchedule?> =
+        realm.query<MedicationScheduleEntityV1>("taskId = $0", taskId).asFlow().map {
             it.list.firstOrNull()?.toMedicationSchedule()
-        }
+        }.flowOn(dispatchers)
 
-    suspend fun updateMedicationSchedule(medicationSchedule: MedicationSchedule) {
-        realm.writeOrCopyToRealm(
-            ::MedicationScheduleEntityV1,
-            QUERY_TASK_ID,
-            medicationSchedule.taskId
-        ) { entity ->
-            entity.profileId = medicationSchedule.profileId
-            entity.start = medicationSchedule.start.toString()
-            entity.isActive = medicationSchedule.isActive
-            entity.end = medicationSchedule.end.toString()
-            entity.title = medicationSchedule.message.title
-            entity.body = medicationSchedule.message.body
-            entity.taskId = medicationSchedule.taskId
-            entity.amount = medicationSchedule.amount?.toRatioEntity()
-            entity.notifications = medicationSchedule.notifications.toNotificationsEntity()
-        }
-    }
-
-    fun loadAllMedicationSchedules(): Flow<List<MedicationSchedule>> =
+    fun getAllMedicationSchedules(): Flow<List<MedicationSchedule>> =
         realm.query<MedicationScheduleEntityV1>().asFlow().map {
             it.list.map { schedule ->
                 schedule.toMedicationSchedule()
             }
-        }
-}
+        }.flowOn(dispatchers)
 
-private fun MedicationScheduleEntityV1.toMedicationSchedule() =
-    MedicationSchedule(
-        taskId = taskId,
-        profileId = profileId,
-        start = LocalDate.parse(start),
-        end = LocalDate.parse(end),
-        amount = amount.toRatio(),
-        isActive = isActive,
-        message = MedicationNotificationMessage(
-            title = title,
-            body = body
-        ),
-        notifications = notifications.toNotifications()
-    )
-
-private fun List<MedicationNotification>.toNotificationsEntity(): RealmList<MedicationNotificationEntityV1> =
-    this.sortedBy { it.time }.map { notification ->
-        MedicationNotificationEntityV1().apply {
-            this.id = notification.id
-            this.time = notification.time.toString()
-            this.dosage = MedicationDosageEntityV1().apply {
-                this.form = notification.dosage.form
-                this.ratio = notification.dosage.ratio
+    suspend fun deleteMedicationSchedule(taskId: String) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleEntityV1>("taskId = $0", taskId)?.let { schedule ->
+                    delete(schedule)
+                }
             }
         }
-    }.toRealmList()
-
-private fun RealmList<MedicationNotificationEntityV1>.toNotifications(): List<MedicationNotification> =
-    this.map { notification ->
-        MedicationNotification(
-            id = notification.id,
-            time = LocalTime.parse(notification.time),
-            dosage = MedicationDosage(
-                form = notification.dosage?.form ?: "",
-                ratio = notification.dosage?.ratio ?: ""
-            )
-        )
     }
+
+    suspend fun setOrCreateActiveMedicationSchedule(medicationSchedule: MedicationSchedule) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleEntityV1>("taskId = $0", medicationSchedule.taskId)?.let {
+                    it.isActive = true
+                }
+                    ?: copyToRealm(medicationSchedule.copy(isActive = true).toMedicationScheduleEntityV1(), UpdatePolicy.ALL)
+            }
+        }
+    }
+
+    suspend fun deactivateMedicationSchedule(taskId: String) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleEntityV1>("taskId = $0", taskId)?.let {
+                    it.isActive = false
+                }
+            }
+        }
+    }
+
+    suspend fun setMedicationScheduleDuration(taskId: String, medicationScheduleDuration: MedicationScheduleDuration) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleEntityV1>("taskId = $0", taskId)?.let {
+                    it.duration = copyToRealm(medicationScheduleDuration.toMedicationScheduleDurationEntityV1())
+                }
+            }
+        }
+    }
+
+    suspend fun setMedicationScheduleInterval(taskId: String, medicationScheduleInterval: MedicationScheduleInterval) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleEntityV1>("taskId = $0", taskId)?.let {
+                    it.interval = copyToRealm(medicationScheduleInterval.toMedicationScheduleIntervalEntityV1())
+                }
+            }
+        }
+    }
+
+    suspend fun setOrCreateMedicationScheduleNotification(taskId: String, medicationScheduleNotification: MedicationScheduleNotification) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleEntityV1>("taskId = $0", taskId)?.let { schedule ->
+                    val existingNotification = schedule.notifications.find { it.id == medicationScheduleNotification.id }
+                    val newNotification = copyToRealm(medicationScheduleNotification.toMedicationScheduleNotificationEntityV1(), UpdatePolicy.ALL)
+                    if (existingNotification == null) {
+                        schedule.notifications.add(
+                            newNotification
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    suspend fun deleteMedicationScheduleNotification(medicationScheduleNotificationId: String) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleNotificationEntityV1>("id = $0", medicationScheduleNotificationId)?.let { notification ->
+                    delete(notification)
+                }
+            }
+        }
+    }
+
+    suspend fun setMedicationScheduleNotificationDosage(medicationScheduleNotificationId: String, dosage: MedicationScheduleNotificationDosage) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleNotificationEntityV1>("id = $0", medicationScheduleNotificationId)?.let { notification ->
+                    notification.dosage = copyToRealm(dosage.toMedicationScheduleNotificationDosageEntityV1())
+                }
+            }
+        }
+    }
+
+    suspend fun setMedicationScheduleNotificationTime(medicationScheduleNotificationId: String, time: LocalTime) {
+        withContext(dispatchers) {
+            realm.write {
+                queryFirst<MedicationScheduleNotificationEntityV1>("id = $0", medicationScheduleNotificationId)?.let { notification ->
+                    notification.time = time.toString()
+                }
+            }
+        }
+    }
+}

@@ -40,9 +40,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.appsecurity.presentation.rememberAppSecurityController
 import de.gematik.ti.erp.app.appsecurity.ui.model.AppSecurityResult
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.rememberOnboardingController

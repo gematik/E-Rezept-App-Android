@@ -31,8 +31,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirName.Companion.proce
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPatientErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.KbvBundleVersion
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPatientErpModel
 import de.gematik.ti.erp.app.utils.ParserUtil.asFhirTemporal
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName

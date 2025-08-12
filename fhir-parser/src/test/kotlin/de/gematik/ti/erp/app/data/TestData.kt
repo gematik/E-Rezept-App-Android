@@ -191,3 +191,7 @@ val bundle_dispenses_1_4_multiple_simple_medications by lazy {
 // fhir-audit events
 val bundle_audit_events_1_2 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_2.json") }
 val bundle_audit_events_1_1 by lazy { getResourceAsString("/fhir/audit_event_parser/audit_event_bundle_version_1_1.json") }
+
+// speciality types pharmacy
+val bundle_speciality_simple by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/speciality_bundle_different_types.json") }
+val bundle_speciality_complex by lazy { getResourceAsString("/fhir/pharmacy_fhirvzd_parser/speciality_bundle_duplicate_text.json") }

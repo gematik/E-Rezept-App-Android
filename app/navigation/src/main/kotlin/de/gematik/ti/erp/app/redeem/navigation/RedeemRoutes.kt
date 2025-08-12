@@ -32,6 +32,7 @@ import de.gematik.ti.erp.app.navigation.fromNavigationString
 import de.gematik.ti.erp.app.navigation.toNavigationString
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
+import de.gematik.ti.erp.app.utils.isNotNullOrEmpty
 
 object RedeemRoutes : NavigationRoutes {
     override fun subGraphName(): String = "redeem"
@@ -41,13 +42,14 @@ object RedeemRoutes : NavigationRoutes {
     const val REDEEM_NAV_MODAL_BEHAVIOUR = "ModalBehaviour"
     const val REDEEM_NAV_TASK_ID = "taskId"
 
-    object RedeemMethodSelection : Routes(NavigationRouteNames.RedeemMethodSelection.name)
+    object HowToRedeemScreen : Routes(NavigationRouteNames.HowToRedeemScreen.name)
     object RedeemLocal : Routes(
         NavigationRouteNames.RedeemLocal.name,
         navArgument(REDEEM_NAV_TASK_ID) { type = NavType.StringType }
     ) {
         fun path(taskId: String): String = path(REDEEM_NAV_TASK_ID to taskId)
     }
+
     object RedeemOnlinePreferences : Routes(NavigationRouteNames.RedeemOnline.name)
 
     object RedeemPrescriptionSelection : Routes(
@@ -65,13 +67,13 @@ object RedeemRoutes : NavigationRoutes {
 
     ) {
         fun path(
-            pharmacy: PharmacyUseCaseData.Pharmacy,
-            orderOption: PharmacyScreenData.OrderOption,
+            pharmacy: PharmacyUseCaseData.Pharmacy?,
+            orderOption: PharmacyScreenData.OrderOption?,
             taskId: String?
         ): String = path(
-            REDEEM_NAV_SELECTED_PHARMACY to pharmacy.toNavigationString(),
-            REDEEM_NAV_ORDER_OPTION to orderOption.name,
-            REDEEM_NAV_TASK_ID to taskId
+            REDEEM_NAV_SELECTED_PHARMACY to (pharmacy?.let { it.toNavigationString() } ?: ""),
+            REDEEM_NAV_ORDER_OPTION to (orderOption?.name ?: ""),
+            REDEEM_NAV_TASK_ID to (taskId ?: "")
         )
     }
 
@@ -89,14 +91,20 @@ class RedeemRouteBackStackEntryArguments(
     fun getPharmacy(): PharmacyUseCaseData.Pharmacy? =
         navBackStackEntry.arguments?.let { bundle ->
             bundle.getString(RedeemRoutes.REDEEM_NAV_SELECTED_PHARMACY)?.let {
-                fromNavigationString<PharmacyUseCaseData.Pharmacy>(it)
+                when {
+                    it.isNotNullOrEmpty() -> fromNavigationString<PharmacyUseCaseData.Pharmacy>(it)
+                    else -> null
+                }
             }
         }
 
     fun getOrderOption() =
         navBackStackEntry.arguments?.let { bundle ->
             bundle.getString(RedeemRoutes.REDEEM_NAV_ORDER_OPTION)?.let {
-                PharmacyScreenData.OrderOption.valueOf(it)
+                when {
+                    it.isNotNullOrEmpty() -> PharmacyScreenData.OrderOption.valueOf(it)
+                    else -> null
+                }
             }
         }
 }

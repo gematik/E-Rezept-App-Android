@@ -23,12 +23,14 @@
 package de.gematik.ti.erp.app.prescription.detail.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispenseDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.prescription.model.PrescriptionData
 import de.gematik.ti.erp.app.prescription.model.Quantity
 import de.gematik.ti.erp.app.prescription.model.Ratio
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.utils.asFhirTemporal
 import kotlinx.datetime.Instant
 
 data class PrescriptionDetailPreviewData(
@@ -104,9 +106,9 @@ private val mockMedicationRequest = SyncedTaskData.MedicationRequest(
             )
         )
     ),
-    authoredOn = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(
+    authoredOn = FhirTemporal.Instant(
         value = Instant.parse("2024-01-01T10:00:00Z"),
-        type = de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalInstant
+        type = FhirTemporalSerializationType.FhirTemporalInstant
     ),
     dateOfAccident = null,
     accidentType = SyncedTaskData.AccidentType.None,
@@ -137,9 +139,9 @@ private val mockMedicationDispense = SyncedTaskData.MedicationDispense(
         status = "completed",
         modifiedDate = Instant.parse(input = "2024-08-01T10:00:00Z").asFhirTemporal()
     ),
-    whenHandedOver = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(
+    whenHandedOver = FhirTemporal.Instant(
         value = Instant.parse("2024-01-15T10:00:00Z"),
-        type = de.gematik.ti.erp.app.utils.FhirTemporalSerializationType.FhirTemporalInstant
+        type = FhirTemporalSerializationType.FhirTemporalInstant
     )
 )
 
@@ -210,7 +212,8 @@ private val mockSyncedTask = SyncedTaskData.SyncedTask(
     medicationRequest = mockMedicationRequest,
     lastMedicationDispense = null,
     medicationDispenses = emptyList(),
-    communications = emptyList()
+    communications = emptyList(),
+    isEuRedeemable = false
 )
 
 // prescription data objects

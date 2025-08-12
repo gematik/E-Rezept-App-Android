@@ -29,7 +29,7 @@ import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.common.model.original.isValidKbvResource
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskOrganizationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskOrganizationErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTelecom.Companion.getMail
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirTelecom.Companion.getPhone
 import io.github.aakira.napier.Napier

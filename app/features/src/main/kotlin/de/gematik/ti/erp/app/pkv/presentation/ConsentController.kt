@@ -34,7 +34,7 @@ import de.gematik.ti.erp.app.consent.usecase.GrantConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.RevokeConsentUseCase
 import de.gematik.ti.erp.app.consent.usecase.SaveGrantConsentDrawerShownUseCase
 import de.gematik.ti.erp.app.core.complexAutoSaver
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow

@@ -22,11 +22,11 @@
 
 package de.gematik.ti.erp.app.fhir.model
 
-import de.gematik.ti.erp.app.db.entities.v1.task.IdentifierEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.IdentifierEntityV1
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.parser.contained
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.serialization.json.JsonElement
 import java.io.File
 import java.text.SimpleDateFormat

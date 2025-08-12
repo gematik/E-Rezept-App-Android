@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.order.messge.presentation
 
 import android.app.Application
 import com.google.mlkit.common.model.RemoteModelManager
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirPharmacyErpModelCollection
+import de.gematik.ti.erp.app.fhir.FhirPharmacyErpModelCollection
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
 import de.gematik.ti.erp.app.info.BuildConfigInformation
 import de.gematik.ti.erp.app.invoice.repository.InvoiceRepository

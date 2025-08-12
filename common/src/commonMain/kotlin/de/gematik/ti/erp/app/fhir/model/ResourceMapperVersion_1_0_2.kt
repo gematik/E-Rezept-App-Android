@@ -34,8 +34,8 @@ import de.gematik.ti.erp.app.fhir.parser.filterWith
 import de.gematik.ti.erp.app.fhir.parser.findAll
 import de.gematik.ti.erp.app.fhir.parser.isProfileValue
 import de.gematik.ti.erp.app.fhir.parser.stringValue
-import de.gematik.ti.erp.app.utils.asFhirLocalDate
-import de.gematik.ti.erp.app.utils.toFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirLocalDate
+import de.gematik.ti.erp.app.fhir.temporal.toFhirTemporal
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.jsonPrimitive
 
@@ -537,6 +537,7 @@ fun <Medication, Ingredient, Ratio, Quantity> extractMedicationIngredient(
         expirationDate
     )
 }
+
 fun extractMedicationCategory(resource: JsonElement): MedicationCategory {
     val medicationCategoryCode = resource
         .findAll("extension")

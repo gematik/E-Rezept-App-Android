@@ -22,12 +22,12 @@
 
 package de.gematik.ti.erp.app.digas.mapper
 
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
-import de.gematik.ti.erp.app.fhir.model.DigaStatus.CompletedSuccessfully
-import de.gematik.ti.erp.app.fhir.model.DigaStatus.CompletedWithRejection
-import de.gematik.ti.erp.app.fhir.model.DigaStatus.InProgress
-import de.gematik.ti.erp.app.fhir.model.DigaStatus.Ready
-import de.gematik.ti.erp.app.fhir.model.DigaStatus.WrappedTaskStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus.CompletedSuccessfully
+import de.gematik.ti.erp.app.diga.model.DigaStatus.CompletedWithRejection
+import de.gematik.ti.erp.app.diga.model.DigaStatus.InProgress
+import de.gematik.ti.erp.app.diga.model.DigaStatus.Ready
+import de.gematik.ti.erp.app.diga.model.DigaStatus.WrappedTaskStatus
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData.TaskStatus
 import kotlinx.datetime.Instant
 

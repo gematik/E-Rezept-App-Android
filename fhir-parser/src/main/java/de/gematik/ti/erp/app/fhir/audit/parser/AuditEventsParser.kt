@@ -23,10 +23,10 @@
 package de.gematik.ti.erp.app.fhir.audit.parser
 
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.audit.model.erp.FhirAuditEventErpModel.Companion.toErpModel
+import de.gematik.ti.erp.app.fhir.FhirAuditEventsErpModelCollection
+import de.gematik.ti.erp.app.fhir.audit.model.erp.toErpModel
 import de.gematik.ti.erp.app.fhir.audit.model.original.FhirAuditBundleMetaModel.Companion.getMeta
 import de.gematik.ti.erp.app.fhir.audit.model.original.FhirAuditEventModel.Companion.toAuditEvent
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirAuditEventsErpModelCollection
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirResourceBundle.Companion.parseResourceBundle
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.JsonElement

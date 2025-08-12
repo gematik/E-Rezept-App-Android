@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.insurance.usecase
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInsuranceProvider
+import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.profiles.repository.ProfileRepository
 import io.github.aakira.napier.Napier

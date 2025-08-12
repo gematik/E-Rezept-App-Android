@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.fhir.pharmacy.parser
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.fhir.BundleParser
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirInsuranceProvider
+import de.gematik.ti.erp.app.fhir.FhirInsuranceProvider
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirFullUrlResourceEntry.Companion.getFhirVzdResourceType
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVZDBundle.Companion.getBundle
 import de.gematik.ti.erp.app.fhir.pharmacy.model.original.FhirVzdOrganization.Companion.getOrganization

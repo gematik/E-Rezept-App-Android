@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.messages.model
 
-import de.gematik.ti.erp.app.db.entities.v1.task.CommunicationProfileV1
+import de.gematik.ti.erp.app.database.realm.v1.task.entity.CommunicationProfileV1
 import kotlinx.datetime.Instant
 import kotlinx.serialization.Serializable
 

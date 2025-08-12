@@ -22,9 +22,9 @@
 
 package de.gematik.ti.erp.app.consent.repository
 
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.realm.kotlin.Realm
 
 class ConsentLocalDataSource(

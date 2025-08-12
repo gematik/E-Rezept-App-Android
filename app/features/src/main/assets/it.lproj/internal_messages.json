@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Riscatta le DiGA prescritte** \nOra puoi riscattare le prescrizioni per le applicazioni sanitarie digitali (DiGA) direttamente tramite l'app per le prescrizioni elettroniche. Puoi trovare il codice di attivazione e il link alla DiGA prescritta proprio qui nell'app per le prescrizioni elettroniche. \n \n **🏥 Nuovo database delle farmacie** \nAbbiamo introdotto un nuovo database a prova di futuro per le ricerche in farmacia.",
+        "text": "**📲 Riscatta le prescrizioni DiGA** \nOra puoi riscattare le prescrizioni per le applicazioni sanitarie digitali (DiGA) direttamente tramite l'app per le prescrizioni elettroniche. Le prescrizioni saranno emesse da specialisti di Amburgo nell'ambito di un progetto pilota. Puoi trovare il tuo codice di attivazione e il link per la DiGA proprio qui nell'app per le prescrizioni elettroniche. \n \n **🏥 Nuovo database delle farmacie** \nAbbiamo introdotto un nuovo database a prova di futuro per la ricerca in farmacia.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Nuova funzione di traduzione** \nSe utilizzi l'app in un'altra lingua, ora puoi tradurre direttamente le risposte della farmacia. \n \n **♿️ Accessibilità** \nLa nostra dichiarazione di accessibilità è ora disponibile nelle impostazioni. Anche il processo di onboarding è stato reso più accessibile. \n \n **📲 Riscatta DiGA con le compagnie assicurative** \nLe prescrizioni per le applicazioni sanitarie digitali (DiGA) ora possono essere riscattate anche con altre compagnie assicurative.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Registrazione per persone con assicurazione privata** \nLa registrazione per persone con assicurazione privata è stata ottimizzata. Puoi accedere comodamente con il tuo ID sanitario in pochi clic. \n \n **⏰ Promemoria per i farmaci** \nOra puoi impostare promemoria per l'assunzione dei farmaci. \n \n **🛒 Flusso di ordinazione migliorato** \nIl processo di ordinazione è ora più semplice e veloce. \n \n **♿️ Accessibilità** \nIl numero di accesso per la tessera sanitaria può ora essere scansionato anche con la fotocamera. \n \n **📲 Ulteriori informazioni per i DiGA** \nD'ora in poi riceverai informazioni più dettagliate sulle tue prescrizioni DiGA, come il prezzo di vendita o il logo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

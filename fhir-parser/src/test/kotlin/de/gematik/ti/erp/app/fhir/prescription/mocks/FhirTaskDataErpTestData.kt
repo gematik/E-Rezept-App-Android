@@ -22,32 +22,33 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.mocks
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.FhirTaskDataErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskAccidentType
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskKbvAddressErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirCoverageErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIngredientErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMultiplePrescriptionInfoErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvDeviceRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvMedicationRequestErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPatientErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskKbvPractitionerErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskMedicationCategoryErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirTaskOrganizationErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.RequestIntent
-import de.gematik.ti.erp.app.utils.FhirTemporal.LocalDate
-import de.gematik.ti.erp.app.utils.FhirTemporalSerializationType
+import de.gematik.ti.erp.app.fhir.FhirTaskDataErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirCoverageErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirMultiplePrescriptionInfoErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvDeviceRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvMedicationRequestErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPatientErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskKbvPractitionerErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskMedicationCategoryErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.FhirTaskOrganizationErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.RequestIntent
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskAccidentType
+import de.gematik.ti.erp.app.fhir.support.FhirTaskKbvAddressErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporalSerializationType
+import kotlinx.datetime.LocalDate
 
 object FhirTaskDataErpTestData {
     val fhirKbvBundle1_v102 = FhirTaskDataErpModel(
         pvsId = "Y/400/2107/36/999",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(
-            authoredOn = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("2021-04-03"),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2021-04-03"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             dateOfAccident = null,
@@ -93,8 +94,8 @@ object FhirTaskDataErpTestData {
         ),
         patient = FhirTaskKbvPatientErpModel(
             name = "Ludger Königsstein",
-            birthDate = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1935-06-22"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             address = FhirTaskKbvAddressErpModel(
@@ -157,8 +158,8 @@ object FhirTaskDataErpTestData {
     val fhirKbvBundle1_v110 = FhirTaskDataErpModel(
         pvsId = "Y/400/2107/36/999",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(
-            authoredOn = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("2025-01-16"),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-01-16"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             dateOfAccident = null,
@@ -204,8 +205,8 @@ object FhirTaskDataErpTestData {
         ),
         patient = FhirTaskKbvPatientErpModel(
             name = "Ludger Königsstein",
-            birthDate = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1935-06-22"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             address = FhirTaskKbvAddressErpModel(
@@ -268,8 +269,8 @@ object FhirTaskDataErpTestData {
     val fhirKbvBundle2_v110 = FhirTaskDataErpModel(
         pvsId = "Y/400/2107/36/999",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(
-            authoredOn = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("2025-01-17"),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-01-17"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             dateOfAccident = null,
@@ -315,8 +316,8 @@ object FhirTaskDataErpTestData {
         ),
         patient = FhirTaskKbvPatientErpModel(
             name = "Paula Privati",
-            birthDate = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1935-06-22"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             address = FhirTaskKbvAddressErpModel(
@@ -359,7 +360,10 @@ object FhirTaskDataErpTestData {
     val fhirKbvBundle3_v110 = FhirTaskDataErpModel(
         pvsId = "Y/400/2410/36/280",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(
-            authoredOn = LocalDate(value = kotlinx.datetime.LocalDate.parse("2025-02-17"), type = FhirTemporalSerializationType.FhirTemporalLocalDate),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-02-17"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
             dateOfAccident = null,
             location = null,
             accidentType = FhirTaskAccidentType.None,
@@ -403,8 +407,8 @@ object FhirTaskDataErpTestData {
         ),
         patient = FhirTaskKbvPatientErpModel(
             name = "Roman King Mann",
-            birthDate = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("1990-01-01"),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1990-01-01"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             address = FhirTaskKbvAddressErpModel(
@@ -447,8 +451,8 @@ object FhirTaskDataErpTestData {
     val fhirKbvBundle4_v110 = FhirTaskDataErpModel(
         pvsId = "Y/400/2107/36/999",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(
-            authoredOn = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("2022-08-15"),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2022-08-15"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             dateOfAccident = null,
@@ -494,8 +498,8 @@ object FhirTaskDataErpTestData {
         ),
         patient = FhirTaskKbvPatientErpModel(
             name = "Paula Privati",
-            birthDate = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1935-06-22"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             address = FhirTaskKbvAddressErpModel(
@@ -539,7 +543,10 @@ object FhirTaskDataErpTestData {
     val fhirKbvBundle5_v110 = FhirTaskDataErpModel(
         pvsId = "Y/400/2107/36/999",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(
-            authoredOn = LocalDate(value = kotlinx.datetime.LocalDate.parse("2022-08-15"), type = FhirTemporalSerializationType.FhirTemporalLocalDate),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2022-08-15"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
             dateOfAccident = null,
             location = null,
             accidentType = FhirTaskAccidentType.OccupationalDisease,
@@ -612,7 +619,10 @@ object FhirTaskDataErpTestData {
         patient = FhirTaskKbvPatientErpModel(
             name = "Prof. habil. Dr. med Friedrich-Wilhelm-Karl-Gustav-Justus-Gotfried " +
                 "Grossherzog von und zu der Schaumberg-von-und-zu-Schaumburg-und-Radeberg",
-            birthDate = LocalDate(value = kotlinx.datetime.LocalDate.parse("1951-07-12"), type = FhirTemporalSerializationType.FhirTemporalLocalDate),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1951-07-12"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
             address = FhirTaskKbvAddressErpModel(
                 streetName = null,
                 houseNumber = null,
@@ -653,7 +663,10 @@ object FhirTaskDataErpTestData {
     val fhirKbvBundle6_v110 = FhirTaskDataErpModel(
         pvsId = "Y/400/2107/36/999",
         medicationRequest = FhirTaskKbvMedicationRequestErpModel(
-            authoredOn = LocalDate(value = kotlinx.datetime.LocalDate.parse("2022-05-20"), type = FhirTemporalSerializationType.FhirTemporalLocalDate),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2022-05-20"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
             dateOfAccident = null,
             location = null,
             accidentType = FhirTaskAccidentType.None,
@@ -669,7 +682,10 @@ object FhirTaskDataErpTestData {
                     numerator = FhirQuantityErpModel(value = "4", unit = null),
                     denominator = FhirQuantityErpModel(value = "4", unit = null)
                 ),
-                start = LocalDate(value = kotlinx.datetime.LocalDate.parse("2022-04-01"), type = FhirTemporalSerializationType.FhirTemporalLocalDate),
+                start = FhirTemporal.LocalDate(
+                    value = LocalDate.parse("2022-04-01"),
+                    type = FhirTemporalSerializationType.FhirTemporalLocalDate
+                ),
                 end = null
             ),
             bvg = false
@@ -697,7 +713,10 @@ object FhirTaskDataErpTestData {
         ),
         patient = FhirTaskKbvPatientErpModel(
             name = "Prof. Dr. Dr. med Eva Kluge",
-            birthDate = LocalDate(value = kotlinx.datetime.LocalDate.parse("1982-01-03"), type = FhirTemporalSerializationType.FhirTemporalLocalDate),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1982-01-03"),
+                type = FhirTemporalSerializationType.FhirTemporalLocalDate
+            ),
             address = FhirTaskKbvAddressErpModel(
                 streetName = "Pflasterhofweg",
                 houseNumber = "111B",
@@ -741,8 +760,8 @@ object FhirTaskDataErpTestData {
         medication = null,
         patient = FhirTaskKbvPatientErpModel(
             name = "Ludger Königsstein",
-            birthDate = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("1935-06-22"),
+            birthDate = FhirTemporal.LocalDate(
+                value = LocalDate.parse("1935-06-22"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             address = FhirTaskKbvAddressErpModel(
@@ -785,8 +804,8 @@ object FhirTaskDataErpTestData {
             appName = "Vantis KHK und Herzinfarkt 001",
             accident = null,
             isSelfUse = false,
-            authoredOn = LocalDate(
-                value = kotlinx.datetime.LocalDate.parse("2025-03-31"),
+            authoredOn = FhirTemporal.LocalDate(
+                value = LocalDate.parse("2025-03-31"),
                 type = FhirTemporalSerializationType.FhirTemporalLocalDate
             ),
             isNew = true,

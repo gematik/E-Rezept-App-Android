@@ -1,119 +1,118 @@
 {
-  "dispensedMedications":[
+  "dispensedMedications": [
     {
-      "dispenseId":"200.000.000.205.090.70",
-      "patientId":"X110519788",
-      "substitutionAllowed":false,
-      "dosageInstruction":null,
-      "performer":"3-01.2.2023001.16.101",
-      "handedOver":{
-        "value":"2025-04-04"
+      "dispenseId": "200.000.000.205.090.70",
+      "patientId": "X110519788",
+      "substitutionAllowed": false,
+      "dosageInstruction": null,
+      "performer": "3-01.2.2023001.16.101",
+      "handedOver": {
+        "value": "2025-04-04"
       },
-      "dispensedMedication":[
+      "dispensedMedication": [
         {
-          "type":"de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedEpaMedicationErpModel",
-          "text":null,
-          "category":"00",
-          "form":"KPG",
-          "amount":null,
-          "isVaccine":false,
-          "lotNumber":"56498416854",
-          "expirationDate":null,
-          "contextualData":{
-            "identifier":{
-              "pzn":"1746517",
-              "atc":null,
-              "ask":null,
-              "snomed":null
+          "type": "de.gematik.ti.erp.app.fhir.dispense.model.DispensedEpaMedicationErpModel",
+          "text": null,
+          "category": "00",
+          "form": "KPG",
+          "amount": null,
+          "isVaccine": false,
+          "lotNumber": "56498416854",
+          "expirationDate": null,
+          "contextualData": {
+            "identifier": {
+              "pzn": "1746517",
+              "atc": null,
+              "ask": null,
+              "snomed": null
             },
-            "normSizeCode":null,
-            "manufacturingInstructions":null,
-            "packaging":null,
-            "ingredients":[
-
+            "normSizeCode": null,
+            "manufacturingInstructions": null,
+            "packaging": null,
+            "ingredients": [
             ],
-            "internalMedication":[
+            "internalMedication": [
               {
-                "text":null,
-                "category":null,
-                "form":null,
-                "amount":null,
-                "isVaccine":false,
-                "lotNumber":null,
-                "expirationDate":null,
-                "contextualData":{
-                  "identifier":{
-                    "pzn":null,
-                    "atc":null,
-                    "ask":null,
-                    "snomed":null
+                "text": null,
+                "category": null,
+                "form": null,
+                "amount": null,
+                "isVaccine": false,
+                "lotNumber": null,
+                "expirationDate": null,
+                "contextualData": {
+                  "identifier": {
+                    "pzn": null,
+                    "atc": null,
+                    "ask": null,
+                    "snomed": null
                   },
-                  "normSizeCode":null,
-                  "manufacturingInstructions":null,
-                  "packaging":null,
-                  "ingredients":[
+                  "normSizeCode": null,
+                  "manufacturingInstructions": null,
+                  "packaging": null,
+                  "ingredients": [
                     {
-                      "text":null,
-                      "amount":null,
-                      "form":null,
-                      "strengthRatio":{
-                        "numerator":{
-                          "value":"20",
-                          "unit":"mg"
+                      "text": null,
+                      "amount": null,
+                      "form": null,
+                      "strengthRatio": {
+                        "numerator": {
+                          "value": "20",
+                          "unit": "mg"
                         },
-                        "denominator":{
-                          "value":"1",
-                          "unit":"ml"
+                        "denominator": {
+                          "value": "1",
+                          "unit": "ml"
                         }
                       },
-                      "identifier":{
-                        "pzn":null,
-                        "atc":null,
-                        "ask":null,
-                        "snomed":null
+                      "identifier": {
+                        "pzn": null,
+                        "atc": null,
+                        "ask": null,
+                        "snomed": null
                       }
                     }
                   ]
                 }
               },
               {
-                "text":null,
-                "category":null,
-                "form":null,
-                "amount":null,
-                "isVaccine":false,
-                "lotNumber":null,
-                "expirationDate":null,
-                "contextualData":{
-                  "identifier":{
-                    "pzn":null,
-                    "atc":null,
-                    "ask":null,
-                    "snomed":null
+                "text": null,
+                "category": null,
+                "form": null,
+                "amount": null,
+                "isVaccine": false,
+                "lotNumber": null,
+                "expirationDate": null,
+                "contextualData": {
+                  "identifier": {
+                    "pzn": null,
+                    "atc": null,
+                    "ask": null,
+                    "snomed": null
                   },
-                  "normSizeCode":null,
-                  "manufacturingInstructions":null,
-                  "packaging":null,
-                  "ingredients":[
+                  "normSizeCode": null,
+                  "manufacturingInstructions": null,
+                  "packaging": null,
+                  "ingredients": [
                     {
-                      "text":null,
-                      "amount":null,
-                      "form":null,
-                      "strengthRatio":{
-                        "numerator":{
-                          "value":"2.8",
-                          "unit":"mg"
+                      "text": null,
+                      "amount": null,
+                      "form": null,
+                      "strengthRatio": {
+                        "numerator": {
+                          "value": "2.8",
+                          "unit": "mg"
                         },
-                        "denominator":{
-                          "value":"1",
-                          "unit":"Sprühstoß"
+                        "denominator": {
+                          "value": "1",
+                          "unit": "Sprühstoß"
                         }
                       },
-                      "identifier":{
-                        "pzn":null,
-                        "atc":null,
-                        "ask":null,
-                        "snomed":null
+                      "identifier": {
+                        "pzn": null,
+                        "atc": null,
+                        "ask": null,
+                        "snomed": null
                       }
                     }
                   ]

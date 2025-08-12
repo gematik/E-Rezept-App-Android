@@ -43,6 +43,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.ui.model.ErrorScreenDataWithRetry
 import de.gematik.ti.erp.app.error.ErrorScreenComponent
 import de.gematik.ti.erp.app.navigation.Screen
@@ -104,6 +105,8 @@ class TranslationSettingsScreen(
         AnimatedElevationScaffold(
             listState = listState,
             onBack = navController::navigateUp,
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             actions = {
                 TranslationSettingsDropDownMenu {
                     consentBasedNavigation(isConsentGiven, navController)

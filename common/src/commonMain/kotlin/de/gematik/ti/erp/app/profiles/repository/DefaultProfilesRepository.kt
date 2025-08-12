@@ -22,13 +22,14 @@
 
 package de.gematik.ti.erp.app.profiles.repository
 
-import de.gematik.ti.erp.app.db.entities.deleteAll
-import de.gematik.ti.erp.app.db.entities.v1.AvatarFigureV1
-import de.gematik.ti.erp.app.db.entities.v1.InsuranceTypeV1
-import de.gematik.ti.erp.app.db.entities.v1.ProfileColorNamesV1
-import de.gematik.ti.erp.app.db.entities.v1.ProfileEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
-import de.gematik.ti.erp.app.db.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.utils.deleteAll
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.utils.toRealmInstant
+import de.gematik.ti.erp.app.database.realm.v1.AvatarFigureV1
+import de.gematik.ti.erp.app.database.realm.v1.InsuranceTypeV1
+import de.gematik.ti.erp.app.database.realm.v1.ProfileColorNamesV1
+import de.gematik.ti.erp.app.database.realm.v1.ProfileEntityV1
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.mapper.toProfileData
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import io.realm.kotlin.Realm
@@ -46,9 +47,6 @@ import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.datetime.Instant
-
-// TODO: Move to value class
-typealias ProfileIdentifier = String
 
 sealed interface SetToActiveProfile {
     data object NoChange : SetToActiveProfile

@@ -24,14 +24,14 @@ package de.gematik.ti.erp.app.idp.repository
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 
-class IdpPairingRepository constructor(
+class IdpPairingRepository(
     private val localDataSource: IdpLocalDataSource
 ) {
     private val decryptedAccessTokenMap: MutableStateFlow<Map<String, AccessToken>> =

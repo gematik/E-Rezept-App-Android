@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Valorificați rețetele DiGA prescrise** \nAcum puteți valorifica rețetele pentru aplicații digitale de sănătate (DiGA) direct prin intermediul aplicației de rețete electronice. Puteți găsi codul de activare și linkul către DiGA prescris chiar aici, în aplicația de rețete electronice. \n \n **🏥 Noua bază de date a farmaciilor** \nAm introdus o nouă bază de date, pregătită pentru viitor, pentru căutările în farmacii.",
+        "text": "**📲 Valorificați rețetele DiGA prescrise** \nAcum puteți valorifica rețetele pentru aplicații digitale de sănătate (DiGA) direct prin intermediul aplicației de rețete electronice. Rețetele vor fi emise de specialiști din Hamburg, ca parte a unui proiect pilot. Puteți găsi codul de activare și linkul către DiGA chiar aici, în aplicația de rețete electronice. \n \n **🏥 Noua bază de date a farmaciilor** \nAm introdus o nouă bază de date, pregătită pentru viitor, pentru căutările în farmacii.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Nouă funcție de traducere** \nDacă utilizați aplicația în altă limbă, acum puteți traduce direct răspunsurile farmaciei. \n \n **♿️ Accesibilitate** \nDeclarația noastră de accesibilitate este acum disponibilă în setări. Procesul de integrare a fost, de asemenea, făcut mai accesibil. \n \n **📲 Valorificați DiGA-uri la companiile de asigurări** \nRețetele pentru aplicații digitale de sănătate (DiGA) pot fi acum valorificate și la alte companii de asigurări.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Înregistrarea pentru persoanele asigurate privat** \nÎnregistrarea pentru persoanele asigurate privat a fost optimizată. Vă puteți conecta convenabil cu ID-ul dvs. de sănătate în doar câteva clicuri. \n \n **⏰ Mementouri pentru medicamente** \nAcum puteți seta mementouri pentru a vă lua medicamentele. \n \n **🛒 Flux de comandă îmbunătățit** \nProcesul de comandă este acum mai simplu și mai rapid. \n \n **♿️ Accesibilitate** \nNumărul de acces pentru cardul de sănătate poate fi acum scanat și cu camera. \n \n **📲 Mai multe informații pentru persoanele asigurate DiGA** \nDe acum înainte veți primi informații mai detaliate despre rețetele dvs. DiGA, cum ar fi prețul de vânzare sau sigla.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

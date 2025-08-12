@@ -26,14 +26,14 @@ import de.gematik.ti.erp.app.api.ApiCallException
 import de.gematik.ti.erp.app.api.HttpErrorState
 import de.gematik.ti.erp.app.api.httpErrorState
 import de.gematik.ti.erp.app.fhir.communication.CommunicationDispenseRequest.createCommunicationDispenseRequest
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationConstants
 import de.gematik.ti.erp.app.fhir.communication.model.CommunicationPayload
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
 import de.gematik.ti.erp.app.pharmacy.mapper.toRedeemOption
 import de.gematik.ti.erp.app.pharmacy.model.PharmacyScreenData
 import de.gematik.ti.erp.app.pharmacy.repository.PharmacyRepository
 import de.gematik.ti.erp.app.pharmacy.usecase.model.PharmacyUseCaseData
 import de.gematik.ti.erp.app.prescription.repository.PrescriptionRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.redeem.model.BaseRedeemState
 import de.gematik.ti.erp.app.redeem.model.RedeemedPrescriptionState
 import io.github.aakira.napier.Napier
@@ -47,13 +47,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.json.Json
 import java.util.UUID
-
-private val json = Json {
-    encodeDefaults = true
-    prettyPrint = false
-}
 
 /**
  * 1. Inform the UI on the process start

@@ -29,9 +29,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.PreviewParameter
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.digas.ui.preview.DigaStatusPreviewParameterProvider
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.semantics.semanticsHeading

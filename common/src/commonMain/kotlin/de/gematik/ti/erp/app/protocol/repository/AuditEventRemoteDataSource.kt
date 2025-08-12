@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.protocol.repository
 import androidx.compose.ui.text.intl.Locale
 import de.gematik.ti.erp.app.api.ErpService
 import de.gematik.ti.erp.app.api.safeApiCall
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import kotlinx.serialization.json.JsonElement
 
 class AuditEventRemoteDataSource(

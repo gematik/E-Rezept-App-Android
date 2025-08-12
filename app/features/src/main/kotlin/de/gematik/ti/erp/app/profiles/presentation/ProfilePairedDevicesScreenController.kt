@@ -27,19 +27,19 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import de.gematik.ti.erp.app.api.NoInternetException
 import de.gematik.ti.erp.app.authentication.model.AuthenticationResult
-import de.gematik.ti.erp.app.authentication.model.ChooseAuthenticationController
 import de.gematik.ti.erp.app.authentication.presentation.BiometricAuthenticator
+import de.gematik.ti.erp.app.authentication.presentation.ChooseAuthenticationController
+import de.gematik.ti.erp.app.authentication.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
 import de.gematik.ti.erp.app.base.NetworkStatusTracker.Companion.isNetworkAvailable
 import de.gematik.ti.erp.app.core.LocalBiometricAuthenticator
 import de.gematik.ti.erp.app.idp.model.IdpData
-import de.gematik.ti.erp.app.idp.usecase.ChooseAuthenticationDataUseCase
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException.Companion.isUserActionNotRequired
 import de.gematik.ti.erp.app.idp.usecase.RefreshFlowException.Companion.isUserActionRequired
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.model.ProfilePairedDevicesErrorState.CannotLoadPairedDevicesError
 import de.gematik.ti.erp.app.profiles.model.ProfilePairedDevicesErrorState.NoInternetError
 import de.gematik.ti.erp.app.profiles.model.ProfilePairedDevicesErrorState.UserNotLoggedInWithBiometricsError
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.profiles.usecase.DeletePairedDevicesUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.GetPairedDevicesUseCase
@@ -137,10 +137,12 @@ class ProfilePairedDevicesScreenController(
                             .retry(ASK_FOR_AUTH_REQUIRED_ATTEMPTS) { throwable ->
                                 if (throwable.isUserActionRequired()) { // to ask for biometric authentication
                                     Napier.i { "need bio-auth for paired devices, ${throwable.message}" }
-                                    chooseAuthenticationMethod(
-                                        profileId = profileId,
-                                        useBiometricPairingScope = true
-                                    )
+                                    activeProfile.value.data?.let {
+                                        chooseAuthenticationMethod(
+                                            profile = it,
+                                            useBiometricPairingScope = true
+                                        )
+                                    }
                                     true
                                 } else {
                                     Napier.e { "error loading paired devices ${throwable.message}" }

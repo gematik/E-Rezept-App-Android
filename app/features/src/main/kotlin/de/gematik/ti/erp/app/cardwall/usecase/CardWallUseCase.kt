@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.cardwall.usecase
 import de.gematik.ti.erp.app.ErezeptApp.Companion.applicationModule
 import de.gematik.ti.erp.app.idp.model.IdpData
 import de.gematik.ti.erp.app.idp.repository.IdpRepository
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import de.gematik.ti.erp.app.settings.repository.CardWallRepository
 import de.gematik.ti.erp.app.utils.extensions.hasNFCTerminal
 import de.gematik.ti.erp.app.utils.extensions.isNfcEnabled

@@ -68,10 +68,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
@@ -130,6 +132,8 @@ fun QrCodeScanner(
         topBar = {
             NavigationTopAppBar(
                 navigationMode = NavigationBarMode.Close,
+                backLabel = stringResource(R.string.back),
+                closeLabel = stringResource(R.string.cancel),
                 title = "QR Code Scanner"
             ) {
                 onBack()

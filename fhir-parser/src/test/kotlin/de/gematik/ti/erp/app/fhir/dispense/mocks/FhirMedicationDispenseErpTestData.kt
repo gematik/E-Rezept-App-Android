@@ -23,17 +23,17 @@
 package de.gematik.ti.erp.app.fhir.dispense.mocks
 
 import de.gematik.ti.erp.app.data.getResourceAsString
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedIngredientMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.DispensedPznMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirDispensedFreeTextMedicationErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirMedicationDispenseErpModel
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.IngredientContextualData
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.PznContextualData
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIdentifierErpModel
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.FhirMedicationIngredientErpModel
-import de.gematik.ti.erp.app.utils.FhirTemporal
+import de.gematik.ti.erp.app.fhir.dispense.model.DispensedIngredientMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.DispensedPznMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirDispensedFreeTextMedicationErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.IngredientContextualData
+import de.gematik.ti.erp.app.fhir.dispense.model.PznContextualData
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIdentifierErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirMedicationIngredientErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 

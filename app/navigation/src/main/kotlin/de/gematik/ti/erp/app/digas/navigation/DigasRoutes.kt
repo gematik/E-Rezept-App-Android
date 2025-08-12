@@ -35,6 +35,7 @@ object DigasRoutes : NavigationRoutes {
     const val DIGAS_NAV_TITLE = "title"
     const val DIGAS_NAV_DESCRIPTION = "description"
     const val DIGAS_NAV_LINK = "digaLink"
+    const val DIGAS_NAV_PDF_LINK = "digaPdfLink"
 
     object DigasMainScreen : Routes(
         NavigationRouteNames.DigasMainScreen.name,
@@ -53,10 +54,15 @@ object DigasRoutes : NavigationRoutes {
 
     object DigaSupportBottomSheetScreen : Routes(
         NavigationRouteNames.DigasSupportBottomSheetScreen.name,
-        navArgument(DIGAS_NAV_LINK) { type = NavType.StringType }
+        navArgument(DIGAS_NAV_LINK) { type = NavType.StringType },
+        navArgument(DIGAS_NAV_PDF_LINK) { type = NavType.StringType }
     ) {
-        fun path(link: String) = path(DIGAS_NAV_LINK to link)
+        fun path(link: String, pdfLink: String?) = path(DIGAS_NAV_LINK to link, DIGAS_NAV_PDF_LINK to pdfLink)
     }
+
+    object DigaContributionInfoBottomSheetScreen : Routes(
+        NavigationRouteNames.DigaContributionInfoSheetScreen.name
+    )
 
     object DigasDescriptionScreen : Routes(
         NavigationRouteNames.DigasDescriptionScreen.name,

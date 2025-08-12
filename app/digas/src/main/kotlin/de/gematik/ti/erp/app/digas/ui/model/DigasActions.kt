@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.digas.ui.model
 
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 
 data class DigasActions(
     val onClickOnReady: (isRedeemAgain: Boolean) -> Unit = {},
@@ -43,5 +43,6 @@ data class DigasActions(
     val onClickOnDigaOpen: () -> Unit = {},
     val onRegisterFeedBack: () -> Unit = {},
     val onNavigatetoBfarm: () -> Unit = {},
-    val onNavigateToInsuranceSearch: () -> Unit = {}
+    val onNavigateToInsuranceSearch: () -> Unit = {},
+    val onShowContributionInfoBottomSheet: () -> Unit = {}
 )

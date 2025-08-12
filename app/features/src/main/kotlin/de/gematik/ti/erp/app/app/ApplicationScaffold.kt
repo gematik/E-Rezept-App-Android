@@ -22,15 +22,7 @@
 
 package de.gematik.ti.erp.app.app
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material.Scaffold
 import androidx.compose.material.SnackbarHost
@@ -41,14 +33,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLayoutDirection
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.currentBackStackEntryAsState
-import de.gematik.ti.erp.app.app_core.R
 import de.gematik.ti.erp.app.base.model.DownloadResourcesState.Companion.isInProgress
 import de.gematik.ti.erp.app.core.LocalNavController
 import de.gematik.ti.erp.app.mainscreen.navigation.NavigationGraph
@@ -56,13 +45,11 @@ import de.gematik.ti.erp.app.mainscreen.presentation.rememberAppController
 import de.gematik.ti.erp.app.mainscreen.ui.MainScreenBottomBar
 import de.gematik.ti.erp.app.mainscreen.ui.OrderStateChangeOnSuccessSideEffect
 import de.gematik.ti.erp.app.messages.navigation.MessagesRoutes
+import de.gematik.ti.erp.app.padding.ApplicationInnerPadding
 import de.gematik.ti.erp.app.pharmacy.navigation.PharmacyRoutes
 import de.gematik.ti.erp.app.prescription.navigation.PrescriptionRoutes
 import de.gematik.ti.erp.app.settings.navigation.SettingsRoutes
-import de.gematik.ti.erp.app.theme.AppTheme
-import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.userauthentication.observer.AuthenticationModeAndMethod
-import de.gematik.ti.erp.app.utils.compose.SimpleBanner
 import de.gematik.ti.erp.app.utils.extensions.LocalSnackbarScaffold
 import de.gematik.ti.erp.app.utils.extensions.LocalUiScopeScaffold
 
@@ -135,27 +122,15 @@ fun ApplicationScaffold(
             snackbarHost = { SnackbarHost(snackbar, modifier = Modifier.systemBarsPadding()) },
             content = { innerPadding ->
                 Column {
-                    AnimatedVisibility(
-                        modifier = Modifier.align(Alignment.CenterHorizontally),
-                        visible = !isNetworkConnected,
-                        enter = fadeIn() + expandVertically(expandFrom = Alignment.Top) + slideInVertically(),
-                        exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top) + slideOutVertically()
-                    ) {
-                        SimpleBanner(
-                            modifier = Modifier.padding(top = PaddingDefaults.Tiny),
-                            containerColor = AppTheme.colors.neutral200,
-                            text = stringResource(R.string.no_internet_text)
-                        )
-                    }
+                    NetworkBanner(isNetworkConnected)
                     NavigationGraph(
                         authentication = authentication,
                         isDemoMode = isDemoMode,
                         digaPromptFeedback = appController.promptFeedback,
                         // needed for fab for screens which have scaffolds
-                        padding = ApplicationInnerPadding(layoutDirection, innerPadding)
-                    ) {
-                        appController.markNavigationTriggerConsumed()
-                    }
+                        padding = ApplicationInnerPadding(layoutDirection, innerPadding),
+                        onDigaNavigationActivated = { appController.markNavigationTriggerConsumed() }
+                    )
                 }
             },
             bottomBar = {

@@ -41,6 +41,7 @@ enum class NavigationRouteNames(
     ProfileEditPictureBottomSheetScreen,
     ProfileEditNameBottomSheetScreen,
     ProfileAddNameBottomSheetScreen,
+    ProfileChangeInsuranceTypeBottomSheetScreen,
 
     // Invoices/ pkv
     InvoiceListScreen,
@@ -104,7 +105,7 @@ enum class NavigationRouteNames(
     PrescriptionListScreen,
     PrescriptionsArchiveScreen,
     PrescriptionScanScreen,
-    WelcomeDrawerBottomSheetScreen,
+    CardWallSelectInsuranceTypeBottomSheetScreen,
     GrantConsentBottomSheetScreen,
 
     // Messages
@@ -135,6 +136,7 @@ enum class NavigationRouteNames(
     CardWallReadCardScreen,
     CardWallGidListScreen,
     CardWallGidHelpScreen,
+    CardWallScannerScreen,
 
     // TroubleShooting
     TroubleShootingIntroScreen,
@@ -158,7 +160,7 @@ enum class NavigationRouteNames(
     PharmacyDetailsFromPharmacyScreen,
 
     // Redeem
-    RedeemMethodSelection,
+    HowToRedeemScreen,
     RedeemPrescriptionSelection,
     RedeemLocal,
     RedeemOnline,
@@ -169,11 +171,11 @@ enum class NavigationRouteNames(
     OrderHealthCardSelectMethodScreen,
 
     // MedicationPlan
-    SuccessScreen,
-    ScheduleListScreen,
-    ScheduleScreen,
-    DosageInfoScreen,
-    ScheduleDateRangeScreen,
+    MedicationPlanNotificationScreen,
+    MedicationPlanScheduleListScreen,
+    MedicationPlanScheduleDetailScreen,
+    MedicationPlanDosageInstructionBottomSheetScreen,
+    MedicationPlanScheduleDurationAndIntervalScreen,
 
     // UserAuthentication
     UserAuthenticationScreen,
@@ -182,6 +184,7 @@ enum class NavigationRouteNames(
     DigasMainScreen,
     DigasValidityBottomSheetScreen,
     DigasSupportBottomSheetScreen,
+    DigaContributionInfoSheetScreen,
     DigasDescriptionScreen,
     DigaFeedbackPromptScreen,
     InsuranceSearchListScreen,

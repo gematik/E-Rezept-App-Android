@@ -26,7 +26,7 @@ sealed class RedeemPrescriptionSelectionState {
     /**
      * Represents the state when a single prescription from the PrescriptionDetailScreen is selected
      */
-    data class SinglePrescription(val taskId: String) : RedeemPrescriptionSelectionState()
+    data class SelectedFromDetailsScreen(val taskId: String) : RedeemPrescriptionSelectionState()
 
     /**
      * Represents the state when a list of prescriptions is selected
@@ -34,7 +34,8 @@ sealed class RedeemPrescriptionSelectionState {
     data object ListOfPrescriptions : RedeemPrescriptionSelectionState()
 
     /**
-     * Represents the state when the user has not yet reached the OrderOverviewScreen
+     * Represents the state when the user has not yet reached the OrderOverviewScreen,
+     * or the state where the selection is done in the graph and should not be changed
      */
-    data object NotInFinalRedeemStep : RedeemPrescriptionSelectionState()
+    data object InitialStateBeforeOverview : RedeemPrescriptionSelectionState()
 }

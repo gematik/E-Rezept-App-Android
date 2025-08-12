@@ -45,9 +45,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.base.ClipBoardCopy
 import de.gematik.ti.erp.app.checkbox.LabeledCheckbox
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.presentation.PharmacyBackendServiceSelectionViewModel
 import de.gematik.ti.erp.app.debugsettings.pharamcy.service.selection.presentation.pharmacyBackendServiceSelectionViewModel
 import de.gematik.ti.erp.app.fhir.pharmacy.type.PharmacyVzdService
@@ -122,6 +124,8 @@ fun PharmacyServiceSelectionScreen(
             AnimatedElevationScaffold(
                 topBarTitle = "Pharmacy Backend Service",
                 onBack = onBack,
+                backLabel = stringResource(R.string.back),
+                closeLabel = stringResource(R.string.cancel),
                 bottomBar = {
                     Row {
                         PrimaryButton(

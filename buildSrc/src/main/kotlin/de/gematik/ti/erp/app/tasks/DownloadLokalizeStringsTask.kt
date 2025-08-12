@@ -56,7 +56,7 @@ fun TaskContainer.downloadLokaliseStrings() {
                 IllegalArgumentException("Set -PlokaliseProjectId=... or define LOKALISE_PROJECT_ID in ci-overrides.properties")
             )
 
-        val outputResDir = project.rootProject.file("app-core/src/main/res")
+        val outputResDir = project.rootProject.file("core/src/main/res")
 
         doLast {
             println("🔄 Downloading Lokalise translations...")

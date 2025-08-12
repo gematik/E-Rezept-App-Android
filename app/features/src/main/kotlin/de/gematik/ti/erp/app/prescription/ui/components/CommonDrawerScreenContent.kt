@@ -23,90 +23,85 @@
 package de.gematik.ti.erp.app.prescription.ui.components
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.ButtonDefaults
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
-import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
-import de.gematik.ti.erp.app.utils.SpacerLarge
-import de.gematik.ti.erp.app.utils.SpacerMedium
-import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
 import de.gematik.ti.erp.app.utils.compose.PrimaryButton
+import de.gematik.ti.erp.app.utils.compose.PrimaryOutlinedButton
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 
 @Suppress("ModifierParameter")
 @Composable
-internal fun CommonDrawerScreenContent(
-    modifierPrimary: Modifier = Modifier,
-    modifierText: Modifier = Modifier,
+internal fun DefaultDrawerScreenContent(
+    modifierPrimaryButton: Modifier = Modifier,
+    modifierOutlinedButton: Modifier = Modifier,
     header: String,
     info: String,
     image: Painter,
-    connectButtonText: String,
-    cancelButtonText: String,
-    onClickConnect: () -> Unit,
-    onCancel: () -> Unit
+    primaryButtonText: String,
+    outlinedButtonText: String,
+    onClickPrimary: () -> Unit,
+    onClickOutlined: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = PaddingDefaults.Medium),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(PaddingDefaults.Medium),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PaddingDefaults.Small)
     ) {
-        SpacerSmall()
         Image(
             painter = image,
             contentDescription = null
         )
         Text(
+            modifier = Modifier.padding(top = PaddingDefaults.Medium),
             text = header,
             style = AppTheme.typography.subtitle1,
             textAlign = TextAlign.Center
         )
-        SpacerSmall()
         Text(
+            modifier = Modifier.padding(bottom = PaddingDefaults.Medium),
             text = info,
             style = AppTheme.typography.body2l,
             textAlign = TextAlign.Center
         )
-        SpacerLarge()
+
         PrimaryButton(
-            modifier = modifierPrimary,
-            onClick = onClickConnect,
-            colors = ButtonDefaults.buttonColors(
-                contentColor = AppTheme.colors.primary700
-            ),
+            modifier = modifierPrimaryButton.fillMaxWidth(),
+            onClick = onClickPrimary,
+            shape = RoundedCornerShape(SizeDefaults.triple),
             contentPadding = PaddingValues(
-                vertical = SizeDefaults.oneHalf,
-                horizontal = SizeDefaults.sixfold
+                vertical = PaddingDefaults.MediumSmall,
+                horizontal = PaddingDefaults.XXLargePlus
             )
         ) {
             Text(
-                text = connectButtonText,
-                style = AppTheme.typography.body2,
-                color = AppTheme.colors.neutral050
+                text = primaryButtonText
             )
         }
-        SpacerMedium()
-        TextButton(
-            onClick = onCancel,
-            modifier = modifierText,
-            contentPadding = PaddingValues(vertical = SizeDefaults.oneHalf)
+        PrimaryOutlinedButton(
+            onClick = onClickOutlined,
+            modifier = modifierOutlinedButton.fillMaxWidth()
         ) {
-            Text(cancelButtonText)
+            Text(
+                text = outlinedButtonText
+            )
         }
     }
 }
@@ -115,14 +110,14 @@ internal fun CommonDrawerScreenContent(
 @Composable
 internal fun CommonDrawerScreenContentPreview() {
     PreviewAppTheme {
-        CommonDrawerScreenContent(
+        DefaultDrawerScreenContent(
             header = "Header",
             info = "Info",
             image = painterResource(R.drawable.man_phone_blue_circle),
-            connectButtonText = "Connect",
-            cancelButtonText = "Cancel",
-            onClickConnect = {},
-            onCancel = {}
+            primaryButtonText = "Connect",
+            outlinedButtonText = "Cancel",
+            onClickPrimary = {},
+            onClickOutlined = {}
         )
     }
 }

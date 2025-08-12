@@ -23,11 +23,11 @@
 package de.gematik.ti.erp.app.fhir.communication.model
 
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
-import de.gematik.ti.erp.app.fhir.communication.FhirCommunicationConstants
-import de.gematik.ti.erp.app.fhir.communication.constants.CommunicationDigaConstants
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.PATIENT_KVNR_CODE_GKV
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants.TELEMATIK_ID_IDENTIFIER
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
+import de.gematik.ti.erp.app.fhir.constant.communication.CommunicationDigaConstants
+import de.gematik.ti.erp.app.fhir.constant.communication.FhirCommunicationConstants
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime

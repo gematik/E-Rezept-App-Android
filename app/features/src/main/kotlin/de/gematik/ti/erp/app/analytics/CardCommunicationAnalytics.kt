@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.analytics
 
-import com.contentsquare.android.Contentsquare
 import de.gematik.ti.erp.app.Requirement
+import de.gematik.ti.erp.app.analytics.tracker.Tracker
 import de.gematik.ti.erp.app.analytics.usecase.IsAnalyticsAllowedUseCase
 import de.gematik.ti.erp.app.cardwall.usecase.AuthenticationState
 import io.github.aakira.napier.Napier
@@ -33,10 +33,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.withContext
 
 class CardCommunicationAnalytics(
     private val isAnalyticsAllowedUseCase: IsAnalyticsAllowedUseCase,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO
+    private val tracker: Tracker,
+    private val dispatcher: CoroutineDispatcher = Dispatchers.IO
 ) {
     private val scope = CoroutineScope(dispatcher)
     private val isAnalyticsAllowed by lazy {
@@ -59,12 +61,14 @@ class CardCommunicationAnalytics(
         rationale = "...recording for screens here too after opt-in",
         codeLines = 8
     )
-    fun trackCardState(screenName: String) {
-        if (analyticsAllowed.value) {
-            Contentsquare.send(screenName)
-            Napier.d("Analytics send $screenName")
-        } else {
-            Napier.d("Analytics not allowed")
+    suspend fun trackCardState(screenName: String) {
+        withContext(dispatcher) {
+            if (analyticsAllowed.value) {
+                tracker.trackEvent(screenName)
+                Napier.d("Analytics send $screenName")
+            } else {
+                Napier.d("Analytics not allowed")
+            }
         }
     }
 
@@ -73,7 +77,7 @@ class CardCommunicationAnalytics(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = " ...track user is authenticated."
     )
-    fun trackIdentifiedWithIDP() {
+    suspend fun trackIdentifiedWithIDP() {
         trackCardState("idp_authenticated")
     }
 
@@ -94,12 +98,12 @@ class CardCommunicationAnalytics(
         sourceSpecification = "gemSpec_eRp_FdV",
         rationale = " ...track user has authentication error."
     )
-    fun trackAuthenticationProblem(kind: AuthenticationProblem) {
+    suspend fun trackAuthenticationProblem(kind: AuthenticationProblem) {
         trackCardState("auth_error_${kind.event}")
     }
 }
 
-fun CardCommunicationAnalytics.trackCardCommunication(state: AuthenticationState) {
+suspend fun CardCommunicationAnalytics.trackCardCommunication(state: AuthenticationState) {
     if (analyticsAllowed.value) {
         when (state) {
             AuthenticationState.HealthCardBlocked ->

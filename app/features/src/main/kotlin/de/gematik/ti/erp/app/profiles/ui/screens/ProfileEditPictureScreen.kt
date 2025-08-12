@@ -74,7 +74,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.profiles.model.ProfilesData
 import de.gematik.ti.erp.app.profiles.navigation.ProfileRoutes
@@ -161,6 +161,8 @@ class ProfileEditPictureScreen(
                         NavigationTopAppBar(
                             navigationMode = NavigationBarMode.Back,
                             title = stringResource(R.string.edit_profile_picture),
+                            backLabel = stringResource(R.string.back),
+                            closeLabel = stringResource(R.string.cancel),
                             onBack = { navController.popBackStack() },
                             actions = {}
                         )
@@ -398,7 +400,7 @@ private fun ColorSelector(
                     inactiveProfileDescription
                 }
             },
-        color = colors.backGroundColor
+        color = colors.backgroundColor
     ) {
         Row(
             horizontalArrangement = Arrangement.Center,
@@ -439,7 +441,7 @@ fun ProfileImage(
                     .clip(CircleShape)
                     .aspectRatio(1f)
                     .circularBorder(selectedColor.borderColor)
-                    .background(selectedColor.backGroundColor),
+                    .background(selectedColor.backgroundColor),
                 contentAlignment = Alignment.Center
             ) {
                 ChooseAvatar(

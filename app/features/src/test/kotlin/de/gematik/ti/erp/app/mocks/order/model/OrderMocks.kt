@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.mocks.order.model
 
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.messages.domain.model.OrderUseCaseData
 import de.gematik.ti.erp.app.messages.model.Communication
 import de.gematik.ti.erp.app.messages.model.CommunicationProfile
@@ -385,5 +385,6 @@ val MOCK_SYNCED_TASK_DATA_01_NEW = SyncedTaskData.SyncedTask(
     medicationRequest = MOCK_MEDICATION_REQ,
     lastMedicationDispense = null,
     medicationDispenses = emptyList(),
-    communications = emptyList()
+    communications = emptyList(),
+    isEuRedeemable = false
 )

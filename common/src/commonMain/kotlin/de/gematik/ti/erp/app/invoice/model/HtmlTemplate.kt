@@ -22,8 +22,8 @@
 
 package de.gematik.ti.erp.app.invoice.model
 
+import de.gematik.ti.erp.app.fhir.temporal.toFormattedDate
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.utils.toFormattedDate
 
 object PkvHtmlTemplate {
     private fun createOrganization(
@@ -94,6 +94,7 @@ object PkvHtmlTemplate {
                     } else {
                         article.text
                     }
+
                     else -> article.text
                 }
 

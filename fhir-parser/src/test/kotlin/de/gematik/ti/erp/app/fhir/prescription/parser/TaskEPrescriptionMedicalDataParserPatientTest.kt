@@ -22,27 +22,27 @@
 
 package de.gematik.ti.erp.app.fhir.prescription.parser
 
-import de.gematik.ti.erp.app.data.patient1_v103_json
 import de.gematik.ti.erp.app.data.patient1_incomplete_birth_date_v103_json
+import de.gematik.ti.erp.app.data.patient1_v103_json
 import de.gematik.ti.erp.app.data.patient1_v110_json
 import de.gematik.ti.erp.app.data.patient2_v103_json
 import de.gematik.ti.erp.app.data.patient2_v110_json
 import de.gematik.ti.erp.app.data.patient3_pkv_v110_json
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient1IncompleteBirth_v103
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient1_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient2_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient2_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientErpTestData.erpPatient3_v110
-import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient1IncompleteBirth_v103
+import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient1_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient1_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient2_v103
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient2_v110
 import de.gematik.ti.erp.app.fhir.prescription.mocks.FhirPatientTestData.fhirPatient3_v110
-import de.gematik.ti.erp.app.fhir.prescription.model.erp.KbvBundleVersion
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPatient.Companion.getPatient
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirPatient.Companion.toErpModel
+import de.gematik.ti.erp.app.fhir.prescription.model.original.KbvBundleVersion
 import kotlinx.serialization.json.Json
 import org.junit.Test
 import kotlin.test.assertEquals

@@ -22,10 +22,10 @@
 
 package de.gematik.ti.erp.app.mocks.prescription.model
 
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.prescription.model.SyncedTaskData
-import de.gematik.ti.erp.app.utils.asFhirTemporal
 
 val PKV_INVOICE_DATA = InvoiceData.PKVInvoiceRecord(
     profileId = "1234",

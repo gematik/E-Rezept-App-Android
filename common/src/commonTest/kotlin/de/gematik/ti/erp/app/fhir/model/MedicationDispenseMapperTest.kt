@@ -23,13 +23,13 @@
 package de.gematik.ti.erp.app.fhir.model
 
 import de.gematik.ti.erp.app.fhir.parser.findAll
-import de.gematik.ti.erp.app.utils.FhirTemporal
-import de.gematik.ti.erp.app.utils.asFhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
+import de.gematik.ti.erp.app.fhir.temporal.asFhirTemporal
 import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.json.Json
-import kotlin.test.assertEquals
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class MedicationDispenseMapperTest {
@@ -344,7 +344,7 @@ class MedicationDispenseMapperTest {
 
         assertEquals(2, dispensesWithMedication.size)
 
-        dispensesWithMedication.forEachIndexed() { index, (dispense, dispenseMedication) ->
+        dispensesWithMedication.forEachIndexed { index, (dispense, dispenseMedication) ->
             val result = extractMedicationDispenseWithMedication(
                 dispense,
                 dispenseMedication,

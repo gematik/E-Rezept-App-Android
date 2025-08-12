@@ -22,7 +22,7 @@
 
 package de.gematik.ti.erp.app.demomode.datasource.data
 
-import de.gematik.ti.erp.app.db.entities.v1.InternalMessageEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.InternalMessageEntityV1
 import io.realm.kotlin.types.RealmInstant
 
 val internalMessageEntityV1 = InternalMessageEntityV1().apply {

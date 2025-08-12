@@ -52,7 +52,7 @@ import androidx.core.os.LocaleListCompat
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.settings.presentation.LanguageCode
 import de.gematik.ti.erp.app.settings.presentation.rememberSettingsLanguageScreenController
@@ -87,6 +87,8 @@ class SettingsLanguageScreen(
 
         AnimatedElevationScaffold(
             modifier = Modifier.navigationBarsPadding(),
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             navigationMode = NavigationBarMode.Back,
             topBarTitle = stringResource(R.string.language_selection_title),
             onBack = navController::popBackStack,

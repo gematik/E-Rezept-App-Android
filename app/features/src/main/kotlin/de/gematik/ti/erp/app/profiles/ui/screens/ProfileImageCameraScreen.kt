@@ -60,7 +60,7 @@ import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.openSettingsAsNewActivity
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.permissions.cameraPermission
 import de.gematik.ti.erp.app.permissions.getBitmapFromCamera
@@ -167,6 +167,8 @@ private fun ProfileImageCameraScreenScaffold(
             NavigationTopAppBar(
                 navigationMode = NavigationBarMode.Close,
                 title = stringResource(R.string.profile_image_selector_title),
+                backLabel = stringResource(R.string.back),
+                closeLabel = stringResource(R.string.cancel),
                 onBack = onBack
             )
         },

@@ -25,7 +25,7 @@ package de.gematik.ti.erp.app.fhir.dispense.model.original
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirIdentifier
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirMeta
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
-import de.gematik.ti.erp.app.fhir.dispense.model.erp.FhirMedicationDispenseErpModel
+import de.gematik.ti.erp.app.fhir.dispense.model.FhirMedicationDispenseErpModel
 import de.gematik.ti.erp.app.fhir.dispense.model.original.FhirMedicationDispenseMedicationModel.Companion.toTypedErpModel
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestDosageInstruction
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirMedicationRequestQuantityValue

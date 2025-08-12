@@ -26,15 +26,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.onboarding.navigation.finishOnboardingAsSuccessAndOpenPrescriptions
 import de.gematik.ti.erp.app.onboarding.presentation.OnboardingGraphController
@@ -62,6 +64,7 @@ class OnboardingAllowAnalyticsScreen(
     @Composable
     override fun Content() {
         val context = LocalContext.current
+        val isCreatingProfile by graphController.isCreatingProfile.collectAsStateWithLifecycle()
         val allowStars = stringResource(R.string.settings_tracking_allow_emoji)
         val allowText = annotatedStringResource(
             R.string.settings_tracking_allow_info,
@@ -72,12 +75,16 @@ class OnboardingAllowAnalyticsScreen(
 
         AnimatedElevationScaffold(
             modifier = Modifier.navigationBarsPadding(),
+            backLabel = stringResource(R.string.back),
+            closeLabel = stringResource(R.string.cancel),
             navigationMode = NavigationBarMode.Back,
             topBarTitle = "",
             onBack = {
-                graphController.changeAnalyticsState(false)
-                context.shortToast(disallowText)
-                navController.popBackStack()
+                if (!isCreatingProfile) {
+                    graphController.changeAnalyticsState(false)
+                    context.shortToast(disallowText)
+                    navController.popBackStack()
+                }
             },
             listState = lazyListState,
             bottomBar = {
@@ -87,6 +94,7 @@ class OnboardingAllowAnalyticsScreen(
                     rationale = "...user opts-in for analytics."
                 )
                 UserConfirmationBottomBar(
+                    isCreatingProfile = isCreatingProfile,
                     onClickAccept = {
                         graphController.changeAnalyticsState(true)
                         context.shortToast(allowText)
@@ -117,6 +125,7 @@ class OnboardingAllowAnalyticsScreen(
 )
 @Composable
 private fun UserConfirmationBottomBar(
+    isCreatingProfile: Boolean = false,
     onClickAccept: () -> Unit,
     onClickReject: () -> Unit
 ) {
@@ -124,7 +133,7 @@ private fun UserConfirmationBottomBar(
         OnboardingBottomBar(
             info = null,
             buttonText = stringResource(R.string.onboarding_analytics_agree_button),
-            buttonEnabled = true,
+            buttonEnabled = !isCreatingProfile,
             includeBottomSpacer = false,
             modifier = Modifier.testTag(TestTag.Onboarding.Analytics.AcceptAnalyticsButton),
             onButtonClick = onClickAccept
@@ -133,7 +142,7 @@ private fun UserConfirmationBottomBar(
             info = null,
             buttonText = stringResource(R.string.onboarding_analytics_reject_button),
             modifier = Modifier.testTag(TestTag.Onboarding.RejectButton),
-            buttonEnabled = true,
+            buttonEnabled = !isCreatingProfile,
             onButtonClick = onClickReject
         )
     }

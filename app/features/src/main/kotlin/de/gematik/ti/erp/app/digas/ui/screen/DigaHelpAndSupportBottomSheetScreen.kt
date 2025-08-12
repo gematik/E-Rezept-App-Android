@@ -22,39 +22,51 @@
 
 package de.gematik.ti.erp.app.digas.ui.screen
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.OutlinedButton
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.digas.navigation.DigasRoutes
 import de.gematik.ti.erp.app.navigation.BottomSheetScreen
 import de.gematik.ti.erp.app.preview.LightDarkPreview
 import de.gematik.ti.erp.app.preview.PreviewTheme
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
+import de.gematik.ti.erp.app.theme.SizeDefaults
 import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
 import de.gematik.ti.erp.app.utils.compose.ErrorScreenComponent
-import de.gematik.ti.erp.app.utils.compose.PrimaryButtonSmall
 import de.gematik.ti.erp.app.utils.extensions.openUriWhenValid
+
+private const val RoundedCornerShapePercent = 50
 
 class DigaHelpAndSupportBottomSheetScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry
-) : BottomSheetScreen(forceToMaxHeight = false) {
+) : BottomSheetScreen(forceToMaxHeight = false, withCloseButton = true) {
     @Composable
     override fun Content() {
-        val urlLink = remember { navBackStackEntry.arguments?.getString(DigasRoutes.DIGAS_NAV_LINK) }
-        if (urlLink != null) {
-            DigaSupportBottomSheetScreenContent(urlLink)
+        val helpUrl = remember { navBackStackEntry.arguments?.getString(DigasRoutes.DIGAS_NAV_LINK) }
+        val pdfUrl = remember { navBackStackEntry.arguments?.getString(DigasRoutes.DIGAS_NAV_PDF_LINK) }
+        if (helpUrl != null) {
+            DigaSupportBottomSheetScreenContent(helpUrl, pdfUrl)
         } else {
             ErrorScreenComponent()
         }
@@ -63,7 +75,8 @@ class DigaHelpAndSupportBottomSheetScreen(
 
 @Composable
 private fun DigaSupportBottomSheetScreenContent(
-    urlLink: String
+    helpUrl: String,
+    pdfUrl: String?
 ) {
     val uriHandler = LocalUriHandler.current
     Column(
@@ -83,27 +96,49 @@ private fun DigaSupportBottomSheetScreenContent(
             Text(
                 stringResource(
                     R.string.manufacturer_website_info,
-                    urlLink
+                    helpUrl
                 ),
                 style = AppTheme.typography.body2l
             )
         }
         SpacerMedium()
-        PrimaryButtonSmall(
-            onClick = { uriHandler.openUriWhenValid(urlLink) }
+        val contentDescriptionLinkSubmitButton = stringResource(R.string.a11y_open_link_submit)
+        Button(
+            modifier = Modifier
+                .semantics {
+                    role = Role.Button
+                    contentDescription = contentDescriptionLinkSubmitButton
+                },
+            onClick = { uriHandler.openUriWhenValid(helpUrl) },
+            shape = RoundedCornerShape(RoundedCornerShapePercent)
         ) {
             Text(stringResource(R.string.open_link))
+        }
+        val contentDescriptionPdfSubmitButton = stringResource(R.string.a11y_open_pdf_submit)
+        pdfUrl?.let {
+            OutlinedButton(
+                modifier = Modifier
+                    .semantics {
+                        role = Role.Button
+                        contentDescription = contentDescriptionPdfSubmitButton
+                    },
+                onClick = { uriHandler.openUriWhenValid(it) },
+                shape = RoundedCornerShape(RoundedCornerShapePercent),
+                border = BorderStroke(SizeDefaults.eighth, MaterialTheme.colors.primary)
+            ) {
+                Text(stringResource(R.string.open_pdf))
+            }
         }
     }
 }
 
-@Suppress("UnusedPrivateMember")
 @LightDarkPreview
 @Composable
-private fun DigaSupportBottomSheetScreenPreview() {
+internal fun DigaSupportBottomSheetScreenPreview() {
     PreviewTheme {
         DigaSupportBottomSheetScreenContent(
-            urlLink = "https://digas.support.bottomsheet.com"
+            helpUrl = "https://digas.support.bottomsheet.com",
+            pdfUrl = "https://digas.support.bottomsheet.com"
         )
     }
 }

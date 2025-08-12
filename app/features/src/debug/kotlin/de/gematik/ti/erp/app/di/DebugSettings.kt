@@ -41,7 +41,7 @@ object DebugSettings {
                 idpActive = true,
                 apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_PU,
                 fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_PU,
-                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_PU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.EREZEPT_BACKEND_URI_PU,
                 pharmacyServiceActive = true
             )
 
@@ -52,7 +52,7 @@ object DebugSettings {
                 idpActive = true,
                 apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
-                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.EREZEPT_BACKEND_URI_TU,
                 pharmacyServiceActive = true
             )
 
@@ -63,7 +63,7 @@ object DebugSettings {
                 idpActive = true,
                 apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
-                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.EREZEPT_BACKEND_URI_RU,
                 pharmacyServiceActive = true
             )
 
@@ -74,7 +74,7 @@ object DebugSettings {
                 idpActive = true,
                 apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
-                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.EREZEPT_BACKEND_URI_RU,
                 pharmacyServiceActive = true
             )
 
@@ -85,7 +85,7 @@ object DebugSettings {
                 idpActive = true,
                 apoVzdPharmacyServiceUrl = BuildKonfig.PHARMACY_SERVICE_URI_RU,
                 fhirVzdPharmacyServiceUrl = BuildKonfig.FHIRVZD_PHARMACY_SERVICE_URI_RU,
-                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.FHIRVZD_SEARCH_ACCESS_TOKEN_URI_RU,
+                fhirVzdPharmacySearchAccessTokenUrl = BuildKonfig.EREZEPT_BACKEND_URI_RU,
                 pharmacyServiceActive = true
             )
 

@@ -24,10 +24,20 @@ package de.gematik.ti.erp.app.cardwall.ui.screens
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -35,18 +45,27 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.material.TextButton
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.outlined.CameraAlt
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavBackStackEntry
@@ -55,25 +74,22 @@ import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.TestTag
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallRoutes
 import de.gematik.ti.erp.app.cardwall.navigation.CardWallScreen
-import de.gematik.ti.erp.app.cardwall.presentation.CardWallGraphController
+import de.gematik.ti.erp.app.cardwall.presentation.CardWallSharedViewModel
 import de.gematik.ti.erp.app.cardwall.ui.components.CardWallScaffold
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
+import de.gematik.ti.erp.app.extensions.accessibility
 import de.gematik.ti.erp.app.orderhealthcard.navigation.OrderHealthCardRoutes
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
 import de.gematik.ti.erp.app.theme.SizeDefaults
+import de.gematik.ti.erp.app.utils.SpacerMedium
 import de.gematik.ti.erp.app.utils.SpacerSmall
-import de.gematik.ti.erp.app.utils.SpacerTiny
 import de.gematik.ti.erp.app.utils.SpacerXXLarge
-import de.gematik.ti.erp.app.utils.compose.ClickableTaggedText
 import de.gematik.ti.erp.app.utils.compose.ErezeptOutlineText
 import de.gematik.ti.erp.app.utils.compose.LightDarkPreview
-import de.gematik.ti.erp.app.utils.compose.annotatedLinkStringLight
-import de.gematik.ti.erp.app.utils.compose.annotatedStringResource
 import de.gematik.ti.erp.app.utils.compose.preview.CanPreviewParameterProvider
 import de.gematik.ti.erp.app.utils.compose.preview.PreviewAppTheme
 import de.gematik.ti.erp.app.utils.compose.rememberContentPadding
-import de.gematik.ti.erp.app.utils.compose.scrollOnFocus
 
 const val CAN_LENGTH = 6
 
@@ -90,22 +106,26 @@ const val CAN_LENGTH = 6
 class CardWallCanScreen(
     override val navController: NavController,
     override val navBackStackEntry: NavBackStackEntry,
-    override val graphController: CardWallGraphController
+    override val sharedViewModel: CardWallSharedViewModel
 ) : CardWallScreen() {
     @Composable
     override fun Content() {
-        val can by graphController.can.collectAsStateWithLifecycle()
+        val can by sharedViewModel.can.collectAsStateWithLifecycle()
+        val scannedCan by sharedViewModel.scannedCan.collectAsStateWithLifecycle()
         val lazyListState = rememberLazyListState()
-        BackHandler {
-            navController.popBackStack()
-        }
+        val onBack by rememberUpdatedState { navController.popBackStack() }
+        BackHandler { onBack() }
 
+        LaunchedEffect(scannedCan) {
+            scannedCan?.let { scanned ->
+                sharedViewModel.setCardAccessNumber(scanned)
+                sharedViewModel.setScannedCan(null)
+            }
+        }
         CardWallScaffold(
             modifier = Modifier.testTag(TestTag.CardWall.CAN.CANScreen),
-            onBack = {
-                navController.popBackStack()
-            },
-            title = stringResource(R.string.cdw_top_bar_title),
+            onBack = { onBack() },
+            title = "",
             nextEnabled = can.length == CAN_LENGTH,
             onNext = {
                 navController.navigate(
@@ -120,7 +140,6 @@ class CardWallCanScreen(
             actions = {
                 TextButton(
                     onClick = {
-                        graphController.reset()
                         navController.popBackStack(CardWallRoutes.subGraphName(), inclusive = true)
                     }
                 ) {
@@ -133,9 +152,10 @@ class CardWallCanScreen(
                 innerPadding = innerPadding,
                 can = can,
                 onClickLearnMore = {
-                    navController.navigate(
-                        OrderHealthCardRoutes.OrderHealthCardSelectInsuranceCompanyScreen.path()
-                    )
+                    navController.navigate(OrderHealthCardRoutes.OrderHealthCardSelectInsuranceCompanyScreen.path())
+                },
+                onClickScanNow = {
+                    navController.navigate(CardWallRoutes.CardWallScannerScreen.path())
                 },
                 onNext = {
                     navController.navigate(
@@ -145,7 +165,7 @@ class CardWallCanScreen(
                         )
                     )
                 },
-                onCanChange = { graphController.setCardAccessNumber(it) }
+                onCanChange = { sharedViewModel.setCardAccessNumber(it) }
             )
         }
     }
@@ -156,11 +176,16 @@ fun CanScreenContent(
     lazyListState: LazyListState,
     innerPadding: PaddingValues,
     onClickLearnMore: () -> Unit,
+    onClickScanNow: () -> Unit,
     onNext: () -> Unit,
     can: String,
     onCanChange: (String) -> Unit
 ) {
     val contentPadding by rememberContentPadding(innerPadding)
+
+    val imeInsets = WindowInsets.ime
+    val density = LocalDensity.current
+    val isKeyboardOpen = imeInsets.getBottom(density) > 0
 
     LazyColumn(
         state = lazyListState,
@@ -168,17 +193,21 @@ fun CanScreenContent(
         contentPadding = contentPadding
     ) {
         item {
-            HealthCardCanImage()
+            if (!isKeyboardOpen) {
+                HealthCardCanImage()
+            }
         }
         item {
-            CanDescription(onClickLearnMore)
-            SpacerXXLarge()
+            CanDescription(
+                onClickScanNow = onClickScanNow
+            )
         }
         item {
-            CanInputField(
-                modifier = Modifier.scrollOnFocus(to = 2, lazyListState),
+            CanInputFieldWithLink(
+                modifier = Modifier,
                 can = can,
                 onCanChange = onCanChange,
+                onClickLearnMore = onClickLearnMore,
                 next = onNext
             )
         }
@@ -189,39 +218,59 @@ fun CanScreenContent(
 fun HealthCardCanImage() {
     Column(modifier = Modifier.wrapContentHeight()) {
         Image(
-            painterResource(R.drawable.card_wall_card_can),
+            painterResource(R.drawable.card_wall_card_can_redesign),
             null,
             contentScale = ContentScale.FillWidth,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
+                .accessibility(
+                    contentDescriptionRes = R.string.a11y_cdw_health_card_image_description,
+                    role = Role.Image
+                )
         )
         SpacerXXLarge()
     }
 }
 
 @Composable
-fun CanDescription(onClickLearnMore: () -> Unit) {
+fun CanDescription(
+    onClickScanNow: () -> Unit
+) {
     Column {
         Text(
             stringResource(R.string.cdw_can_headline),
-            style = AppTheme.typography.h5
+            style = AppTheme.typography.h5,
+            color = AppTheme.colors.neutral900,
+            modifier = Modifier.accessibility(
+                isHeading = true
+            )
         )
-        SpacerSmall()
-        Text(
-            stringResource(R.string.cdw_can_description),
-            style = AppTheme.typography.body1
-        )
-        SpacerSmall()
-        ClickableTaggedText(
-            text = annotatedLinkStringLight(
-                uri = "",
-                text = stringResource(R.string.cdw_no_can_on_card)
-            ),
-            onClick = { onClickLearnMore() },
-            style = AppTheme.typography.body2,
-            modifier = Modifier
-                .align(Alignment.End)
-                .testTag(TestTag.CardWall.CAN.OrderEgkButton)
-        )
+        SpacerMedium()
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            Row(
+                modifier = Modifier.clickable {
+                    onClickScanNow()
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Outlined.CameraAlt,
+                    contentDescription = null,
+                    tint = AppTheme.colors.primary700,
+                    modifier = Modifier
+                        .size(SizeDefaults.double)
+                        .offset(x = (-SizeDefaults.one), y = SizeDefaults.quarter)
+                )
+                Text(
+                    text = stringResource(R.string.cdw_scan_with_card),
+                    color = AppTheme.colors.primary700,
+                    style = AppTheme.typography.body2
+                )
+            }
+        }
+        SpacerMedium()
     }
 }
 
@@ -230,6 +279,53 @@ fun CanDescription(onClickLearnMore: () -> Unit) {
     sourceSpecification = "BSI-eRp-ePA",
     rationale = "CAN is used for eGK connection."
 )
+@Composable
+fun CanInputFieldWithLink(
+    modifier: Modifier,
+    can: String,
+    onCanChange: (String) -> Unit,
+    onClickLearnMore: () -> Unit,
+    next: () -> Unit
+) {
+    Column {
+        CanInputField(
+            modifier = modifier,
+            can = can,
+            onCanChange = onCanChange,
+            next = next
+        )
+        SpacerMedium()
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .testTag(TestTag.CardWall.CAN.OrderEgkButton)
+        ) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.CenterEnd)
+                    .clickable { onClickLearnMore() },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = stringResource(R.string.cdw_no_can_on_card),
+                    style = AppTheme.typography.body1,
+                    color = AppTheme.colors.primary700,
+                    textAlign = TextAlign.Start
+                )
+
+                Spacer(modifier = Modifier.width(SizeDefaults.half))
+
+                Icon(
+                    imageVector = Icons.AutoMirrored.Outlined.ArrowForward,
+                    contentDescription = null,
+                    tint = AppTheme.colors.primary700,
+                    modifier = Modifier.size(SizeDefaults.triple)
+                )
+            }
+        }
+    }
+}
+
 @Composable
 fun CanInputField(
     modifier: Modifier,
@@ -249,6 +345,7 @@ fun CanInputField(
             }
         },
         label = stringResource(R.string.can_input_field_label),
+        placeholder = stringResource(R.string.can_input_field_label),
         keyboardOptions = KeyboardOptions(
             autoCorrect = false,
             keyboardType = KeyboardType.NumberPassword,
@@ -261,13 +358,11 @@ fun CanInputField(
             }
         }
     )
-    SpacerTiny()
+    SpacerSmall()
     Text(
-        text = annotatedStringResource(
-            R.string.cdw_can_length_info,
-            CAN_LENGTH.toString()
-        ),
-        style = AppTheme.typography.caption1l
+        text = stringResource(R.string.cdw_puk_info),
+        style = AppTheme.typography.caption1l,
+        color = AppTheme.colors.neutral600
     )
 }
 
@@ -276,6 +371,14 @@ fun CanInputField(
 fun CardWallCanScreenPreview(@PreviewParameter(CanPreviewParameterProvider::class) can: String) {
     PreviewAppTheme {
         val lazyListState = rememberLazyListState()
-        CanScreenContent(lazyListState, PaddingValues(PaddingDefaults.Medium), {}, {}, can, {})
+        CanScreenContent(
+            lazyListState = lazyListState,
+            innerPadding = PaddingValues(PaddingDefaults.Medium),
+            onClickLearnMore = {},
+            onClickScanNow = {},
+            onNext = {},
+            can = can,
+            onCanChange = {}
+        )
     }
 }

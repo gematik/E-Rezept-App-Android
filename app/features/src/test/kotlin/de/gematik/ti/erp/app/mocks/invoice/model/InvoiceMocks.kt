@@ -22,6 +22,7 @@
 
 package de.gematik.ti.erp.app.mocks.invoice.model
 
+import de.gematik.ti.erp.app.fhir.temporal.FhirTemporal
 import de.gematik.ti.erp.app.invoice.model.InvoiceData
 import de.gematik.ti.erp.app.mocks.DATE_2024_01_01
 import de.gematik.ti.erp.app.mocks.PROFILE_ID
@@ -100,7 +101,7 @@ fun mockPkvInvoiceRecord(
         insuranceIdentifier = "insuranceIdentifier"
     ),
     medicationRequest = MOCK_MEDICATION_REQUEST,
-    whenHandedOver = de.gematik.ti.erp.app.utils.FhirTemporal.Instant(Instant.DISTANT_PAST),
+    whenHandedOver = FhirTemporal.Instant(Instant.DISTANT_PAST),
     invoice = MOCK_INVOICE,
     consumed = true
 )

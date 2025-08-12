@@ -23,16 +23,16 @@
 package de.gematik.ti.erp.app.settings.repository
 
 import de.gematik.ti.erp.app.CoroutineTestRule
-import de.gematik.ti.erp.app.db.SchemaVersion
+import de.gematik.ti.erp.app.database.realm.utils.queryFirst
+import de.gematik.ti.erp.app.database.realm.v1.AddressEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.AuthenticationEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.AuthenticationPasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.PasswordEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.PharmacySearchEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.SettingsEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.ShippingContactEntityV1
+import de.gematik.ti.erp.app.database.realm.v1.migrations.SchemaVersion
 import de.gematik.ti.erp.app.db.TestDB
-import de.gematik.ti.erp.app.db.entities.v1.AddressEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.AuthenticationEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.AuthenticationPasswordEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.PasswordEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.PharmacySearchEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.SettingsEntityV1
-import de.gematik.ti.erp.app.db.entities.v1.ShippingContactEntityV1
-import de.gematik.ti.erp.app.db.queryFirst
 import de.gematik.ti.erp.app.settings.model.SettingsData
 import io.realm.kotlin.Realm
 import io.realm.kotlin.RealmConfiguration

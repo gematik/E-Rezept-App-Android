@@ -24,7 +24,7 @@ package de.gematik.ti.erp.app.interceptor
 
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.idp.usecase.IdpUseCase
-import de.gematik.ti.erp.app.profiles.repository.ProfileIdentifier
+import de.gematik.ti.erp.app.profile.repository.ProfileIdentifier
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor

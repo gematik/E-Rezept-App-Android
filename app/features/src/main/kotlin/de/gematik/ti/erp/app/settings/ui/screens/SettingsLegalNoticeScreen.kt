@@ -54,7 +54,7 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import de.gematik.ti.erp.app.app_core.R
+import de.gematik.ti.erp.app.core.R
 import de.gematik.ti.erp.app.navigation.Screen
 import de.gematik.ti.erp.app.theme.AppTheme
 import de.gematik.ti.erp.app.theme.PaddingDefaults
@@ -94,6 +94,8 @@ fun LegalNoticeScreenScaffoldContent(
         listState = listState,
         navigationMode = NavigationBarMode.Back,
         topBarTitle = stringResource(id = R.string.legal_notice_menu),
+        backLabel = stringResource(R.string.back),
+        closeLabel = stringResource(R.string.cancel),
         onBack = onBack
     ) { innerPadding ->
         LegalNoticeScreenContent(

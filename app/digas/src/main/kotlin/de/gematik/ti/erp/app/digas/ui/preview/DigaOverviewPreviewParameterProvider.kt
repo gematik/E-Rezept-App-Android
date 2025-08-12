@@ -23,6 +23,9 @@
 package de.gematik.ti.erp.app.digas.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
+import de.gematik.ti.erp.app.digas.data.model.AdditionalDeviceStatus
+import de.gematik.ti.erp.app.digas.ui.model.DigaBfarmUiModel
+import de.gematik.ti.erp.app.diga.model.DigaStatus
 import de.gematik.ti.erp.app.digas.ui.model.DigaMainScreenUiModel
 import de.gematik.ti.erp.app.digas.ui.model.DigaSegmentedControllerTap
 import de.gematik.ti.erp.app.digas.ui.model.DigaTimestamps
@@ -33,7 +36,6 @@ import de.gematik.ti.erp.app.digas.ui.preview.DigaPreviewStates.DIGAS_INSURANT_W
 import de.gematik.ti.erp.app.digas.ui.preview.DigaPreviewStates.DIGAS_READY_ARCHIVE_PREVIEW
 import de.gematik.ti.erp.app.digas.ui.preview.DigaPreviewStates.DIGAS_REQUESTS_PREVIEW
 import de.gematik.ti.erp.app.digas.ui.preview.DigaPreviewStates.DIGAS_SELF_ARCHIVE_PREVIEW
-import de.gematik.ti.erp.app.fhir.model.DigaStatus
 import de.gematik.ti.erp.app.utils.uistate.UiState
 import kotlinx.datetime.Instant
 
@@ -43,16 +45,19 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
         DigaPreviewData(
             name = "Loading state overview",
             uiData = UiState.Loading(),
+            uiBfarmData = UiState.Loading(),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
             name = "Empty state overview",
             uiData = UiState.Empty(),
+            uiBfarmData = UiState.Empty(),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
             name = "Error state overview",
             uiData = UiState.Error(Exception("missing")),
+            uiBfarmData = UiState.Error(Exception("missing")),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
@@ -60,6 +65,7 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
             uiData = UiState.Data(
                 digaMainScreenUiModel.copy(status = DIGAS_REQUESTS_PREVIEW)
             ),
+            uiBfarmData = UiState.Data(digaBfarmUiModel),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
@@ -67,6 +73,7 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
             uiData = UiState.Data(
                 digaMainScreenUiModel.copy(status = DIGAS_INSURANT_WAIT_PREVIEW)
             ),
+            uiBfarmData = UiState.Data(digaBfarmUiModel),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
@@ -74,6 +81,7 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
             uiData = UiState.Data(
                 digaMainScreenUiModel.copy(status = DIGAS_DOWNLOAD_PREVIEW)
             ),
+            uiBfarmData = UiState.Data(digaBfarmUiModel),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
@@ -81,6 +89,7 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
             uiData = UiState.Data(
                 digaMainScreenUiModel.copy(status = DIGAS_ACTIVATE_PREVIEW)
             ),
+            uiBfarmData = UiState.Data(digaBfarmUiModel),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
@@ -88,6 +97,7 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
             uiData = UiState.Data(
                 digaMainScreenUiModel.copy(status = DIGAS_READY_ARCHIVE_PREVIEW)
             ),
+            uiBfarmData = UiState.Data(digaBfarmUiModel),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
@@ -95,6 +105,7 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
             uiData = UiState.Data(
                 digaMainScreenUiModel.copy(status = DIGAS_SELF_ARCHIVE_PREVIEW)
             ),
+            uiBfarmData = UiState.Data(digaBfarmUiModel),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         ),
         DigaPreviewData(
@@ -102,6 +113,7 @@ class DigaOverviewPreviewParameterProvider : PreviewParameterProvider<DigaPrevie
             uiData = UiState.Data(
                 digaMainScreenUiModel.copy(status = DIGAS_INSURANT_REJECTED_PREVIEW)
             ),
+            uiBfarmData = UiState.Data(digaBfarmUiModel),
             selectedTap = DigaSegmentedControllerTap.OVERVIEW
         )
     )
@@ -113,23 +125,45 @@ class DigaDetailPreviewParameterProvider : PreviewParameterProvider<DigaPreviewD
             DigaPreviewData(
                 name = "Loading state detail",
                 uiData = UiState.Loading(),
+                uiBfarmData = UiState.Loading(),
                 selectedTap = DigaSegmentedControllerTap.DETAIL
             ),
             DigaPreviewData(
                 name = "Empty state detail",
                 uiData = UiState.Empty(),
+                uiBfarmData = UiState.Empty(),
                 selectedTap = DigaSegmentedControllerTap.DETAIL
             ),
             DigaPreviewData(
                 name = "Error state detail",
                 uiData = UiState.Error(Exception("missing")),
+                uiBfarmData = UiState.Empty(),
                 selectedTap = DigaSegmentedControllerTap.DETAIL
             ),
+            DigaPreviewData(
+                name = "Diga Ready detail, Bfarm Loading state",
+                uiData = UiState.Data(
+                    digaMainScreenUiModel.copy(status = DIGAS_REQUESTS_PREVIEW)
+                ),
+                uiBfarmData = UiState.Loading(),
+                selectedTap = DigaSegmentedControllerTap.DETAIL
+            ),
+
+            DigaPreviewData(
+                name = "Diga Ready detail, Bfarm Empty state",
+                uiData = UiState.Data(
+                    digaMainScreenUiModel.copy(status = DIGAS_REQUESTS_PREVIEW)
+                ),
+                uiBfarmData = UiState.Empty(),
+                selectedTap = DigaSegmentedControllerTap.DETAIL
+            ),
+
             DigaPreviewData(
                 name = "Ready detail",
                 uiData = UiState.Data(
                     digaMainScreenUiModel.copy(status = DIGAS_REQUESTS_PREVIEW)
                 ),
+                uiBfarmData = UiState.Data(digaBfarmUiModel),
                 selectedTap = DigaSegmentedControllerTap.DETAIL
             )
         )
@@ -161,12 +195,6 @@ object DigaPreviewStates {
 val digaMainScreenUiModel: DigaMainScreenUiModel = DigaMainScreenUiModel(
     name = "Kaia Rückenschmerzen - Rückentraining für Zuhause",
     canBeRedeemedAgain = true,
-    languages = listOf("Deutsch", "Englisch"),
-    supportedPlatforms = listOf("iOS", "Android"),
-    medicalServicesRequired = false,
-    additionalDevices = "keine Zusatzgeräte benötigt",
-    fee = "0",
-    cost = "500",
     insuredPerson = "Anette Wagner",
     prescribingPerson = "Dr. med. Robin Schneider",
     institution = "Praxis Dr. med. Robin Schneider",
@@ -182,8 +210,23 @@ val digaMainScreenUiModel: DigaMainScreenUiModel = DigaMainScreenUiModel(
     status = DIGAS_REQUESTS_PREVIEW
 )
 
+val digaBfarmUiModel: DigaBfarmUiModel = DigaBfarmUiModel(
+    iconUrl = "https://diga-verzeichnis.gematik.de/images/digas/kaia-health.png",
+    iconId = "kaia-health",
+    contractMedicalServicesRequired = false,
+    additionalDevicesRequired = listOf(AdditionalDeviceStatus.OPTIONAL, AdditionalDeviceStatus.INCLUDED),
+    maxCost = "123.45",
+    handbookUrl = "https://diga-verzeichnis.gematik.de/handbooks/kaia-health-handbook.pdf",
+    helpUrl = "https://kaia-health.com/help",
+    supportedPlatforms = "iOS, Android",
+    languages = listOf("Deutsch", "Englisch", "Französisch"),
+    description = "Kaia Rückenschmerzen ist eine digitale Therapie für Patienten mit Rückenschmerzen. Die App bietet ein personalisiertes " +
+        "Trainingsprogramm mit Übungen, Entspannungstechniken und Wissenseinheiten."
+)
+
 data class DigaPreviewData(
     val name: String,
     val uiData: UiState<DigaMainScreenUiModel>,
+    val uiBfarmData: UiState<DigaBfarmUiModel>,
     val selectedTap: DigaSegmentedControllerTap
 )

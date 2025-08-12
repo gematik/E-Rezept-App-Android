@@ -28,12 +28,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import de.gematik.ti.erp.app.Requirement
 import de.gematik.ti.erp.app.base.NetworkStatusTracker
-import de.gematik.ti.erp.app.base.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.base.usecase.MarkNavigationTriggerConsumedUseCase
 import de.gematik.ti.erp.app.base.usecase.ObserveNavigationTriggerUseCase
 import de.gematik.ti.erp.app.core.complexAutoSaver
 import de.gematik.ti.erp.app.messages.domain.usecase.GetUnreadMessagesCountUseCase
 import de.gematik.ti.erp.app.prescription.usecase.GetDownloadResourcesDetailStateUseCase
+import de.gematik.ti.erp.app.profiles.presentation.GetActiveProfileController
 import de.gematik.ti.erp.app.profiles.usecase.GetActiveProfileUseCase
 import de.gematik.ti.erp.app.profiles.usecase.model.ProfilesUseCaseData
 import de.gematik.ti.erp.app.settings.usecase.GetOnboardingSucceededUseCase

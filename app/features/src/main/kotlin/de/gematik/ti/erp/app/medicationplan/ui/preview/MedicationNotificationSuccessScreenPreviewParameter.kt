@@ -23,22 +23,17 @@
 package de.gematik.ti.erp.app.medicationplan.ui.preview
 
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
-import de.gematik.ti.erp.app.medicationplan.model.MedicationDosage
-import de.gematik.ti.erp.app.medicationplan.model.MedicationNotification
 import de.gematik.ti.erp.app.medicationplan.model.ProfileWithSchedules
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.PROFILE1
 import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.PROFILE2
-import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE
-import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE
+import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
+import de.gematik.ti.erp.app.medicationplan.ui.preview.mocks.SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED
 import de.gematik.ti.erp.app.profiles.usecase.mapper.toModel
 import de.gematik.ti.erp.app.utils.uistate.UiState
-import kotlinx.datetime.Instant
-import kotlinx.datetime.LocalTime
 
 data class MedicationSuccessScreenPreview(
     val name: String,
-    val state: UiState<List<ProfileWithSchedules>>,
-    val currentTime: Instant = medicationPlanPreviewCurrentTime
+    val state: UiState<List<ProfileWithSchedules>>
 )
 
 class MedicationSuccessScreenPreviewParameter : PreviewParameterProvider<MedicationSuccessScreenPreview> {
@@ -60,7 +55,7 @@ class MedicationSuccessScreenPreviewParameter : PreviewParameterProvider<Medicat
                         ProfileWithSchedules(
                             PROFILE1.toModel(),
                             medicationSchedules = listOf(
-                                SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE
+                                SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
                             )
                         )
                     )
@@ -73,21 +68,14 @@ class MedicationSuccessScreenPreviewParameter : PreviewParameterProvider<Medicat
                         ProfileWithSchedules(
                             PROFILE1.toModel(),
                             medicationSchedules = listOf(
-                                SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE
+                                SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_ENDLESS
                             )
                         ),
                         ProfileWithSchedules(
                             PROFILE2.toModel(),
                             medicationSchedules = listOf(
                                 @Suppress("MagicNumber")
-                                SCANNED_PRESCRIPTION_SCHEDULE_ACTIVE.medicationSchedule.copy(
-                                    notifications = listOf(
-                                        MedicationNotification(
-                                            dosage = MedicationDosage("TAB", "1"),
-                                            time = LocalTime(12, 0)
-                                        )
-                                    )
-                                )
+                                SYNCED_PRESCRIPTION_STRUCTURED_SCHEDULE_ACTIVE_PERSONALIZED
                             )
                         )
                     )

@@ -19,7 +19,7 @@
     },
     {
         "id": "5",
-        "text": "**📲 Wykorzystaj przepisane DiGA** \nTeraz możesz realizować recepty na aplikacje zdrowia cyfrowego (DiGA) bezpośrednio za pośrednictwem aplikacji e-recept. Kod aktywacyjny i link do przepisanego DiGA znajdziesz tutaj, w aplikacji e-recept. \n \n **🏥 Nowa baza danych aptek** \nWprowadziliśmy nową, przyjazną dla przyszłości bazę danych do wyszukiwania aptek.",
+        "text": "**📲 Wykorzystaj przepisane DiGA** \nTeraz możesz realizować recepty na aplikacje zdrowia cyfrowego (DiGA) bezpośrednio za pośrednictwem aplikacji e-recept. Recepty będą wystawiane przez specjalistów w Hamburgu w ramach projektu pilotażowego. Kod aktywacyjny i link do DiGA znajdziesz tutaj, w aplikacji e-recept. \n \n **🏥 Nowa baza danych aptek** \nWprowadziliśmy nową, przyjazną dla przyszłości bazę danych do wyszukiwania aptek.",
         "timestamp": "2025-05-14T08:00:00.000Z",
         "version": "1.30"
     },
@@ -28,5 +28,11 @@
         "text": "**🌐 Nowa funkcja tłumaczenia** \nJeśli korzystasz z aplikacji w innym języku, możesz teraz bezpośrednio tłumaczyć odpowiedzi apteki. \n \n **♿️ Dostępność** \nNasze oświadczenie o dostępności jest teraz dostępne w ustawieniach. Proces wdrażania również stał się bardziej dostępny. \n \n **📲 Realizuj DiGA u firm ubezpieczeniowych** \nRecepty na aplikacje dotyczące zdrowia cyfrowego (DiGA) można teraz realizować również u innych firm ubezpieczeniowych.",
         "timestamp": "2025-06-26T08:00:00.000Z",
         "version": "1.31"
+    },
+    {
+        "id": "7",
+        "text": "**🙌 Rejestracja dla osób ubezpieczonych prywatnie** \nRejestracja dla osób ubezpieczonych prywatnie została zoptymalizowana. Możesz wygodnie zalogować się za pomocą swojego identyfikatora zdrowotnego zaledwie kilkoma kliknięciami. \n \n **⏰ Przypomnienia o lekach** \nMożesz teraz ustawić przypomnienia o zażyciu leków. \n \n **🛒 Ulepszony proces zamawiania** \nProces zamawiania jest teraz prostszy i szybszy. \n \n **♿️ Dostępność** \nNumer dostępu do karty zdrowia można teraz również zeskanować aparatem. \n \n **📲 Więcej informacji o receptach DiGA** \nOd teraz będziesz otrzymywać bardziej szczegółowe informacje o swoich receptach DiGA, takie jak cena sprzedaży lub logo.",
+        "timestamp": "2025-08-06T08:00:00.000Z",
+        "version": "1.32"
     }
 ]

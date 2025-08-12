@@ -22,9 +22,6 @@
 
 package de.gematik.ti.erp.app.fhir.common.model.original
 
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirQuantityErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirRatioErpModel
-import de.gematik.ti.erp.app.fhir.common.model.erp.support.FhirTaskKbvAddressErpModel
 import de.gematik.ti.erp.app.fhir.common.model.original.FhirRatioValue.Companion.toErpModel
 import de.gematik.ti.erp.app.fhir.constant.FhirConstants
 import de.gematik.ti.erp.app.fhir.constant.FhirVersions
@@ -34,6 +31,9 @@ import de.gematik.ti.erp.app.fhir.constant.FhirVersions.TASK_KBV_META_PROFILE_EV
 import de.gematik.ti.erp.app.fhir.constant.SafeJson
 import de.gematik.ti.erp.app.fhir.prescription.model.original.FhirKbvResourceType
 import de.gematik.ti.erp.app.fhir.serializer.SafeFhirAddressLineSerializer
+import de.gematik.ti.erp.app.fhir.support.FhirQuantityErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirRatioErpModel
+import de.gematik.ti.erp.app.fhir.support.FhirTaskKbvAddressErpModel
 import io.github.aakira.napier.Napier
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
